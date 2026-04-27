@@ -341,7 +341,6 @@ class CustomDashboardActions {
                         const {result} = reportCardService.getReportCardResult(rcm.card, ruleInputArray);
                         reportCardResult = getDoVisitFilteredCount(rcm.card, result, reportCardResult);
                     }
-                    General.logDebug('CustomDashboardActions', `Single card count calculation for ${rcm.card.name} took ${new Date() - countCalculationStart} ms`);
                     customDashboardCacheService.updateReportCardResult(state.activeDashboardUUID, rcm.card, reportCardResult);
                     pendingSingleResults.push({card: rcm.card, result: reportCardResult});
                 }
