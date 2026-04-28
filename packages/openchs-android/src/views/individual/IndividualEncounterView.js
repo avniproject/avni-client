@@ -34,7 +34,8 @@ import {Actions as IGHActions} from "../../action/individual/IndividualGeneralHi
 class IndividualEncounterView extends AbstractComponent {
     static propTypes = {
         encounter: PropTypes.object,
-        individualUUID: PropTypes.string
+        individualUUID: PropTypes.string,
+        onSaveCallback: PropTypes.func
     };
 
     constructor(props, context) {
@@ -91,7 +92,8 @@ class IndividualEncounterView extends AbstractComponent {
                     this.state.encounter.isRejectedEntity(),
                     this.state.encounter.latestEntityApprovalStatus,
                     fromSDV,
-                    newState.saveDrafts
+                    newState.saveDrafts,
+                    this.props.onSaveCallback
                 );
             },
             popVerificationVewFunc: () => TypedTransition.from(this).popToBookmark(),

@@ -305,11 +305,11 @@ class CustomDashboardView extends AbstractComponent {
                 this.dispatchAction(Actions.LOAD_INDICATOR, {loading: false});
                 const onSaveCallback = onActionCompletion === ReportCard.onActionCompletionTypes.goToSourceScreen
                     ? (source) => {
-                        General.logDebug('CustomDashboardView', 'onDoVisitAction - save callback: navigating home (goToSourceScreen)');
-                        CHSNavigator.goHome(source);
+                        General.logDebug('CustomDashboardView', 'onDoVisitAction - save callback: navigating back to dashboard (goToSourceScreen)');
+                        CHSNavigator.navigateBackAfterDoVisit(source);
                     }
                     : null;
-                General.logDebug('CustomDashboardView', `onDoVisitAction - onSaveCallback is ${onSaveCallback ? 'custom (goHome)' : 'null (default subject profile)'}`);
+                General.logDebug('CustomDashboardView', `onDoVisitAction - onSaveCallback is ${onSaveCallback ? 'custom (back to dashboard)' : 'null (default subject profile)'}`);
                 CHSNavigator.proceedEncounter(encounter, enrolmentOrIndividual, onSaveCallback, this);
             },
             onDoVisitListResults: (results, reportCard, displayName, onActionCompletion) => {

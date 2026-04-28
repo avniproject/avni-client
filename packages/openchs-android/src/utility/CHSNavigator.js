@@ -203,11 +203,12 @@ class CHSNavigator {
         }
     }
 
-    static navigateToIndividualEncounterLandingView(source, individualUUID, encounter, editing = false, pageNumber) {
+    static navigateToIndividualEncounterLandingView(source, individualUUID, encounter, editing = false, pageNumber, onSaveCallback) {
         const params = {
             encounter: encounter,
             individualUUID: individualUUID,
-            editing
+            editing,
+            onSaveCallback
         };
         TypedTransition.from(source).bookmark().with({
             ...params,
@@ -215,8 +216,8 @@ class CHSNavigator {
         }).to(IndividualEncounterView, true);
     }
 
-    static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action, headerMessage, form, workListState, message, nextScheduledVisits, popVerificationVew, isRejectedEntity, entityApprovalStatus, fromSDV, saveDrafts) {
-        const onSaveCallback = (source) => {
+    static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action, headerMessage, form, workListState, message, nextScheduledVisits, popVerificationVew, isRejectedEntity, entityApprovalStatus, fromSDV, saveDrafts, onSaveCallback) {
+        const defaultOnSaveCallback = (source) => {
             TypedTransition
                 .from(source)
                 .resetStack([SystemRecommendationView, IndividualEncounterView, GenericDashboardView], [
@@ -225,6 +226,7 @@ class CHSNavigator {
                     }, true)
                 ]);
         };
+        onSaveCallback = onSaveCallback || defaultOnSaveCallback;
 
         let onPreviousCallback = undefined;
         if (fromSDV) {
@@ -597,7 +599,7 @@ class CHSNavigator {
             CHSNavigator.navigateToProgramEncounterCancelView(source, encounter, editing, params.pageNumber);
         } else if (encounter instanceof Encounter) {
             CHSNavigator.navigateToIndividualEncounterLandingView(
-                source, params.individualUUID, encounter, editing, params.pageNumber);
+                source, params.individualUUID, encounter, editing, params.pageNumber, params.onSaveCallback);
         } else {
             CHSNavigator.navigateToProgramEncounterView(
                 source, encounter, editing, null, null, null, backFunction, params.onSaveCallback, params.pageNumber);
