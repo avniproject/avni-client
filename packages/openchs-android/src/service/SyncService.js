@@ -735,13 +735,13 @@ class SyncService extends BaseService {
      */
     _enableShallowHydrationIfSqlite() {
         if (this.context.getRepositoryFactory().setShallowHydrationMode(true)) {
-            General.logDebug("SyncService", "SQLite shallow hydration enabled for sync");
+            General.logDebug("SyncService", "SQLite shallow hydration enabled");
         }
     }
 
     _disableShallowHydrationIfSqlite() {
         if (this.context.getRepositoryFactory().setShallowHydrationMode(false)) {
-            General.logDebug("SyncService", "SQLite shallow hydration disabled after sync");
+            General.logDebug("SyncService", "SQLite shallow hydration disabled");
         }
     }
 
