@@ -187,4 +187,39 @@ describe("DrizzleSchemaExport drift detection", () => {
 
         expect(mismatches).toEqual([]);
     });
+
+    it("emits the same set of indexes (name, table, columns) on both sides", () => {
+        // Parse SchemaGenerator's CREATE INDEX statements into "name|table|col1,col2"
+        // keys, then walk DrizzleSchemaExport tables and extract the same shape via
+        // getTableConfig().indexes. Catches the case where ADDITIONAL_INDEXES (or the
+        // FK / voided / EntitySyncStatus rules) gets edited in one file but not the
+        // other.
+        const schemaGenIndexes = new Set();
+        const indexSqlPattern = /^CREATE INDEX IF NOT EXISTS (\w+) ON (\w+)\("([^"]+(?:","[^"]+)*)"\)$/;
+        for (const sql of SchemaGenerator.generateIndexStatements(schemaGenMap)) {
+            const match = sql.match(indexSqlPattern);
+            if (!match) {
+                throw new Error(`Unparseable SchemaGenerator index SQL: ${sql}`);
+            }
+            const [, indexName, tableName, columnList] = match;
+            const cols = columnList.split('","').join(',');
+            schemaGenIndexes.add(`${indexName}|${tableName}|${cols}`);
+        }
+
+        const drizzleIndexes = new Set();
+        for (const [tableName, table] of Object.entries(drizzleTables)) {
+            const config = getTableConfig(table);
+            for (const idx of (config.indexes || [])) {
+                const idxConfig = idx.config || idx;
+                const indexName = idxConfig.name;
+                const colNames = (idxConfig.columns || []).map(c => c.name).join(',');
+                drizzleIndexes.add(`${indexName}|${tableName}|${colNames}`);
+            }
+        }
+
+        const missingInDrizzle = [...schemaGenIndexes].filter(k => !drizzleIndexes.has(k)).sort();
+        const extraInDrizzle = [...drizzleIndexes].filter(k => !schemaGenIndexes.has(k)).sort();
+
+        expect({missingInDrizzle, extraInDrizzle}).toEqual({missingInDrizzle: [], extraInDrizzle: []});
+    });
 });
