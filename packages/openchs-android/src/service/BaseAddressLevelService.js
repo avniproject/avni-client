@@ -40,9 +40,11 @@ class BaseAddressLevelService extends BaseService {
     }
 
     getAllRootParents() {
-        return this.findAll(this.getSchema())
-            .filtered('voided = false and locationMappings.@count == 0')
-            .filtered('TRUEPREDICATE DISTINCT(typeUuid)');
+        return this.repository.query()
+            .nonVoided()
+            .sizeEq('locationMappings', 0)
+            .distinct('typeUuid')
+            .all();
     }
 
     maxLevels() {

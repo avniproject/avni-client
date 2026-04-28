@@ -39,7 +39,7 @@ class ConceptService extends BaseService {
     }
 
     getAllConceptsWithIcon() {
-        return this.repository.getAllNonVoided().filtered('media.@size > 0').map(_.identity);
+        return this.repository.query().nonVoided().sizeGt('media', 0).all().map(_.identity);
     }
 
     addDecisions(observations, decisions) {
