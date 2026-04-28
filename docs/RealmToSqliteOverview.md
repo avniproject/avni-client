@@ -67,6 +67,37 @@ Everything SQLite-specific lives in `packages/openchs-android/src/framework/db/`
 - **FK integrity check.** `PRAGMA foreign_keys = OFF` during migration runs; turned back `ON`, and post-sync `validateForeignKeysForSqlite()` runs `PRAGMA foreign_key_check` and logs any rows whose FK targets are missing.
 - **Count-only dashboard cards.** `MyDashboard` initial card counts use `SELECT COUNT(*)` via `SqliteResultsProxy.count()` rather than hydrating the full results set. Lists are lazy-loaded on tap.
 
+## Hydration Modes & Depths
+
+Hydration is the row → object step `EntityHydrator` performs when a query result is read. Two flags shape how much of the entity graph it materialises:
+
+- **`depth: N`** — number of FK hops to traverse. At depth 0, FK columns resolve to a cached stub (scalars only, no further FK objects) or `null` if not cached; list children are left empty. At depth N, the hydrator recursively hydrates each FK target and list element with `depth: N-1`. Default is 3.
+- **`skipLists: true | false`** — when true, list-typed properties (e.g. `Individual.encounters`, `FormElementGroup.formElements`) are left as `[]` instead of fetched. Independent of `depth`: you can ask for deep FK traversal but no list children, or for shallow FKs with full lists.
+
+Two ways to opt into a non-default hydration:
+
+- **Per query.** `results.withHydration({skipLists: true, depth: 1})` on a `SqliteResultsProxy`. The chained results proxy is still lazy — hydration options apply when rows are read. Used by search and any read path that needs the row but not its subtree.
+- **Process-wide.** `db.setShallowMode(true)` flips the hydrator into a shallow default (`{skipLists: true, depth: 1}`) for *every* hydrate call until turned off. Used during sync because openchs-models' `fromResource` calls `findByKey("uuid", ...)` for each child; without shallow mode every call would batch-preload the parent's full subtree.
+
+### Where each depth is used
+
+| Depth + flag | Used by | Rationale |
+|---|---|---|
+| `depth: 0, skipLists: true` | `EntityHydrator._batchPreloadFkReferences` — the FK-preload step inside batch hydration | Cheap stub for join targets, promoted to richer hydration when the batch loader replaces it. **Footgun:** the depth-0 stub used to win the session-cache lookup against deeper later loads — see Footgun #2 below. |
+| `depth: 1, skipLists: true` | `setShallowMode` default during sync (`EntityHydrator.js:112`); `SqliteProxy.DEFAULT_REFERENCE_CACHE_CONFIGS` (Gender, SubjectType, Program, EncounterType, AddressLevel — `SqliteProxy.js:106-110`); search results (`IndividualService.js:278`); internal lookup paths in `SqliteProxy.js:291,300,449` | Lookup-only — scalars + direct FK ids resolved as stubs, no child lists. The most common shallow shape. |
+| `depth: 1, skipLists: false` | Post-sync ref cache for `ChecklistItemDetail` (`SyncService.js:786`) | Need child list but no further FK traversal. |
+| `depth: 2, skipLists: false` | Post-sync ref cache for `Concept` (`SyncService.js:785`) | Concept → ConceptAnswer → Concept needs two hops to resolve answer concepts. |
+| `depth: 3, skipLists: false` | Default for `SqliteResultsProxy` queries when no `withHydration()` call (`SqliteResultsProxy.js:91`); post-sync ref cache for `Form` (`SyncService.js:787`) | Form → FormElementGroup → FormElement → Concept; full hydration so views render the form complete. |
+
+### Two reference caches
+
+`buildReferenceCache(...)` is invoked twice with different configs:
+
+- **Boot-time:** `SqliteProxy.DEFAULT_REFERENCE_CACHE_CONFIGS` (5 entries, all `depth: 1, skipLists: true`) is applied when the proxy is constructed if the relevant tables are non-empty (`SqliteProxy.js:121`). Covers the small reference entities every code path looks up by uuid (Gender, SubjectType, Program, EncounterType, AddressLevel).
+- **Post-sync:** `SyncService._buildReferenceCacheIfSqlite()` (`SyncService.js:771-790`) extends the cache with a larger, mixed-depth set — adds OrganisationConfig / IndividualRelation* / GroupRole at depth 1, plus the deeper entries (Concept at depth 2, ChecklistItemDetail at depth 1 with lists, Form at depth 3 with lists). Runs *before* `resetServicesAfterFullSyncCompletion` so views that re-read forms after sync see fully populated subtrees instead of depth-0 stubs.
+
+If you add a new schema that's frequently looked up by uuid, decide which list (if either) it joins, and pick the smallest depth that keeps the call sites happy — every hop is an extra round of FK resolution and (when `skipLists: false`) child-list queries.
+
 ## Encryption
 
 `SqliteFactory` asks `EncryptionService.getEncryptionKey()` for the same key that has always backed Realm. Keychain-stored via `react-native-keychain`, converted to a hex string and passed to op-sqlite's SQLCipher config. Key rotation / anonymised-DB flows reuse the existing `EncryptionService.encryptRealm / decryptRealm` code paths.
