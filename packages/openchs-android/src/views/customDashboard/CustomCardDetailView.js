@@ -39,8 +39,7 @@ class CustomCardDetailView extends AbstractComponent {
             }
             const data = _.isPlainObject(ruleResult.data) ? ruleResult.data : {};
             const translations = this.getService(CustomCardConfigService).resolveTranslations(customCardConfig);
-            const body = new Function('data', 'translations', `return \`${template}\``)(data, translations);
-            const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><style>html,body{margin:0;padding:0;font-family:-apple-system,Roboto,sans-serif;color:#222;}</style></head><body>${body}</body></html>`;
+            const html = new Function('data', 'translations', `return \`${template}\``)(data, translations);
             if (this._isMounted) this.setState({html});
         } catch (e) {
             General.logError('CustomCardDetailView', e);
