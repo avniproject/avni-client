@@ -149,7 +149,7 @@ make put_sqlite_db                       # pushes ../db/avni_sqlite.db to the de
 ## Post-Migration Monitoring (first 48 hours)
 
 - [ ] Check Bugsnag for any new errors from this user
-- [ ] Verify sync telemetry shows no FK violations (`foreign_key_check`)
+- [ ] Check Bugsnag for `SyncService::FKIntegrityCheck` events (post-sync `PRAGMA foreign_key_check` violations)
 - [ ] Confirm sync times are comparable to Realm (within 1.2x)
 - [ ] No ANR (Application Not Responding) reports
 
