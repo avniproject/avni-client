@@ -15,6 +15,13 @@
       "when": 1777292036708,
       "tag": "0001_custom_card_config_and_report_card_actions",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1777367952391,
+      "tag": "0002_add_high_value_indexes",
+      "breakpoints": true
     }
   ]
 }

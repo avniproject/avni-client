@@ -49,6 +49,15 @@ const EMBEDDED_SCHEMA_NAMES = new Set([
     "ReportCardResult", "NestedReportCardResult",
 ]);
 
+// Keep in sync with ADDITIONAL_INDEXES in SchemaGenerator.js.
+const ADDITIONAL_INDEXES = {
+    address_level: ["parent_uuid", "type_uuid"],
+    location_hierarchy: ["parent_uuid", "type_uuid"],
+    individual: ["registration_date"],
+    encounter: ["encounter_date_time"],
+    program_enrolment: ["enrolment_date_time"],
+};
+
 function realmTypeToSql(realmType) {
     switch (realmType) {
         case "string": return "TEXT";
@@ -146,6 +155,15 @@ function buildDrizzleTables() {
         // Special index for EntitySyncStatus
         if (schema.name === "EntitySyncStatus" && columnDefs["entity_name"]) {
             indexDefs.push({tableName, colName: "entity_name", indexName: `idx_${tableName}_entity_name`});
+        }
+
+        const additionalCols = ADDITIONAL_INDEXES[tableName];
+        if (additionalCols) {
+            for (const colName of additionalCols) {
+                if (columnDefs[colName]) {
+                    indexDefs.push({tableName, colName, indexName: `idx_${tableName}_${colName}`});
+                }
+            }
         }
 
         tableColumns[tableName] = columnDefs;

@@ -25,6 +25,19 @@ const EMBEDDED_SCHEMA_NAMES = new Set([
     "NestedReportCardResult",
 ]);
 
+// Tables → columns that need an explicit index beyond the auto-generated
+// FK + voided indexes. Used for hierarchy traversal (parent_uuid, type_uuid
+// on address_level / location_hierarchy — declared as plain string columns,
+// not FKs) and for date-range filtering on hot dashboard / sync queries.
+// Keep in sync with the same map in DrizzleSchemaExport.js.
+const ADDITIONAL_INDEXES = {
+    address_level: ["parent_uuid", "type_uuid"],
+    location_hierarchy: ["parent_uuid", "type_uuid"],
+    individual: ["registration_date"],
+    encounter: ["encounter_date_time"],
+    program_enrolment: ["enrolment_date_time"],
+};
+
 class ColumnDef {
     constructor(name, sqlType, isPrimaryKey = false, isOptional = false, defaultValue = undefined, fkTable = null) {
         this.name = name;
@@ -214,6 +227,16 @@ class SchemaGenerator {
 
             if (tableMeta.schemaName === "EntitySyncStatus" && tableMeta.getColumn("entity_name")) {
                 statements.push(`CREATE INDEX IF NOT EXISTS idx_entity_sync_status_entity_name ON entity_sync_status("entity_name")`);
+            }
+
+            const additionalCols = ADDITIONAL_INDEXES[tableMeta.tableName];
+            if (additionalCols) {
+                additionalCols.forEach(colName => {
+                    if (tableMeta.getColumn(colName)) {
+                        const indexName = `idx_${tableMeta.tableName}_${colName}`;
+                        statements.push(`CREATE INDEX IF NOT EXISTS ${indexName} ON ${tableMeta.tableName}("${colName}")`);
+                    }
+                });
             }
         });
 
