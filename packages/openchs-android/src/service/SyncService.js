@@ -714,15 +714,15 @@ class SyncService extends BaseService {
     }
 
     _disableForeignKeysIfSqlite() {
-        if (!this.db.isSqlite) return;
-        this.db._executeRaw("PRAGMA foreign_keys = OFF");
-        General.logDebug("SyncService", "SQLite foreign keys disabled for sync");
+        if (this.context.getRepositoryFactory().setForeignKeysEnabled(false)) {
+            General.logDebug("SyncService", "SQLite foreign keys disabled for sync");
+        }
     }
 
     _enableForeignKeysIfSqlite() {
-        if (!this.db.isSqlite) return;
-        this.db._executeRaw("PRAGMA foreign_keys = ON");
-        General.logDebug("SyncService", "SQLite foreign keys re-enabled after sync");
+        if (this.context.getRepositoryFactory().setForeignKeysEnabled(true)) {
+            General.logDebug("SyncService", "SQLite foreign keys re-enabled after sync");
+        }
     }
 
     /**
@@ -734,15 +734,15 @@ class SyncService extends BaseService {
      * a FK column via bulkCreate), so the deep hydration is wasted work.
      */
     _enableShallowHydrationIfSqlite() {
-        if (!this.db.isSqlite || typeof this.db.setShallowMode !== "function") return;
-        this.db.setShallowMode(true);
-        General.logDebug("SyncService", "SQLite shallow hydration enabled for sync");
+        if (this.context.getRepositoryFactory().setShallowHydrationMode(true)) {
+            General.logDebug("SyncService", "SQLite shallow hydration enabled for sync");
+        }
     }
 
     _disableShallowHydrationIfSqlite() {
-        if (!this.db.isSqlite || typeof this.db.setShallowMode !== "function") return;
-        this.db.setShallowMode(false);
-        General.logDebug("SyncService", "SQLite shallow hydration disabled after sync");
+        if (this.context.getRepositoryFactory().setShallowHydrationMode(false)) {
+            General.logDebug("SyncService", "SQLite shallow hydration disabled after sync");
+        }
     }
 
     /**
@@ -752,9 +752,8 @@ class SyncService extends BaseService {
      * reported via Bugsnag + logs for investigation.
      */
     _checkForeignKeyIntegrityIfSqlite() {
-        if (!this.db.isSqlite) return;
         try {
-            const violations = this.db._executeQuery("PRAGMA foreign_key_check");
+            const violations = this.context.getRepositoryFactory().runForeignKeyCheck();
             if (violations && violations.length > 0) {
                 const summary = violations.slice(0, 10).map(v =>
                     `${v.table}.rowid=${v.rowid}→${v.parent}`
@@ -769,9 +768,6 @@ class SyncService extends BaseService {
     }
 
     _buildReferenceCacheIfSqlite() {
-        if (typeof this.db.buildReferenceCache !== 'function') return;
-
-        const start = Date.now();
         const cacheConfigs = [
             {schemaName: 'Gender', depth: 1, skipLists: true},
             {schemaName: 'SubjectType', depth: 1, skipLists: true},
@@ -787,8 +783,10 @@ class SyncService extends BaseService {
             {schemaName: 'Form', depth: 3, skipLists: false},
         ];
 
-        this.db.buildReferenceCache(cacheConfigs);
-        General.logDebug("Sync", `SQLite reference cache built in ${Date.now() - start} ms`);
+        const start = Date.now();
+        if (this.context.getRepositoryFactory().buildReferenceCache(cacheConfigs)) {
+            General.logDebug("Sync", `SQLite reference cache built in ${Date.now() - start} ms`);
+        }
     }
 
     reset(syncRequired: false) {

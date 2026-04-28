@@ -92,6 +92,10 @@ class RealmRepository extends BaseRepository {
         return _.isEmpty(uuid) ? false : this.findAll().filtered('uuid = $0', uuid).length > 0;
     }
 
+    // Realm objects are live — mutations made inside a write block are already
+    // persisted, so callers don't need to do anything to flush them.
+    persistMutations(_entity) {}
+
     updateDatabase(db) {
         this.db = db;
     }

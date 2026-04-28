@@ -92,6 +92,12 @@ class SqliteRepository extends BaseRepository {
         return _.isEmpty(uuid) ? false : this.findAll().filtered('uuid = $0', uuid).length > 0;
     }
 
+    // SQLite "managed" objects are plain JS copies — mutating them does not
+    // touch the row. Re-upsert so the change actually lands on disk.
+    persistMutations(entity) {
+        return this.db.create(this.schemaName, entity, true);
+    }
+
     updateDatabase(db) {
         this.db = db;
     }

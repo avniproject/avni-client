@@ -66,6 +66,19 @@ class BaseRepository {
     existsByUuid(uuid) {
         throw new Error("existsByUuid() not implemented");
     }
+
+    /**
+     * Re-persist mutations made to a managed entity inside a transaction.
+     *
+     * Realm's live objects auto-persist field assignments and list mutations
+     * inside a write block, so the implementation there is a no-op. SQLite's
+     * "managed" objects are plain JS copies, so any mutation needs an explicit
+     * upsert. Use this where a service mutates a fetched entity in-place and
+     * needs the change to land on disk regardless of backend.
+     */
+    persistMutations(entity) {
+        throw new Error("persistMutations() not implemented");
+    }
 }
 
 export default BaseRepository;

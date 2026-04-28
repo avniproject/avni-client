@@ -39,6 +39,37 @@ class RepositoryFactory {
         return this._transactionManager;
     }
 
+    // -------- Backend-aware database admin --------
+    //
+    // These wrap the SQLite-only db-level operations behind the repository
+    // layer so services don't have to do `if (this.db.isSqlite) this.db._executeRaw(...)`
+    // themselves. Each one is a no-op on Realm and returns false; on SQLite
+    // they invoke the corresponding op-sqlite call and return true so the
+    // caller can log conditionally.
+
+    setForeignKeysEnabled(enabled) {
+        if (!this._isSqlite) return false;
+        this.db._executeRaw(`PRAGMA foreign_keys = ${enabled ? "ON" : "OFF"}`);
+        return true;
+    }
+
+    runForeignKeyCheck() {
+        if (!this._isSqlite) return [];
+        return this.db._executeQuery("PRAGMA foreign_key_check") || [];
+    }
+
+    setShallowHydrationMode(enabled) {
+        if (!this._isSqlite || typeof this.db.setShallowMode !== "function") return false;
+        this.db.setShallowMode(enabled);
+        return true;
+    }
+
+    buildReferenceCache(cacheConfigs) {
+        if (!this._isSqlite || typeof this.db.buildReferenceCache !== "function") return false;
+        this.db.buildReferenceCache(cacheConfigs);
+        return true;
+    }
+
     updateDatabase(db) {
         const wasSqlite = this._isSqlite;
         this.db = db;

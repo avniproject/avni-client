@@ -205,9 +205,7 @@ class CustomDashboardCacheService extends BaseService {
             }
 
             dashboardCache.updatedAt = new Date();
-            if (this.db.isSqlite) {
-                this.repository.create(dashboardCache, true);
-            }
+            this.repository.persistMutations(dashboardCache);
         });
     }
 
@@ -224,11 +222,7 @@ class CustomDashboardCacheService extends BaseService {
                 dashboardCache.nestedReportCardResults.push(nestedReportCardResult);
             });
             dashboardCache.updatedAt = new Date();
-            // Realm persists list mutations on live objects automatically;
-            // SQLite requires an explicit save since objects are plain JS copies.
-            if (this.db.isSqlite) {
-                this.repository.create(dashboardCache, true);
-            }
+            this.repository.persistMutations(dashboardCache);
         });
     }
 
@@ -243,9 +237,7 @@ class CustomDashboardCacheService extends BaseService {
             reportCardResult.reportCard = reportCard.uuid;
             dashboardCache.reportCardResults.push(reportCardResult);
             dashboardCache.updatedAt = new Date();
-            if (this.db.isSqlite) {
-                this.repository.create(dashboardCache, true);
-            }
+            this.repository.persistMutations(dashboardCache);
         });
     }
 }
