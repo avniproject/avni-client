@@ -9,16 +9,15 @@
  */
 
 import {EntityMappingConfig} from 'openchs-models';
-import {SchemaGenerator} from '../../src/framework/db/SchemaGenerator';
-import SqliteProxy from '../../src/framework/db/SqliteProxy';
-
-const nodeSqliteAdapter = require('../helpers/nodeSqliteAdapter');
+import {SchemaGenerator} from '../../../src/framework/db/SchemaGenerator';
+import SqliteProxy from '../../../src/framework/db/SqliteProxy';
+import {open} from '@op-engineering/op-sqlite';
 
 describe('Post-sync Form hydration completeness', () => {
     let rawDb, proxy;
 
     beforeAll(() => {
-        rawDb = nodeSqliteAdapter.open({name: `sync_reset_order_${Date.now()}.db`});
+        rawDb = open({name: `sync_reset_order_${Date.now()}.db`});
         const entityMappingConfig = EntityMappingConfig.getInstance();
         const tableMetaMap = SchemaGenerator.generateAll(entityMappingConfig);
         const realmSchemaMap = SchemaGenerator.buildRealmSchemaMap(entityMappingConfig);

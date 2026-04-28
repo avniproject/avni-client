@@ -12,19 +12,45 @@
     "url": "https://github.com/OpenCHS/openchs-client.git"
   },
   "jest": {
-    "moduleNameMapper": {
-      "^avni-models$": "<rootDir>/node_modules/openchs-models",
-      "^@op-engineering/op-sqlite$": "<rootDir>/test/__mocks__/op-sqlite.js"
-    },
-    "preset": "react-native",
-    "testMatch": [
-      "<rootDir>/test/**/*Test.js"
-    ],
-    "transformIgnorePatterns": [
-      "!<rootDir>\\/node_modules\\/react-native-i18n/"
-    ],
-    "setupFiles": [
-      "<rootDir>/test/jestSetupFile.js"
+    "projects": [
+      {
+        "displayName": "unit",
+        "preset": "react-native",
+        "moduleNameMapper": {
+          "^avni-models$": "<rootDir>/node_modules/openchs-models",
+          "^@op-engineering/op-sqlite$": "<rootDir>/test/__mocks__/op-sqlite.js"
+        },
+        "testMatch": [
+          "<rootDir>/test/**/*Test.js"
+        ],
+        "testPathIgnorePatterns": [
+          "/node_modules/",
+          "<rootDir>/test/integration/"
+        ],
+        "transformIgnorePatterns": [
+          "!<rootDir>\\/node_modules\\/react-native-i18n/"
+        ],
+        "setupFiles": [
+          "<rootDir>/test/jestSetupFile.js"
+        ]
+      },
+      {
+        "displayName": "integration",
+        "preset": "react-native",
+        "moduleNameMapper": {
+          "^avni-models$": "<rootDir>/node_modules/openchs-models",
+          "^@op-engineering/op-sqlite$": "<rootDir>/test/helpers/nodeSqliteAdapter.js"
+        },
+        "testMatch": [
+          "<rootDir>/test/integration/**/*Test.js"
+        ],
+        "transformIgnorePatterns": [
+          "!<rootDir>\\/node_modules\\/react-native-i18n/"
+        ],
+        "setupFiles": [
+          "<rootDir>/test/jestSetupFile.js"
+        ]
+      }
     ]
   },
   "license": "AGPL-3.0",

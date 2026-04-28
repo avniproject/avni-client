@@ -8,10 +8,9 @@
  */
 
 import {EntityMappingConfig} from 'openchs-models';
-import SchemaGenerator from '../../src/framework/db/SchemaGenerator';
-import SqliteProxy from '../../src/framework/db/SqliteProxy';
-
-const nodeSqliteAdapter = require('../helpers/nodeSqliteAdapter');
+import SchemaGenerator from '../../../src/framework/db/SchemaGenerator';
+import SqliteProxy from '../../../src/framework/db/SqliteProxy';
+import {open} from '@op-engineering/op-sqlite';
 
 const PAGE_SIZE = 1000;
 const TOTAL_PROGRAM_ENCOUNTERS = 10000;
@@ -25,7 +24,7 @@ function uuid() {
 }
 
 function createDbWithTables(withIndexes) {
-    const rawDb = nodeSqliteAdapter.open({name: `sync_bench_${Date.now()}_${withIndexes ? 'idx' : 'noidx'}.db`});
+    const rawDb = open({name: `sync_bench_${Date.now()}_${withIndexes ? 'idx' : 'noidx'}.db`});
     const entityMappingConfig = EntityMappingConfig.getInstance();
     const tableMetaMap = SchemaGenerator.generateAll(entityMappingConfig);
     const realmSchemaMap = SchemaGenerator.buildRealmSchemaMap(entityMappingConfig);

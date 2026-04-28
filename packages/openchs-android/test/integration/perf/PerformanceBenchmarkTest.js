@@ -9,12 +9,10 @@
  */
 
 import {EntityMappingConfig} from 'openchs-models';
-import SchemaGenerator from '../../src/framework/db/SchemaGenerator';
-import SqliteProxy from '../../src/framework/db/SqliteProxy';
+import SchemaGenerator from '../../../src/framework/db/SchemaGenerator';
+import SqliteProxy from '../../../src/framework/db/SqliteProxy';
 import _ from 'lodash';
-
-// Use real SQLite via better-sqlite3 adapter (not the op-sqlite mock)
-const nodeSqliteAdapter = require('../helpers/nodeSqliteAdapter');
+import {open} from '@op-engineering/op-sqlite';
 
 // ── Test configuration ──
 const SEED = {
@@ -72,7 +70,7 @@ describe('Performance Benchmark (synthetic data)', () => {
 
     beforeAll(() => {
         // 1. Open real SQLite database
-        rawDb = nodeSqliteAdapter.open({name: `perf_bench_${Date.now()}.db`});
+        rawDb = open({name: `perf_bench_${Date.now()}.db`});
 
         // 2. Generate table schemas from Realm config
         const entityMappingConfig = EntityMappingConfig.getInstance();

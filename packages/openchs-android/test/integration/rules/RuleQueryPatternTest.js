@@ -9,11 +9,10 @@
  */
 
 import {EntityMappingConfig} from 'openchs-models';
-import SchemaGenerator from '../../src/framework/db/SchemaGenerator';
-import SqliteProxy from '../../src/framework/db/SqliteProxy';
+import SchemaGenerator from '../../../src/framework/db/SchemaGenerator';
+import SqliteProxy from '../../../src/framework/db/SqliteProxy';
 import _ from 'lodash';
-
-const nodeSqliteAdapter = require('../helpers/nodeSqliteAdapter');
+import {open} from '@op-engineering/op-sqlite';
 
 function uuid() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
@@ -27,7 +26,7 @@ describe('Rule Query Patterns on SQLite', () => {
     const uuids = {};
 
     beforeAll(() => {
-        rawDb = nodeSqliteAdapter.open({name: `rule_patterns_${Date.now()}.db`});
+        rawDb = open({name: `rule_patterns_${Date.now()}.db`});
         const entityMappingConfig = EntityMappingConfig.getInstance();
         const tableMetaMap = SchemaGenerator.generateAll(entityMappingConfig);
         const realmSchemaMap = SchemaGenerator.buildRealmSchemaMap(entityMappingConfig);
