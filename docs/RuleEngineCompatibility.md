@@ -34,9 +34,13 @@ These patterns are recognised by the parser and routed to a JavaScript post-filt
 | SUBQUERY | `.filtered('SUBQUERY(enrolments, $enrolment, ...).@count > 0')` | Hydrates all matching rows, filters in JS |
 | Nested SUBQUERY | `SUBQUERY($enrolment.encounters, $encounter, ...).@count > 0` | Same — works at any nesting depth |
 | TRUEPREDICATE DISTINCT | `.filtered('TRUEPREDICATE DISTINCT(field)')` | Post-hydration deduplication |
-| @count / @size | `.filtered('listProp.@count > 0')` | Collection size check in JS |
+| @count / @size | `.filtered('listProp.@count > 0')` | Collection size check in JS. Any comparison operator works (`=`, `==`, `!=`, `<>`, `<`, `>`, `<=`, `>=`). |
 | ANY | `.filtered('ANY listProp.field = value')` | Quantifier over list |
-| @links.@count | `.filtered('@links.@count > 0')` | Inverse relationship count |
+| `limit(N)` | `.filtered('voided = false limit(50)')` | Inline result slicing applied after the other fallback filters |
+
+**Not supported — `@links.@count`.** The inverse-relationship count operator (`.filtered('@links.@count > 0')`) has no SQLite implementation. `JsFallbackFilterEvaluator` detects the pattern, logs a warning, and returns an empty result set. The only existing call site is `MetricsService.getDanglingCount`, which is dead code. If you need this in a rule, restructure the query as a forward-relationship `SUBQUERY(...).@count > 0` on the parent side, or use the SQL fast path described in [`RuleSqlMigrationGuide.md`](./RuleSqlMigrationGuide.md).
+
+When a rule's JS-fallback path is hot enough to matter, prefer the `params.db.exec*` SQL fast path documented in [`RuleSqlMigrationGuide.md`](./RuleSqlMigrationGuide.md) — the count + line-list pattern collapses minutes of hydration into milliseconds for count-only cards.
 
 ### JS Post-Filter on Results (Common in Rules)
 
