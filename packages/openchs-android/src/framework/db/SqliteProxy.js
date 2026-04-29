@@ -100,6 +100,23 @@ class SqliteProxy {
         }
     }
 
+    /**
+     * Returns the most-recent applied drizzle migration as { idx, tag } —
+     * or null if the schema_version table is empty / missing. Used by the
+     * About screen to surface "what migration is this DB on?".
+     */
+    getCurrentMigration() {
+        try {
+            const rows = this._executeQuery(
+                "SELECT version, tag FROM schema_version ORDER BY version DESC LIMIT 1"
+            );
+            if (rows.length === 0) return null;
+            return {idx: rows[0].version, tag: rows[0].tag};
+        } catch (e) {
+            return null;
+        }
+    }
+
     // ──── RealmProxy contract ────
 
     static DEFAULT_REFERENCE_CACHE_CONFIGS = [
