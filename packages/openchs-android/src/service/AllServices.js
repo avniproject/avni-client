@@ -133,6 +133,8 @@ import './CallService';
 import './EncryptionService';
 import './ExtensionService';
 import './CustomCardConfigService';
+import './PDFGenerationService';
+import './FormPDFService';
 import './GlificService';
 import './MetricsService';
 import './PhoneVerificationService';

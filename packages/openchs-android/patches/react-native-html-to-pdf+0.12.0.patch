@@ -1,0 +1,61 @@
+diff --git a/node_modules/react-native-html-to-pdf/android/build.gradle b/node_modules/react-native-html-to-pdf/android/build.gradle
+index 996ad11..829fa6a 100644
+--- a/node_modules/react-native-html-to-pdf/android/build.gradle
++++ b/node_modules/react-native-html-to-pdf/android/build.gradle
+@@ -1,38 +1,26 @@
+-
+-buildscript {
+-    repositories {
+-        google()
+-        mavenCentral()
+-    }
+-    dependencies {
+-        classpath 'com.android.tools.build:gradle:3.3.1'
+-
+-        // NOTE: Do not place your application dependencies here; they belong
+-        // in the individual module build.gradle files
+-    }
+-}
++apply plugin: 'com.android.library'
+
+ def safeExtGet(prop, fallback) {
+     rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+ }
+
+-apply plugin: 'com.android.library'
+-
+ android {
+-     compileSdkVersion safeExtGet('compileSdkVersion', 28)
+-     compileOptions {
++    compileSdkVersion safeExtGet('compileSdkVersion', 28)
++    buildToolsVersion safeExtGet('buildToolsVersion', '28.0.3')
++    namespace 'com.christopherdro.htmltopdf'
++    compileOptions {
+         sourceCompatibility JavaVersion.VERSION_1_8
+         targetCompatibility JavaVersion.VERSION_1_8
+     }
+
+     defaultConfig {
+-        minSdkVersion safeExtGet('minSdkVersion', 16)
++        minSdkVersion safeExtGet('minSdkVersion', 24)
+         targetSdkVersion safeExtGet('targetSdkVersion', 28)
+         versionCode 1
+         versionName "1.0"
+-        ndk {
+-            abiFilters "armeabi-v7a", "x86"
+-        }
++    }
++    lintOptions {
++        abortOnError false
+     }
+ }
+
+diff --git a/node_modules/react-native-html-to-pdf/android/src/main/AndroidManifest.xml b/node_modules/react-native-html-to-pdf/android/src/main/AndroidManifest.xml
+index c739e60..a2f47b6 100644
+--- a/node_modules/react-native-html-to-pdf/android/src/main/AndroidManifest.xml
++++ b/node_modules/react-native-html-to-pdf/android/src/main/AndroidManifest.xml
+@@ -1,3 +1,2 @@
+-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-          package="com.christopherdro.htmltopdf">
++<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+ </manifest>

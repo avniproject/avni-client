@@ -90,10 +90,13 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
     renderCompletedVisits() {
         const actualEncounters = _.filter(this.state.encounters, ({encounter}) => encounter.encounterDateTime || encounter.cancelDateTime);
         const visitEditCriteria = `privilege.name = '${Privilege.privilegeName.editVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND programUuid = null AND subjectTypeUuid = '${this.state.individual.subjectType.uuid}'`;
+        const visitShareCriteria = `privilege.name = '${Privilege.privilegeName.shareEncounter}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND programUuid = null AND subjectTypeUuid = '${this.state.individual.subjectType.uuid}'`;
         const allowedEncounterTypeUuidsForEditVisit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(visitEditCriteria, 'encounterTypeUuid');
+        const allowedEncounterTypeUuidsForShareEncounter = this.privilegeService.allowedEntityTypeUUIDListForCriteria(visitShareCriteria, 'encounterTypeUuid');
 
         return (<PreviousEncounters encounters={actualEncounters}
                                     allowedEncounterTypeUuidsForEditVisit={allowedEncounterTypeUuidsForEditVisit}
+                                    allowedEncounterTypeUuidsForShareEncounter={allowedEncounterTypeUuidsForShareEncounter}
                                     formType={Form.formTypes.Encounter}
                                     cancelFormType={Form.formTypes.IndividualEncounterCancellation}
                                     style={{marginBottom: 21}}
