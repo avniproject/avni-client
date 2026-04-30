@@ -131,6 +131,7 @@ import './PerformanceBenchmarkService';
 
 // Other services
 import './AnonymizeRealmService';
+import './AppInfoUploadService';
 import './BackupRestoreRealmService'; // Note: File named BackupRestoreRealmService.js, class is BackupRestoreRealmService
 import './BeneficiaryModePinService';
 import './CallService';
