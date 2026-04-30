@@ -37,7 +37,11 @@ class CustomCardDetailView extends AbstractComponent {
                 if (this._isMounted) this.setState({error: ruleResult.errorMsg || 'Data rule failed'});
                 return;
             }
-            const data = _.isPlainObject(ruleResult.data) ? ruleResult.data : {};
+            // Rule may return either `data` (eager — plain object, array, or Realm result) or `deferredDataFunction` (invoked here, for heavy compute). `data` wins when both are present.
+            const eagerData = ruleResult.data;
+            const data = (eagerData != null && typeof eagerData === 'object')
+                ? eagerData
+                : (_.isFunction(ruleResult.deferredDataFunction) ? ruleResult.deferredDataFunction() : {});
             const translations = this.getService(CustomCardConfigService).resolveTranslations(customCardConfig);
             const html = new Function('data', 'translations', `return \`${template}\``)(data, translations);
             if (this._isMounted) this.setState({html});
