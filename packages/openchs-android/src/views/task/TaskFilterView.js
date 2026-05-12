@@ -44,7 +44,7 @@ const TaskMetadataFilter = function ({taskMetadataFields, taskMetadataValues, di
                                onChangeText={(text) => dispatch(Actions.ON_METADATA_VALUE_CHANGE, {concept: c, value: text})}/>
                 </View>;
             case Concept.dataType.Coded:
-                const conceptAnswers = c.getAnswers();
+                const conceptAnswers = c.getAnswers().filter(ca => !ca.concept.voided);
                 return <SelectableItemGroup
                                     locale={currentLocale}
                                     I18n={I18n}
