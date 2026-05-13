@@ -24,3 +24,23 @@
 -keep class com.facebook.hermes.unicode.** { *; }
 -keep class com.facebook.jni.** { *; }
 -keepnames public class com.openchsclient.TamperCheckPackage implements com.facebook.react.ReactPackage
+
+# ── Edge-model (PyTorch Mobile) ────────────────────────────────────────────────────
+# libpytorch_jni.so resolves Java class + method references by name through JNI.
+# If R8 renames any of these, calls into Module.forward / Tensor.fromBlob throw
+# NoSuchMethodError / NoClassDefFoundError at inference time. Debug works because
+# R8 is disabled there. See ~/.claude/plans/composed-tumbling-bachman.md.
+-keep class org.pytorch.** { *; }
+-keepclassmembers class org.pytorch.** { *; }
+-keep class com.facebook.fbjni.** { *; }
+-keepclassmembers class com.facebook.fbjni.** { *; }
+
+# Our own native bridge + plugin registries — looked up by string name in
+# Preprocessors.REGISTRY / Decoders.REGISTRY at runtime. Keep classes and members
+# so the Kotlin object singletons survive R8 and JNI metadata stays intact.
+-keep class com.openchsclient.EdgeModelModule { *; }
+-keep class com.openchsclient.ModelContract { *; }
+-keep class com.openchsclient.ModelContract$Companion { *; }
+-keep class com.openchsclient.engine.** { *; }
+-keep class com.openchsclient.preprocessing.** { *; }
+-keep class com.openchsclient.decoding.** { *; }

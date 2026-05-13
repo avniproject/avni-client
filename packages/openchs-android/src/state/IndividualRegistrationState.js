@@ -132,8 +132,8 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         return await ruleService.validateAgainstRuleAsync(this.individual, this.formElementGroup.form, 'Individual', this.getEntityContext());
     }
 
-    executeRule(ruleService, context) {
-        let decisions = ruleService.getDecisions(this.individual, 'Individual', {}, this.getEntityContext());
+    async executeRule(ruleService, context) {
+        let decisions = await ruleService.getDecisions(this.individual, 'Individual', {}, this.getEntityContext());
         context.get(ConceptService).addDecisions(this.individual.observations, decisions.registrationDecisions);
 
         return decisions;

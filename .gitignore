@@ -99,3 +99,19 @@ packages/openchs-android/index.android.bundle.map
 packages/openchs-android/.jso/
 /packages/openchs-android/metro.config.js
 /fillLogin.sh
+
+# Edge-model build artefacts — produced per-build by tools/edge-model/encrypt-model.js
+# on the partner's developer machine. Never committed: contains AES key + encrypted blob,
+# plus any plaintext model dropped into source/.
+tools/edge-model/source/*
+!tools/edge-model/source/.gitkeep
+packages/openchs-android/android/app/src/tanuh/assets/models/*
+!packages/openchs-android/android/app/src/tanuh/assets/models/.gitkeep
+
+# TANUH release keystore — never committed.
+tanuh-release-key.keystore
+
+# bundletool jar + bundletool output, downloaded/produced by `make tanuh-universal-apk`.
+bundletool.jar
+tanuh-universal.apks
+tanuh-universal.apk

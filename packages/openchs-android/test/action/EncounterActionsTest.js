@@ -260,7 +260,7 @@ describe('EncounterActionsTest', () => {
         verifyFormElementAndObservations(newState, 0, 1);
     });
 
-    it('next on second view should be allowed without filling non-mandatory form element', () => {
+    it('next on second view should be allowed without filling non-mandatory form element', async () => {
         const {state, formElement, formElement2} = createIntialState(Concept.dataType.Numeric, true, false);
 
         var newState = ObservationsHolderActions.onPrimitiveObsUpdateValue(state, {
@@ -272,6 +272,8 @@ describe('EncounterActionsTest', () => {
 
         action = WizardNextActionStub.forCompleted();
         newState = EncounterActions.onNext(newState, action, testContext);
+        // Last-page path fires handleNextAsync in background; flush the microtask queue before asserting
+        await new Promise(resolve => setImmediate(resolve));
         action.assert();
     });
 

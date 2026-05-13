@@ -12,6 +12,7 @@ import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
 import QuickFormEditingActions from "../common/QuickFormEditingActions";
 import IndividualService from "../../service/IndividualService";
+import {dispatchHandleNext} from "../common/DispatchHelpers";
 
 class ProgramEncounterCancelActions {
     static getInitialState() {
@@ -67,7 +68,7 @@ class ProgramEncounterCancelActions {
     }
 
     static onNext(state, action, context) {
-        return state.clone().handleNext(action, context);
+        return dispatchHandleNext(state.clone(), action, context, 'ProgramEncounterCancelActions.onNext');
     }
 
     static onSummaryPage(state, action, context) {

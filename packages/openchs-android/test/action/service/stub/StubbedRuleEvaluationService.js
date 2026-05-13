@@ -7,6 +7,10 @@ class StubbedRuleEvaluationService {
         return [ValidationResult.successful('whatever')];
     }
 
+    async validateAgainstRuleAsync(entity) {
+        return [ValidationResult.successful('whatever')];
+    }
+
     getDecisions() {
         return [];
     }

@@ -6,6 +6,7 @@ import FamilyRegistrationState from "../../state/FamilyRegistrationState";
 import Wizard from "../../state/Wizard";
 import _ from "lodash";
 import AddressLevelService from "../../service/AddressLevelService";
+import {dispatchHandleNext} from "../common/DispatchHelpers";
 
 export class FamilyRegisterActions {
     static getInitialState(context) {
@@ -57,7 +58,7 @@ export class FamilyRegisterActions {
     }
 
     static onNext(state, action, context) {
-        return state.clone().handleNext(action, context);
+        return dispatchHandleNext(state.clone(), action, context, 'FamilyRegisterActions.onNext');
     }
 
     static onPrevious(state, action, context) {
