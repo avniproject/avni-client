@@ -119,7 +119,7 @@ class ObservationBasedFilterView extends AbstractComponent {
     renderCodedConceptFilter() {
         const {filter, observationBasedFilter, value} = this.props;
         const locale = this.getService(UserInfoService).getUserSettings().locale;
-        const conceptAnswers = observationBasedFilter.concept.getAnswers();
+        const conceptAnswers = observationBasedFilter.concept.getAnswers().filter(ca => !ca.concept.voided);
         const selectedConcepts = _.isNil(value) ? [] : value.map(c => c.name);
         const optsFnMap = conceptAnswers.reduce((conceptMap, conceptAnswers) => conceptMap.set(conceptAnswers.concept.name, conceptAnswers), new Map());
         const filterModel = new MultiSelectFilterModel(filter.name, optsFnMap, new Map(), selectedConcepts).selectOption(selectedConcepts);

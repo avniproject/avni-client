@@ -26,6 +26,7 @@ import MediaService from "./MediaService";
 import NewsService from "./news/NewsService";
 import ExtensionService from "./ExtensionService";
 import CustomCardConfigService from "./CustomCardConfigService";
+import FormShareTemplateService from "./FormShareTemplateService";
 import ConceptService from "./ConceptService";
 import EncryptionService from "./EncryptionService";
 import SubjectTypeService from "./SubjectTypeService";
@@ -95,6 +96,7 @@ class SyncService extends BaseService {
         this.newsService = this.getService(NewsService);
         this.extensionService = this.getService(ExtensionService);
         this.customCardConfigService = this.getService(CustomCardConfigService);
+        this.formShareTemplateService = this.getService(FormShareTemplateService);
         this.subjectTypeService = this.getService(SubjectTypeService);
         this.metricsService = this.getService(MetricsService);
         this.syncLock = undefined;
@@ -272,6 +274,7 @@ class SyncService extends BaseService {
             .then(() => this.downloadNewsImages())
             .then(() => this.downloadExtensions())
             .then(() => this.downloadCustomCardHtmlFiles())
+            .then(() => this.downloadFormShareTemplates())
             .then(() => this.downloadIcons())
     }
 
@@ -281,6 +284,10 @@ class SyncService extends BaseService {
 
     downloadCustomCardHtmlFiles() {
         this.customCardConfigService.downloadHtmlFiles();
+    }
+
+    downloadFormShareTemplates() {
+        this.formShareTemplateService.downloadHtmlFiles();
     }
 
     downloadNewsImages() {

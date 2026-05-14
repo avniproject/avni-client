@@ -38,6 +38,7 @@ export default class FileSystem {
                         .then(() => FileSystem.mkdir(FileSystem.getNewsDir(), 'news'))
                         .then(() => FileSystem.mkdir(FileSystem.getExtensionsDir(), 'extensions'))
                         .then(() => FileSystem.mkdir(FileSystem.getCustomCardConfigsDir(), 'customcardconfigs'))
+                        .then(() => FileSystem.mkdir(FileSystem.getFormShareTemplatesDir(), 'formsharetemplates'))
                         .then(() => FileSystem.mkdir(FileSystem.getFileDir(), 'file'))
                         .then(() => FileSystem.mkdir(FileSystem.getIconsDir(), 'icons'))
                         .then(() => FileSystem.mkdir(FileSystem.getMetadataDir(), 'metadata'))
@@ -94,6 +95,10 @@ export default class FileSystem {
 
     static getCustomCardConfigsDir() {
         return `${fs.ExternalDirectoryPath}/Avni/customcardconfigs`;
+    }
+
+    static getFormShareTemplatesDir() {
+        return `${fs.ExternalDirectoryPath}/Avni/formsharetemplates`;
     }
 
     static getIconsDir() {

@@ -275,7 +275,7 @@ class CustomFilters extends AbstractComponent {
 
     codedConceptFilter(concept, filter, idx) {
         const locale = this.getService(UserInfoService).getUserSettings().locale;
-        const conceptAnswers = concept.getAnswers();
+        const conceptAnswers = concept.getAnswers().filter(ca => !ca.concept.voided);
         const selectedOne = this.state.selectedCustomFilters[filter.titleKey].map(c => c.name);
         const optsFnMap = conceptAnswers.reduce((conceptMap, conceptAnswers) => conceptMap.set(conceptAnswers.concept.name, conceptAnswers), new Map());
         const filterModel = new MultiSelectFilterModel(filter.titleKey, optsFnMap, new Map(), selectedOne).selectOption(selectedOne);

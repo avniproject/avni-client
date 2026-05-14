@@ -253,6 +253,22 @@ class RuleEvaluationService extends BaseService {
         return workLists;
     }
 
+    runShareRule(form, entity, entityName) {
+        if (_.isNil(form) || !form.hasShareRule || !form.hasShareRule()) return {};
+        try {
+            const ruleFunc = eval(form.shareRule);
+            const result = ruleFunc({
+                params: _.merge({entity, form}, this.getCommonParams()),
+                imports: getImports(this.globalRuleFunction)
+            });
+            return _.isPlainObject(result) ? result : {};
+        } catch (e) {
+            General.logDebug("Rule-Failure", `ShareRule failed: ${JSONStringify(e)}`);
+            this.saveFailedRules(e, form.uuid, this.getIndividualUUID(entity, entityName), 'Share', form.uuid, entityName, entity.uuid);
+            return {};
+        }
+    }
+
     runEditFormRule(form, entity, entityName) {
         if (_.isEmpty(form.editFormRule)) {
             return ActionEligibilityResponse.createAllowedResponse();
