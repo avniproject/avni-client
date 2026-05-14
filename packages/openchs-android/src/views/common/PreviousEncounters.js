@@ -24,6 +24,8 @@ import PrivilegeService from '../../service/PrivilegeService';
 import ListViewHelper from '../../utility/ListViewHelper';
 import UserInfoService from "../../service/UserInfoService";
 import FormPDFService from "../../service/FormPDFService";
+import FormShareService from "../../service/FormShareService";
+import FormShareActionSheet from "./FormShareActionSheet";
 
 class PreviousEncounters extends AbstractComponent {
     static propTypes = {
@@ -52,6 +54,25 @@ class PreviousEncounters extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
         this.privilegeService = context.getService(PrivilegeService);
+        this.state = {shareSheetVisible: false, shareTargetEncounter: null};
+    }
+
+    _openShareSheet(encounter) {
+        this.setState({shareSheetVisible: true, shareTargetEncounter: encounter});
+    }
+
+    _closeShareSheet() {
+        this.setState({shareSheetVisible: false, shareTargetEncounter: null});
+    }
+
+    _shareEncounterAs(format) {
+        const encounter = this.state.shareTargetEncounter;
+        if (!encounter) return;
+        this.getService(FormShareService).shareEncounterForm(
+            encounter,
+            {formType: this.props.formType, cancelFormType: this.props.cancelFormType},
+            format,
+        );
     }
 
     editEncounter(encounter) {
@@ -112,10 +133,7 @@ class PreviousEncounters extends AbstractComponent {
 
         const actions = this.isEditAllowed(encounter) ? [new ContextAction('edit', () => this.editEncounter(encounter))] : [];
         if (!encounter.isScheduled() && this.hasSharePrivilege(encounter)) {
-            actions.push(new ContextAction('share', () => this.getService(FormPDFService).shareEncounterForm(
-                encounter,
-                {formType: this.props.formType, cancelFormType: this.props.cancelFormType}
-            )));
+            actions.push(new ContextAction('share', () => this._openShareSheet(encounter)));
         }
         return actions;
     }
@@ -292,6 +310,13 @@ class PreviousEncounters extends AbstractComponent {
         return (
             <View>
                 {renderable}
+                <FormShareActionSheet
+                    visible={this.state.shareSheetVisible}
+                    onClose={() => this._closeShareSheet()}
+                    onSharePdf={() => this._shareEncounterAs("pdf")}
+                    onShareText={() => this._shareEncounterAs("text")}
+                    I18n={this.I18n}
+                />
             </View>
         );
     }

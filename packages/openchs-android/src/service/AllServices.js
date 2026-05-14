@@ -135,6 +135,8 @@ import './ExtensionService';
 import './CustomCardConfigService';
 import './PDFGenerationService';
 import './FormPDFService';
+import './FormShareService';
+import './FormShareTemplateService';
 import './GlificService';
 import './MetricsService';
 import './PhoneVerificationService';

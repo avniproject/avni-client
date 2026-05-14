@@ -30,6 +30,8 @@ import AvniToast from "../common/AvniToast";
 import {SubjectType} from "openchs-models";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import FormPDFService from "../../service/FormPDFService";
+import FormShareService from "../../service/FormShareService";
+import FormShareActionSheet from "../common/FormShareActionSheet";
 
 class SubjectDashboardProgramsTab extends AbstractComponent {
     static propTypes = {
@@ -144,8 +146,13 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
         const actions = hasEditPrivilege ?
             [new ContextAction('edit', () => isExit ? this.editExit() : this.editEnrolment())] : [];
         if (hasSharePrivilege)
-            actions.push(new ContextAction('share', () => this.getService(FormPDFService).shareEnrolmentForm(this.state.enrolment, {isExit})));
+            actions.push(new ContextAction('share', () => this.setState({_shareSheetOpen: true, _shareIsExit: isExit})));
         return actions;
+    }
+
+    _shareEnrolmentAs(format) {
+        const isExit = !!this.state._shareIsExit;
+        this.getService(FormShareService).shareEnrolmentForm(this.state.enrolment, {isExit}, format);
     }
 
     joinProgram() {
@@ -391,6 +398,13 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
                     )}
                 </ScrollView>
                 <Separator height={110} backgroundColor={Colors.WhiteContentBackground}/>
+                <FormShareActionSheet
+                    visible={!!this.state._shareSheetOpen}
+                    onClose={() => this.setState({_shareSheetOpen: false})}
+                    onSharePdf={() => this._shareEnrolmentAs("pdf")}
+                    onShareText={() => this._shareEnrolmentAs("text")}
+                    I18n={this.I18n}
+                />
             </View>
         );
     }
