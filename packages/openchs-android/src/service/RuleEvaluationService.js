@@ -242,8 +242,7 @@ class RuleEvaluationService extends BaseService {
                 });
             } catch (e) {
                 General.logDebug("Rule-Failure", `New worklist updation rule failed  ${orgConfig.uuid} `);
-                this.saveFailedRules(e, orgConfig.uuid, this.getIndividualUUID(workLists, "WorkList"),
-                    'WorkListUpdation', orgConfig.uuid, entityName, context.entity.uuid);
+                this.recordWorkListUpdationFailure(e, workLists, {entityType: entityName, entityUUID: context.entity.uuid});
             }
         } else {
             const additionalRules = this.getService(RuleService).getRulesByType('WorkListUpdation');
@@ -251,6 +250,28 @@ class RuleEvaluationService extends BaseService {
         }
 
         return workLists;
+    }
+
+    // Records a WorkListUpdation failure with the right shape for `saveFailedRules`.
+    // Two scenarios this covers:
+    //   1) The rule body itself threw — pass {entityType, entityUUID} for the entity-in-scope.
+    //   2) The rule returned successfully but produced an invalid work item — pass {workItem}.
+    recordWorkListUpdationFailure(error, workLists, {entityType, entityUUID, workItem} = {}) {
+        try {
+            const orgConfig = this.findOnly(OrganisationConfig.schema.name);
+            const orgConfigUuid = orgConfig ? orgConfig.uuid : '';
+            this.saveFailedRules(
+                error,
+                orgConfigUuid,
+                this.getIndividualUUID(workLists, 'WorkList'),
+                'WorkListUpdation',
+                orgConfigUuid,
+                entityType || 'WorkList',
+                _.isNil(entityUUID) ? (workItem ? workItem.id : null) : entityUUID
+            );
+        } catch (logErr) {
+            General.logError('RuleEvaluationService', `Failed to record WorkListUpdation failure: ${logErr.message}`);
+        }
     }
 
     runShareRule(form, entity, entityName) {

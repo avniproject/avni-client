@@ -17,7 +17,7 @@ import General from "../../utility/General";
 import ConceptService from "../../service/ConceptService";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
-import {Individual} from 'avni-models';
+import {Individual, WorkItem} from 'avni-models';
 import NextScheduledVisits from "../common/NextScheduledVisits";
 import CHSNavigator from "../../utility/CHSNavigator";
 import PersonRegisterView from "../individual/PersonRegisterView";
@@ -245,7 +245,15 @@ class SystemRecommendationView extends AbstractComponent {
                                     label: this.I18n.t('previous')
                                 }}
                                                next={{
-                                                   func: () => this.save(() => this.props.onSaveCallback(this)),
+                                                   func: () => this.save(() => {
+                                                       const ws = this.props.workListState;
+                                                       const next = ws && ws.peekNextWorkItem();
+                                                       if (next && next.type === WorkItem.type.SHARE) {
+                                                           CHSNavigator.performNextWorkItemFromRecommendationsView(this, ws, this.context);
+                                                       } else {
+                                                           this.props.onSaveCallback(this);
+                                                       }
+                                                   }),
                                                    visible: this.props.validationErrors.length === 0,
                                                    label: this.I18n.t('save')
                                                }}
