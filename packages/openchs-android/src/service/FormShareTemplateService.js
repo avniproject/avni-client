@@ -20,7 +20,7 @@ class FormShareTemplateService extends BaseService {
         return Form.schema.name;
     }
 
-    downloadHtmlFiles() {
+    async downloadHtmlFiles() {
         try {
             // Form schema has no `voided` column, so we cannot use getAllNonVoided here.
             const forms = this.db.objects(Form.schema.name);
@@ -28,23 +28,23 @@ class FormShareTemplateService extends BaseService {
             const serverUrl = settingsService.getSettings().serverURL;
             const targetDir = FileSystem.getFormShareTemplatesDir();
 
+            const downloads = [];
             forms.forEach((form) => {
                 if (!form.shareTemplateS3Key) return;
                 const sourceUrl = `${serverUrl}/formShareTemplateFile/${form.shareTemplateS3Key}`;
                 const targetFilePath = `${targetDir}/${form.shareTemplateS3Key}`;
                 General.logDebug("FormShareTemplateService", `Downloading ${sourceUrl} to ${targetFilePath}`);
-                this.downloadFromUrl(sourceUrl, targetFilePath);
+                downloads.push(this.downloadFromUrl(sourceUrl, targetFilePath));
             });
+            await Promise.all(downloads);
         } catch (e) {
             General.logError("FormShareTemplateService.downloadHtmlFiles", e);
         }
     }
 
     async downloadFromUrl(url, targetFilePath) {
-        const [token, idpType] = await Promise.all([
-            this.getService(AuthService).getAuthProviderService().getAuthToken(),
-            this.getService(SettingsService).getSettings().idpType,
-        ]);
+        const token = await this.getService(AuthService).getAuthProviderService().getAuthToken();
+        const idpType = this.getService(SettingsService).getSettings().idpType;
         const headers = idpType === IDP_PROVIDERS.NONE ? {"USER-NAME": token} : {"AUTH-TOKEN": token};
         return RNFetchBlob
             .config({fileCache: true, path: targetFilePath})

@@ -41,9 +41,8 @@ import GroupSubjectService from "../../service/GroupSubjectService";
 import UserInfoService from "../../service/UserInfoService";
 import AvniToast from "../common/AvniToast";
 import {SubjectType} from "openchs-models";
-import FormPDFService from "../../service/FormPDFService";
 import FormShareService from "../../service/FormShareService";
-import FormShareActionSheet from "../common/FormShareActionSheet";
+import FormShareActionSheetController from "../common/FormShareActionSheetController";
 
 class SubjectDashboardProfileTab extends AbstractComponent {
     static propTypes = {
@@ -293,7 +292,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         if (hasEditPrivilege)
             requiredActions.push(new ContextAction('edit', () => this.editProfile()));
         if (hasSharePrivilege)
-            requiredActions.push(new ContextAction('share', () => this.setState({_shareSheetOpen: true})));
+            requiredActions.push(new ContextAction('share', () => this._shareSheet && this._shareSheet.open()));
         return _.isEmpty(form) ? <View/> :
             <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_TOGGLE, {keyName: 'expand'})}>
                 <ObservationsSectionOptions
@@ -404,12 +403,10 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                 <Separator height={110} backgroundColor={Colors.WhiteContentBackground}/>
                 {editFormRuleResponse.isDisallowed() &&
                     <AvniToast message={this.I18n.t(editFormRuleResponse.getMessage())} onAutoClose={() => this.dispatchAction(Actions.ON_EDIT_ERROR_SHOWN)}/>}
-                <FormShareActionSheet
-                    visible={!!this.state._shareSheetOpen}
-                    onClose={() => this.setState({_shareSheetOpen: false})}
+                <FormShareActionSheetController
+                    ref={r => this._shareSheet = r}
                     onSharePdf={() => this.getService(FormShareService).shareSubjectForm(this.state.individual, "pdf")}
                     onShareText={() => this.getService(FormShareService).shareSubjectForm(this.state.individual, "text")}
-                    I18n={this.I18n}
                 />
             </View>
         );

@@ -29,9 +29,8 @@ import UserInfoService from "../../service/UserInfoService";
 import AvniToast from "../common/AvniToast";
 import {SubjectType} from "openchs-models";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
-import FormPDFService from "../../service/FormPDFService";
 import FormShareService from "../../service/FormShareService";
-import FormShareActionSheet from "../common/FormShareActionSheet";
+import FormShareActionSheetController from "../common/FormShareActionSheetController";
 
 class SubjectDashboardProgramsTab extends AbstractComponent {
     static propTypes = {
@@ -146,13 +145,12 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
         const actions = hasEditPrivilege ?
             [new ContextAction('edit', () => isExit ? this.editExit() : this.editEnrolment())] : [];
         if (hasSharePrivilege)
-            actions.push(new ContextAction('share', () => this.setState({_shareSheetOpen: true, _shareIsExit: isExit})));
+            actions.push(new ContextAction('share', () => this._shareSheet && this._shareSheet.open(isExit)));
         return actions;
     }
 
-    _shareEnrolmentAs(format) {
-        const isExit = !!this.state._shareIsExit;
-        this.getService(FormShareService).shareEnrolmentForm(this.state.enrolment, {isExit}, format);
+    _shareEnrolmentAs(format, isExit) {
+        this.getService(FormShareService).shareEnrolmentForm(this.state.enrolment, {isExit: !!isExit}, format);
     }
 
     joinProgram() {
@@ -398,12 +396,10 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
                     )}
                 </ScrollView>
                 <Separator height={110} backgroundColor={Colors.WhiteContentBackground}/>
-                <FormShareActionSheet
-                    visible={!!this.state._shareSheetOpen}
-                    onClose={() => this.setState({_shareSheetOpen: false})}
-                    onSharePdf={() => this._shareEnrolmentAs("pdf")}
-                    onShareText={() => this._shareEnrolmentAs("text")}
-                    I18n={this.I18n}
+                <FormShareActionSheetController
+                    ref={r => this._shareSheet = r}
+                    onSharePdf={(isExit) => this._shareEnrolmentAs("pdf", isExit)}
+                    onShareText={(isExit) => this._shareEnrolmentAs("text", isExit)}
                 />
             </View>
         );
