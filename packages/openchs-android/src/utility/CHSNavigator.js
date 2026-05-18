@@ -34,6 +34,7 @@ import EntityService from "../service/EntityService";
 import ProgramEncounterService from "../service/program/ProgramEncounterService";
 import BeneficiaryIdentificationPage from "../views/BeneficiaryIdentificationPage";
 import EncounterService from "../service/EncounterService";
+import FormShareService from "../service/FormShareService";
 import GenericDashboardView from "../views/program/GenericDashboardView";
 import AddNewMemberView from "../views/groupSubject/AddNewMemberView";
 import {firebaseEvents, logEvent} from "./Analytics";
@@ -383,8 +384,6 @@ class CHSNavigator {
     static performNextWorkItemFromRecommendationsView(recommendationsView, workListState: WorkListState, context) {
         const currentWorkItem = workListState.currentWorkItem;
         const message = this.getMessage(recommendationsView.I18n, currentWorkItem);
-        const nextWorkItem = workListState.moveToNextWorkItem();
-
         const toBePoped = [
             SystemRecommendationView,
             PersonRegisterFormView,
@@ -395,6 +394,21 @@ class CHSNavigator {
             AddNewMemberView,
             ProgramExitView
         ];
+
+        // WorkItem.validate() runs inside moveToNextWorkItem (via setCurrentWorkItem).
+        // A bad item queued by a WorkListUpdation rule (e.g. SHARE with invalid format) would
+        // throw here and stall the post-save flow. Capture the failure via the same path
+        // RuleEvaluationService.updateWorkLists uses, then pop back like the no-next case.
+        let nextWorkItem;
+        try {
+            nextWorkItem = workListState.moveToNextWorkItem();
+        } catch (e) {
+            General.logError('CHSNavigator', `Invalid next work item, skipping: ${e.message}`);
+            context.getService(RuleEvaluationService).recordWorkListUpdationFailure(e, workListState.workLists, {workItem: currentWorkItem});
+            TypedTransition.from(recommendationsView).resetStack(toBePoped);
+            return;
+        }
+
         switch (nextWorkItem.type) {
             case WorkItem.type.REGISTRATION: {
                 const uuid = nextWorkItem.parameters.uuid;
@@ -560,6 +574,44 @@ class CHSNavigator {
                             tab: 2
                         }, true)
                     ]);
+                break;
+            }
+            case WorkItem.type.SHARE: {
+                // Auto-share queued by a WorkListUpdation rule (issue #1925).
+                // Pop the wizard stack first so the share sheet appears over the dashboard
+                // (or next view) rather than overlaying the SR page that's about to disappear.
+                // Then defer the share dispatch by a tick so the navigation can render.
+                const subjectUUID = nextWorkItem.parameters.subjectUUID;
+                const individual = context.getService(IndividualService).findByUUID(subjectUUID);
+                const format = nextWorkItem.parameters.format;
+
+                if (!individual) {
+                    // subjectUUID didn't resolve to a real subject. Record as a WorkListUpdation
+                    // rule failure and pop back to the dashboard without dispatching share.
+                    const err = new Error(`SHARE work item subjectUUID '${subjectUUID}' did not resolve to a subject`);
+                    General.logError('CHSNavigator', err.message);
+                    context.getService(RuleEvaluationService).recordWorkListUpdationFailure(err, workListState.workLists, {workItem: nextWorkItem});
+                    if (workListState.peekNextWorkItem()) {
+                        return this.performNextWorkItemFromRecommendationsView(recommendationsView, workListState, context);
+                    }
+                    TypedTransition.from(recommendationsView).resetStack(toBePoped);
+                    break;
+                }
+
+                const fireShare = () => {
+                    try {
+                        context.getService(FormShareService).shareSubjectForm(individual, format);
+                    } catch (e) {
+                        General.logError('CHSNavigator', `SHARE work item dispatch failed: ${e.message}`);
+                    }
+                };
+                if (workListState.peekNextWorkItem()) {
+                    // Chain: hand off to the next item which will navigate; share runs in parallel.
+                    setTimeout(fireShare, 0);
+                    return this.performNextWorkItemFromRecommendationsView(recommendationsView, workListState, context);
+                }
+                TypedTransition.from(recommendationsView).resetStack(toBePoped);
+                setTimeout(fireShare, 0);
                 break;
             }
             default: {
