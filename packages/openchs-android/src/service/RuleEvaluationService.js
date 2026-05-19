@@ -867,17 +867,26 @@ class RuleEvaluationService extends BaseService {
 
     runFormElementStatusRule(formElement, entity, entityName, entityContext, questionGroupIndex, mapOfBundleFormElementStatuses) {
         if (_.isNil(formElement.rule) || _.isEmpty(_.trim(formElement.rule))) {
+            // No rule on this FE — common, not worth logging on every rule cycle.
             return this.getDefaultFormElementStatusIfNotFoundInBundleFESs(mapOfBundleFormElementStatuses, {uuid: formElement.uuid, questionGroupIndex});
         }
         try {
             let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
             const ruleFunc = eval(formElement.rule);
-            return ruleFunc({
+            const result = ruleFunc({
                 params: _.merge({formElement, entity, questionGroupIndex, entityContext}, this.getCommonParams()),
                 imports: getImports(this.globalRuleFunction)
             });
+            if (result && typeof result.then === 'function') {
+                // Form-element rule contract is sync. A Promise return indicates a bug
+                // in the rule — log loudly so it's visible in prod logcat.
+                General.logError('Rule-FE',
+                    `FE rule '${formElement.name}' returned a Promise — form-element rules MUST be synchronous. Use scheduleImageInference for async work.`);
+            }
+            return result;
         } catch (e) {
-            General.logDebug("Rule-Failure", `New Rule failed for: ${formElement.name}`);
+            General.logError("Rule-FE",
+                `FE rule FAILED for '${formElement.name}' (${formElement.uuid}): ${e && e.message}\n${e && e.stack}`);
             this.saveFailedRules(e, formElement.uuid, this.getIndividualUUID(entity, entityName),
                 'FormElement', formElement.uuid, entityName, entity.uuid);
             return null;

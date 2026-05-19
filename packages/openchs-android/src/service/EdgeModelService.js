@@ -48,6 +48,13 @@ class EdgeModelService extends BaseService {
         // re-fire frequently (after every primitive obs change anywhere on the page), so
         // without this guard we'd launch a fresh inference per re-render.
         this._scheduled = new Set();
+        // Last imagePath whose inference produced the target obs, keyed by
+        // entityUuid|targetConceptName. Lets scheduleImageInference detect "user retook the
+        // photo" and re-run inference instead of being short-circuited by the existing
+        // (now-stale) verdict. In-memory only — on app restart we lazily seed the cache
+        // with the current imagePath the first time we see a populated target obs, on the
+        // assumption that the persisted verdict was produced from the persisted image.
+        this._lastInferredImageByTarget = new Map();
     }
 
     /**
@@ -58,9 +65,16 @@ class EdgeModelService extends BaseService {
      * doesn't break the rest of the app.
      */
     init() {
+        General.logDebug('EdgeModelSvc', 'init: loading assets/models/registry.json');
         this._registryReady = NativeModules.EdgeModelModule.getRegistry()
-            .then(parsed => { this._registry = parsed; })
+            .then(parsed => {
+                this._registry = parsed;
+                const keys = Object.keys(parsed?.models || {});
+                General.logDebug('EdgeModelSvc',
+                    `init OK: defaultModel=${parsed?.defaultModel} modelKeys=[${keys.join(',')}]`);
+            })
             .catch(e => {
+                General.logError('EdgeModelSvc', `init FAIL: ${e && e.message}`);
                 console.error('EdgeModelService: failed to load assets/models/registry.json', e);
                 throw e;
             });
@@ -83,8 +97,19 @@ class EdgeModelService extends BaseService {
      * stripped).
      */
     async runInferenceOnImage(modelKey, imagePath) {
+        General.logDebug('EdgeModelSvc', `runInferenceOnImage: modelKey=${modelKey} imagePath=${imagePath}`);
+        const t0 = Date.now();
         await this._ensureLoaded(modelKey);
-        return NativeModules.EdgeModelModule.runInferenceOnImage(modelKey, imagePath);
+        try {
+            const result = await NativeModules.EdgeModelModule.runInferenceOnImage(modelKey, imagePath);
+            General.logDebug('EdgeModelSvc',
+                `runInferenceOnImage OK (${Date.now() - t0}ms): label=${result && result.label}`);
+            return result;
+        } catch (e) {
+            General.logError('EdgeModelSvc',
+                `runInferenceOnImage FAIL (${Date.now() - t0}ms) ${modelKey}: ${e && e.message}`);
+            throw e;
+        }
     }
 
     /**
@@ -102,21 +127,57 @@ class EdgeModelService extends BaseService {
      *
      * Dedup contract:
      *   • Same (entity, modelKey, imagePath) in flight → no-op.
-     *   • Target obs already present on entity → no-op (rule may be re-firing after
-     *     a different obs change on the same page; we don't want to overwrite a
-     *     committed result).
+     *   • Target obs already populated AND we've seen the SAME imagePath produce it →
+     *     no-op (rule re-firing after some unrelated obs change on the same page).
+     *   • Target obs already populated BUT current imagePath differs from what we last
+     *     ran inference on → re-run (user retook the photo; the stale verdict will be
+     *     overwritten by the new dispatch).
+     *   • Target obs populated, never seen this target in this app session (cold start
+     *     on an encounter with a persisted verdict) → trust the persisted verdict and
+     *     seed the cache with the current imagePath, so a later retake still re-runs.
      *
      * Errors are swallowed (logged only). On failure the target obs stays absent and
      * the dependent form element behaves as it would for a not-yet-arrived result —
      * keeps the form save path unblocked.
      */
     scheduleImageInference(modelKey, imagePath, entity, targetConceptName, labelMap) {
-        if (!entity || !targetConceptName || !imagePath) return;
-        if (entity.getObservationValue(targetConceptName) != null) return;
+        if (!entity || !targetConceptName || !imagePath) {
+            General.logError('EdgeModelSvc',
+                `scheduleImageInference SKIP missing-arg: entity=${!!entity} target=${!!targetConceptName} imagePath=${!!imagePath}`);
+            return;
+        }
 
-        const key = `${entity.uuid}|${modelKey}|${imagePath}`;
-        if (this._scheduled.has(key)) return;
-        this._scheduled.add(key);
+        const targetKey = `${entity.uuid}|${targetConceptName}`;
+        const existing = entity.getObservationValue(targetConceptName);
+
+        if (existing != null) {
+            const lastImage = this._lastInferredImageByTarget.get(targetKey);
+            if (lastImage === undefined) {
+                // First time we're seeing this target in-session and it's already
+                // populated → persisted verdict from a previous session. Trust it,
+                // seed the cache so a later retake (different imagePath) re-runs.
+                this._lastInferredImageByTarget.set(targetKey, imagePath);
+                General.logDebug('EdgeModelSvc',
+                    `scheduleImageInference SKIP trust persisted verdict for '${targetConceptName}' (seeded lastImage=${imagePath})`);
+                return;
+            }
+            if (lastImage === imagePath) {
+                // Steady-state rule re-fire on the same image — no log to avoid noise on
+                // every form render. The decision is implicit: target set + image
+                // unchanged → no work.
+                return;
+            }
+            General.logDebug('EdgeModelSvc',
+                `scheduleImageInference image CHANGED for '${targetConceptName}' (was ${lastImage}, now ${imagePath}) — re-running`);
+        }
+
+        const inflightKey = `${entity.uuid}|${modelKey}|${imagePath}`;
+        if (this._scheduled.has(inflightKey)) {
+            General.logDebug('EdgeModelSvc', `scheduleImageInference SKIP already in flight: ${inflightKey}`);
+            return;
+        }
+        this._scheduled.add(inflightKey);
+        General.logDebug('EdgeModelSvc', `scheduleImageInference QUEUED: ${inflightKey}`);
 
         this.runInferenceOnImage(modelKey, imagePath)
             .then(result => {
@@ -126,17 +187,22 @@ class EdgeModelService extends BaseService {
                 const value = labelMap && Object.prototype.hasOwnProperty.call(labelMap, rawLabel)
                     ? labelMap[rawLabel]
                     : rawLabel;
+                // Bind the dispatched verdict to the image it was derived from so a
+                // later retake (different imagePath) re-runs inference.
+                this._lastInferredImageByTarget.set(targetKey, imagePath);
+                General.logDebug('EdgeModelSvc',
+                    `scheduleImageInference DISPATCH: target=${targetConceptName} rawLabel=${rawLabel} mappedValue=${value}`);
                 this.dispatchAction(EDGE_MODEL_ACTION.INFERENCE_RESULT_AVAILABLE, {
                     conceptName: targetConceptName,
                     value
                 });
             })
             .catch(err => {
-                General.logError('EdgeModelService',
-                    `scheduleImageInference failed for ${modelKey} on ${imagePath}: ${err && err.message}`);
+                General.logError('EdgeModelSvc',
+                    `scheduleImageInference FAILED ${modelKey} ${imagePath}: ${err && err.message}\n${err && err.stack}`);
             })
             .finally(() => {
-                this._scheduled.delete(key);
+                this._scheduled.delete(inflightKey);
             });
     }
 
@@ -147,30 +213,45 @@ class EdgeModelService extends BaseService {
      */
     async _ensureLoaded(modelKey) {
         await this._registryReady;
-        if (this._loaded.has(modelKey)) return;
+        if (this._loaded.has(modelKey)) return;  // Steady-state cache hit on every inference; no log to avoid per-call noise.
 
         const entry = this._registry?.models?.[modelKey];
         if (!entry) {
+            const available = Object.keys(this._registry?.models || {});
+            General.logError('EdgeModelSvc',
+                `_ensureLoaded: no entry for '${modelKey}'. Available: [${available.join(',')}]`);
             throw new Error(`EdgeModelService: no entry for modelKey '${modelKey}' in assets/models/registry.json`);
         }
         const overrideJson = entry.override ? JSON.stringify(entry.override) : null;
+        const t0 = Date.now();
 
-        if (entry.asset?.type === 'encrypted') {
-            await NativeModules.EdgeModelModule.loadEncryptedModel(
-                modelKey,
-                entry.asset.path,
-                entry.asset.encryptionKey,
-                entry.asset.sha256OfPlaintext,
-                overrideJson
-            );
-        } else {
-            await NativeModules.EdgeModelModule.loadModel(
-                modelKey,
-                entry.asset.path,
-                overrideJson
-            );
+        try {
+            if (entry.asset?.type === 'encrypted') {
+                General.logDebug('EdgeModelSvc',
+                    `_ensureLoaded ENCRYPTED: modelKey=${modelKey} path=${entry.asset.path}`);
+                await NativeModules.EdgeModelModule.loadEncryptedModel(
+                    modelKey,
+                    entry.asset.path,
+                    entry.asset.encryptionKey,
+                    entry.asset.sha256OfPlaintext,
+                    overrideJson
+                );
+            } else {
+                General.logDebug('EdgeModelSvc',
+                    `_ensureLoaded PLAIN: modelKey=${modelKey} path=${entry.asset?.path}`);
+                await NativeModules.EdgeModelModule.loadModel(
+                    modelKey,
+                    entry.asset.path,
+                    overrideJson
+                );
+            }
+            this._loaded.add(modelKey);
+            General.logDebug('EdgeModelSvc', `_ensureLoaded OK (${Date.now() - t0}ms): ${modelKey}`);
+        } catch (e) {
+            General.logError('EdgeModelSvc',
+                `_ensureLoaded FAIL (${Date.now() - t0}ms) ${modelKey}: ${e && e.message}`);
+            throw e;
         }
-        this._loaded.add(modelKey);
     }
 }
 
