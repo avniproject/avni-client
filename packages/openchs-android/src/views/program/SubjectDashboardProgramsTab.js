@@ -1,4 +1,4 @@
-import {Alert, ScrollView, TouchableOpacity, View} from "react-native";
+import {Alert, InteractionManager, ScrollView, TouchableOpacity, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -52,7 +52,10 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
     }
 
     onViewDidMount() {
-        this.dispatchOnLoad();
+        // Defer post-mount work past the slide animation so heavy reducers cannot freeze the in-flight transition.
+        InteractionManager.runAfterInteractions(() => {
+            this.dispatchOnLoad();
+        });
     }
 
     dispatchOnLoad() {
