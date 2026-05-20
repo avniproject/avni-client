@@ -77,6 +77,12 @@ export class IndividualSearchActions {
         return newState;
     };
 
+    static enterDateOfBirthCriteria = function (state, action, beans) {
+        const newState = IndividualSearchActions.clone(state);
+        newState.searchCriteria.addDateOfBirthCriteria(action.value);
+        return newState;
+    };
+
     static enterObsCriteria = function (state, action, beans) {
         const newState = IndividualSearchActions.clone(state);
         newState.searchCriteria.addObsCriteria(action.value);
@@ -105,6 +111,9 @@ export class IndividualSearchActions {
         }
         if (customFilterService.filterTypePresent('searchFilters', CustomFilter.type.Age, selectedSubjectTypeUuid)) {
             newState.searchCriteria.addAgeCriteria(oldState.searchCriteria.ageInYears);
+        }
+        if (customFilterService.filterTypePresent('searchFilters', CustomFilter.type.DateOfBirth, selectedSubjectTypeUuid)) {
+            newState.searchCriteria.addDateOfBirthCriteria(oldState.searchCriteria.dateOfBirth);
         }
         if (customFilterService.filterTypePresent('searchFilters', CustomFilter.type.Gender, selectedSubjectTypeUuid)) {
             newState.searchCriteria.addGenderCriteria(oldState.searchCriteria.genders);
@@ -200,6 +209,7 @@ const individualSearchActions = {
     ON_LOAD: `${ActionPrefix}.ON_LOAD`,
     ENTER_NAME_CRITERIA: "ENTER_NAME_CRITERIA",
     ENTER_AGE_CRITERIA: "ENTER_AGE_CRITERIA",
+    ENTER_DATE_OF_BIRTH_CRITERIA: "ENTER_DATE_OF_BIRTH_CRITERIA",
     ENTER_OBS_CRITERIA: "ENTER_OBS_CRITERIA",
     ENTER_VOIDED_CRITERIA: "ENTER_VOIDED_CRITERIA",
     ENTER_SUBJECT_TYPE_CRITERIA: "ENTER_SUBJECT_TYPE_CRITERIA",
@@ -214,6 +224,7 @@ const individualSearchActions = {
 const individualSearchActionsMap = new Map([
     [individualSearchActions.ENTER_NAME_CRITERIA, IndividualSearchActions.enterNameCriteria],
     [individualSearchActions.ENTER_AGE_CRITERIA, IndividualSearchActions.enterAgeCriteria],
+    [individualSearchActions.ENTER_DATE_OF_BIRTH_CRITERIA, IndividualSearchActions.enterDateOfBirthCriteria],
     [individualSearchActions.ENTER_OBS_CRITERIA, IndividualSearchActions.enterObsCriteria],
     [individualSearchActions.ENTER_VOIDED_CRITERIA, IndividualSearchActions.enterVoidedCriteria],
     [individualSearchActions.ENTER_SUBJECT_TYPE_CRITERIA, IndividualSearchActions.enterSubjectTypeCriteria],
