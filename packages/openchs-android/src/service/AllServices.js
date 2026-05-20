@@ -36,8 +36,12 @@
 
 // Core services
 import './AddressLevelService';
+import './AttendanceRecordService';
+import './AttendanceTypeService';
 import './AuthService';
 import './BaseAddressLevelService';
+import './CalendarDateMarkerService';
+import './CalendarService';
 import './ChecklistService';
 import './ConceptService';
 import './CustomDashboardCacheService';
@@ -66,6 +70,7 @@ import './ProgramEnrolmentService';
 import './ResetSyncService';
 import './RuleEvaluationService';
 import './RuleService';
+import './SessionService';
 import './SettingsService';
 import './SubjectMigrationService';
 import './SubjectTypeService';
