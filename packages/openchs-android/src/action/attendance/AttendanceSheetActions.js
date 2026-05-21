@@ -3,6 +3,9 @@ import _ from "lodash";
 import CalendarService from "../../service/CalendarService";
 import AttendanceTypeService from "../../service/AttendanceTypeService";
 import SessionService from "../../service/SessionService";
+import AttendanceRecordService from "../../service/AttendanceRecordService";
+import ConceptService from "../../service/ConceptService";
+import {AttendanceRecord} from "avni-models";
 
 const STRIP_WINDOW_DAYS = 14;
 
@@ -15,10 +18,10 @@ export class AttendanceSheetActions {
             selectedDate: null,
             stripDates: [],
             statusByDate: new Map(),
+            sessionByType: new Map(),
         };
     }
 
-    // Args from the view: { groupSubject }.
     static onLoad(state, action, context) {
         const groupSubject = action.groupSubject;
         const calendarService = context.get(CalendarService);
@@ -44,6 +47,7 @@ export class AttendanceSheetActions {
 
         const calendar = dayStatuses.values().next().value?.calendar || calendarService.forSubject(groupSubject);
         const attendanceTypes = attendanceTypeService.findActiveForSubjectType(groupSubject.subjectType.uuid);
+        const sessionByType = AttendanceSheetActions._buildSessionByType(context, groupSubject, today.toDate(), attendanceTypes);
 
         return {
             ...state,
@@ -53,11 +57,36 @@ export class AttendanceSheetActions {
             selectedDate: today.toDate(),
             stripDates,
             statusByDate,
+            sessionByType,
         };
     }
 
-    static onSelectDate(state, action) {
-        return {...state, selectedDate: action.date};
+    static onSelectDate(state, action, context) {
+        const sessionByType = AttendanceSheetActions._buildSessionByType(
+            context, state.groupSubject, action.date, state.attendanceTypes
+        );
+        return {...state, selectedDate: action.date, sessionByType};
+    }
+
+    static _buildSessionByType(context, groupSubject, date, attendanceTypes) {
+        const sessionService = context.get(SessionService);
+        const recordService = context.get(AttendanceRecordService);
+        const conceptService = context.get(ConceptService);
+        const map = new Map();
+        attendanceTypes.forEach(at => {
+            const session = sessionService.findExistingSession(groupSubject.uuid, date, at.uuid);
+            if (!session) {
+                map.set(at.uuid, {session: null});
+                return;
+            }
+            const records = recordService.findBySession(session.uuid);
+            const present = records.filter(r => r.status === AttendanceRecord.status.PRESENT).length;
+            const reasonName = session.reasonConceptUUID
+                ? _.get(conceptService.getConceptByUUID(session.reasonConceptUUID), "name", "")
+                : "";
+            map.set(at.uuid, {session, totalCount: records.length, presentCount: present, reasonName});
+        });
+        return map;
     }
 
     static _buildStripDates(today) {
@@ -77,6 +106,7 @@ export class AttendanceSheetActions {
         return {
             ...state,
             statusByDate: new Map(state.statusByDate),
+            sessionByType: new Map(state.sessionByType),
             stripDates: state.stripDates.slice(),
             attendanceTypes: state.attendanceTypes.slice(),
         };
