@@ -148,6 +148,15 @@ class FormMappingService extends BaseService {
         return _.get(formMapping, 'form');
     }
 
+    findProgramUUIDForEncounterType(encounterType: EncounterType, subjectType: SubjectType): ?string {
+        const formMapping = this.db.objects(FormMapping.schema.name)
+            .filtered(
+                "voided = false AND observationsTypeEntityUUID = $0 AND form.formType = $1 AND subjectType.uuid = $2",
+                encounterType.uuid, Form.formTypes.ProgramEncounter, subjectType.uuid
+            )[0];
+        return formMapping ? formMapping.programUUID : null;
+    }
+
     allFormMappings() {
         const formMappings = this.db.objects(this.getSchema());
         return new FormQueryResult(formMappings);
