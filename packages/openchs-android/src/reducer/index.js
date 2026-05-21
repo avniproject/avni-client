@@ -47,6 +47,7 @@ import {TaskFilterActionMap, TaskFilterActions} from "../action/task/TaskFilterA
 import {TaskListActionMap, TaskListActions} from "../action/task/TaskListActions";
 import {ManualProgramEligibilityActionMap, ManualProgramEligibilityActions} from "../action/program/ManualProgramEligibilityActions";
 import {GlificActionMap, GlificActions} from '../action/glific/GlificActions';
+import AttendanceSheetActions from "../action/attendance/AttendanceSheetActions";
 
 export default class Reducers {
     static reducerKeys = {
@@ -99,6 +100,7 @@ export default class Reducers {
         taskList: "TaskList",
         manualProgramEligibility: "manualProgramEligibility",
         glific: "glific",
+        attendanceSheet: "attendanceSheet",
     };
 
     static createReducers(beanStore) {
@@ -151,6 +153,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.taskFilter] = Reducers._add(TaskFilterActionMap, TaskFilterActions, beanStore);
         reducerMap[Reducers.reducerKeys.manualProgramEligibility] = Reducers._add(ManualProgramEligibilityActionMap, ManualProgramEligibilityActions, beanStore);
         reducerMap[Reducers.reducerKeys.glific] = Reducers._add(GlificActionMap, GlificActions, beanStore);
+        reducerMap[Reducers.reducerKeys.attendanceSheet] = Reducers._add(AttendanceSheetActions.Map, AttendanceSheetActions, beanStore);
         return reducerMap;
     };
 
