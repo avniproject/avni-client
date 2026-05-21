@@ -46,6 +46,7 @@ export default class WorkListState {
             enc: i18n.t(_.defaultTo(workItem.parameters.name || workItem.parameters.encounterType, "")),
             household: i18n.t(_.defaultTo(workItem.parameters.household,"")),
             groupName: i18n.t(_.defaultTo(workItem.parameters.groupName,"")),
+            format: workItem.parameters.format === 'pdf' ? 'PDF' : workItem.parameters.format,
         })}`;
     }
 
@@ -60,6 +61,7 @@ export default class WorkListState {
             [WorkItem.type.ADD_MEMBER, 'addAnotherMember'],
             [WorkItem.type.HOUSEHOLD, 'proceedAddHousehold'],
             [WorkItem.type.REMOVE_MEMBER, 'proceedRemoveMember'],
+            [WorkItem.type.SHARE, 'shareForm'],
         ]).get(nextWorkItem.type);
         return this.labelOrDefault(nextWorkItem, tkey, i18n);
     }
