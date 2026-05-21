@@ -14,6 +14,9 @@ import HorizontalDateStrip from "./HorizontalDateStrip";
 import DayStatusBanner from "./DayStatusBanner";
 import AttendanceTypePicker from "./AttendanceTypePicker";
 import RosterView from "./RosterView";
+import DidntHappenPickerView from "./DidntHappenPickerView";
+import MarkAnywayConfirmDialog from "./MarkAnywayConfirmDialog";
+import {Session} from "avni-models";
 
 @Path("/attendanceSheetView")
 class AttendanceSheetView extends AbstractComponent {
@@ -43,20 +46,38 @@ class AttendanceSheetView extends AbstractComponent {
         this.dispatchAction(AttendanceSheetActions.Names.SELECT_DATE, {date});
     };
 
-    _navigateToRoster = (attendanceType) => {
+    _navigateWithType = (attendanceType, ViewClass) => {
         TypedTransition.from(this)
             .with({
                 groupSubject: this.props.groupSubject,
                 attendanceType,
                 scheduledDate: this.state.selectedDate,
             })
-            .to(RosterView, true);
+            .to(ViewClass, true);
     };
 
-    _onMark = (attendanceType) => this._navigateToRoster(attendanceType);
-    _onEdit = (attendanceType /*, session */) => this._navigateToRoster(attendanceType);
-    _onDidntHappen = (/* attendanceType */) => {
-        // Phase 6 wires this to DidntHappenPickerView.
+    _onMark = (attendanceType) => this._navigateWithType(attendanceType, RosterView);
+    _onDidntHappen = (attendanceType) => this._navigateWithType(attendanceType, DidntHappenPickerView);
+
+    // EDIT branches on the existing session's status — Held re-opens the roster,
+    // DidntHappen re-opens the reason picker pre-populated.
+    _onEdit = (attendanceType, session) => {
+        if (session && session.status === Session.status.DIDNT_HAPPEN) {
+            this._navigateWithType(attendanceType, DidntHappenPickerView);
+        } else {
+            this._navigateWithType(attendanceType, RosterView);
+        }
+    };
+
+    _onMarkAnyway = () => this.setState({markAnywayConfirmVisible: true});
+    _onMarkAnywayCancel = () => this.setState({markAnywayConfirmVisible: false});
+    // Mark-anyway on calendar-off days routes to the DidntHappen picker so the
+    // user supplies a required reason explaining the override. Picking
+    // attendanceType[0] keeps v1 simple; future iteration can ask first.
+    _onMarkAnywayContinue = () => {
+        this.setState({markAnywayConfirmVisible: false});
+        const firstType = (this.state.attendanceTypes || [])[0];
+        if (firstType) this._navigateWithType(firstType, DidntHappenPickerView);
     };
 
     render() {
@@ -82,6 +103,7 @@ class AttendanceSheetView extends AbstractComponent {
                                 selectedDate={selectedDate}
                                 dayType={selectedStatus && selectedStatus.dayType}
                                 marker={selectedStatus && selectedStatus.marker}
+                                onMarkAnyway={this._onMarkAnyway}
                             />
                             <AttendanceTypePicker
                                 attendanceTypes={attendanceTypes}
@@ -92,6 +114,12 @@ class AttendanceSheetView extends AbstractComponent {
                             />
                         </View>
                     )}
+                    <MarkAnywayConfirmDialog
+                        visible={!!this.state.markAnywayConfirmVisible}
+                        date={selectedDate}
+                        onCancel={this._onMarkAnywayCancel}
+                        onContinue={this._onMarkAnywayContinue}
+                    />
                 </CHSContent>
             </CHSContainer>
         );

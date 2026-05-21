@@ -49,6 +49,7 @@ import {ManualProgramEligibilityActionMap, ManualProgramEligibilityActions} from
 import {GlificActionMap, GlificActions} from '../action/glific/GlificActions';
 import AttendanceSheetActions from "../action/attendance/AttendanceSheetActions";
 import RosterActions from "../action/attendance/RosterActions";
+import DidntHappenActions from "../action/attendance/DidntHappenActions";
 
 export default class Reducers {
     static reducerKeys = {
@@ -103,6 +104,7 @@ export default class Reducers {
         glific: "glific",
         attendanceSheet: "attendanceSheet",
         attendanceRoster: "attendanceRoster",
+        attendanceDidntHappen: "attendanceDidntHappen",
     };
 
     static createReducers(beanStore) {
@@ -157,6 +159,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.glific] = Reducers._add(GlificActionMap, GlificActions, beanStore);
         reducerMap[Reducers.reducerKeys.attendanceSheet] = Reducers._add(AttendanceSheetActions.Map, AttendanceSheetActions, beanStore);
         reducerMap[Reducers.reducerKeys.attendanceRoster] = Reducers._add(RosterActions.Map, RosterActions, beanStore);
+        reducerMap[Reducers.reducerKeys.attendanceDidntHappen] = Reducers._add(DidntHappenActions.Map, DidntHappenActions, beanStore);
         return reducerMap;
     };
 
