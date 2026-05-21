@@ -363,7 +363,11 @@ class CHSNavigator {
     }
 
     static getMessage(i18n, workItem: WorkItem) {
-        const args = {programName: workItem.parameters.programName, encounterName: workItem.parameters.encounterType};
+        const args = {
+            programName: workItem.parameters.programName,
+            encounterName: workItem.parameters.encounterType,
+            format: workItem.parameters.format === 'pdf' ? 'PDF' : workItem.parameters.format
+        };
         const tkey = new Map([
             [WorkItem.type.REGISTRATION, 'registrationSavedMsg'],
             [WorkItem.type.PROGRAM_ENROLMENT, 'enrolmentSavedMsg'],
@@ -374,6 +378,7 @@ class CHSNavigator {
             [WorkItem.type.PROGRAM_EXIT, 'enrolmentExitMsg'],
             [WorkItem.type.HOUSEHOLD, 'proceedAddHousehold'],
             [WorkItem.type.REMOVE_MEMBER, 'proceedRemoveMember'],
+            [WorkItem.type.SHARE, 'shareForm'],
         ]).get(workItem.type);
         if (tkey) {
             return i18n.t(tkey, args);

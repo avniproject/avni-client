@@ -236,6 +236,7 @@
     "enrolmentExitMsg": "{{programName}} ಪ್ರೋಗ್ರಾಂನಿಂದ ನಿರ್ಗಮಿಸಲಾಗಿದೆ",
     "encounterSavedMsg": "{{encounterName}} ಎನ್‌ಕೌಂಟರ್ ಉಳಿಸಲಾಗಿದೆ",
     "encounterCancelledMsg": "{{encounterName}} ಎನ್‌ಕೌಂಟರ್ ರದ್ದುಗೊಂಡಿದೆ",
+    "shareForm": "{{format}} ಆಗಿ ಹಂಚಿಕೊಳ್ಳಿ",
     "programSavedProceedEncounterMsg": "{{program}} ದಾಖಲಾತಿ ಉಳಿಸಲಾಗಿದೆ",
     "encounterSavedProceedEncounterMsg": "{{encounter}} ಎನ್ಕೌಂಟರ್ ಉಳಿಸಲಾಗಿದೆ",
     "saved": "ಉಳಿಸಲಾಗಿದೆ",

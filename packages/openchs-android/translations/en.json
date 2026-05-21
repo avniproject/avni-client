@@ -245,6 +245,7 @@
     "enrolmentExitMsg": "Exited From {{programName}} Program",
     "encounterSavedMsg": "{{encounterName}} Encounter Saved",
     "encounterCancelledMsg": "{{encounterName}} Encounter Canceled",
+    "shareForm": "share as {{format}}",
     "programSavedProceedEncounterMsg": "{{program}} Enrolment Saved",
     "encounterSavedProceedEncounterMsg": "{{encounter}} Encounter Saved",
     "saved": "Saved",

@@ -196,6 +196,7 @@
     "enrolmentExitMsg": "{{programName}} प्रोग्रामधून बाहेर आला",
     "encounterSavedMsg": "{{encounterName}} एंकॉउंटर जतन",
     "encounterCancelledMsg": "{{encounterName}} एंकॉउंटर कॅन्सल केले",
+    "shareForm": "{{format}} म्हणून शेअर करा",
     "programSavedProceedEncounterMsg": "{{program}} प्रोग्राम पूर्ण",
     "encounterSavedProceedEncounterMsg": "{{encounter}} एंकॉउंटर जतन",
     "saved": "जतन",
