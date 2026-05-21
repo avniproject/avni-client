@@ -30,6 +30,8 @@ import PrivilegeService from "../../service/PrivilegeService";
 import Members from "../groupSubject/Members";
 import AddNewMemberView from "../groupSubject/AddNewMemberView";
 import RemoveMemberView from "../groupSubject/RemoveMemberView";
+import AttendanceSheetView from "../attendance/AttendanceSheetView";
+import AttendanceTypeService from "../../service/AttendanceTypeService";
 import {AvniAlert} from "../common/AvniAlert";
 import _ from "lodash";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
@@ -181,6 +183,37 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                            style={{marginVertical: DGS.resizeHeight(8)}}
                            onRelativeSelection={(source, individual) => this.onSubjectSelection(individual.uuid)}
                            onRelativeDeletion={this.onRelativeDeletePress.bind(this)}/>
+            </View>
+        );
+    }
+
+    renderAttendance() {
+        const subjectType = this.state.individual.subjectType;
+        if (!subjectType.attendanceEnabled) return <View/>;
+
+        const editSubjectCriteria = `privilege.name = '${Privilege.privilegeName.editSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
+        const allowedForEditSubject = this.privilegeService.allowedEntityTypeUUIDListForCriteria(editSubjectCriteria, 'subjectTypeUuid');
+        const hasEditPrivilege = this.privilegeService.hasAllPrivileges()
+            || _.includes(allowedForEditSubject, subjectType.uuid);
+        if (!hasEditPrivilege) return <View/>;
+
+        const attendanceTypes = this.getService(AttendanceTypeService).findActiveForSubjectType(subjectType.uuid);
+        const navigateToAttendance = () =>
+            TypedTransition.from(this).with({groupSubject: this.state.individual}).to(AttendanceSheetView, true);
+
+        return (
+            <View style={styles.container}>
+                <TouchableOpacity onPress={navigateToAttendance} style={styles.attendanceCard}>
+                    <View style={{flex: 1}}>
+                        <Text style={Styles.cardTitle}>{this.I18n.t("attendance")}</Text>
+                        <Text style={{fontSize: Styles.smallTextSize, color: Colors.SubheaderColor, marginTop: 4}}>
+                            {this.I18n.t("attendanceCardCaption", {typeCount: attendanceTypes.length})}
+                        </Text>
+                    </View>
+                    <Text style={{fontSize: Fonts.Medium, color: Colors.ActionButtonColor, fontWeight: 'bold'}}>
+                        {this.I18n.t("attendanceCardCta")} →
+                    </Text>
+                </TouchableOpacity>
             </View>
         );
     }
@@ -397,6 +430,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                     {!_.isEmpty(this.state.subjectSummary) && this.renderSummary()}
                     {this.renderProfileOrVoided(individual)}
                     {relativesFeatureToggle ? this.renderRelatives() : <View/>}
+                    {groupSubjectToggle ? this.renderAttendance() : <View/>}
                     {groupSubjectToggle ? this.renderMembers() : <View/>}
                 </View>
                 {displayGeneralEncounterInfo && <SubjectDashboardGeneralTab {...this.props}/>}
@@ -436,5 +470,11 @@ const styles = StyleSheet.create({
         shadowColor: Styles.greyBackground,
         shadowOpacity: 1,
         elevation: 1,
+    },
+    attendanceCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 14,
+        paddingHorizontal: 4,
     }
 });
