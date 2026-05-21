@@ -1,9 +1,12 @@
 import _ from "lodash";
-import {AttendanceRecord} from "avni-models";
+import {AttendanceRecord, Encounter, ProgramEncounter, Session} from "avni-models";
+import General from "../../utility/General";
 import GroupSubjectService from "../../service/GroupSubjectService";
 import SessionService from "../../service/SessionService";
 import AttendanceRecordService from "../../service/AttendanceRecordService";
 import ConceptService from "../../service/ConceptService";
+import UserInfoService from "../../service/UserInfoService";
+import {resolveFollowUps} from "../../service/attendance/FollowUpResolver";
 
 export class RosterActions {
     static getInitialState() {
@@ -99,6 +102,111 @@ export class RosterActions {
         return {...state, notes: action.notes};
     }
 
+    static onSave(state, action, context) {
+        const {groupSubject, attendanceType, scheduledDate, existingSession, roster, notes} = state;
+        const sessionService = context.get(SessionService);
+        const recordService = context.get(AttendanceRecordService);
+        const userInfoService = context.get(UserInfoService);
+
+        const session = new Session();
+        session.uuid = existingSession ? existingSession.uuid : General.randomUUID();
+        session.groupSubjectUUID = groupSubject.uuid;
+        session.scheduledDate = scheduledDate;
+        session.attendanceTypeUUID = attendanceType.uuid;
+        session.notes = notes || null;
+        session.markedByUserName = userInfoService.getUserInfo().username;
+        session.voided = false;
+
+        // Re-mark path: reuse prior AttendanceRecord UUIDs so the upsert replaces the
+        // same Realm row instead of creating duplicates. The server-side partial
+        // unique (session_id, subject_id) would reject the dupes on push anyway.
+        const previousRecords = existingSession ? recordService.findBySession(existingSession.uuid) : [];
+        const existingRecordUUIDByStudent = _.fromPairs(previousRecords.map(r => [r.subjectUUID, r.uuid]));
+
+        const rosterByStudentUUID = _.keyBy(
+            roster.map(r => ({...r})),
+            "subjectUUID"
+        );
+        const attendanceRecords = session.markHeld(rosterByStudentUUID);
+        attendanceRecords.forEach(r => {
+            const reused = existingRecordUUIDByStudent[r.subjectUUID];
+            if (reused) r.uuid = reused;
+        });
+
+        const studentSubjectType = _.get(roster, "[0]") ? attendanceType : attendanceType;
+        // The roster's member subjects all share one subject type; pick it from the
+        // first member via groupSubject (set during ON_LOAD). For Phase 5 we assume
+        // homogeneous member subject types within a group; the spec doesn't support
+        // mixed groups for attendance.
+        const memberSubjectType = state.groupSubject.subjectType.group
+            ? RosterActions._inferMemberSubjectType(context, state.groupSubject)
+            : state.groupSubject.subjectType;
+
+        let followUps = [];
+        const followUpResolution = memberSubjectType
+            ? resolveFollowUps({attendanceType, studentSubjectType: memberSubjectType, context})
+            : null;
+        if (followUpResolution) {
+            followUps = session.autoCreateFollowUps({
+                attendanceRecords,
+                attendanceType,
+                encounterType: followUpResolution.encounterType,
+                programUUID: followUpResolution.programUUID,
+                studentLookup: followUpResolution.studentLookup,
+                enrolmentLookup: followUpResolution.enrolmentLookup,
+            });
+        }
+
+        let voidedFollowUps = [];
+        let skippedFollowUps = [];
+        if (existingSession) {
+            const encounterLookup = (uuid) => sessionService._findFollowUpEncounter
+                ? sessionService._findFollowUpEncounter(sessionService.db, uuid).encounter
+                : null;
+            const result = session.voidStaleFollowUps(previousRecords, attendanceRecords, encounterLookup);
+            voidedFollowUps = result.voided.map(e => ({
+                uuid: e.uuid,
+                schemaName: e.programEnrolment ? ProgramEncounter.schema.name : Encounter.schema.name,
+            }));
+            skippedFollowUps = result.skipped;
+        }
+
+        const followUpsForSave = followUps.map(e => ({
+            encounter: e,
+            schemaName: e.programEnrolment ? ProgramEncounter.schema.name : Encounter.schema.name,
+        }));
+
+        sessionService.saveOrUpdate({
+            session,
+            attendanceRecords,
+            followUps: followUpsForSave,
+            voidedFollowUps,
+        });
+
+        return {
+            ...state,
+            existingSession: session,
+            lastSaveResult: {
+                createdFollowUps: followUps.map(e => ({
+                    uuid: e.uuid,
+                    encounterTypeName: _.get(e, "encounterType.name", ""),
+                    subjectUUID: _.get(e, "individual.uuid") || _.get(e, "programEnrolment.individual.uuid"),
+                    earliestVisitDateTime: e.earliestVisitDateTime,
+                    maxVisitDateTime: e.maxVisitDateTime,
+                })),
+                voidedFollowUpCount: voidedFollowUps.length,
+                skippedFollowUps: skippedFollowUps.map(e => ({uuid: e.uuid})),
+            },
+            saveCompletedAt: Date.now(),
+        };
+    }
+
+    static _inferMemberSubjectType(context, groupSubject) {
+        const members = context.get(GroupSubjectService).getGroupSubjects(groupSubject)
+            .filter(gs => !gs.memberSubject.voided);
+        return members.length > 0 ? members[0].memberSubject.subjectType : null;
+    }
+
     static _answersFor(conceptService, conceptUUID) {
         const concept = conceptService.getConceptByUUID(conceptUUID);
         if (!concept) return [];
@@ -124,6 +232,7 @@ RosterActions.Names = {
     SET_REASON: `${Prefix}.SET_REASON`,
     MARK_ALL_ABSENT: `${Prefix}.MARK_ALL_ABSENT`,
     SET_NOTES: `${Prefix}.SET_NOTES`,
+    SAVE: `${Prefix}.SAVE`,
 };
 
 RosterActions.Map = new Map([
@@ -132,6 +241,7 @@ RosterActions.Map = new Map([
     [RosterActions.Names.SET_REASON, RosterActions.onSetReason],
     [RosterActions.Names.MARK_ALL_ABSENT, RosterActions.onMarkAllAbsent],
     [RosterActions.Names.SET_NOTES, RosterActions.onSetNotes],
+    [RosterActions.Names.SAVE, RosterActions.onSave],
 ]);
 
 export default RosterActions;

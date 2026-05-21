@@ -1,6 +1,7 @@
 import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
 import {AttendanceRecord, Encounter, EntityQueue, ProgramEncounter, Session} from "avni-models";
+import {DateTimeUtil} from "openchs-models";
 import _ from "lodash";
 import moment from "moment";
 import AttendanceRecordService from "./AttendanceRecordService";
@@ -131,9 +132,10 @@ class SessionService extends BaseService {
         return count;
     }
 
+    // Must match Session.scheduledDate's storage normalisation (DateTimeUtil.toCalendarDateString,
+    // which uses moment.utc) — otherwise lookups miss saved rows across timezones.
     _toDateKey(d): string {
-        if (_.isString(d)) return d.substring(0, 10);
-        return moment(d).format("YYYY-MM-DD");
+        return DateTimeUtil.toCalendarDateString(d);
     }
 
     _isWorkingDayType(dayType): boolean {

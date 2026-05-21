@@ -5,6 +5,7 @@ import moment from "moment";
 import {AttendanceRecord} from "avni-models";
 import Path from "../../framework/routing/Path";
 import AbstractComponent from "../../framework/view/AbstractComponent";
+import TypedTransition from "../../framework/routing/TypedTransition";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import AppHeader from "../common/AppHeader";
@@ -14,6 +15,7 @@ import Styles from "../primitives/Styles";
 import Reducers from "../../reducer";
 import {RosterActions} from "../../action/attendance/RosterActions";
 import RosterRow from "./RosterRow";
+import FollowUpConfirmationDialog from "./FollowUpConfirmationDialog";
 
 @Path("/attendanceRosterView")
 class RosterView extends AbstractComponent {
@@ -42,7 +44,19 @@ class RosterView extends AbstractComponent {
     _onSetNotes = (notes) => this.dispatchAction(RosterActions.Names.SET_NOTES, {notes});
     _onMarkAllAbsent = () => this.dispatchAction(RosterActions.Names.MARK_ALL_ABSENT);
     _onSave = () => {
-        // Phase 5 wires the atomic SessionService.saveOrUpdate path here.
+        this.dispatchAction(RosterActions.Names.SAVE);
+        const result = this.state.lastSaveResult;
+        const hasFollowUps = result && ((result.createdFollowUps || []).length > 0 || (result.skippedFollowUps || []).length > 0);
+        if (hasFollowUps) {
+            this.setState({confirmationVisible: true});
+        } else {
+            TypedTransition.from(this).goBack();
+        }
+    };
+
+    _onDismissConfirmation = () => {
+        this.setState({confirmationVisible: false});
+        TypedTransition.from(this).goBack();
     };
 
     _onPickReason = (subjectUUID) => {
@@ -135,6 +149,11 @@ class RosterView extends AbstractComponent {
                         visible={!!this.state.reasonPickerVisible}
                         hide={this._hideReasonPicker}
                         actions={this._reasonActions()}
+                    />
+                    <FollowUpConfirmationDialog
+                        visible={!!this.state.confirmationVisible}
+                        result={this.state.lastSaveResult}
+                        onDismiss={this._onDismissConfirmation}
                     />
                 </CHSContent>
             </CHSContainer>

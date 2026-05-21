@@ -1,7 +1,7 @@
 import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
 import {Calendar, CalendarDateMarker} from "avni-models";
-import {Calendars} from "openchs-models";
+import {Calendars, DateTimeUtil} from "openchs-models";
 import _ from "lodash";
 
 @Service("calendarService")
@@ -64,7 +64,7 @@ class CalendarService extends BaseService {
     }
 
     _dateKey(date) {
-        return _.isString(date) ? date.substring(0, 10) : date.toISOString().substring(0, 10);
+        return DateTimeUtil.toCalendarDateString(date);
     }
 
     _sameCalendarDate(a, b) {

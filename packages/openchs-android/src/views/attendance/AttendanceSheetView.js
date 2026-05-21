@@ -1,7 +1,7 @@
 import React from "react";
 import {View} from "react-native";
 import PropTypes from "prop-types";
-import moment from "moment";
+import {DateTimeUtil} from "openchs-models";
 import Path from "../../framework/routing/Path";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import TypedTransition from "../../framework/routing/TypedTransition";
@@ -30,6 +30,15 @@ class AttendanceSheetView extends AbstractComponent {
         super.UNSAFE_componentWillMount();
     }
 
+    // Fires on Navigator pop-back (RosterView -> here). Recomputes the selected
+    // date's type-picker rows and the strip dot so a save made on the roster
+    // surfaces immediately without the user re-tapping the date.
+    willFocus() {
+        if (this.state && this.state.selectedDate) {
+            this.dispatchAction(AttendanceSheetActions.Names.REFRESH);
+        }
+    }
+
     _onSelectDate = (date) => {
         this.dispatchAction(AttendanceSheetActions.Names.SELECT_DATE, {date});
     };
@@ -54,7 +63,7 @@ class AttendanceSheetView extends AbstractComponent {
         const {groupSubject} = this.props;
         const {selectedDate, stripDates, statusByDate, attendanceTypes, sessionByType} = this.state;
         const selectedStatus = selectedDate
-            ? statusByDate.get(moment(selectedDate).format("YYYY-MM-DD"))
+            ? statusByDate.get(DateTimeUtil.toCalendarDateString(selectedDate))
             : null;
 
         return (

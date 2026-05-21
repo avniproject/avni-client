@@ -6,6 +6,7 @@ import SessionService from "../../service/SessionService";
 import AttendanceRecordService from "../../service/AttendanceRecordService";
 import ConceptService from "../../service/ConceptService";
 import {AttendanceRecord} from "avni-models";
+import {DateTimeUtil} from "openchs-models";
 
 const STRIP_WINDOW_DAYS = 14;
 
@@ -62,10 +63,39 @@ export class AttendanceSheetActions {
     }
 
     static onSelectDate(state, action, context) {
+        const date = action.date;
         const sessionByType = AttendanceSheetActions._buildSessionByType(
-            context, state.groupSubject, action.date, state.attendanceTypes
+            context, state.groupSubject, date, state.attendanceTypes
         );
-        return {...state, selectedDate: action.date, sessionByType};
+        const statusByDate = AttendanceSheetActions._refreshStatusForDate(
+            context, state.groupSubject, state.calendar, date, state.statusByDate
+        );
+        return {...state, selectedDate: date, sessionByType, statusByDate};
+    }
+
+    // After a save, the type-picker rows need fresh session info AND the date strip
+    // dot for the selected day needs to reflect what was just saved. Dispatched on
+    // route focus (AttendanceSheetView.changeFocus) so going back from RosterView
+    // refreshes both without a re-mount.
+    static onRefresh(state, action, context) {
+        if (!state.selectedDate || !state.groupSubject) return state;
+        const sessionByType = AttendanceSheetActions._buildSessionByType(
+            context, state.groupSubject, state.selectedDate, state.attendanceTypes
+        );
+        const statusByDate = AttendanceSheetActions._refreshStatusForDate(
+            context, state.groupSubject, state.calendar, state.selectedDate, state.statusByDate
+        );
+        return {...state, sessionByType, statusByDate};
+    }
+
+    static _refreshStatusForDate(context, groupSubject, calendar, date, statusByDate) {
+        const sessionService = context.get(SessionService);
+        const next = new Map(statusByDate);
+        const key = AttendanceSheetActions._dateKey(date);
+        const existing = next.get(key) || {dayType: null, marker: null};
+        const summary = sessionService.summaryForDate(groupSubject.uuid, date);
+        next.set(key, {...existing, held: summary.held, didntHappen: summary.didntHappen});
+        return next;
     }
 
     static _buildSessionByType(context, groupSubject, date, attendanceTypes) {
@@ -98,8 +128,10 @@ export class AttendanceSheetActions {
         return dates;
     }
 
+    // Matches Session.scheduledDate's storage normalisation so date-strip keys
+    // line up with the Session rows that other services key on.
     static _dateKey(d) {
-        return moment(d).format("YYYY-MM-DD");
+        return DateTimeUtil.toCalendarDateString(d);
     }
 
     static clone(state) {
@@ -117,11 +149,13 @@ const Prefix = "AS";
 AttendanceSheetActions.Names = {
     ON_LOAD: `${Prefix}.ON_LOAD`,
     SELECT_DATE: `${Prefix}.SELECT_DATE`,
+    REFRESH: `${Prefix}.REFRESH`,
 };
 
 AttendanceSheetActions.Map = new Map([
     [AttendanceSheetActions.Names.ON_LOAD, AttendanceSheetActions.onLoad],
     [AttendanceSheetActions.Names.SELECT_DATE, AttendanceSheetActions.onSelectDate],
+    [AttendanceSheetActions.Names.REFRESH, AttendanceSheetActions.onRefresh],
 ]);
 
 export default AttendanceSheetActions;

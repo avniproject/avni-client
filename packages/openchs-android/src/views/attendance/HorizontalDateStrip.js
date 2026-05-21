@@ -1,10 +1,11 @@
 import React from "react";
-import {FlatList, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import PropTypes from "prop-types";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import moment from "moment";
+import {DateTimeUtil} from "openchs-models";
 
 // dot styling per dayType + Held/DidntHappen mix. Order matches the spec:
 //   green dot       = at least one Held session
@@ -24,10 +25,20 @@ class HorizontalDateStrip extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
+        this._scrollRef = React.createRef();
+    }
+
+    componentDidMount() {
+        // Today sits at the end of the strip window — scroll there once on mount
+        // so it lands in view. ScrollView measures synchronously, but the actual
+        // scroll has to wait for layout, so defer one tick.
+        setTimeout(() => {
+            this._scrollRef.current && this._scrollRef.current.scrollToEnd({animated: false});
+        }, 0);
     }
 
     _dateKey(d) {
-        return moment(d).format("YYYY-MM-DD");
+        return DateTimeUtil.toCalendarDateString(d);
     }
 
     _renderIndicator(status) {
@@ -47,7 +58,7 @@ class HorizontalDateStrip extends AbstractComponent {
         return <View style={styles.indicatorPlaceholder}/>;
     }
 
-    _renderCell = ({item: date}) => {
+    _renderCell(date) {
         const key = this._dateKey(date);
         const status = this.props.statusByDate.get(key);
         const isSelected = this._dateKey(this.props.selectedDate) === key;
@@ -57,6 +68,7 @@ class HorizontalDateStrip extends AbstractComponent {
 
         return (
             <TouchableOpacity
+                key={key}
                 onPress={() => this.props.onSelect(date)}
                 style={[
                     styles.cell,
@@ -72,22 +84,18 @@ class HorizontalDateStrip extends AbstractComponent {
                 {this._renderIndicator(status)}
             </TouchableOpacity>
         );
-    };
+    }
 
     render() {
-        const {dates, selectedDate} = this.props;
-        const initialScrollIndex = Math.max(0, dates.findIndex(d => this._dateKey(d) === this._dateKey(selectedDate)));
+        const {dates} = this.props;
         return (
-            <FlatList
+            <ScrollView
+                ref={this._scrollRef}
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                data={dates}
-                keyExtractor={(d) => this._dateKey(d)}
-                renderItem={this._renderCell}
-                initialScrollIndex={initialScrollIndex}
-                getItemLayout={(_data, index) => ({length: CELL_WIDTH, offset: CELL_WIDTH * index, index})}
-                contentContainerStyle={styles.strip}
-            />
+                contentContainerStyle={styles.strip}>
+                {dates.map(d => this._renderCell(d))}
+            </ScrollView>
         );
     }
 }
