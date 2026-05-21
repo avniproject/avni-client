@@ -19,6 +19,7 @@ include makefiles/androidDevice.mk
 include makefiles/patches.mk
 include makefiles/util.mk
 include makefiles/common.mk
+include makefiles/tanuh.mk
 
 define _open_resource
 	@if [ -n "$$CIRCLECI" ] || [ -n "$$CI" ]; then \

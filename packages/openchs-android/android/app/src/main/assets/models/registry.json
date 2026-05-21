@@ -1,0 +1,4 @@
+{
+  "_comment": "Per-flavour edge-model registry. The main flavour ships no models — flavours that need on-device inference (currently `tanuh`) override this file at build time with their own registry entries. See ~/.claude/plans/composed-tumbling-bachman.md and tools/edge-model/README.md for the build flow.",
+  "models": {}
+}

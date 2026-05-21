@@ -1,0 +1,24 @@
+{
+  "_comment": "Override for TANUH's MViT2 oral-cancer model (mvit2_fold5_2_latest_traced.pt). Captures the exact preprocessing math from the AI team's PoC at ~/IdeaProjects/aiapp (MainActivity.kt:146-211) so on-device inference is bit-for-bit identical to what was clinically validated. Plugin definitions: preprocessing/Preprocessors.kt → MeanTargetBgrRoundedPreprocessor; decoding/Decoders.kt → SigmoidBinaryDecoder.",
+  "engine": "pytorch",
+  "input": {
+    "preprocessor": "mean-target-bgr-rounded",
+    "params": {
+      "size": [256, 256],
+      "interpolation": "bilinear",
+      "channel_order": "BGR",
+      "layout": "CHW",
+      "scale": 0.00392156862745098,
+      "mean_target": 128,
+      "round_decimals": 1,
+      "uint8_cast": true
+    }
+  },
+  "output": {
+    "decoder": "sigmoid-binary",
+    "params": {
+      "threshold": 0.5,
+      "labels": ["Negative", "Positive"]
+    }
+  }
+}

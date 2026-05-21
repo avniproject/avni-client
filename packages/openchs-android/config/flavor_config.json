@@ -54,5 +54,14 @@
       "project_name": "avni-client",
       "env_var_name": "GRAMIN_BUGSNAG_API_KEY"
     }
+  },
+  "tanuh": {
+    "server_url": "https://server.avniproject.org",
+    "package_name": "org.tanuh.openchsclient",
+    "prod_admin_password_env_var_name": "OPENCHS_PROD_ADMIN_PASSWORD",
+    "bugsnag": {
+      "project_name": "tanuh-avni-client",
+      "env_var_name": "TANUH_BUGSNAG_API_KEY"
+    }
   }
 }
