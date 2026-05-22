@@ -118,7 +118,13 @@ Requires `project` scope on the gh token — if the mutation fails with a scope 
 
 - **Do not commit eagerly.** Wait for the user to test changes on-device and confirm correctness before creating commits. Only commit when explicitly asked.
 - **Commit message format:** `#<card-number> | One-line summary`, followed by optional details. Always ask for the card number if not clear from context.
+- **Keep commit messages terse.** One-line summary + a short body (a few bullets at most) explaining *why*, not *what*. The diff already shows what changed. No phase-by-phase narration, no restatement of the spec, no roadmap of future work.
 - **Always ask before pushing.** Never push to remote without explicit confirmation.
+
+## Code Style
+
+- **No verbose method docstrings or block comments.** Don't preface a method with a paragraph explaining what it does — well-named identifiers do that already. Only add a comment when the *why* is non-obvious (a hidden constraint, a workaround for a specific bug, behavior that would surprise a reader). One short line; never a multi-line block.
+- Don't reference the current task, ticket, or phase in comments ("added for #1933 Phase 7", "see review #4") — that belongs in the PR description and rots as the code evolves.
 ## Key Technical Details
 
 - React Native 0.77.3, React 18.3.1
