@@ -278,8 +278,6 @@
     "followUpsKeptCount": "{{count}} रखे गए क्योंकि एन्काउंटर पहले से भरा हुआ था",
     "confirmationOk": "ठीक है",
     "didntHappenViewTitle": "नहीं हुआ",
-    "markAnywayViewTitle": "फिर भी चिह्नित करें",
-    "markAnywayWhenToUse": "इस सत्र को गैर-कार्यदिवस पर क्यों चिह्नित किया जा रहा है, यह दर्ज करें। फिर हर उपस्थिति प्रकार को हुआ या नहीं हुआ के रूप में चिह्नित करें।",
     "reasonRequired": "कारण (आवश्यक)",
     "notesOptional": "नोट्स (वैकल्पिक)",
     "didntHappenWhenToUse": "कक्षा वास्तव में नहीं हुई, या उपस्थिति दर्ज नहीं की गई — कारण चुनें।",

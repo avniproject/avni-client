@@ -21,12 +21,11 @@ export class RosterActions {
             followUpEncounterTypeUuid: null,
             saveError: null,
             pendingAutoShareWorkItem: null,
-            sessionReasonConceptUUID: null,
         };
     }
 
     static onLoad(state, action, context) {
-        const {groupSubject, attendanceType, scheduledDate, sessionReasonConceptUUID, sessionNotes} = action;
+        const {groupSubject, attendanceType, scheduledDate} = action;
         const groupSubjectService = context.get(GroupSubjectService);
         const sessionService = context.get(SessionService);
         const recordService = context.get(AttendanceRecordService);
@@ -55,13 +54,6 @@ export class RosterActions {
             ? RosterActions._answersFor(conceptService, absenceReasonConceptUUID)
             : [];
 
-        // Existing session wins (re-mark preserves prior values); else seed from
-        // the Mark-anyway carry-forward; else empty.
-        const seededNotes = realmSession ? (realmSession.notes || "")
-            : (sessionNotes || "");
-        const seededReasonConceptUUID = realmSession ? (realmSession.reasonConceptUUID || null)
-            : (sessionReasonConceptUUID || null);
-
         return {
             ...state,
             groupSubject,
@@ -69,12 +61,11 @@ export class RosterActions {
             scheduledDate,
             existingSession: RosterActions._snapshotSession(realmSession),
             roster,
-            notes: seededNotes,
+            notes: realmSession ? (realmSession.notes || "") : "",
             absenceReasonAnswers,
             followUpEncounterTypeUuid: attendanceType.getFollowUpEncounterTypeUUID(),
             saveError: null,
             pendingAutoShareWorkItem: null,
-            sessionReasonConceptUUID: seededReasonConceptUUID,
         };
     }
 
@@ -115,8 +106,7 @@ export class RosterActions {
     }
 
     static onSave(state, action, context) {
-        const {groupSubject, attendanceType, scheduledDate, existingSession, roster, notes,
-               sessionReasonConceptUUID} = state;
+        const {groupSubject, attendanceType, scheduledDate, existingSession, roster, notes} = state;
         if (_.isEmpty(roster)) {
             return {...state, saveError: "rosterEmptyError", lastSaveResult: null, pendingAutoShareWorkItem: null};
         }
@@ -131,7 +121,6 @@ export class RosterActions {
         session.scheduledDate = scheduledDate;
         session.attendanceTypeUUID = attendanceType.uuid;
         session.notes = notes || null;
-        session.reasonConceptUUID = sessionReasonConceptUUID || null;
         session.markedByUserName = userInfoService.getUserInfo().username;
         session.voided = false;
 

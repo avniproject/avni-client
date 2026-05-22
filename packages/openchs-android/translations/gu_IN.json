@@ -273,8 +273,6 @@
     "followUpsKeptCount": "{{count}} રાખવામાં આવ્યા કારણ કે એન્કાઉન્ટર પહેલેથી ભરાયેલું હતું",
     "confirmationOk": "ઠીક છે",
     "didntHappenViewTitle": "થયું નહીં",
-    "markAnywayViewTitle": "છતાં ચિહ્નિત કરો",
-    "markAnywayWhenToUse": "બિન-કાર્યદિવસે આ સત્ર શા માટે ચિહ્નિત થઈ રહ્યું છે તે દાખલ કરો. પછી દરેક હાજરી પ્રકારને થયું અથવા થયું નહીં તરીકે ચિહ્નિત કરો.",
     "reasonRequired": "કારણ (આવશ્યક)",
     "notesOptional": "નોંધો (વૈકલ્પિક)",
     "didntHappenWhenToUse": "વર્ગ ખરેખર થયો ન હતો, અથવા હાજરી નોંધાઈ ન હતી — કારણ પસંદ કરો.",

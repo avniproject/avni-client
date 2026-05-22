@@ -13,7 +13,6 @@ import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import Reducers from "../../reducer";
 import {DidntHappenActions} from "../../action/attendance/DidntHappenActions";
-import {AttendanceSheetActions} from "../../action/attendance/AttendanceSheetActions";
 import SessionShareService from "../../service/attendance/SessionShareService";
 
 @Path("/didntHappenPickerView")
@@ -23,14 +22,6 @@ class DidntHappenPickerView extends AbstractComponent {
         attendanceType: PropTypes.object.isRequired,
         // Canonical "YYYY-MM-DD" — the attendance flow is time/timezone agnostic.
         scheduledDate: PropTypes.string.isRequired,
-        // "capture" = Mark anyway opt-in: Confirm stashes outcome+notes on the
-        // AttendanceSheet store and pops back; no session is saved here.
-        // Otherwise (default) saves a DidntHappen session.
-        mode: PropTypes.oneOf(["capture", "save"]),
-        // For capture mode and for save mode entered after Mark-anyway-unlock —
-        // seeds the reason+notes picker.
-        seedReasonConceptUUID: PropTypes.string,
-        seedNotes: PropTypes.string,
     };
 
     constructor(props, context) {
@@ -43,8 +34,6 @@ class DidntHappenPickerView extends AbstractComponent {
             groupSubject: this.props.groupSubject,
             attendanceType: this.props.attendanceType,
             scheduledDate: this.props.scheduledDate,
-            seedReasonConceptUUID: this.props.seedReasonConceptUUID,
-            seedNotes: this.props.seedNotes,
         });
         super.UNSAFE_componentWillMount();
     }
@@ -71,23 +60,10 @@ class DidntHappenPickerView extends AbstractComponent {
         return match ? match.name : this.I18n.t("selectReason");
     }
 
-    _isCaptureMode = () => this.props.mode === "capture";
-
     _onSave = () => {
         if (!this.state.reasonConceptUUID) return;
         if (this._saveInFlight) return;
         this._saveInFlight = true;
-        if (this._isCaptureMode()) {
-            // Capture mode: don't save a session, just stash the outcome on the
-            // AttendanceSheet store and pop back. The unlock lets the user mark
-            // each attendance type as Held or DidntHappen on the sheet itself.
-            this.dispatchAction(AttendanceSheetActions.Names.SET_MARK_ANYWAY_OUTCOME, {
-                reasonConceptUUID: this.state.reasonConceptUUID,
-                notes: this.state.notes || "",
-            });
-            TypedTransition.from(this).goBack();
-            return;
-        }
         this.dispatchAction(DidntHappenActions.Names.SAVE);
         const fresh = this.getContextState(Reducers.reducerKeys.attendanceDidntHappen);
         const wi = fresh && fresh.pendingAutoShareWorkItem;
@@ -107,21 +83,13 @@ class DidntHappenPickerView extends AbstractComponent {
         const {reasonConceptUUID, notes} = this.state;
         const subline = moment.utc(scheduledDate, "YYYY-MM-DD").format("ddd D MMM") + " · " + groupSubject.nameString;
         const canSave = !!reasonConceptUUID;
-        const isCapture = this._isCaptureMode();
-        const title = isCapture
-            ? this.I18n.t("markAnywayViewTitle")
-            : attendanceType.name + " — " + this.I18n.t("didntHappenViewTitle");
-        const helpText = isCapture
-            ? this.I18n.t("markAnywayWhenToUse")
-            : this.I18n.t("didntHappenWhenToUse");
-        const saveLabel = isCapture ? this.I18n.t("confirmContinue") : this.I18n.t("saveButton");
 
         return (
             <CHSContainer>
-                <AppHeader title={title} subTitle={subline}/>
+                <AppHeader title={attendanceType.name + " — " + this.I18n.t("didntHappenViewTitle")} subTitle={subline}/>
                 <CHSContent>
                     <ScrollView style={{padding: 16}}>
-                        <Text style={styles.helpText}>{helpText}</Text>
+                        <Text style={styles.helpText}>{this.I18n.t("didntHappenWhenToUse")}</Text>
 
                         <Text style={styles.fieldLabel}>{this.I18n.t("reasonRequired").toUpperCase()}</Text>
                         <TouchableOpacity onPress={this._onPickReason} style={styles.picker}>
@@ -145,7 +113,7 @@ class DidntHappenPickerView extends AbstractComponent {
                                 onPress={this._onSave}
                                 disabled={!canSave}
                                 style={[styles.saveBtn, !canSave && styles.saveBtnDisabled]}>
-                                <Text style={styles.saveText}>{saveLabel}</Text>
+                                <Text style={styles.saveText}>{this.I18n.t("saveButton")}</Text>
                             </TouchableOpacity>
                         </View>
                     </ScrollView>

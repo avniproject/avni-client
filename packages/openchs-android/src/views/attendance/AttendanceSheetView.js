@@ -51,36 +51,18 @@ class AttendanceSheetView extends AbstractComponent {
         this.dispatchAction(AttendanceSheetActions.Names.SELECT_DATE, {date: dateKey});
     };
 
-    _navigateWithType = (attendanceType, ViewClass, extra = {}) => {
+    _navigateWithType = (attendanceType, ViewClass) => {
         TypedTransition.from(this)
             .with({
                 groupSubject: this.props.groupSubject,
                 attendanceType,
                 scheduledDate: this.state.selectedDate,
-                ...extra,
             })
             .to(ViewClass, true);
     };
 
-    // While Mark-anyway-unlocked, the captured outcome+notes carry forward into
-    // whichever flow the user picks next, so the resulting session keeps the
-    // Mark-anyway reason.
-    _carryForward = () => {
-        if (!this.state.markAnywayUnlocked) return {};
-        return {
-            sessionReasonConceptUUID: this.state.markAnywayReasonConceptUUID,
-            sessionNotes: this.state.markAnywayNotes || "",
-        };
-    };
-
-    _onMark = (attendanceType) => this._navigateWithType(attendanceType, RosterView, this._carryForward());
-    _onDidntHappen = (attendanceType) => {
-        const extra = this.state.markAnywayUnlocked ? {
-            seedReasonConceptUUID: this.state.markAnywayReasonConceptUUID,
-            seedNotes: this.state.markAnywayNotes || "",
-        } : {};
-        this._navigateWithType(attendanceType, DidntHappenPickerView, extra);
-    };
+    _onMark = (attendanceType) => this._navigateWithType(attendanceType, RosterView);
+    _onDidntHappen = (attendanceType) => this._navigateWithType(attendanceType, DidntHappenPickerView);
 
     // EDIT branches on the existing session's status — Held re-opens the roster,
     // DidntHappen re-opens the reason picker pre-populated.
@@ -175,27 +157,18 @@ class AttendanceSheetView extends AbstractComponent {
         this.setState({markAnywayConfirmVisible: true});
     };
     _onMarkAnywayCancel = () => this.setState({markAnywayConfirmVisible: false});
-    // Confirmation Continue → outcome capture screen (DidntHappenPickerView in
-    // capture mode). The user picks reason+notes once; on Confirm there, the
-    // sheet's redux state is updated with the captured outcome and the picker
-    // unlocks so the user can mark each attendance type Held or DidntHappen.
+    // Mark-anyway on calendar-off days routes to the DidntHappen picker so the
+    // user supplies a required reason explaining the override. Picking
+    // attendanceType[0] keeps v1 simple; future iteration can ask first.
     _onMarkAnywayContinue = () => {
-        const unmarked = this._unmarkedTypes();
-        const targetType = unmarked[0] || (this.state.attendanceTypes || [])[0];
-        if (!targetType) {
+        const firstType = (this.state.attendanceTypes || [])[0];
+        if (!firstType) {
             this.setState({markAnywayConfirmVisible: false});
+            this.showError(this.I18n.t("noAttendanceTypesConfigured"));
             return;
         }
         this.setState({markAnywayConfirmVisible: false}, () => {
-            this._navigateWithType(targetType, DidntHappenPickerView, {mode: "capture"});
-        });
-    };
-
-    _unmarkedTypes = () => {
-        const {attendanceTypes, sessionByType} = this.state;
-        return (attendanceTypes || []).filter(at => {
-            const info = sessionByType.get(at.uuid);
-            return !info || !info.session;
+            this._navigateWithType(firstType, DidntHappenPickerView);
         });
     };
 
@@ -204,27 +177,18 @@ class AttendanceSheetView extends AbstractComponent {
         const {selectedDate, stripDates, statusByDate, attendanceTypes, sessionByType} = this.state;
         const selectedStatus = selectedDate ? statusByDate.get(selectedDate) : null;
         // On weekly_off / public_holiday, the per-type Mark/DidntHappen buttons
-        // would let the user bypass the Mark-anyway opt-in. Hide unmarked rows
-        // until the user confirms via the banner CTA; saved-session rows always
-        // show so they can be re-opened or edited.
+        // would let the user bypass the required Mark-anyway reason flow. We
+        // hide unmarked rows so the user is forced through the banner CTA, but
+        // keep rows for types that already have a saved session so they can be
+        // re-opened or edited.
         const dayType = selectedStatus && selectedStatus.dayType;
         const isHolidayLike = dayType === "weekly_off" || dayType === "public_holiday";
-        // On a holiday, unmarked rows stay hidden until the user has confirmed
-        // Mark anyway (state.markAnywayUnlocked). Saved-session rows always
-        // render so Edit / overflow remain reachable.
-        const lockUnmarked = isHolidayLike && !this.state.markAnywayUnlocked;
-        const visibleTypes = lockUnmarked
+        const visibleTypes = isHolidayLike
             ? (attendanceTypes || []).filter(at => {
                 const info = sessionByType.get(at.uuid);
                 return info && info.session;
             })
             : (attendanceTypes || []);
-        // Hide Mark anyway once the user is unlocked OR any session is saved for the date.
-        const hasAnySession = (attendanceTypes || []).some(at => {
-            const info = sessionByType.get(at.uuid);
-            return info && info.session;
-        });
-        const showMarkAnyway = isHolidayLike && !this.state.markAnywayUnlocked && !hasAnySession;
 
         return (
             <CHSContainer>
@@ -242,7 +206,7 @@ class AttendanceSheetView extends AbstractComponent {
                                 selectedDate={selectedDate}
                                 dayType={dayType}
                                 marker={selectedStatus && selectedStatus.marker}
-                                onMarkAnyway={showMarkAnyway ? this._onMarkAnyway : undefined}
+                                onMarkAnyway={this._onMarkAnyway}
                             />
                             <AttendanceTypePicker
                                 attendanceTypes={visibleTypes}

@@ -21,7 +21,7 @@ export class DidntHappenActions {
     }
 
     static onLoad(state, action, context) {
-        const {groupSubject, attendanceType, scheduledDate, seedReasonConceptUUID, seedNotes} = action;
+        const {groupSubject, attendanceType, scheduledDate} = action;
         const sessionService = context.get(SessionService);
         const conceptService = context.get(ConceptService);
 
@@ -32,20 +32,14 @@ export class DidntHappenActions {
             ? DidntHappenActions._answersFor(conceptService, outcomeConceptUUID)
             : [];
 
-        // Existing session wins (re-mark); else seed from Mark-anyway carry-forward; else empty.
-        const initialReasonConceptUUID = realmSession ? realmSession.reasonConceptUUID
-            : (seedReasonConceptUUID || null);
-        const initialNotes = realmSession ? (realmSession.notes || "")
-            : (seedNotes || "");
-
         return {
             ...state,
             groupSubject,
             attendanceType,
             scheduledDate,
             existingSession: DidntHappenActions._snapshotSession(realmSession),
-            reasonConceptUUID: initialReasonConceptUUID,
-            notes: initialNotes,
+            reasonConceptUUID: realmSession ? realmSession.reasonConceptUUID : null,
+            notes: realmSession ? (realmSession.notes || "") : "",
             reasonAnswers,
             pendingAutoShareWorkItem: null,
         };

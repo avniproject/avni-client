@@ -25,15 +25,12 @@ class RosterView extends AbstractComponent {
         attendanceType: PropTypes.object.isRequired,
         // Canonical "YYYY-MM-DD" — the attendance flow is time/timezone agnostic.
         scheduledDate: PropTypes.string.isRequired,
-        // Carried forward from DidntHappenPickerView when entered via Mark
-        // anyway → Mark held — seeds the Held session's reason + notes.
-        sessionReasonConceptUUID: PropTypes.string,
-        sessionNotes: PropTypes.string,
     };
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.attendanceRoster);
         this._pickingFor = null;
+        // Double-tap on Save would re-dispatch and drop pendingAutoShareWorkItem.
         this._saveInFlight = false;
     }
 
@@ -42,8 +39,6 @@ class RosterView extends AbstractComponent {
             groupSubject: this.props.groupSubject,
             attendanceType: this.props.attendanceType,
             scheduledDate: this.props.scheduledDate,
-            sessionReasonConceptUUID: this.props.sessionReasonConceptUUID,
-            sessionNotes: this.props.sessionNotes,
         });
         super.UNSAFE_componentWillMount();
     }
