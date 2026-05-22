@@ -22,7 +22,8 @@ class RosterView extends AbstractComponent {
     static propTypes = {
         groupSubject: PropTypes.object.isRequired,
         attendanceType: PropTypes.object.isRequired,
-        scheduledDate: PropTypes.instanceOf(Date).isRequired,
+        // Canonical "YYYY-MM-DD" — the attendance flow is time/timezone agnostic.
+        scheduledDate: PropTypes.string.isRequired,
     };
 
     constructor(props, context) {
@@ -43,9 +44,16 @@ class RosterView extends AbstractComponent {
     _onToggle = (subjectUUID) => this.dispatchAction(RosterActions.Names.TOGGLE_PRESENCE, {subjectUUID});
     _onSetNotes = (notes) => this.dispatchAction(RosterActions.Names.SET_NOTES, {notes});
     _onMarkAllAbsent = () => this.dispatchAction(RosterActions.Names.MARK_ALL_ABSENT);
+    // dispatchAction returns BEFORE React's setState (driven by store.subscribe) flushes,
+    // so this.state would still be the pre-save snapshot. Read directly from the store.
     _onSave = () => {
         this.dispatchAction(RosterActions.Names.SAVE);
-        const result = this.state.lastSaveResult;
+        const freshState = this.getContextState(Reducers.reducerKeys.attendanceRoster);
+        if (freshState && freshState.saveError) {
+            this.showError(this.I18n.t(freshState.saveError));
+            return;
+        }
+        const result = freshState && freshState.lastSaveResult;
         const hasFollowUps = result && ((result.createdFollowUps || []).length > 0 || (result.skippedFollowUps || []).length > 0);
         if (hasFollowUps) {
             this.setState({confirmationVisible: true});
@@ -54,9 +62,12 @@ class RosterView extends AbstractComponent {
         }
     };
 
+    // Modal needs to flip invisible before goBack unmounts the host — otherwise the
+    // native dialog can be left stranded as a translucent overlay on the prior screen.
     _onDismissConfirmation = () => {
-        this.setState({confirmationVisible: false});
-        TypedTransition.from(this).goBack();
+        this.setState({confirmationVisible: false}, () => {
+            TypedTransition.from(this).goBack();
+        });
     };
 
     _onPickReason = (subjectUUID) => {
@@ -110,7 +121,7 @@ class RosterView extends AbstractComponent {
         const {groupSubject, attendanceType, scheduledDate} = this.props;
         const {roster, notes} = this.state;
         const summary = this._summaryCounts();
-        const headerSubline = moment(scheduledDate).format("ddd D MMM") + " · " + groupSubject.nameString;
+        const headerSubline = moment.utc(scheduledDate, "YYYY-MM-DD").format("ddd D MMM") + " · " + groupSubject.nameString;
 
         return (
             <CHSContainer>

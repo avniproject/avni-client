@@ -41,7 +41,7 @@ function makeBaseState({existingSession = null, follow_up_encounter_type_uuid = 
     return {
         groupSubject: makeGroupSubject(),
         attendanceType: makeAttendanceType({follow_up_encounter_type_uuid}),
-        scheduledDate: new Date("2026-05-21"),
+        scheduledDate: "2026-05-21",
         existingSession,
         roster: [
             {subjectUUID: "s1", name: "Aarav", status: AttendanceRecord.status.PRESENT, reasonConceptUUID: null},
@@ -64,13 +64,14 @@ describe("RosterActions.onSave — atomic save composition", () => {
     let individualService;
     let programEnrolmentService;
     let attendanceRecordService;
+    let encounterService;
+    let programEncounterService;
 
     beforeEach(() => {
-        saveOrUpdateSpy = jest.fn();
-        sessionService = {
-            saveOrUpdate: saveOrUpdateSpy,
-            _findFollowUpEncounter: () => ({encounter: null, schemaName: null}),
-        };
+        // The new saveOrUpdate returns voidedFollowUps + skippedFollowUps; the
+        // caller uses those to build lastSaveResult, so the spy stub must too.
+        saveOrUpdateSpy = jest.fn(() => ({voidedFollowUps: [], skippedFollowUps: []}));
+        sessionService = {saveOrUpdate: saveOrUpdateSpy};
         groupSubjectService = {
             getGroupSubjects: () => [
                 {memberSubject: {uuid: "s1", voided: false, subjectType: STUDENT_SUBJECT_TYPE}},
@@ -79,9 +80,18 @@ describe("RosterActions.onSave — atomic save composition", () => {
         userInfoService = {getUserInfo: () => ({username: "marker.user"})};
         entityService = {findByUUID: jest.fn()};
         formMappingService = {findProgramUUIDForEncounterType: jest.fn(() => null)};
-        individualService = {findByUUID: jest.fn(uuid => ({uuid, nameString: uuid.toUpperCase()}))};
+        // Individuals must carry the matching subjectType so FollowUpResolver's
+        // studentLookup filter accepts them. Heterogeneous groups are protected
+        // by that filter — mismatched students simply yield null.
+        individualService = {
+            findByUUID: jest.fn(uuid => ({uuid, nameString: uuid.toUpperCase(), subjectType: STUDENT_SUBJECT_TYPE})),
+        };
         programEnrolmentService = {getEnrolmentBySubjectUuidAndProgramUuid: jest.fn(() => null)};
         attendanceRecordService = {findBySession: jest.fn(() => [])};
+        // saveOrUpdate handles the encounter lookups internally now; these stubs
+        // exist purely to satisfy DI when nothing in the test exercises them.
+        encounterService = {findByUUID: jest.fn(() => null)};
+        programEncounterService = {findByUUID: jest.fn(() => null)};
     });
 
     function buildContext() {
@@ -95,6 +105,8 @@ describe("RosterActions.onSave — atomic save composition", () => {
         const ProgramEnrolmentService = require("../../../src/service/ProgramEnrolmentService").default;
         const AttendanceRecordService = require("../../../src/service/AttendanceRecordService").default;
         const ConceptService = require("../../../src/service/ConceptService").default;
+        const EncounterService = require("../../../src/service/EncounterService").default;
+        const ProgramEncounterService = require("../../../src/service/program/ProgramEncounterService").default;
         return makeContext([
             [SessionService, sessionService],
             [GroupSubjectService, groupSubjectService],
@@ -105,6 +117,8 @@ describe("RosterActions.onSave — atomic save composition", () => {
             [ProgramEnrolmentService, programEnrolmentService],
             [AttendanceRecordService, attendanceRecordService],
             [ConceptService, {getConceptByUUID: () => null}],
+            [EncounterService, encounterService],
+            [ProgramEncounterService, programEncounterService],
         ]);
     }
 
@@ -123,7 +137,8 @@ describe("RosterActions.onSave — atomic save composition", () => {
         assert.equal(args.session.markedByUserName, "marker.user");
         assert.equal(args.attendanceRecords.length, 3);
         assert.deepEqual(args.followUps, []);
-        assert.deepEqual(args.voidedFollowUps, []);
+        assert.deepEqual(args.previousRecords, []);
+        assert.deepEqual(args.voidedRecordUUIDs, []);
     });
 
     it("emits no follow-up encounters when the configured EncounterType is voided / missing", () => {
@@ -171,15 +186,34 @@ describe("RosterActions.onSave — atomic save composition", () => {
         assert.instanceOf(args.followUps[0].encounter, ProgramEncounter);
     });
 
+    it("filters out students whose subject type doesn't match the inferred member type (heterogeneous group safety)", () => {
+        const encounterType = {uuid: "et-uuid", name: "Home Visit"};
+        entityService.findByUUID.mockReturnValue(encounterType);
+        // s2 belongs to a different subject type — FollowUpResolver.studentLookup
+        // returns null for them, so autoCreateFollowUps skips them.
+        const OTHER_SUBJECT_TYPE = {uuid: "st-other", group: false};
+        individualService.findByUUID = jest.fn(uuid => {
+            const subjectType = uuid === "s2" ? OTHER_SUBJECT_TYPE : STUDENT_SUBJECT_TYPE;
+            return {uuid, nameString: uuid.toUpperCase(), subjectType};
+        });
+        const state = makeBaseState({follow_up_encounter_type_uuid: "et-uuid"});
+
+        RosterActions.onSave(state, {}, buildContext());
+
+        const args = saveOrUpdateSpy.mock.calls[0][0];
+        // s2 would have been the only follow-up candidate; gets filtered.
+        assert.equal(args.followUps.length, 0);
+    });
+
     it("reuses prior AttendanceRecord UUIDs on re-mark (upsert in place, no duplicates)", () => {
         // Existing session with two prior records for s1 + s2; on re-mark the new
         // records should carry those same UUIDs so db.create UpdateMode.Modified
         // replaces the rows instead of inserting new ones.
-        const priorR1 = {uuid: "rec-1-prior", subjectUUID: "s1", followUpEncounterUUID: null, voided: false};
-        const priorR2 = {uuid: "rec-2-prior", subjectUUID: "s2", followUpEncounterUUID: null, voided: false};
+        const priorR1 = {uuid: "rec-1-prior", subjectUUID: "s1", status: AttendanceRecord.status.PRESENT, followUpEncounterUUID: null, voided: false};
+        const priorR2 = {uuid: "rec-2-prior", subjectUUID: "s2", status: AttendanceRecord.status.ABSENT, followUpEncounterUUID: null, voided: false};
         attendanceRecordService.findBySession.mockReturnValue([priorR1, priorR2]);
         const state = makeBaseState();
-        state.existingSession = {uuid: "session-existing", notes: "old"};
+        state.existingSession = {uuid: "session-existing", status: Session.status.HELD, notes: "old", reasonConceptUUID: null};
 
         RosterActions.onSave(state, {}, buildContext());
 
@@ -191,6 +225,40 @@ describe("RosterActions.onSave — atomic save composition", () => {
         assert.notEqual(uuidBySubject["s3"], undefined);
         assert.notEqual(uuidBySubject["s3"], "rec-1-prior");
         assert.notEqual(uuidBySubject["s3"], "rec-2-prior");
+        // previousRecords are forwarded as plain snapshots so the service can
+        // drive Session.voidStaleFollowUps inside its write transaction.
+        assert.equal(args.previousRecords.length, 2);
+        assert.equal(args.previousRecords[0].uuid, "rec-1-prior");
+    });
+
+    it("cascade-voids AttendanceRecords for members who left the group between marks", () => {
+        // s2 was in the prior records but has been removed from the current
+        // roster (membershipEndDate set, filtered out at ON_LOAD time). Their
+        // AttendanceRecord must be voided so it doesn't sync as live attendance.
+        const priorR2 = {uuid: "rec-2-prior", subjectUUID: "s2", status: AttendanceRecord.status.ABSENT, followUpEncounterUUID: null, voided: false};
+        attendanceRecordService.findBySession.mockReturnValue([priorR2]);
+        const state = makeBaseState();
+        state.existingSession = {uuid: "session-existing", status: Session.status.HELD, notes: "", reasonConceptUUID: null};
+        // Current roster excludes s2 (the departed member).
+        state.roster = [
+            {subjectUUID: "s1", name: "Aarav", status: AttendanceRecord.status.PRESENT, reasonConceptUUID: null},
+            {subjectUUID: "s3", name: "Chirag", status: AttendanceRecord.status.PRESENT, reasonConceptUUID: null},
+        ];
+
+        RosterActions.onSave(state, {}, buildContext());
+
+        const args = saveOrUpdateSpy.mock.calls[0][0];
+        assert.deepEqual(args.voidedRecordUUIDs, ["rec-2-prior"]);
+    });
+
+    it("refuses to save when the roster is empty (no active group members)", () => {
+        const state = makeBaseState();
+        state.roster = [];
+
+        const newState = RosterActions.onSave(state, {}, buildContext());
+
+        assert.equal(saveOrUpdateSpy.mock.calls.length, 0);
+        assert.equal(newState.saveError, "rosterEmptyError");
     });
 
     it("returns a lastSaveResult summary that the confirmation dialog can render", () => {

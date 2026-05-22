@@ -283,6 +283,8 @@
     "didntHappenWhenToUse": "कक्षा वास्तव में नहीं हुई, या उपस्थिति दर्ज नहीं की गई — कारण चुनें।",
     "markAnywayConfirmTitle": "गैर-कार्यदिवस",
     "markAnywayConfirmBody": "{{date}} सामान्यतः गैर-कार्यदिवस है। जारी रखें?",
+    "rosterEmptyError": "इस समूह में हाजिरी लगाने योग्य कोई सक्रिय सदस्य नहीं है।",
+    "noAttendanceTypesConfigured": "इस समूह के लिए कोई उपस्थिति प्रकार कॉन्फ़िगर नहीं किया गया है।",
     "confirmCancel": "रद्द करें",
     "confirmContinue": "जारी रखें",
     "saveButton": "सहेजें",

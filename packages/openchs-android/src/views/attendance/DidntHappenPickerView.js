@@ -19,7 +19,8 @@ class DidntHappenPickerView extends AbstractComponent {
     static propTypes = {
         groupSubject: PropTypes.object.isRequired,
         attendanceType: PropTypes.object.isRequired,
-        scheduledDate: PropTypes.instanceOf(Date).isRequired,
+        // Canonical "YYYY-MM-DD" — the attendance flow is time/timezone agnostic.
+        scheduledDate: PropTypes.string.isRequired,
     };
 
     constructor(props, context) {
@@ -68,7 +69,7 @@ class DidntHappenPickerView extends AbstractComponent {
     render() {
         const {groupSubject, attendanceType, scheduledDate} = this.props;
         const {reasonConceptUUID, notes} = this.state;
-        const subline = moment(scheduledDate).format("ddd D MMM") + " · " + groupSubject.nameString;
+        const subline = moment.utc(scheduledDate, "YYYY-MM-DD").format("ddd D MMM") + " · " + groupSubject.nameString;
         const canSave = !!reasonConceptUUID;
 
         return (

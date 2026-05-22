@@ -235,6 +235,8 @@
     "didntHappenWhenToUse": "वर्ग खरंच झाला नाही, किंवा उपस्थिती नोंदवली गेली नाही — कारण निवडा.",
     "markAnywayConfirmTitle": "बिगर-कार्यदिवस",
     "markAnywayConfirmBody": "{{date}} सामान्यतः बिगर-कार्यदिवस आहे. सुरू ठेवायचे?",
+    "rosterEmptyError": "या गटात हजेरी नोंदवण्यासाठी कोणतेही सक्रिय सदस्य नाहीत.",
+    "noAttendanceTypesConfigured": "या गटासाठी कोणतेही उपस्थिती प्रकार कॉन्फिगर केलेले नाहीत.",
     "confirmCancel": "रद्द करा",
     "confirmContinue": "सुरू ठेवा",
     "saveButton": "जतन करा",

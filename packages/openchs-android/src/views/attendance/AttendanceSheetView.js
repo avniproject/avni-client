@@ -1,7 +1,6 @@
 import React from "react";
 import {View} from "react-native";
 import PropTypes from "prop-types";
-import {DateTimeUtil} from "openchs-models";
 import Path from "../../framework/routing/Path";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import TypedTransition from "../../framework/routing/TypedTransition";
@@ -17,6 +16,7 @@ import RosterView from "./RosterView";
 import DidntHappenPickerView from "./DidntHappenPickerView";
 import MarkAnywayConfirmDialog from "./MarkAnywayConfirmDialog";
 import {Session} from "avni-models";
+import _ from "lodash";
 
 @Path("/attendanceSheetView")
 class AttendanceSheetView extends AbstractComponent {
@@ -42,8 +42,9 @@ class AttendanceSheetView extends AbstractComponent {
         }
     }
 
-    _onSelectDate = (date) => {
-        this.dispatchAction(AttendanceSheetActions.Names.SELECT_DATE, {date});
+    // dateKey is a canonical "YYYY-MM-DD" string handed back from the strip.
+    _onSelectDate = (dateKey) => {
+        this.dispatchAction(AttendanceSheetActions.Names.SELECT_DATE, {date: dateKey});
     };
 
     _navigateWithType = (attendanceType, ViewClass) => {
@@ -69,23 +70,46 @@ class AttendanceSheetView extends AbstractComponent {
         }
     };
 
-    _onMarkAnyway = () => this.setState({markAnywayConfirmVisible: true});
+    _onMarkAnyway = () => {
+        if (_.isEmpty(this.state.attendanceTypes)) {
+            this.showError(this.I18n.t("noAttendanceTypesConfigured"));
+            return;
+        }
+        this.setState({markAnywayConfirmVisible: true});
+    };
     _onMarkAnywayCancel = () => this.setState({markAnywayConfirmVisible: false});
     // Mark-anyway on calendar-off days routes to the DidntHappen picker so the
     // user supplies a required reason explaining the override. Picking
     // attendanceType[0] keeps v1 simple; future iteration can ask first.
     _onMarkAnywayContinue = () => {
-        this.setState({markAnywayConfirmVisible: false});
         const firstType = (this.state.attendanceTypes || [])[0];
-        if (firstType) this._navigateWithType(firstType, DidntHappenPickerView);
+        if (!firstType) {
+            this.setState({markAnywayConfirmVisible: false});
+            this.showError(this.I18n.t("noAttendanceTypesConfigured"));
+            return;
+        }
+        this.setState({markAnywayConfirmVisible: false}, () => {
+            this._navigateWithType(firstType, DidntHappenPickerView);
+        });
     };
 
     render() {
         const {groupSubject} = this.props;
         const {selectedDate, stripDates, statusByDate, attendanceTypes, sessionByType} = this.state;
-        const selectedStatus = selectedDate
-            ? statusByDate.get(DateTimeUtil.toCalendarDateString(selectedDate))
-            : null;
+        const selectedStatus = selectedDate ? statusByDate.get(selectedDate) : null;
+        // On weekly_off / public_holiday, the per-type Mark/DidntHappen buttons
+        // would let the user bypass the required Mark-anyway reason flow. We
+        // hide unmarked rows so the user is forced through the banner CTA, but
+        // keep rows for types that already have a saved session so they can be
+        // re-opened or edited.
+        const dayType = selectedStatus && selectedStatus.dayType;
+        const isHolidayLike = dayType === "weekly_off" || dayType === "public_holiday";
+        const visibleTypes = isHolidayLike
+            ? (attendanceTypes || []).filter(at => {
+                const info = sessionByType.get(at.uuid);
+                return info && info.session;
+            })
+            : (attendanceTypes || []);
 
         return (
             <CHSContainer>
@@ -101,12 +125,12 @@ class AttendanceSheetView extends AbstractComponent {
                             />
                             <DayStatusBanner
                                 selectedDate={selectedDate}
-                                dayType={selectedStatus && selectedStatus.dayType}
+                                dayType={dayType}
                                 marker={selectedStatus && selectedStatus.marker}
                                 onMarkAnyway={this._onMarkAnyway}
                             />
                             <AttendanceTypePicker
-                                attendanceTypes={attendanceTypes}
+                                attendanceTypes={visibleTypes}
                                 sessionByType={sessionByType}
                                 onMark={this._onMark}
                                 onDidntHappen={this._onDidntHappen}

@@ -275,6 +275,8 @@
     "didntHappenWhenToUse": "ತರಗತಿ ನಿಜವಾಗಿಯೂ ನಡೆಯಲಿಲ್ಲ, ಅಥವಾ ಹಾಜರಾತಿ ದಾಖಲಾಗಿಲ್ಲ — ಕಾರಣ ಆಯ್ಕೆಮಾಡಿ.",
     "markAnywayConfirmTitle": "ಕೆಲಸವಿಲ್ಲದ ದಿನ",
     "markAnywayConfirmBody": "{{date}} ಸಾಮಾನ್ಯವಾಗಿ ಕೆಲಸವಿಲ್ಲದ ದಿನ. ಮುಂದುವರಿಯುವುದೇ?",
+    "rosterEmptyError": "ಈ ಗುಂಪಿನಲ್ಲಿ ಹಾಜರಿಯನ್ನು ಗುರುತಿಸಲು ಯಾವುದೇ ಸಕ್ರಿಯ ಸದಸ್ಯರಿಲ್ಲ.",
+    "noAttendanceTypesConfigured": "ಈ ಗುಂಪಿಗೆ ಯಾವುದೇ ಹಾಜರಿ ಪ್ರಕಾರಗಳನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಲಾಗಿಲ್ಲ.",
     "confirmCancel": "ರದ್ದುಮಾಡಿ",
     "confirmContinue": "ಮುಂದುವರಿಯಿರಿ",
     "saveButton": "ಉಳಿಸಿ",

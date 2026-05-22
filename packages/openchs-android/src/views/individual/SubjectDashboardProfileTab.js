@@ -198,6 +198,10 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         if (!hasEditPrivilege) return <View/>;
 
         const attendanceTypes = this.getService(AttendanceTypeService).findActiveForSubjectType(subjectType.uuid);
+        // Hide the entry point until at least one AttendanceType has been
+        // configured for this subject type — otherwise the card leads to an
+        // empty sheet with no marking action.
+        if (_.isEmpty(attendanceTypes)) return <View/>;
         const navigateToAttendance = () =>
             TypedTransition.from(this).with({groupSubject: this.state.individual}).to(AttendanceSheetView, true);
 

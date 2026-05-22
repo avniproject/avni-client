@@ -8,7 +8,8 @@ import moment from "moment";
 
 class DayStatusBanner extends AbstractComponent {
     static propTypes = {
-        selectedDate: PropTypes.instanceOf(Date).isRequired,
+        // Canonical "YYYY-MM-DD" string — the attendance flow is time/timezone agnostic.
+        selectedDate: PropTypes.string.isRequired,
         dayType: PropTypes.string,
         marker: PropTypes.object,
         onMarkAnyway: PropTypes.func,
@@ -32,8 +33,8 @@ class DayStatusBanner extends AbstractComponent {
 
     render() {
         const {selectedDate, dayType, onMarkAnyway} = this.props;
-        const m = moment(selectedDate);
-        const isToday = m.isSame(moment().startOf("day"), "day");
+        const m = moment.utc(selectedDate, "YYYY-MM-DD");
+        const isToday = selectedDate === moment().format("YYYY-MM-DD");
         const dateLine = m.format("ddd D MMM YYYY");
         const statusLine = this._statusLine();
         const isHolidayLike = dayType === "weekly_off" || dayType === "public_holiday";

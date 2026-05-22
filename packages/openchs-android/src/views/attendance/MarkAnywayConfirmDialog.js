@@ -9,7 +9,8 @@ import Styles from "../primitives/Styles";
 class MarkAnywayConfirmDialog extends AbstractComponent {
     static propTypes = {
         visible: PropTypes.bool.isRequired,
-        date: PropTypes.instanceOf(Date),
+        // Canonical "YYYY-MM-DD" — the attendance flow is time/timezone agnostic.
+        date: PropTypes.string,
         onCancel: PropTypes.func.isRequired,
         onContinue: PropTypes.func.isRequired,
     };
@@ -20,7 +21,7 @@ class MarkAnywayConfirmDialog extends AbstractComponent {
 
     render() {
         const {visible, date, onCancel, onContinue} = this.props;
-        const dateLabel = date ? moment(date).format("ddd D MMM YYYY") : "";
+        const dateLabel = date ? moment.utc(date, "YYYY-MM-DD").format("ddd D MMM YYYY") : "";
         return (
             <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
                 <View style={styles.backdrop}>

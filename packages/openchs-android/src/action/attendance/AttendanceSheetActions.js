@@ -29,16 +29,19 @@ export class AttendanceSheetActions {
         const attendanceTypeService = context.get(AttendanceTypeService);
         const sessionService = context.get(SessionService);
 
-        const today = moment().startOf("day");
+        // The attendance flow is time- and timezone-agnostic: every date in state,
+        // every prop crossing component boundaries, and every key used for Realm
+        // lookups is a canonical "YYYY-MM-DD" string. We never round-trip through
+        // a JS Date so there is no local/UTC drift to reason about.
+        const today = AttendanceSheetActions._todayKey();
         const stripDates = AttendanceSheetActions._buildStripDates(today);
         const dayStatuses = calendarService.dayStatusForRange(groupSubject, stripDates);
 
         const statusByDate = new Map();
-        stripDates.forEach(d => {
-            const key = AttendanceSheetActions._dateKey(d);
-            const dayStatus = dayStatuses.get(key) || {dayType: null, marker: null};
-            const summary = sessionService.summaryForDate(groupSubject.uuid, d);
-            statusByDate.set(key, {
+        stripDates.forEach(dateKey => {
+            const dayStatus = dayStatuses.get(dateKey) || {dayType: null, marker: null};
+            const summary = sessionService.summaryForDate(groupSubject.uuid, dateKey);
+            statusByDate.set(dateKey, {
                 dayType: dayStatus.dayType,
                 marker: dayStatus.marker,
                 held: summary.held,
@@ -48,14 +51,14 @@ export class AttendanceSheetActions {
 
         const calendar = dayStatuses.values().next().value?.calendar || calendarService.forSubject(groupSubject);
         const attendanceTypes = attendanceTypeService.findActiveForSubjectType(groupSubject.subjectType.uuid);
-        const sessionByType = AttendanceSheetActions._buildSessionByType(context, groupSubject, today.toDate(), attendanceTypes);
+        const sessionByType = AttendanceSheetActions._buildSessionByType(context, groupSubject, today, attendanceTypes);
 
         return {
             ...state,
             groupSubject,
             calendar,
             attendanceTypes,
-            selectedDate: today.toDate(),
+            selectedDate: today,
             stripDates,
             statusByDate,
             sessionByType,
@@ -63,14 +66,14 @@ export class AttendanceSheetActions {
     }
 
     static onSelectDate(state, action, context) {
-        const date = action.date;
+        const dateKey = DateTimeUtil.toCalendarDateString(action.date);
         const sessionByType = AttendanceSheetActions._buildSessionByType(
-            context, state.groupSubject, date, state.attendanceTypes
+            context, state.groupSubject, dateKey, state.attendanceTypes
         );
         const statusByDate = AttendanceSheetActions._refreshStatusForDate(
-            context, state.groupSubject, state.calendar, date, state.statusByDate
+            context, state.groupSubject, state.calendar, dateKey, state.statusByDate
         );
-        return {...state, selectedDate: date, sessionByType, statusByDate};
+        return {...state, selectedDate: dateKey, sessionByType, statusByDate};
     }
 
     // After a save, the type-picker rows need fresh session info AND the date strip
@@ -88,23 +91,22 @@ export class AttendanceSheetActions {
         return {...state, sessionByType, statusByDate};
     }
 
-    static _refreshStatusForDate(context, groupSubject, calendar, date, statusByDate) {
+    static _refreshStatusForDate(context, groupSubject, calendar, dateKey, statusByDate) {
         const sessionService = context.get(SessionService);
         const next = new Map(statusByDate);
-        const key = AttendanceSheetActions._dateKey(date);
-        const existing = next.get(key) || {dayType: null, marker: null};
-        const summary = sessionService.summaryForDate(groupSubject.uuid, date);
-        next.set(key, {...existing, held: summary.held, didntHappen: summary.didntHappen});
+        const existing = next.get(dateKey) || {dayType: null, marker: null};
+        const summary = sessionService.summaryForDate(groupSubject.uuid, dateKey);
+        next.set(dateKey, {...existing, held: summary.held, didntHappen: summary.didntHappen});
         return next;
     }
 
-    static _buildSessionByType(context, groupSubject, date, attendanceTypes) {
+    static _buildSessionByType(context, groupSubject, dateKey, attendanceTypes) {
         const sessionService = context.get(SessionService);
         const recordService = context.get(AttendanceRecordService);
         const conceptService = context.get(ConceptService);
         const map = new Map();
         attendanceTypes.forEach(at => {
-            const session = sessionService.findExistingSession(groupSubject.uuid, date, at.uuid);
+            const session = sessionService.findExistingSession(groupSubject.uuid, dateKey, at.uuid);
             if (!session) {
                 map.set(at.uuid, {session: null});
                 return;
@@ -119,19 +121,23 @@ export class AttendanceSheetActions {
         return map;
     }
 
-    static _buildStripDates(today) {
-        // Last STRIP_WINDOW_DAYS days ending at today (inclusive).
+    // Last STRIP_WINDOW_DAYS calendar dates ending at `todayKey` (inclusive), as
+    // canonical "YYYY-MM-DD" strings. moment.utc avoids any local-tz arithmetic.
+    static _buildStripDates(todayKey) {
+        const cursor = DateTimeUtil.calendarMoment(todayKey);
         const dates = [];
         for (let i = STRIP_WINDOW_DAYS - 1; i >= 0; i--) {
-            dates.push(today.clone().subtract(i, "days").toDate());
+            const key = cursor.clone().subtract(i, "days").format("YYYY-MM-DD");
+            dates.push(key);
         }
         return dates;
     }
 
-    // Matches Session.scheduledDate's storage normalisation so date-strip keys
-    // line up with the Session rows that other services key on.
-    static _dateKey(d) {
-        return DateTimeUtil.toCalendarDateString(d);
+    static _todayKey() {
+        // "Today" is the device's local calendar date. We never materialise it as a
+        // JS Date — that would re-introduce timezone drift when the date is later
+        // round-tripped through DateTimeUtil.toCalendarDateString (which is UTC).
+        return moment().format("YYYY-MM-DD");
     }
 
     static clone(state) {

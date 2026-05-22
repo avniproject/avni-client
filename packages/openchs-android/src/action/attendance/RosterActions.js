@@ -19,6 +19,7 @@ export class RosterActions {
             notes: "",
             absenceReasonAnswers: [],
             followUpEncounterTypeUuid: null,
+            saveError: null,
         };
     }
 
@@ -32,9 +33,9 @@ export class RosterActions {
         const members = groupSubjectService.getGroupSubjects(groupSubject)
             .filter(gs => !gs.memberSubject.voided && _.isNil(gs.membershipEndDate));
 
-        const existingSession = sessionService.findExistingSession(groupSubject.uuid, scheduledDate, attendanceType.uuid);
-        const existingRecords = existingSession
-            ? _.keyBy(recordService.findBySession(existingSession.uuid), "subjectUUID")
+        const realmSession = sessionService.findExistingSession(groupSubject.uuid, scheduledDate, attendanceType.uuid);
+        const existingRecords = realmSession
+            ? _.keyBy(recordService.findBySession(realmSession.uuid), "subjectUUID")
             : {};
 
         const roster = members.map(gs => {
@@ -57,11 +58,12 @@ export class RosterActions {
             groupSubject,
             attendanceType,
             scheduledDate,
-            existingSession,
+            existingSession: RosterActions._snapshotSession(realmSession),
             roster,
-            notes: existingSession ? (existingSession.notes || "") : "",
+            notes: realmSession ? (realmSession.notes || "") : "",
             absenceReasonAnswers,
             followUpEncounterTypeUuid: attendanceType.getFollowUpEncounterTypeUUID(),
+            saveError: null,
         };
     }
 
@@ -74,7 +76,6 @@ export class RosterActions {
             return {
                 ...r,
                 status: flipped,
-                // Clearing the reason when toggling back to Present prevents stale reasons leaking on save.
                 reasonConceptUUID: flipped === AttendanceRecord.status.PRESENT ? null : r.reasonConceptUUID,
             };
         });
@@ -104,6 +105,10 @@ export class RosterActions {
 
     static onSave(state, action, context) {
         const {groupSubject, attendanceType, scheduledDate, existingSession, roster, notes} = state;
+        if (_.isEmpty(roster)) {
+            return {...state, saveError: "rosterEmptyError", lastSaveResult: null};
+        }
+
         const sessionService = context.get(SessionService);
         const recordService = context.get(AttendanceRecordService);
         const userInfoService = context.get(UserInfoService);
@@ -118,9 +123,9 @@ export class RosterActions {
         session.voided = false;
 
         // Re-mark path: reuse prior AttendanceRecord UUIDs so the upsert replaces the
-        // same Realm row instead of creating duplicates. The server-side partial
-        // unique (session_id, subject_id) would reject the dupes on push anyway.
-        const previousRecords = existingSession ? recordService.findBySession(existingSession.uuid) : [];
+        // same Realm row instead of creating duplicates.
+        const priorRecordRealmObjects = existingSession ? recordService.findBySession(existingSession.uuid) : [];
+        const previousRecords = priorRecordRealmObjects.map(RosterActions._snapshotRecord);
         const existingRecordUUIDByStudent = _.fromPairs(previousRecords.map(r => [r.subjectUUID, r.uuid]));
 
         const rosterByStudentUUID = _.keyBy(
@@ -133,11 +138,13 @@ export class RosterActions {
             if (reused) r.uuid = reused;
         });
 
-        const studentSubjectType = _.get(roster, "[0]") ? attendanceType : attendanceType;
-        // The roster's member subjects all share one subject type; pick it from the
-        // first member via groupSubject (set during ON_LOAD). For Phase 5 we assume
-        // homogeneous member subject types within a group; the spec doesn't support
-        // mixed groups for attendance.
+        // Members in the prior record set who are no longer in the roster (left the group).
+        // Their AttendanceRecords + linked follow-ups cascade-void inside saveOrUpdate.
+        const newSubjectUUIDs = new Set(attendanceRecords.map(r => r.subjectUUID));
+        const voidedRecordUUIDs = previousRecords
+            .filter(r => !newSubjectUUIDs.has(r.subjectUUID))
+            .map(r => r.uuid);
+
         const memberSubjectType = state.groupSubject.subjectType.group
             ? RosterActions._inferMemberSubjectType(context, state.groupSubject)
             : state.groupSubject.subjectType;
@@ -157,35 +164,23 @@ export class RosterActions {
             });
         }
 
-        let voidedFollowUps = [];
-        let skippedFollowUps = [];
-        if (existingSession) {
-            const encounterLookup = (uuid) => sessionService._findFollowUpEncounter
-                ? sessionService._findFollowUpEncounter(sessionService.db, uuid).encounter
-                : null;
-            const result = session.voidStaleFollowUps(previousRecords, attendanceRecords, encounterLookup);
-            voidedFollowUps = result.voided.map(e => ({
-                uuid: e.uuid,
-                schemaName: e.programEnrolment ? ProgramEncounter.schema.name : Encounter.schema.name,
-            }));
-            skippedFollowUps = result.skipped;
-        }
-
         const followUpsForSave = followUps.map(e => ({
             encounter: e,
             schemaName: e.programEnrolment ? ProgramEncounter.schema.name : Encounter.schema.name,
         }));
 
-        sessionService.saveOrUpdate({
+        const saveResult = sessionService.saveOrUpdate({
             session,
             attendanceRecords,
             followUps: followUpsForSave,
-            voidedFollowUps,
+            previousRecords,
+            voidedRecordUUIDs,
         });
 
         return {
             ...state,
-            existingSession: session,
+            existingSession: RosterActions._snapshotSession(session),
+            saveError: null,
             lastSaveResult: {
                 createdFollowUps: followUps.map(e => ({
                     uuid: e.uuid,
@@ -194,10 +189,30 @@ export class RosterActions {
                     earliestVisitDateTime: e.earliestVisitDateTime,
                     maxVisitDateTime: e.maxVisitDateTime,
                 })),
-                voidedFollowUpCount: voidedFollowUps.length,
-                skippedFollowUps: skippedFollowUps.map(e => ({uuid: e.uuid})),
+                voidedFollowUpCount: saveResult.voidedFollowUps.length,
+                skippedFollowUps: saveResult.skippedFollowUps,
             },
             saveCompletedAt: Date.now(),
+        };
+    }
+
+    static _snapshotSession(realmSession) {
+        if (!realmSession) return null;
+        return {
+            uuid: realmSession.uuid,
+            status: realmSession.status,
+            notes: realmSession.notes || null,
+            reasonConceptUUID: realmSession.reasonConceptUUID || null,
+        };
+    }
+
+    static _snapshotRecord(record) {
+        return {
+            uuid: record.uuid,
+            subjectUUID: record.subjectUUID,
+            status: record.status,
+            reasonConceptUUID: record.reasonConceptUUID || null,
+            followUpEncounterUUID: record.followUpEncounterUUID || null,
         };
     }
 

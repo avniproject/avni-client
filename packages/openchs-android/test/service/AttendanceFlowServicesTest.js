@@ -223,13 +223,19 @@ describe("SessionService.saveOrUpdate", () => {
                 {encounter: {uuid: "e1"}, schemaName: Encounter.schema.name},
                 {encounter: {uuid: "e2"}, schemaName: ProgramEncounter.schema.name},
             ],
-            voidedFollowUps: [],
+        };
+    }
+
+    function mkEncounterStubs({encountersByUUID = {}, programEncountersByUUID = {}} = {}) {
+        return {
+            EncounterService: {findByUUID: (uuid) => encountersByUUID[uuid] || null},
+            ProgramEncounterService: {findByUUID: (uuid) => programEncountersByUUID[uuid] || null},
         };
     }
 
     it("opens exactly one db.write transaction", () => {
         const {db} = makeMockDb();
-        const svc = new SessionService(db, makeMockBeanStore());
+        const svc = new SessionService(db, makeMockBeanStore(mkEncounterStubs()));
 
         svc.saveOrUpdate(mkArgs());
 
@@ -238,7 +244,7 @@ describe("SessionService.saveOrUpdate", () => {
 
     it("persists Session + each AttendanceRecord + each follow-up under the correct schema", () => {
         const {db, writes} = makeMockDb();
-        const svc = new SessionService(db, makeMockBeanStore());
+        const svc = new SessionService(db, makeMockBeanStore(mkEncounterStubs()));
 
         svc.saveOrUpdate(mkArgs());
 
@@ -255,7 +261,7 @@ describe("SessionService.saveOrUpdate", () => {
 
     it("queues every persisted entity into EntityQueue inside the same transaction", () => {
         const {db, writes} = makeMockDb();
-        const svc = new SessionService(db, makeMockBeanStore());
+        const svc = new SessionService(db, makeMockBeanStore(mkEncounterStubs()));
 
         svc.saveOrUpdate(mkArgs());
 
@@ -264,44 +270,66 @@ describe("SessionService.saveOrUpdate", () => {
         assert.equal(queueCreates.length, 5);
     });
 
-    it("voids re-mark follow-ups in the same transaction and queues them for sync", () => {
+    it("cascade-voids an AttendanceRecord (via voidedRecordUUIDs) and its linked follow-up encounter in the same transaction", () => {
+        // Departed-member case: the AttendanceRecord exists in Realm, the linked
+        // follow-up Encounter is scheduled (no observations) — both flip voided.
+        const record = {uuid: "rec-departed", followUpEncounterUUID: "stale-1", voided: false};
         const stale = {uuid: "stale-1", voided: false, observations: []};
         const {db, writes} = makeMockDb({
-            primaryKeyByName: {[Encounter.schema.name]: {"stale-1": stale}},
+            primaryKeyByName: {[AttendanceRecord.schema.name]: {"rec-departed": record}},
         });
-        const svc = new SessionService(db, makeMockBeanStore());
+        const svc = new SessionService(db, makeMockBeanStore(mkEncounterStubs({
+            encountersByUUID: {"stale-1": stale},
+        })));
 
-        svc.saveOrUpdate({
+        const result = svc.saveOrUpdate({
             session: {uuid: "s1"},
-            attendanceRecords: [],
-            followUps: [],
-            voidedFollowUps: [{uuid: "stale-1", schemaName: Encounter.schema.name}],
+            voidedRecordUUIDs: ["rec-departed"],
         });
 
-        assert.equal(stale.voided, true, "stale follow-up should be voided in place");
+        assert.equal(record.voided, true, "departed-member record should be voided in place");
+        assert.equal(stale.voided, true, "linked follow-up should cascade-void");
         assert.equal(db.write.mock.calls.length, 1);
-        const queuedSchemas = writes.creates
-            .filter(c => c.schemaName === EntityQueue.schema.name)
-            .length;
-        assert.isAtLeast(queuedSchemas, 2, "Session and voided follow-up both queue");
+        assert.deepEqual(result.voidedFollowUps, [{uuid: "stale-1"}]);
+        const queueRows = writes.creates.filter(c => c.schemaName === EntityQueue.schema.name);
+        // Session + AttendanceRecord + follow-up = 3 queue entries
+        assert.equal(queueRows.length, 3);
     });
 
-    it("ignores voidedFollowUps that have already been voided or don't exist", () => {
-        const voidedAlready = {uuid: "v-1", voided: true};
-        const {db, writes} = makeMockDb({
-            primaryKeyByName: {[Encounter.schema.name]: {"v-1": voidedAlready}},
+    it("surfaces skippedFollowUps when a linked follow-up already has observations", () => {
+        const record = {uuid: "rec-departed", followUpEncounterUUID: "stale-1", voided: false};
+        const followUpWithObs = {uuid: "stale-1", voided: false, observations: [{concept: "c1"}]};
+        const {db} = makeMockDb({
+            primaryKeyByName: {[AttendanceRecord.schema.name]: {"rec-departed": record}},
         });
-        const svc = new SessionService(db, makeMockBeanStore());
+        const svc = new SessionService(db, makeMockBeanStore(mkEncounterStubs({
+            encountersByUUID: {"stale-1": followUpWithObs},
+        })));
+
+        const result = svc.saveOrUpdate({
+            session: {uuid: "s1"},
+            voidedRecordUUIDs: ["rec-departed"],
+        });
+
+        assert.equal(record.voided, true, "record still voids");
+        assert.equal(followUpWithObs.voided, false, "follow-up with observations stays live");
+        assert.deepEqual(result.skippedFollowUps, [{uuid: "stale-1"}]);
+        assert.deepEqual(result.voidedFollowUps, []);
+    });
+
+    it("ignores voidedRecordUUIDs that are missing or already voided", () => {
+        const alreadyVoided = {uuid: "rv-1", followUpEncounterUUID: null, voided: true};
+        const {db, writes} = makeMockDb({
+            primaryKeyByName: {[AttendanceRecord.schema.name]: {"rv-1": alreadyVoided}},
+        });
+        const svc = new SessionService(db, makeMockBeanStore(mkEncounterStubs()));
 
         svc.saveOrUpdate({
             session: {uuid: "s1"},
-            voidedFollowUps: [
-                {uuid: "v-1", schemaName: Encounter.schema.name},      // already voided
-                {uuid: "missing", schemaName: Encounter.schema.name},  // doesn't exist
-            ],
+            voidedRecordUUIDs: ["rv-1", "missing"],
         });
 
-        // No additional queue rows beyond the Session
+        // Only the Session itself queues — neither already-voided nor missing voids add rows.
         const queueRows = writes.creates.filter(c => c.schemaName === EntityQueue.schema.name);
         assert.equal(queueRows.length, 1, "only the Session itself should queue");
     });
@@ -310,6 +338,13 @@ describe("SessionService.saveOrUpdate", () => {
 // ── SessionService.voidSession — cascade ─────────────────────────────────────
 
 describe("SessionService.voidSession", () => {
+    function mkEncounterStubs({encountersByUUID = {}, programEncountersByUUID = {}} = {}) {
+        return {
+            EncounterService: {findByUUID: (uuid) => encountersByUUID[uuid] || null},
+            ProgramEncounterService: {findByUUID: (uuid) => programEncountersByUUID[uuid] || null},
+        };
+    }
+
     it("voids Session + each AttendanceRecord + each linked follow-up encounter (no observations)", () => {
         const session = {uuid: "s1", voided: false};
         const records = [
@@ -317,18 +352,13 @@ describe("SessionService.voidSession", () => {
             {uuid: "r2", sessionUUID: "s1", followUpEncounterUUID: null, voided: false},
         ];
         const followUp = {uuid: "e1", voided: false, observations: []};
-        const recordsServiceStub = {findBySession: jest.fn(() => records)};
-
-        const {db, writes} = makeMockDb({
-            primaryKeyByName: {
-                [Session.schema.name]: {"s1": session},
-                [Encounter.schema.name]: {"e1": followUp},
-            },
+        const {db} = makeMockDb({
+            primaryKeyByName: {[Session.schema.name]: {"s1": session}},
         });
-        const beanStore = makeMockBeanStore({
-            AttendanceRecordService: recordsServiceStub,
-        });
-        const svc = new SessionService(db, beanStore);
+        const svc = new SessionService(db, makeMockBeanStore({
+            AttendanceRecordService: {findBySession: jest.fn(() => records)},
+            ...mkEncounterStubs({encountersByUUID: {"e1": followUp}}),
+        }));
 
         const result = svc.voidSession("s1");
 
@@ -346,15 +376,13 @@ describe("SessionService.voidSession", () => {
         const session = {uuid: "s1", voided: false};
         const records = [{uuid: "r1", sessionUUID: "s1", followUpEncounterUUID: "e1", voided: false}];
         const followUpWithObs = {uuid: "e1", voided: false, observations: [{concept: "c1", value: "v1"}]};
-        const recordsServiceStub = {findBySession: jest.fn(() => records)};
-
         const {db} = makeMockDb({
-            primaryKeyByName: {
-                [Session.schema.name]: {"s1": session},
-                [Encounter.schema.name]: {"e1": followUpWithObs},
-            },
+            primaryKeyByName: {[Session.schema.name]: {"s1": session}},
         });
-        const svc = new SessionService(db, makeMockBeanStore({AttendanceRecordService: recordsServiceStub}));
+        const svc = new SessionService(db, makeMockBeanStore({
+            AttendanceRecordService: {findBySession: jest.fn(() => records)},
+            ...mkEncounterStubs({encountersByUUID: {"e1": followUpWithObs}}),
+        }));
 
         const result = svc.voidSession("s1");
 
@@ -371,13 +399,13 @@ describe("SessionService.voidSession", () => {
         });
         const svc = new SessionService(db, makeMockBeanStore({
             AttendanceRecordService: {findBySession: jest.fn(() => [])},
+            ...mkEncounterStubs(),
         }));
 
         const result = svc.voidSession("s1");
 
         assert.equal(result.voidedRecordCount, 0);
         assert.equal(result.voidedFollowUpCount, 0);
-        // db.write opens once but does nothing inside.
         const entityCreates = writes.creates.filter(c => c.schemaName !== EntityQueue.schema.name);
         assert.equal(entityCreates.length, 0);
     });
@@ -387,20 +415,16 @@ describe("SessionService.voidSession", () => {
         const records = [{uuid: "r1", sessionUUID: "s1", followUpEncounterUUID: "pe-1", voided: false}];
         const programFollowUp = {uuid: "pe-1", voided: false, observations: []};
         const {db, writes} = makeMockDb({
-            primaryKeyByName: {
-                [Session.schema.name]: {"s1": session},
-                [Encounter.schema.name]: {},  // not found here
-                [ProgramEncounter.schema.name]: {"pe-1": programFollowUp},
-            },
+            primaryKeyByName: {[Session.schema.name]: {"s1": session}},
         });
         const svc = new SessionService(db, makeMockBeanStore({
             AttendanceRecordService: {findBySession: jest.fn(() => records)},
+            ...mkEncounterStubs({programEncountersByUUID: {"pe-1": programFollowUp}}),
         }));
 
         svc.voidSession("s1");
 
         assert.equal(programFollowUp.voided, true);
-        // Confirm the ProgramEncounter (not Encounter) schema went on the EntityQueue.
         const queuedSchemas = writes.creates
             .filter(c => c.schemaName === EntityQueue.schema.name)
             .map(c => c.entity);

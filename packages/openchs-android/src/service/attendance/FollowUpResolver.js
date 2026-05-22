@@ -8,6 +8,10 @@ import EntityService from "../EntityService";
 // Session.autoCreateFollowUps, or null if the AttendanceType doesn't configure
 // follow-ups (or its referenced EncounterType has been voided/never synced).
 // The caller passes context.get(...) so this stays test-friendly.
+//
+// `studentSubjectType` drives FormMapping resolution. studentLookup filters out
+// students whose subject type doesn't match — protecting heterogeneous groups
+// from cross-type follow-ups (mismatched students simply get no auto follow-up).
 export function resolveFollowUps({attendanceType, studentSubjectType, context}) {
     const encTypeUuid = attendanceType.getFollowUpEncounterTypeUUID();
     if (!encTypeUuid) return null;
@@ -20,11 +24,18 @@ export function resolveFollowUps({attendanceType, studentSubjectType, context}) 
     const programEnrolmentService = context.get(ProgramEnrolmentService);
 
     const programUUID = formMappingService.findProgramUUIDForEncounterType(encounterType, studentSubjectType);
+    const studentSubjectTypeUUID = studentSubjectType && studentSubjectType.uuid;
 
     return {
         encounterType,
         programUUID,
-        studentLookup: (uuid) => individualService.findByUUID(uuid),
+        studentLookup: (uuid) => {
+            const individual = individualService.findByUUID(uuid);
+            if (!individual) return null;
+            const subjectType = individual.subjectType;
+            if (!subjectType || subjectType.uuid !== studentSubjectTypeUUID) return null;
+            return individual;
+        },
         enrolmentLookup: programUUID
             ? (student) => programEnrolmentService.getEnrolmentBySubjectUuidAndProgramUuid(student.uuid, programUUID)
             : undefined,

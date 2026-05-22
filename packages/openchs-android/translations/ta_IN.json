@@ -277,6 +277,8 @@
     "didntHappenWhenToUse": "வகுப்பு உண்மையில் நடைபெறவில்லை, அல்லது வருகை பதிவு செய்யப்படவில்லை — காரணத்தைத் தேர்ந்தெடுக்கவும்.",
     "markAnywayConfirmTitle": "வேலையில்லா நாள்",
     "markAnywayConfirmBody": "{{date}} பொதுவாக வேலையில்லா நாள். தொடரவா?",
+    "rosterEmptyError": "இந்தக் குழுவில் வருகையை குறிக்க செயலில் உள்ள உறுப்பினர்கள் இல்லை.",
+    "noAttendanceTypesConfigured": "இந்தக் குழுவிற்கு வருகை வகைகள் எதுவும் கட்டமைக்கப்படவில்லை.",
     "confirmCancel": "ரத்து",
     "confirmContinue": "தொடரு",
     "saveButton": "சேமி",

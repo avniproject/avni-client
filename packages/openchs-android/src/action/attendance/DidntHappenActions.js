@@ -2,6 +2,7 @@ import _ from "lodash";
 import {Session} from "avni-models";
 import General from "../../utility/General";
 import SessionService from "../../service/SessionService";
+import AttendanceRecordService from "../../service/AttendanceRecordService";
 import ConceptService from "../../service/ConceptService";
 import UserInfoService from "../../service/UserInfoService";
 
@@ -23,7 +24,7 @@ export class DidntHappenActions {
         const sessionService = context.get(SessionService);
         const conceptService = context.get(ConceptService);
 
-        const existingSession = sessionService.findExistingSession(groupSubject.uuid, scheduledDate, attendanceType.uuid);
+        const realmSession = sessionService.findExistingSession(groupSubject.uuid, scheduledDate, attendanceType.uuid);
 
         const outcomeConceptUUID = attendanceType.getSessionOutcomeReasonConceptUUID();
         const reasonAnswers = outcomeConceptUUID
@@ -35,9 +36,9 @@ export class DidntHappenActions {
             groupSubject,
             attendanceType,
             scheduledDate,
-            existingSession,
-            reasonConceptUUID: existingSession ? existingSession.reasonConceptUUID : null,
-            notes: existingSession ? (existingSession.notes || "") : "",
+            existingSession: DidntHappenActions._snapshotSession(realmSession),
+            reasonConceptUUID: realmSession ? realmSession.reasonConceptUUID : null,
+            notes: realmSession ? (realmSession.notes || "") : "",
             reasonAnswers,
         };
     }
@@ -54,6 +55,7 @@ export class DidntHappenActions {
         if (!state.reasonConceptUUID) return state;
         const {groupSubject, attendanceType, scheduledDate, existingSession, reasonConceptUUID, notes} = state;
         const sessionService = context.get(SessionService);
+        const recordService = context.get(AttendanceRecordService);
         const userInfoService = context.get(UserInfoService);
         const conceptService = context.get(ConceptService);
 
@@ -69,9 +71,36 @@ export class DidntHappenActions {
         if (!reasonConcept) return state;
         session.markDidntHappen(reasonConcept, notes || null);
 
-        sessionService.saveOrUpdate({session, attendanceRecords: [], followUps: [], voidedFollowUps: []});
+        // Flipping a prior HELD session to DIDNT_HAPPEN must void its AttendanceRecords
+        // and any auto-created follow-up encounters in the same transaction — otherwise
+        // they remain live attached to a session that didn't happen.
+        let voidedRecordUUIDs = [];
+        if (existingSession && existingSession.status === Session.status.HELD) {
+            voidedRecordUUIDs = recordService.findBySession(existingSession.uuid).map(r => r.uuid);
+        }
 
-        return {...state, existingSession: session, saveCompletedAt: Date.now()};
+        sessionService.saveOrUpdate({
+            session,
+            attendanceRecords: [],
+            followUps: [],
+            voidedRecordUUIDs,
+        });
+
+        return {
+            ...state,
+            existingSession: DidntHappenActions._snapshotSession(session),
+            saveCompletedAt: Date.now(),
+        };
+    }
+
+    static _snapshotSession(realmSession) {
+        if (!realmSession) return null;
+        return {
+            uuid: realmSession.uuid,
+            status: realmSession.status,
+            notes: realmSession.notes || null,
+            reasonConceptUUID: realmSession.reasonConceptUUID || null,
+        };
     }
 
     static _answersFor(conceptService, conceptUUID) {

@@ -5,9 +5,9 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import moment from "moment";
-import {DateTimeUtil} from "openchs-models";
 
-// dot styling per dayType + Held/DidntHappen mix. Order matches the spec:
+// Indicators on each cell stack independently so a working_override day that's
+// already been marked still shows its attendance dot.
 //   green dot       = at least one Held session
 //   grey dot        = at least one DidntHappen, no Held
 //   mixed (both)    = both Held and DidntHappen markers visible
@@ -16,10 +16,12 @@ import {DateTimeUtil} from "openchs-models";
 //   green diamond   = working_override (region-wide make-up day)
 class HorizontalDateStrip extends AbstractComponent {
     static propTypes = {
-        dates: PropTypes.arrayOf(PropTypes.instanceOf(Date)).isRequired,
+        // Canonical "YYYY-MM-DD" strings. Attendance dates are time- and
+        // timezone-agnostic across this flow — no JS Date round-trips.
+        dates: PropTypes.arrayOf(PropTypes.string).isRequired,
         // Map<YYYY-MM-DD, { dayType, marker?, held: string[], didntHappen: string[] }>
         statusByDate: PropTypes.object.isRequired,
-        selectedDate: PropTypes.instanceOf(Date).isRequired,
+        selectedDate: PropTypes.string.isRequired,
         onSelect: PropTypes.func.isRequired,
     };
 
@@ -37,39 +39,52 @@ class HorizontalDateStrip extends AbstractComponent {
         }, 0);
     }
 
-    _dateKey(d) {
-        return DateTimeUtil.toCalendarDateString(d);
+    _renderAttendanceDots(status) {
+        const hasHeld = (status.held || []).length > 0;
+        const hasDidntHappen = (status.didntHappen || []).length > 0;
+        if (hasHeld && hasDidntHappen) return (
+            <View style={{flexDirection: 'row'}}>
+                <View style={[styles.dot, styles.dotMixed, {backgroundColor: Colors.ActionButtonColor}]}/>
+                <View style={[styles.dot, styles.dotMixed, {backgroundColor: '#9e9e9e'}]}/>
+            </View>
+        );
+        if (hasHeld) return <View style={[styles.dot, {backgroundColor: Colors.ActionButtonColor}]}/>;
+        if (hasDidntHappen) return <View style={[styles.dot, {backgroundColor: '#9e9e9e'}]}/>;
+        return null;
+    }
+
+    _renderDayTypeMarker(status) {
+        if (status.dayType === "public_holiday") return <View style={[styles.dot, {backgroundColor: Colors.ValidationError}]}/>;
+        if (status.dayType === "working_override") return <View style={[styles.diamond, {backgroundColor: Colors.ActionButtonColor}]}/>;
+        return null;
     }
 
     _renderIndicator(status) {
         if (!status) return <View style={styles.indicatorPlaceholder}/>;
-        const hasHeld = (status.held || []).length > 0;
-        const hasDidntHappen = (status.didntHappen || []).length > 0;
-        if (status.dayType === "working_override") return <View style={[styles.indicator, styles.diamond, {backgroundColor: Colors.ActionButtonColor}]}/>;
-        if (status.dayType === "public_holiday") return <View style={[styles.indicator, styles.dot, {backgroundColor: Colors.ValidationError}]}/>;
-        if (hasHeld && hasDidntHappen) return (
-            <View style={{flexDirection: 'row'}}>
-                <View style={[styles.indicator, styles.dot, styles.dotMixed, {backgroundColor: Colors.ActionButtonColor}]}/>
-                <View style={[styles.indicator, styles.dot, styles.dotMixed, {backgroundColor: '#9e9e9e'}]}/>
+        const dayTypeMarker = this._renderDayTypeMarker(status);
+        const attendanceDots = this._renderAttendanceDots(status);
+        if (!dayTypeMarker && !attendanceDots) return <View style={styles.indicatorPlaceholder}/>;
+        return (
+            <View style={styles.indicatorRow}>
+                {dayTypeMarker}
+                {dayTypeMarker && attendanceDots && <View style={styles.indicatorSpacer}/>}
+                {attendanceDots}
             </View>
         );
-        if (hasHeld) return <View style={[styles.indicator, styles.dot, {backgroundColor: Colors.ActionButtonColor}]}/>;
-        if (hasDidntHappen) return <View style={[styles.indicator, styles.dot, {backgroundColor: '#9e9e9e'}]}/>;
-        return <View style={styles.indicatorPlaceholder}/>;
     }
 
-    _renderCell(date) {
-        const key = this._dateKey(date);
-        const status = this.props.statusByDate.get(key);
-        const isSelected = this._dateKey(this.props.selectedDate) === key;
+    _renderCell(dateKey) {
+        const status = this.props.statusByDate.get(dateKey);
+        const isSelected = this.props.selectedDate === dateKey;
         const isWeeklyOff = status && status.dayType === "weekly_off";
-        const m = moment(date);
-        const isToday = m.isSame(moment().startOf("day"), "day");
+        // moment.utc avoids any local-tz drift when parsing the canonical key.
+        const m = moment.utc(dateKey, "YYYY-MM-DD");
+        const isToday = dateKey === moment().format("YYYY-MM-DD");
 
         return (
             <TouchableOpacity
-                key={key}
-                onPress={() => this.props.onSelect(date)}
+                key={dateKey}
+                onPress={() => this.props.onSelect(dateKey)}
                 style={[
                     styles.cell,
                     isWeeklyOff && styles.cellWeeklyOff,
@@ -119,7 +134,8 @@ const styles = StyleSheet.create({
     weekdaySelected: {color: Colors.TextOnPrimaryColor, fontWeight: 'bold'},
     day: {fontSize: 18, color: Colors.InputNormal, marginTop: 2},
     daySelected: {color: Colors.TextOnPrimaryColor, fontWeight: 'bold'},
-    indicator: {marginTop: 6},
+    indicatorRow: {flexDirection: 'row', alignItems: 'center', marginTop: 6, height: 8},
+    indicatorSpacer: {width: 3},
     indicatorPlaceholder: {height: 8, marginTop: 6},
     dot: {width: 8, height: 8, borderRadius: 4},
     dotMixed: {marginHorizontal: 1},
