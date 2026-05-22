@@ -220,8 +220,8 @@ describe("SessionService.saveOrUpdate", () => {
                 {uuid: "r2", sessionUUID: "s1", voided: false},
             ],
             followUps: [
-                {encounter: {uuid: "e1"}, schemaName: Encounter.schema.name},
-                {encounter: {uuid: "e2"}, schemaName: ProgramEncounter.schema.name},
+                {encounter: {uuid: "e1", updateAudit: jest.fn()}, schemaName: Encounter.schema.name},
+                {encounter: {uuid: "e2", updateAudit: jest.fn()}, schemaName: ProgramEncounter.schema.name},
             ],
         };
     }
@@ -230,6 +230,7 @@ describe("SessionService.saveOrUpdate", () => {
         return {
             EncounterService: {findByUUID: (uuid) => encountersByUUID[uuid] || null},
             ProgramEncounterService: {findByUUID: (uuid) => programEncountersByUUID[uuid] || null},
+            UserInfoService: {getUserInfo: () => ({userUUID: "user-1", name: "marker.user"})},
         };
     }
 
@@ -268,6 +269,50 @@ describe("SessionService.saveOrUpdate", () => {
         const queueCreates = writes.creates.filter(c => c.schemaName === EntityQueue.schema.name);
         // 1 Session + 2 AttendanceRecords + 2 follow-ups = 5 EntityQueue rows
         assert.equal(queueCreates.length, 5);
+    });
+
+    it("stamps audit fields on Session, each new AttendanceRecord, and each follow-up encounter", () => {
+        const {db} = makeMockDb();
+        const svc = new SessionService(db, makeMockBeanStore(mkEncounterStubs()));
+        const args = mkArgs();
+
+        svc.saveOrUpdate(args);
+
+        // Session is "new" (no existing row at this uuid) → createdBy + lastModifiedBy both set
+        assert.equal(args.session.createdByUUID, "user-1");
+        assert.equal(args.session.createdBy, "marker.user");
+        assert.equal(args.session.lastModifiedByUUID, "user-1");
+        assert.equal(args.session.lastModifiedBy, "marker.user");
+        // Each AttendanceRecord likewise
+        args.attendanceRecords.forEach(r => {
+            assert.equal(r.createdByUUID, "user-1");
+            assert.equal(r.lastModifiedByUUID, "user-1");
+        });
+        // Follow-up encounters route through their own updateAudit(userInfo, true, false)
+        args.followUps.forEach(({encounter}) => {
+            assert.equal(encounter.updateAudit.mock.calls.length, 1);
+            const [userInfoArg, isNewArg, isGettingFilledArg] = encounter.updateAudit.mock.calls[0];
+            assert.equal(userInfoArg.userUUID, "user-1");
+            assert.equal(isNewArg, true);
+            assert.equal(isGettingFilledArg, false);
+        });
+    });
+
+    it("preserves prior createdBy on re-mark (Session row already exists)", () => {
+        const priorSession = {uuid: "s1", voided: false, createdByUUID: "prior-user", createdBy: "Prior User"};
+        const {db} = makeMockDb({
+            primaryKeyByName: {[Session.schema.name]: {"s1": priorSession}},
+        });
+        const svc = new SessionService(db, makeMockBeanStore(mkEncounterStubs()));
+        const args = mkArgs();  // args.session has no createdBy fields set
+
+        svc.saveOrUpdate(args);
+
+        // Re-mark must NOT overwrite createdBy — copy from existing row
+        assert.equal(args.session.createdByUUID, "prior-user");
+        assert.equal(args.session.createdBy, "Prior User");
+        // lastModifiedBy always reflects the current actor
+        assert.equal(args.session.lastModifiedByUUID, "user-1");
     });
 
     it("cascade-voids an AttendanceRecord (via voidedRecordUUIDs) and its linked follow-up encounter in the same transaction", () => {
@@ -342,6 +387,7 @@ describe("SessionService.voidSession", () => {
         return {
             EncounterService: {findByUUID: (uuid) => encountersByUUID[uuid] || null},
             ProgramEncounterService: {findByUUID: (uuid) => programEncountersByUUID[uuid] || null},
+            UserInfoService: {getUserInfo: () => ({userUUID: "user-1", name: "marker.user"})},
         };
     }
 

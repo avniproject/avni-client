@@ -7,6 +7,23 @@ import moment from "moment";
 import AttendanceRecordService from "./AttendanceRecordService";
 import EncounterService from "./EncounterService";
 import ProgramEncounterService from "./program/ProgramEncounterService";
+import UserInfoService from "./UserInfoService";
+
+// Inlined from openchs-models/utility/AuditUtil — Session and AttendanceRecord
+// don't expose updateAudit() the way Individual / AbstractEncounter do.
+function stampAudit(entity, userInfo, isNew, existing) {
+    if (isNew) {
+        if (_.isNil(entity.createdByUUID)) {
+            entity.createdByUUID = userInfo.userUUID;
+            entity.createdBy = userInfo.name;
+        }
+    } else if (existing) {
+        entity.createdByUUID = entity.createdByUUID || existing.createdByUUID;
+        entity.createdBy = entity.createdBy || existing.createdBy;
+    }
+    entity.lastModifiedByUUID = userInfo.userUUID;
+    entity.lastModifiedBy = userInfo.name;
+}
 
 // All writes for the Attendance flow happen here so a Session save (and its
 // AttendanceRecords + auto-created follow-up encounters + any re-mark voids)
@@ -38,33 +55,41 @@ class SessionService extends BaseService {
         const db = this.db;
         const encounterService = this.getService(EncounterService);
         const programEncounterService = this.getService(ProgramEncounterService);
+        const userInfo = this.getService(UserInfoService).getUserInfo();
         const lookupEncounter = (uuid) =>
             encounterService.findByUUID(uuid) || programEncounterService.findByUUID(uuid);
         const result = {voidedFollowUps: [], skippedFollowUps: []};
 
         this.db.write(() => {
+            const sessionExisting = db.objectForPrimaryKey(Session.schema.name, session.uuid);
+            stampAudit(session, userInfo, !sessionExisting, sessionExisting);
             db.create(Session.schema.name, session, Realm.UpdateMode.Modified);
             db.create(EntityQueue.schema.name, EntityQueue.create(session, Session.schema.name));
 
             attendanceRecords.forEach(record => {
+                const recordExisting = db.objectForPrimaryKey(AttendanceRecord.schema.name, record.uuid);
+                stampAudit(record, userInfo, !recordExisting, recordExisting);
                 db.create(AttendanceRecord.schema.name, record, Realm.UpdateMode.Modified);
                 db.create(EntityQueue.schema.name, EntityQueue.create(record, AttendanceRecord.schema.name));
             });
 
             followUps.forEach(({encounter, schemaName}) => {
+                encounter.updateAudit(userInfo, true, false);
                 db.create(schemaName, encounter, Realm.UpdateMode.Modified);
                 db.create(EntityQueue.schema.name, EntityQueue.create(encounter, schemaName));
             });
 
-            // Explicit AttendanceRecord voids — drives departed-member and HELD→DIDNT_HAPPEN
-            // cascades. Each voided record's follow-up encounter (if any) is voided too.
+            // Departed-member and HELD→DIDNT_HAPPEN cascades. Each voided record's follow-up
+            // encounter is voided too unless it already has observations.
             voidedRecordUUIDs.forEach(uuid => {
                 const record = db.objectForPrimaryKey(AttendanceRecord.schema.name, uuid);
                 if (!record || record.voided) return;
                 record.voided = true;
+                record.lastModifiedByUUID = userInfo.userUUID;
+                record.lastModifiedBy = userInfo.name;
                 db.create(EntityQueue.schema.name, EntityQueue.create(record, AttendanceRecord.schema.name));
                 if (!record.followUpEncounterUUID) return;
-                this._voidFollowUpEncounter(db, lookupEncounter, record.followUpEncounterUUID, result);
+                this._voidFollowUpEncounter(db, lookupEncounter, record.followUpEncounterUUID, result, userInfo);
             });
 
             // Stale-follow-up cascade for re-marks where the same student is still in the
@@ -74,7 +99,8 @@ class SessionService extends BaseService {
                 voidStaleResult.voided.forEach(encounter => {
                     if (!encounter || encounter.voided) return;
                     const schemaName = encounter.programEnrolment ? ProgramEncounter.schema.name : Encounter.schema.name;
-                    // voidStaleFollowUps already set encounter.voided = true inside this write.
+                    encounter.lastModifiedByUUID = userInfo.userUUID;
+                    encounter.lastModifiedBy = userInfo.name;
                     db.create(EntityQueue.schema.name, EntityQueue.create(encounter, schemaName));
                     result.voidedFollowUps.push({uuid: encounter.uuid});
                 });
@@ -87,7 +113,7 @@ class SessionService extends BaseService {
         return result;
     }
 
-    _voidFollowUpEncounter(db, lookupEncounter, encounterUUID, result) {
+    _voidFollowUpEncounter(db, lookupEncounter, encounterUUID, result, userInfo) {
         const encounter = lookupEncounter(encounterUUID);
         if (!encounter || encounter.voided) return;
         if (this._hasObservations(encounter)) {
@@ -96,6 +122,10 @@ class SessionService extends BaseService {
         }
         const schemaName = encounter.programEnrolment ? ProgramEncounter.schema.name : Encounter.schema.name;
         encounter.voided = true;
+        if (userInfo) {
+            encounter.lastModifiedByUUID = userInfo.userUUID;
+            encounter.lastModifiedBy = userInfo.name;
+        }
         db.create(EntityQueue.schema.name, EntityQueue.create(encounter, schemaName));
         result.voidedFollowUps.push({uuid: encounter.uuid});
     }
@@ -107,18 +137,23 @@ class SessionService extends BaseService {
         const db = this.db;
         const encounterService = this.getService(EncounterService);
         const programEncounterService = this.getService(ProgramEncounterService);
+        const userInfo = this.getService(UserInfoService).getUserInfo();
         const result = {voidedRecordCount: 0, voidedFollowUpCount: 0, skippedFollowUps: []};
         this.db.write(() => {
             const session = db.objectForPrimaryKey(Session.schema.name, sessionUuid);
             if (!session || session.voided) return;
 
             session.voided = true;
+            session.lastModifiedByUUID = userInfo.userUUID;
+            session.lastModifiedBy = userInfo.name;
             db.create(EntityQueue.schema.name, EntityQueue.create(session, Session.schema.name));
 
             const records = this.getService(AttendanceRecordService).findBySession(sessionUuid);
             records.forEach(record => {
                 if (record.voided) return;
                 record.voided = true;
+                record.lastModifiedByUUID = userInfo.userUUID;
+                record.lastModifiedBy = userInfo.name;
                 db.create(EntityQueue.schema.name, EntityQueue.create(record, AttendanceRecord.schema.name));
                 result.voidedRecordCount += 1;
 
@@ -132,6 +167,8 @@ class SessionService extends BaseService {
                 }
                 const schemaName = encounter.programEnrolment ? ProgramEncounter.schema.name : Encounter.schema.name;
                 encounter.voided = true;
+                encounter.lastModifiedByUUID = userInfo.userUUID;
+                encounter.lastModifiedBy = userInfo.name;
                 db.create(EntityQueue.schema.name, EntityQueue.create(encounter, schemaName));
                 result.voidedFollowUpCount += 1;
             });
