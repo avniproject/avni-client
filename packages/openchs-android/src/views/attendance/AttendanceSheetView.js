@@ -1,5 +1,5 @@
 import React from "react";
-import {View} from "react-native";
+import {ToastAndroid, View} from "react-native";
 import PropTypes from "prop-types";
 import Path from "../../framework/routing/Path";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -7,6 +7,7 @@ import TypedTransition from "../../framework/routing/TypedTransition";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import AppHeader from "../common/AppHeader";
+import ActionSelector from "../common/ActionSelector";
 import Reducers from "../../reducer";
 import {AttendanceSheetActions} from "../../action/attendance/AttendanceSheetActions";
 import HorizontalDateStrip from "./HorizontalDateStrip";
@@ -15,6 +16,7 @@ import AttendanceTypePicker from "./AttendanceTypePicker";
 import RosterView from "./RosterView";
 import DidntHappenPickerView from "./DidntHappenPickerView";
 import MarkAnywayConfirmDialog from "./MarkAnywayConfirmDialog";
+import VoidConfirmDialog from "./VoidConfirmDialog";
 import {Session} from "avni-models";
 import _ from "lodash";
 
@@ -67,6 +69,51 @@ class AttendanceSheetView extends AbstractComponent {
             this._navigateWithType(attendanceType, DidntHappenPickerView);
         } else {
             this._navigateWithType(attendanceType, RosterView);
+        }
+    };
+
+    // ⋮ → ActionSelector → "Void" → VoidConfirmDialog → dispatch VOID. Three taps
+    // for a destructive cascade-void is intentional: the action sheet keeps the
+    // overflow menu extensible (future actions land here too), the confirm dialog
+    // forces a deliberate choice.
+    _onOverflow = (attendanceType, session) => {
+        this.setState({
+            overflowVisible: true,
+            overflowAttendanceType: attendanceType,
+            overflowSession: session,
+        });
+    };
+
+    _hideOverflow = () => this.setState({overflowVisible: false});
+
+    _overflowActions = () => {
+        return [{
+            label: this.I18n.t("voidActionLabel"),
+            fn: () => this.setState({
+                overflowVisible: false,
+                voidConfirmVisible: true,
+            }),
+        }];
+    };
+
+    _onVoidCancel = () => this.setState({
+        voidConfirmVisible: false,
+        overflowAttendanceType: null,
+        overflowSession: null,
+    });
+
+    _onVoidConfirm = () => {
+        const session = this.state.overflowSession;
+        this.setState({voidConfirmVisible: false});
+        if (!session || !session.uuid) return;
+        this.dispatchAction(AttendanceSheetActions.Names.VOID, {sessionUuid: session.uuid});
+        const fresh = this.getContextState(Reducers.reducerKeys.attendanceSheet);
+        const result = fresh && fresh.lastVoidResult;
+        if (result && result.skippedFollowUps && result.skippedFollowUps.length > 0) {
+            ToastAndroid.show(
+                this.I18n.t("voidSkippedFollowUpsWarning", {count: result.skippedFollowUps.length}),
+                ToastAndroid.LONG,
+            );
         }
     };
 
@@ -135,6 +182,7 @@ class AttendanceSheetView extends AbstractComponent {
                                 onMark={this._onMark}
                                 onDidntHappen={this._onDidntHappen}
                                 onEdit={this._onEdit}
+                                onOverflow={this._onOverflow}
                             />
                         </View>
                     )}
@@ -143,6 +191,18 @@ class AttendanceSheetView extends AbstractComponent {
                         date={selectedDate}
                         onCancel={this._onMarkAnywayCancel}
                         onContinue={this._onMarkAnywayContinue}
+                    />
+                    <ActionSelector
+                        title={this.state.overflowAttendanceType ? this.state.overflowAttendanceType.name : ""}
+                        visible={!!this.state.overflowVisible}
+                        hide={this._hideOverflow}
+                        actions={this._overflowActions()}
+                    />
+                    <VoidConfirmDialog
+                        visible={!!this.state.voidConfirmVisible}
+                        attendanceTypeName={this.state.overflowAttendanceType && this.state.overflowAttendanceType.name}
+                        onCancel={this._onVoidCancel}
+                        onConfirm={this._onVoidConfirm}
                     />
                 </CHSContent>
             </CHSContainer>

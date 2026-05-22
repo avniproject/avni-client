@@ -91,6 +91,25 @@ export class AttendanceSheetActions {
         return {...state, sessionByType, statusByDate};
     }
 
+    // Cascade-voids the Session + its AttendanceRecords + unfilled follow-ups in
+    // a single Realm transaction (see SessionService.voidSession). After the
+    // void, sessionByType + the strip dot are refreshed so the row drops back
+    // to "Not marked". lastVoidResult.skippedFollowUps surfaces follow-ups that
+    // were preserved because they already had observations.
+    static onVoid(state, action, context) {
+        if (!action.sessionUuid) return state;
+        const sessionService = context.get(SessionService);
+        const voidResult = sessionService.voidSession(action.sessionUuid);
+
+        const sessionByType = AttendanceSheetActions._buildSessionByType(
+            context, state.groupSubject, state.selectedDate, state.attendanceTypes
+        );
+        const statusByDate = AttendanceSheetActions._refreshStatusForDate(
+            context, state.groupSubject, state.calendar, state.selectedDate, state.statusByDate
+        );
+        return {...state, sessionByType, statusByDate, lastVoidResult: voidResult};
+    }
+
     static _refreshStatusForDate(context, groupSubject, calendar, dateKey, statusByDate) {
         const sessionService = context.get(SessionService);
         const next = new Map(statusByDate);
@@ -156,12 +175,14 @@ AttendanceSheetActions.Names = {
     ON_LOAD: `${Prefix}.ON_LOAD`,
     SELECT_DATE: `${Prefix}.SELECT_DATE`,
     REFRESH: `${Prefix}.REFRESH`,
+    VOID: `${Prefix}.VOID`,
 };
 
 AttendanceSheetActions.Map = new Map([
     [AttendanceSheetActions.Names.ON_LOAD, AttendanceSheetActions.onLoad],
     [AttendanceSheetActions.Names.SELECT_DATE, AttendanceSheetActions.onSelectDate],
     [AttendanceSheetActions.Names.REFRESH, AttendanceSheetActions.onRefresh],
+    [AttendanceSheetActions.Names.VOID, AttendanceSheetActions.onVoid],
 ]);
 
 export default AttendanceSheetActions;

@@ -14,6 +14,7 @@ class AttendanceTypePicker extends AbstractComponent {
         onMark: PropTypes.func.isRequired,
         onDidntHappen: PropTypes.func.isRequired,
         onEdit: PropTypes.func.isRequired,
+        onOverflow: PropTypes.func.isRequired,
     };
 
     constructor(props, context) {
@@ -56,9 +57,17 @@ class AttendanceTypePicker extends AbstractComponent {
                         </>
                     )}
                     {session && (
-                        <TouchableOpacity onPress={() => this.props.onEdit(attendanceType, session)} style={styles.editLink}>
-                            <Text style={styles.editText}>{this.I18n.t("typeRowEdit")}</Text>
-                        </TouchableOpacity>
+                        <View style={styles.savedActions}>
+                            <TouchableOpacity onPress={() => this.props.onEdit(attendanceType, session)} style={styles.editLink}>
+                                <Text style={styles.editText}>{this.I18n.t("typeRowEdit")}</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => this.props.onOverflow(attendanceType, session)}
+                                style={styles.overflowBtn}
+                                accessibilityLabel={this.I18n.t("typeRowOverflowMenu")}>
+                                <Text style={styles.overflowText}>⋮</Text>
+                            </TouchableOpacity>
+                        </View>
                     )}
                 </View>
             </View>
@@ -94,8 +103,11 @@ const styles = StyleSheet.create({
     primaryBtnText: {color: Colors.ActionButtonColor, fontWeight: 'bold', fontSize: Styles.smallTextSize},
     secondaryBtn: {paddingVertical: 4, paddingHorizontal: 8},
     secondaryBtnText: {color: Colors.SubheaderColor || '#666', fontSize: Styles.smallTextSize},
+    savedActions: {flexDirection: 'row', alignItems: 'center'},
     editLink: {paddingVertical: 6, paddingHorizontal: 8},
     editText: {color: Colors.ActionButtonColor, fontWeight: 'bold', fontSize: Styles.smallTextSize},
+    overflowBtn: {paddingVertical: 6, paddingHorizontal: 8, marginLeft: 4},
+    overflowText: {color: Colors.SubheaderColor || '#666', fontSize: 22, fontWeight: 'bold'},
 });
 
 export default AttendanceTypePicker;
