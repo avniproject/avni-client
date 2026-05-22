@@ -142,6 +142,10 @@ import './PDFGenerationService';
 import './FormPDFService';
 import './FormShareService';
 import './FormShareTemplateService';
+// SessionShareAdapter (not a *Service.js name, hence absent from this list) is
+// loaded transitively when SessionShareService.js imports it — both @Service
+// decorators register at module-load time.
+import './attendance/SessionShareService';
 import './GlificService';
 import './MetricsService';
 import './PhoneVerificationService';

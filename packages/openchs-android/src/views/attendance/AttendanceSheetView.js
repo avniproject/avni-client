@@ -17,6 +17,8 @@ import RosterView from "./RosterView";
 import DidntHappenPickerView from "./DidntHappenPickerView";
 import MarkAnywayConfirmDialog from "./MarkAnywayConfirmDialog";
 import VoidConfirmDialog from "./VoidConfirmDialog";
+import FormShareActionSheetController from "../common/FormShareActionSheetController";
+import SessionShareService from "../../service/attendance/SessionShareService";
 import {Session} from "avni-models";
 import _ from "lodash";
 
@@ -86,14 +88,44 @@ class AttendanceSheetView extends AbstractComponent {
 
     _hideOverflow = () => this.setState({overflowVisible: false});
 
+    // Bottom sheet payload carries the same {session, attendanceType, groupSubject}
+    // triple to both the PDF and Text branches — Share Filled Forms uses the same
+    // open(payload) pattern.
+    _onShareSelected = () => {
+        const target = {
+            session: this.state.overflowSession,
+            attendanceType: this.state.overflowAttendanceType,
+            groupSubject: this.props.groupSubject,
+        };
+        this.setState({overflowVisible: false}, () => {
+            if (this._shareSheet) this._shareSheet.open(target);
+        });
+    };
+
+    _onSharePdf = (payload) => {
+        if (!payload || !payload.session) return;
+        this.getService(SessionShareService).sharePdf(payload.session, payload.attendanceType, payload.groupSubject);
+    };
+
+    _onShareText = (payload) => {
+        if (!payload || !payload.session) return;
+        this.getService(SessionShareService).shareText(payload.session, payload.attendanceType, payload.groupSubject);
+    };
+
     _overflowActions = () => {
-        return [{
-            label: this.I18n.t("voidActionLabel"),
-            fn: () => this.setState({
-                overflowVisible: false,
-                voidConfirmVisible: true,
-            }),
-        }];
+        return [
+            {
+                label: this.I18n.t("shareActionLabel"),
+                fn: this._onShareSelected,
+            },
+            {
+                label: this.I18n.t("voidActionLabel"),
+                fn: () => this.setState({
+                    overflowVisible: false,
+                    voidConfirmVisible: true,
+                }),
+            },
+        ];
     };
 
     _onVoidCancel = () => this.setState({
@@ -203,6 +235,11 @@ class AttendanceSheetView extends AbstractComponent {
                         attendanceTypeName={this.state.overflowAttendanceType && this.state.overflowAttendanceType.name}
                         onCancel={this._onVoidCancel}
                         onConfirm={this._onVoidConfirm}
+                    />
+                    <FormShareActionSheetController
+                        ref={r => this._shareSheet = r}
+                        onSharePdf={this._onSharePdf}
+                        onShareText={this._onShareText}
                     />
                 </CHSContent>
             </CHSContainer>

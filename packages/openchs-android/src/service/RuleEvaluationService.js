@@ -290,6 +290,27 @@ class RuleEvaluationService extends BaseService {
         }
     }
 
+    // Session share rule — same eval mechanics as runShareRule but the rule
+    // string lives on AttendanceType (not Form) and the params include the
+    // adapter-derived attendanceRecords + summary so authors don't have to
+    // recompute them from the Session entity.
+    runSessionShareRule(shareRuleString, session, attendanceType, attendanceRecords, summary) {
+        if (_.isNil(shareRuleString) || _.isEmpty(_.trim(shareRuleString))) return {};
+        try {
+            const ruleFunc = eval(shareRuleString);
+            const result = ruleFunc({
+                params: _.merge({entity: session, attendanceType, attendanceRecords, summary}, this.getCommonParams()),
+                imports: getImports(this.globalRuleFunction)
+            });
+            return _.isPlainObject(result) ? result : {};
+        } catch (e) {
+            General.logDebug("Rule-Failure", `Session ShareRule failed: ${JSONStringify(e)}`);
+            const attendanceTypeUuid = attendanceType ? attendanceType.uuid : null;
+            this.saveFailedRules(e, attendanceTypeUuid, null, 'Share', attendanceTypeUuid, 'Session', session ? session.uuid : null);
+            return {};
+        }
+    }
+
     runEditFormRule(form, entity, entityName) {
         if (_.isEmpty(form.editFormRule)) {
             return ActionEligibilityResponse.createAllowedResponse();
