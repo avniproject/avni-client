@@ -101,14 +101,17 @@ class RosterView extends AbstractComponent {
     };
 
     _reasonActions() {
+        // ActionSelector calls props.hide() before invoking fn, which clears
+        // this._pickingFor — close over the current value so the dispatch sees
+        // the actual subject the user opened the picker for.
+        const subjectUUID = this._pickingFor;
         return (this.state.absenceReasonAnswers || []).map(a => ({
             label: a.name,
             fn: () => {
                 this.dispatchAction(RosterActions.Names.SET_REASON, {
-                    subjectUUID: this._pickingFor,
+                    subjectUUID,
                     reasonConceptUUID: a.uuid,
                 });
-                this._hideReasonPicker();
             },
         }));
     }
