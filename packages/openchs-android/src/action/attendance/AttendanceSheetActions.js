@@ -20,6 +20,9 @@ export class AttendanceSheetActions {
             stripDates: [],
             statusByDate: new Map(),
             sessionByType: new Map(),
+            markAnywayUnlocked: false,
+            markAnywayReasonConceptUUID: null,
+            markAnywayNotes: "",
         };
     }
 
@@ -62,6 +65,9 @@ export class AttendanceSheetActions {
             stripDates,
             statusByDate,
             sessionByType,
+            markAnywayUnlocked: false,
+            markAnywayReasonConceptUUID: null,
+            markAnywayNotes: "",
         };
     }
 
@@ -73,7 +79,25 @@ export class AttendanceSheetActions {
         const statusByDate = AttendanceSheetActions._refreshStatusForDate(
             context, state.groupSubject, state.calendar, dateKey, state.statusByDate
         );
-        return {...state, selectedDate: dateKey, sessionByType, statusByDate};
+        // The Mark-anyway opt-in is per-date — switching dates locks the picker back.
+        return {
+            ...state,
+            selectedDate: dateKey,
+            sessionByType,
+            statusByDate,
+            markAnywayUnlocked: false,
+            markAnywayReasonConceptUUID: null,
+            markAnywayNotes: "",
+        };
+    }
+
+    static onSetMarkAnywayOutcome(state, action) {
+        return {
+            ...state,
+            markAnywayUnlocked: true,
+            markAnywayReasonConceptUUID: action.reasonConceptUUID || null,
+            markAnywayNotes: action.notes || "",
+        };
     }
 
     // After a save, the type-picker rows need fresh session info AND the date strip
@@ -176,6 +200,7 @@ AttendanceSheetActions.Names = {
     SELECT_DATE: `${Prefix}.SELECT_DATE`,
     REFRESH: `${Prefix}.REFRESH`,
     VOID: `${Prefix}.VOID`,
+    SET_MARK_ANYWAY_OUTCOME: `${Prefix}.SET_MARK_ANYWAY_OUTCOME`,
 };
 
 AttendanceSheetActions.Map = new Map([
@@ -183,6 +208,7 @@ AttendanceSheetActions.Map = new Map([
     [AttendanceSheetActions.Names.SELECT_DATE, AttendanceSheetActions.onSelectDate],
     [AttendanceSheetActions.Names.REFRESH, AttendanceSheetActions.onRefresh],
     [AttendanceSheetActions.Names.VOID, AttendanceSheetActions.onVoid],
+    [AttendanceSheetActions.Names.SET_MARK_ANYWAY_OUTCOME, AttendanceSheetActions.onSetMarkAnywayOutcome],
 ]);
 
 export default AttendanceSheetActions;

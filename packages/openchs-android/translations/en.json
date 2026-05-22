@@ -279,6 +279,8 @@
     "followUpsKeptCount": "{{count}} kept because the encounter was already filled",
     "confirmationOk": "OK",
     "didntHappenViewTitle": "Didn't happen",
+    "markAnywayViewTitle": "Mark anyway",
+    "markAnywayWhenToUse": "Capture why this session is being marked on a non-working day. Then mark each attendance type as held or didn't happen.",
     "reasonRequired": "Reason (required)",
     "notesOptional": "Notes (optional)",
     "didntHappenWhenToUse": "Class genuinely did not happen, or attendance was not recorded — pick a reason.",

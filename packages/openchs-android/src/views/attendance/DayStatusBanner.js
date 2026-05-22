@@ -5,6 +5,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import moment from "moment";
+import _ from "lodash";
 
 class DayStatusBanner extends AbstractComponent {
     static propTypes = {
@@ -38,6 +39,9 @@ class DayStatusBanner extends AbstractComponent {
         const dateLine = m.format("ddd D MMM YYYY");
         const statusLine = this._statusLine();
         const isHolidayLike = dayType === "weekly_off" || dayType === "public_holiday";
+        // The CTA renders only when the parent supplies a handler — Mark anyway
+        // is hidden once the user has unlocked the picker or saved a record.
+        const showMarkAnyway = isHolidayLike && _.isFunction(onMarkAnyway);
 
         return (
             <View>
@@ -53,8 +57,8 @@ class DayStatusBanner extends AbstractComponent {
                         <Text style={styles.dateText}>{dateLine}</Text>
                         {!!statusLine && <Text style={styles.statusText}>{statusLine}</Text>}
                     </View>
-                    {isHolidayLike && (
-                        <TouchableOpacity onPress={() => onMarkAnyway && onMarkAnyway()} style={styles.markAnywayCta}>
+                    {showMarkAnyway && (
+                        <TouchableOpacity onPress={onMarkAnyway} style={styles.markAnywayCta}>
                             <Text style={styles.markAnywayText}>
                                 {this.I18n.t("markAnyway").toUpperCase()} →
                             </Text>

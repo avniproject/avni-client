@@ -230,6 +230,8 @@
     "followUpsKeptCount": "{{count}} ठेवले कारण एन्काउंटर आधीच भरला होता",
     "confirmationOk": "ठीक आहे",
     "didntHappenViewTitle": "झाले नाही",
+    "markAnywayViewTitle": "तरीही चिन्हांकित करा",
+    "markAnywayWhenToUse": "बिगर-कार्यदिवशी हे सत्र का चिन्हांकित केले जात आहे ते नोंदवा. नंतर प्रत्येक उपस्थिती प्रकार झाले किंवा नाही झाले असे चिन्हांकित करा.",
     "reasonRequired": "कारण (आवश्यक)",
     "notesOptional": "नोट्स (पर्यायी)",
     "didntHappenWhenToUse": "वर्ग खरंच झाला नाही, किंवा उपस्थिती नोंदवली गेली नाही — कारण निवडा.",
