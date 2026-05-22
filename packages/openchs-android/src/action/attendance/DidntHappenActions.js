@@ -1,5 +1,5 @@
 import _ from "lodash";
-import {Session} from "avni-models";
+import {Session, WorkItem} from "avni-models";
 import General from "../../utility/General";
 import SessionService from "../../service/SessionService";
 import AttendanceRecordService from "../../service/AttendanceRecordService";
@@ -16,6 +16,7 @@ export class DidntHappenActions {
             reasonConceptUUID: null,
             notes: "",
             reasonAnswers: [],
+            pendingAutoShareWorkItem: null,
         };
     }
 
@@ -40,6 +41,7 @@ export class DidntHappenActions {
             reasonConceptUUID: realmSession ? realmSession.reasonConceptUUID : null,
             notes: realmSession ? (realmSession.notes || "") : "",
             reasonAnswers,
+            pendingAutoShareWorkItem: null,
         };
     }
 
@@ -52,7 +54,7 @@ export class DidntHappenActions {
     }
 
     static onSave(state, action, context) {
-        if (!state.reasonConceptUUID) return state;
+        if (!state.reasonConceptUUID) return {...state, pendingAutoShareWorkItem: null};
         const {groupSubject, attendanceType, scheduledDate, existingSession, reasonConceptUUID, notes} = state;
         const sessionService = context.get(SessionService);
         const recordService = context.get(AttendanceRecordService);
@@ -68,7 +70,7 @@ export class DidntHappenActions {
         session.voided = false;
 
         const reasonConcept = conceptService.getConceptByUUID(reasonConceptUUID);
-        if (!reasonConcept) return state;
+        if (!reasonConcept) return {...state, pendingAutoShareWorkItem: null};
         session.markDidntHappen(reasonConcept, notes || null);
 
         // Flipping a prior HELD session to DIDNT_HAPPEN must void its AttendanceRecords
@@ -86,9 +88,12 @@ export class DidntHappenActions {
             voidedRecordUUIDs,
         });
 
+        const pendingAutoShareWorkItem = DidntHappenActions._buildAutoShareWorkItem(attendanceType, session);
+
         return {
             ...state,
             existingSession: DidntHappenActions._snapshotSession(session),
+            pendingAutoShareWorkItem,
             saveCompletedAt: Date.now(),
         };
     }
@@ -101,6 +106,19 @@ export class DidntHappenActions {
             notes: realmSession.notes || null,
             reasonConceptUUID: realmSession.reasonConceptUUID || null,
         };
+    }
+
+    static _buildAutoShareWorkItem(attendanceType, session) {
+        if (!attendanceType || !_.isFunction(attendanceType.isAutoShareOnSave)) return null;
+        let enabled = false;
+        try {
+            enabled = !!attendanceType.isAutoShareOnSave();
+        } catch (e) {
+            General.logError("DidntHappenActions._buildAutoShareWorkItem", `isAutoShareOnSave threw: ${e.message}`);
+            return null;
+        }
+        if (!enabled) return null;
+        return new WorkItem(General.randomUUID(), WorkItem.type.SHARE_SESSION, {sessionUUID: session.uuid, format: "text"});
     }
 
     static _answersFor(conceptService, conceptUUID) {

@@ -122,6 +122,7 @@ class RuleEvaluationService extends BaseService {
     }
 
     getIndividualUUID(entity, entityName) {
+        if (_.isNil(entity)) return null;
         switch (entityName) {
             case 'Individual':
                 return entity.uuid;
@@ -290,10 +291,6 @@ class RuleEvaluationService extends BaseService {
         }
     }
 
-    // Session share rule — same eval mechanics as runShareRule but the rule
-    // string lives on AttendanceType (not Form) and the params include the
-    // adapter-derived attendanceRecords + summary so authors don't have to
-    // recompute them from the Session entity.
     runSessionShareRule(shareRuleString, session, attendanceType, attendanceRecords, summary) {
         if (_.isNil(shareRuleString) || _.isEmpty(_.trim(shareRuleString))) return {};
         try {

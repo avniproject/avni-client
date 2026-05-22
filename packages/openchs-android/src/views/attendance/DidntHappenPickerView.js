@@ -1,5 +1,5 @@
 import React from "react";
-import {ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
+import {InteractionManager, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import PropTypes from "prop-types";
 import moment from "moment";
 import Path from "../../framework/routing/Path";
@@ -13,6 +13,7 @@ import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import Reducers from "../../reducer";
 import {DidntHappenActions} from "../../action/attendance/DidntHappenActions";
+import SessionShareService from "../../service/attendance/SessionShareService";
 
 @Path("/didntHappenPickerView")
 class DidntHappenPickerView extends AbstractComponent {
@@ -25,6 +26,7 @@ class DidntHappenPickerView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.attendanceDidntHappen);
+        this._saveInFlight = false;
     }
 
     UNSAFE_componentWillMount() {
@@ -60,8 +62,18 @@ class DidntHappenPickerView extends AbstractComponent {
 
     _onSave = () => {
         if (!this.state.reasonConceptUUID) return;
+        if (this._saveInFlight) return;
+        this._saveInFlight = true;
         this.dispatchAction(DidntHappenActions.Names.SAVE);
+        const fresh = this.getContextState(Reducers.reducerKeys.attendanceDidntHappen);
+        const wi = fresh && fresh.pendingAutoShareWorkItem;
+        const shareService = wi ? this.getService(SessionShareService) : null;
         TypedTransition.from(this).goBack();
+        if (wi && shareService) {
+            InteractionManager.runAfterInteractions(() => {
+                shareService.dispatchShareSessionWorkItem(wi);
+            });
+        }
     };
 
     _onCancel = () => TypedTransition.from(this).goBack();

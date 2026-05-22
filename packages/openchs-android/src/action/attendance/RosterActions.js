@@ -1,5 +1,5 @@
 import _ from "lodash";
-import {AttendanceRecord, Encounter, ProgramEncounter, Session} from "avni-models";
+import {AttendanceRecord, Encounter, ProgramEncounter, Session, WorkItem} from "avni-models";
 import General from "../../utility/General";
 import GroupSubjectService from "../../service/GroupSubjectService";
 import SessionService from "../../service/SessionService";
@@ -20,6 +20,7 @@ export class RosterActions {
             absenceReasonAnswers: [],
             followUpEncounterTypeUuid: null,
             saveError: null,
+            pendingAutoShareWorkItem: null,
         };
     }
 
@@ -64,6 +65,7 @@ export class RosterActions {
             absenceReasonAnswers,
             followUpEncounterTypeUuid: attendanceType.getFollowUpEncounterTypeUUID(),
             saveError: null,
+            pendingAutoShareWorkItem: null,
         };
     }
 
@@ -106,7 +108,7 @@ export class RosterActions {
     static onSave(state, action, context) {
         const {groupSubject, attendanceType, scheduledDate, existingSession, roster, notes} = state;
         if (_.isEmpty(roster)) {
-            return {...state, saveError: "rosterEmptyError", lastSaveResult: null};
+            return {...state, saveError: "rosterEmptyError", lastSaveResult: null, pendingAutoShareWorkItem: null};
         }
 
         const sessionService = context.get(SessionService);
@@ -177,6 +179,8 @@ export class RosterActions {
             voidedRecordUUIDs,
         });
 
+        const pendingAutoShareWorkItem = RosterActions._buildAutoShareWorkItem(attendanceType, session);
+
         return {
             ...state,
             existingSession: RosterActions._snapshotSession(session),
@@ -192,6 +196,7 @@ export class RosterActions {
                 voidedFollowUpCount: saveResult.voidedFollowUps.length,
                 skippedFollowUps: saveResult.skippedFollowUps,
             },
+            pendingAutoShareWorkItem,
             saveCompletedAt: Date.now(),
         };
     }
@@ -204,6 +209,19 @@ export class RosterActions {
             notes: realmSession.notes || null,
             reasonConceptUUID: realmSession.reasonConceptUUID || null,
         };
+    }
+
+    static _buildAutoShareWorkItem(attendanceType, session) {
+        if (!attendanceType || !_.isFunction(attendanceType.isAutoShareOnSave)) return null;
+        let enabled = false;
+        try {
+            enabled = !!attendanceType.isAutoShareOnSave();
+        } catch (e) {
+            General.logError("RosterActions._buildAutoShareWorkItem", `isAutoShareOnSave threw: ${e.message}`);
+            return null;
+        }
+        if (!enabled) return null;
+        return new WorkItem(General.randomUUID(), WorkItem.type.SHARE_SESSION, {sessionUUID: session.uuid, format: "text"});
     }
 
     static _snapshotRecord(record) {

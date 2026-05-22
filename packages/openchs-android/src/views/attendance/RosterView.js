@@ -1,5 +1,5 @@
 import React from "react";
-import {FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
+import {FlatList, InteractionManager, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import PropTypes from "prop-types";
 import moment from "moment";
 import {AttendanceRecord} from "avni-models";
@@ -16,6 +16,7 @@ import Reducers from "../../reducer";
 import {RosterActions} from "../../action/attendance/RosterActions";
 import RosterRow from "./RosterRow";
 import FollowUpConfirmationDialog from "./FollowUpConfirmationDialog";
+import SessionShareService from "../../service/attendance/SessionShareService";
 
 @Path("/attendanceRosterView")
 class RosterView extends AbstractComponent {
@@ -28,8 +29,9 @@ class RosterView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.attendanceRoster);
-        // Reason-picker modal target — ephemeral, not in redux.
         this._pickingFor = null;
+        // Double-tap on Save would re-dispatch and drop pendingAutoShareWorkItem.
+        this._saveInFlight = false;
     }
 
     UNSAFE_componentWillMount() {
@@ -47,26 +49,44 @@ class RosterView extends AbstractComponent {
     // dispatchAction returns BEFORE React's setState (driven by store.subscribe) flushes,
     // so this.state would still be the pre-save snapshot. Read directly from the store.
     _onSave = () => {
+        if (this._saveInFlight) return;
+        this._saveInFlight = true;
         this.dispatchAction(RosterActions.Names.SAVE);
         const freshState = this.getContextState(Reducers.reducerKeys.attendanceRoster);
         if (freshState && freshState.saveError) {
+            this._saveInFlight = false;
             this.showError(this.I18n.t(freshState.saveError));
             return;
         }
         const result = freshState && freshState.lastSaveResult;
+        // Capture service ref while still mounted; goBack unmounts before InteractionManager fires.
+        this._pendingAutoShareWorkItem = (freshState && freshState.pendingAutoShareWorkItem) || null;
+        this._pendingShareService = this.getService(SessionShareService);
         const hasFollowUps = result && ((result.createdFollowUps || []).length > 0 || (result.skippedFollowUps || []).length > 0);
         if (hasFollowUps) {
             this.setState({confirmationVisible: true});
         } else {
             TypedTransition.from(this).goBack();
+            this._fireAutoShareIfPending();
         }
     };
 
-    // Modal needs to flip invisible before goBack unmounts the host — otherwise the
-    // native dialog can be left stranded as a translucent overlay on the prior screen.
+    // Modal flips invisible before goBack so the native dialog doesn't strand on the prior screen.
     _onDismissConfirmation = () => {
         this.setState({confirmationVisible: false}, () => {
             TypedTransition.from(this).goBack();
+            this._fireAutoShareIfPending();
+        });
+    };
+
+    _fireAutoShareIfPending = () => {
+        const wi = this._pendingAutoShareWorkItem;
+        const shareService = this._pendingShareService;
+        this._pendingAutoShareWorkItem = null;
+        this._pendingShareService = null;
+        if (!wi || !shareService) return;
+        InteractionManager.runAfterInteractions(() => {
+            shareService.dispatchShareSessionWorkItem(wi);
         });
     };
 

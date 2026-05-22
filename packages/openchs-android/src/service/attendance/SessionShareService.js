@@ -6,11 +6,11 @@ import General from "../../utility/General";
 import ErrorUtil from "../../framework/errorHandling/ErrorUtil";
 import RuleEvaluationService from "../RuleEvaluationService";
 import PDFGenerationService from "../PDFGenerationService";
+import SessionService from "../SessionService";
+import AttendanceTypeService from "../AttendanceTypeService";
+import IndividualService from "../IndividualService";
 import SessionShareAdapter from "./SessionShareAdapter";
 
-// Orchestrates the Session share flow: adapter → rule eval → renderer → native
-// share-sheet. Mirrors FormShareService for sessions but is much smaller
-// because Sessions don't carry observations / forms / S3 templates.
 @Service("sessionShareService")
 class SessionShareService extends BaseService {
     constructor(db, beanStore) {
@@ -21,12 +21,6 @@ class SessionShareService extends BaseService {
         const {ctx, ruleOut} = this._runAdapterAndRule(session, attendanceType, groupSubject);
         const adapter = this.getService(SessionShareAdapter);
 
-        // Rule's `data` is interpreted the same way the form path interprets it:
-        // an object of substitution values for a Mustache template. The Session
-        // path has no S3 custom template (v1) — we always render against the
-        // built-in default HTML. If `data` is present, we merge it onto the
-        // summary so authors can override individual fields without rewriting
-        // the whole template.
         const mergedSummary = _.isPlainObject(ruleOut?.data)
             ? _.merge({}, ctx.summary, ruleOut.data)
             : ctx.summary;
@@ -53,6 +47,68 @@ class SessionShareService extends BaseService {
             General.logError("SessionShareService.shareText", err);
             ErrorUtil.notifyBugsnag(err, "SessionShareService");
         });
+    }
+
+    async dispatchShareSessionWorkItem(workItem) {
+        if (!workItem) return;
+        try {
+            workItem.validate();
+        } catch (err) {
+            General.logError("SessionShareService.dispatchShareSessionWorkItem", `validate failed: ${err.message}`);
+            this._recordFailure(err, workItem);
+            return;
+        }
+
+        const params = workItem.parameters || {};
+        const sessionUUID = params.sessionUUID;
+        const session = this.getService(SessionService).findByUUID(sessionUUID);
+        if (!this._isLiveEntity(session)) {
+            const err = new Error(`SHARE_SESSION sessionUUID '${sessionUUID}' did not resolve to a live session`);
+            General.logError("SessionShareService.dispatchShareSessionWorkItem", err.message);
+            this._recordFailure(err, workItem);
+            return;
+        }
+
+        const attendanceType = this.getService(AttendanceTypeService).findByUUID(session.attendanceTypeUUID);
+        if (!this._isLiveEntity(attendanceType)) {
+            const err = new Error(`SHARE_SESSION attendanceTypeUUID '${session.attendanceTypeUUID}' did not resolve to a live attendance type`);
+            General.logError("SessionShareService.dispatchShareSessionWorkItem", err.message);
+            this._recordFailure(err, workItem);
+            return;
+        }
+
+        const groupSubject = this.getService(IndividualService).findByUUID(session.groupSubjectUUID);
+        if (!this._isLiveEntity(groupSubject)) {
+            const err = new Error(`SHARE_SESSION groupSubjectUUID '${session.groupSubjectUUID}' did not resolve to a live group subject`);
+            General.logError("SessionShareService.dispatchShareSessionWorkItem", err.message);
+            this._recordFailure(err, workItem);
+            return;
+        }
+
+        const format = params.format;
+        try {
+            if (format === "pdf") return await this.sharePdf(session, attendanceType, groupSubject);
+            if (format === "text") return await this.shareText(session, attendanceType, groupSubject);
+            const err = new Error(`SHARE_SESSION work item has unsupported format '${format}'`);
+            General.logError("SessionShareService.dispatchShareSessionWorkItem", err.message);
+            this._recordFailure(err, workItem);
+        } catch (err) {
+            General.logError("SessionShareService.dispatchShareSessionWorkItem", `dispatch failed: ${err.message}`);
+            this._recordFailure(err, workItem);
+        }
+    }
+
+    _isLiveEntity(entity) {
+        return !!entity && !entity.voided;
+    }
+
+    _recordFailure(err, workItem) {
+        try {
+            this.getService(RuleEvaluationService).recordWorkListUpdationFailure(err, null, {workItem});
+        } catch (logErr) {
+            General.logError("SessionShareService._recordFailure", logErr);
+            ErrorUtil.notifyBugsnag(logErr, "SessionShareService");
+        }
     }
 
     _runAdapterAndRule(session, attendanceType, groupSubject) {
