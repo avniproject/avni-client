@@ -14,10 +14,13 @@ export class RosterActions {
             groupSubject: null,
             attendanceType: null,
             scheduledDate: null,
+            dayType: null,
             existingSession: null,
             roster: [],
             notes: "",
             absenceReasonAnswers: [],
+            sessionReasonAnswers: [],
+            sessionReasonConceptUUID: null,
             followUpEncounterTypeUuid: null,
             saveError: null,
             pendingAutoShareWorkItem: null,
@@ -25,7 +28,7 @@ export class RosterActions {
     }
 
     static onLoad(state, action, context) {
-        const {groupSubject, attendanceType, scheduledDate} = action;
+        const {groupSubject, attendanceType, scheduledDate, dayType} = action;
         const groupSubjectService = context.get(GroupSubjectService);
         const sessionService = context.get(SessionService);
         const recordService = context.get(AttendanceRecordService);
@@ -54,19 +57,35 @@ export class RosterActions {
             ? RosterActions._answersFor(conceptService, absenceReasonConceptUUID)
             : [];
 
+        const sessionOutcomeConceptUUID = attendanceType.getSessionOutcomeReasonConceptUUID();
+        const sessionReasonAnswers = sessionOutcomeConceptUUID
+            ? RosterActions._answersFor(conceptService, sessionOutcomeConceptUUID)
+            : [];
+
         return {
             ...state,
             groupSubject,
             attendanceType,
             scheduledDate,
+            dayType: dayType || null,
             existingSession: RosterActions._snapshotSession(realmSession),
             roster,
             notes: realmSession ? (realmSession.notes || "") : "",
             absenceReasonAnswers,
+            sessionReasonAnswers,
+            sessionReasonConceptUUID: realmSession ? (realmSession.reasonConceptUUID || null) : null,
             followUpEncounterTypeUuid: attendanceType.getFollowUpEncounterTypeUUID(),
             saveError: null,
             pendingAutoShareWorkItem: null,
         };
+    }
+
+    static onSetSessionReason(state, action) {
+        return {...state, sessionReasonConceptUUID: action.reasonConceptUUID};
+    }
+
+    static isHolidayLikeDayType(dayType) {
+        return dayType === "weekly_off" || dayType === "public_holiday";
     }
 
     static onTogglePresence(state, action) {
@@ -106,9 +125,15 @@ export class RosterActions {
     }
 
     static onSave(state, action, context) {
-        const {groupSubject, attendanceType, scheduledDate, existingSession, roster, notes} = state;
+        const {groupSubject, attendanceType, scheduledDate, dayType, existingSession, roster, notes, sessionReasonConceptUUID} = state;
         if (_.isEmpty(roster)) {
             return {...state, saveError: "rosterEmptyError", lastSaveResult: null, pendingAutoShareWorkItem: null};
+        }
+        if (RosterActions.isHolidayLikeDayType(dayType) && _.isEmpty((sessionReasonConceptUUID || "").trim())) {
+            return {...state, saveError: "sessionReasonRequiredOnHoliday", lastSaveResult: null, pendingAutoShareWorkItem: null};
+        }
+        if (RosterActions.isHolidayLikeDayType(dayType) && _.isEmpty((notes || "").trim())) {
+            return {...state, saveError: "sessionNotesRequiredOnHoliday", lastSaveResult: null, pendingAutoShareWorkItem: null};
         }
 
         const sessionService = context.get(SessionService);
@@ -134,7 +159,7 @@ export class RosterActions {
             roster.map(r => ({...r})),
             "subjectUUID"
         );
-        const attendanceRecords = session.markHeld(rosterByStudentUUID);
+        const attendanceRecords = session.markHeld(rosterByStudentUUID, sessionReasonConceptUUID || null);
         attendanceRecords.forEach(r => {
             const reused = existingRecordUUIDByStudent[r.subjectUUID];
             if (reused) r.uuid = reused;
@@ -254,6 +279,7 @@ export class RosterActions {
             ...state,
             roster: state.roster.map(r => ({...r})),
             absenceReasonAnswers: state.absenceReasonAnswers.slice(),
+            sessionReasonAnswers: state.sessionReasonAnswers.slice(),
         };
     }
 }
@@ -263,6 +289,7 @@ RosterActions.Names = {
     ON_LOAD: `${Prefix}.ON_LOAD`,
     TOGGLE_PRESENCE: `${Prefix}.TOGGLE_PRESENCE`,
     SET_REASON: `${Prefix}.SET_REASON`,
+    SET_SESSION_REASON: `${Prefix}.SET_SESSION_REASON`,
     MARK_ALL_ABSENT: `${Prefix}.MARK_ALL_ABSENT`,
     SET_NOTES: `${Prefix}.SET_NOTES`,
     SAVE: `${Prefix}.SAVE`,
@@ -272,6 +299,7 @@ RosterActions.Map = new Map([
     [RosterActions.Names.ON_LOAD, RosterActions.onLoad],
     [RosterActions.Names.TOGGLE_PRESENCE, RosterActions.onTogglePresence],
     [RosterActions.Names.SET_REASON, RosterActions.onSetReason],
+    [RosterActions.Names.SET_SESSION_REASON, RosterActions.onSetSessionReason],
     [RosterActions.Names.MARK_ALL_ABSENT, RosterActions.onMarkAllAbsent],
     [RosterActions.Names.SET_NOTES, RosterActions.onSetNotes],
     [RosterActions.Names.SAVE, RosterActions.onSave],

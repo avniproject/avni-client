@@ -53,8 +53,8 @@ class DayStatusBanner extends AbstractComponent {
                         <Text style={styles.dateText}>{dateLine}</Text>
                         {!!statusLine && <Text style={styles.statusText}>{statusLine}</Text>}
                     </View>
-                    {isHolidayLike && (
-                        <TouchableOpacity onPress={() => onMarkAnyway && onMarkAnyway()} style={styles.markAnywayCta}>
+                    {isHolidayLike && !!onMarkAnyway && (
+                        <TouchableOpacity onPress={onMarkAnyway} style={styles.markAnywayCta}>
                             <Text style={styles.markAnywayText}>
                                 {this.I18n.t("markAnyway").toUpperCase()} →
                             </Text>

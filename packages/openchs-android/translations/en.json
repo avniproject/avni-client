@@ -268,6 +268,8 @@
     "selectReason": "Select reason",
     "reasonBlankWarning": "Blank reason → follow-up encounter will be created on save",
     "sessionNotesOptional": "Session notes (optional)",
+    "sessionNotesRequiredOnHoliday": "Session notes (required on non-working day)",
+    "sessionReasonRequiredOnHoliday": "Reason for marking on a non-working day",
     "rosterSummary": "{{withReason}} with reason · {{withoutReason}} without reason → {{followUps}} follow-ups will be created",
     "saveAttendance": "SAVE ATTENDANCE",
     "present": "Present",

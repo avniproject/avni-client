@@ -17,11 +17,11 @@ function makeContext(stubs) {
 
 const STUDENT_SUBJECT_TYPE = {uuid: "st-student", group: false};
 
-function makeAttendanceType({autoShareOnSave = false, follow_up_encounter_type_uuid = null} = {}) {
+function makeAttendanceType({autoShareOnSave = false, followUpEncounterType = null} = {}) {
     return {
         uuid: "at-uuid",
         name: "Morning Prayer",
-        getFollowUpEncounterTypeUUID: () => follow_up_encounter_type_uuid,
+        getFollowUpEncounterTypeUUID: () => followUpEncounterType,
         getAbsenceReasonConceptUUID: () => "rc-uuid",
         getSessionOutcomeReasonConceptUUID: () => "outcome-uuid",
         isAutoShareOnSave: () => autoShareOnSave,

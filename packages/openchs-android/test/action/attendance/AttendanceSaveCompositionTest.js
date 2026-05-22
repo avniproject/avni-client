@@ -18,12 +18,12 @@ function makeContext(stubs) {
     };
 }
 
-function makeAttendanceType({follow_up_encounter_type_uuid = null, absence_reason_concept_uuid = "rc-uuid"} = {}) {
+function makeAttendanceType({followUpEncounterType = null, absenceReasonConcept = "rc-uuid"} = {}) {
     return {
         uuid: "at-uuid",
         name: "Morning Prayer",
-        getFollowUpEncounterTypeUUID: () => follow_up_encounter_type_uuid,
-        getAbsenceReasonConceptUUID: () => absence_reason_concept_uuid,
+        getFollowUpEncounterTypeUUID: () => followUpEncounterType,
+        getAbsenceReasonConceptUUID: () => absenceReasonConcept,
     };
 }
 
@@ -37,10 +37,10 @@ function makeGroupSubject() {
 
 const STUDENT_SUBJECT_TYPE = {uuid: "st-student", group: false};
 
-function makeBaseState({existingSession = null, follow_up_encounter_type_uuid = null} = {}) {
+function makeBaseState({existingSession = null, followUpEncounterType = null} = {}) {
     return {
         groupSubject: makeGroupSubject(),
-        attendanceType: makeAttendanceType({follow_up_encounter_type_uuid}),
+        attendanceType: makeAttendanceType({followUpEncounterType}),
         scheduledDate: "2026-05-21",
         existingSession,
         roster: [
@@ -50,7 +50,7 @@ function makeBaseState({existingSession = null, follow_up_encounter_type_uuid = 
         ],
         notes: "Started late.",
         absenceReasonAnswers: [],
-        followUpEncounterTypeUuid: follow_up_encounter_type_uuid,
+        followUpEncounterTypeUuid: followUpEncounterType,
     };
 }
 
@@ -123,7 +123,7 @@ describe("RosterActions.onSave — atomic save composition", () => {
     }
 
     it("passes a fresh Session + AttendanceRecord[] to saveOrUpdate when no follow-up EncounterType is configured", () => {
-        const state = makeBaseState({follow_up_encounter_type_uuid: null});
+        const state = makeBaseState({followUpEncounterType: null});
 
         RosterActions.onSave(state, {}, buildContext());
 
@@ -143,7 +143,7 @@ describe("RosterActions.onSave — atomic save composition", () => {
 
     it("emits no follow-up encounters when the configured EncounterType is voided / missing", () => {
         entityService.findByUUID.mockReturnValue(null); // voided / not synced
-        const state = makeBaseState({follow_up_encounter_type_uuid: "et-uuid"});
+        const state = makeBaseState({followUpEncounterType: "et-uuid"});
 
         RosterActions.onSave(state, {}, buildContext());
 
@@ -158,7 +158,7 @@ describe("RosterActions.onSave — atomic save composition", () => {
         const encounterType = {uuid: "et-uuid", name: "Home Visit"};
         entityService.findByUUID.mockReturnValue(encounterType);
         formMappingService.findProgramUUIDForEncounterType.mockReturnValue(null);
-        const state = makeBaseState({follow_up_encounter_type_uuid: "et-uuid"});
+        const state = makeBaseState({followUpEncounterType: "et-uuid"});
 
         RosterActions.onSave(state, {}, buildContext());
 
@@ -176,7 +176,7 @@ describe("RosterActions.onSave — atomic save composition", () => {
         entityService.findByUUID.mockReturnValue(encounterType);
         formMappingService.findProgramUUIDForEncounterType.mockReturnValue("prog-uuid");
         programEnrolmentService.getEnrolmentBySubjectUuidAndProgramUuid.mockReturnValue({uuid: "enr-1", program: {uuid: "prog-uuid"}});
-        const state = makeBaseState({follow_up_encounter_type_uuid: "et-uuid"});
+        const state = makeBaseState({followUpEncounterType: "et-uuid"});
 
         RosterActions.onSave(state, {}, buildContext());
 
@@ -196,7 +196,7 @@ describe("RosterActions.onSave — atomic save composition", () => {
             const subjectType = uuid === "s2" ? OTHER_SUBJECT_TYPE : STUDENT_SUBJECT_TYPE;
             return {uuid, nameString: uuid.toUpperCase(), subjectType};
         });
-        const state = makeBaseState({follow_up_encounter_type_uuid: "et-uuid"});
+        const state = makeBaseState({followUpEncounterType: "et-uuid"});
 
         RosterActions.onSave(state, {}, buildContext());
 
@@ -264,7 +264,7 @@ describe("RosterActions.onSave — atomic save composition", () => {
     it("returns a lastSaveResult summary that the confirmation dialog can render", () => {
         const encounterType = {uuid: "et-uuid", name: "Home Visit"};
         entityService.findByUUID.mockReturnValue(encounterType);
-        const state = makeBaseState({follow_up_encounter_type_uuid: "et-uuid"});
+        const state = makeBaseState({followUpEncounterType: "et-uuid"});
 
         const newState = RosterActions.onSave(state, {}, buildContext());
 

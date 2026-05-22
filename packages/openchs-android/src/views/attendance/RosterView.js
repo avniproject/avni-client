@@ -25,6 +25,9 @@ class RosterView extends AbstractComponent {
         attendanceType: PropTypes.object.isRequired,
         // Canonical "YYYY-MM-DD" — the attendance flow is time/timezone agnostic.
         scheduledDate: PropTypes.string.isRequired,
+        // Calendar day_type for the scheduled date — drives the holiday-mode rules
+        // (notes become required on weekly_off / public_holiday).
+        dayType: PropTypes.string,
     };
 
     constructor(props, context) {
@@ -39,6 +42,7 @@ class RosterView extends AbstractComponent {
             groupSubject: this.props.groupSubject,
             attendanceType: this.props.attendanceType,
             scheduledDate: this.props.scheduledDate,
+            dayType: this.props.dayType,
         });
         super.UNSAFE_componentWillMount();
     }
@@ -100,6 +104,25 @@ class RosterView extends AbstractComponent {
         this.setState({reasonPickerVisible: false});
     };
 
+    _onPickSessionReason = () => this.setState({sessionReasonPickerVisible: true});
+    _hideSessionReasonPicker = () => this.setState({sessionReasonPickerVisible: false});
+
+    _sessionReasonActions() {
+        return (this.state.sessionReasonAnswers || []).map(a => ({
+            label: a.name,
+            fn: () => {
+                this.dispatchAction(RosterActions.Names.SET_SESSION_REASON, {reasonConceptUUID: a.uuid});
+            },
+        }));
+    }
+
+    _selectedSessionReasonName() {
+        const {sessionReasonConceptUUID, sessionReasonAnswers} = this.state;
+        if (!sessionReasonConceptUUID) return this.I18n.t("selectReason");
+        const match = (sessionReasonAnswers || []).find(a => a.uuid === sessionReasonConceptUUID);
+        return match ? match.name : this.I18n.t("selectReason");
+    }
+
     _reasonActions() {
         // ActionSelector calls props.hide() before invoking fn, which clears
         // this._pickingFor — close over the current value so the dispatch sees
@@ -142,9 +165,13 @@ class RosterView extends AbstractComponent {
 
     render() {
         const {groupSubject, attendanceType, scheduledDate} = this.props;
-        const {roster, notes} = this.state;
+        const {roster, notes, dayType, sessionReasonConceptUUID} = this.state;
         const summary = this._summaryCounts();
         const headerSubline = moment.utc(scheduledDate, "YYYY-MM-DD").format("ddd D MMM") + " · " + groupSubject.nameString;
+        const holidayMode = RosterActions.isHolidayLikeDayType(dayType);
+        const notesEmpty = (notes || "").trim().length === 0;
+        const reasonMissing = !sessionReasonConceptUUID;
+        const saveDisabled = holidayMode && (reasonMissing || notesEmpty);
 
         return (
             <CHSContainer>
@@ -165,14 +192,28 @@ class RosterView extends AbstractComponent {
                                 <Text style={styles.summaryText}>
                                     {this.I18n.t("rosterSummary", summary)}
                                 </Text>
-                                <Text style={styles.notesLabel}>{this.I18n.t("sessionNotesOptional").toUpperCase()}</Text>
+                                {holidayMode && (
+                                    <View style={styles.sessionReasonBlock}>
+                                        <Text style={styles.notesLabel}>{this.I18n.t("sessionReasonRequiredOnHoliday").toUpperCase()}</Text>
+                                        <TouchableOpacity onPress={this._onPickSessionReason} style={styles.sessionReasonPicker}>
+                                            <Text style={styles.sessionReasonText}>{this._selectedSessionReasonName()}</Text>
+                                            <Text style={styles.sessionReasonChevron}>▾</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                )}
+                                <Text style={styles.notesLabel}>
+                                    {this.I18n.t(holidayMode ? "sessionNotesRequiredOnHoliday" : "sessionNotesOptional").toUpperCase()}
+                                </Text>
                                 <TextInput
                                     value={notes || ""}
                                     onChangeText={this._onSetNotes}
                                     multiline
                                     style={styles.notesInput}
                                 />
-                                <TouchableOpacity onPress={this._onSave} style={styles.saveBtn}>
+                                <TouchableOpacity
+                                    onPress={this._onSave}
+                                    disabled={saveDisabled}
+                                    style={[styles.saveBtn, saveDisabled && styles.saveBtnDisabled]}>
                                     <Text style={styles.saveBtnText}>{this.I18n.t("saveAttendance")}</Text>
                                 </TouchableOpacity>
                             </View>
@@ -183,6 +224,12 @@ class RosterView extends AbstractComponent {
                         visible={!!this.state.reasonPickerVisible}
                         hide={this._hideReasonPicker}
                         actions={this._reasonActions()}
+                    />
+                    <ActionSelector
+                        title={this.I18n.t("sessionReasonRequiredOnHoliday")}
+                        visible={!!this.state.sessionReasonPickerVisible}
+                        hide={this._hideSessionReasonPicker}
+                        actions={this._sessionReasonActions()}
                     />
                     <FollowUpConfirmationDialog
                         visible={!!this.state.confirmationVisible}
@@ -209,6 +256,16 @@ const styles = StyleSheet.create({
     footer: {padding: 16, backgroundColor: Colors.WhiteContentBackground},
     summaryText: {fontSize: Styles.smallTextSize, color: Colors.SubheaderColor || '#666', marginBottom: 16},
     notesLabel: {fontSize: 11, color: Colors.SubheaderColor || '#666', letterSpacing: 0.5, marginBottom: 4},
+    sessionReasonBlock: {marginBottom: 12},
+    sessionReasonPicker: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: Colors.InputBorderNormal,
+    },
+    sessionReasonText: {flex: 1, fontSize: Styles.normalTextSize, color: Colors.InputNormal},
+    sessionReasonChevron: {fontSize: 16, color: Colors.SubheaderColor || '#666'},
     notesInput: {
         borderWidth: 1,
         borderColor: Colors.InputBorderNormal,
@@ -224,6 +281,7 @@ const styles = StyleSheet.create({
         borderRadius: 4,
         alignItems: 'center',
     },
+    saveBtnDisabled: {backgroundColor: Colors.DisabledButtonColor || '#c2c5c6'},
     saveBtnText: {color: Colors.TextOnPrimaryColor, fontWeight: 'bold', fontSize: Styles.normalTextSize},
 });
 

@@ -48,15 +48,18 @@ class AttendanceSheetView extends AbstractComponent {
 
     // dateKey is a canonical "YYYY-MM-DD" string handed back from the strip.
     _onSelectDate = (dateKey) => {
+        this.setState({markAnywayAcknowledgedDate: null});
         this.dispatchAction(AttendanceSheetActions.Names.SELECT_DATE, {date: dateKey});
     };
 
     _navigateWithType = (attendanceType, ViewClass) => {
+        const status = this.state.selectedDate ? this.state.statusByDate.get(this.state.selectedDate) : null;
         TypedTransition.from(this)
             .with({
                 groupSubject: this.props.groupSubject,
                 attendanceType,
                 scheduledDate: this.state.selectedDate,
+                dayType: status ? status.dayType : null,
             })
             .to(ViewClass, true);
     };
@@ -157,18 +160,13 @@ class AttendanceSheetView extends AbstractComponent {
         this.setState({markAnywayConfirmVisible: true});
     };
     _onMarkAnywayCancel = () => this.setState({markAnywayConfirmVisible: false});
-    // Mark-anyway on calendar-off days routes to the DidntHappen picker so the
-    // user supplies a required reason explaining the override. Picking
-    // attendanceType[0] keeps v1 simple; future iteration can ask first.
+    // Acknowledging unhides the attendance-type rows for the selected date so the
+    // user can pick Mark (-> RosterView) or Didn't Happen (-> reason picker) just
+    // as they would on a normal working day.
     _onMarkAnywayContinue = () => {
-        const firstType = (this.state.attendanceTypes || [])[0];
-        if (!firstType) {
-            this.setState({markAnywayConfirmVisible: false});
-            this.showError(this.I18n.t("noAttendanceTypesConfigured"));
-            return;
-        }
-        this.setState({markAnywayConfirmVisible: false}, () => {
-            this._navigateWithType(firstType, DidntHappenPickerView);
+        this.setState({
+            markAnywayConfirmVisible: false,
+            markAnywayAcknowledgedDate: this.state.selectedDate,
         });
     };
 
@@ -176,13 +174,23 @@ class AttendanceSheetView extends AbstractComponent {
         const {groupSubject} = this.props;
         const {selectedDate, stripDates, statusByDate, attendanceTypes, sessionByType} = this.state;
         const selectedStatus = selectedDate ? statusByDate.get(selectedDate) : null;
-        // On weekly_off / public_holiday, the per-type Mark/DidntHappen buttons
-        // would let the user bypass the required Mark-anyway reason flow. We
-        // hide unmarked rows so the user is forced through the banner CTA, but
-        // keep rows for types that already have a saved session so they can be
+        // On weekly_off / public_holiday the type-picker rows are hidden by default
+        // so the user is funnelled through the banner's Mark-anyway confirmation.
+        // Once they confirm for a date, we reveal the rows for that date and let
+        // them pick Mark or Didn't Happen as on a working day. Rows for types
+        // with an already-saved session stay visible regardless so they can be
         // re-opened or edited.
         const dayType = selectedStatus && selectedStatus.dayType;
-        const isHolidayLike = dayType === "weekly_off" || dayType === "public_holiday";
+        const isHolidayLikeRaw = dayType === "weekly_off" || dayType === "public_holiday";
+        // Acknowledgment is sticky for the day: an explicit Mark-Anyway tap this
+        // session, OR any saved session for this date (Held or DidntHappen),
+        // means the user has already engaged with the holiday once and doesn't
+        // need to re-confirm to mark additional attendance types.
+        const hasAnySavedSessionForDate = Array.from((sessionByType || new Map()).values())
+            .some(info => info && info.session);
+        const markAnywayAcknowledged = this.state.markAnywayAcknowledgedDate === selectedDate
+            || hasAnySavedSessionForDate;
+        const isHolidayLike = isHolidayLikeRaw && !markAnywayAcknowledged;
         const visibleTypes = isHolidayLike
             ? (attendanceTypes || []).filter(at => {
                 const info = sessionByType.get(at.uuid);
@@ -206,7 +214,7 @@ class AttendanceSheetView extends AbstractComponent {
                                 selectedDate={selectedDate}
                                 dayType={dayType}
                                 marker={selectedStatus && selectedStatus.marker}
-                                onMarkAnyway={this._onMarkAnyway}
+                                onMarkAnyway={markAnywayAcknowledged ? null : this._onMarkAnyway}
                             />
                             <AttendanceTypePicker
                                 attendanceTypes={visibleTypes}

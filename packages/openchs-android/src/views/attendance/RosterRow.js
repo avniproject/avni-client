@@ -13,7 +13,7 @@ class RosterRow extends AbstractComponent {
         row: PropTypes.object.isRequired,
         // [{uuid, name}]
         reasonAnswers: PropTypes.array.isRequired,
-        // null if the AttendanceType has no follow_up_encounter_type_uuid (so blank
+        // null if the AttendanceType has no followUpEncounterType (so blank
         // reasons don't warn about a follow-up that won't actually be created).
         followUpEncounterTypeUuid: PropTypes.string,
         onToggle: PropTypes.func.isRequired,
