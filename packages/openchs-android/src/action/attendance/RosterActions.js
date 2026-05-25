@@ -132,9 +132,6 @@ export class RosterActions {
         if (RosterActions.isHolidayLikeDayType(dayType) && _.isEmpty((sessionReasonConceptUUID || "").trim())) {
             return {...state, saveError: "sessionReasonRequiredOnHoliday", lastSaveResult: null, pendingAutoShareWorkItem: null};
         }
-        if (RosterActions.isHolidayLikeDayType(dayType) && _.isEmpty((notes || "").trim())) {
-            return {...state, saveError: "sessionNotesRequiredOnHoliday", lastSaveResult: null, pendingAutoShareWorkItem: null};
-        }
 
         const sessionService = context.get(SessionService);
         const recordService = context.get(AttendanceRecordService);

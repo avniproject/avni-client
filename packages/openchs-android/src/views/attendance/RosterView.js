@@ -169,9 +169,8 @@ class RosterView extends AbstractComponent {
         const summary = this._summaryCounts();
         const headerSubline = moment.utc(scheduledDate, "YYYY-MM-DD").format("ddd D MMM") + " · " + groupSubject.nameString;
         const holidayMode = RosterActions.isHolidayLikeDayType(dayType);
-        const notesEmpty = (notes || "").trim().length === 0;
         const reasonMissing = !sessionReasonConceptUUID;
-        const saveDisabled = holidayMode && (reasonMissing || notesEmpty);
+        const saveDisabled = holidayMode && reasonMissing;
 
         return (
             <CHSContainer>
@@ -202,7 +201,7 @@ class RosterView extends AbstractComponent {
                                     </View>
                                 )}
                                 <Text style={styles.notesLabel}>
-                                    {this.I18n.t(holidayMode ? "sessionNotesRequiredOnHoliday" : "sessionNotesOptional").toUpperCase()}
+                                    {this.I18n.t("sessionNotesOptional").toUpperCase()}
                                 </Text>
                                 <TextInput
                                     value={notes || ""}
