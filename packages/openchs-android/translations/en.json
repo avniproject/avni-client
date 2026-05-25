@@ -27,6 +27,7 @@
     "enrolmentDateInFuture": "Enrolment date cannot be in future",
     "encounterDateInFuture": "Encounter date cannot be in future",
     "exitDateInFuture": "Exit date cannot be in future",
+    "FutureScheduledDateNotAllowed": "Attendance can't be marked for a future date",
     "numberAboveHiAbsolute": "Should be {{limit}}, or less than {{limit}}",
     "numberBelowLowAbsolute": "Should be {{limit}}, or more than {{limit}}",
     "ageTooHigh": "Age is person is above 120 years",
