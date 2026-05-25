@@ -44,11 +44,11 @@ class HorizontalDateStrip extends AbstractComponent {
         const hasDidntHappen = (status.didntHappen || []).length > 0;
         if (hasHeld && hasDidntHappen) return (
             <View style={{flexDirection: 'row'}}>
-                <View style={[styles.dot, styles.dotMixed, {backgroundColor: Colors.ActionButtonColor}]}/>
+                <View style={[styles.dot, styles.dotMixed, {backgroundColor: Colors.DarkPrimaryColor}]}/>
                 <View style={[styles.dot, styles.dotMixed, {backgroundColor: '#9e9e9e'}]}/>
             </View>
         );
-        if (hasHeld) return <View style={[styles.dot, {backgroundColor: Colors.ActionButtonColor}]}/>;
+        if (hasHeld) return <View style={[styles.dot, {backgroundColor: Colors.DarkPrimaryColor}]}/>;
         if (hasDidntHappen) return <View style={[styles.dot, {backgroundColor: '#9e9e9e'}]}/>;
         return null;
     }
@@ -87,7 +87,6 @@ class HorizontalDateStrip extends AbstractComponent {
         const isWeeklyOff = status && status.dayType === "weekly_off";
         // moment.utc avoids any local-tz drift when parsing the canonical key.
         const m = moment.utc(dateKey, "YYYY-MM-DD");
-        const isToday = dateKey === moment().format("YYYY-MM-DD");
 
         return (
             <TouchableOpacity
@@ -100,7 +99,7 @@ class HorizontalDateStrip extends AbstractComponent {
                     isSelected && styles.cellSelected,
                 ]}>
                 <Text style={[styles.weekday, isSelected && styles.weekdaySelected]}>
-                    {isToday ? this.I18n.t("today").toUpperCase() : m.format("ddd").toUpperCase()}
+                    {m.format("ddd").toUpperCase()}
                 </Text>
                 <Text style={[styles.day, isSelected && styles.daySelected]}>
                     {m.format("D")}
