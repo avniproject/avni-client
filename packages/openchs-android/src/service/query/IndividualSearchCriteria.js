@@ -9,6 +9,7 @@ class IndividualSearchCriteria {
     static empty() {
         let individualSearchCriteria = new IndividualSearchCriteria();
         individualSearchCriteria.lowestAddressLevels = [];
+        individualSearchCriteria.dateOfBirth = null;
         return individualSearchCriteria;
     }
 
@@ -23,7 +24,9 @@ class IndividualSearchCriteria {
                 }).value();
         }
 
-        if (!_.isEmpty(this.ageInYears)) {
+        if (!_.isNil(this.dateOfBirth)) {
+            criteria.push(`(dateOfBirth >= $1 AND dateOfBirth < $0 )`);
+        } else if (!_.isEmpty(this.ageInYears)) {
             criteria.push(`(dateOfBirth <= $0 AND dateOfBirth >= $1 )`);
         }
 
@@ -74,6 +77,10 @@ class IndividualSearchCriteria {
         this.ageInYears = age;
     }
 
+    addDateOfBirthCriteria(dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
     addNameCriteria(name) {
         this.name = name;
     }
@@ -114,14 +121,20 @@ class IndividualSearchCriteria {
         this.searchAddressLevels = searchAddresses;
     }
 
-    getMaxDateOfBirth() {
-        const maxAgeInYears = parseInt(this.ageInYears) + IndividualSearchCriteria.ageBufferForSearchInYears;
-        return moment().subtract(maxAgeInYears, 'years').toDate();
-    }
-
     getMinDateOfBirth() {
+        if (!_.isNil(this.dateOfBirth)) {
+            return moment(this.dateOfBirth).startOf('day').add(1, 'day').toDate();
+        }
         const minAgeInYears = this.ageInYears - IndividualSearchCriteria.ageBufferForSearchInYears;
         return moment().subtract(minAgeInYears, 'years').toDate();
+    }
+
+    getMaxDateOfBirth() {
+        if (!_.isNil(this.dateOfBirth)) {
+            return moment(this.dateOfBirth).startOf('day').toDate();
+        }
+        const maxAgeInYears = parseInt(this.ageInYears) + IndividualSearchCriteria.ageBufferForSearchInYears;
+        return moment().subtract(maxAgeInYears, 'years').toDate();
     }
 
     clone() {
@@ -129,6 +142,7 @@ class IndividualSearchCriteria {
         individualSearchCriteria.lowestAddressLevels = [...this.lowestAddressLevels];
         individualSearchCriteria.name = this.name;
         individualSearchCriteria.ageInYears = this.ageInYears;
+        individualSearchCriteria.dateOfBirth = this.dateOfBirth;
         individualSearchCriteria.obsKeyword = this.obsKeyword;
         individualSearchCriteria.includeVoided = this.includeVoided;
         individualSearchCriteria.subjectType = this.subjectType;

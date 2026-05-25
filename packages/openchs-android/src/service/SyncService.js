@@ -287,7 +287,7 @@ class SyncService extends BaseService {
     }
 
     downloadFormShareTemplates() {
-        this.formShareTemplateService.downloadHtmlFiles();
+        return this.formShareTemplateService.downloadHtmlFiles();
     }
 
     downloadNewsImages() {
