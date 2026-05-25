@@ -7,7 +7,6 @@ import TypedTransition from "../../framework/routing/TypedTransition";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import AppHeader from "../common/AppHeader";
-import ActionSelector from "../common/ActionSelector";
 import Reducers from "../../reducer";
 import {AttendanceSheetActions} from "../../action/attendance/AttendanceSheetActions";
 import HorizontalDateStrip from "./HorizontalDateStrip";
@@ -77,32 +76,13 @@ class AttendanceSheetView extends AbstractComponent {
         }
     };
 
-    // ⋮ → ActionSelector → "Void" → VoidConfirmDialog → dispatch VOID. Three taps
-    // for a destructive cascade-void is intentional: the action sheet keeps the
-    // overflow menu extensible (future actions land here too), the confirm dialog
-    // forces a deliberate choice.
-    _onOverflow = (attendanceType, session) => {
-        this.setState({
-            overflowVisible: true,
-            overflowAttendanceType: attendanceType,
-            overflowSession: session,
-        });
-    };
-
-    _hideOverflow = () => this.setState({overflowVisible: false});
-
     // Bottom sheet payload carries the same {session, attendanceType, groupSubject}
     // triple to both the PDF and Text branches — Share Filled Forms uses the same
     // open(payload) pattern.
-    _onShareSelected = () => {
-        const target = {
-            session: this.state.overflowSession,
-            attendanceType: this.state.overflowAttendanceType,
-            groupSubject: this.props.groupSubject,
-        };
-        this.setState({overflowVisible: false}, () => {
-            if (this._shareSheet) this._shareSheet.open(target);
-        });
+    _onShare = (attendanceType, session) => {
+        if (!session) return;
+        const target = {session, attendanceType, groupSubject: this.props.groupSubject};
+        if (this._shareSheet) this._shareSheet.open(target);
     };
 
     _onSharePdf = (payload) => {
@@ -115,30 +95,24 @@ class AttendanceSheetView extends AbstractComponent {
         this.getService(SessionShareService).shareText(payload.session, payload.attendanceType, payload.groupSubject);
     };
 
-    _overflowActions = () => {
-        return [
-            {
-                label: this.I18n.t("shareActionLabel"),
-                fn: this._onShareSelected,
-            },
-            {
-                label: this.I18n.t("voidActionLabel"),
-                fn: () => this.setState({
-                    overflowVisible: false,
-                    voidConfirmVisible: true,
-                }),
-            },
-        ];
+    // Inline Void button → VoidConfirmDialog → dispatch VOID. The confirm dialog
+    // alone forces a deliberate choice for the destructive cascade-void.
+    _onVoid = (attendanceType, session) => {
+        this.setState({
+            voidConfirmVisible: true,
+            pendingVoidAttendanceType: attendanceType,
+            pendingVoidSession: session,
+        });
     };
 
     _onVoidCancel = () => this.setState({
         voidConfirmVisible: false,
-        overflowAttendanceType: null,
-        overflowSession: null,
+        pendingVoidAttendanceType: null,
+        pendingVoidSession: null,
     });
 
     _onVoidConfirm = () => {
-        const session = this.state.overflowSession;
+        const session = this.state.pendingVoidSession;
         this.setState({voidConfirmVisible: false});
         if (!session || !session.uuid) return;
         this.dispatchAction(AttendanceSheetActions.Names.VOID, {sessionUuid: session.uuid});
@@ -222,7 +196,8 @@ class AttendanceSheetView extends AbstractComponent {
                                 onMark={this._onMark}
                                 onDidntHappen={this._onDidntHappen}
                                 onEdit={this._onEdit}
-                                onOverflow={this._onOverflow}
+                                onShare={this._onShare}
+                                onVoid={this._onVoid}
                             />
                         </View>
                     )}
@@ -232,15 +207,9 @@ class AttendanceSheetView extends AbstractComponent {
                         onCancel={this._onMarkAnywayCancel}
                         onContinue={this._onMarkAnywayContinue}
                     />
-                    <ActionSelector
-                        title={this.state.overflowAttendanceType ? this.state.overflowAttendanceType.name : ""}
-                        visible={!!this.state.overflowVisible}
-                        hide={this._hideOverflow}
-                        actions={this._overflowActions()}
-                    />
                     <VoidConfirmDialog
                         visible={!!this.state.voidConfirmVisible}
-                        attendanceTypeName={this.state.overflowAttendanceType && this.state.overflowAttendanceType.name}
+                        attendanceTypeName={this.state.pendingVoidAttendanceType && this.state.pendingVoidAttendanceType.name}
                         onCancel={this._onVoidCancel}
                         onConfirm={this._onVoidConfirm}
                     />

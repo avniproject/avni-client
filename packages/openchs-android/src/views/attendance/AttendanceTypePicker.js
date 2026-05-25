@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
+import ContextActionButton from "../primitives/ContextActionButton";
 import {Session} from "avni-models";
 
 class AttendanceTypePicker extends AbstractComponent {
@@ -14,7 +15,8 @@ class AttendanceTypePicker extends AbstractComponent {
         onMark: PropTypes.func.isRequired,
         onDidntHappen: PropTypes.func.isRequired,
         onEdit: PropTypes.func.isRequired,
-        onOverflow: PropTypes.func.isRequired,
+        onShare: PropTypes.func.isRequired,
+        onVoid: PropTypes.func.isRequired,
     };
 
     constructor(props, context) {
@@ -58,15 +60,19 @@ class AttendanceTypePicker extends AbstractComponent {
                     )}
                     {session && (
                         <View style={styles.savedActions}>
-                            <TouchableOpacity onPress={() => this.props.onEdit(attendanceType, session)} style={styles.editLink}>
-                                <Text style={styles.editText}>{this.I18n.t("typeRowEdit")}</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                onPress={() => this.props.onOverflow(attendanceType, session)}
-                                style={styles.overflowBtn}
-                                accessibilityLabel={this.I18n.t("typeRowOverflowMenu")}>
-                                <Text style={styles.overflowText}>⋮</Text>
-                            </TouchableOpacity>
+                            <ContextActionButton
+                                labelKey="void"
+                                onPress={() => this.props.onVoid(attendanceType, session)}
+                                textColor={Colors.CancelledVisitColor}
+                            />
+                            <ContextActionButton
+                                labelKey="edit"
+                                onPress={() => this.props.onEdit(attendanceType, session)}
+                            />
+                            <ContextActionButton
+                                labelKey="share"
+                                onPress={() => this.props.onShare(attendanceType, session)}
+                            />
                         </View>
                     )}
                 </View>
@@ -90,7 +96,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 14,
         paddingHorizontal: 16,
-        backgroundColor: Colors.WhiteContentBackground,
+        // Matches ContextActionButton's chip backgroundColor (#f6f6f6) so the
+        // grey-chip Void / Edit / Share buttons blend into the row instead of
+        // looking like floating islands on white — same surface treatment as
+        // SubjectDashboardProfileTab's observation sections.
+        backgroundColor: Styles.greyBackground,
         borderBottomWidth: 1,
         borderBottomColor: Colors.InputBorderNormal,
     },
@@ -104,10 +114,6 @@ const styles = StyleSheet.create({
     secondaryBtn: {paddingVertical: 4, paddingHorizontal: 8},
     secondaryBtnText: {color: Colors.SubheaderColor || '#666', fontSize: Styles.smallTextSize},
     savedActions: {flexDirection: 'row', alignItems: 'center'},
-    editLink: {paddingVertical: 6, paddingHorizontal: 8},
-    editText: {color: Colors.ActionButtonColor, fontWeight: 'bold', fontSize: Styles.smallTextSize},
-    overflowBtn: {paddingVertical: 6, paddingHorizontal: 8, marginLeft: 4},
-    overflowText: {color: Colors.SubheaderColor || '#666', fontSize: 22, fontWeight: 'bold'},
 });
 
 export default AttendanceTypePicker;
