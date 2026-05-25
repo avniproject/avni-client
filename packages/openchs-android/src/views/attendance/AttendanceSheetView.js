@@ -1,5 +1,5 @@
 import React from "react";
-import {StyleSheet, Text, ToastAndroid, View} from "react-native";
+import {ScrollView, StyleSheet, Text, ToastAndroid, View} from "react-native";
 import PropTypes from "prop-types";
 import moment from "moment";
 import Path from "../../framework/routing/Path";
@@ -198,7 +198,7 @@ class AttendanceSheetView extends AbstractComponent {
                 <AppHeader title={this.I18n.t("attendance") + " · " + groupSubject.nameString}/>
                 <CHSContent>
                     {selectedDate && (
-                        <View>
+                        <ScrollView keyboardShouldPersistTaps="handled">
                             <View style={styles.pickerRow}>
                                 <Text style={styles.pickerLabel}>{this.I18n.t("jumpToDate")}</Text>
                                 <DatePicker
@@ -236,7 +236,7 @@ class AttendanceSheetView extends AbstractComponent {
                                 onShare={this._onShare}
                                 onVoid={this._onVoid}
                             />
-                        </View>
+                        </ScrollView>
                     )}
                     <MarkAnywayConfirmDialog
                         visible={!!this.state.markAnywayConfirmVisible}
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 16,
-        paddingTop: 10,
+        paddingTop: 6,
     },
     pickerLabel: {fontSize: Styles.smallTextSize, color: Colors.SubheaderColor || '#666', marginRight: 8},
     pickerValue: {fontSize: Styles.normalTextSize, color: Colors.ActionButtonColor},
@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
         color: Colors.SubheaderColor || '#666',
         fontStyle: 'italic',
         paddingHorizontal: 16,
-        paddingVertical: 6,
+        paddingVertical: 4,
     },
 });
 

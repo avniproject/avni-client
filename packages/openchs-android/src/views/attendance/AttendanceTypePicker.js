@@ -120,24 +120,7 @@ class AttendanceTypePicker extends AbstractComponent {
                             </>
                         )}
                         {session && (
-                            <View style={styles.savedActions}>
-                                {editable && (
-                                    <ContextActionButton
-                                        labelKey="void"
-                                        onPress={() => this.props.onVoid(attendanceType, session)}
-                                        textColor={Colors.CancelledVisitColor}
-                                    />
-                                )}
-                                {editable && (
-                                    <ContextActionButton
-                                        labelKey="edit"
-                                        onPress={() => this.props.onEdit(attendanceType, session)}
-                                    />
-                                )}
-                                <ContextActionButton
-                                    labelKey="share"
-                                    onPress={() => this.props.onShare(attendanceType, session)}
-                                />
+                            <View style={styles.savedActionsStack}>
                                 {isHeld && (
                                     <TouchableOpacity
                                         onPress={() => this._toggleExpand(attendanceType, session)}
@@ -146,6 +129,25 @@ class AttendanceTypePicker extends AbstractComponent {
                                         <Icon name={expanded ? "arrow-up" : "arrow-down"} size={12} color={Colors.ActionButtonColor}/>
                                     </TouchableOpacity>
                                 )}
+                                <View style={styles.savedActions}>
+                                    {editable && (
+                                        <ContextActionButton
+                                            labelKey="void"
+                                            onPress={() => this.props.onVoid(attendanceType, session)}
+                                            textColor={Colors.CancelledVisitColor}
+                                        />
+                                    )}
+                                    {editable && (
+                                        <ContextActionButton
+                                            labelKey="edit"
+                                            onPress={() => this.props.onEdit(attendanceType, session)}
+                                        />
+                                    )}
+                                    <ContextActionButton
+                                        labelKey="share"
+                                        onPress={() => this.props.onShare(attendanceType, session)}
+                                    />
+                                </View>
                             </View>
                         )}
                     </View>
@@ -174,32 +176,29 @@ const styles = StyleSheet.create({
     container: {paddingVertical: 4},
     row: {
         flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 14,
+        alignItems: 'stretch',
+        paddingVertical: 10,
         paddingHorizontal: 16,
-        // Matches ContextActionButton's chip backgroundColor (#f6f6f6) so the
-        // grey-chip Void / Edit / Share buttons blend into the row instead of
-        // looking like floating islands on white — same surface treatment as
-        // SubjectDashboardProfileTab's observation sections.
-        backgroundColor: Styles.greyBackground,
+        backgroundColor: Colors.WhiteContentBackground,
         borderBottomWidth: 1,
         borderBottomColor: Colors.InputBorderNormal,
     },
-    typeName: {fontSize: Styles.normalTextSize, fontWeight: 'bold', color: Colors.InputNormal},
+    typeName: {fontSize: Styles.normalTextSize, color: Colors.InputNormal},
     statusMuted: {fontSize: Styles.smallTextSize, color: Colors.SubheaderColor || '#666', marginTop: 4},
     statusHeld: {fontSize: Styles.smallTextSize, color: Colors.ActionButtonColor, marginTop: 4},
     statusDidntHappen: {fontSize: Styles.smallTextSize, color: '#9e9e9e', marginTop: 4},
     actions: {flexDirection: 'column', alignItems: 'flex-end'},
-    primaryBtn: {paddingVertical: 6, paddingHorizontal: 8},
+    primaryBtn: {paddingVertical: 4, paddingHorizontal: 8},
     primaryBtnText: {color: Colors.ActionButtonColor, fontSize: Styles.smallTextSize},
     secondaryBtn: {paddingVertical: 4, paddingHorizontal: 8},
     secondaryBtnText: {color: Colors.SubheaderColor || '#666', fontSize: Styles.smallTextSize},
     savedActions: {flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end'},
-    viewToggle: {paddingVertical: 6, paddingHorizontal: 8},
+    savedActionsStack: {flex: 1, alignItems: 'flex-end', justifyContent: 'space-between'},
+    viewToggle: {paddingVertical: 4, paddingLeft: 8, paddingRight: 15},
     expandPanel: {
         backgroundColor: Colors.GreyContentBackground,
         paddingHorizontal: 16,
-        paddingVertical: 8,
+        paddingVertical: 6,
         borderBottomWidth: 1,
         borderBottomColor: Colors.InputBorderNormal,
     },
