@@ -30,6 +30,8 @@ import PrivilegeService from "../../service/PrivilegeService";
 import Members from "../groupSubject/Members";
 import AddNewMemberView from "../groupSubject/AddNewMemberView";
 import RemoveMemberView from "../groupSubject/RemoveMemberView";
+import AttendanceSheetView from "../attendance/AttendanceSheetView";
+import AttendanceTypeService from "../../service/AttendanceTypeService";
 import {AvniAlert} from "../common/AvniAlert";
 import _ from "lodash";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
@@ -41,7 +43,8 @@ import GroupSubjectService from "../../service/GroupSubjectService";
 import UserInfoService from "../../service/UserInfoService";
 import AvniToast from "../common/AvniToast";
 import {SubjectType} from "openchs-models";
-import FormPDFService from "../../service/FormPDFService";
+import FormShareService from "../../service/FormShareService";
+import FormShareActionSheetController from "../common/FormShareActionSheetController";
 
 class SubjectDashboardProfileTab extends AbstractComponent {
     static propTypes = {
@@ -184,6 +187,41 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         );
     }
 
+    renderAttendance() {
+        const subjectType = this.state.individual.subjectType;
+        if (!subjectType.attendanceEnabled) return <View/>;
+
+        const editSubjectCriteria = `privilege.name = '${Privilege.privilegeName.editSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
+        const allowedForEditSubject = this.privilegeService.allowedEntityTypeUUIDListForCriteria(editSubjectCriteria, 'subjectTypeUuid');
+        const hasEditPrivilege = this.privilegeService.hasAllPrivileges()
+            || _.includes(allowedForEditSubject, subjectType.uuid);
+        if (!hasEditPrivilege) return <View/>;
+
+        const attendanceTypes = this.getService(AttendanceTypeService).findActiveForSubjectType(subjectType.uuid);
+        // Hide the entry point until at least one AttendanceType has been
+        // configured for this subject type — otherwise the card leads to an
+        // empty sheet with no marking action.
+        if (_.isEmpty(attendanceTypes)) return <View/>;
+        const navigateToAttendance = () =>
+            TypedTransition.from(this).with({groupSubject: this.state.individual}).to(AttendanceSheetView, true);
+
+        return (
+            <View style={styles.container}>
+                <TouchableOpacity onPress={navigateToAttendance} style={styles.attendanceCard}>
+                    <View style={{flex: 1}}>
+                        <Text style={Styles.cardTitle}>{this.I18n.t("attendance")}</Text>
+                        <Text style={{fontSize: Styles.smallTextSize, color: Colors.SubheaderColor, marginTop: 4}}>
+                            {this.I18n.t("attendanceCardCaption", {typeCount: attendanceTypes.length})}
+                        </Text>
+                    </View>
+                    <Text style={{fontSize: Fonts.Medium, color: Colors.ActionButtonColor, fontWeight: 'bold'}}>
+                        {this.I18n.t("attendanceCardCta")} →
+                    </Text>
+                </TouchableOpacity>
+            </View>
+        );
+    }
+
     renderMembers() {
         const groupSubjects = this.state.groupSubjects;
         const applicableActions = [];
@@ -291,7 +329,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         if (hasEditPrivilege)
             requiredActions.push(new ContextAction('edit', () => this.editProfile()));
         if (hasSharePrivilege)
-            requiredActions.push(new ContextAction('share', () => this.getService(FormPDFService).shareSubjectForm(this.state.individual)));
+            requiredActions.push(new ContextAction('share', () => this._shareSheet && this._shareSheet.open()));
         return _.isEmpty(form) ? <View/> :
             <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_TOGGLE, {keyName: 'expand'})}>
                 <ObservationsSectionOptions
@@ -396,12 +434,18 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                     {!_.isEmpty(this.state.subjectSummary) && this.renderSummary()}
                     {this.renderProfileOrVoided(individual)}
                     {relativesFeatureToggle ? this.renderRelatives() : <View/>}
+                    {groupSubjectToggle ? this.renderAttendance() : <View/>}
                     {groupSubjectToggle ? this.renderMembers() : <View/>}
                 </View>
                 {displayGeneralEncounterInfo && <SubjectDashboardGeneralTab {...this.props}/>}
                 <Separator height={110} backgroundColor={Colors.WhiteContentBackground}/>
                 {editFormRuleResponse.isDisallowed() &&
                     <AvniToast message={this.I18n.t(editFormRuleResponse.getMessage())} onAutoClose={() => this.dispatchAction(Actions.ON_EDIT_ERROR_SHOWN)}/>}
+                <FormShareActionSheetController
+                    ref={r => this._shareSheet = r}
+                    onSharePdf={() => this.getService(FormShareService).shareSubjectForm(this.state.individual, "pdf")}
+                    onShareText={() => this.getService(FormShareService).shareSubjectForm(this.state.individual, "text")}
+                />
             </View>
         );
     }
@@ -430,5 +474,11 @@ const styles = StyleSheet.create({
         shadowColor: Styles.greyBackground,
         shadowOpacity: 1,
         elevation: 1,
+    },
+    attendanceCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 14,
+        paddingHorizontal: 4,
     }
 });

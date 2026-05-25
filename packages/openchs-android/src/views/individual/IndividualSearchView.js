@@ -28,6 +28,7 @@ import _ from "lodash";
 import SingleSelectFilterModel from "../../model/SingleSelectFilterModel";
 import {Checkbox} from "native-base";
 import UserInfoService from "../../service/UserInfoService";
+import DatePicker from "../primitives/DatePicker";
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
@@ -83,6 +84,11 @@ class IndividualSearchView extends AbstractComponent {
         let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(_.filter(allowedSubjectTypes, subjectType => !subjectType.isUser()), this.state.searchCriteria.subjectType);
         const locale = this.getService(UserInfoService).getUserSettings().locale;
         const genderFilterPresent = this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Gender, subjectTypeUUID);
+        const dateOfBirthFilterPresent = this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.DateOfBirth, subjectTypeUUID);
+        const ageFilterPresent = this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Age, subjectTypeUUID);
+        const ageAndDobBothEntered = ageFilterPresent && dateOfBirthFilterPresent
+            && !_.isEmpty(this.state.searchCriteria.ageInYears)
+            && !_.isNil(this.state.searchCriteria.dateOfBirth);
         return (
             <CHSContainer>
                 <AppHeader title={this.I18n.t('search')} hideBackButton={this.props.hideBackButton}
@@ -108,12 +114,29 @@ class IndividualSearchView extends AbstractComponent {
                                                  style={Styles.simpleTextFormElement}
                                                  value={new PrimitiveValue(this.state.searchCriteria.name)}
                                                  multiline={false}/> : null}
-                            {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Age, subjectTypeUUID) ?
-                                <TextFormElement actionName={Actions.ENTER_AGE_CRITERIA}
-                                                 element={new StaticFormElement('age')}
-                                                 style={Styles.simpleTextFormElement}
-                                                 value={new PrimitiveValue(this.state.searchCriteria.age)}
-                                                 multiline={false}/> : null}
+                            {ageFilterPresent ?
+                                <View>
+                                    <TextFormElement actionName={Actions.ENTER_AGE_CRITERIA}
+                                                     element={new StaticFormElement('age')}
+                                                     style={Styles.simpleTextFormElement}
+                                                     value={new PrimitiveValue(this.state.searchCriteria.age)}
+                                                     multiline={false}/>
+                                    {ageAndDobBothEntered ?
+                                        <Text style={{
+                                            fontSize: Styles.smallerTextSize,
+                                            color: Colors.SecondaryText,
+                                            marginTop: 4,
+                                            marginBottom: 8,
+                                            fontStyle: 'italic'
+                                        }}>{this.I18n.t('dateOfBirthTakesPrecedenceOverAge')}</Text> : null}
+                                </View> : null}
+                            {dateOfBirthFilterPresent ?
+                                <View style={{paddingVertical: 8}}>
+                                    <Text style={Styles.formLabel}>{this.I18n.t('dateOfBirth')}</Text>
+                                    <DatePicker dateValue={this.state.searchCriteria.dateOfBirth}
+                                                actionName={Actions.ENTER_DATE_OF_BIRTH_CRITERIA}
+                                                actionObject={{}}/>
+                                </View> : null}
                             {(_.isEmpty(this.customFilterService.getSearchFilterBySubjectType(subjectTypeUUID)) || this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.SearchAll, this.state.searchCriteria.subjectType.uuid)) ?
                                 <TextFormElement actionName={Actions.ENTER_OBS_CRITERIA}
                                                  element={new StaticFormElement('searchAll')}

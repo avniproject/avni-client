@@ -65,7 +65,7 @@ const PDF_STYLES = `
     table.obs td.label { width: 45%; color: #666; font-weight: 400; }
     table.obs td.value { color: #111; font-weight: 500; white-space: pre-wrap; }
     table.obs tr.qg-header td.label { background: #f5f5f5; font-weight: 600; color: #222; }
-    table.obs tr.qg-separator td { padding: 0; height: 6pt; border-bottom: 0.5pt dashed #d0d0d0; }
+    table.obs tr.qg-separator td { padding: 0; height: 14pt; background: #d4d4d4; border: none; }
     .footer-inner { padding: 6pt 14mm 0 14mm; border-top: 0.5pt solid #ccc; font-size: 9pt; color: #888; text-align: center; overflow-wrap: break-word; word-wrap: break-word; }
 </style>`;
 

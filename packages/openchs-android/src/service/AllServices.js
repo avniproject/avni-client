@@ -36,8 +36,12 @@
 
 // Core services
 import './AddressLevelService';
+import './AttendanceRecordService';
+import './AttendanceTypeService';
 import './AuthService';
 import './BaseAddressLevelService';
+import './CalendarDateMarkerService';
+import './CalendarService';
 import './ChecklistService';
 import './ConceptService';
 import './CustomDashboardCacheService';
@@ -66,6 +70,7 @@ import './ProgramEnrolmentService';
 import './ResetSyncService';
 import './RuleEvaluationService';
 import './RuleService';
+import './SessionService';
 import './SettingsService';
 import './SubjectMigrationService';
 import './SubjectTypeService';
@@ -138,6 +143,12 @@ import './ExtensionService';
 import './CustomCardConfigService';
 import './PDFGenerationService';
 import './FormPDFService';
+import './FormShareService';
+import './FormShareTemplateService';
+// SessionShareAdapter (not a *Service.js name, hence absent from this list) is
+// loaded transitively when SessionShareService.js imports it — both @Service
+// decorators register at module-load time.
+import './attendance/SessionShareService';
 import './GlificService';
 import './MetricsService';
 import './PhoneVerificationService';

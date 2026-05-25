@@ -1,3 +1,4 @@
+import {InteractionManager} from "react-native";
 import IndividualService from "../../service/IndividualService";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import EntityService from "../../service/EntityService";
@@ -60,7 +61,11 @@ export class PersonRegisterActions {
         const newState = IndividualRegistrationState.createLoadState(form, state.genders, individual, action.workLists, minLevelTypeUUIDs, saveDrafts, groupAffiliationState, isNewEntity, group);
         PersonRegisterActions.setAgeState(newState);
 
-        QuickFormEditingActions.moveToPageAsync(newState, action, context, PersonRegisterActions);
+        // Defer the wizard fast-forward chain past any in-flight slide animation, so its post-render async work
+        // cannot freeze the navigation transition into the registration form.
+        InteractionManager.runAfterInteractions(() => {
+            QuickFormEditingActions.moveToPageAsync(newState, action, context, PersonRegisterActions);
+        });
         return newState;
     }
 

@@ -309,6 +309,10 @@ class AbstractDataEntryState {
             workLists = this._addNextScheduledVisitToWorkList(workLists, nextScheduledVisits, context);
         }
 
+        // Run the WorkListUpdation rule first so anything the rule queues (e.g. a SHARE work item)
+        // takes precedence over the default "register another of the same type" fallback below.
+        workLists = ruleService.updateWorkLists(workLists, {entity: this.getEntity()}, this.getEntityType());
+
         if (!workLists.peekNextWorkItem()) {
             if (currentWorkItem.type === WorkItem.type.REGISTRATION) {
                 workLists.addItemsToCurrentWorkList(new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION, {subjectTypeName: currentWorkItem.parameters.subjectTypeName}));
@@ -317,7 +321,7 @@ class AbstractDataEntryState {
             }
         }
 
-        return ruleService.updateWorkLists(workLists, {entity: this.getEntity()}, this.getEntityType());
+        return workLists;
     }
 
     _updateOldFormElementGroupValidations(allValidationResults, context) {
