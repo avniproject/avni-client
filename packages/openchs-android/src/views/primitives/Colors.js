@@ -53,7 +53,7 @@ class Colors {
     static cardBackgroundColor = '#fefefe';
 
     static OverdueVisitColor = '#d0011b';
-    static FutureVisitColor = 'gold';
+    static FutureVisitColor = '#B8860B';
     static ScheduledVisitColor = '#009688';
     static VisitActionColor = '#009688';
     static CancelledVisitColor = '#d0011b';
