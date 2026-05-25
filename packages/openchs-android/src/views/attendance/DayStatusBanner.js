@@ -56,7 +56,7 @@ class DayStatusBanner extends AbstractComponent {
                     {isHolidayLike && !!onMarkAnyway && (
                         <TouchableOpacity onPress={onMarkAnyway} style={styles.markAnywayCta}>
                             <Text style={styles.markAnywayText}>
-                                {this.I18n.t("markAnyway").toUpperCase()} →
+                                {this.I18n.t("markAnyway")} →
                             </Text>
                         </TouchableOpacity>
                     )}
@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     dateText: {fontSize: Styles.titleSize || 16, fontWeight: 'bold', color: Colors.InputNormal},
     statusText: {fontSize: Styles.smallTextSize, color: Colors.SubheaderColor || '#666', marginTop: 2},
     markAnywayCta: {paddingVertical: 6, paddingHorizontal: 10},
-    markAnywayText: {color: Colors.ActionButtonColor, fontWeight: 'bold', fontSize: Styles.smallTextSize},
+    markAnywayText: {color: Colors.ActionButtonColor, fontSize: Styles.smallTextSize},
 });
 
 export default DayStatusBanner;

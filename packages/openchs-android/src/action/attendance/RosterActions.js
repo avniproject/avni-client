@@ -120,6 +120,15 @@ export class RosterActions {
         return {...state, roster};
     }
 
+    static onMarkAllPresent(state) {
+        const roster = state.roster.map(r => ({
+            ...r,
+            status: AttendanceRecord.status.PRESENT,
+            reasonConceptUUID: null,
+        }));
+        return {...state, roster};
+    }
+
     static onSetNotes(state, action) {
         return {...state, notes: action.notes};
     }
@@ -288,6 +297,7 @@ RosterActions.Names = {
     SET_REASON: `${Prefix}.SET_REASON`,
     SET_SESSION_REASON: `${Prefix}.SET_SESSION_REASON`,
     MARK_ALL_ABSENT: `${Prefix}.MARK_ALL_ABSENT`,
+    MARK_ALL_PRESENT: `${Prefix}.MARK_ALL_PRESENT`,
     SET_NOTES: `${Prefix}.SET_NOTES`,
     SAVE: `${Prefix}.SAVE`,
 };
@@ -298,6 +308,7 @@ RosterActions.Map = new Map([
     [RosterActions.Names.SET_REASON, RosterActions.onSetReason],
     [RosterActions.Names.SET_SESSION_REASON, RosterActions.onSetSessionReason],
     [RosterActions.Names.MARK_ALL_ABSENT, RosterActions.onMarkAllAbsent],
+    [RosterActions.Names.MARK_ALL_PRESENT, RosterActions.onMarkAllPresent],
     [RosterActions.Names.SET_NOTES, RosterActions.onSetNotes],
     [RosterActions.Names.SAVE, RosterActions.onSave],
 ]);

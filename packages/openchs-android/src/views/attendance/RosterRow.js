@@ -52,7 +52,7 @@ class RosterRow extends AbstractComponent {
                 </TouchableOpacity>
                 {isAbsent && (
                     <View style={styles.reasonBlock}>
-                        <Text style={styles.reasonLabel}>{this.I18n.t("reasonForAbsence").toUpperCase()}</Text>
+                        <Text style={styles.reasonLabel}>{this.I18n.t("reasonForAbsence")}</Text>
                         <TouchableOpacity onPress={() => onPickReason(row.subjectUUID)} style={styles.reasonPickerCta}>
                             <Text style={styles.reasonPickerText}>{this._reasonLabel()}</Text>
                             <Text style={styles.reasonChevron}>▾</Text>

@@ -113,7 +113,12 @@ export class AttendanceSheetActions {
     static _refreshStatusForDate(context, groupSubject, calendar, dateKey, statusByDate) {
         const sessionService = context.get(SessionService);
         const next = new Map(statusByDate);
-        const existing = next.get(dateKey) || {dayType: null, marker: null};
+        // Dates reached via the calendar picker fall outside the pre-built strip
+        // window, so resolve their day_type from the calendar on demand — otherwise
+        // a holiday would be treated as a working day.
+        const existing = next.get(dateKey)
+            || context.get(CalendarService).dayStatusFor(groupSubject, dateKey)
+            || {dayType: null, marker: null};
         const summary = sessionService.summaryForDate(groupSubject.uuid, dateKey);
         next.set(dateKey, {...existing, held: summary.held, didntHappen: summary.didntHappen});
         return next;

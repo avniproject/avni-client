@@ -1,12 +1,16 @@
 import React from "react";
-import {ToastAndroid, View} from "react-native";
+import {StyleSheet, Text, ToastAndroid, View} from "react-native";
 import PropTypes from "prop-types";
+import moment from "moment";
 import Path from "../../framework/routing/Path";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import AppHeader from "../common/AppHeader";
+import DatePicker from "../primitives/DatePicker";
+import Colors from "../primitives/Colors";
+import Styles from "../primitives/Styles";
 import Reducers from "../../reducer";
 import {AttendanceSheetActions} from "../../action/attendance/AttendanceSheetActions";
 import HorizontalDateStrip from "./HorizontalDateStrip";
@@ -20,6 +24,10 @@ import FormShareActionSheetController from "../common/FormShareActionSheetContro
 import SessionShareService from "../../service/attendance/SessionShareService";
 import {Session} from "avni-models";
 import _ from "lodash";
+
+// Attendance can be captured/edited only within this many days before today;
+// older sessions are view-only. Future dates are blocked at the picker.
+const EDIT_WINDOW_DAYS = 30;
 
 @Path("/attendanceSheetView")
 class AttendanceSheetView extends AbstractComponent {
@@ -49,6 +57,12 @@ class AttendanceSheetView extends AbstractComponent {
     _onSelectDate = (dateKey) => {
         this.setState({markAnywayAcknowledgedDate: null});
         this.dispatchAction(AttendanceSheetActions.Names.SELECT_DATE, {date: dateKey});
+    };
+
+    // Calendar picker hands back a JS Date; map to the local calendar day.
+    _onPickFromCalendar = (date) => {
+        if (!date) return;
+        this._onSelectDate(moment(date).format("YYYY-MM-DD"));
     };
 
     _navigateWithType = (attendanceType, ViewClass) => {
@@ -165,12 +179,19 @@ class AttendanceSheetView extends AbstractComponent {
         const markAnywayAcknowledged = this.state.markAnywayAcknowledgedDate === selectedDate
             || hasAnySavedSessionForDate;
         const isHolidayLike = isHolidayLikeRaw && !markAnywayAcknowledged;
-        const visibleTypes = isHolidayLike
-            ? (attendanceTypes || []).filter(at => {
-                const info = sessionByType.get(at.uuid);
-                return info && info.session;
-            })
-            : (attendanceTypes || []);
+        // Sessions older than EDIT_WINDOW_DAYS are view-only; future dates can't be
+        // reached (the picker caps at today). Outside the window we show only the
+        // attendance types that already have a saved session, for read-only viewing.
+        const todayKey = moment().format("YYYY-MM-DD");
+        const daysAgo = selectedDate
+            ? moment.utc(todayKey, "YYYY-MM-DD").diff(moment.utc(selectedDate, "YYYY-MM-DD"), "days")
+            : 0;
+        const editable = daysAgo >= 0 && daysAgo <= EDIT_WINDOW_DAYS;
+        const savedTypes = (attendanceTypes || []).filter(at => {
+            const info = sessionByType.get(at.uuid);
+            return info && info.session;
+        });
+        const visibleTypes = (!editable || isHolidayLike) ? savedTypes : (attendanceTypes || []);
 
         return (
             <CHSContainer>
@@ -178,6 +199,16 @@ class AttendanceSheetView extends AbstractComponent {
                 <CHSContent>
                     {selectedDate && (
                         <View>
+                            <View style={styles.pickerRow}>
+                                <Text style={styles.pickerLabel}>{this.I18n.t("jumpToDate")}</Text>
+                                <DatePicker
+                                    nonRemovable
+                                    dateValue={moment(selectedDate, "YYYY-MM-DD").toDate()}
+                                    maximumDate={new Date()}
+                                    onChange={this._onPickFromCalendar}
+                                    overridingStyle={styles.pickerValue}
+                                />
+                            </View>
                             <HorizontalDateStrip
                                 dates={stripDates}
                                 statusByDate={statusByDate}
@@ -188,11 +219,17 @@ class AttendanceSheetView extends AbstractComponent {
                                 selectedDate={selectedDate}
                                 dayType={dayType}
                                 marker={selectedStatus && selectedStatus.marker}
-                                onMarkAnyway={markAnywayAcknowledged ? null : this._onMarkAnyway}
+                                onMarkAnyway={(markAnywayAcknowledged || !editable) ? null : this._onMarkAnyway}
                             />
+                            {!editable && (
+                                <Text style={styles.viewOnlyNote}>
+                                    {this.I18n.t("attendanceEditWindowClosed", {days: EDIT_WINDOW_DAYS})}
+                                </Text>
+                            )}
                             <AttendanceTypePicker
                                 attendanceTypes={visibleTypes}
                                 sessionByType={sessionByType}
+                                editable={editable}
                                 onMark={this._onMark}
                                 onDidntHappen={this._onDidntHappen}
                                 onEdit={this._onEdit}
@@ -223,5 +260,23 @@ class AttendanceSheetView extends AbstractComponent {
         );
     }
 }
+
+const styles = StyleSheet.create({
+    pickerRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingTop: 10,
+    },
+    pickerLabel: {fontSize: Styles.smallTextSize, color: Colors.SubheaderColor || '#666', marginRight: 8},
+    pickerValue: {fontSize: Styles.normalTextSize, color: Colors.ActionButtonColor},
+    viewOnlyNote: {
+        fontSize: Styles.smallTextSize,
+        color: Colors.SubheaderColor || '#666',
+        fontStyle: 'italic',
+        paddingHorizontal: 16,
+        paddingVertical: 6,
+    },
+});
 
 export default AttendanceSheetView;
