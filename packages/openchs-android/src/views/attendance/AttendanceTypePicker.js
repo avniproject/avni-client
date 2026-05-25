@@ -6,6 +6,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import ContextActionButton from "../primitives/ContextActionButton";
+import Icon from "react-native-vector-icons/SimpleLineIcons";
 import {AttendanceRecord, Session} from "avni-models";
 import AttendanceRecordService from "../../service/AttendanceRecordService";
 import IndividualService from "../../service/IndividualService";
@@ -86,7 +87,11 @@ class AttendanceTypePicker extends AbstractComponent {
 
         return (
             <View key={attendanceType.uuid}>
-                <View style={styles.row}>
+                <TouchableOpacity
+                    activeOpacity={0.7}
+                    disabled={!isHeld}
+                    onPress={() => this._toggleExpand(attendanceType, session)}
+                    style={styles.row}>
                     <View style={{flex: 1}}>
                         <Text style={styles.typeName}>{attendanceType.name}</Text>
                         {!session && (
@@ -116,12 +121,6 @@ class AttendanceTypePicker extends AbstractComponent {
                         )}
                         {session && (
                             <View style={styles.savedActions}>
-                                {isHeld && (
-                                    <ContextActionButton
-                                        labelKey="typeRowView"
-                                        onPress={() => this._toggleExpand(attendanceType, session)}
-                                    />
-                                )}
                                 {editable && (
                                     <ContextActionButton
                                         labelKey="void"
@@ -139,10 +138,18 @@ class AttendanceTypePicker extends AbstractComponent {
                                     labelKey="share"
                                     onPress={() => this.props.onShare(attendanceType, session)}
                                 />
+                                {isHeld && (
+                                    <TouchableOpacity
+                                        onPress={() => this._toggleExpand(attendanceType, session)}
+                                        style={styles.viewToggle}
+                                        accessibilityLabel={this.I18n.t("typeRowView")}>
+                                        <Icon name={expanded ? "arrow-up" : "arrow-down"} size={12} color={Colors.ActionButtonColor}/>
+                                    </TouchableOpacity>
+                                )}
                             </View>
                         )}
                     </View>
-                </View>
+                </TouchableOpacity>
                 {expanded && isHeld && (
                     <View style={styles.expandPanel}>
                         {roster.length === 0
@@ -188,6 +195,7 @@ const styles = StyleSheet.create({
     secondaryBtn: {paddingVertical: 4, paddingHorizontal: 8},
     secondaryBtnText: {color: Colors.SubheaderColor || '#666', fontSize: Styles.smallTextSize},
     savedActions: {flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end'},
+    viewToggle: {paddingVertical: 6, paddingHorizontal: 8},
     expandPanel: {
         backgroundColor: Colors.GreyContentBackground,
         paddingHorizontal: 16,
