@@ -47,6 +47,11 @@ import ManualProgramEligibilityView from "../views/program/ManualProgramEligibil
 import FormMappingService from "../service/FormMappingService";
 import RuleEvaluationService from "../service/RuleEvaluationService";
 import SubjectRegisterFormView from '../views/subject/SubjectRegisterFormView';
+import AttendanceSheetView from "../views/attendance/AttendanceSheetView";
+import RosterView from "../views/attendance/RosterView";
+import DidntHappenPickerView from "../views/attendance/DidntHappenPickerView";
+import CalendarService from "../service/CalendarService";
+import {ReportCard} from "avni-models";
 
 
 class CHSNavigator {
@@ -93,6 +98,32 @@ class CHSNavigator {
 
     static navigateToApprovalDetailsView(source, entity) {
         TypedTransition.from(source).with({entity}).to(ApprovalDetailsView, true);
+    }
+
+    // Pinned attendance type -> roster directly; otherwise the sheet to pick one.
+    static navigateToMarkAttendance(source, groupSubject, attendanceType, date, onActionCompletion) {
+        const from = TypedTransition.from(source);
+        if (attendanceType) {
+            const dayStatus = source.context.getService(CalendarService).dayStatusFor(groupSubject, date);
+            from.with({
+                groupSubject,
+                attendanceType,
+                scheduledDate: date,
+                dayType: dayStatus ? dayStatus.dayType : null,
+                onActionCompletion,
+            }).to(RosterView, true);
+        } else {
+            from.with({groupSubject, initialDate: date, onActionCompletion}).to(AttendanceSheetView, true);
+        }
+    }
+
+    // goToSubjectProfile -> group dashboard; goToSourceScreen -> back to the card list.
+    static navigateAfterMarkAttendance(source, groupSubject, onActionCompletion) {
+        const toBePopped = [RosterView, DidntHappenPickerView, AttendanceSheetView];
+        const toBePushed = onActionCompletion === ReportCard.onActionCompletionTypes.goToSubjectProfile
+            ? [TypedTransition.createRoute(GenericDashboardView, {individualUUID: groupSubject.uuid, tab: 2}, true)]
+            : [];
+        TypedTransition.from(source).resetStack(toBePopped, toBePushed);
     }
 
     static navigateToPhoneNumberVerificationView(source, next, observation, onSuccess, onSkip) {

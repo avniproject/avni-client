@@ -14,6 +14,7 @@ import Styles from "../primitives/Styles";
 import Reducers from "../../reducer";
 import {DidntHappenActions} from "../../action/attendance/DidntHappenActions";
 import SessionShareService from "../../service/attendance/SessionShareService";
+import CHSNavigator from "../../utility/CHSNavigator";
 
 @Path("/didntHappenPickerView")
 class DidntHappenPickerView extends AbstractComponent {
@@ -22,6 +23,7 @@ class DidntHappenPickerView extends AbstractComponent {
         attendanceType: PropTypes.object.isRequired,
         // Canonical "YYYY-MM-DD" — the attendance flow is time/timezone agnostic.
         scheduledDate: PropTypes.string.isRequired,
+        onActionCompletion: PropTypes.string,
     };
 
     constructor(props, context) {
@@ -68,7 +70,12 @@ class DidntHappenPickerView extends AbstractComponent {
         const fresh = this.getContextState(Reducers.reducerKeys.attendanceDidntHappen);
         const wi = fresh && fresh.pendingAutoShareWorkItem;
         const shareService = wi ? this.getService(SessionShareService) : null;
-        TypedTransition.from(this).goBack();
+        // Deep-link routes per onActionCompletion; normal flow just pops back to the sheet.
+        if (this.props.onActionCompletion) {
+            CHSNavigator.navigateAfterMarkAttendance(this, this.props.groupSubject, this.props.onActionCompletion);
+        } else {
+            TypedTransition.from(this).goBack();
+        }
         if (wi && shareService) {
             InteractionManager.runAfterInteractions(() => {
                 shareService.dispatchShareSessionWorkItem(wi);

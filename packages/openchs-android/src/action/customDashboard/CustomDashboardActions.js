@@ -239,7 +239,9 @@ class CustomDashboardActions {
                 }
             } else if (isArrayLike) {
                 const isApprovalCard = standardReportCardType && standardReportCardType.isApprovalType();
-                const singleSubject = result.length === 1 ? (result[0].individual || result[0]) : null;
+                // MarkAttendance always opens the list, never the single-subject shortcut.
+                const singleSubject = (result.length === 1 && !reportCard.isActionMarkAttendance())
+                    ? (result[0].individual || result[0]) : null;
                 if (!isApprovalCard && singleSubject && singleSubject.uuid) {
                     General.logDebug('CustomDashboardActions', `onCardPress - Single subject, navigating directly to subject profile`);
                     setTimeout(() => action.onShowSubjectAction(singleSubject), 0);

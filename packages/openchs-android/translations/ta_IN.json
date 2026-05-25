@@ -279,6 +279,7 @@
     "markAnywayConfirmBody": "{{date}} பொதுவாக வேலையில்லா நாள். தொடரவா?",
     "rosterEmptyError": "இந்தக் குழுவில் வருகையை குறிக்க செயலில் உள்ள உறுப்பினர்கள் இல்லை.",
     "noAttendanceTypesConfigured": "இந்தக் குழுவிற்கு வருகை வகைகள் எதுவும் கட்டமைக்கப்படவில்லை.",
+    "attendanceNotEnabledForSubjectType": "இந்தக் குழுவிற்கு வருகை கிடைக்கவில்லை.",
     "typeRowOverflowMenu": "மேலும் செயல்கள்",
     "voidActionLabel": "அமர்வை ரத்து செய்",
     "voidConfirmTitle": "இந்த அமர்வை ரத்து செய்யவா?",

@@ -26,6 +26,8 @@ import _ from "lodash";
 class AttendanceSheetView extends AbstractComponent {
     static propTypes = {
         groupSubject: PropTypes.object.isRequired,
+        initialDate: PropTypes.string,
+        onActionCompletion: PropTypes.string,
     };
 
     constructor(props, context) {
@@ -33,7 +35,10 @@ class AttendanceSheetView extends AbstractComponent {
     }
 
     UNSAFE_componentWillMount() {
-        this.dispatchAction(AttendanceSheetActions.Names.ON_LOAD, {groupSubject: this.props.groupSubject});
+        this.dispatchAction(AttendanceSheetActions.Names.ON_LOAD, {
+            groupSubject: this.props.groupSubject,
+            initialDate: this.props.initialDate,
+        });
         super.UNSAFE_componentWillMount();
     }
 
@@ -60,6 +65,7 @@ class AttendanceSheetView extends AbstractComponent {
                 attendanceType,
                 scheduledDate: this.state.selectedDate,
                 dayType: status ? status.dayType : null,
+                onActionCompletion: this.props.onActionCompletion,
             })
             .to(ViewClass, true);
     };

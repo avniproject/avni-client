@@ -277,6 +277,7 @@
     "markAnywayConfirmBody": "{{date}} ಸಾಮಾನ್ಯವಾಗಿ ಕೆಲಸವಿಲ್ಲದ ದಿನ. ಮುಂದುವರಿಯುವುದೇ?",
     "rosterEmptyError": "ಈ ಗುಂಪಿನಲ್ಲಿ ಹಾಜರಿಯನ್ನು ಗುರುತಿಸಲು ಯಾವುದೇ ಸಕ್ರಿಯ ಸದಸ್ಯರಿಲ್ಲ.",
     "noAttendanceTypesConfigured": "ಈ ಗುಂಪಿಗೆ ಯಾವುದೇ ಹಾಜರಿ ಪ್ರಕಾರಗಳನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಲಾಗಿಲ್ಲ.",
+    "attendanceNotEnabledForSubjectType": "ಈ ಗುಂಪಿಗೆ ಹಾಜರಾತಿ ಲಭ್ಯವಿಲ್ಲ.",
     "typeRowOverflowMenu": "ಹೆಚ್ಚಿನ ಕ್ರಿಯೆಗಳು",
     "voidActionLabel": "ಸೆಷನ್ ರದ್ದುಮಾಡಿ",
     "voidConfirmTitle": "ಈ ಸೆಷನ್ ಅನ್ನು ರದ್ದುಮಾಡುವುದೇ?",

@@ -32,7 +32,9 @@ class IndividualSearchResultPaginatedView extends AbstractComponent {
         onIndividualSelection: PropTypes.func.isRequired,
         headerTitle: PropTypes.string,
         backFunction: PropTypes.func,
-        taskUuid: PropTypes.string
+        taskUuid: PropTypes.string,
+        isItemActionable: PropTypes.func,
+        disabledItemMessage: PropTypes.string,
     };
 
     constructor(props, context) {
@@ -55,7 +57,7 @@ class IndividualSearchResultPaginatedView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        const {headerTitle, results, onIndividualSelection, backFunction, taskUuid} = this.props;
+        const {headerTitle, results, onIndividualSelection, backFunction, taskUuid, isItemActionable, disabledItemMessage} = this.props;
         const title = headerTitle || "searchResults";
         return (
             <PaginatedView
@@ -66,13 +68,15 @@ class IndividualSearchResultPaginatedView extends AbstractComponent {
                 I18n={this.I18n}
                 backFunction={backFunction}
                 taskUuid={taskUuid}
+                isItemActionable={isItemActionable}
+                disabledItemMessage={disabledItemMessage}
                 onRegisterClick={() => this.onRegisterClick()}
             />
         );
     }
 }
 
-export const PaginatedView = ({results, onIndividualSelection, currentPage, title, I18n, backFunction, taskUuid, onRegisterClick}) => {
+export const PaginatedView = ({results, onIndividualSelection, currentPage, title, I18n, backFunction, taskUuid, isItemActionable, disabledItemMessage, onRegisterClick}) => {
 
     const CHUNK_SIZE = 20;
     const totalCount = results.length;
@@ -93,6 +97,18 @@ export const PaginatedView = ({results, onIndividualSelection, currentPage, titl
     };
 
     const ItemView = ({item}) => {
+        const actionable = !isItemActionable || isItemActionable(item);
+        if (!actionable) {
+            return (
+                <View key={item.uuid} style={{opacity: 0.4}}>
+                    <IndividualDetailsCard individual={item}/>
+                    {disabledItemMessage ?
+                        <Text style={{paddingHorizontal: 16, paddingBottom: 8, color: Colors.ValidationError}}>
+                            {disabledItemMessage}
+                        </Text> : null}
+                </View>
+            );
+        }
         return (
             <TouchableNativeFeedback key={item.uuid}
                                      onPress={() => onIndividualSelection(currentPage, item)}

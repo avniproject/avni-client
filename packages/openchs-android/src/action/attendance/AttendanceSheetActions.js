@@ -34,6 +34,7 @@ export class AttendanceSheetActions {
         // lookups is a canonical "YYYY-MM-DD" string. We never round-trip through
         // a JS Date so there is no local/UTC drift to reason about.
         const today = AttendanceSheetActions._todayKey();
+        const selectedDate = action.initialDate || today;
         const stripDates = AttendanceSheetActions._buildStripDates(today);
         const dayStatuses = calendarService.dayStatusForRange(groupSubject, stripDates);
 
@@ -51,14 +52,14 @@ export class AttendanceSheetActions {
 
         const calendar = dayStatuses.values().next().value?.calendar || calendarService.forSubject(groupSubject);
         const attendanceTypes = attendanceTypeService.findActiveForSubjectType(groupSubject.subjectType.uuid);
-        const sessionByType = AttendanceSheetActions._buildSessionByType(context, groupSubject, today, attendanceTypes);
+        const sessionByType = AttendanceSheetActions._buildSessionByType(context, groupSubject, selectedDate, attendanceTypes);
 
         return {
             ...state,
             groupSubject,
             calendar,
             attendanceTypes,
-            selectedDate: today,
+            selectedDate,
             stripDates,
             statusByDate,
             sessionByType,

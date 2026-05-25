@@ -285,6 +285,7 @@
     "markAnywayConfirmBody": "{{date}} सामान्यतः गैर-कार्यदिवस है। जारी रखें?",
     "rosterEmptyError": "इस समूह में हाजिरी लगाने योग्य कोई सक्रिय सदस्य नहीं है।",
     "noAttendanceTypesConfigured": "इस समूह के लिए कोई उपस्थिति प्रकार कॉन्फ़िगर नहीं किया गया है।",
+    "attendanceNotEnabledForSubjectType": "इस समूह के लिए उपस्थिति उपलब्ध नहीं है।",
     "typeRowOverflowMenu": "अधिक क्रियाएं",
     "voidActionLabel": "सत्र रद्द करें",
     "voidConfirmTitle": "इस सत्र को रद्द करें?",

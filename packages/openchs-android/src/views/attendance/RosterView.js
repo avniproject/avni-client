@@ -17,6 +17,7 @@ import {RosterActions} from "../../action/attendance/RosterActions";
 import RosterRow from "./RosterRow";
 import FollowUpConfirmationDialog from "./FollowUpConfirmationDialog";
 import SessionShareService from "../../service/attendance/SessionShareService";
+import CHSNavigator from "../../utility/CHSNavigator";
 
 @Path("/attendanceRosterView")
 class RosterView extends AbstractComponent {
@@ -28,6 +29,7 @@ class RosterView extends AbstractComponent {
         // Calendar day_type for the scheduled date — drives the holiday-mode rules
         // (notes become required on weekly_off / public_holiday).
         dayType: PropTypes.string,
+        onActionCompletion: PropTypes.string,
     };
 
     constructor(props, context) {
@@ -70,17 +72,23 @@ class RosterView extends AbstractComponent {
         if (hasFollowUps) {
             this.setState({confirmationVisible: true});
         } else {
-            TypedTransition.from(this).goBack();
-            this._fireAutoShareIfPending();
+            this._navigateAfterSave();
         }
     };
 
-    // Modal flips invisible before goBack so the native dialog doesn't strand on the prior screen.
+    // Modal flips invisible before navigating so the native dialog doesn't strand on the prior screen.
     _onDismissConfirmation = () => {
-        this.setState({confirmationVisible: false}, () => {
+        this.setState({confirmationVisible: false}, () => this._navigateAfterSave());
+    };
+
+    // Deep-link routes per onActionCompletion; normal flow just pops back to the sheet.
+    _navigateAfterSave = () => {
+        if (this.props.onActionCompletion) {
+            CHSNavigator.navigateAfterMarkAttendance(this, this.props.groupSubject, this.props.onActionCompletion);
+        } else {
             TypedTransition.from(this).goBack();
-            this._fireAutoShareIfPending();
-        });
+        }
+        this._fireAutoShareIfPending();
     };
 
     _fireAutoShareIfPending = () => {

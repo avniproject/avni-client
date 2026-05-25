@@ -237,6 +237,7 @@
     "markAnywayConfirmBody": "{{date}} सामान्यतः बिगर-कार्यदिवस आहे. सुरू ठेवायचे?",
     "rosterEmptyError": "या गटात हजेरी नोंदवण्यासाठी कोणतेही सक्रिय सदस्य नाहीत.",
     "noAttendanceTypesConfigured": "या गटासाठी कोणतेही उपस्थिती प्रकार कॉन्फिगर केलेले नाहीत.",
+    "attendanceNotEnabledForSubjectType": "या गटासाठी उपस्थिती उपलब्ध नाही.",
     "typeRowOverflowMenu": "अधिक क्रिया",
     "voidActionLabel": "सत्र रद्द करा",
     "voidConfirmTitle": "हे सत्र रद्द करायचे?",
