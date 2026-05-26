@@ -12,6 +12,8 @@ import {firebaseEvents, logEvent} from "../../utility/Analytics";
 import {Form} from "openchs-models";
 import {ActionEligibilityResponse} from "rules-config";
 import DraftConfigService from "../../service/DraftConfigService";
+import EncounterService from "../../service/EncounterService";
+import General from "../../utility/General";
 
 export class IndividualGeneralHistoryActions {
     static getInitialState() {
@@ -28,6 +30,28 @@ export class IndividualGeneralHistoryActions {
         const individual = context.get(IndividualService).findByUUID(action.individualUUID);
         const privilegeService = context.get(PrivilegeService);
         const encounters = _.map(individual.nonVoidedEncounters(), encounter => ({encounter, expand: false}));
+        // Diagnostic: compare what's on the Individual's `encounters` list (what the tab reads)
+        // vs what's actually in Realm joined by individual.uuid. A divergence means an
+        // Encounter row exists but was never added to `individual.encounters` (e.g.
+        // SessionService.saveOrUpdate skipping `individual.addEncounter` for auto-follow-ups).
+        try {
+            const fromIndividualList = individual.encounters || [];
+            const directRealm = context.get(EncounterService).getAllNonVoided
+                ? context.get(EncounterService).getAllNonVoided().filter(e => e.individual && e.individual.uuid === individual.uuid)
+                : context.get(EncounterService).db.objects(Encounter.schema.name)
+                    .filtered("voided = false AND individual.uuid = $0", individual.uuid);
+            General.logDebug("IGHA",
+                `individual=${individual.uuid} list.encounters=${fromIndividualList.length} ` +
+                `list.nonVoided=${encounters.length} realmDirect=${directRealm.length}`);
+            _.forEach(directRealm, e => {
+                const onList = _.some(fromIndividualList, le => le.uuid === e.uuid);
+                General.logDebug("IGHA",
+                    `realm enc uuid=${e.uuid} encDateTime=${e.encounterDateTime} cancel=${e.cancelDateTime} ` +
+                    `voided=${e.voided} type=${e.encounterType && e.encounterType.name} onIndividualList=${onList}`);
+            });
+        } catch (err) {
+            General.logDebug("IGHA", `diagnostic failed: ${err.message}`);
+        }
         const newState = IndividualGeneralHistoryActions.clone(state);
         newState.individual = individual;
 

@@ -1,6 +1,6 @@
 import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
-import {AttendanceRecord, Encounter, EntityQueue, ProgramEncounter, Session} from "avni-models";
+import {AttendanceRecord, Encounter, EntityQueue, Individual, ProgramEncounter, ProgramEnrolment, Session} from "avni-models";
 import {DateTimeUtil} from "openchs-models";
 import _ from "lodash";
 import moment from "moment";
@@ -8,6 +8,7 @@ import AttendanceRecordService from "./AttendanceRecordService";
 import EncounterService from "./EncounterService";
 import ProgramEncounterService from "./program/ProgramEncounterService";
 import UserInfoService from "./UserInfoService";
+import General from "../utility/General";
 
 // Inlined from openchs-models/utility/AuditUtil — Session and AttendanceRecord
 // don't expose updateAudit() the way Individual / AbstractEncounter do.
@@ -75,8 +76,25 @@ class SessionService extends BaseService {
 
             followUps.forEach(({encounter, schemaName}) => {
                 encounter.updateAudit(userInfo, true, false);
-                db.create(schemaName, encounter, Realm.UpdateMode.Modified);
-                db.create(EntityQueue.schema.name, EntityQueue.create(encounter, schemaName));
+                const persisted = db.create(schemaName, encounter, Realm.UpdateMode.Modified);
+                // Mirror EncounterService._saveEncounter / ProgramEncounterService._saveEncounter:
+                // the parent (Individual / ProgramEnrolment) keeps an explicit `encounters` list,
+                // and `Individual.nonVoidedEncounters()` reads from it. Without this push, the
+                // freshly-created follow-up sits in Realm but never surfaces on the Subject
+                // Dashboard's general/program encounter tab until a server sync re-establishes
+                // the link.
+                const parentUUID = schemaName === ProgramEncounter.schema.name
+                    ? (persisted.programEnrolment && persisted.programEnrolment.uuid)
+                    : (persisted.individual && persisted.individual.uuid);
+                if (parentUUID) {
+                    const parentSchema = schemaName === ProgramEncounter.schema.name
+                        ? ProgramEnrolment.schema.name
+                        : Individual.schema.name;
+                    const parent = db.objectForPrimaryKey(parentSchema, parentUUID);
+                    if (parent && _.isFunction(parent.addEncounter)) parent.addEncounter(persisted);
+                    General.logDebug("SessionService", `autoFollowUp ${schemaName} ${persisted.uuid} linked to ${parentSchema} ${parentUUID}`);
+                }
+                db.create(EntityQueue.schema.name, EntityQueue.create(persisted, schemaName));
             });
 
             // Departed-member and HELD→DIDNT_HAPPEN cascades. Each voided record's follow-up

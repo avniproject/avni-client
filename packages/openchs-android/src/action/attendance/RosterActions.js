@@ -159,7 +159,7 @@ export class RosterActions {
         // same Realm row instead of creating duplicates.
         const priorRecordRealmObjects = existingSession ? recordService.findBySession(existingSession.uuid) : [];
         const previousRecords = priorRecordRealmObjects.map(RosterActions._snapshotRecord);
-        const existingRecordUUIDByStudent = _.fromPairs(previousRecords.map(r => [r.subjectUUID, r.uuid]));
+        const priorByStudent = _.keyBy(previousRecords, "subjectUUID");
 
         const rosterByStudentUUID = _.keyBy(
             roster.map(r => ({...r})),
@@ -167,8 +167,12 @@ export class RosterActions {
         );
         const attendanceRecords = session.markHeld(rosterByStudentUUID, sessionReasonConceptUUID || null);
         attendanceRecords.forEach(r => {
-            const reused = existingRecordUUIDByStudent[r.subjectUUID];
-            if (reused) r.uuid = reused;
+            const prior = priorByStudent[r.subjectUUID];
+            if (!prior) return;
+            r.uuid = prior.uuid;
+            // Preserve the follow-up encounter link so autoCreateFollowUps doesn't
+            // create a duplicate for still-warranted (absent-no-reason) records.
+            r.followUpEncounterUUID = prior.followUpEncounterUUID || null;
         });
 
         // Members in the prior record set who are no longer in the roster (left the group).
@@ -186,6 +190,10 @@ export class RosterActions {
         const followUpResolution = memberSubjectType
             ? resolveFollowUps({attendanceType, studentSubjectType: memberSubjectType, context})
             : null;
+        General.logDebug("RosterActions", `followUp gate: encType=${attendanceType.getFollowUpEncounterTypeUUID()} memberSubjectType=${memberSubjectType && memberSubjectType.uuid} resolution=${!!followUpResolution} programUUID=${followUpResolution && followUpResolution.programUUID}`);
+        const absentNoReasonCount = attendanceRecords.filter(r => r.status === AttendanceRecord.status.ABSENT && !r.reasonConceptUUID).length;
+        const alreadyLinkedCount = attendanceRecords.filter(r => r.followUpEncounterUUID).length;
+        General.logDebug("RosterActions", `attendanceRecords: total=${attendanceRecords.length} absentNoReason=${absentNoReasonCount} alreadyLinked=${alreadyLinkedCount}`);
         if (followUpResolution) {
             followUps = session.autoCreateFollowUps({
                 attendanceRecords,
@@ -196,6 +204,7 @@ export class RosterActions {
                 enrolmentLookup: followUpResolution.enrolmentLookup,
             });
         }
+        General.logDebug("RosterActions", `autoCreateFollowUps produced ${followUps.length} new encounter(s)`);
 
         const followUpsForSave = followUps.map(e => ({
             encounter: e,
