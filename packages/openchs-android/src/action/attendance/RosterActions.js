@@ -190,10 +190,6 @@ export class RosterActions {
         const followUpResolution = memberSubjectType
             ? resolveFollowUps({attendanceType, studentSubjectType: memberSubjectType, context})
             : null;
-        General.logDebug("RosterActions", `followUp gate: encType=${attendanceType.getFollowUpEncounterTypeUUID()} memberSubjectType=${memberSubjectType && memberSubjectType.uuid} resolution=${!!followUpResolution} programUUID=${followUpResolution && followUpResolution.programUUID}`);
-        const absentNoReasonCount = attendanceRecords.filter(r => r.status === AttendanceRecord.status.ABSENT && !r.reasonConceptUUID).length;
-        const alreadyLinkedCount = attendanceRecords.filter(r => r.followUpEncounterUUID).length;
-        General.logDebug("RosterActions", `attendanceRecords: total=${attendanceRecords.length} absentNoReason=${absentNoReasonCount} alreadyLinked=${alreadyLinkedCount}`);
         if (followUpResolution) {
             followUps = session.autoCreateFollowUps({
                 attendanceRecords,
@@ -204,7 +200,6 @@ export class RosterActions {
                 enrolmentLookup: followUpResolution.enrolmentLookup,
             });
         }
-        General.logDebug("RosterActions", `autoCreateFollowUps produced ${followUps.length} new encounter(s)`);
 
         const followUpsForSave = followUps.map(e => ({
             encounter: e,

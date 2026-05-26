@@ -8,7 +8,6 @@ import AttendanceRecordService from "./AttendanceRecordService";
 import EncounterService from "./EncounterService";
 import ProgramEncounterService from "./program/ProgramEncounterService";
 import UserInfoService from "./UserInfoService";
-import General from "../utility/General";
 
 // Inlined from openchs-models/utility/AuditUtil — Session and AttendanceRecord
 // don't expose updateAudit() the way Individual / AbstractEncounter do.
@@ -92,7 +91,6 @@ class SessionService extends BaseService {
                         : Individual.schema.name;
                     const parent = db.objectForPrimaryKey(parentSchema, parentUUID);
                     if (parent && _.isFunction(parent.addEncounter)) parent.addEncounter(persisted);
-                    General.logDebug("SessionService", `autoFollowUp ${schemaName} ${persisted.uuid} linked to ${parentSchema} ${parentUUID}`);
                 }
                 db.create(EntityQueue.schema.name, EntityQueue.create(persisted, schemaName));
             });
