@@ -170,9 +170,20 @@ export class RosterActions {
             const prior = priorByStudent[r.subjectUUID];
             if (!prior) return;
             r.uuid = prior.uuid;
-            // Preserve the follow-up encounter link so autoCreateFollowUps doesn't
-            // create a duplicate for still-warranted (absent-no-reason) records.
-            r.followUpEncounterUUID = prior.followUpEncounterUUID || null;
+            // Preserve the follow-up encounter link only when BOTH the prior and the
+            // new state warrant a follow-up (Absent + no reason). Otherwise:
+            //   - prior warranted, new doesn't → voidStaleFollowUps voids the prior
+            //     encounter; carrying the link forward would leave a dangling reference
+            //     pointing at a voided row.
+            //   - prior didn't warrant (PRESENT / Absent-with-reason) → any link on
+            //     the prior is already dangling from an earlier buggy save; don't
+            //     propagate it, otherwise autoCreateFollowUps' skip-if-linked guard
+            //     suppresses a legitimate new follow-up.
+            const newWarrants = r.status === AttendanceRecord.status.ABSENT && _.isNil(r.reasonConceptUUID);
+            const priorWarranted = prior.status === AttendanceRecord.status.ABSENT && _.isNil(prior.reasonConceptUUID);
+            if (newWarrants && priorWarranted) {
+                r.followUpEncounterUUID = prior.followUpEncounterUUID || null;
+            }
         });
 
         // Members in the prior record set who are no longer in the roster (left the group).

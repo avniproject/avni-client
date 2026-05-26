@@ -231,6 +231,108 @@ describe("RosterActions.onSave — atomic save composition", () => {
         assert.equal(args.previousRecords[0].uuid, "rec-1-prior");
     });
 
+    it("creates a follow-up when prior save flipped the student to PRESENT (no stale link to suppress)", () => {
+        // Reproduces a reported bug: Absent+reason → Present → Absent (no reason).
+        // On the third save the prior record (from step 2) is PRESENT/no-reason/no-link;
+        // autoCreateFollowUps must NOT be blocked by the skip-if-linked guard and
+        // must create a fresh follow-up encounter for the now absent-no-reason student.
+        const encounterType = {uuid: "et-uuid", name: "Home Visit"};
+        entityService.findByUUID.mockReturnValue(encounterType);
+        formMappingService.findProgramUUIDForEncounterType.mockReturnValue(null);
+        // Prior (step 2) state on the same student: PRESENT, no reason, no follow-up link.
+        const priorPresent = {
+            uuid: "rec-1-prior", subjectUUID: "s1",
+            status: AttendanceRecord.status.PRESENT,
+            reasonConceptUUID: null,
+            followUpEncounterUUID: null,
+            voided: false,
+        };
+        attendanceRecordService.findBySession.mockReturnValue([priorPresent]);
+        const state = makeBaseState({followUpEncounterType: "et-uuid"});
+        state.existingSession = {uuid: "session-existing", status: Session.status.HELD, notes: "", reasonConceptUUID: null};
+        // Current roster (step 3): only s1, now Absent without a reason.
+        state.roster = [
+            {subjectUUID: "s1", name: "Aarav", status: AttendanceRecord.status.ABSENT, reasonConceptUUID: null},
+        ];
+
+        RosterActions.onSave(state, {}, buildContext());
+
+        const args = saveOrUpdateSpy.mock.calls[0][0];
+        assert.equal(args.followUps.length, 1, "must create a follow-up when the student is now absent-no-reason");
+        const [{encounter}] = args.followUps;
+        assert.equal(encounter.individual.uuid, "s1");
+        // The new AttendanceRecord must carry the freshly-created encounter's UUID,
+        // not the (nonexistent) prior link.
+        const studentRecord = args.attendanceRecords.find(r => r.subjectUUID === "s1");
+        assert.equal(studentRecord.followUpEncounterUUID, encounter.uuid);
+    });
+
+    it("creates a fresh follow-up when prior carried a now-dangling link (Absent→Present→Absent flow)", () => {
+        // Reported bug: after Absent-no-reason → Present (voids the follow-up) → Absent-no-reason,
+        // no new follow-up is created because the AttendanceRecord still carried the now-voided
+        // encounter's UUID from the middle save, and autoCreateFollowUps' skip-if-linked guard
+        // trusted it.
+        const encounterType = {uuid: "et-uuid", name: "Home Visit"};
+        entityService.findByUUID.mockReturnValue(encounterType);
+        formMappingService.findProgramUUIDForEncounterType.mockReturnValue(null);
+        // Prior record from the middle save: status PRESENT, but the followUpEncounterUUID
+        // still points to a (now-voided) encounter that the buggy preserve-link kept around.
+        const priorPresentWithDanglingLink = {
+            uuid: "rec-1-prior", subjectUUID: "s1",
+            status: AttendanceRecord.status.PRESENT,
+            reasonConceptUUID: null,
+            followUpEncounterUUID: "enc-prior-voided",
+            voided: false,
+        };
+        attendanceRecordService.findBySession.mockReturnValue([priorPresentWithDanglingLink]);
+        const state = makeBaseState({followUpEncounterType: "et-uuid"});
+        state.existingSession = {uuid: "session-existing", status: Session.status.HELD, notes: "", reasonConceptUUID: null};
+        state.roster = [
+            {subjectUUID: "s1", name: "Aarav", status: AttendanceRecord.status.ABSENT, reasonConceptUUID: null},
+        ];
+
+        RosterActions.onSave(state, {}, buildContext());
+
+        const args = saveOrUpdateSpy.mock.calls[0][0];
+        assert.equal(args.followUps.length, 1, "must create a new follow-up; the prior link was to a voided encounter");
+        const [{encounter}] = args.followUps;
+        assert.notEqual(encounter.uuid, "enc-prior-voided", "must NOT reuse the voided UUID");
+        const studentRecord = args.attendanceRecords.find(r => r.subjectUUID === "s1");
+        assert.equal(studentRecord.followUpEncounterUUID, encounter.uuid);
+    });
+
+    it("does not propagate a stale follow-up link when the new state no longer warrants one (PRESENT after Absent-no-reason)", () => {
+        // Even when the prior save legitimately carried a follow-up, transitioning the
+        // student out of "absent-no-reason" must clear the back-link on the new record
+        // so a future re-mark doesn't trip the skip-if-linked guard. voidStaleFollowUps
+        // handles voiding the encounter; this assertion is about the record-side back-link.
+        const encounterType = {uuid: "et-uuid", name: "Home Visit"};
+        entityService.findByUUID.mockReturnValue(encounterType);
+        formMappingService.findProgramUUIDForEncounterType.mockReturnValue(null);
+        const priorAbsentNoReason = {
+            uuid: "rec-1-prior", subjectUUID: "s1",
+            status: AttendanceRecord.status.ABSENT,
+            reasonConceptUUID: null,
+            followUpEncounterUUID: "enc-prior-live",
+            voided: false,
+        };
+        attendanceRecordService.findBySession.mockReturnValue([priorAbsentNoReason]);
+        const state = makeBaseState({followUpEncounterType: "et-uuid"});
+        state.existingSession = {uuid: "session-existing", status: Session.status.HELD, notes: "", reasonConceptUUID: null};
+        state.roster = [
+            {subjectUUID: "s1", name: "Aarav", status: AttendanceRecord.status.PRESENT, reasonConceptUUID: null},
+        ];
+
+        RosterActions.onSave(state, {}, buildContext());
+
+        const args = saveOrUpdateSpy.mock.calls[0][0];
+        const studentRecord = args.attendanceRecords.find(r => r.subjectUUID === "s1");
+        assert.isNull(studentRecord.followUpEncounterUUID, "back-link must be cleared when new state no longer warrants a follow-up");
+        // previousRecords still carries the link so voidStaleFollowUps inside saveOrUpdate
+        // can find and void the encounter.
+        assert.equal(args.previousRecords[0].followUpEncounterUUID, "enc-prior-live");
+    });
+
     it("cascade-voids AttendanceRecords for members who left the group between marks", () => {
         // s2 was in the prior records but has been removed from the current
         // roster (membershipEndDate set, filtered out at ON_LOAD time). Their
