@@ -55,21 +55,9 @@ function extractValidIndividuals(result) {
     return _.filter(_.map(result, item => item.individual || item), ind => ind && ind.uuid);
 }
 
-function filterDoVisitSubjects(individuals, reportCard) {
-    let filtered = individuals.filter(ind => getEnrolmentOrIndividual(ind, reportCard));
-    if (reportCard.isScheduledVisitType()) {
-        const actionEncounterType = reportCard.actionDetailEncounterType;
-        filtered = filtered.filter(ind => {
-            const enrolmentOrIndividual = getEnrolmentOrIndividual(ind, reportCard);
-            return enrolmentOrIndividual && findScheduledEncounters(enrolmentOrIndividual, actionEncounterType).length > 0;
-        });
-    }
-    return filtered;
-}
-
 function getDoVisitFilteredCount(reportCard, result, countResult) {
     if (!isArrayLikeResult(result)) return countResult;
-    const doVisitResult = filterDoVisitSubjects(extractValidIndividuals(result), reportCard);
+    const doVisitResult = extractValidIndividuals(result);
     const filteredCount = ReportCardResult.create(doVisitResult.length, null, doVisitResult.length > 0);
     filteredCount.cardName = countResult.cardName;
     filteredCount.cardColor = countResult.cardColor;
@@ -207,7 +195,7 @@ class CustomDashboardActions {
             const displayName = (countResult && countResult.cardName) || reportCard.name;
             const isArrayLike = isArrayLikeResult(result);
             if (reportCard.isActionDoVisit() && isArrayLike) {
-                const doVisitResult = filterDoVisitSubjects(extractValidIndividuals(result), reportCard);
+                const doVisitResult = extractValidIndividuals(result);
                 const onActionCompletion = reportCard.onActionCompletion;
                 General.logDebug('CustomDashboardActions', `onCardPress - DoVisit card "${reportCard.name}": doVisitResult.length=${doVisitResult.length}, onActionCompletion=${onActionCompletion}`);
                 if (doVisitResult.length === 1) {
