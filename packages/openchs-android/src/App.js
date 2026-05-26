@@ -112,8 +112,8 @@ class App extends Component {
         const message = `Upgrading Database. May take upto 15 minutes on slow devices with a lot of Avni data.`;
         return (
             <View style={{flex: 1, flexDirection: "column", alignItems: 'center', justifyContent: 'center', marginTop: 50}}>
-                <Image source={{uri: `asset:/logo.png`}}
-                       style={{height: 120, width: 120, alignSelf: 'center'}} resizeMode={'center'}/>
+                <Image source={{uri: `asset:/splash_logo.png`}}
+                       style={{height: 120, width: 320, alignSelf: 'center'}} resizeMode={'contain'}/>
 
                 <KeepAwake/>
                 <Text style={{fontSize: 17, paddingHorizontal: 10, marginBottom: 20}}>{message}</Text>

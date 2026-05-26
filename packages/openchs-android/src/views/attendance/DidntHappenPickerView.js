@@ -14,6 +14,7 @@ import Styles from "../primitives/Styles";
 import Reducers from "../../reducer";
 import {DidntHappenActions} from "../../action/attendance/DidntHappenActions";
 import SessionShareService from "../../service/attendance/SessionShareService";
+import CHSNavigator from "../../utility/CHSNavigator";
 
 @Path("/didntHappenPickerView")
 class DidntHappenPickerView extends AbstractComponent {
@@ -22,6 +23,7 @@ class DidntHappenPickerView extends AbstractComponent {
         attendanceType: PropTypes.object.isRequired,
         // Canonical "YYYY-MM-DD" — the attendance flow is time/timezone agnostic.
         scheduledDate: PropTypes.string.isRequired,
+        onActionCompletion: PropTypes.string,
     };
 
     constructor(props, context) {
@@ -68,7 +70,12 @@ class DidntHappenPickerView extends AbstractComponent {
         const fresh = this.getContextState(Reducers.reducerKeys.attendanceDidntHappen);
         const wi = fresh && fresh.pendingAutoShareWorkItem;
         const shareService = wi ? this.getService(SessionShareService) : null;
-        TypedTransition.from(this).goBack();
+        // Deep-link routes per onActionCompletion; normal flow just pops back to the sheet.
+        if (this.props.onActionCompletion) {
+            CHSNavigator.navigateAfterMarkAttendance(this, this.props.groupSubject, this.props.onActionCompletion);
+        } else {
+            TypedTransition.from(this).goBack();
+        }
         if (wi && shareService) {
             InteractionManager.runAfterInteractions(() => {
                 shareService.dispatchShareSessionWorkItem(wi);
@@ -91,13 +98,13 @@ class DidntHappenPickerView extends AbstractComponent {
                     <ScrollView style={{padding: 16}}>
                         <Text style={styles.helpText}>{this.I18n.t("didntHappenWhenToUse")}</Text>
 
-                        <Text style={styles.fieldLabel}>{this.I18n.t("reasonRequired").toUpperCase()}</Text>
+                        <Text style={styles.fieldLabel}>{this.I18n.t("reasonRequired")}</Text>
                         <TouchableOpacity onPress={this._onPickReason} style={styles.picker}>
                             <Text style={styles.pickerText}>{this._selectedReasonName()}</Text>
                             <Text style={styles.pickerChevron}>▾</Text>
                         </TouchableOpacity>
 
-                        <Text style={styles.fieldLabel}>{this.I18n.t("notesOptional").toUpperCase()}</Text>
+                        <Text style={styles.fieldLabel}>{this.I18n.t("notesOptional")}</Text>
                         <TextInput
                             value={notes || ""}
                             onChangeText={this._onSetNotes}
@@ -151,7 +158,7 @@ const styles = StyleSheet.create({
     },
     actions: {flexDirection: 'row', justifyContent: 'space-between', marginTop: 28},
     cancelBtn: {paddingVertical: 10, paddingHorizontal: 16},
-    cancelText: {color: Colors.SubheaderColor || '#666', fontWeight: 'bold', fontSize: Styles.normalTextSize},
+    cancelText: {color: Colors.SubheaderColor || '#666', fontSize: Styles.normalTextSize},
     saveBtn: {
         backgroundColor: Colors.ActionButtonColor,
         paddingVertical: 10,

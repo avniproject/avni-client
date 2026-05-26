@@ -263,7 +263,7 @@ class AbstractDataEntryState {
             //remove the older rule validation error before validating the form again.
             this.removeRuleValidationErrors();
             const validationResults = await this.validateEntityAgainstRuleAsync(ruleService);
-            this._handleLastPageValidationResults(validationResults, context, ruleService, action);
+            await this._handleLastPageValidationResultsAsync(validationResults, context, ruleService, action);
             return this;
         }
         await this._handleNextInternal2Async(action, context);
@@ -275,6 +275,18 @@ class AbstractDataEntryState {
         let decisions, checklists, nextScheduledVisits;
         if (!ValidationResult.hasValidationError(this.validationResults)) {
             decisions = this.executeRule(ruleService, context);
+            checklists = this.getChecklists(ruleService, context);
+            nextScheduledVisits = this.getNextScheduledVisits(ruleService, context);
+            this.workListState = new WorkListState(this.updateWorkLists(ruleService, this.workListState.workLists, nextScheduledVisits, context), () => this.getWorkContext());
+        }
+        action.completed(this, decisions, validationResults, checklists, nextScheduledVisits, action.fromSDV);
+    }
+
+    async _handleLastPageValidationResultsAsync(validationResults, context, ruleService, action) {
+        this.handleValidationResults(validationResults, context);
+        let decisions, checklists, nextScheduledVisits;
+        if (!ValidationResult.hasValidationError(this.validationResults)) {
+            decisions = await this.executeRule(ruleService, context);
             checklists = this.getChecklists(ruleService, context);
             nextScheduledVisits = this.getNextScheduledVisits(ruleService, context);
             this.workListState = new WorkListState(this.updateWorkLists(ruleService, this.workListState.workLists, nextScheduledVisits, context), () => this.getWorkContext());

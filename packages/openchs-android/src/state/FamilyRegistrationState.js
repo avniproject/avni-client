@@ -63,6 +63,10 @@ class FamilyRegistrationState extends AbstractDataEntryState {
         return ruleService.validateAgainstRule(this.family, this.formElementGroup.form, 'Family');
     }
 
+    async validateEntityAgainstRuleAsync(ruleService) {
+        return await ruleService.validateAgainstRuleAsync(this.family, this.formElementGroup.form, 'Family');
+    }
+
     getEffectiveDataEntryDate() {
         return this.family.registrationDate;
     }

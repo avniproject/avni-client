@@ -68,7 +68,15 @@ class FormElementGroup extends AbstractComponent {
     wrap(x, idx, shouldScroll) {
         return <View style={{marginTop: Distances.ScaledVerticalSpacingBetweenFormElements, paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge}}
                      key={idx}
-                     onLayout={(event) => shouldScroll && _.isFunction(this.props.onValidationError) ? this.props.onValidationError(event.nativeEvent.layout.x, event.nativeEvent.layout.y) : _.noop()}>{x}</View>;
+                     onLayout={(event) => {
+                         if (!shouldScroll || !_.isFunction(this.props.onValidationError)) return;
+
+                         //Do not jump around if the error is in the same question
+                         if (this.lastScrolledErrorUuid === idx) return;
+
+                         this.lastScrolledErrorUuid = idx;
+                         this.props.onValidationError(event.nativeEvent.layout.x, event.nativeEvent.layout.y);
+                     }}>{x}</View>;
     }
 
     getCompositeDuration(concept, formElement) {
@@ -116,6 +124,9 @@ class FormElementGroup extends AbstractComponent {
             .head()
             .value();
         const erroredUUID = firstErroredFE && firstErroredFE.uuid;
+        if (this.lastScrolledErrorUuid && this.lastScrolledErrorUuid !== erroredUUID) {
+            this.lastScrolledErrorUuid = null;
+        }
         const formElements = _.isNil(this.props.filteredFormElements) ? this.props.group.getFormElements() : this.props.filteredFormElements;
         const unsupportedFormElements = formElements.filter(fe => !_.includes(_.values(Concept.dataType), fe.concept.datatype));
         return (<View>

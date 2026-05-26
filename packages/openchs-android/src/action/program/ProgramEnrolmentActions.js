@@ -19,6 +19,7 @@ import TimerActions from "../common/TimerActions";
 import IndividualService from "../../service/IndividualService";
 import DraftEnrolmentService from "../../service/draft/DraftEnrolmentService";
 import DraftConfigService from "../../service/DraftConfigService";
+import {dispatchHandleNext} from "../common/DispatchHelpers";
 
 export class ProgramEnrolmentActions {
     static getInitialState(context) {
@@ -139,8 +140,7 @@ export class ProgramEnrolmentActions {
     }
 
     static onNext(state, action, context) {
-        const newState = state.clone();
-        newState.handleNext(action, context);
+        const newState = dispatchHandleNext(state.clone(), action, context, 'ProgramEnrolmentActions.onNext');
         if (state.saveDrafts && state.usage === ProgramEnrolmentState.UsageKeys.Enrol) {
             ProgramEnrolmentActions.saveDraftEnrolment(newState.enrolment, newState.validationResults, context);
         }

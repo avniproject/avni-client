@@ -113,6 +113,41 @@ class ObservationsHolderActions {
         return ObservationsHolderActions._getFormElementStatuses(newState, context);
     }
 
+    /**
+     * Handler for EDGE_MODEL.INFERENCE_RESULT_AVAILABLE, dispatched by EdgeModelService
+     * when a backgrounded inference resolves. Writes the result as an observation on the
+     * target concept and re-runs form-element rules so the dependent element re-renders.
+     *
+     * Routes by concept datatype:
+     *   • Coded concept: value is the answer's concept NAME (e.g. "Suspicious"); the
+     *     model layer resolves it to the answer UUID. See
+     *     ObservationsHolder.addOrUpdateCodedObs → Concept.getAnswerWithConceptName.
+     *   • Primitive (text/numeric/date): value is stored verbatim.
+     *
+     * Safe to dispatch even when this form isn't open: combineReducers fans the action
+     * out to every form's reducer slice, but if the slice isn't currently editing a
+     * form (no formElementGroup, no matching concept on the page) we bail and return
+     * the state unchanged.
+     */
+    static onInferenceResultAvailable(state, action, context) {
+        if (!state || !state.formElementGroup || !state.observationsHolder) return state;
+        const formElement = _.find(
+            state.formElementGroup.getFormElements(),
+            fe => fe && fe.concept && fe.concept.name === action.conceptName
+        );
+        if (!formElement) return state;
+        const newState = state.clone();
+        if (formElement.concept.isCodedConcept()) {
+            newState.observationsHolder.addOrUpdateCodedObs(
+                formElement.concept, action.value, formElement.isSingleSelect()
+            );
+        } else {
+            newState.observationsHolder.addOrUpdatePrimitiveObs(formElement.concept, action.value);
+        }
+        ObservationsHolderActions._getFormElementStatuses(newState, context);
+        return newState;
+    }
+
     static toggleSingleSelectAnswer(state, action, context) {
         const newState = state.clone();
         const observation = newState.observationsHolder.toggleSingleSelectAnswer(action.formElement.concept, action.answerUUID);

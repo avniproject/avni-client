@@ -34,6 +34,7 @@ export class AttendanceSheetActions {
         // lookups is a canonical "YYYY-MM-DD" string. We never round-trip through
         // a JS Date so there is no local/UTC drift to reason about.
         const today = AttendanceSheetActions._todayKey();
+        const selectedDate = action.initialDate || today;
         const stripDates = AttendanceSheetActions._buildStripDates(today);
         const dayStatuses = calendarService.dayStatusForRange(groupSubject, stripDates);
 
@@ -51,14 +52,14 @@ export class AttendanceSheetActions {
 
         const calendar = dayStatuses.values().next().value?.calendar || calendarService.forSubject(groupSubject);
         const attendanceTypes = attendanceTypeService.findActiveForSubjectType(groupSubject.subjectType.uuid);
-        const sessionByType = AttendanceSheetActions._buildSessionByType(context, groupSubject, today, attendanceTypes);
+        const sessionByType = AttendanceSheetActions._buildSessionByType(context, groupSubject, selectedDate, attendanceTypes);
 
         return {
             ...state,
             groupSubject,
             calendar,
             attendanceTypes,
-            selectedDate: today,
+            selectedDate,
             stripDates,
             statusByDate,
             sessionByType,
@@ -113,7 +114,12 @@ export class AttendanceSheetActions {
     static _refreshStatusForDate(context, groupSubject, calendar, dateKey, statusByDate) {
         const sessionService = context.get(SessionService);
         const next = new Map(statusByDate);
-        const existing = next.get(dateKey) || {dayType: null, marker: null};
+        // Dates reached via the calendar picker fall outside the pre-built strip
+        // window, so resolve their day_type from the calendar on demand — otherwise
+        // a holiday would be treated as a working day.
+        const existing = next.get(dateKey)
+            || context.get(CalendarService).dayStatusFor(groupSubject, dateKey)
+            || {dayType: null, marker: null};
         const summary = sessionService.summaryForDate(groupSubject.uuid, dateKey);
         next.set(dateKey, {...existing, held: summary.held, didntHappen: summary.didntHappen});
         return next;

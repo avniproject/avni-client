@@ -120,6 +120,15 @@ export class RosterActions {
         return {...state, roster};
     }
 
+    static onMarkAllPresent(state) {
+        const roster = state.roster.map(r => ({
+            ...r,
+            status: AttendanceRecord.status.PRESENT,
+            reasonConceptUUID: null,
+        }));
+        return {...state, roster};
+    }
+
     static onSetNotes(state, action) {
         return {...state, notes: action.notes};
     }
@@ -131,9 +140,6 @@ export class RosterActions {
         }
         if (RosterActions.isHolidayLikeDayType(dayType) && _.isEmpty((sessionReasonConceptUUID || "").trim())) {
             return {...state, saveError: "sessionReasonRequiredOnHoliday", lastSaveResult: null, pendingAutoShareWorkItem: null};
-        }
-        if (RosterActions.isHolidayLikeDayType(dayType) && _.isEmpty((notes || "").trim())) {
-            return {...state, saveError: "sessionNotesRequiredOnHoliday", lastSaveResult: null, pendingAutoShareWorkItem: null};
         }
 
         const sessionService = context.get(SessionService);
@@ -153,7 +159,7 @@ export class RosterActions {
         // same Realm row instead of creating duplicates.
         const priorRecordRealmObjects = existingSession ? recordService.findBySession(existingSession.uuid) : [];
         const previousRecords = priorRecordRealmObjects.map(RosterActions._snapshotRecord);
-        const existingRecordUUIDByStudent = _.fromPairs(previousRecords.map(r => [r.subjectUUID, r.uuid]));
+        const priorByStudent = _.keyBy(previousRecords, "subjectUUID");
 
         const rosterByStudentUUID = _.keyBy(
             roster.map(r => ({...r})),
@@ -161,8 +167,23 @@ export class RosterActions {
         );
         const attendanceRecords = session.markHeld(rosterByStudentUUID, sessionReasonConceptUUID || null);
         attendanceRecords.forEach(r => {
-            const reused = existingRecordUUIDByStudent[r.subjectUUID];
-            if (reused) r.uuid = reused;
+            const prior = priorByStudent[r.subjectUUID];
+            if (!prior) return;
+            r.uuid = prior.uuid;
+            // Preserve the follow-up encounter link only when BOTH the prior and the
+            // new state warrant a follow-up (Absent + no reason). Otherwise:
+            //   - prior warranted, new doesn't → voidStaleFollowUps voids the prior
+            //     encounter; carrying the link forward would leave a dangling reference
+            //     pointing at a voided row.
+            //   - prior didn't warrant (PRESENT / Absent-with-reason) → any link on
+            //     the prior is already dangling from an earlier buggy save; don't
+            //     propagate it, otherwise autoCreateFollowUps' skip-if-linked guard
+            //     suppresses a legitimate new follow-up.
+            const newWarrants = r.status === AttendanceRecord.status.ABSENT && _.isNil(r.reasonConceptUUID);
+            const priorWarranted = prior.status === AttendanceRecord.status.ABSENT && _.isNil(prior.reasonConceptUUID);
+            if (newWarrants && priorWarranted) {
+                r.followUpEncounterUUID = prior.followUpEncounterUUID || null;
+            }
         });
 
         // Members in the prior record set who are no longer in the roster (left the group).
@@ -291,6 +312,7 @@ RosterActions.Names = {
     SET_REASON: `${Prefix}.SET_REASON`,
     SET_SESSION_REASON: `${Prefix}.SET_SESSION_REASON`,
     MARK_ALL_ABSENT: `${Prefix}.MARK_ALL_ABSENT`,
+    MARK_ALL_PRESENT: `${Prefix}.MARK_ALL_PRESENT`,
     SET_NOTES: `${Prefix}.SET_NOTES`,
     SAVE: `${Prefix}.SAVE`,
 };
@@ -301,6 +323,7 @@ RosterActions.Map = new Map([
     [RosterActions.Names.SET_REASON, RosterActions.onSetReason],
     [RosterActions.Names.SET_SESSION_REASON, RosterActions.onSetSessionReason],
     [RosterActions.Names.MARK_ALL_ABSENT, RosterActions.onMarkAllAbsent],
+    [RosterActions.Names.MARK_ALL_PRESENT, RosterActions.onMarkAllPresent],
     [RosterActions.Names.SET_NOTES, RosterActions.onSetNotes],
     [RosterActions.Names.SAVE, RosterActions.onSave],
 ]);

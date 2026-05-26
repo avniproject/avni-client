@@ -16,6 +16,8 @@ import IndividualService from "../../service/IndividualService";
 import {ObservationsHolder} from "openchs-models";
 import DraftProgramEncounterService from "../../service/draft/DraftProgramEncounterService";
 import DraftConfigService from "../../service/DraftConfigService";
+import {dispatchHandleNext} from "../common/DispatchHelpers";
+import {EDGE_MODEL_ACTION} from "../../service/EdgeModelService";
 
 class ProgramEncounterActions {
     static getInitialState() {
@@ -116,8 +118,7 @@ class ProgramEncounterActions {
     }
 
     static onNext(state, action, context) {
-        const newState = state.clone();
-        newState.handleNext(action, context);
+        const newState = dispatchHandleNext(state.clone(), action, context, 'ProgramEncounterActions.onNext');
         if (state.saveDrafts) {
             ProgramEncounterActions.saveDraftProgramEncounter(newState.programEncounter, newState.validationResults, context);
         }
@@ -257,6 +258,7 @@ const ProgramEncounterActionsMap = new Map([
     [ProgramEncounterActionsNames.ON_SKIP_VERIFICATION, PhoneNumberVerificationActions.onSkipVerification],
     [ProgramEncounterActionsNames.ON_TIMED_FORM, TimerActions.onTimedForm],
     [ProgramEncounterActionsNames.ON_START_TIMER, TimerActions.onStartTimer],
+    [EDGE_MODEL_ACTION.INFERENCE_RESULT_AVAILABLE, ObservationsHolderActions.onInferenceResultAvailable],
 ]);
 
 export {

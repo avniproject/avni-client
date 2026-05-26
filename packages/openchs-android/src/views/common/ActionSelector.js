@@ -139,14 +139,18 @@ class ActionSelector extends AbstractComponent {
     }
 
     actionButton(onPress, buttonColor, text, textColor, icon, index) {
+        // Icon menus keep the icon left-aligned with the label filling the rest;
+        // icon-less menus (e.g. the reason pickers) center the label — flexWrap on
+        // basicPrimaryButtonView otherwise defeats the label's flex and it sits left.
+        const hasIcon = !!icon;
         return (
             <View key={index} style={{paddingTop: 10}}>
                 <TouchableNativeFeedback onPress={() => {
                     this.props.hide();
                     onPress();
                 }}>
-                    <View style={[Styles.basicPrimaryButtonView, {flexDirection: 'row', backgroundColor: buttonColor, minHeight: 50, maxWidth: width * 0.7, alignItems: 'center', justifyContent: 'flex-start', paddingLeft: 15}]}>
-                        {icon && <View style={{width: 50, alignItems: 'center'}}>
+                    <View style={[Styles.basicPrimaryButtonView, {flexDirection: 'row', backgroundColor: buttonColor, minHeight: 50, maxWidth: width * 0.7, alignItems: 'center', justifyContent: hasIcon ? 'flex-start' : 'center', paddingLeft: hasIcon ? 15 : 0}]}>
+                        {hasIcon && <View style={{width: 50, alignItems: 'center'}}>
                             <AvniIcon name={icon} color={textColor} style={{fontSize: 50}} />
                         </View>}
                         <Text style={{
@@ -154,7 +158,7 @@ class ActionSelector extends AbstractComponent {
                             color: textColor,
                             textAlign: 'center',
                             paddingVertical: 8,
-                            flex: 1
+                            ...(hasIcon ? {flex: 1} : {})
                         }}>{this.I18n.t(text)}</Text>
                     </View>
                 </TouchableNativeFeedback>

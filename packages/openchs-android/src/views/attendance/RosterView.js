@@ -17,6 +17,7 @@ import {RosterActions} from "../../action/attendance/RosterActions";
 import RosterRow from "./RosterRow";
 import FollowUpConfirmationDialog from "./FollowUpConfirmationDialog";
 import SessionShareService from "../../service/attendance/SessionShareService";
+import CHSNavigator from "../../utility/CHSNavigator";
 
 @Path("/attendanceRosterView")
 class RosterView extends AbstractComponent {
@@ -28,6 +29,7 @@ class RosterView extends AbstractComponent {
         // Calendar day_type for the scheduled date — drives the holiday-mode rules
         // (notes become required on weekly_off / public_holiday).
         dayType: PropTypes.string,
+        onActionCompletion: PropTypes.string,
     };
 
     constructor(props, context) {
@@ -50,6 +52,7 @@ class RosterView extends AbstractComponent {
     _onToggle = (subjectUUID) => this.dispatchAction(RosterActions.Names.TOGGLE_PRESENCE, {subjectUUID});
     _onSetNotes = (notes) => this.dispatchAction(RosterActions.Names.SET_NOTES, {notes});
     _onMarkAllAbsent = () => this.dispatchAction(RosterActions.Names.MARK_ALL_ABSENT);
+    _onMarkAllPresent = () => this.dispatchAction(RosterActions.Names.MARK_ALL_PRESENT);
     // dispatchAction returns BEFORE React's setState (driven by store.subscribe) flushes,
     // so this.state would still be the pre-save snapshot. Read directly from the store.
     _onSave = () => {
@@ -70,17 +73,23 @@ class RosterView extends AbstractComponent {
         if (hasFollowUps) {
             this.setState({confirmationVisible: true});
         } else {
-            TypedTransition.from(this).goBack();
-            this._fireAutoShareIfPending();
+            this._navigateAfterSave();
         }
     };
 
-    // Modal flips invisible before goBack so the native dialog doesn't strand on the prior screen.
+    // Modal flips invisible before navigating so the native dialog doesn't strand on the prior screen.
     _onDismissConfirmation = () => {
-        this.setState({confirmationVisible: false}, () => {
+        this.setState({confirmationVisible: false}, () => this._navigateAfterSave());
+    };
+
+    // Deep-link routes per onActionCompletion; normal flow just pops back to the sheet.
+    _navigateAfterSave = () => {
+        if (this.props.onActionCompletion) {
+            CHSNavigator.navigateAfterMarkAttendance(this, this.props.groupSubject, this.props.onActionCompletion);
+        } else {
             TypedTransition.from(this).goBack();
-            this._fireAutoShareIfPending();
-        });
+        }
+        this._fireAutoShareIfPending();
     };
 
     _fireAutoShareIfPending = () => {
@@ -169,9 +178,10 @@ class RosterView extends AbstractComponent {
         const summary = this._summaryCounts();
         const headerSubline = moment.utc(scheduledDate, "YYYY-MM-DD").format("ddd D MMM") + " · " + groupSubject.nameString;
         const holidayMode = RosterActions.isHolidayLikeDayType(dayType);
-        const notesEmpty = (notes || "").trim().length === 0;
         const reasonMissing = !sessionReasonConceptUUID;
-        const saveDisabled = holidayMode && (reasonMissing || notesEmpty);
+        const saveDisabled = holidayMode && reasonMissing;
+        const allPresent = (roster || []).length > 0
+            && (roster || []).every(r => r.status !== AttendanceRecord.status.ABSENT);
 
         return (
             <CHSContainer>
@@ -179,8 +189,8 @@ class RosterView extends AbstractComponent {
                 <CHSContent>
                     <View style={styles.helpRow}>
                         <Text style={styles.helpText}>{this.I18n.t("tapToTogglePrompt")}</Text>
-                        <TouchableOpacity onPress={this._onMarkAllAbsent}>
-                            <Text style={styles.markAllText}>{this.I18n.t("markAllAbsent")}</Text>
+                        <TouchableOpacity onPress={allPresent ? this._onMarkAllAbsent : this._onMarkAllPresent}>
+                            <Text style={styles.markAllText}>{this.I18n.t(allPresent ? "markAllAbsent" : "markAllPresent")}</Text>
                         </TouchableOpacity>
                     </View>
                     <FlatList
@@ -194,7 +204,7 @@ class RosterView extends AbstractComponent {
                                 </Text>
                                 {holidayMode && (
                                     <View style={styles.sessionReasonBlock}>
-                                        <Text style={styles.notesLabel}>{this.I18n.t("sessionReasonRequiredOnHoliday").toUpperCase()}</Text>
+                                        <Text style={styles.notesLabel}>{this.I18n.t("sessionReasonRequiredOnHoliday")}</Text>
                                         <TouchableOpacity onPress={this._onPickSessionReason} style={styles.sessionReasonPicker}>
                                             <Text style={styles.sessionReasonText}>{this._selectedSessionReasonName()}</Text>
                                             <Text style={styles.sessionReasonChevron}>▾</Text>
@@ -202,7 +212,7 @@ class RosterView extends AbstractComponent {
                                     </View>
                                 )}
                                 <Text style={styles.notesLabel}>
-                                    {this.I18n.t(holidayMode ? "sessionNotesRequiredOnHoliday" : "sessionNotesOptional").toUpperCase()}
+                                    {this.I18n.t("sessionNotesOptional")}
                                 </Text>
                                 <TextInput
                                     value={notes || ""}
@@ -252,7 +262,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.GreyContentBackground,
     },
     helpText: {fontSize: Styles.smallTextSize, color: Colors.SubheaderColor || '#666', flex: 1},
-    markAllText: {color: Colors.ActionButtonColor, fontWeight: 'bold', fontSize: Styles.smallTextSize},
+    markAllText: {color: Colors.ActionButtonColor, fontSize: Styles.smallTextSize},
     footer: {padding: 16, backgroundColor: Colors.WhiteContentBackground},
     summaryText: {fontSize: Styles.smallTextSize, color: Colors.SubheaderColor || '#666', marginBottom: 16},
     notesLabel: {fontSize: 11, color: Colors.SubheaderColor || '#666', letterSpacing: 0.5, marginBottom: 4},

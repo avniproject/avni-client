@@ -21,6 +21,7 @@ import TimerActions from "../common/TimerActions";
 import TaskService from "../../service/task/TaskService";
 import General from '../../utility/General';
 import AddressLevelService from '../../service/AddressLevelService';
+import {dispatchHandleNext} from "../common/DispatchHelpers";
 
 export class SubjectRegisterActions {
     static getInitialState(context) {
@@ -119,7 +120,7 @@ export class SubjectRegisterActions {
     }
 
     static onNext(state, action, context) {
-        const newState = state.clone().handleNext(action, context);
+        const newState = dispatchHandleNext(state.clone(), action, context, 'SubjectRegisterActions.onNext');
         if (newState.saveDrafts && !newState.hasValidationError) {
             const draftSubject = DraftSubject.create(newState.subject, newState.household.totalMembers);
             context.get(DraftSubjectService).saveDraftSubject(draftSubject);

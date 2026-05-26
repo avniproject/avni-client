@@ -189,7 +189,7 @@ class SyncComponent extends AbstractComponent {
                 this._preSync();
                 //sending connection info like this because this returns promise and not possible in the action
                 const connectionInfo = await getConnectionInfo();
-                syncService.sync(
+                await syncService.sync(
                   lockId,
                   EntityMetaData.model(),
                   (progress, numberOfPagesProcessedForCurrentEntity, totalNumberOfPagesForCurrentEntity) => this.progressBarUpdate(progress, numberOfPagesProcessedForCurrentEntity, totalNumberOfPagesForCurrentEntity),

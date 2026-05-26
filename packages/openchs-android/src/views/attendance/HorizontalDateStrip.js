@@ -1,5 +1,5 @@
 import React from "react";
-import {ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import PropTypes from "prop-types";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Colors from "../primitives/Colors";
@@ -44,11 +44,11 @@ class HorizontalDateStrip extends AbstractComponent {
         const hasDidntHappen = (status.didntHappen || []).length > 0;
         if (hasHeld && hasDidntHappen) return (
             <View style={{flexDirection: 'row'}}>
-                <View style={[styles.dot, styles.dotMixed, {backgroundColor: Colors.ActionButtonColor}]}/>
+                <View style={[styles.dot, styles.dotMixed, {backgroundColor: Colors.DarkPrimaryColor}]}/>
                 <View style={[styles.dot, styles.dotMixed, {backgroundColor: '#9e9e9e'}]}/>
             </View>
         );
-        if (hasHeld) return <View style={[styles.dot, {backgroundColor: Colors.ActionButtonColor}]}/>;
+        if (hasHeld) return <View style={[styles.dot, {backgroundColor: Colors.DarkPrimaryColor}]}/>;
         if (hasDidntHappen) return <View style={[styles.dot, {backgroundColor: '#9e9e9e'}]}/>;
         return null;
     }
@@ -73,13 +73,20 @@ class HorizontalDateStrip extends AbstractComponent {
         );
     }
 
-    _renderCell(dateKey) {
+    // Best-effort: size cells so ~7 days span the current screen width. Computed
+    // per render (Dimensions at module load can be 0/unmeasured, which crammed all
+    // 14 cells onto one screen).
+    _cellWidth() {
+        const screenWidth = Dimensions.get("window").width || 360;
+        return Math.max(40, Math.floor((screenWidth - STRIP_PADDING * 2) / VISIBLE_CELLS) - CELL_MARGIN * 2);
+    }
+
+    _renderCell(dateKey, cellWidth) {
         const status = this.props.statusByDate.get(dateKey);
         const isSelected = this.props.selectedDate === dateKey;
         const isWeeklyOff = status && status.dayType === "weekly_off";
         // moment.utc avoids any local-tz drift when parsing the canonical key.
         const m = moment.utc(dateKey, "YYYY-MM-DD");
-        const isToday = dateKey === moment().format("YYYY-MM-DD");
 
         return (
             <TouchableOpacity
@@ -87,11 +94,12 @@ class HorizontalDateStrip extends AbstractComponent {
                 onPress={() => this.props.onSelect(dateKey)}
                 style={[
                     styles.cell,
+                    {width: cellWidth},
                     isWeeklyOff && styles.cellWeeklyOff,
                     isSelected && styles.cellSelected,
                 ]}>
                 <Text style={[styles.weekday, isSelected && styles.weekdaySelected]}>
-                    {isToday ? this.I18n.t("today").toUpperCase() : m.format("ddd").toUpperCase()}
+                    {m.format("ddd").toUpperCase()}
                 </Text>
                 <Text style={[styles.day, isSelected && styles.daySelected]}>
                     {m.format("D")}
@@ -103,24 +111,26 @@ class HorizontalDateStrip extends AbstractComponent {
 
     render() {
         const {dates} = this.props;
+        const cellWidth = this._cellWidth();
         return (
             <ScrollView
                 ref={this._scrollRef}
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.strip}>
-                {dates.map(d => this._renderCell(d))}
+                {dates.map(d => this._renderCell(d, cellWidth))}
             </ScrollView>
         );
     }
 }
 
-const CELL_WIDTH = 52;
+const STRIP_PADDING = 8;
+const CELL_MARGIN = 4;
+const VISIBLE_CELLS = 7;
 const styles = StyleSheet.create({
-    strip: {paddingVertical: 8, paddingHorizontal: 8},
+    strip: {paddingVertical: 8, paddingHorizontal: STRIP_PADDING},
     cell: {
-        width: CELL_WIDTH,
-        marginHorizontal: 4,
+        marginHorizontal: CELL_MARGIN,
         paddingVertical: 8,
         alignItems: 'center',
         backgroundColor: Colors.WhiteContentBackground,

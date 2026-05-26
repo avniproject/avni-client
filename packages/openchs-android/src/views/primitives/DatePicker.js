@@ -22,7 +22,9 @@ class DatePicker extends AbstractComponent {
         nonRemovable: PropTypes.bool,
         noDateMessageKey: PropTypes.string,
         onChange: PropTypes.func,
-        overridingStyle: PropTypes.object
+        overridingStyle: PropTypes.object,
+        maximumDate: PropTypes.object,
+        minimumDate: PropTypes.object
     };
 
     static defaultProps = {
@@ -51,6 +53,8 @@ class DatePicker extends AbstractComponent {
             onChange: (event, date) => this.onDateChange(event, date),
             value: _.isNil(this.props.dateValue) ? new Date() : this.props.dateValue
         };
+        if (!_.isNil(this.props.maximumDate)) datePickerOptions.maximumDate = this.props.maximumDate;
+        if (!_.isNil(this.props.minimumDate)) datePickerOptions.minimumDate = this.props.minimumDate;
 
         this.dismissKeyboard();
         DateTimePickerAndroid.open(datePickerOptions);

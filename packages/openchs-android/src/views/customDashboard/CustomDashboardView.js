@@ -19,7 +19,7 @@ import {
 } from "react-native";
 import _ from "lodash";
 import CustomDashboardTab from "./CustomDashboardTab";
-import {DashboardSection, ReportCard} from "openchs-models";
+import {DashboardSection, Privilege, ReportCard} from "openchs-models";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import CHSNavigator from "../../utility/CHSNavigator";
 import Colors from "../primitives/Colors";
@@ -48,6 +48,7 @@ import {CardListView} from './CardListView';
 import UserInfoService from "../../service/UserInfoService";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
 import DashboardFilterService from '../../service/reports/DashboardFilterService';
+import PrivilegeService from "../../service/PrivilegeService";
 import DatePicker from '../primitives/DatePicker';
 import moment from 'moment';
 
@@ -276,6 +277,22 @@ class CustomDashboardView extends AbstractComponent {
         this.goBack();
     }
 
+    // Actionable = subject type has attendance enabled and user has editSubject privilege.
+    attendanceEligibility() {
+        const privilegeService = this.context.getService(PrivilegeService);
+        const editSubjectCriteria = `privilege.name = '${Privilege.privilegeName.editSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
+        const allowedSubjectTypeUUIDs = privilegeService.allowedEntityTypeUUIDListForCriteria(editSubjectCriteria, 'subjectTypeUuid');
+        const hasAllPrivileges = privilegeService.hasAllPrivileges();
+        return {
+            isItemActionable: (individual) => {
+                const subjectType = individual && individual.subjectType;
+                if (!subjectType || !subjectType.attendanceEnabled) return false;
+                return hasAllPrivileges || _.includes(allowedSubjectTypeUUIDs, subjectType.uuid);
+            },
+            disabledItemMessage: this.I18n.t("attendanceNotEnabledForSubjectType"),
+        };
+    }
+
     onCardPress(reportCardUUID) {
         this.dispatchAction(Actions.LOAD_INDICATOR, {loading: true});
         return setTimeout(() => this.dispatchAction(Actions.ON_CARD_PRESS, {
@@ -331,19 +348,29 @@ class CustomDashboardView extends AbstractComponent {
                     onSaveCallback,
                 }).to(viewNameMap['IndividualListView'], true);
             },
-            onCustomRecordCardResults: (results, status, viewName, approvalStatus_status, reportFilters, reportCard, displayName) => TypedTransition.from(this).with({
-                reportFilters: reportFilters,
-                approvalStatus_status: approvalStatus_status,
-                indicatorActionName: Actions.LOAD_INDICATOR,
-                headerTitle: _.truncate(displayName || reportCard.name, {'length': 30}) || status,
-                results: results,
-                totalSearchResultsCount: results.length,
-                reportCardUUID,
-                listType: status,
-                backFunction: this.onBackPress.bind(this),
-                onIndividualSelection: (source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid),
-                onApprovalSelection: (source, entity) => CHSNavigator.navigateToApprovalDetailsView(source, entity),
-            }).to(viewNameMap[viewName], true),
+            onCustomRecordCardResults: (results, status, viewName, approvalStatus_status, reportFilters, reportCard, displayName) => {
+                const isMarkAttendance = reportCard.isActionMarkAttendance();
+                const attendanceEligibility = isMarkAttendance ? this.attendanceEligibility() : null;
+                TypedTransition.from(this).with({
+                    reportFilters: reportFilters,
+                    approvalStatus_status: approvalStatus_status,
+                    indicatorActionName: Actions.LOAD_INDICATOR,
+                    headerTitle: _.truncate(displayName || reportCard.name, {'length': 30}) || status,
+                    results: results,
+                    totalSearchResultsCount: results.length,
+                    reportCardUUID,
+                    listType: status,
+                    backFunction: this.onBackPress.bind(this),
+                    onIndividualSelection: isMarkAttendance
+                        ? (source, individual) => CHSNavigator.navigateToMarkAttendance(
+                            source, individual, reportCard.actionDetailAttendanceType,
+                            moment().format("YYYY-MM-DD"), reportCard.onActionCompletion)
+                        : (source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid),
+                    isItemActionable: attendanceEligibility ? attendanceEligibility.isItemActionable : undefined,
+                    disabledItemMessage: attendanceEligibility ? attendanceEligibility.disabledItemMessage : undefined,
+                    onApprovalSelection: (source, entity) => CHSNavigator.navigateToApprovalDetailsView(source, entity),
+                }).to(viewNameMap[viewName], true);
+            },
             onFullyCustomCardPress: (reportCard, ruleInputArray, displayName) => {
                 this.dispatchAction(Actions.LOAD_INDICATOR, {loading: false});
                 TypedTransition.from(this).with({
