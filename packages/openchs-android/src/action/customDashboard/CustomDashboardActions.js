@@ -20,7 +20,7 @@ function findScheduledEncounters(enrolmentOrIndividual, encounterType) {
 function getEnrolmentOrIndividual(individual, reportCard) {
     const actionProgram = reportCard.actionDetailProgram;
     if (actionProgram) {
-        return _.find(individual.enrolments, e => !e.voided && e.program.uuid === actionProgram.uuid);
+        return _.find(individual.enrolments, e => !e.voided && e.program.uuid === actionProgram.uuid && e.isActive);
     }
     return individual;
 }
