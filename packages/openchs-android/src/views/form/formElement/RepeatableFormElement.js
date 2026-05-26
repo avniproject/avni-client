@@ -30,9 +30,11 @@ class RepeatableFormElement extends AbstractFormElement {
 
     constructor(props, context) {
         super(props, context);
+        this.rowKeys = [];
     }
 
     onAdd() {
+        this.rowKeys.push(_.uniqueId('rqg_'));
         this.dispatchAction(this.props.actionName, {
             action: RepeatableQuestionGroup.actions.add,
             parentFormElement: this.props.element,
@@ -41,6 +43,7 @@ class RepeatableFormElement extends AbstractFormElement {
     }
 
     onRemove(questionGroupIndex) {
+        this.rowKeys.splice(questionGroupIndex, 1);
         this.dispatchAction(this.props.actionName, {
             action: RepeatableQuestionGroup.actions.remove,
             parentFormElement: this.props.element,
@@ -63,8 +66,11 @@ class RepeatableFormElement extends AbstractFormElement {
 
     renderQuestionGroup(questionGroupIndex) {
         const isRemoveDisabled = this.props.value.size() <= 1;
+        if (!this.rowKeys[questionGroupIndex]) {
+            this.rowKeys[questionGroupIndex] = _.uniqueId('rqg_');
+        }
         return (
-            <Fragment key={questionGroupIndex}>
+            <Fragment key={this.rowKeys[questionGroupIndex]}>
                 {this.actionButton('minus-circle', () => this.onRemove(questionGroupIndex), isRemoveDisabled, Colors.NegativeActionButtonColor)}
                 <QuestionGroup
                     questionGroupIndex={questionGroupIndex}
