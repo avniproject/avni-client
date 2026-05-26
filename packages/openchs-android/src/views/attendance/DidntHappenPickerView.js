@@ -98,13 +98,13 @@ class DidntHappenPickerView extends AbstractComponent {
                     <ScrollView style={{padding: 16}}>
                         <Text style={styles.helpText}>{this.I18n.t("didntHappenWhenToUse")}</Text>
 
-                        <Text style={styles.fieldLabel}>{this.I18n.t("reasonRequired").toUpperCase()}</Text>
+                        <Text style={styles.fieldLabel}>{this.I18n.t("reasonRequired")}</Text>
                         <TouchableOpacity onPress={this._onPickReason} style={styles.picker}>
                             <Text style={styles.pickerText}>{this._selectedReasonName()}</Text>
                             <Text style={styles.pickerChevron}>▾</Text>
                         </TouchableOpacity>
 
-                        <Text style={styles.fieldLabel}>{this.I18n.t("notesOptional").toUpperCase()}</Text>
+                        <Text style={styles.fieldLabel}>{this.I18n.t("notesOptional")}</Text>
                         <TextInput
                             value={notes || ""}
                             onChangeText={this._onSetNotes}
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
     },
     actions: {flexDirection: 'row', justifyContent: 'space-between', marginTop: 28},
     cancelBtn: {paddingVertical: 10, paddingHorizontal: 16},
-    cancelText: {color: Colors.SubheaderColor || '#666', fontWeight: 'bold', fontSize: Styles.normalTextSize},
+    cancelText: {color: Colors.SubheaderColor || '#666', fontSize: Styles.normalTextSize},
     saveBtn: {
         backgroundColor: Colors.ActionButtonColor,
         paddingVertical: 10,

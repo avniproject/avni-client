@@ -1,13 +1,16 @@
 import React from "react";
-import {ToastAndroid, View} from "react-native";
+import {ScrollView, StyleSheet, Text, ToastAndroid, View} from "react-native";
 import PropTypes from "prop-types";
+import moment from "moment";
 import Path from "../../framework/routing/Path";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import AppHeader from "../common/AppHeader";
-import ActionSelector from "../common/ActionSelector";
+import DatePicker from "../primitives/DatePicker";
+import Colors from "../primitives/Colors";
+import Styles from "../primitives/Styles";
 import Reducers from "../../reducer";
 import {AttendanceSheetActions} from "../../action/attendance/AttendanceSheetActions";
 import HorizontalDateStrip from "./HorizontalDateStrip";
@@ -21,6 +24,10 @@ import FormShareActionSheetController from "../common/FormShareActionSheetContro
 import SessionShareService from "../../service/attendance/SessionShareService";
 import {Session} from "avni-models";
 import _ from "lodash";
+
+// Attendance can be captured/edited only within this many days before today;
+// older sessions are view-only. Future dates are blocked at the picker.
+const EDIT_WINDOW_DAYS = 30;
 
 @Path("/attendanceSheetView")
 class AttendanceSheetView extends AbstractComponent {
@@ -57,6 +64,12 @@ class AttendanceSheetView extends AbstractComponent {
         this.dispatchAction(AttendanceSheetActions.Names.SELECT_DATE, {date: dateKey});
     };
 
+    // Calendar picker hands back a JS Date; map to the local calendar day.
+    _onPickFromCalendar = (date) => {
+        if (!date) return;
+        this._onSelectDate(moment(date).format("YYYY-MM-DD"));
+    };
+
     _navigateWithType = (attendanceType, ViewClass) => {
         const status = this.state.selectedDate ? this.state.statusByDate.get(this.state.selectedDate) : null;
         TypedTransition.from(this)
@@ -83,32 +96,13 @@ class AttendanceSheetView extends AbstractComponent {
         }
     };
 
-    // ⋮ → ActionSelector → "Void" → VoidConfirmDialog → dispatch VOID. Three taps
-    // for a destructive cascade-void is intentional: the action sheet keeps the
-    // overflow menu extensible (future actions land here too), the confirm dialog
-    // forces a deliberate choice.
-    _onOverflow = (attendanceType, session) => {
-        this.setState({
-            overflowVisible: true,
-            overflowAttendanceType: attendanceType,
-            overflowSession: session,
-        });
-    };
-
-    _hideOverflow = () => this.setState({overflowVisible: false});
-
     // Bottom sheet payload carries the same {session, attendanceType, groupSubject}
     // triple to both the PDF and Text branches — Share Filled Forms uses the same
     // open(payload) pattern.
-    _onShareSelected = () => {
-        const target = {
-            session: this.state.overflowSession,
-            attendanceType: this.state.overflowAttendanceType,
-            groupSubject: this.props.groupSubject,
-        };
-        this.setState({overflowVisible: false}, () => {
-            if (this._shareSheet) this._shareSheet.open(target);
-        });
+    _onShare = (attendanceType, session) => {
+        if (!session) return;
+        const target = {session, attendanceType, groupSubject: this.props.groupSubject};
+        if (this._shareSheet) this._shareSheet.open(target);
     };
 
     _onSharePdf = (payload) => {
@@ -121,30 +115,24 @@ class AttendanceSheetView extends AbstractComponent {
         this.getService(SessionShareService).shareText(payload.session, payload.attendanceType, payload.groupSubject);
     };
 
-    _overflowActions = () => {
-        return [
-            {
-                label: this.I18n.t("shareActionLabel"),
-                fn: this._onShareSelected,
-            },
-            {
-                label: this.I18n.t("voidActionLabel"),
-                fn: () => this.setState({
-                    overflowVisible: false,
-                    voidConfirmVisible: true,
-                }),
-            },
-        ];
+    // Inline Void button → VoidConfirmDialog → dispatch VOID. The confirm dialog
+    // alone forces a deliberate choice for the destructive cascade-void.
+    _onVoid = (attendanceType, session) => {
+        this.setState({
+            voidConfirmVisible: true,
+            pendingVoidAttendanceType: attendanceType,
+            pendingVoidSession: session,
+        });
     };
 
     _onVoidCancel = () => this.setState({
         voidConfirmVisible: false,
-        overflowAttendanceType: null,
-        overflowSession: null,
+        pendingVoidAttendanceType: null,
+        pendingVoidSession: null,
     });
 
     _onVoidConfirm = () => {
-        const session = this.state.overflowSession;
+        const session = this.state.pendingVoidSession;
         this.setState({voidConfirmVisible: false});
         if (!session || !session.uuid) return;
         this.dispatchAction(AttendanceSheetActions.Names.VOID, {sessionUuid: session.uuid});
@@ -197,19 +185,36 @@ class AttendanceSheetView extends AbstractComponent {
         const markAnywayAcknowledged = this.state.markAnywayAcknowledgedDate === selectedDate
             || hasAnySavedSessionForDate;
         const isHolidayLike = isHolidayLikeRaw && !markAnywayAcknowledged;
-        const visibleTypes = isHolidayLike
-            ? (attendanceTypes || []).filter(at => {
-                const info = sessionByType.get(at.uuid);
-                return info && info.session;
-            })
-            : (attendanceTypes || []);
+        // Sessions older than EDIT_WINDOW_DAYS are view-only; future dates can't be
+        // reached (the picker caps at today). Outside the window we show only the
+        // attendance types that already have a saved session, for read-only viewing.
+        const todayKey = moment().format("YYYY-MM-DD");
+        const daysAgo = selectedDate
+            ? moment.utc(todayKey, "YYYY-MM-DD").diff(moment.utc(selectedDate, "YYYY-MM-DD"), "days")
+            : 0;
+        const editable = daysAgo >= 0 && daysAgo <= EDIT_WINDOW_DAYS;
+        const savedTypes = (attendanceTypes || []).filter(at => {
+            const info = sessionByType.get(at.uuid);
+            return info && info.session;
+        });
+        const visibleTypes = (!editable || isHolidayLike) ? savedTypes : (attendanceTypes || []);
 
         return (
             <CHSContainer>
                 <AppHeader title={this.I18n.t("attendance") + " · " + groupSubject.nameString}/>
                 <CHSContent>
                     {selectedDate && (
-                        <View>
+                        <ScrollView keyboardShouldPersistTaps="handled">
+                            <View style={styles.pickerRow}>
+                                <Text style={styles.pickerLabel}>{this.I18n.t("jumpToDate")}</Text>
+                                <DatePicker
+                                    nonRemovable
+                                    dateValue={moment(selectedDate, "YYYY-MM-DD").toDate()}
+                                    maximumDate={new Date()}
+                                    onChange={this._onPickFromCalendar}
+                                    overridingStyle={styles.pickerValue}
+                                />
+                            </View>
                             <HorizontalDateStrip
                                 dates={stripDates}
                                 statusByDate={statusByDate}
@@ -220,17 +225,24 @@ class AttendanceSheetView extends AbstractComponent {
                                 selectedDate={selectedDate}
                                 dayType={dayType}
                                 marker={selectedStatus && selectedStatus.marker}
-                                onMarkAnyway={markAnywayAcknowledged ? null : this._onMarkAnyway}
+                                onMarkAnyway={(markAnywayAcknowledged || !editable) ? null : this._onMarkAnyway}
                             />
+                            {!editable && (
+                                <Text style={styles.viewOnlyNote}>
+                                    {this.I18n.t("attendanceEditWindowClosed", {days: EDIT_WINDOW_DAYS})}
+                                </Text>
+                            )}
                             <AttendanceTypePicker
                                 attendanceTypes={visibleTypes}
                                 sessionByType={sessionByType}
+                                editable={editable}
                                 onMark={this._onMark}
                                 onDidntHappen={this._onDidntHappen}
                                 onEdit={this._onEdit}
-                                onOverflow={this._onOverflow}
+                                onShare={this._onShare}
+                                onVoid={this._onVoid}
                             />
-                        </View>
+                        </ScrollView>
                     )}
                     <MarkAnywayConfirmDialog
                         visible={!!this.state.markAnywayConfirmVisible}
@@ -238,15 +250,9 @@ class AttendanceSheetView extends AbstractComponent {
                         onCancel={this._onMarkAnywayCancel}
                         onContinue={this._onMarkAnywayContinue}
                     />
-                    <ActionSelector
-                        title={this.state.overflowAttendanceType ? this.state.overflowAttendanceType.name : ""}
-                        visible={!!this.state.overflowVisible}
-                        hide={this._hideOverflow}
-                        actions={this._overflowActions()}
-                    />
                     <VoidConfirmDialog
                         visible={!!this.state.voidConfirmVisible}
-                        attendanceTypeName={this.state.overflowAttendanceType && this.state.overflowAttendanceType.name}
+                        attendanceTypeName={this.state.pendingVoidAttendanceType && this.state.pendingVoidAttendanceType.name}
                         onCancel={this._onVoidCancel}
                         onConfirm={this._onVoidConfirm}
                     />
@@ -260,5 +266,23 @@ class AttendanceSheetView extends AbstractComponent {
         );
     }
 }
+
+const styles = StyleSheet.create({
+    pickerRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingTop: 6,
+    },
+    pickerLabel: {fontSize: Styles.smallTextSize, color: Colors.SubheaderColor || '#666', marginRight: 8},
+    pickerValue: {fontSize: Styles.normalTextSize, color: Colors.ActionButtonColor},
+    viewOnlyNote: {
+        fontSize: Styles.smallTextSize,
+        color: Colors.SubheaderColor || '#666',
+        fontStyle: 'italic',
+        paddingHorizontal: 16,
+        paddingVertical: 4,
+    },
+});
 
 export default AttendanceSheetView;

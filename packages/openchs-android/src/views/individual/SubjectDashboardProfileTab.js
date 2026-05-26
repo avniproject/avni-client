@@ -214,7 +214,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                             {this.I18n.t("attendanceCardCaption", {typeCount: attendanceTypes.length})}
                         </Text>
                     </View>
-                    <Text style={{fontSize: Fonts.Medium, color: Colors.ActionButtonColor, fontWeight: 'bold'}}>
+                    <Text style={{fontSize: Fonts.Medium, color: Colors.ActionButtonColor}}>
                         {this.I18n.t("attendanceCardCta")} →
                     </Text>
                 </TouchableOpacity>

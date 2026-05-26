@@ -56,7 +56,7 @@ class DayStatusBanner extends AbstractComponent {
                     {isHolidayLike && !!onMarkAnyway && (
                         <TouchableOpacity onPress={onMarkAnyway} style={styles.markAnywayCta}>
                             <Text style={styles.markAnywayText}>
-                                {this.I18n.t("markAnyway").toUpperCase()} →
+                                {this.I18n.t("markAnyway")} →
                             </Text>
                         </TouchableOpacity>
                     )}
@@ -69,24 +69,24 @@ class DayStatusBanner extends AbstractComponent {
 const styles = StyleSheet.create({
     retroBanner: {
         backgroundColor: '#FFF3E0',
-        paddingVertical: 6,
+        paddingVertical: 4,
         paddingHorizontal: 12,
     },
     retroText: {color: '#E65100', fontSize: Styles.smallTextSize},
     dayBanner: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 10,
+        paddingVertical: 8,
         paddingHorizontal: 16,
         backgroundColor: Colors.WhiteContentBackground,
         borderBottomWidth: 1,
         borderBottomColor: Colors.InputBorderNormal,
     },
     dayBannerOff: {backgroundColor: Colors.GreyBackground},
-    dateText: {fontSize: Styles.titleSize || 16, fontWeight: 'bold', color: Colors.InputNormal},
+    dateText: {fontSize: Styles.normalTextSize, fontWeight: '600', color: Colors.InputNormal},
     statusText: {fontSize: Styles.smallTextSize, color: Colors.SubheaderColor || '#666', marginTop: 2},
     markAnywayCta: {paddingVertical: 6, paddingHorizontal: 10},
-    markAnywayText: {color: Colors.ActionButtonColor, fontWeight: 'bold', fontSize: Styles.smallTextSize},
+    markAnywayText: {color: Colors.ActionButtonColor, fontSize: Styles.smallTextSize},
 });
 
 export default DayStatusBanner;

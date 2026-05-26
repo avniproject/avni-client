@@ -38,7 +38,19 @@ function getServerStatusMessageKey(serverError) {
 }
 
 const knownServerStatusMessages = ['serverUnavailableTryLater'];
-const knownServerExceptionMessages = ['NoCatchmentFound', 'CatchmentTooLarge'];
+const knownServerExceptionMessages = ['NoCatchmentFound', 'CatchmentTooLarge', 'FutureScheduledDateNotAllowed'];
+
+// Server-typed errors return a JSON body like {"error": "FutureScheduledDateNotAllowed", ...};
+// older paths return the error name as plain text. Prefer the JSON shape and fall back to the raw
+// text on parse failure so we stay backwards-compatible.
+function extractErrorKey(responseBody) {
+    if (!_.isString(responseBody)) return responseBody;
+    try {
+        const parsed = JSON.parse(responseBody);
+        if (parsed && _.isString(parsed.error)) return parsed.error;
+    } catch (e) { /* not JSON; fall through */ }
+    return responseBody;
+}
 
 export function getAvniError(serverError, i18n) {
     const statusCode = getStatusCode(serverError);
@@ -46,12 +58,13 @@ export function getAvniError(serverError, i18n) {
     const avniError = new AvniError();
     const serverErrorPromise = serverError.response.text() || Promise.resolve(i18n.t("unknownServerErrorReason"));
     return serverErrorPromise.then((errorMessage) => {
+        const errorMessageKey = extractErrorKey(errorMessage);
         const statusMessageKey = getServerStatusMessageKey(serverError);
         if (_.includes(knownServerStatusMessages, statusMessageKey)) {
             avniError.userMessage = `${i18n.t(statusMessageKey)}`;
             avniError.showOnlyUserMessage = true;
-        } else if (_.includes(knownServerExceptionMessages, errorMessage)) {
-            avniError.userMessage = `${i18n.t(ErrorCodes[errorMessage] || errorMessage)}`;
+        } else if (_.includes(knownServerExceptionMessages, errorMessageKey)) {
+            avniError.userMessage = `${i18n.t(ErrorCodes[errorMessageKey] || errorMessageKey)}`;
             avniError.showOnlyUserMessage = true;
         } else {
             avniError.userMessage = `${i18n.t(statusMessageKey)}. ${errorCode}. ${errorMessage}`;
