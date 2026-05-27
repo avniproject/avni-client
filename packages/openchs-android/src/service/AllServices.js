@@ -133,6 +133,7 @@ import './PerformanceBenchmarkService';
 import './AnonymizeRealmService';
 import './AppInfoUploadService';
 import './BackupRestoreRealmService'; // Note: File named BackupRestoreRealmService.js, class is BackupRestoreRealmService
+import './BackupRestoreSqliteService';
 import './BeneficiaryModePinService';
 import './CallService';
 import './EncryptionService';

@@ -81,6 +81,16 @@ class GlobalContext {
         const restoreRealmService = this.beanRegistry.getService("backupRestoreRealmService");
         restoreRealmService.subscribeOnRestore(async () => await this.onDatabaseRecreated(realmFactory));
         restoreRealmService.subscribeOnRestoreFailure(async () => await this.reinitializeDatabase(realmFactory));
+
+        // SQLite fast-sync apply: on success, reopen the (now-replaced) SQLite
+        // file and flip the bean registry to SQLite as the primary backend.
+        // On failure, just reinitialize (BackupRestoreSqliteService has already
+        // restored the .backup file before invoking this callback).
+        const restoreSqliteService = this.beanRegistry.getService("backupRestoreSqliteService");
+        if (restoreSqliteService) {
+            restoreSqliteService.subscribeOnRestore(async () => await this.onSqliteDatabaseRestored(realmFactory));
+            restoreSqliteService.subscribeOnRestoreFailure(async () => await this.reinitializeDatabase(realmFactory));
+        }
         await initAnalytics(this.db);
 
         // After services are wired up, if a migration was interrupted previously,
@@ -119,6 +129,12 @@ class GlobalContext {
 
     async onDatabaseRecreated(realmFactory) {
         this.db.close();
+        await this.reinitializeDatabase(realmFactory);
+    }
+
+    async onSqliteDatabaseRestored(realmFactory) {
+        this._activeBackend = BACKENDS.SQLITE;
+        General.logInfo("GlobalContext", "SQLite snapshot restored — switching active backend to SQLite");
         await this.reinitializeDatabase(realmFactory);
     }
 

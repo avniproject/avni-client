@@ -11,6 +11,7 @@
 import {EntityMappingConfig} from "openchs-models";
 import EncryptionService from "../../service/EncryptionService";
 import _ from "lodash";
+import fs from "react-native-fs";
 import MigrationRunner from "./MigrationRunner";
 import SchemaGenerator from "./SchemaGenerator";
 import SqliteProxy from "./SqliteProxy";
@@ -22,12 +23,18 @@ import General from "../../utility/General";
 import {journal, sqlFiles} from "./migrations/drizzleMigrations";
 
 const DB_NAME = "avni_sqlite.db";
+// Pin the SQLite file under DocumentDirectoryPath so BackupRestoreSqliteService
+// can fs.copyFile / fs.unlink it during fast-sync restore. op-sqlite's default
+// Android location is the platform databases dir, which react-native-fs can't
+// access — pinning to filesDir keeps both libraries aligned.
+const DB_LOCATION = fs.DocumentDirectoryPath;
+const DB_FULL_PATH = `${DB_LOCATION}/${DB_NAME}`;
 
 class SqliteFactory {
     static async createSqliteDb() {
         const {open} = require("@op-engineering/op-sqlite");
 
-        const dbOptions = {name: DB_NAME};
+        const dbOptions = {name: DB_NAME, location: DB_LOCATION};
 
         const encryptionKey = await EncryptionService.getEncryptionKey();
         if (!_.isNil(encryptionKey)) {
@@ -108,6 +115,14 @@ class SqliteFactory {
 
     static getDbPath() {
         return DB_NAME;
+    }
+
+    static getDbFullPath() {
+        return DB_FULL_PATH;
+    }
+
+    static getDbLocation() {
+        return DB_LOCATION;
     }
 }
 

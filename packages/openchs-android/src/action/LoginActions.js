@@ -5,10 +5,30 @@ import UserInfoService from "../service/UserInfoService";
 import _ from 'lodash';
 import { firebaseEvents, logEvent } from "../utility/Analytics";
 import BackupRestoreRealmService from "../service/BackupRestoreRealmService";
+import BackupRestoreSqliteService from "../service/BackupRestoreSqliteService";
 import SettingsService from "../service/SettingsService";
 import { IDP_PROVIDERS } from "../model/IdpProviders";
 
 function restoreDump(context, action, source, successCb) {
+    const sqliteService = context.get(BackupRestoreSqliteService);
+    sqliteService.restore((percentProgress, message, failed = false, error) => {
+        if (failed) {
+            action.checkForRetry(error, source);
+            return;
+        }
+        if (percentProgress === 100) {
+            if (message === "restoreNoSqliteDump") {
+                restoreRealmDump(context, action, source, successCb);
+            } else {
+                successCb(source);
+            }
+            return;
+        }
+        action.onLoginProgress(percentProgress, message);
+    });
+}
+
+function restoreRealmDump(context, action, source, successCb) {
     const restoreService = context.get(BackupRestoreRealmService);
     restoreService.restore((percentProgress, message, failed = false, error) => {
         if (failed) action.checkForRetry(error, source);
