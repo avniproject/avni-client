@@ -1,5 +1,5 @@
 import _ from "lodash";
-import {Concept, Duration, FormElementGroup, Observation, ValidationResult} from 'openchs-models';
+import {Concept, Duration, FormElementGroup, Observation, RepeatableQuestionGroup, ValidationResult} from 'openchs-models';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 
 class ObservationsHolderActions {
@@ -253,24 +253,43 @@ class ObservationsHolderActions {
         const dataType = action.formElement.concept.datatype;
         if (dataType === Concept.dataType.Numeric && !_.isEmpty(action.value) && _.isNaN(_.toNumber(action.value)))
             return newState;
-        let value = !_.isEmpty(action.value) && action.convertToNumber ? _.toNumber(action.value) : action.value || action.answerUUID;
-        if (dataType === Concept.dataType.Duration) {
-            value = action.compositeDuration;
-        }
-        if (dataType === Concept.dataType.Date && !_.isNil(action.formElement.durationOptions)) {
-            if (_.isNil(action.duration)) {
-                value = action.value;
-            } else {
-                const duration = new Duration(action.duration.durationValue, action.duration.durationUnit);
-                value = duration.dateInPastBasedOnToday(state.getEffectiveDataEntryDate());
-                newState.formElementsUserState[`${action.formElement.uuid}-${action.questionGroupIndex}`] = {durationUnit: action.duration.durationUnit};
+
+        const isStructuralAction = action.action === RepeatableQuestionGroup.actions.add
+            || action.action === RepeatableQuestionGroup.actions.remove;
+        const answerUUIDs = _.isArray(action.answerUUIDs) ? action.answerUUIDs : null;
+
+        let value;
+        if (answerUUIDs) {
+            // Select/Unselect-all inside an RQG row: toggle each uuid against the row's child observation.
+            answerUUIDs.forEach((uuid) => {
+                newState.observationsHolder.updateRepeatableGroupQuestion(
+                    action.questionGroupIndex, action.parentFormElement, action.formElement, uuid
+                );
+            });
+            const postToggleObs = newState.observationsHolder.findQuestionGroupObservation(
+                action.formElement.concept, action.parentFormElement, action.questionGroupIndex
+            );
+            value = postToggleObs ? postToggleObs.getValueWrapper() : null;
+        } else {
+            value = !_.isEmpty(action.value) && action.convertToNumber ? _.toNumber(action.value) : action.value || action.answerUUID;
+            if (dataType === Concept.dataType.Duration) {
+                value = action.compositeDuration;
             }
+            if (dataType === Concept.dataType.Date && !_.isNil(action.formElement.durationOptions)) {
+                if (_.isNil(action.duration)) {
+                    value = action.value;
+                } else {
+                    const duration = new Duration(action.duration.durationValue, action.duration.durationUnit);
+                    value = duration.dateInPastBasedOnToday(state.getEffectiveDataEntryDate());
+                    newState.formElementsUserState[`${action.formElement.uuid}-${action.questionGroupIndex}`] = {durationUnit: action.duration.durationUnit};
+                }
+            }
+            newState.observationsHolder.updateRepeatableGroupQuestion(action.questionGroupIndex, action.parentFormElement, action.formElement, value, action.action);
         }
-        newState.observationsHolder.updateRepeatableGroupQuestion(action.questionGroupIndex, action.parentFormElement, action.formElement, value, action.action);
-        return ObservationsHolderActions.handleFormElementStatuses(newState, context, action, value);
+        return ObservationsHolderActions.handleFormElementStatuses(newState, context, action, value, isStructuralAction);
     }
 
-    static handleFormElementStatuses(newState, context, action, value) {
+    static handleFormElementStatuses(newState, context, action, value, skipElementValidation = false) {
         let formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
         if (ObservationsHolderActions.hasQuestionGroupWithValueInElementStatus(formElementStatuses, action.formElement.formElementGroup.getFormElements())) {
             formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
@@ -279,12 +298,19 @@ class ObservationsHolderActions {
         const hiddenFormElementStatus = _.filter(formElementStatuses, (form) => form.visibility === false);
         newState.observationsHolder.updatePrimitiveCodedObs(newState.filteredFormElements, formElementStatuses);
         newState.removeHiddenFormValidationResults(hiddenFormElementStatus);
-        let validationResult = action.formElement.validate(value);
+        let validationResult;
+        if (skipElementValidation) {
+            // add/remove a question-group row carries no value to validate against the parent RQG.
+            // Emit a success so any prior "empty" error on the parent is cleared instead of preserved.
+            validationResult = ValidationResult.successful(action.formElement.uuid);
+        } else {
+            validationResult = action.formElement.validate(value);
+        }
         validationResult.addQuestionGroupIndex(action.questionGroupIndex);
-        if (action.validationResult && validationResult.success) {
+        if (!skipElementValidation && action.validationResult && validationResult.success) {
             validationResult = action.validationResult;
         }
-        if (action.formElement.isUnique && !_.isNil(value) && validationResult.success) {
+        if (!skipElementValidation && action.formElement.isUnique && !_.isNil(value) && validationResult.success) {
             validationResult = ObservationsHolderActions._ensureValueIsUniqueInTheDatabase(newState, value, action.formElement, context);
         }
         newState.handleValidationResults(ObservationsHolderActions.addPreviousValidationErrors(ruleValidationErrors, validationResult, newState.validationResults), context);
