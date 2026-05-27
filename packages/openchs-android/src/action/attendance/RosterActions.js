@@ -50,7 +50,7 @@ export class RosterActions {
                 status: prior ? prior.status : AttendanceRecord.status.PRESENT,
                 reasonConceptUUID: prior ? prior.reasonConceptUUID : null,
             };
-        });
+        }).sort((a, b) => a.name.localeCompare(b.name));
 
         const absenceReasonConceptUUID = attendanceType.getAbsenceReasonConceptUUID();
         const absenceReasonAnswers = absenceReasonConceptUUID
