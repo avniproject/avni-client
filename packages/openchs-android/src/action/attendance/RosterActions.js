@@ -49,6 +49,8 @@ export class RosterActions {
                 name: gs.memberSubject.nameString,
                 status: prior ? prior.status : AttendanceRecord.status.PRESENT,
                 reasonConceptUUID: prior ? prior.reasonConceptUUID : null,
+                needsFollowUp: prior ? !!prior.needsFollowUp : false,
+                followUpEncounterUUID: prior ? (prior.followUpEncounterUUID || null) : null,
             };
         }).sort((a, b) => a.name.localeCompare(b.name));
 
@@ -94,10 +96,12 @@ export class RosterActions {
             const flipped = r.status === AttendanceRecord.status.PRESENT
                 ? AttendanceRecord.status.ABSENT
                 : AttendanceRecord.status.PRESENT;
+            const becamePresent = flipped === AttendanceRecord.status.PRESENT;
             return {
                 ...r,
                 status: flipped,
-                reasonConceptUUID: flipped === AttendanceRecord.status.PRESENT ? null : r.reasonConceptUUID,
+                reasonConceptUUID: becamePresent ? null : r.reasonConceptUUID,
+                needsFollowUp: becamePresent ? false : r.needsFollowUp,
             };
         });
         return {...state, roster};
@@ -107,6 +111,15 @@ export class RosterActions {
         const roster = state.roster.map(r =>
             r.subjectUUID === action.subjectUUID
                 ? {...r, reasonConceptUUID: action.reasonConceptUUID}
+                : r
+        );
+        return {...state, roster};
+    }
+
+    static onToggleNeedsFollowUp(state, action) {
+        const roster = state.roster.map(r =>
+            r.subjectUUID === action.subjectUUID
+                ? {...r, needsFollowUp: !r.needsFollowUp}
                 : r
         );
         return {...state, roster};
@@ -125,6 +138,7 @@ export class RosterActions {
             ...r,
             status: AttendanceRecord.status.PRESENT,
             reasonConceptUUID: null,
+            needsFollowUp: false,
         }));
         return {...state, roster};
     }
@@ -167,20 +181,23 @@ export class RosterActions {
         );
         const attendanceRecords = session.markHeld(rosterByStudentUUID, sessionReasonConceptUUID || null);
         attendanceRecords.forEach(r => {
+            // markHeld does not propagate the needsFollowUp flag from the roster
+            // entry; copy it onto the record so autoCreateFollowUps/voidStale see it.
+            const rosterEntry = rosterByStudentUUID[r.subjectUUID];
+            r.needsFollowUp = !!(rosterEntry && rosterEntry.needsFollowUp);
+
             const prior = priorByStudent[r.subjectUUID];
             if (!prior) return;
             r.uuid = prior.uuid;
-            // Preserve the follow-up encounter link only when BOTH the prior and the
-            // new state warrant a follow-up (Absent + no reason). Otherwise:
+            // Preserve the follow-up encounter link only when BOTH prior and new
+            // states warrant a follow-up (Absent + needsFollowUp). Otherwise:
             //   - prior warranted, new doesn't → voidStaleFollowUps voids the prior
-            //     encounter; carrying the link forward would leave a dangling reference
-            //     pointing at a voided row.
-            //   - prior didn't warrant (PRESENT / Absent-with-reason) → any link on
-            //     the prior is already dangling from an earlier buggy save; don't
-            //     propagate it, otherwise autoCreateFollowUps' skip-if-linked guard
-            //     suppresses a legitimate new follow-up.
-            const newWarrants = r.status === AttendanceRecord.status.ABSENT && _.isNil(r.reasonConceptUUID);
-            const priorWarranted = prior.status === AttendanceRecord.status.ABSENT && _.isNil(prior.reasonConceptUUID);
+            //     encounter; carrying the link forward would leave a dangling reference.
+            //   - prior didn't warrant → any link on the prior is already dangling;
+            //     don't propagate it, otherwise autoCreateFollowUps' skip-if-linked
+            //     guard suppresses a legitimate new follow-up.
+            const newWarrants = r.status === AttendanceRecord.status.ABSENT && r.needsFollowUp;
+            const priorWarranted = prior.status === AttendanceRecord.status.ABSENT && !!prior.needsFollowUp;
             if (newWarrants && priorWarranted) {
                 r.followUpEncounterUUID = prior.followUpEncounterUUID || null;
             }
@@ -277,6 +294,7 @@ export class RosterActions {
             status: record.status,
             reasonConceptUUID: record.reasonConceptUUID || null,
             followUpEncounterUUID: record.followUpEncounterUUID || null,
+            needsFollowUp: !!record.needsFollowUp,
         };
     }
 
@@ -310,6 +328,7 @@ RosterActions.Names = {
     ON_LOAD: `${Prefix}.ON_LOAD`,
     TOGGLE_PRESENCE: `${Prefix}.TOGGLE_PRESENCE`,
     SET_REASON: `${Prefix}.SET_REASON`,
+    TOGGLE_NEEDS_FOLLOW_UP: `${Prefix}.TOGGLE_NEEDS_FOLLOW_UP`,
     SET_SESSION_REASON: `${Prefix}.SET_SESSION_REASON`,
     MARK_ALL_ABSENT: `${Prefix}.MARK_ALL_ABSENT`,
     MARK_ALL_PRESENT: `${Prefix}.MARK_ALL_PRESENT`,
@@ -321,6 +340,7 @@ RosterActions.Map = new Map([
     [RosterActions.Names.ON_LOAD, RosterActions.onLoad],
     [RosterActions.Names.TOGGLE_PRESENCE, RosterActions.onTogglePresence],
     [RosterActions.Names.SET_REASON, RosterActions.onSetReason],
+    [RosterActions.Names.TOGGLE_NEEDS_FOLLOW_UP, RosterActions.onToggleNeedsFollowUp],
     [RosterActions.Names.SET_SESSION_REASON, RosterActions.onSetSessionReason],
     [RosterActions.Names.MARK_ALL_ABSENT, RosterActions.onMarkAllAbsent],
     [RosterActions.Names.MARK_ALL_PRESENT, RosterActions.onMarkAllPresent],

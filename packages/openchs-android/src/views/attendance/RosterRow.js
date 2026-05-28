@@ -9,15 +9,16 @@ import Styles from "../primitives/Styles";
 class RosterRow extends AbstractComponent {
     static propTypes = {
         index: PropTypes.number.isRequired,
-        // {subjectUUID, name, status, reasonConceptUUID}
+        // {subjectUUID, name, status, reasonConceptUUID, needsFollowUp}
         row: PropTypes.object.isRequired,
         // [{uuid, name}]
         reasonAnswers: PropTypes.array.isRequired,
-        // null if the AttendanceType has no followUpEncounterType (so blank
-        // reasons don't warn about a follow-up that won't actually be created).
+        // null if the AttendanceType has no followUpEncounterType (so the
+        // checkbox is hidden when no follow-up encounter can be created).
         followUpEncounterTypeUuid: PropTypes.string,
         onToggle: PropTypes.func.isRequired,
         onPickReason: PropTypes.func.isRequired,
+        onToggleNeedsFollowUp: PropTypes.func.isRequired,
     };
 
     constructor(props, context) {
@@ -32,10 +33,10 @@ class RosterRow extends AbstractComponent {
     }
 
     render() {
-        const {row, index, followUpEncounterTypeUuid, onToggle, onPickReason} = this.props;
+        const {row, index, followUpEncounterTypeUuid, onToggle, onPickReason, onToggleNeedsFollowUp} = this.props;
         const isAbsent = row.status === AttendanceRecord.status.ABSENT;
-        const isBlankReason = isAbsent && !row.reasonConceptUUID;
-        const showFollowUpWarning = isBlankReason && !!followUpEncounterTypeUuid;
+        const showNeedsFollowUp = isAbsent && !!followUpEncounterTypeUuid;
+        const checked = !!row.needsFollowUp;
 
         return (
             <View style={styles.row}>
@@ -57,8 +58,21 @@ class RosterRow extends AbstractComponent {
                             <Text style={styles.reasonPickerText}>{this._reasonLabel()}</Text>
                             <Text style={styles.reasonChevron}>▾</Text>
                         </TouchableOpacity>
-                        {showFollowUpWarning && (
-                            <Text style={styles.warning}>⚠ {this.I18n.t("reasonBlankWarning")}</Text>
+                        {showNeedsFollowUp && (
+                            <TouchableOpacity
+                                onPress={() => onToggleNeedsFollowUp(row.subjectUUID)}
+                                style={styles.followUpRow}
+                            >
+                                <View style={[styles.checkbox, checked && styles.checkboxChecked]}>
+                                    {checked && <Text style={styles.checkboxTick}>✓</Text>}
+                                </View>
+                                <Text style={styles.followUpLabel}>{this.I18n.t("needsFollowUp")}</Text>
+                                {row.followUpEncounterUUID && (
+                                    <View style={styles.scheduledPill}>
+                                        <Text style={styles.scheduledPillText}>{this.I18n.t("followUpScheduled")}</Text>
+                                    </View>
+                                )}
+                            </TouchableOpacity>
                         )}
                     </View>
                 )}
@@ -98,7 +112,28 @@ const styles = StyleSheet.create({
     },
     reasonPickerText: {flex: 1, fontSize: Styles.normalTextSize, color: Colors.InputNormal},
     reasonChevron: {fontSize: 16, color: Colors.SubheaderColor || '#666'},
-    warning: {fontSize: Styles.smallTextSize, color: '#E65100', marginTop: 6},
+    followUpRow: {flexDirection: 'row', alignItems: 'center', marginTop: 10},
+    checkbox: {
+        width: 20,
+        height: 20,
+        borderRadius: 3,
+        borderWidth: 1.5,
+        borderColor: Colors.SubheaderColor || '#666',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: Colors.WhiteContentBackground,
+    },
+    checkboxChecked: {backgroundColor: Colors.ActionButtonColor, borderColor: Colors.ActionButtonColor},
+    checkboxTick: {color: Colors.WhiteContentBackground, fontSize: 14, lineHeight: 16, fontWeight: 'bold'},
+    followUpLabel: {fontSize: Styles.normalTextSize, color: Colors.InputNormal, marginLeft: 8},
+    scheduledPill: {
+        marginLeft: 8,
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 10,
+        backgroundColor: '#E3F2FD',
+    },
+    scheduledPillText: {fontSize: Styles.smallTextSize, color: '#1565C0'},
 });
 
 export default RosterRow;
