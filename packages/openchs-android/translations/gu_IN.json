@@ -257,7 +257,7 @@
     "typeRowEdit": "સંપાદન",
     "typeRowView": "જુઓ",
     "typeRowNoRecords": "કોઈ હાજરી રેકોર્ડ નથી.",
-    "typeRowHeldSummary": "થયું · {{total}} માંથી {{present}} હાજર",
+    "typeRowHeldSummary": "{{total}} માંથી {{present}} હાજર",
     "typeRowDidntHappenReason": "થયું નહીં · {{reason}}",
     "tapToTogglePrompt": "હાજર → ગેરહાજર બદલવા માટે ટેપ કરો",
     "markAllAbsent": "બધાને ગેરહાજર ચિહ્નિત કરો",

@@ -254,7 +254,7 @@
     "typeRowEdit": "ಸಂಪಾದಿಸಿ",
     "typeRowView": "ವೀಕ್ಷಿಸಿ",
     "typeRowNoRecords": "ಹಾಜರಾತಿ ದಾಖಲೆಗಳಿಲ್ಲ.",
-    "typeRowHeldSummary": "ನಡೆಯಿತು · {{total}} ರಲ್ಲಿ {{present}} ಹಾಜರ",
+    "typeRowHeldSummary": "{{total}} ರಲ್ಲಿ {{present}} ಹಾಜರ",
     "typeRowDidntHappenReason": "ನಡೆಯಲಿಲ್ಲ · {{reason}}",
     "tapToTogglePrompt": "ಹಾಜರ → ಗೈರು ಬದಲಾಯಿಸಲು ಟ್ಯಾಪ್ ಮಾಡಿ",
     "markAllAbsent": "ಎಲ್ಲರನ್ನೂ ಗೈರು ಗುರುತಿಸಿ",

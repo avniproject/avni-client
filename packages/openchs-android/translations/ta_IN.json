@@ -256,7 +256,7 @@
     "typeRowEdit": "திருத்து",
     "typeRowView": "காண்க",
     "typeRowNoRecords": "வருகைப் பதிவுகள் இல்லை.",
-    "typeRowHeldSummary": "நடைபெற்றது · {{total}} இல் {{present}} வருகை",
+    "typeRowHeldSummary": "{{total}} இல் {{present}} வருகை",
     "typeRowDidntHappenReason": "நடைபெறவில்லை · {{reason}}",
     "tapToTogglePrompt": "வருகை → வராமை மாற்ற தட்டவும்",
     "markAllAbsent": "அனைவரையும் வராமை குறி",

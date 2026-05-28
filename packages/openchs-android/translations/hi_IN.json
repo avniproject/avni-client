@@ -262,7 +262,7 @@
     "typeRowEdit": "संपादित करें",
     "typeRowView": "देखें",
     "typeRowNoRecords": "कोई उपस्थिति रिकॉर्ड नहीं।",
-    "typeRowHeldSummary": "हुआ · {{total}} में से {{present}} उपस्थित",
+    "typeRowHeldSummary": "{{total}} में से {{present}} उपस्थित",
     "typeRowDidntHappenReason": "नहीं हुआ · {{reason}}",
     "tapToTogglePrompt": "उपस्थित → अनुपस्थित बदलने के लिए टैप करें",
     "markAllAbsent": "सभी को अनुपस्थित चिह्नित करें",

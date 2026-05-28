@@ -214,7 +214,7 @@
     "typeRowEdit": "संपादन",
     "typeRowView": "पाहा",
     "typeRowNoRecords": "उपस्थिती नोंदी नाहीत.",
-    "typeRowHeldSummary": "झाले · {{total}} पैकी {{present}} उपस्थित",
+    "typeRowHeldSummary": "{{total}} पैकी {{present}} उपस्थित",
     "typeRowDidntHappenReason": "झाले नाही · {{reason}}",
     "tapToTogglePrompt": "उपस्थित → अनुपस्थित बदलण्यासाठी टॅप करा",
     "markAllAbsent": "सर्वांना अनुपस्थित चिन्हांकित करा",
