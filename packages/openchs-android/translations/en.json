@@ -263,7 +263,7 @@
     "typeRowEdit": "Edit",
     "typeRowView": "View",
     "typeRowNoRecords": "No attendance records.",
-    "typeRowHeldSummary": "Held · {{present}} of {{total}} present",
+    "typeRowHeldSummary": "{{present}} of {{total}} present",
     "typeRowDidntHappenReason": "Didn't happen · {{reason}}",
     "tapToTogglePrompt": "Tap to toggle Present → Absent",
     "markAllAbsent": "Mark all absent",
