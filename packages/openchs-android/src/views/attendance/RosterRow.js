@@ -9,7 +9,7 @@ import Styles from "../primitives/Styles";
 class RosterRow extends AbstractComponent {
     static propTypes = {
         index: PropTypes.number.isRequired,
-        // {subjectUUID, name, status, reasonConceptUUID, needsFollowUp}
+        // {subjectUUID, name, status, reasonConceptUUIDs, needsFollowUp}
         row: PropTypes.object.isRequired,
         // [{uuid, name}]
         reasonAnswers: PropTypes.array.isRequired,
@@ -17,7 +17,7 @@ class RosterRow extends AbstractComponent {
         // checkbox is hidden when no follow-up encounter can be created).
         followUpEncounterTypeUuid: PropTypes.string,
         onToggle: PropTypes.func.isRequired,
-        onPickReason: PropTypes.func.isRequired,
+        onToggleReason: PropTypes.func.isRequired,
         onToggleNeedsFollowUp: PropTypes.func.isRequired,
     };
 
@@ -25,18 +25,12 @@ class RosterRow extends AbstractComponent {
         super(props, context);
     }
 
-    _reasonLabel() {
-        const {row, reasonAnswers} = this.props;
-        if (!row.reasonConceptUUID) return this.I18n.t("selectReason");
-        const match = reasonAnswers.find(a => a.uuid === row.reasonConceptUUID);
-        return match ? match.name : this.I18n.t("selectReason");
-    }
-
     render() {
-        const {row, index, followUpEncounterTypeUuid, onToggle, onPickReason, onToggleNeedsFollowUp} = this.props;
+        const {row, index, reasonAnswers, followUpEncounterTypeUuid, onToggle, onToggleReason, onToggleNeedsFollowUp} = this.props;
         const isAbsent = row.status === AttendanceRecord.status.ABSENT;
         const showNeedsFollowUp = isAbsent && !!followUpEncounterTypeUuid;
         const checked = !!row.needsFollowUp;
+        const selectedReasons = row.reasonConceptUUIDs || [];
 
         return (
             <View style={styles.row}>
@@ -54,10 +48,22 @@ class RosterRow extends AbstractComponent {
                 {isAbsent && (
                     <View style={styles.reasonBlock}>
                         <Text style={styles.reasonLabel}>{this.I18n.t("reasonForAbsence")}</Text>
-                        <TouchableOpacity onPress={() => onPickReason(row.subjectUUID)} style={styles.reasonPickerCta}>
-                            <Text style={styles.reasonPickerText}>{this._reasonLabel()}</Text>
-                            <Text style={styles.reasonChevron}>▾</Text>
-                        </TouchableOpacity>
+                        <View style={styles.chipWrap}>
+                            {(reasonAnswers || []).map(answer => {
+                                const selected = selectedReasons.includes(answer.uuid);
+                                return (
+                                    <TouchableOpacity
+                                        key={answer.uuid}
+                                        onPress={() => onToggleReason(row.subjectUUID, answer.uuid)}
+                                        style={[styles.reasonChip, selected && styles.reasonChipSelected]}
+                                    >
+                                        <Text style={[styles.reasonChipText, selected && styles.reasonChipTextSelected]}>
+                                            {answer.name}
+                                        </Text>
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </View>
                         {showNeedsFollowUp && (
                             <TouchableOpacity
                                 onPress={() => onToggleNeedsFollowUp(row.subjectUUID)}
@@ -102,16 +108,23 @@ const styles = StyleSheet.create({
     statusTextAbsent: {color: '#E64A19'},
     reasonBlock: {paddingHorizontal: 16, paddingBottom: 12},
     reasonLabel: {fontSize: 11, color: Colors.SubheaderColor || '#666', letterSpacing: 0.5},
-    reasonPickerCta: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: 4,
+    chipWrap: {flexDirection: 'row', flexWrap: 'wrap', marginTop: 6},
+    reasonChip: {
         paddingVertical: 6,
-        borderBottomWidth: 1,
-        borderBottomColor: Colors.InputBorderNormal,
+        paddingHorizontal: 12,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: Colors.InputBorderNormal,
+        backgroundColor: Colors.WhiteContentBackground,
+        marginRight: 8,
+        marginBottom: 8,
     },
-    reasonPickerText: {flex: 1, fontSize: Styles.normalTextSize, color: Colors.InputNormal},
-    reasonChevron: {fontSize: 16, color: Colors.SubheaderColor || '#666'},
+    reasonChipSelected: {
+        backgroundColor: Colors.ActionButtonColor,
+        borderColor: Colors.ActionButtonColor,
+    },
+    reasonChipText: {fontSize: Styles.smallTextSize, color: Colors.InputNormal},
+    reasonChipTextSelected: {color: Colors.TextOnPrimaryColor, fontWeight: 'bold'},
     followUpRow: {flexDirection: 'row', alignItems: 'center', marginTop: 10},
     checkbox: {
         width: 20,

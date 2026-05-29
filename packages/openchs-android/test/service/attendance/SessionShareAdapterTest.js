@@ -67,10 +67,10 @@ describe("SessionShareAdapter.buildContext — summary shape", () => {
         groupSubject = {uuid: "g-1", nameString: "Class 7A"};
 
         const records = [
-            {uuid: "r1", subjectUUID: "s1", status: PRESENT, reasonConceptUUID: null, followUpEncounterUUID: null, voided: false},
-            {uuid: "r2", subjectUUID: "s2", status: ABSENT, reasonConceptUUID: "rc-sick", followUpEncounterUUID: null, voided: false},
-            {uuid: "r3", subjectUUID: "s3", status: ABSENT, reasonConceptUUID: null, followUpEncounterUUID: "fu-1", voided: false},
-            {uuid: "r4", subjectUUID: "s4", status: PRESENT, reasonConceptUUID: null, followUpEncounterUUID: null, voided: true},
+            {uuid: "r1", subjectUUID: "s1", status: PRESENT, reasonConceptUUIDs: [], followUpEncounterUUID: null, voided: false},
+            {uuid: "r2", subjectUUID: "s2", status: ABSENT, reasonConceptUUIDs: ["rc-sick"], followUpEncounterUUID: null, voided: false},
+            {uuid: "r3", subjectUUID: "s3", status: ABSENT, reasonConceptUUIDs: [], followUpEncounterUUID: "fu-1", voided: false},
+            {uuid: "r4", subjectUUID: "s4", status: PRESENT, reasonConceptUUIDs: [], followUpEncounterUUID: null, voided: true},
         ];
         const individuals = {
             "s1": {uuid: "s1", nameString: "Aarav"},
@@ -109,6 +109,20 @@ describe("SessionShareAdapter.buildContext — summary shape", () => {
         const chirag = ctx.attendanceRecords.find(r => r.studentName === "Chirag");
         assert.equal(esha.reasonName, "Sick");
         assert.isUndefined(chirag.reasonName, "no reason -> reasonName key absent");
+    });
+
+    it("joins multiple reason names with a comma", () => {
+        const concepts = {"rc-sick": {uuid: "rc-sick", name: "Sick"}, "rc-shift": {uuid: "rc-shift", name: "Shifted home"}};
+        const multiAdapter = makeAdapter({
+            recordService: {findBySession: jest.fn(() => [
+                {uuid: "rm", subjectUUID: "sm", status: ABSENT, reasonConceptUUIDs: ["rc-sick", "rc-shift"], followUpEncounterUUID: null, voided: false},
+            ])},
+            individualService: {findByUUID: jest.fn(() => ({uuid: "sm", nameString: "Meera"}))},
+            conceptService: {getConceptByUUID: jest.fn(uuid => concepts[uuid] || null)},
+        });
+        const ctx = multiAdapter.buildContext(session, attendanceType, groupSubject);
+        const meera = ctx.attendanceRecords.find(r => r.studentName === "Meera");
+        assert.equal(meera.reasonName, "Sick, Shifted home");
     });
 
     it("carries followUpEncounterUUID through for rules that want richer data", () => {

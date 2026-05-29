@@ -12,8 +12,8 @@ import {RosterActions} from "../../../src/action/attendance/RosterActions";
 function baseState() {
     return {
         roster: [
-            {subjectUUID: "s1", name: "Aarav", status: AttendanceRecord.status.PRESENT, reasonConceptUUID: null, needsFollowUp: false},
-            {subjectUUID: "s2", name: "Esha", status: AttendanceRecord.status.ABSENT, reasonConceptUUID: null, needsFollowUp: false},
+            {subjectUUID: "s1", name: "Aarav", status: AttendanceRecord.status.PRESENT, reasonConceptUUIDs: [], needsFollowUp: false},
+            {subjectUUID: "s2", name: "Esha", status: AttendanceRecord.status.ABSENT, reasonConceptUUIDs: [], needsFollowUp: false},
         ],
     };
 }
@@ -37,13 +37,13 @@ describe("RosterActions — needsFollowUp reducers", () => {
         // Start with s2 Absent + needsFollowUp=true; toggling to PRESENT must clear the flag.
         const state = {
             roster: [
-                {subjectUUID: "s2", name: "Esha", status: AttendanceRecord.status.ABSENT, reasonConceptUUID: "sick", needsFollowUp: true},
+                {subjectUUID: "s2", name: "Esha", status: AttendanceRecord.status.ABSENT, reasonConceptUUIDs: ["sick"], needsFollowUp: true},
             ],
         };
         const next = RosterActions.onTogglePresence(state, {subjectUUID: "s2"});
         assert.equal(next.roster[0].status, AttendanceRecord.status.PRESENT);
         assert.equal(next.roster[0].needsFollowUp, false);
-        assert.equal(next.roster[0].reasonConceptUUID, null, "existing reason-clear contract preserved");
+        assert.deepEqual(next.roster[0].reasonConceptUUIDs, [], "existing reason-clear contract preserved");
     });
 
     it("onTogglePresence flipping PRESENT → ABSENT leaves needsFollowUp at default (false)", () => {
@@ -57,8 +57,8 @@ describe("RosterActions — needsFollowUp reducers", () => {
     it("onMarkAllPresent clears needsFollowUp across the roster", () => {
         const state = {
             roster: [
-                {subjectUUID: "s1", status: AttendanceRecord.status.ABSENT, reasonConceptUUID: null, needsFollowUp: true},
-                {subjectUUID: "s2", status: AttendanceRecord.status.ABSENT, reasonConceptUUID: "sick", needsFollowUp: true},
+                {subjectUUID: "s1", status: AttendanceRecord.status.ABSENT, reasonConceptUUIDs: [], needsFollowUp: true},
+                {subjectUUID: "s2", status: AttendanceRecord.status.ABSENT, reasonConceptUUIDs: ["sick"], needsFollowUp: true},
             ],
         };
         const next = RosterActions.onMarkAllPresent(state);
@@ -66,5 +66,39 @@ describe("RosterActions — needsFollowUp reducers", () => {
             assert.equal(r.status, AttendanceRecord.status.PRESENT);
             assert.equal(r.needsFollowUp, false);
         });
+    });
+});
+
+describe("RosterActions — onToggleReason (multi-select)", () => {
+    function absentState() {
+        return {
+            roster: [
+                {subjectUUID: "s1", status: AttendanceRecord.status.ABSENT, reasonConceptUUIDs: [], needsFollowUp: false},
+                {subjectUUID: "s2", status: AttendanceRecord.status.ABSENT, reasonConceptUUIDs: [], needsFollowUp: false},
+            ],
+        };
+    }
+
+    it("adds a reason on first tap and only on the targeted row", () => {
+        const next = RosterActions.onToggleReason(absentState(), {subjectUUID: "s1", reasonConceptUUID: "unwell"});
+        const byId = Object.fromEntries(next.roster.map(r => [r.subjectUUID, r]));
+        assert.deepEqual(byId["s1"].reasonConceptUUIDs, ["unwell"]);
+        assert.deepEqual(byId["s2"].reasonConceptUUIDs, [], "untargeted row untouched");
+    });
+
+    it("removes a reason on second tap (toggle off)", () => {
+        let state = RosterActions.onToggleReason(absentState(), {subjectUUID: "s1", reasonConceptUUID: "unwell"});
+        state = RosterActions.onToggleReason(state, {subjectUUID: "s1", reasonConceptUUID: "unwell"});
+        assert.deepEqual(state.roster[0].reasonConceptUUIDs, []);
+    });
+
+    it("select-all-then-deselect-some keeps only the remaining reasons", () => {
+        let state = absentState();
+        ["native-place", "unwell", "shifted-home"].forEach(uuid =>
+            state = RosterActions.onToggleReason(state, {subjectUUID: "s1", reasonConceptUUID: uuid}));
+        // Remove two, leaving one.
+        state = RosterActions.onToggleReason(state, {subjectUUID: "s1", reasonConceptUUID: "native-place"});
+        state = RosterActions.onToggleReason(state, {subjectUUID: "s1", reasonConceptUUID: "shifted-home"});
+        assert.deepEqual(state.roster[0].reasonConceptUUIDs, ["unwell"]);
     });
 });

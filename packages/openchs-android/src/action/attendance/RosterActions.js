@@ -48,7 +48,7 @@ export class RosterActions {
                 subjectUUID: gs.memberSubject.uuid,
                 name: gs.memberSubject.nameString,
                 status: prior ? prior.status : AttendanceRecord.status.PRESENT,
-                reasonConceptUUID: prior ? prior.reasonConceptUUID : null,
+                reasonConceptUUIDs: prior ? [...(prior.reasonConceptUUIDs || [])] : [],
                 needsFollowUp: prior ? !!prior.needsFollowUp : false,
                 followUpEncounterUUID: prior ? (prior.followUpEncounterUUID || null) : null,
             };
@@ -100,19 +100,24 @@ export class RosterActions {
             return {
                 ...r,
                 status: flipped,
-                reasonConceptUUID: becamePresent ? null : r.reasonConceptUUID,
+                reasonConceptUUIDs: becamePresent ? [] : r.reasonConceptUUIDs,
                 needsFollowUp: becamePresent ? false : r.needsFollowUp,
             };
         });
         return {...state, roster};
     }
 
-    static onSetReason(state, action) {
-        const roster = state.roster.map(r =>
-            r.subjectUUID === action.subjectUUID
-                ? {...r, reasonConceptUUID: action.reasonConceptUUID}
-                : r
-        );
+    // Single-tap toggle: adds the reason if absent, removes it if already selected.
+    // 0/1/many selections are all valid.
+    static onToggleReason(state, action) {
+        const roster = state.roster.map(r => {
+            if (r.subjectUUID !== action.subjectUUID) return r;
+            const current = r.reasonConceptUUIDs || [];
+            const reasonConceptUUIDs = current.includes(action.reasonConceptUUID)
+                ? current.filter(uuid => uuid !== action.reasonConceptUUID)
+                : [...current, action.reasonConceptUUID];
+            return {...r, reasonConceptUUIDs};
+        });
         return {...state, roster};
     }
 
@@ -137,7 +142,7 @@ export class RosterActions {
         const roster = state.roster.map(r => ({
             ...r,
             status: AttendanceRecord.status.PRESENT,
-            reasonConceptUUID: null,
+            reasonConceptUUIDs: [],
             needsFollowUp: false,
         }));
         return {...state, roster};
@@ -292,7 +297,7 @@ export class RosterActions {
             uuid: record.uuid,
             subjectUUID: record.subjectUUID,
             status: record.status,
-            reasonConceptUUID: record.reasonConceptUUID || null,
+            reasonConceptUUIDs: record.reasonConceptUUIDs ? [...record.reasonConceptUUIDs] : [],
             followUpEncounterUUID: record.followUpEncounterUUID || null,
             needsFollowUp: !!record.needsFollowUp,
         };
@@ -327,7 +332,7 @@ const Prefix = "Roster";
 RosterActions.Names = {
     ON_LOAD: `${Prefix}.ON_LOAD`,
     TOGGLE_PRESENCE: `${Prefix}.TOGGLE_PRESENCE`,
-    SET_REASON: `${Prefix}.SET_REASON`,
+    TOGGLE_REASON: `${Prefix}.TOGGLE_REASON`,
     TOGGLE_NEEDS_FOLLOW_UP: `${Prefix}.TOGGLE_NEEDS_FOLLOW_UP`,
     SET_SESSION_REASON: `${Prefix}.SET_SESSION_REASON`,
     MARK_ALL_ABSENT: `${Prefix}.MARK_ALL_ABSENT`,
@@ -339,7 +344,7 @@ RosterActions.Names = {
 RosterActions.Map = new Map([
     [RosterActions.Names.ON_LOAD, RosterActions.onLoad],
     [RosterActions.Names.TOGGLE_PRESENCE, RosterActions.onTogglePresence],
-    [RosterActions.Names.SET_REASON, RosterActions.onSetReason],
+    [RosterActions.Names.TOGGLE_REASON, RosterActions.onToggleReason],
     [RosterActions.Names.TOGGLE_NEEDS_FOLLOW_UP, RosterActions.onToggleNeedsFollowUp],
     [RosterActions.Names.SET_SESSION_REASON, RosterActions.onSetSessionReason],
     [RosterActions.Names.MARK_ALL_ABSENT, RosterActions.onMarkAllAbsent],
