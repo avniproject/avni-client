@@ -257,17 +257,25 @@ class RuleEvaluationService extends BaseService {
         if (_.isEmpty(form.editFormRule)) {
             return ActionEligibilityResponse.createAllowedResponse();
         } else {
+            // Dedupe the rule's repeated identical SQLite reads within this single invocation
+            // (same pattern as the dashboard card loop). No-op on Realm.
+            const db = this.db;
+            const cacheActive = db && db.isSqlite && db.beginQueryCache;
+            if (cacheActive) db.beginQueryCache();
             try {
                 const ruleFunc = eval(form.editFormRule);
-                const ruleResponse = ruleFunc({
+                // Route through runEvalRule so the editFormRule emits a RulePerf timing log like other rules.
+                const ruleResponse = this.runEvalRule(ruleFunc, {
                     params: _.merge({entity, form}, this.getCommonParams()),
                     imports: getImports(this.globalRuleFunction)
-                });
+                }, `EditFormRule:${form.uuid}`);
                 return ActionEligibilityResponse.createRuleResponse(ruleResponse);
             } catch (e) {
                 General.logDebug("Rule-Failure", `EditFormRule failed: ${JSONStringify(e)}`);
                 this.saveFailedRules(e, form.uuid, this.getIndividualUUID(entity, entityName), 'EditForm', form.uuid, entityName, entity.uuid);
                 return ActionEligibilityResponse.createAllowedResponse();
+            } finally {
+                if (cacheActive) db.endQueryCache();
             }
         }
     }
