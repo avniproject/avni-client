@@ -416,6 +416,7 @@
     "maxLimitReachedMsg": "Maximum limit reached for this role",
     "memberDeletedMsg": "Member removed",
     "removeMember": "Remove member",
+    "removalReason": "Reason for removal",
     "totalMembers": "Total members",
     "proceedAddHousehold": "proceed to {{household}}",
     "registerHeadOfFamily": "Register head of family",

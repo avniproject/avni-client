@@ -478,6 +478,7 @@
     "comments": "टिप्पणियाँ",
     "whatsApp": "व्हाट्सऐप",
     "registerButtonGuideMessage": "हइ {{userName}}, नीचे दिए गए \"रजिस्टर\" बटन पर टैप करके अपना डेटा दर्ज करना शुरू करें।",
-    "welcomeMessage": "हइ {{userName}}, स्वागत है।"
+    "welcomeMessage": "हइ {{userName}}, स्वागत है।",
+    "removalReason": "Reason for removal"
   }
 }

@@ -414,6 +414,7 @@
     "comments": "ಪ್ರತಿಕ್ರಿಯೆಗಳು",
     "whatsApp": "ವಾಟ್ಸ್ಆಪ್",
     "registerButtonGuideMessage": "ಹಾಯ್ {{userName}}, ಕೆಳಗೆ \"ನೋಂದಣಿ\" ಬಟನ್ ಕ್ಲಿಕ್ ಮಾಡುವ ಮೂಲಕ ನಿಮ್ಮ ಡೇಟಾವನ್ನು ನಮೂದಿಸಿ.",
-    "welcomeMessage": "ಹಾಯ್ {{userName}}, ಸ್ವಾಗತ !"
+    "welcomeMessage": "ಹಾಯ್ {{userName}}, ಸ್ವಾಗತ !",
+    "removalReason": "Reason for removal"
   }
 }
