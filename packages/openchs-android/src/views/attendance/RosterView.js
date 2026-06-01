@@ -139,7 +139,7 @@ class RosterView extends AbstractComponent {
     _hasPriorFollowUpsToWarnAbout() {
         const {existingSession, roster} = this.state;
         if (!existingSession) return false;
-        return (roster || []).some(r => r.needsFollowUp);
+        return (roster || []).some(r => r.needsFollowUp && r.followUpEncounterUUID);
     }
 
     _renderItem = ({item, index}) => (

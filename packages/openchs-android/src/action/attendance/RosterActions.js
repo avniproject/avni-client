@@ -186,11 +186,6 @@ export class RosterActions {
         );
         const attendanceRecords = session.markHeld(rosterByStudentUUID, sessionReasonConceptUUID || null);
         attendanceRecords.forEach(r => {
-            // markHeld does not propagate the needsFollowUp flag from the roster
-            // entry; copy it onto the record so autoCreateFollowUps/voidStale see it.
-            const rosterEntry = rosterByStudentUUID[r.subjectUUID];
-            r.needsFollowUp = !!(rosterEntry && rosterEntry.needsFollowUp);
-
             const prior = priorByStudent[r.subjectUUID];
             if (!prior) return;
             r.uuid = prior.uuid;
