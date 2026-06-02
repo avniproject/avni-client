@@ -54,7 +54,7 @@ export default class SingleSelectMediaFormElement extends MediaFormElement {
             <View style={{marginVertical: 16}}>
                 <FormElementLabelWithDocumentation element={this.props.element}/>
                 {this.mediaUri ? this.showMedia(this.mediaUri, this.clearAnswer.bind(this)) :
-                    this.showInputOptions(this.onUpdateObservations.bind(this))}
+                    (this.isReadOnly ? this.showEmptyReadOnly() : this.showInputOptions(this.onUpdateObservations.bind(this)))}
                 <View
                     style={{flex: 1, borderColor: 'black', borderBottomWidth: StyleSheet.hairlineWidth, opacity: 0.1}}/>
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>

@@ -1,4 +1,4 @@
-import {StyleSheet, TouchableNativeFeedback, View, PermissionsAndroid} from "react-native";
+import {StyleSheet, Text, TouchableNativeFeedback, View, PermissionsAndroid} from "react-native";
 import React from "react";
 import AbstractFormElement from "./AbstractFormElement";
 import {launchCamera, launchImageLibrary} from "react-native-image-picker";
@@ -6,6 +6,7 @@ import fs from 'react-native-fs';
 import General from "../../../utility/General";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Colors from "../../primitives/Colors";
+import Styles from "../../primitives/Styles";
 import ExpandableMedia from "../../common/ExpandableMedia";
 import FileSystem from "../../../model/FileSystem";
 import DeviceInfo from 'react-native-device-info';
@@ -56,6 +57,10 @@ export default class MediaFormElement extends AbstractFormElement {
     get isImage() {
         return this.props.element.concept.datatype === 'Image'
             || this.props.element.concept.datatype === 'Profile-Pics';
+    }
+
+    get isReadOnly() {
+        return this.props.element.editable === false;
     }
 
     get label() {
@@ -163,10 +168,18 @@ export default class MediaFormElement extends AbstractFormElement {
         return (
             <View style={[styles.contentRow, styles.imageRow]}>
                 <ExpandableMedia source={mediaUri} type={this.props.element.concept.datatype}/>
-                <TouchableNativeFeedback onPress={() => onClearAnswer()}>
+                {!this.isReadOnly && <TouchableNativeFeedback onPress={() => onClearAnswer()}>
                     <Icon name={"backspace"} style={[styles.icon]}/>
-                </TouchableNativeFeedback>
+                </TouchableNativeFeedback>}
             </View>
+        );
+    }
+
+    showEmptyReadOnly() {
+        return (
+            <Text style={[Styles.formBodyText, {color: Colors.InputNormal, paddingVertical: 5}]}>
+                {this.I18n.t('Not Known Yet')}
+            </Text>
         );
     }
 
