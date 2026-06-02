@@ -31,6 +31,15 @@ import General from "../utility/General";
  *   // to the target obs and the form re-renders. The dependent form element reads
  *   // encounter.getObservationValue('AI Suspicion Result') — for text fields the obs value
  *   // is what's displayed, so write the user-facing text directly via labelMap.
+ *
+ * Rule usage (async inline path, target lives inside a Repeatable Question Group row):
+ *   params.services.edgeModelService.scheduleImageInferenceIntoGroup(
+ *     'mvit2_fold5_2_latest_traced', imagePath, encounter,
+ *     'Lesion Group', 'AI Suspicion Result', rowIdx,
+ *     { 'Positive': 'Suspicious', 'Negative': 'Non Suspicious' }   // optional labelMap
+ *   );
+ *   // Same contract as scheduleImageInference, but the verdict lands in the 'AI Suspicion
+ *   // Result' obs inside row `rowIdx` of the 'Lesion Group' repeatable question group.
  */
 export const EDGE_MODEL_ACTION = {
     INFERENCE_RESULT_AVAILABLE: 'EDGE_MODEL.INFERENCE_RESULT_AVAILABLE'
@@ -113,9 +122,32 @@ class EdgeModelService extends BaseService {
     }
 
     /**
-     * Inline-async path for form-element rules. Fires inference in the background;
-     * on resolve, dispatches a redux action that writes the result as an observation
-     * and re-runs form-element rules so the dependent form element re-renders.
+     * Inline-async path for form-element rules, target is a top-level concept on the entity.
+     * Thin wrapper over _scheduleImageInference — see that method for the full contract.
+     */
+    scheduleImageInference(modelKey, imagePath, entity, targetConceptName, labelMap) {
+        return this._scheduleImageInference({
+            modelKey, imagePath, entity, targetConceptName, labelMap,
+            questionGroupConceptName: null, rqgIdx: null
+        });
+    }
+
+    /**
+     * Same as scheduleImageInference, but writes the verdict into the `targetConceptName`
+     * obs inside row `rqgIdx` of the `questionGroupConceptName` Repeatable Question Group.
+     */
+    scheduleImageInferenceIntoGroup(modelKey, imagePath, entity, questionGroupConceptName, targetConceptName, rqgIdx, labelMap) {
+        return this._scheduleImageInference({
+            modelKey, imagePath, entity, targetConceptName, labelMap,
+            questionGroupConceptName, rqgIdx
+        });
+    }
+
+    /**
+     * Fires inference in the background; on resolve, dispatches a redux action that writes
+     * the result as an observation and re-runs form-element rules so the dependent form
+     * element re-renders. When `questionGroupConceptName`/`rqgIdx` are set, the obs is
+     * written into that row of the named Repeatable Question Group instead of at top level.
      *
      * Why this exists: Avni's form-element rule engine is synchronous
      * (`RuleEvaluationService.runFormElementStatusRule`). A rule that returned a
@@ -125,8 +157,8 @@ class EdgeModelService extends BaseService {
      * the rule contract; the result lands as a sibling observation that the
      * dependent form element's *synchronous* rule reads via `entity.getObservationValue`.
      *
-     * Dedup contract:
-     *   • Same (entity, modelKey, imagePath) in flight → no-op.
+     * Dedup contract (keyed per target — for RQG that includes the question group + row):
+     *   • Same (entity, modelKey, imagePath[, qg, row]) in flight → no-op.
      *   • Target obs already populated AND we've seen the SAME imagePath produce it →
      *     no-op (rule re-firing after some unrelated obs change on the same page).
      *   • Target obs already populated BUT current imagePath differs from what we last
@@ -140,15 +172,21 @@ class EdgeModelService extends BaseService {
      * the dependent form element behaves as it would for a not-yet-arrived result —
      * keeps the form save path unblocked.
      */
-    scheduleImageInference(modelKey, imagePath, entity, targetConceptName, labelMap) {
-        if (!entity || !targetConceptName || !imagePath) {
+    _scheduleImageInference({modelKey, imagePath, entity, targetConceptName, labelMap, questionGroupConceptName, rqgIdx}) {
+        const isRqg = questionGroupConceptName != null;
+        if (!entity || !targetConceptName || !imagePath
+            || (isRqg && !(typeof rqgIdx === 'number' && rqgIdx >= 0))) {
             General.logError('EdgeModelSvc',
-                `scheduleImageInference SKIP missing-arg: entity=${!!entity} target=${!!targetConceptName} imagePath=${!!imagePath}`);
+                `scheduleImageInference SKIP missing-arg: entity=${!!entity} target=${!!targetConceptName} imagePath=${!!imagePath} qg=${questionGroupConceptName} rqgIdx=${rqgIdx}`);
             return;
         }
 
-        const targetKey = `${entity.uuid}|${targetConceptName}`;
-        const existing = entity.getObservationValue(targetConceptName);
+        const targetKey = isRqg
+            ? `${entity.uuid}|${questionGroupConceptName}|${rqgIdx}|${targetConceptName}`
+            : `${entity.uuid}|${targetConceptName}`;
+        const existing = isRqg
+            ? this._readRqgChildValue(entity, questionGroupConceptName, rqgIdx, targetConceptName)
+            : entity.getObservationValue(targetConceptName);
 
         if (existing != null) {
             const lastImage = this._lastInferredImageByTarget.get(targetKey);
@@ -171,7 +209,9 @@ class EdgeModelService extends BaseService {
                 `scheduleImageInference image CHANGED for '${targetConceptName}' (was ${lastImage}, now ${imagePath}) — re-running`);
         }
 
-        const inflightKey = `${entity.uuid}|${modelKey}|${imagePath}`;
+        const inflightKey = isRqg
+            ? `${entity.uuid}|${modelKey}|${imagePath}|${questionGroupConceptName}|${rqgIdx}`
+            : `${entity.uuid}|${modelKey}|${imagePath}`;
         if (this._scheduled.has(inflightKey)) {
             General.logDebug('EdgeModelSvc', `scheduleImageInference SKIP already in flight: ${inflightKey}`);
             return;
@@ -191,11 +231,10 @@ class EdgeModelService extends BaseService {
                 // later retake (different imagePath) re-runs inference.
                 this._lastInferredImageByTarget.set(targetKey, imagePath);
                 General.logDebug('EdgeModelSvc',
-                    `scheduleImageInference DISPATCH: target=${targetConceptName} rawLabel=${rawLabel} mappedValue=${value}`);
-                this.dispatchAction(EDGE_MODEL_ACTION.INFERENCE_RESULT_AVAILABLE, {
-                    conceptName: targetConceptName,
-                    value
-                });
+                    `scheduleImageInference DISPATCH: target=${targetConceptName}${isRqg ? ` qg=${questionGroupConceptName}[${rqgIdx}]` : ''} rawLabel=${rawLabel} mappedValue=${value}`);
+                this.dispatchAction(EDGE_MODEL_ACTION.INFERENCE_RESULT_AVAILABLE, isRqg
+                    ? {questionGroupConceptName, conceptName: targetConceptName, questionGroupIndex: rqgIdx, value}
+                    : {conceptName: targetConceptName, value});
             })
             .catch(err => {
                 General.logError('EdgeModelSvc',
@@ -204,6 +243,20 @@ class EdgeModelService extends BaseService {
             .finally(() => {
                 this._scheduled.delete(inflightKey);
             });
+    }
+
+    /**
+     * Reads the current value of `targetConceptName` inside row `rqgIdx` of the
+     * `questionGroupConceptName` Repeatable Question Group on the persisted entity.
+     * Returns null when the group, the row, or the child obs is absent.
+     */
+    _readRqgChildValue(entity, questionGroupConceptName, rqgIdx, targetConceptName) {
+        const parentObs = entity.findObservation(questionGroupConceptName);
+        const rqg = parentObs && parentObs.getValueWrapper();
+        if (!rqg || rqg.size() <= rqgIdx) return null;
+        const group = rqg.getGroupObservationAtIndex(rqgIdx);
+        const childObs = group && group.findObservationByConceptUUID(targetConceptName);
+        return childObs ? childObs.getValue() : null;
     }
 
     /**

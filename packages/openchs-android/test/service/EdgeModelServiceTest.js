@@ -238,4 +238,92 @@ describe('EdgeModelService', () => {
             expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(2);
         });
     });
+
+    describe('scheduleImageInferenceIntoGroup', () => {
+        // rows: array (one entry per RQG row) of {targetConceptName: value} maps; a missing
+        // key (or null row) means the child obs is absent for that row. Models the entity's
+        // persisted obs tree as _readRqgChildValue walks it.
+        const fakeRqgEntity = (uuid, rows) => ({
+            uuid,
+            findObservation: jest.fn(() => rows == null ? undefined : ({
+                getValueWrapper: () => ({
+                    size: () => rows.length,
+                    getGroupObservationAtIndex: (idx) => {
+                        const row = rows[idx];
+                        return row == null ? null : ({
+                            findObservationByConceptUUID: (target) =>
+                                Object.prototype.hasOwnProperty.call(row, target)
+                                    ? {getValue: () => row[target]}
+                                    : undefined,
+                        });
+                    },
+                }),
+            })),
+        });
+
+        beforeEach(() => {
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockResolvedValue({label: 'Positive', confidence: 0.91});
+            service.dispatchAction = jest.fn();
+        });
+
+        it('dispatches INFERENCE_RESULT_AVAILABLE with the question group coordinates on resolve', async () => {
+            service.scheduleImageInferenceIntoGroup(
+                'oral-cancer-v1', '/tmp/x.jpg', fakeRqgEntity('e1', [{}]),
+                'Lesion Group', 'AI Suspicion Result', 0
+            );
+            await new Promise(r => setImmediate(r));
+
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(1);
+            expect(service.dispatchAction).toHaveBeenCalledWith(
+                'EDGE_MODEL.INFERENCE_RESULT_AVAILABLE',
+                {questionGroupConceptName: 'Lesion Group', conceptName: 'AI Suspicion Result', questionGroupIndex: 0, value: 'Positive'}
+            );
+        });
+
+        it('applies labelMap before dispatching', async () => {
+            service.scheduleImageInferenceIntoGroup(
+                'oral-cancer-v1', '/tmp/x.jpg', fakeRqgEntity('e1', [{}]),
+                'Lesion Group', 'AI Suspicion Result', 0,
+                {'Positive': 'Suspicious', 'Negative': 'Non Suspicious'}
+            );
+            await new Promise(r => setImmediate(r));
+
+            expect(service.dispatchAction).toHaveBeenCalledWith(
+                'EDGE_MODEL.INFERENCE_RESULT_AVAILABLE',
+                {questionGroupConceptName: 'Lesion Group', conceptName: 'AI Suspicion Result', questionGroupIndex: 0, value: 'Suspicious'}
+            );
+        });
+
+        it('dedups the same row but runs a different rqgIdx for the same image', async () => {
+            let resolveFn;
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockReturnValueOnce(new Promise(r => { resolveFn = r; }));
+            const entity = fakeRqgEntity('e1', [{}, {}]);
+
+            service.scheduleImageInferenceIntoGroup('oral-cancer-v1', '/tmp/x.jpg', entity, 'Lesion Group', 'AI Suspicion Result', 0);
+            service.scheduleImageInferenceIntoGroup('oral-cancer-v1', '/tmp/x.jpg', entity, 'Lesion Group', 'AI Suspicion Result', 0); // same row → dedup
+            service.scheduleImageInferenceIntoGroup('oral-cancer-v1', '/tmp/x.jpg', entity, 'Lesion Group', 'AI Suspicion Result', 1); // different row → fires
+
+            await new Promise(r => setImmediate(r));
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(2);
+
+            resolveFn({label: 'Positive'});
+            await new Promise(r => setImmediate(r));
+        });
+
+        it('skips scheduling when that RQG row already has the target observation', () => {
+            const entity = fakeRqgEntity('e1', [{'AI Suspicion Result': 'Suspicious'}]);
+
+            service.scheduleImageInferenceIntoGroup('oral-cancer-v1', '/tmp/x.jpg', entity, 'Lesion Group', 'AI Suspicion Result', 0);
+
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).not.toHaveBeenCalled();
+            expect(service.dispatchAction).not.toHaveBeenCalled();
+        });
+
+        it('skips on a non-numeric rqgIdx without firing inference', () => {
+            service.scheduleImageInferenceIntoGroup('oral-cancer-v1', '/tmp/x.jpg', fakeRqgEntity('e1', [{}]), 'Lesion Group', 'AI Suspicion Result', undefined);
+
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).not.toHaveBeenCalled();
+            expect(service.dispatchAction).not.toHaveBeenCalled();
+        });
+    });
 });
