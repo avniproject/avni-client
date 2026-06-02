@@ -194,6 +194,50 @@ Alternative — if you'd rather generate a tiny stub model that matches the real
 exactly (`[1, 3, 256, 256]` BGR/CHW → single logit), see
 `tools/edge-model/make-placeholder-pt.py` (requires PyTorch installed locally).
 
+## Using inference from a form rule
+
+`params.services.edgeModelService` exposes three entry points. All take `modelKey` (a key in
+`registry.json`) and `imagePath` — the **absolute** device path of the captured image
+(`file://` stripped), derived from the image observation's stored filename.
+
+| Method | Use |
+|---|---|
+| `runInferenceOnImage(modelKey, imagePath)` → `Promise<{label, confidence, …}>` | Raw async inference; call from a decision rule that already awaits. |
+| `scheduleImageInference(modelKey, imagePath, entity, targetConceptName, labelMap?)` | Fire-and-forget from a **synchronous form-element rule**. On resolve, writes the result to `targetConceptName` and re-renders. |
+| `scheduleImageInferenceIntoGroup(modelKey, imagePath, entity, questionGroupConceptName, targetConceptName, rqgIdx, labelMap?)` | Same, but writes into row `rqgIdx` (zero-based) of a Repeatable Question Group. |
+
+`labelMap` (optional) maps the raw model label to the stored value, e.g.
+`{ "Positive": "Suspicious", "Negative": "Non Suspicious" }`.
+
+```js
+// form-element rule — RQG variant. Returns synchronously; the verdict lands later.
+({params, imports}) => {
+  const {entity, services, questionGroupIndex} = params;
+  services.edgeModelService.scheduleImageInferenceIntoGroup(
+    'mvit2_fold5_2_latest_traced', imagePath, entity,
+    'Lesion Group', 'AI Suspicion Result', questionGroupIndex,
+    { 'Positive': 'Suspicious', 'Negative': 'Non Suspicious' }
+  );
+  return new imports.rulesConfig.FormElementStatus(params.formElement.uuid, true);
+};
+```
+
+The `schedule*` methods dedup automatically (no re-run for the same image+target; re-runs on a
+retake) and swallow errors (logged only — form save is never blocked). Two traps:
+
+- **Coded target:** the stored value (after `labelMap`) must equal an **answer concept name**
+  of the target concept, or the write is silently skipped. Text targets store the string verbatim.
+- **RQG:** the row at `rqgIdx` must already exist (capture the image into the row first) and
+  `rqgIdx` must be numeric — rows are not auto-created.
+
+### Showing a result (or image) read-only
+
+Set the **form-element** keyValue `editable=false` (`[{"key": "editable", "value": false}]` in
+`form_element.key_values`) to render a field display-only — the standard flag honoured across
+datatypes. For Image/Video elements this shows the existing media and hides the camera, gallery,
+remove and "add more" controls; with no value it shows "Not Known Yet". Pair it with the verdict
+field above so the model's output can be viewed but not hand-edited.
+
 ## What lives where
 
 ```
