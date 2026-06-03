@@ -55,7 +55,11 @@ tanuh-encrypt: ## Encrypt the plaintext model and emit registry.json.
 		--override $(TANUH_OVERRIDE) \
 		--default-model
 
-tanuh-apk: tanuh-encrypt ## Encrypt model + assemble signed tanuh release APK.
+tanuh-apk: ## Encrypt single model + assemble signed tanuh release APK.
+	$(MAKE) tanuh-encrypt
+	$(MAKE) _tanuh-release-assemble
+
+_tanuh-release-assemble: ## (internal) Assemble + sign the tanuh release APK from the current registry.
 	@if [ ! -f "$(TANUH_KEYSTORE)" ]; then \
 		echo "ERROR: $(TANUH_KEYSTORE) not found. Run 'make tanuh-setup' first."; \
 		exit 1; \
@@ -76,6 +80,47 @@ tanuh-apk: tanuh-encrypt ## Encrypt model + assemble signed tanuh release APK.
 	cd packages/openchs-android/android; KEY_STORE_PREFIX="$(CURDIR)/" GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assembleTanuhRelease --stacktrace
 	@echo ""
 	@echo "Signed APK: packages/openchs-android/android/app/build/outputs/apk/tanuh/release/app-tanuh-release.apk"
+
+# ── 3-fold MViT2 ensemble ───────────────────────────────────────────────────────────
+# model6/model8/model8-2.pt are cross-validation folds of one MViT2 oral-cancer model,
+# soft-voted in JS by EdgeModelService.runEnsembleInferenceOnImage. Drop the 3 plaintext
+# .pt files in $(TANUH_ENSEMBLE_SRC_DIR); `tanuh-ensemble` clears the registry then encrypts
+# all three (bicubic ensemble override) under keys mvit2_fold1_6/fold1_8/fold2_8.
+TANUH_ENSEMBLE_SRC_DIR  ?= /Users/himeshr/Avni/Tanuh/tanuh_models
+TANUH_ENSEMBLE_OVERRIDE := tools/edge-model/tanuh-ensemble-override.json
+# Mapping of source-file basename → registry model key.
+TANUH_ENSEMBLE_FOLDS    := model6:mvit2_fold1_6 model8:mvit2_fold1_8 model8-2:mvit2_fold2_8
+
+tanuh-ensemble: ## Encrypt the 3 MViT2 folds into one registry (bicubic ensemble override).
+	@for pair in $(TANUH_ENSEMBLE_FOLDS); do \
+		src="$(TANUH_ENSEMBLE_SRC_DIR)/$${pair%%:*}.pt"; \
+		if [ ! -f "$$src" ]; then \
+			echo "ERROR: $$src not found."; \
+			echo "Set TANUH_ENSEMBLE_SRC_DIR to the dir holding model6.pt model8.pt model8-2.pt"; \
+			exit 1; \
+		fi; \
+	done
+	$(MAKE) tanuh-clean
+	@mkdir -p $(TANUH_OUT_DIR) tools/edge-model/source
+	@for pair in $(TANUH_ENSEMBLE_FOLDS); do \
+		file="$${pair%%:*}"; key="$${pair##*:}"; \
+		cp "$(TANUH_ENSEMBLE_SRC_DIR)/$$file.pt" "tools/edge-model/source/$$key.pt"; \
+		node tools/edge-model/encrypt-model.js \
+			--in "tools/edge-model/source/$$key.pt" \
+			--out-dir $(TANUH_OUT_DIR) \
+			--model-key "$$key" \
+			--override $(TANUH_ENSEMBLE_OVERRIDE); \
+	done
+	@echo ""
+	@echo "Encrypted 3 folds into $(TANUH_OUT_DIR)/registry.json: mvit2_fold1_6, mvit2_fold1_8, mvit2_fold2_8"
+	@echo "From a form-element rule (soft-vote ensemble → one verdict):"
+	@echo "  services.edgeModelService.scheduleImageInference("
+	@echo "    ['mvit2_fold1_6','mvit2_fold1_8','mvit2_fold2_8'], imagePath, entity,"
+	@echo "    'AI Suspicion Result', {Positive:'Suspicious', Negative:'Non Suspicious'})"
+
+tanuh-ensemble-apk: ## Encrypt the 3 folds + assemble signed tanuh release APK.
+	$(MAKE) tanuh-ensemble
+	$(MAKE) _tanuh-release-assemble
 
 tanuh-clean: ## Remove the per-build encrypted blob and registry.json.
 	rm -f $(TANUH_OUT_DIR)/*.bin $(TANUH_OUT_DIR)/registry.json
@@ -182,4 +227,4 @@ run_app_tanuh_dev: ## Install + launch tanuh debug build, prod backend with dev 
 run-app-tanuh: run_app_tanuh
 run-app-tanuh-dev: run_app_tanuh_dev
 
-.PHONY: tanuh-setup tanuh-encrypt tanuh-apk tanuh-aab tanuh-universal-apk tanuh-clean tanuh-placeholder run_app_tanuh run_app_tanuh_dev run-app-tanuh run-app-tanuh-dev
+.PHONY: tanuh-setup tanuh-encrypt tanuh-apk _tanuh-release-assemble tanuh-ensemble tanuh-ensemble-apk tanuh-aab tanuh-universal-apk tanuh-clean tanuh-placeholder run_app_tanuh run_app_tanuh_dev run-app-tanuh run-app-tanuh-dev

@@ -49,14 +49,78 @@ private fun JSONObject.optIntPair(key: String, defW: Int, defH: Int): Pair<Int, 
 }
 
 /**
- * Resize to (w, h) using Android's bilinear filter when `interpolation = "bilinear"` (default),
- * or nearest-neighbour for `"nearest"`. Bicubic is not supported on Android natively; if a
- * future model needs cv2.INTER_CUBIC parity, add a bicubic implementation behind this branch.
+ * Resize to (w, h). `"bilinear"` (default) and `"nearest"` use Android's native scaler;
+ * `"cubic"` runs [bicubicResize] for cv2.INTER_CUBIC parity (Android's Bitmap API has no
+ * native bicubic).
  */
 private fun resize(src: Bitmap, w: Int, h: Int, interpolation: String): Bitmap {
     if (src.width == w && src.height == h) return src
-    val filter = interpolation != "nearest"
-    return Bitmap.createScaledBitmap(src, w, h, filter)
+    return when (interpolation) {
+        "cubic"   -> bicubicResize(src, w, h)
+        "nearest" -> Bitmap.createScaledBitmap(src, w, h, false)
+        else      -> Bitmap.createScaledBitmap(src, w, h, true)   // bilinear
+    }
+}
+
+/**
+ * Bicubic resize matching cv2.INTER_CUBIC: 4×4 cubic-convolution kernel with a = -0.75,
+ * pixel-centre coordinate alignment, and clamped edge sampling. Close to OpenCV but not
+ * bit-identical (OpenCV uses fixed-point taps and its own border rounding).
+ */
+private fun bicubicResize(src: Bitmap, dstW: Int, dstH: Int): Bitmap {
+    val srcW = src.width
+    val srcH = src.height
+    val srcPx = IntArray(srcW * srcH)
+    src.getPixels(srcPx, 0, srcW, 0, 0, srcW, srcH)
+
+    val a = -0.75
+    fun cubic(d: Double): Double {
+        val t = if (d < 0) -d else d
+        return when {
+            t <= 1.0 -> (a + 2.0) * t * t * t - (a + 3.0) * t * t + 1.0
+            t < 2.0  -> a * t * t * t - 5.0 * a * t * t + 8.0 * a * t - 4.0 * a
+            else     -> 0.0
+        }
+    }
+
+    val scaleX = srcW.toDouble() / dstW
+    val scaleY = srcH.toDouble() / dstH
+    val out = IntArray(dstW * dstH)
+    val wy = DoubleArray(4)  // reused per row
+    val wx = DoubleArray(4)  // reused per pixel — avoids dstW*dstH short-lived allocations
+
+    for (dy in 0 until dstH) {
+        val sy = (dy + 0.5) * scaleY - 0.5
+        val y0 = Math.floor(sy).toInt()
+        val fy = sy - y0
+        wy[0] = cubic(1.0 + fy); wy[1] = cubic(fy); wy[2] = cubic(1.0 - fy); wy[3] = cubic(2.0 - fy)
+        for (dx in 0 until dstW) {
+            val sx = (dx + 0.5) * scaleX - 0.5
+            val x0 = Math.floor(sx).toInt()
+            val fx = sx - x0
+            wx[0] = cubic(1.0 + fx); wx[1] = cubic(fx); wx[2] = cubic(1.0 - fx); wx[3] = cubic(2.0 - fx)
+
+            var accR = 0.0; var accG = 0.0; var accB = 0.0
+            for (m in -1..2) {
+                val yy = (y0 + m).coerceIn(0, srcH - 1)
+                val rowOff = yy * srcW
+                val wyv = wy[m + 1]
+                for (n in -1..2) {
+                    val xx = (x0 + n).coerceIn(0, srcW - 1)
+                    val px = srcPx[rowOff + xx]
+                    val w = wyv * wx[n + 1]
+                    accR += (((px shr 16) and 0xFF) * w)
+                    accG += (((px shr 8) and 0xFF) * w)
+                    accB += ((px and 0xFF) * w)
+                }
+            }
+            val r = Math.round(accR).toInt().coerceIn(0, 255)
+            val g = Math.round(accG).toInt().coerceIn(0, 255)
+            val b = Math.round(accB).toInt().coerceIn(0, 255)
+            out[dy * dstW + dx] = (0xFF shl 24) or (r shl 16) or (g shl 8) or b
+        }
+    }
+    return Bitmap.createBitmap(out, dstW, dstH, Bitmap.Config.ARGB_8888)
 }
 
 /* ── imagenet-rgb-chw ─────────────────────────────────────────────────────────────── */
@@ -115,9 +179,8 @@ object ImagenetRgbChwPreprocessor : ImagePreprocessor {
  *
  *   {
  *     "size": [256, 256],
- *     "interpolation": "bilinear",   // PoC uses createScaledBitmap(..., true) which is bilinear,
- *                                    // despite a comment in the PoC that says "INTER_CUBIC".
- *                                    // NOTE(tanuh): confirm intent — bilinear or bicubic?
+ *     "interpolation": "cubic",      // bicubic (cv2.INTER_CUBIC) — the reference Python's resize.
+ *                                    // "bilinear"/"nearest" also supported; see resize().
  *     "channel_order": "BGR",        // PoC writes blue → channel 0, green → 1, red → 2
  *     "layout": "CHW",
  *     "scale": 0.00392156862745098,  // 1/255 — applied AFTER the uint8 cast

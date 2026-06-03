@@ -36,7 +36,11 @@ const buildRegistry = (override) => ({
                 encryptionKey: 'YmFzZTY0a2V5',
                 sha256OfPlaintext: 'abcd1234',
             }
-        }
+        },
+        // The 3 MViT2 folds soft-voted by runEnsembleInferenceOnImage.
+        'mvit2_fold1_6': {asset: {type: 'plain', path: 'models/mvit2_fold1_6.bin'}, override: {}},
+        'mvit2_fold1_8': {asset: {type: 'plain', path: 'models/mvit2_fold1_8.bin'}, override: {}},
+        'mvit2_fold2_8': {asset: {type: 'plain', path: 'models/mvit2_fold2_8.bin'}, override: {}},
     }
 });
 
@@ -146,6 +150,77 @@ describe('EdgeModelService', () => {
         await expect(failingService.runInference('oral-cancer-v1', [1.0])).rejects.toThrow('asset not found');
     });
 
+    describe('runEnsembleInferenceOnImage (soft-vote)', () => {
+        const FOLDS = ['mvit2_fold1_6', 'mvit2_fold1_8', 'mvit2_fold2_8'];
+        const sigmoid = (x) => 1 / (1 + Math.exp(-x));
+        const mockPerFold = (byKey) =>
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation((k) => Promise.resolve(byKey[k]));
+
+        it('mean-prob (default): averages per-model sigmoid probabilities and thresholds', async () => {
+            mockPerFold({
+                'mvit2_fold1_6': {label: 'Positive', confidence: 0.8, logit: 1.4},
+                'mvit2_fold1_8': {label: 'Negative', confidence: 0.6, logit: 0.4},
+                'mvit2_fold2_8': {label: 'Positive', confidence: 0.7, logit: 0.85},
+            });
+
+            const r = await service.runEnsembleInferenceOnImage(FOLDS, '/tmp/x.jpg');
+
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(3);
+            expect(r.confidence).toBeCloseTo(0.7, 6);      // (0.8 + 0.6 + 0.7) / 3
+            expect(r.label).toBe('Positive');              // 0.7 > 0.5
+            expect(r.positive).toBe(true);
+            expect(r.perModel.map(p => p.modelKey)).toEqual(FOLDS);
+        });
+
+        it('mean-prob: picks the negative label when the mean is below threshold', async () => {
+            mockPerFold({
+                'mvit2_fold1_6': {confidence: 0.2},
+                'mvit2_fold1_8': {confidence: 0.3},
+                'mvit2_fold2_8': {confidence: 0.4},
+            });
+
+            const r = await service.runEnsembleInferenceOnImage(FOLDS, '/tmp/x.jpg');
+
+            expect(r.confidence).toBeCloseTo(0.3, 6);
+            expect(r.label).toBe('Negative');
+            expect(r.positive).toBe(false);
+        });
+
+        it('mean-logit: averages raw logits then applies sigmoid', async () => {
+            mockPerFold({
+                'mvit2_fold1_6': {logit: 2.0, confidence: sigmoid(2.0)},
+                'mvit2_fold1_8': {logit: -1.0, confidence: sigmoid(-1.0)},
+                'mvit2_fold2_8': {logit: 0.0, confidence: 0.5},
+            });
+
+            const r = await service.runEnsembleInferenceOnImage(FOLDS, '/tmp/x.jpg', {combine: 'mean-logit'});
+
+            expect(r.confidence).toBeCloseTo(sigmoid((2.0 - 1.0 + 0.0) / 3), 6);
+            expect(r.label).toBe('Positive');              // sigmoid(0.333) ≈ 0.582 > 0.5
+        });
+
+        it('honours a custom threshold and labels', async () => {
+            mockPerFold({
+                'mvit2_fold1_6': {confidence: 0.55},
+                'mvit2_fold1_8': {confidence: 0.6},
+                'mvit2_fold2_8': {confidence: 0.65},
+            });
+
+            const r = await service.runEnsembleInferenceOnImage(FOLDS, '/tmp/x.jpg',
+                {threshold: 0.7, labels: ['Benign', 'Malignant']});
+
+            expect(r.confidence).toBeCloseTo(0.6, 6);
+            expect(r.label).toBe('Benign');                // 0.6 < 0.7
+        });
+
+        it('rejects a non-array or empty modelKeys', async () => {
+            await expect(service.runEnsembleInferenceOnImage('mvit2_fold1_6', '/tmp/x.jpg'))
+                .rejects.toThrow('non-empty array');
+            await expect(service.runEnsembleInferenceOnImage([], '/tmp/x.jpg'))
+                .rejects.toThrow('non-empty array');
+        });
+    });
+
     describe('scheduleImageInference', () => {
         const fakeEntity = (uuid, existingValue) => ({
             uuid,
@@ -237,6 +312,39 @@ describe('EdgeModelService', () => {
             await new Promise(r => setImmediate(r));
             expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(2);
         });
+
+        it('soft-votes a fold-array modelKey and dispatches the combined verdict (post-labelMap)', async () => {
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation((k) => Promise.resolve(({
+                'mvit2_fold1_6': {label: 'Positive', confidence: 0.8},
+                'mvit2_fold1_8': {label: 'Negative', confidence: 0.6},
+                'mvit2_fold2_8': {label: 'Positive', confidence: 0.7},
+            })[k]));
+            const folds = ['mvit2_fold1_6', 'mvit2_fold1_8', 'mvit2_fold2_8'];
+
+            service.scheduleImageInference(folds, '/tmp/x.jpg', fakeEntity('e1'), 'AI Suspicion Result',
+                {Positive: 'Suspicious', Negative: 'Non Suspicious'});
+            await new Promise(r => setImmediate(r));
+
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(3);
+            // mean prob = 0.7 > 0.5 → 'Positive' → labelMap → 'Suspicious'
+            expect(service.dispatchAction).toHaveBeenCalledWith(
+                'EDGE_MODEL.INFERENCE_RESULT_AVAILABLE',
+                {conceptName: 'AI Suspicion Result', value: 'Suspicious'}
+            );
+        });
+
+        it('dedups a fold-array ensemble as a single in-flight unit', async () => {
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation(() => Promise.resolve({label: 'Positive', confidence: 0.9}));
+            const folds = ['mvit2_fold1_6', 'mvit2_fold1_8', 'mvit2_fold2_8'];
+            const entity = fakeEntity('e1');
+
+            service.scheduleImageInference(folds, '/tmp/x.jpg', entity, 'AI Suspicion Result');
+            service.scheduleImageInference(folds, '/tmp/x.jpg', entity, 'AI Suspicion Result');  // deduped as one unit
+            await new Promise(r => setImmediate(r));
+
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(3);  // 3 folds once, not 6
+            expect(service.dispatchAction).toHaveBeenCalledTimes(1);
+        });
     });
 
     describe('scheduleImageInferenceIntoGroup', () => {
@@ -324,6 +432,25 @@ describe('EdgeModelService', () => {
 
             expect(NativeModules.EdgeModelModule.runInferenceOnImage).not.toHaveBeenCalled();
             expect(service.dispatchAction).not.toHaveBeenCalled();
+        });
+
+        it('soft-votes a fold-array modelKey into an RQG row', async () => {
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation((k) => Promise.resolve(({
+                'mvit2_fold1_6': {label: 'Positive', confidence: 0.8},
+                'mvit2_fold1_8': {label: 'Negative', confidence: 0.6},
+                'mvit2_fold2_8': {label: 'Positive', confidence: 0.7},
+            })[k]));
+            const folds = ['mvit2_fold1_6', 'mvit2_fold1_8', 'mvit2_fold2_8'];
+
+            service.scheduleImageInferenceIntoGroup(folds, '/tmp/x.jpg', fakeRqgEntity('e1', [{}]),
+                'Lesion Group', 'AI Suspicion Result', 0, {Positive: 'Suspicious', Negative: 'Non Suspicious'});
+            await new Promise(r => setImmediate(r));
+
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(3);
+            expect(service.dispatchAction).toHaveBeenCalledWith(
+                'EDGE_MODEL.INFERENCE_RESULT_AVAILABLE',
+                {questionGroupConceptName: 'Lesion Group', conceptName: 'AI Suspicion Result', questionGroupIndex: 0, value: 'Suspicious'}
+            );
         });
     });
 });
