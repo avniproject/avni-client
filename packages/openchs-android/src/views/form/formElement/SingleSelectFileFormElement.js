@@ -50,8 +50,9 @@ class SingleSelectFileFormElement extends FileFormElement {
         return (
             <SafeAreaView>
                 <FormElementLabelWithDocumentation element={this.props.element}/>
-                {this.mediaUri ? this.showMedia(this.mediaUri, this.clearAnswer.bind(this)) :
-                    this.showInputOptions(this.onUpdateObservations.bind(this))}
+                {this.mediaUri
+                    ? this.showMedia(this.mediaUri, this.clearAnswer.bind(this))
+                    : (this.isReadOnly ? this.showEmptyReadOnly() : this.showInputOptions(this.onUpdateObservations.bind(this)))}
                 <View style={styles.lineStyle}/>
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
             </SafeAreaView>

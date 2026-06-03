@@ -112,9 +112,9 @@ class FileFormElement extends AbstractFormElement {
         return (
             <View style={styles.content}>
                 <ExpandableMedia source={mediaUri} type={this.props.element.concept.datatype}/>
-                <TouchableNativeFeedback onPress={() => onClearAnswer()}>
+                {!this.isReadOnly && <TouchableNativeFeedback onPress={() => onClearAnswer()}>
                     <Icon name={"backspace"} style={[styles.icon]}/>
-                </TouchableNativeFeedback>
+                </TouchableNativeFeedback>}
             </View>
         );
     }

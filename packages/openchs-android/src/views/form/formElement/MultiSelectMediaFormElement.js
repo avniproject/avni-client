@@ -79,17 +79,10 @@ export default class MultiSelectMediaFormElement extends MediaFormElement {
 
     render() {
         if (this.isReadOnly) {
-            const uris = this.mediaUris;
             return (
                 <View style={{marginVertical: 16}}>
                     <FormElementLabelWithDocumentation element={this.props.element}/>
-                    {_.isEmpty(uris) ? this.showEmptyReadOnly() :
-                        _.map(uris, (uri, index) => (
-                            <View key={index} style={{marginBottom: 3}}>
-                                {this.showMedia(uri)}
-                                <View style={{flex: 1, borderColor: 'black', borderBottomWidth: StyleSheet.hairlineWidth, opacity: 0.1}}/>
-                            </View>
-                        ))}
+                    {this.renderReadOnlyMediaList(this.mediaUris)}
                     <ValidationErrorMessage validationResult={this.props.validationResult}/>
                 </View>
             );
