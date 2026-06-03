@@ -124,6 +124,7 @@
     "individualDashboard": "डॅशबोर्ड",
     "scheduled": "नियोजित तारीख",
     "observations": "निरीक्षण",
+    "observationSummary": "निरीक्षण",
     "deleteSchemaConfirmationMessage": "तुम्हाला सर्व डाटा डीलीट करायचा आहे काय",
     "deleteSchemaNoticeTitle": "डाटा डीलीट?",
     "userId": "वापरकर्ता ID",

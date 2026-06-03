@@ -155,6 +155,7 @@
     "total": "Total",
     "systemRecommendations": "System Recommendations",
     "observations": "Observations",
+    "observationSummary": "Observations",
     "deleteSchemaConfirmationMessage": "You will lose information that is not synced",
     "deleteSchemaNoticeTitle": "Delete Data?",
     "userId": "User ID",
