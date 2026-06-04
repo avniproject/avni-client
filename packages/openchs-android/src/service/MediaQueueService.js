@@ -171,6 +171,8 @@ class MediaQueueService extends BaseService {
         return fs.unlink(absoluteFileName);
     }
 
+    // Returns false when nothing referenced mediaQueueItem.fileName — the entity is then left
+    // unwritten (no EntityQueue push of an unchanged entity).
     replaceObservation(mediaQueueItem, url) {
         General.logDebug("MediaQueueService", `Replacing observation with value ${url}`);
 
@@ -179,7 +181,11 @@ class MediaQueueService extends BaseService {
         if (mediaQueueItem.entityTargetField === "profilePicture") {
             entity.updateProfilePicture(canonicalUrl);
         } else if (mediaQueueItem.entityTargetField === "observations") {
-            entity.replaceMediaObservation(mediaQueueItem.fileName, canonicalUrl, mediaQueueItem.conceptUUID);
+            // Replaces the value in EVERY observation referencing it — the same file can be
+            // referenced by multiple concepts (e.g. a rule-copied read-only display element),
+            // which is also why the fileName-only dedup in addToQueue is sufficient.
+            const replaced = entity.replaceMediaObservation(mediaQueueItem.fileName, canonicalUrl, mediaQueueItem.conceptUUID);
+            if (!replaced) return false;
         }
         switch (mediaQueueItem.entityName) {
             case Individual.schema.name:
@@ -195,6 +201,7 @@ class MediaQueueService extends BaseService {
                 this.getService(ProgramEnrolmentService).updateObservations(entity);
                 break;
         }
+        return true;
     }
 
     async uploadMediaQueueItem(mediaQueueItem) {
@@ -217,7 +224,17 @@ class MediaQueueService extends BaseService {
             })
             .then(() => this.uploadToUrl(uploadUrl, mediaQueueItem))
             .then(() => this.replaceObservation(mediaQueueItem, uploadUrl))
-            .then(() => this.popItem(mediaQueueItem))
+            .then((replaced) => {
+                if (!replaced) {
+                    // The file uploaded fine but nothing references it any more (obs edited /
+                    // voided / already canonical). Drop the item — retaining it would re-upload
+                    // on every sync — but loudly: a miss here used to mean durable bad data.
+                    const message = `replaceMediaObservation found no observation referencing '${mediaQueueItem.fileName}' on ${mediaQueueItem.entityName} ${mediaQueueItem.entityUUID} (concept ${mediaQueueItem.conceptUUID})`;
+                    General.logError("MediaQueueService", message);
+                    ErrorUtil.notifyBugsnag(new Error(message), "MediaQueueService");
+                }
+                return this.popItem(mediaQueueItem);
+            })
             .catch((error) => {
                 General.logError("MediaQueueService", error);
                 return Promise.reject(error);
