@@ -186,6 +186,8 @@ class MediaQueueService extends BaseService {
             // which is also why the fileName-only dedup in addToQueue is sufficient.
             const replaced = entity.replaceMediaObservation(mediaQueueItem.fileName, canonicalUrl, mediaQueueItem.conceptUUID);
             if (!replaced) return false;
+        } else {
+            throw new Error(`Unknown entityTargetField '${mediaQueueItem.entityTargetField}' on MediaQueue item ${mediaQueueItem.uuid}`);
         }
         switch (mediaQueueItem.entityName) {
             case Individual.schema.name:
@@ -200,6 +202,8 @@ class MediaQueueService extends BaseService {
             case ProgramEnrolment.schema.name:
                 this.getService(ProgramEnrolmentService).updateObservations(entity);
                 break;
+            default:
+                throw new Error(`Unknown entityName '${mediaQueueItem.entityName}' on MediaQueue item ${mediaQueueItem.uuid}`);
         }
         return true;
     }
@@ -226,12 +230,10 @@ class MediaQueueService extends BaseService {
             .then(() => this.replaceObservation(mediaQueueItem, uploadUrl))
             .then((replaced) => {
                 if (!replaced) {
-                    // The file uploaded fine but nothing references it any more (obs edited /
-                    // voided / already canonical). Drop the item — retaining it would re-upload
-                    // on every sync — but loudly: a miss here used to mean durable bad data.
+                    // Benign causes are common — the user edited/removed the photo between enqueue
+                    // and sync — so log loudly but don't page.
                     const message = `replaceMediaObservation found no observation referencing '${mediaQueueItem.fileName}' on ${mediaQueueItem.entityName} ${mediaQueueItem.entityUUID} (concept ${mediaQueueItem.conceptUUID})`;
                     General.logError("MediaQueueService", message);
-                    ErrorUtil.notifyBugsnag(new Error(message), "MediaQueueService");
                 }
                 return this.popItem(mediaQueueItem);
             })
