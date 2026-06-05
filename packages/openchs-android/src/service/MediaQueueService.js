@@ -171,6 +171,8 @@ class MediaQueueService extends BaseService {
         return fs.unlink(absoluteFileName);
     }
 
+    // Returns false when nothing referenced mediaQueueItem.fileName — the entity is then left
+    // unwritten (no EntityQueue push of an unchanged entity).
     replaceObservation(mediaQueueItem, url) {
         General.logDebug("MediaQueueService", `Replacing observation with value ${url}`);
 
@@ -179,7 +181,13 @@ class MediaQueueService extends BaseService {
         if (mediaQueueItem.entityTargetField === "profilePicture") {
             entity.updateProfilePicture(canonicalUrl);
         } else if (mediaQueueItem.entityTargetField === "observations") {
-            entity.replaceMediaObservation(mediaQueueItem.fileName, canonicalUrl, mediaQueueItem.conceptUUID);
+            // Replaces the value in EVERY observation referencing it — the same file can be
+            // referenced by multiple concepts (e.g. a rule-copied read-only display element),
+            // which is also why the fileName-only dedup in addToQueue is sufficient.
+            const replaced = entity.replaceMediaObservation(mediaQueueItem.fileName, canonicalUrl, mediaQueueItem.conceptUUID);
+            if (!replaced) return false;
+        } else {
+            throw new Error(`Unknown entityTargetField '${mediaQueueItem.entityTargetField}' on MediaQueue item ${mediaQueueItem.uuid}`);
         }
         switch (mediaQueueItem.entityName) {
             case Individual.schema.name:
@@ -194,7 +202,10 @@ class MediaQueueService extends BaseService {
             case ProgramEnrolment.schema.name:
                 this.getService(ProgramEnrolmentService).updateObservations(entity);
                 break;
+            default:
+                throw new Error(`Unknown entityName '${mediaQueueItem.entityName}' on MediaQueue item ${mediaQueueItem.uuid}`);
         }
+        return true;
     }
 
     async uploadMediaQueueItem(mediaQueueItem) {
@@ -217,7 +228,15 @@ class MediaQueueService extends BaseService {
             })
             .then(() => this.uploadToUrl(uploadUrl, mediaQueueItem))
             .then(() => this.replaceObservation(mediaQueueItem, uploadUrl))
-            .then(() => this.popItem(mediaQueueItem))
+            .then((replaced) => {
+                if (!replaced) {
+                    // Benign causes are common — the user edited/removed the photo between enqueue
+                    // and sync — so log loudly but don't page.
+                    const message = `replaceMediaObservation found no observation referencing '${mediaQueueItem.fileName}' on ${mediaQueueItem.entityName} ${mediaQueueItem.entityUUID} (concept ${mediaQueueItem.conceptUUID})`;
+                    General.logError("MediaQueueService", message);
+                }
+                return this.popItem(mediaQueueItem);
+            })
             .catch((error) => {
                 General.logError("MediaQueueService", error);
                 return Promise.reject(error);

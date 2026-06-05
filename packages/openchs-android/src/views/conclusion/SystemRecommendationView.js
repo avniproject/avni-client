@@ -174,7 +174,7 @@ class SystemRecommendationView extends AbstractComponent {
         const onYesPress = () => {
             // Check if this is a program encounter based on saveActionName
             const isProgramEncounter = this.props.saveActionName.startsWith('PEncA');
-            
+
             if (isProgramEncounter) {
                 // For program encounters, use the enrolmentUUID if available
                 if (this.props.enrolmentUUID) {
@@ -184,7 +184,7 @@ class SystemRecommendationView extends AbstractComponent {
                 // For individual encounters, refresh individual drafts
                 this.dispatchAction(IGHActions.ON_RENDER, {individualUUID: this.props.individual.uuid});
             }
-            
+
             CHSNavigator.navigateToFirstPage(this, wizardViews);
         }
         isSaveDraftOn ? onYesPress() : AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
@@ -239,7 +239,7 @@ class SystemRecommendationView extends AbstractComponent {
                                 {!_.isNil(this.props.individual) &&
                                     <GroupAffiliationInformation individual={this.props.individual} affiliatedGroups={this.props.affiliatedGroups} I18n={this.I18n}/>}
                                 <Observations observations={this.props.observations} form={this.props.form}
-                                              title={this.I18n.t('observations')}/>
+                                              title={this.I18n.t('observationSummary')}/>
                                 <WizardButtons previous={{
                                     func: () => !_.isUndefined(this.props.onPreviousCallback) ? this.props.onPreviousCallback(this.context) : this.previous(),
                                     label: this.I18n.t('previous')

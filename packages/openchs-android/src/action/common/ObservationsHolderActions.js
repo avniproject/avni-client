@@ -1,6 +1,7 @@
 import _ from "lodash";
-import {Concept, Duration, FormElementGroup, Observation, ValidationResult} from 'openchs-models';
+import {Concept, Duration, FormElementGroup, Observation, RepeatableQuestionGroup, ValidationResult} from 'openchs-models';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
+import General from "../../utility/General";
 
 class ObservationsHolderActions {
     static updateFormElements(formElementGroup, state, context) {
@@ -124,6 +125,9 @@ class ObservationsHolderActions {
      *     ObservationsHolder.addOrUpdateCodedObs → Concept.getAnswerWithConceptName.
      *   • Primitive (text/numeric/date): value is stored verbatim.
      *
+     * When the action carries a questionGroupConceptName, the result is written into row
+     * `questionGroupIndex` of that Repeatable Question Group instead of at top level.
+     *
      * Safe to dispatch even when this form isn't open: combineReducers fans the action
      * out to every form's reducer slice, but if the slice isn't currently editing a
      * form (no formElementGroup, no matching concept on the page) we bail and return
@@ -131,6 +135,9 @@ class ObservationsHolderActions {
      */
     static onInferenceResultAvailable(state, action, context) {
         if (!state || !state.formElementGroup || !state.observationsHolder) return state;
+        if (action.questionGroupConceptName != null) {
+            return ObservationsHolderActions._writeInferenceIntoGroup(state, action, context);
+        }
         const formElement = _.find(
             state.formElementGroup.getFormElements(),
             fe => fe && fe.concept && fe.concept.name === action.conceptName
@@ -144,6 +151,49 @@ class ObservationsHolderActions {
         } else {
             newState.observationsHolder.addOrUpdatePrimitiveObs(formElement.concept, action.value);
         }
+        ObservationsHolderActions._getFormElementStatuses(newState, context);
+        return newState;
+    }
+
+    static _writeInferenceIntoGroup(state, action, context) {
+        const childFormElement = _.find(
+            state.formElementGroup.getFormElements(),
+            fe => fe && fe.concept && fe.concept.name === action.conceptName && fe.isQuestionGroup()
+                && _.get(fe.getParentFormElement(), 'concept.name') === action.questionGroupConceptName
+        );
+        if (!childFormElement) return state;
+        const parentFormElement = childFormElement.getParentFormElement();
+        if (!parentFormElement || !parentFormElement.isRepeatableQuestionGroup()) return state;
+
+        const newState = state.clone();
+        const parentObs = newState.observationsHolder.getObservation(parentFormElement.concept);
+        const rqg = parentObs && parentObs.getValueWrapper();
+        if (!rqg || rqg.size() <= action.questionGroupIndex) {
+            General.logDebug('ObservationsHolderActions',
+                `onInferenceResultAvailable SKIP: RQG '${action.questionGroupConceptName}' has no row ${action.questionGroupIndex}`);
+            return state;
+        }
+
+        const childConcept = childFormElement.concept;
+        let value = action.value;
+        if (childConcept.isCodedConcept()) {
+            // updateChildObservations expects the answer concept UUID for coded; resolve the
+            // (already label-mapped) answer name the same way addOrUpdateCodedObs does.
+            const answer = childConcept.getAnswerWithConceptName(action.value);
+            value = answer && answer.concept ? answer.concept.uuid : null;
+            if (value == null) {
+                General.logError('ObservationsHolderActions',
+                    `onInferenceResultAvailable SKIP: no coded answer '${action.value}' on concept '${childConcept.name}'`);
+                return state;
+            }
+            // updateRepeatableGroupQuestion toggles coded answers, so re-writing the same answer
+            // (e.g. a retake that re-confirms the verdict) would clear it. Drop any existing
+            // child obs first so the answer is always set fresh — parity with addOrUpdateCodedObs.
+            rqg.getGroupObservationAtIndex(action.questionGroupIndex).removeExistingObs(childConcept);
+        }
+        newState.observationsHolder.updateRepeatableGroupQuestion(
+            action.questionGroupIndex, parentFormElement, childFormElement, value
+        );
         ObservationsHolderActions._getFormElementStatuses(newState, context);
         return newState;
     }
@@ -253,24 +303,43 @@ class ObservationsHolderActions {
         const dataType = action.formElement.concept.datatype;
         if (dataType === Concept.dataType.Numeric && !_.isEmpty(action.value) && _.isNaN(_.toNumber(action.value)))
             return newState;
-        let value = !_.isEmpty(action.value) && action.convertToNumber ? _.toNumber(action.value) : action.value || action.answerUUID;
-        if (dataType === Concept.dataType.Duration) {
-            value = action.compositeDuration;
-        }
-        if (dataType === Concept.dataType.Date && !_.isNil(action.formElement.durationOptions)) {
-            if (_.isNil(action.duration)) {
-                value = action.value;
-            } else {
-                const duration = new Duration(action.duration.durationValue, action.duration.durationUnit);
-                value = duration.dateInPastBasedOnToday(state.getEffectiveDataEntryDate());
-                newState.formElementsUserState[`${action.formElement.uuid}-${action.questionGroupIndex}`] = {durationUnit: action.duration.durationUnit};
+
+        const isStructuralAction = action.action === RepeatableQuestionGroup.actions.add
+            || action.action === RepeatableQuestionGroup.actions.remove;
+        const answerUUIDs = _.isArray(action.answerUUIDs) ? action.answerUUIDs : null;
+
+        let value;
+        if (answerUUIDs) {
+            // Select/Unselect-all inside an RQG row: toggle each uuid against the row's child observation.
+            answerUUIDs.forEach((uuid) => {
+                newState.observationsHolder.updateRepeatableGroupQuestion(
+                    action.questionGroupIndex, action.parentFormElement, action.formElement, uuid
+                );
+            });
+            const postToggleObs = newState.observationsHolder.findQuestionGroupObservation(
+                action.formElement.concept, action.parentFormElement, action.questionGroupIndex
+            );
+            value = postToggleObs ? postToggleObs.getValueWrapper() : null;
+        } else {
+            value = !_.isEmpty(action.value) && action.convertToNumber ? _.toNumber(action.value) : action.value || action.answerUUID;
+            if (dataType === Concept.dataType.Duration) {
+                value = action.compositeDuration;
             }
+            if (dataType === Concept.dataType.Date && !_.isNil(action.formElement.durationOptions)) {
+                if (_.isNil(action.duration)) {
+                    value = action.value;
+                } else {
+                    const duration = new Duration(action.duration.durationValue, action.duration.durationUnit);
+                    value = duration.dateInPastBasedOnToday(state.getEffectiveDataEntryDate());
+                    newState.formElementsUserState[`${action.formElement.uuid}-${action.questionGroupIndex}`] = {durationUnit: action.duration.durationUnit};
+                }
+            }
+            newState.observationsHolder.updateRepeatableGroupQuestion(action.questionGroupIndex, action.parentFormElement, action.formElement, value, action.action);
         }
-        newState.observationsHolder.updateRepeatableGroupQuestion(action.questionGroupIndex, action.parentFormElement, action.formElement, value, action.action);
-        return ObservationsHolderActions.handleFormElementStatuses(newState, context, action, value);
+        return ObservationsHolderActions.handleFormElementStatuses(newState, context, action, value, isStructuralAction);
     }
 
-    static handleFormElementStatuses(newState, context, action, value) {
+    static handleFormElementStatuses(newState, context, action, value, skipElementValidation = false) {
         let formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
         if (ObservationsHolderActions.hasQuestionGroupWithValueInElementStatus(formElementStatuses, action.formElement.formElementGroup.getFormElements())) {
             formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
@@ -279,12 +348,19 @@ class ObservationsHolderActions {
         const hiddenFormElementStatus = _.filter(formElementStatuses, (form) => form.visibility === false);
         newState.observationsHolder.updatePrimitiveCodedObs(newState.filteredFormElements, formElementStatuses);
         newState.removeHiddenFormValidationResults(hiddenFormElementStatus);
-        let validationResult = action.formElement.validate(value);
+        let validationResult;
+        if (skipElementValidation) {
+            // add/remove a question-group row carries no value to validate against the parent RQG.
+            // Emit a success so any prior "empty" error on the parent is cleared instead of preserved.
+            validationResult = ValidationResult.successful(action.formElement.uuid);
+        } else {
+            validationResult = action.formElement.validate(value);
+        }
         validationResult.addQuestionGroupIndex(action.questionGroupIndex);
-        if (action.validationResult && validationResult.success) {
+        if (!skipElementValidation && action.validationResult && validationResult.success) {
             validationResult = action.validationResult;
         }
-        if (action.formElement.isUnique && !_.isNil(value) && validationResult.success) {
+        if (!skipElementValidation && action.formElement.isUnique && !_.isNil(value) && validationResult.success) {
             validationResult = ObservationsHolderActions._ensureValueIsUniqueInTheDatabase(newState, value, action.formElement, context);
         }
         newState.handleValidationResults(ObservationsHolderActions.addPreviousValidationErrors(ruleValidationErrors, validationResult, newState.validationResults), context);

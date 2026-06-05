@@ -44,9 +44,9 @@ function makeBaseState({existingSession = null, followUpEncounterType = null} = 
         scheduledDate: "2026-05-21",
         existingSession,
         roster: [
-            {subjectUUID: "s1", name: "Aarav", status: AttendanceRecord.status.PRESENT, reasonConceptUUID: null},
-            {subjectUUID: "s2", name: "Esha", status: AttendanceRecord.status.ABSENT, reasonConceptUUID: null},
-            {subjectUUID: "s3", name: "Chirag", status: AttendanceRecord.status.ABSENT, reasonConceptUUID: "sick"},
+            {subjectUUID: "s1", name: "Aarav", status: AttendanceRecord.status.PRESENT, reasonConceptUUID: null, needsFollowUp: false},
+            {subjectUUID: "s2", name: "Esha", status: AttendanceRecord.status.ABSENT, reasonConceptUUID: null, needsFollowUp: true},
+            {subjectUUID: "s3", name: "Chirag", status: AttendanceRecord.status.ABSENT, reasonConceptUUID: "sick", needsFollowUp: false},
         ],
         notes: "Started late.",
         absenceReasonAnswers: [],
@@ -154,7 +154,7 @@ describe("RosterActions.onSave — atomic save composition", () => {
         assert.equal(args.attendanceRecords.length, 3);
     });
 
-    it("creates a general Encounter follow-up for absent-no-reason students when EncounterType is NOT program-bound", () => {
+    it("creates a general Encounter follow-up for absent students flagged needsFollowUp when EncounterType is NOT program-bound", () => {
         const encounterType = {uuid: "et-uuid", name: "Home Visit"};
         entityService.findByUUID.mockReturnValue(encounterType);
         formMappingService.findProgramUUIDForEncounterType.mockReturnValue(null);
@@ -163,7 +163,7 @@ describe("RosterActions.onSave — atomic save composition", () => {
         RosterActions.onSave(state, {}, buildContext());
 
         const args = saveOrUpdateSpy.mock.calls[0][0];
-        // Only Esha (Absent + no reason) — Aarav is Present, Chirag is Absent with a reason.
+        // Only Esha (Absent + needsFollowUp) — Aarav is Present, Chirag is Absent without the flag.
         assert.equal(args.followUps.length, 1);
         const [{encounter, schemaName}] = args.followUps;
         assert.equal(schemaName, Encounter.schema.name);
@@ -250,15 +250,15 @@ describe("RosterActions.onSave — atomic save composition", () => {
         attendanceRecordService.findBySession.mockReturnValue([priorPresent]);
         const state = makeBaseState({followUpEncounterType: "et-uuid"});
         state.existingSession = {uuid: "session-existing", status: Session.status.HELD, notes: "", reasonConceptUUID: null};
-        // Current roster (step 3): only s1, now Absent without a reason.
+        // Current roster (step 3): only s1, now Absent and flagged for follow-up.
         state.roster = [
-            {subjectUUID: "s1", name: "Aarav", status: AttendanceRecord.status.ABSENT, reasonConceptUUID: null},
+            {subjectUUID: "s1", name: "Aarav", status: AttendanceRecord.status.ABSENT, reasonConceptUUID: null, needsFollowUp: true},
         ];
 
         RosterActions.onSave(state, {}, buildContext());
 
         const args = saveOrUpdateSpy.mock.calls[0][0];
-        assert.equal(args.followUps.length, 1, "must create a follow-up when the student is now absent-no-reason");
+        assert.equal(args.followUps.length, 1, "must create a follow-up when the student is now flagged for follow-up");
         const [{encounter}] = args.followUps;
         assert.equal(encounter.individual.uuid, "s1");
         // The new AttendanceRecord must carry the freshly-created encounter's UUID,
@@ -288,7 +288,7 @@ describe("RosterActions.onSave — atomic save composition", () => {
         const state = makeBaseState({followUpEncounterType: "et-uuid"});
         state.existingSession = {uuid: "session-existing", status: Session.status.HELD, notes: "", reasonConceptUUID: null};
         state.roster = [
-            {subjectUUID: "s1", name: "Aarav", status: AttendanceRecord.status.ABSENT, reasonConceptUUID: null},
+            {subjectUUID: "s1", name: "Aarav", status: AttendanceRecord.status.ABSENT, reasonConceptUUID: null, needsFollowUp: true},
         ];
 
         RosterActions.onSave(state, {}, buildContext());
@@ -314,6 +314,7 @@ describe("RosterActions.onSave — atomic save composition", () => {
             status: AttendanceRecord.status.ABSENT,
             reasonConceptUUID: null,
             followUpEncounterUUID: "enc-prior-live",
+            needsFollowUp: true,
             voided: false,
         };
         attendanceRecordService.findBySession.mockReturnValue([priorAbsentNoReason]);
@@ -361,6 +362,142 @@ describe("RosterActions.onSave — atomic save composition", () => {
 
         assert.equal(saveOrUpdateSpy.mock.calls.length, 0);
         assert.equal(newState.saveError, "rosterEmptyError");
+    });
+
+    it("preserves the prior followUpEncounterUUID on re-save when both prior and new state are Absent + flagged", () => {
+        // Happy-path mirror of "does not propagate a stale follow-up link...":
+        // re-saving an Absent + ticked row without changing anything should carry
+        // the existing encounter UUID forward so voidStaleFollowUps leaves it alone.
+        const encounterType = {uuid: "et-uuid", name: "Home Visit"};
+        entityService.findByUUID.mockReturnValue(encounterType);
+        formMappingService.findProgramUUIDForEncounterType.mockReturnValue(null);
+        const priorAbsentFlagged = {
+            uuid: "rec-1-prior", subjectUUID: "s1",
+            status: AttendanceRecord.status.ABSENT,
+            reasonConceptUUID: null,
+            followUpEncounterUUID: "enc-prior-live",
+            needsFollowUp: true,
+            voided: false,
+        };
+        attendanceRecordService.findBySession.mockReturnValue([priorAbsentFlagged]);
+        const state = makeBaseState({followUpEncounterType: "et-uuid"});
+        state.existingSession = {uuid: "session-existing", status: Session.status.HELD, notes: "", reasonConceptUUID: null};
+        state.roster = [
+            {subjectUUID: "s1", name: "Aarav", status: AttendanceRecord.status.ABSENT, reasonConceptUUID: null, needsFollowUp: true},
+        ];
+
+        RosterActions.onSave(state, {}, buildContext());
+
+        const args = saveOrUpdateSpy.mock.calls[0][0];
+        const studentRecord = args.attendanceRecords.find(r => r.subjectUUID === "s1");
+        assert.equal(studentRecord.followUpEncounterUUID, "enc-prior-live", "existing follow-up link must survive a no-op re-save");
+        // autoCreateFollowUps must not create a duplicate when the link is preserved.
+        assert.equal(args.followUps.length, 0, "no new encounter on re-save when prior link is intact");
+    });
+
+    it("clears the back-link on re-save when the user un-ticks needsFollowUp while still Absent (so voidStaleFollowUps can void the encounter)", () => {
+        const encounterType = {uuid: "et-uuid", name: "Home Visit"};
+        entityService.findByUUID.mockReturnValue(encounterType);
+        formMappingService.findProgramUUIDForEncounterType.mockReturnValue(null);
+        const priorAbsentFlagged = {
+            uuid: "rec-1-prior", subjectUUID: "s1",
+            status: AttendanceRecord.status.ABSENT,
+            reasonConceptUUID: null,
+            followUpEncounterUUID: "enc-prior-live",
+            needsFollowUp: true,
+            voided: false,
+        };
+        attendanceRecordService.findBySession.mockReturnValue([priorAbsentFlagged]);
+        const state = makeBaseState({followUpEncounterType: "et-uuid"});
+        state.existingSession = {uuid: "session-existing", status: Session.status.HELD, notes: "", reasonConceptUUID: null};
+        // Still Absent, but user un-ticked the checkbox before re-saving.
+        state.roster = [
+            {subjectUUID: "s1", name: "Aarav", status: AttendanceRecord.status.ABSENT, reasonConceptUUID: null, needsFollowUp: false},
+        ];
+
+        RosterActions.onSave(state, {}, buildContext());
+
+        const args = saveOrUpdateSpy.mock.calls[0][0];
+        const studentRecord = args.attendanceRecords.find(r => r.subjectUUID === "s1");
+        assert.isNull(studentRecord.followUpEncounterUUID, "back-link must be cleared so it doesn't dangle at a voided encounter");
+        // previousRecords still carries the link — voidStaleFollowUps inside saveOrUpdate
+        // uses it to find and void the now-stale encounter.
+        assert.equal(args.previousRecords[0].followUpEncounterUUID, "enc-prior-live");
+    });
+
+    it("three Absent students with two ticked creates exactly two follow-up encounters", () => {
+        const encounterType = {uuid: "et-uuid", name: "Home Visit"};
+        entityService.findByUUID.mockReturnValue(encounterType);
+        formMappingService.findProgramUUIDForEncounterType.mockReturnValue(null);
+        const state = makeBaseState({followUpEncounterType: "et-uuid"});
+        state.roster = [
+            {subjectUUID: "a", name: "Aarav", status: AttendanceRecord.status.ABSENT, reasonConceptUUID: null, needsFollowUp: true},
+            {subjectUUID: "b", name: "Bhavna", status: AttendanceRecord.status.ABSENT, reasonConceptUUID: "sick", needsFollowUp: false},
+            {subjectUUID: "c", name: "Chirag", status: AttendanceRecord.status.ABSENT, reasonConceptUUID: "drop-out", needsFollowUp: true},
+        ];
+
+        RosterActions.onSave(state, {}, buildContext());
+
+        const args = saveOrUpdateSpy.mock.calls[0][0];
+        assert.equal(args.followUps.length, 2, "exactly the two ticked students get follow-ups");
+        const flaggedSubjectUUIDs = args.followUps.map(f => f.encounter.individual.uuid).sort();
+        assert.deepEqual(flaggedSubjectUUIDs, ["a", "c"]);
+        const bhavna = args.attendanceRecords.find(r => r.subjectUUID === "b");
+        assert.isNull(bhavna.followUpEncounterUUID, "the un-ticked row stays unlinked");
+    });
+
+    it("Drop-out ticked → follow-up; Unwell un-ticked → no follow-up (issue card example)", () => {
+        // The issue's literal scenario: a student marked 'Drop-out' with the
+        // checkbox ticked gets a follow-up; one marked 'Unwell' without it does not.
+        // Proves the decoupling for both directions in a single roster.
+        const encounterType = {uuid: "et-uuid", name: "Home Visit"};
+        entityService.findByUUID.mockReturnValue(encounterType);
+        formMappingService.findProgramUUIDForEncounterType.mockReturnValue(null);
+        const state = makeBaseState({followUpEncounterType: "et-uuid"});
+        state.roster = [
+            {subjectUUID: "s-dropout", name: "Dropout student", status: AttendanceRecord.status.ABSENT, reasonConceptUUID: "drop-out", needsFollowUp: true},
+            {subjectUUID: "s-unwell", name: "Unwell student", status: AttendanceRecord.status.ABSENT, reasonConceptUUID: "unwell", needsFollowUp: false},
+        ];
+
+        RosterActions.onSave(state, {}, buildContext());
+
+        const args = saveOrUpdateSpy.mock.calls[0][0];
+        assert.equal(args.followUps.length, 1, "exactly one follow-up — the ticked Drop-out student");
+        assert.equal(args.followUps[0].encounter.individual.uuid, "s-dropout");
+        const unwell = args.attendanceRecords.find(r => r.subjectUUID === "s-unwell");
+        assert.isNull(unwell.followUpEncounterUUID, "Unwell without the flag must not be linked to any follow-up");
+    });
+
+    it("creates a follow-up for absent students who have a reason AND are flagged for follow-up (decoupling)", () => {
+        const encounterType = {uuid: "et-uuid", name: "Home Visit"};
+        entityService.findByUUID.mockReturnValue(encounterType);
+        formMappingService.findProgramUUIDForEncounterType.mockReturnValue(null);
+        const state = makeBaseState({followUpEncounterType: "et-uuid"});
+        // Chirag is Absent with a reason and now also flagged for follow-up.
+        state.roster = [
+            {subjectUUID: "s3", name: "Chirag", status: AttendanceRecord.status.ABSENT, reasonConceptUUID: "sick", needsFollowUp: true},
+        ];
+
+        RosterActions.onSave(state, {}, buildContext());
+
+        const args = saveOrUpdateSpy.mock.calls[0][0];
+        assert.equal(args.followUps.length, 1, "reason + needsFollowUp must still trigger");
+        assert.equal(args.followUps[0].encounter.individual.uuid, "s3");
+    });
+
+    it("creates no follow-up for absent students with no needsFollowUp flag, even when reason is blank", () => {
+        const encounterType = {uuid: "et-uuid", name: "Home Visit"};
+        entityService.findByUUID.mockReturnValue(encounterType);
+        formMappingService.findProgramUUIDForEncounterType.mockReturnValue(null);
+        const state = makeBaseState({followUpEncounterType: "et-uuid"});
+        state.roster = [
+            {subjectUUID: "s2", name: "Esha", status: AttendanceRecord.status.ABSENT, reasonConceptUUID: null, needsFollowUp: false},
+        ];
+
+        RosterActions.onSave(state, {}, buildContext());
+
+        const args = saveOrUpdateSpy.mock.calls[0][0];
+        assert.equal(args.followUps.length, 0, "absence alone no longer triggers a follow-up");
     });
 
     it("returns a lastSaveResult summary that the confirmation dialog can render", () => {

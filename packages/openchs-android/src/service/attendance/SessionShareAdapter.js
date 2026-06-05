@@ -77,13 +77,14 @@ class SessionShareAdapter extends BaseService {
             .map(r => {
                 const student = individualService.findByUUID(r.subjectUUID);
                 const studentName = student ? student.nameString : "";
-                let reasonName;
-                if (r.reasonConceptUUID) {
-                    const concept = conceptService.getConceptByUUID(r.reasonConceptUUID);
-                    if (concept && concept.name) reasonName = this.I18n.t(concept.name);
-                }
+                const reasonNames = (r.reasonConceptUUIDs || [])
+                    .map(uuid => {
+                        const concept = conceptService.getConceptByUUID(uuid);
+                        return concept && concept.name ? this.I18n.t(concept.name) : null;
+                    })
+                    .filter(Boolean);
                 const entry = {studentName, status: r.status};
-                if (reasonName) entry.reasonName = reasonName;
+                if (reasonNames.length) entry.reasonName = reasonNames.join(", ");
                 if (r.followUpEncounterUUID) entry.followUpEncounterUUID = r.followUpEncounterUUID;
                 return entry;
             });

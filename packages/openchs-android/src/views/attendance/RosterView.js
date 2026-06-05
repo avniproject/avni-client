@@ -34,7 +34,6 @@ class RosterView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.attendanceRoster);
-        this._pickingFor = null;
         // Double-tap on Save would re-dispatch and drop pendingAutoShareWorkItem.
         this._saveInFlight = false;
     }
@@ -50,6 +49,7 @@ class RosterView extends AbstractComponent {
     }
 
     _onToggle = (subjectUUID) => this.dispatchAction(RosterActions.Names.TOGGLE_PRESENCE, {subjectUUID});
+    _onToggleNeedsFollowUp = (subjectUUID) => this.dispatchAction(RosterActions.Names.TOGGLE_NEEDS_FOLLOW_UP, {subjectUUID});
     _onSetNotes = (notes) => this.dispatchAction(RosterActions.Names.SET_NOTES, {notes});
     _onMarkAllAbsent = () => this.dispatchAction(RosterActions.Names.MARK_ALL_ABSENT);
     _onMarkAllPresent = () => this.dispatchAction(RosterActions.Names.MARK_ALL_PRESENT);
@@ -103,15 +103,8 @@ class RosterView extends AbstractComponent {
         });
     };
 
-    _onPickReason = (subjectUUID) => {
-        this._pickingFor = subjectUUID;
-        this.setState({reasonPickerVisible: true});
-    };
-
-    _hideReasonPicker = () => {
-        this._pickingFor = null;
-        this.setState({reasonPickerVisible: false});
-    };
+    _onToggleReason = (subjectUUID, reasonConceptUUID) =>
+        this.dispatchAction(RosterActions.Names.TOGGLE_REASON, {subjectUUID, reasonConceptUUID});
 
     _onPickSessionReason = () => this.setState({sessionReasonPickerVisible: true});
     _hideSessionReasonPicker = () => this.setState({sessionReasonPickerVisible: false});
@@ -132,33 +125,21 @@ class RosterView extends AbstractComponent {
         return match ? match.name : this.I18n.t("selectReason");
     }
 
-    _reasonActions() {
-        // ActionSelector calls props.hide() before invoking fn, which clears
-        // this._pickingFor — close over the current value so the dispatch sees
-        // the actual subject the user opened the picker for.
-        const subjectUUID = this._pickingFor;
-        return (this.state.absenceReasonAnswers || []).map(a => ({
-            label: a.name,
-            fn: () => {
-                this.dispatchAction(RosterActions.Names.SET_REASON, {
-                    subjectUUID,
-                    reasonConceptUUID: a.uuid,
-                });
-            },
-        }));
-    }
-
     _summaryCounts() {
         const {roster, followUpEncounterTypeUuid} = this.state;
-        let withReason = 0;
-        let withoutReason = 0;
+        let flagged = 0;
         (roster || []).forEach(r => {
             if (r.status !== AttendanceRecord.status.ABSENT) return;
-            if (r.reasonConceptUUID) withReason += 1;
-            else withoutReason += 1;
+            if (r.needsFollowUp) flagged += 1;
         });
-        const followUps = followUpEncounterTypeUuid ? withoutReason : 0;
-        return {withReason, withoutReason, followUps};
+        const followUps = followUpEncounterTypeUuid ? flagged : 0;
+        return {followUps};
+    }
+
+    _hasPriorFollowUpsToWarnAbout() {
+        const {existingSession, roster} = this.state;
+        if (!existingSession) return false;
+        return (roster || []).some(r => r.needsFollowUp && r.followUpEncounterUUID);
     }
 
     _renderItem = ({item, index}) => (
@@ -168,7 +149,8 @@ class RosterView extends AbstractComponent {
             reasonAnswers={this.state.absenceReasonAnswers}
             followUpEncounterTypeUuid={this.state.followUpEncounterTypeUuid}
             onToggle={this._onToggle}
-            onPickReason={this._onPickReason}
+            onToggleReason={this._onToggleReason}
+            onToggleNeedsFollowUp={this._onToggleNeedsFollowUp}
         />
     );
 
@@ -183,10 +165,19 @@ class RosterView extends AbstractComponent {
         const allPresent = (roster || []).length > 0
             && (roster || []).every(r => r.status !== AttendanceRecord.status.ABSENT);
 
+        const showReeditBanner = this._hasPriorFollowUpsToWarnAbout();
+
         return (
             <CHSContainer>
                 <AppHeader title={attendanceType.name} subTitle={headerSubline}/>
                 <CHSContent>
+                    {showReeditBanner && (
+                        <View style={styles.reeditBanner}>
+                            <Text style={styles.reeditBannerText}>
+                                {this.I18n.t("attendanceReEditFollowUpWarning")}
+                            </Text>
+                        </View>
+                    )}
                     <View style={styles.helpRow}>
                         <Text style={styles.helpText}>{this.I18n.t("tapToTogglePrompt")}</Text>
                         <TouchableOpacity onPress={allPresent ? this._onMarkAllAbsent : this._onMarkAllPresent}>
@@ -228,12 +219,6 @@ class RosterView extends AbstractComponent {
                                 </TouchableOpacity>
                             </View>
                         )}
-                    />
-                    <ActionSelector
-                        title={this.I18n.t("reasonForAbsence")}
-                        visible={!!this.state.reasonPickerVisible}
-                        hide={this._hideReasonPicker}
-                        actions={this._reasonActions()}
                     />
                     <ActionSelector
                         title={this.I18n.t("sessionReasonRequiredOnHoliday")}
@@ -293,6 +278,14 @@ const styles = StyleSheet.create({
     },
     saveBtnDisabled: {backgroundColor: Colors.DisabledButtonColor || '#c2c5c6'},
     saveBtnText: {color: Colors.TextOnPrimaryColor, fontWeight: 'bold', fontSize: Styles.normalTextSize},
+    reeditBanner: {
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        backgroundColor: '#FFF3E0',
+        borderBottomWidth: 1,
+        borderBottomColor: '#FFE0B2',
+    },
+    reeditBannerText: {fontSize: Styles.smallTextSize, color: '#E65100'},
 });
 
 export default RosterView;

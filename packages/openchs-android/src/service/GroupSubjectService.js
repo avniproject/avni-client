@@ -48,6 +48,7 @@ class GroupSubjectService extends BaseService {
         const groupSubjectFromDB = this.findByUUID(groupSubject.uuid);
         const member = groupSubjectFromDB.cloneForEdit();
         member.membershipEndDate = groupSubject.membershipEndDate.value;
+        member.removalReasonConceptUUID = groupSubject.removalReasonConceptUUID;
         member.voided = true;
         this.saveOrUpdate(member);
     }

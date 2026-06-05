@@ -55,9 +55,10 @@ class AttendanceTypePicker extends AbstractComponent {
                     uuid: r.subjectUUID,
                     name: subject ? subject.nameString : "",
                     present: r.status === AttendanceRecord.status.PRESENT,
-                    reasonName: r.reasonConceptUUID
-                        ? _.get(conceptService.getConceptByUUID(r.reasonConceptUUID), "name", "")
-                        : "",
+                    reasonName: (r.reasonConceptUUIDs || [])
+                        .map(uuid => _.get(conceptService.getConceptByUUID(uuid), "name", ""))
+                        .filter(Boolean)
+                        .join(", "),
                 };
             })
             .sort((a, b) => a.name.localeCompare(b.name));

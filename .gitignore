@@ -115,3 +115,6 @@ tanuh-release-key.keystore
 bundletool.jar
 tanuh-universal.apks
 tanuh-universal.apk
+
+# Claude Code local session files
+.claude/

@@ -85,9 +85,9 @@ class AudioFormElement extends AbstractFormElement {
             return (
                 <View style={[styles.contentRow, styles.imageRow, {height: 60}]}>
                     <ExpandableMedia source={this.mediaUri} type={this.props.element.concept.datatype}/>
-                    <TouchableNativeFeedback onPress={() => this.clearAnswer()}>
+                    {!this.isReadOnly && <TouchableNativeFeedback onPress={() => this.clearAnswer()}>
                         <Icon name={"backspace"} style={[styles.icon]}/>
-                    </TouchableNativeFeedback>
+                    </TouchableNativeFeedback>}
                 </View>
             );
         }
@@ -176,8 +176,9 @@ class AudioFormElement extends AbstractFormElement {
         return (
             <View style={{marginVertical: 16}}>
                 <FormElementLabelWithDocumentation element={this.props.element}/>
-                {this.showInputOptions()}
-                {this.showMedia()}
+                {this.isReadOnly
+                    ? (this.mediaUri ? this.showMedia() : this.showEmptyReadOnly())
+                    : <React.Fragment>{this.showInputOptions()}{this.showMedia()}</React.Fragment>}
                 <View style={styles.lineStyle}/>
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
             </View>

@@ -78,6 +78,15 @@ export default class MultiSelectMediaFormElement extends MediaFormElement {
     }
 
     render() {
+        if (this.isReadOnly) {
+            return (
+                <View style={{marginVertical: 16}}>
+                    <FormElementLabelWithDocumentation element={this.props.element}/>
+                    {this.renderReadOnlyMediaList(this.mediaUris)}
+                    <ValidationErrorMessage validationResult={this.props.validationResult}/>
+                </View>
+            );
+        }
         const isDisabled = _.size(this.mediaUris) !== this.state.mediaCount;
         return (
             <View style={{marginVertical: 16}}>

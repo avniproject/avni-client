@@ -1,7 +1,7 @@
 import GroupSubjectService from "../../service/GroupSubjectService";
 import _ from 'lodash';
 import {ActionEligibilityResponse} from "rules-config";
-import {IndividualRelation, IndividualRelative, ValidationResult} from 'avni-models';
+import {IndividualRelation, IndividualRelative, SubjectType, ValidationResult} from 'avni-models';
 import EntityService from "../../service/EntityService";
 import IndividualRelationshipService from "../../service/relationship/IndividualRelationshipService";
 import IndividualRelationGenderMappingService from "../../service/relationship/IndividualRelationGenderMappingService";
@@ -18,7 +18,8 @@ export class MemberAction {
                 memberSubject: {},
                 groupRole: {},
                 membershipStartDate: {value: new Date()},
-                membershipEndDate: {}
+                membershipEndDate: {},
+                removalReasonConceptUUID: null
             },
             groupRoles: [],
             validationResults: [],
@@ -55,6 +56,7 @@ export class MemberAction {
             groupRole: member.groupRole,
             membershipStartDate: member.membershipStartDate,
             membershipEndDate: member.membershipEndDate,
+            removalReasonConceptUUID: member.removalReasonConceptUUID,
         }
     }
 
@@ -65,6 +67,7 @@ export class MemberAction {
             newState.member = MemberAction.cloneMember(context.get(GroupSubjectService).findByUUID(groupSubject.uuid));
             newState.member.membershipStartDate = {value: groupSubject.membershipStartDate};
             newState.member.membershipEndDate = {value: groupSubject.membershipEndDate};
+            newState.member.removalReasonConceptUUID = groupSubject.removalReasonConceptUUID;
             MemberAction._getRelative(newState.member.groupSubject, newState.member.memberSubject, newState, context);
             newState.groupRoles = context.get(GroupSubjectService).getGroupRoles(newState.member.groupSubject.subjectType);
         } else {
@@ -273,13 +276,31 @@ export class MemberAction {
 
     static onDeleteMember(state, action, context) {
         const newState = MemberAction.clone(state);
-        if (_.isNil(state.member.membershipEndDate.value)) {
-            newState.validationResults.push(ValidationResult.failure('MEMBERSHIP_END_DATE', 'emptyValidationMessage'));
-        }
+        MemberAction.handleValidationResult(newState,
+            _.isNil(state.member.membershipEndDate.value)
+                ? ValidationResult.failure('MEMBERSHIP_END_DATE', 'emptyValidationMessage')
+                : ValidationResult.successful('MEMBERSHIP_END_DATE'));
+
+        const groupSubjectType = newState.member.groupSubject.subjectType;
+        const removalReasonParentUUID = groupSubjectType
+            && _.isFunction(groupSubjectType.getSetting)
+            && groupSubjectType.getSetting(SubjectType.settingKeys.removalReasonConceptUuid);
+        MemberAction.handleValidationResult(newState,
+            removalReasonParentUUID && _.isNil(newState.member.removalReasonConceptUUID)
+                ? ValidationResult.failure('REMOVAL_REASON', 'emptyValidationMessage')
+                : ValidationResult.successful('REMOVAL_REASON'));
+
         if (_.isEmpty(newState.validationResults)) {
             context.get(GroupSubjectService).deleteMember(newState.member);
             action.cb();
         }
+        return newState;
+    }
+
+    static onRemovalReasonSelect(state, action) {
+        const newState = MemberAction.clone(state);
+        newState.member.removalReasonConceptUUID = action.value;
+        _.remove(newState.validationResults, vr => vr.formIdentifier === 'REMOVAL_REASON');
         return newState;
     }
 }
@@ -293,6 +314,7 @@ const AddNewMemberActions = {
     ON_MEMBERSHIP_END_DATE_SELECT: `${ActionPrefix}.ON_MEMBERSHIP_END_DATE_SELECT`,
     ON_SAVE: `${ActionPrefix}.ON_SAVE`,
     ON_DELETE_MEMBER: `${ActionPrefix}.ON_DELETE_MEMBER`,
+    ON_REMOVAL_REASON_SELECT: `${ActionPrefix}.ON_REMOVAL_REASON_SELECT`,
     DISPLAY_MESSAGE: `${ActionPrefix}.DISPLAY_MESSAGE`,
     ON_RELATION_SELECT: `${ActionPrefix}.ON_RELATION_SELECT`,
 };
@@ -301,6 +323,7 @@ const AddMemberActionMap = new Map([
     [AddNewMemberActions.ON_LOAD, MemberAction.onLoad],
     [AddNewMemberActions.ON_SAVE, MemberAction.onSave],
     [AddNewMemberActions.ON_DELETE_MEMBER, MemberAction.onDeleteMember],
+    [AddNewMemberActions.ON_REMOVAL_REASON_SELECT, MemberAction.onRemovalReasonSelect],
     [AddNewMemberActions.ON_MEMBER_SELECT, MemberAction.addMember],
     [AddNewMemberActions.ON_MEMBERSHIP_START_DATE_SELECT, MemberAction.addMembershipStartDate],
     [AddNewMemberActions.ON_MEMBERSHIP_END_DATE_SELECT, MemberAction.addMembershipEndDate],

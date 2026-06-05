@@ -76,6 +76,15 @@ class MultiSelectFileFormElement extends FileFormElement {
     }
 
     render() {
+        if (this.isReadOnly) {
+            return (
+                <SafeAreaView style={{marginVertical: 16}}>
+                    <FormElementLabelWithDocumentation element={this.props.element}/>
+                    {this.renderReadOnlyMediaList(this.mediaUris)}
+                    <ValidationErrorMessage validationResult={this.props.validationResult}/>
+                </SafeAreaView>
+            );
+        }
         const isDisabled = _.size(this.mediaUris) !== this.state.mediaCount;
         return (
             <SafeAreaView style={{marginVertical: 16}}>

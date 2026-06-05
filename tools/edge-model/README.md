@@ -152,6 +152,52 @@ export tanuh_KEY_ALIAS='tanuh'
 3. **Distribute.** Upload the APK to gdrive (or wherever the TANUH programme team
    distributes from). The plaintext model never leaves the build machine.
 
+## 3-fold ensemble flow (current TANUH path)
+
+The TANUH model is an **ensemble of 3 cross-validation folds** (`model6` / `model8` / `model8-2`,
+registered as `mvit2_fold1_6` / `mvit2_fold1_8` / `mvit2_fold2_8`) of one MViT2 oral-cancer
+classifier. Each fold is a **single-logit sigmoid-binary** head (verified from the model's
+`classifier.bias` shape). The 3 folds run independently on-device and are **soft-voted in JS** by
+`EdgeModelService.runEnsembleInferenceOnImage`. All 3 share `tanuh-ensemble-override.json`; this
+**replaces** the old single `mvit2_fold5_2` path.
+
+```bash
+# Encrypt all 3 folds into one registry.json (clears any single-model registry first).
+# Default source dir is /Users/himeshr/Avni/Tanuh/tanuh_models; override with TANUH_ENSEMBLE_SRC_DIR.
+make tanuh-ensemble                 # → keys: mvit2_fold1_6, mvit2_fold1_8, mvit2_fold2_8
+make run_packager                   # in another terminal
+make run_app_tanuh_dev              # debug build, prod backend, dev menu
+
+# Signed release APK with the ensemble:
+make tanuh-ensemble-apk
+```
+
+### Inference methodology
+
+**Soft-vote.** `runEnsembleInferenceOnImage(modelKeys, imagePath, opts)` runs each fold through the
+single-model path and combines the outputs:
+
+- `combine: 'mean-prob'` (default) — average the per-fold **sigmoid probabilities**, then threshold.
+  This is the canonical fold soft-vote: a confident majority outweighs a lone dissenting fold, and a
+  fold's confidence magnitude (not just its binary call) counts.
+- `combine: 'mean-logit'` — average the raw **logits**, then apply sigmoid once.
+
+`threshold` and `labels` default to the folds' **registry decoder override** (`output.params` of
+`tanuh-ensemble-override.json` — `0.5` / `["Negative","Positive"]`), so the combined verdict tracks
+the same config as the single-model path; values passed explicitly in `opts` win. The result is
+`{label, confidence, positive, modelKeys, perModel}` — `perModel` carries each fold's logit/confidence
+for debugging. A non-finite combined score (a fold result missing `confidence`/`logit`) **throws**
+rather than silently scoring a confident `Negative`.
+
+**Preprocessing** (`mean-target-bgr-rounded`, ported from the AI team's reference
+`android_pre_processing.kt`): resize to 256² with **bicubic** (`cv2.INTER_CUBIC` parity,
+`Preprocessors.kt::bicubicResize`), gray-world white-balance (scale each channel so its mean → 128,
+clip, uint8 cast), then `/255` → `[0,1]`, **RGB** order, CHW layout. **No ImageNet mean/std**
+normalisation — matching the reference and a HuggingFace MobileViTV2 image head (rescale by 1/255,
+no normalise).
+
+Reference a fold array from the rule — see "Using inference from a form rule".
+
 ## Quick-iteration debug build (no encryption, no signing)
 
 For JS / native iteration with the real TANUH model:
@@ -194,13 +240,66 @@ Alternative — if you'd rather generate a tiny stub model that matches the real
 exactly (`[1, 3, 256, 256]` BGR/CHW → single logit), see
 `tools/edge-model/make-placeholder-pt.py` (requires PyTorch installed locally).
 
+## Using inference from a form rule
+
+`params.services.edgeModelService` exposes these entry points. All take `imagePath` — the
+**absolute** device path of the captured image (`file://` stripped), derived from the image
+observation's stored filename — plus a `modelKey` (a key in `registry.json`). The `schedule*`
+methods accept `modelKey` as **either a single key or an array of keys**; an array runs a
+**soft-vote ensemble** (see below).
+
+| Method | Use |
+|---|---|
+| `runInferenceOnImage(modelKey, imagePath)` → `Promise<{label, confidence, …}>` | Raw async inference for one model; call from a decision rule that already awaits. |
+| `runEnsembleInferenceOnImage(modelKeys[], imagePath, {combine?, threshold?, labels?})` → `Promise<{label, confidence, positive, perModel}>` | Soft-vote across several single-logit sigmoid models (e.g. CV folds). `combine`: `'mean-prob'` (default, average the sigmoid probabilities) or `'mean-logit'` (average logits then sigmoid). |
+| `scheduleImageInference(modelKey, imagePath, entity, targetConceptName, labelMap?)` | Fire-and-forget from a **synchronous form-element rule**. On resolve, writes the result to `targetConceptName` and re-renders. `modelKey` may be an array → ensemble. |
+| `scheduleImageInferenceIntoGroup(modelKey, imagePath, entity, questionGroupConceptName, targetConceptName, rqgIdx, labelMap?)` | Same, but writes into row `rqgIdx` (zero-based) of a Repeatable Question Group. `modelKey` may be an array → ensemble. |
+
+`labelMap` (optional) maps the raw model label to the stored value, e.g.
+`{ "Positive": "Suspicious", "Negative": "Non Suspicious" }`.
+
+```js
+// form-element rule — RQG variant, 3-fold ensemble. Returns synchronously; the verdict lands later.
+({params, imports}) => {
+  const {entity, services, questionGroupIndex} = params;
+  services.edgeModelService.scheduleImageInferenceIntoGroup(
+    ['mvit2_fold1_6', 'mvit2_fold1_8', 'mvit2_fold2_8'], imagePath, entity,
+    'Lesion Group', 'AI Suspicion Result', questionGroupIndex,
+    { 'Positive': 'Suspicious', 'Negative': 'Non Suspicious' }
+  );
+  return new imports.rulesConfig.FormElementStatus(params.formElement.uuid, true);
+};
+```
+
+Pass a single string instead of the array for one model. The schedule path ensembles with
+defaults (`mean-prob`, threshold 0.5, labels `["Negative","Positive"]`); for a custom threshold or
+labels, call `runEnsembleInferenceOnImage` directly from an awaited decision rule.
+
+The `schedule*` methods dedup automatically (an array ensemble dedups as one unit — no re-run for
+the same image+target; re-runs on a retake) and swallow errors (logged only — form save is never
+blocked). Two traps:
+
+- **Coded target:** the stored value (after `labelMap`) must equal an **answer concept name**
+  of the target concept, or the write is silently skipped. Text targets store the string verbatim.
+- **RQG:** the row at `rqgIdx` must already exist (capture the image into the row first) and
+  `rqgIdx` must be numeric — rows are not auto-created.
+
+### Showing a result (or image) read-only
+
+Set the **form-element** keyValue `editable=false` (`[{"key": "editable", "value": false}]` in
+`form_element.key_values`) to render a field display-only — the standard flag honoured across
+datatypes. For Image/Video elements this shows the existing media and hides the camera, gallery,
+remove and "add more" controls; with no value it shows "Not Known Yet". Pair it with the verdict
+field above so the model's output can be viewed but not hand-edited.
+
 ## What lives where
 
 ```
 tools/edge-model/
 ├─ encrypt-model.js              # AES-GCM-256 encryption CLI — format-agnostic
 ├─ sample-override.json          # ImageNet-style sample (imagenet-rgb-chw + argmax-labels)
-├─ tanuh-mvit2-override.json     # PoC pipeline for TANUH's MViT2 model — used by `make tanuh-apk` by default
+├─ tanuh-mvit2-override.json     # single-model PoC pipeline — used by `make tanuh-apk`
+├─ tanuh-ensemble-override.json  # 3-fold MViT2 ensemble (bicubic) — used by `make tanuh-ensemble`
 ├─ source/                       # plaintext .pt / .tflite files — gitignored
 └─ README.md                     # this file
 
@@ -219,9 +318,10 @@ packages/openchs-android/android/app/src/main/java/com/openchsclient/
 
 ## When the model changes
 
-Re-run `make tanuh-apk`. The encryption CLI generates a fresh AES key and IV per run,
-so old encrypted blobs become invalid. This is intentional — there's no key-rotation
-ambiguity, the build is reproducible from the plaintext source.
+Re-run `make tanuh-ensemble-apk` (or `make tanuh-apk` for a single model). The encryption CLI
+generates a fresh AES key and IV per run, so old encrypted blobs become invalid. This is
+intentional — there's no key-rotation ambiguity, the build is reproducible from the plaintext
+source.
 
 ## The plugin model — adding a new model with novel preprocessing
 
@@ -238,7 +338,8 @@ declared as a small JSON DSL in the registry's `override` block:
 ```
 
 Plugin names resolve to Kotlin classes in:
-- `preprocessing/Preprocessors.kt` — `imagenet-rgb-chw`, `mean-target-bgr-rounded`
+- `preprocessing/Preprocessors.kt` — `imagenet-rgb-chw`, `mean-target-bgr-rounded` (both take an
+  `interpolation` param: `"bilinear"` (default), `"nearest"`, or `"cubic"` for cv2.INTER_CUBIC parity)
 - `decoding/Decoders.kt`         — `argmax-labels`, `sigmoid-binary`, `raw-floats`
 
 To add a new model:
