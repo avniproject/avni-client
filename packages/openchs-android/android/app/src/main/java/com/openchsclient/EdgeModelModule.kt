@@ -9,7 +9,6 @@ import android.util.Log
 import com.facebook.react.bridge.*
 import com.openchsclient.decoding.Decoders
 import com.openchsclient.engine.InferenceEngine
-import com.openchsclient.engine.PyTorchEngine
 import com.openchsclient.preprocessing.Preprocessors
 import java.io.File
 import java.io.FileInputStream
@@ -78,10 +77,40 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
         private const val DECRYPT_CHUNK_BYTES = 64 * 1024     // 64 KB chunks: balance syscalls vs Java-heap pressure
     }
 
-    /** One inference engine per supported `engine` name in the registry override. */
-    private val engines: Map<String, InferenceEngine> = mapOf(
-        "pytorch" to PyTorchEngine(reactContext.applicationContext)
-    )
+    /**
+     * Engine providers, one per supported `engine` name in the registry override, resolved
+     * lazily and reflectively. PyTorchEngine lives in the tanuh source set and
+     * `org.pytorch:pytorch_android` is tanuh-scoped — its prebuilt .so files are 4 KB-page-
+     * aligned, which Google Play rejects for targetSdk 35 ("does not support 16 KB memory
+     * page sizes"). Reflective lookup means non-tanuh flavours compile and boot without the
+     * class; their registries ship empty so no code path ever requests the engine.
+     */
+    private val engineProviders: Map<String, () -> InferenceEngine> by lazy {
+        buildMap { registerEngine("pytorch", "com.openchsclient.engine.PyTorchEngine") }
+    }
+
+    /** Realised engines, built on first request and cached. */
+    private val engines = HashMap<String, InferenceEngine>()
+
+    private fun MutableMap<String, () -> InferenceEngine>.registerEngine(name: String, fqcn: String) {
+        try {
+            val ctor = Class.forName(fqcn).getConstructor(android.content.Context::class.java)
+            put(name) { ctor.newInstance(reactApplicationContext.applicationContext) as InferenceEngine }
+        } catch (e: ClassNotFoundException) {
+            Log.d(TAG, "Engine '$name' ($fqcn) not bundled in this flavour; skipping")
+        } catch (e: Throwable) {
+            Log.w(TAG, "Engine '$name' ($fqcn) failed to register: ${e.message}")
+        }
+    }
+
+    /** Resolve-and-cache the realised engine for `engineName`, building it on first request. */
+    private fun engineFor(engineName: String): InferenceEngine =
+        engines.getOrPut(engineName) {
+            (engineProviders[engineName] ?: throw IllegalArgumentException(
+                "Unknown or unavailable engine '$engineName'. Available: ${engineProviders.keys}. " +
+                "(PyTorch ships only in the tanuh flavour.)"
+            )).invoke()
+        }
 
     /** Live engine handles. Cleared on memory-pressure eviction. */
     private val handles = HashMap<String, InferenceEngine.Handle>()
@@ -187,7 +216,7 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
             ensureLoaded(modelKey)
             val handle = handles[modelKey]!!
             val contract = contracts[modelKey]!!
-            val engine = engines[contract.engine]!!
+            val engine = engineFor(contract.engine)
 
             val data = FloatArray(inputData.size()) { i -> inputData.getDouble(i).toFloat() }
             val shapeArr = if (shape != null) {
@@ -216,7 +245,7 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
             ensureLoaded(modelKey)
             val handle = handles[modelKey]!!
             val contract = contracts[modelKey]!!
-            val engine = engines[contract.engine]!!
+            val engine = engineFor(contract.engine)
 
             val raw = BitmapFactory.decodeFile(imagePath)
                 ?: throw IllegalArgumentException("Cannot decode image at '$imagePath'. Check the path and file format.")
@@ -328,11 +357,7 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
 
     private fun buildHandle(modelKey: String, plaintextFile: File, overrideJson: String?) {
         val contract = ModelContract.parse(overrideJson)
-        val engine = engines[contract.engine]
-            ?: throw IllegalArgumentException(
-                "Unknown engine '${contract.engine}'. Known: ${engines.keys}. " +
-                "Add a new InferenceEngine implementation in `engine/` and register it in EdgeModelModule.engines."
-            )
+        val engine = engineFor(contract.engine)
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "buildHandle($modelKey): engine=${contract.engine}, preprocessor=${contract.preprocessorName}, decoder=${contract.decoderName}, plaintext=${plaintextFile.length()} bytes")
         }

@@ -44,3 +44,10 @@
 -keep class com.openchsclient.engine.** { *; }
 -keep class com.openchsclient.preprocessing.** { *; }
 -keep class com.openchsclient.decoding.** { *; }
+
+# PyTorch Mobile is now tanuh-scoped, so non-tanuh release variants no longer have these
+# packages on the classpath. The keep rules above match nothing there (harmless no-ops),
+# but R8 still emits "missing class" diagnostics for the unresolved references. -dontwarn
+# silences those; it is harmless in the tanuh variant where the classes are present.
+-dontwarn org.pytorch.**
+-dontwarn com.facebook.fbjni.**

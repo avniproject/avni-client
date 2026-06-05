@@ -288,20 +288,24 @@ dependencies {
     // Autolinking handles all React Native packages automatically
     // Keep Avni-specific native dependencies if any
     
-    // Edge-model inference for the tanuh flavour. Versions are pinned exactly to match the
-    // TANUH AI team's PoC (~/IdeaProjects/aiapp) — clinical accuracy was validated against
-    // this exact PyTorch Mobile runtime, so converting / upgrading would force re-validation.
-    // Adds ~30-35 MB of native libs (libpytorch_jni.so per ABI). Other flavours pay this cost
-    // too in the universal APK; future hardening: per-flavour dependency or per-ABI splits.
+    // Edge-model inference — TANUH-ONLY. PyTorch Mobile 1.13.1's prebuilt native libs
+    // (libpytorch_jni.so per ABI) are 4 KB-page-aligned, which Google Play rejects for
+    // targetSdk 35 with "Your app does not support 16 KB memory page sizes". Scoping this to
+    // `tanuhImplementation` keeps those .so out of every other flavour's AAB, so the generic
+    // (and all non-tanuh) bundles pass the Play 16 KB page-size check.
+    //
+    // The version stays pinned exactly to the TANUH AI team's PoC (~/IdeaProjects/aiapp) —
+    // clinical accuracy was validated against this exact runtime, so converting / upgrading
+    // would force re-validation. torchvision was dropped: zero usages in source.
     //
     // fbjni-java-only must be excluded: pytorch_android transitively pulls fbjni 0.2.2
     // (java-only), but React Native 0.77 ships the newer com.facebook.fbjni:fbjni:0.7.0 as
     // an AAR with the same class names, causing checkDuplicateClasses to fail. RN's fbjni is
     // a superset of the java-only one for our purposes.
-    implementation('org.pytorch:pytorch_android:1.13.1') {
-        exclude group: 'com.facebook.fbjni', module: 'fbjni-java-only'
-    }
-    implementation('org.pytorch:pytorch_android_torchvision:1.13.1') {
+    //
+    // Follow-up for tanuh's own Play compliance: rebuild pytorch_android 1.13.1 from source
+    // with `-Wl,-z,max-page-size=16384` so the tanuh AAB also clears the 16 KB check.
+    tanuhImplementation('org.pytorch:pytorch_android:1.13.1') {
         exclude group: 'com.facebook.fbjni', module: 'fbjni-java-only'
     }
     implementation 'androidx.multidex:multidex:2.0.1'
