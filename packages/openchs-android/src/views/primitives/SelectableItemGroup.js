@@ -1,7 +1,8 @@
-import {StyleSheet, View} from "react-native";
+import {StyleSheet, TextInput, TouchableOpacity, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import {Text} from "native-base";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Colors from '../primitives/Colors';
 import Distances from "./Distances";
 import Styles from "./Styles";
@@ -44,15 +45,53 @@ class SelectableItemGroup extends React.Component {
         headerChipLabel: PropTypes.string,
         headerChipActive: PropTypes.bool,
         onHeaderChipPress: PropTypes.func,
+        searchThreshold: PropTypes.number,
     };
+
+    constructor(props, context) {
+        super(props, context);
+        this.state = {searchQuery: ''};
+    }
 
     onItemPressed(value, checked, label) {
         if (checked && !this.props.allowUnselect) return;
         this.props.onPress(value, label);
     }
 
-    renderPairedOptions() {
-        const {labelValuePairs, I18n, validationError, disabled, selectionFn, multiSelect, locale} = this.props;
+    getFilteredLabelValuePairs() {
+        const {labelValuePairs, I18n} = this.props;
+        const query = this.state.searchQuery.trim();
+        if (_.isEmpty(query)) return labelValuePairs;
+        const tokenMatchers = query.split(/[ \-:]+/).filter(Boolean).map(token => new RegExp(_.escapeRegExp(token), 'i'));
+        return labelValuePairs.filter(rlv => {
+            const english = rlv.label || '';
+            const translated = I18n.t(rlv.label) || '';
+            return _.every(tokenMatchers, matcher => matcher.test(english) || matcher.test(translated));
+        });
+    }
+
+    renderSearchBox() {
+        const {I18n} = this.props;
+        const {searchQuery} = this.state;
+        return (
+            <View style={style.searchContainer}>
+                <Icon name="magnify" size={20} color={Colors.SecondaryText} style={{marginRight: 8}}/>
+                <TextInput style={style.searchInput}
+                           placeholder={I18n.t('searchByTyping')}
+                           placeholderTextColor={Colors.SecondaryText}
+                           underlineColorAndroid="transparent"
+                           value={searchQuery}
+                           onChangeText={(text) => this.setState({searchQuery: text})}/>
+                {searchQuery.length > 0 &&
+                    <TouchableOpacity onPress={() => this.setState({searchQuery: ''})}>
+                        <Icon name="close-circle" size={20} color={Colors.SecondaryText}/>
+                    </TouchableOpacity>}
+            </View>
+        );
+    }
+
+    renderPairedOptions(labelValuePairs) {
+        const {I18n, validationError, disabled, selectionFn, multiSelect, locale} = this.props;
         return _.chunk(labelValuePairs, 2).map((rlvPair, idx) =>
             <View style={{flexDirection: "row", display: "flex"}} key={idx}>
                 {rlvPair.map((radioLabelValue, index) => {
@@ -78,8 +117,8 @@ class SelectableItemGroup extends React.Component {
             </View>);
     }
 
-    renderOptions() {
-        const {labelValuePairs, I18n, validationError, disabled, selectionFn, multiSelect, locale, hasMediaContent} = this.props;
+    renderOptions(labelValuePairs) {
+        const {I18n, validationError, disabled, selectionFn, multiSelect, locale, hasMediaContent} = this.props;
         return labelValuePairs.map(radioLabelValue => {
             const checked = selectionFn(radioLabelValue.value) || false;
             const individual = radioLabelValue.subject;
@@ -122,9 +161,11 @@ class SelectableItemGroup extends React.Component {
     }
 
     render() {
-        const {mandatory, labelValuePairs, skipLabel, labelKey, borderStyle, inPairs, validationError, headerChipLabel, headerChipActive, onHeaderChipPress} = this.props;
+        const {mandatory, labelValuePairs, skipLabel, labelKey, borderStyle, inPairs, validationError, headerChipLabel, headerChipActive, onHeaderChipPress, searchThreshold} = this.props;
         const mandatoryText = mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text/>;
         const showHeaderChip = !!headerChipLabel && _.isFunction(onHeaderChipPress);
+        const showSearch = labelValuePairs.length > searchThreshold;
+        const visiblePairs = showSearch ? this.getFilteredLabelValuePairs() : labelValuePairs;
         return (
             <View>
                 {!skipLabel &&
@@ -133,14 +174,20 @@ class SelectableItemGroup extends React.Component {
                     {showHeaderChip &&
                         <AnyChip label={headerChipLabel} active={!!headerChipActive} onPress={onHeaderChipPress}/>}
                 </View>}
-                {labelValuePairs.length > 0 ? labelValuePairs.length === 1 && mandatory === true ?
+                {showSearch && this.renderSearchBox()}
+                {labelValuePairs.length === 1 && mandatory === true ?
                     <View style={[style.radioStyle, borderStyle]}>
                         {this.renderSingleValue()}
                     </View> :
+                    visiblePairs.length > 0 ?
                     <View accessibilityLabel={labelKey} style={[style.radioStyle, borderStyle]}>
-                        {inPairs ? this.renderPairedOptions() : this.renderOptions()}
-                    </View>
-                    : <View/>}
+                        {inPairs ? this.renderPairedOptions(visiblePairs) : this.renderOptions(visiblePairs)}
+                    </View> :
+                    showSearch ?
+                    <View style={[style.radioStyle, borderStyle]}>
+                        <Text style={style.noResultText}>{this.props.I18n.t('zeroNumberOfResults')}</Text>
+                    </View> :
+                    <View/>}
                 <View style={{backgroundColor: '#ffffff'}}>
                     <ValidationErrorMessage validationResult={validationError}/>
                 </View>
@@ -157,5 +204,24 @@ const style = StyleSheet.create({
         borderStyle: 'dashed',
         borderColor: Colors.InputBorderNormal,
         paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
-    }
+    },
+    searchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 10,
+        marginBottom: 6,
+        backgroundColor: Colors.cardBackgroundColor,
+        borderWidth: 1,
+        borderColor: Colors.InputBorderNormal,
+    },
+    searchInput: {
+        flex: 1,
+        paddingVertical: 6,
+        color: Colors.InputNormal,
+    },
+    noResultText: {
+        padding: 12,
+        textAlign: 'center',
+        color: Colors.SecondaryText,
+    },
 })

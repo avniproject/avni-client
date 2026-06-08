@@ -9,6 +9,8 @@ import FormElementLabelWithDocumentation from "../../common/FormElementLabelWith
 import SelectableItemGroup from "../../primitives/SelectableItemGroup";
 import UserInfoService from "../../../service/UserInfoService";
 
+const ANSWER_SEARCH_THRESHOLD = 20;
+
 class SelectFormElement extends AbstractFormElement {
     static propTypes = {
         element: PropTypes.object.isRequired,
@@ -63,6 +65,7 @@ class SelectFormElement extends AbstractFormElement {
                     locale={currentLocale}
                     skipLabel={true}
                     hasMediaContent={hasMediaContent}
+                    searchThreshold={ANSWER_SEARCH_THRESHOLD}
                 />
             </View>);
     }
