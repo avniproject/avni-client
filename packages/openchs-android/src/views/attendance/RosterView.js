@@ -127,13 +127,19 @@ class RosterView extends AbstractComponent {
 
     _summaryCounts() {
         const {roster, followUpEncounterTypeUuid} = this.state;
-        let flagged = 0;
+        let flagged = 0, withReason = 0, withoutReason = 0;
         (roster || []).forEach(r => {
             if (r.status !== AttendanceRecord.status.ABSENT) return;
+            if ((r.reasonConceptUUIDs || []).length > 0) withReason += 1; else withoutReason += 1;
             if (r.needsFollowUp) flagged += 1;
         });
         const followUps = followUpEncounterTypeUuid ? flagged : 0;
-        return {followUps};
+        // withReason/withoutReason are no longer in the bundled rosterSummary template
+        // (simplified in f0c9ab03f), but devices whose synced platform/org translation still
+        // carries the older "{{withReason}} with reason · {{withoutReason}} without reason →
+        // {{followUps}} ..." template would render "[missing {{withReason}} value]" markers
+        // without them. Extra interpolation values are harmless; missing ones are not.
+        return {withReason, withoutReason, followUps};
     }
 
     _hasPriorFollowUpsToWarnAbout() {
