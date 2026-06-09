@@ -1,0 +1,14 @@
+diff --git a/node_modules/react-native-image-picker/android/src/main/java/com/imagepicker/Utils.java b/node_modules/react-native-image-picker/android/src/main/java/com/imagepicker/Utils.java
+index 9b035ac..3c6471b 100644
+--- a/node_modules/react-native-image-picker/android/src/main/java/com/imagepicker/Utils.java
++++ b/node_modules/react-native-image-picker/android/src/main/java/com/imagepicker/Utils.java
+@@ -224,6 +224,9 @@ public class Utils {
+                 }
+             } else {
+                 targetQuality = options.quality;
++                if (shouldConvertToJpeg(mimeType, options)) {
++                    mimeType = "image/jpeg";
++                }
+             }
+ 
+             int[] newDimens = getImageDimensBasedOnConstraints(origDimens[0], origDimens[1], options);
