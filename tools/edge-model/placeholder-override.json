@@ -1,6 +1,6 @@
 {
-  "_comment": "Placeholder override for PyTorch's public Hello World model (https://raw.githubusercontent.com/pytorch/android-demo-app/master/HelloWorldApp/app/src/main/assets/model.pt). MobileNetV2, ImageNet 224x224 RGB, 1000-class output. Inference values are unrelated to TANUH's domain — use this only to verify the build/load/preprocessing/decoding pipeline. Replace with the real TANUH override once the actual .pt lands.",
-  "engine": "pytorch",
+  "_comment": "Placeholder override for the ONNX model zoo's public MobileNetV2 (https://github.com/onnx/models — mobilenetv2-7.onnx). ImageNet 224x224 RGB, 1000-class output. Inference values are unrelated to TANUH's domain — use this only to verify the build/load/preprocessing/decoding pipeline. Replace with the real TANUH override once the actual models land.",
+  "engine": "onnx",
   "input": {
     "preprocessor": "imagenet-rgb-chw",
     "params": {

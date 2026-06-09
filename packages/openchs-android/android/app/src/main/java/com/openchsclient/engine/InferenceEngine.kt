@@ -6,14 +6,14 @@ import java.io.File
 /**
  * Abstract inference backend (~/.claude/plans/composed-tumbling-bachman.md).
  *
- * `EdgeModelModule` does not know about PyTorch, TFLite, ONNX, or any specific runtime —
- * it talks to this interface. The `engine` field in registry override JSON selects which
- * implementation handles a given model:
+ * `EdgeModelModule` does not know about ONNX Runtime, PyTorch, TFLite, or any specific
+ * runtime — it talks to this interface. The `engine` field in registry override JSON selects
+ * which implementation handles a given model:
  *
- *   • "pytorch" → PyTorchEngine (this iteration)
+ *   • "onnx" → OnnxEngine (tanuh source set)
  *
- * Future engines (TFLite, ONNX Runtime Mobile, ExecuTorch) drop in as additional
- * implementations behind this interface; the bridge code is untouched.
+ * Future engines (TFLite, ExecuTorch, …) drop in as additional implementations behind this
+ * interface; the bridge code is untouched.
  *
  * ── Lifecycle ──────────────────────────────────────────────────────────────────────
  * `load` consumes a *plaintext* model on disk (the caller — `EdgeModelModule` — streams

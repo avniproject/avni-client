@@ -5,10 +5,15 @@ edge-model integration in the `tanuh` Gradle flavour. It exists so that a TANUH 
 produce a signed APK with their proprietary model bundled and AES-GCM-encrypted, on their own
 machine, in two commands.
 
-The on-device runtime is **PyTorch Mobile 1.13.1** (`org.pytorch:pytorch_android:1.13.1`).
-Versions are pinned exactly to the AI team's PoC at `~/IdeaProjects/aiapp` because clinical
-accuracy was validated against that exact runtime; converting to a different runtime (e.g.
-TFLite) would force re-validation.
+The on-device runtime is **ONNX Runtime Mobile** (`com.microsoft.onnxruntime:onnxruntime-android`,
+tanuh-scoped). The shipped models are **ONNX exports** of the clinically-validated MViT2 fold
+ensemble. ONNX Runtime is used in place of PyTorch Mobile 1.13.1 because its 64-bit native libs
+are 16 KB-page-aligned and therefore Google-Play-compliant for targetSdk 35, whereas PyTorch
+Mobile's prebuilt `libpytorch_jni.so` is 4 KB-aligned and rejected (avni-product-ops#186). It is
+a **stock Maven Central artifact** — no custom AAR build or local-maven hosting is required.
+Because the runtime *math* changes from PyTorch to ONNX Runtime, a numerical-equivalence check
+against the validated TorchScript ensemble + TANUH AI sign-off gate the clinical re-validation
+scope (tracked in the issue).
 
 The full design is documented at `~/.claude/plans/composed-tumbling-bachman.md`.
 
@@ -21,11 +26,11 @@ not the §5.1 protection in `~/.claude/plans/frolicking-pondering-marble.md`:
 - It defeats casual extraction (`unzip the APK, grab the .pt` no longer works).
 - It does *not* defeat a determined reverser who reads the bundled key and decrypts.
 
-There is also a brief **on-disk plaintext window** at load time: PyTorch Mobile's
-`Module.load(path)` requires a file path, not a buffer, so the AES decrypt is streamed
-directly into the app's private `filesDir/<modelKey>.pt.tmp` (mode 0600 via
-`MODE_PRIVATE`), the model is loaded, and the file is deleted in a `finally` block.
-Plaintext exists on disk for the duration of decrypt + `Module.load` (low single-digit
+There is also a brief **on-disk plaintext window** at load time: ONNX Runtime's
+`OrtEnvironment.createSession(path)` loads from a file path, so the AES decrypt is streamed
+directly into the app's private `filesDir/<modelKey>.model.tmp` (mode 0600 via
+`MODE_PRIVATE`), the session is created, and the file is deleted in a `finally` block.
+Plaintext exists on disk for the duration of decrypt + `createSession` (low single-digit
 seconds for an 18 MB model). The streaming decrypt — rather than first materialising the
 plaintext in a `ByteBuffer.allocateDirect` and then writing it out — keeps the JVM-heap
 peak under 64 KB, which lets the bridge run inside the default ~96 MB heap without
@@ -311,7 +316,7 @@ packages/openchs-android/android/app/src/tanuh/
 packages/openchs-android/android/app/src/main/java/com/openchsclient/
 ├─ EdgeModelModule.kt            # React Native bridge — engine-agnostic, model-agnostic
 ├─ ModelContract.kt              # parses the override JSON DSL
-├─ engine/                       # InferenceEngine interface + PyTorchEngine
+├─ engine/                       # InferenceEngine interface; OnnxEngine lives in src/tanuh/
 ├─ preprocessing/                # ImagePreprocessor interface + named registry
 └─ decoding/                     # OutputDecoder interface + named registry
 ```
@@ -331,7 +336,7 @@ declared as a small JSON DSL in the registry's `override` block:
 
 ```json
 {
-  "engine": "pytorch",
+  "engine": "onnx",
   "input":  { "preprocessor": "<name>", "params": { … } },
   "output": { "decoder":      "<name>", "params": { … } }
 }
@@ -409,12 +414,6 @@ install the right NDK (27.1.12297006) explicitly. See platform prerequisites.
 Gradle can't reach `plugins.gradle.org`. Check `curl -sI https://plugins.gradle.org/`.
 Configure proxy in `~/.gradle/gradle.properties` if behind a corporate firewall.
 
-### `Duplicate class com.facebook.jni.* found in modules fbjni-0.7.0 and fbjni-java-only-0.2.2`
-PyTorch Mobile transitively pulls `fbjni-java-only:0.2.2`, which clashes with React Native
-0.77's `fbjni:0.7.0`. The fix is in `app/build.gradle` — `fbjni-java-only` is excluded
-from PyTorch's deps. If a future PyTorch upgrade reintroduces the clash, replicate the
-exclusion for the new version.
-
 ### `This file can not be opened as a file descriptor; it is probably compressed`
 aapt2 compressed an asset that needs to be mmap-able. Add the extension to
 `androidResources.noCompress` in `app/build.gradle`. Currently covered: `bin`, `pt`,
@@ -426,9 +425,9 @@ The encrypted blob was rebuilt with a different key/IV than what's recorded in
 followed by `make tanuh-encrypt` (or `make tanuh-apk`) to regenerate consistently.
 
 ### Release APK crashes on inference but debug build works
-R8 stripped or renamed a JNI-resolved class. PyTorch's `org.pytorch.**` and
-`com.facebook.fbjni.**` are kept by `proguard-rules.pro`. If you add a new JNI-using
-library or a new `EdgeModelModule`/plugin class that's reflected on, add a `-keep` rule.
+R8 stripped or renamed a JNI-resolved class. ONNX Runtime's `ai.onnxruntime.**` is kept by
+`proguard-rules.pro`. If you add a new JNI-using library or a new `EdgeModelModule`/plugin
+class that's reflected on, add a `-keep` rule.
 
 ### Inference returns nonsense / saturated outputs
 Most likely a preprocessing divergence vs the AI team's PoC. Compare per-channel raw

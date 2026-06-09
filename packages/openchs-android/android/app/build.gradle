@@ -263,10 +263,9 @@ android {
         pickFirst '**/libhermesplatform.so'
     }
 
-    // Edge-model assets (encrypted .bin blobs and PyTorch .pt files) must NOT be compressed
-    // by aapt2 — EdgeModelModule.mmapAsset() and PyTorchEngine.load() both require a real
-    // AssetFileDescriptor with declaredLength, which `assets.openFd()` only returns for
-    // uncompressed assets. Without this, loading throws:
+    // Edge-model assets (encrypted .bin blobs and plaintext model files) must NOT be compressed
+    // by aapt2 — EdgeModelModule streams them via an AssetFileDescriptor with declaredLength,
+    // which `assets.openFd()` only returns for uncompressed assets. Without this, loading throws:
     //   "This file can not be opened as a file descriptor; it is probably compressed"
     androidResources {
         noCompress += ['bin', 'pt', 'ptl', 'tflite', 'onnx']
@@ -288,26 +287,19 @@ dependencies {
     // Autolinking handles all React Native packages automatically
     // Keep Avni-specific native dependencies if any
     
-    // Edge-model inference — TANUH-ONLY. PyTorch Mobile 1.13.1's prebuilt native libs
-    // (libpytorch_jni.so per ABI) are 4 KB-page-aligned, which Google Play rejects for
-    // targetSdk 35 with "Your app does not support 16 KB memory page sizes". Scoping this to
-    // `tanuhImplementation` keeps those .so out of every other flavour's AAB, so the generic
-    // (and all non-tanuh) bundles pass the Play 16 KB page-size check.
+    // Edge-model inference — TANUH-ONLY. The MViT2 fold ensemble runs on ONNX Runtime
+    // Mobile; the models ship as ONNX exports of the clinically-validated TorchScript
+    // ensemble (avni-product-ops#186). Scoping the runtime to `tanuhImplementation` keeps
+    // its native libs out of every other flavour's AAB.
     //
-    // The version stays pinned exactly to the TANUH AI team's PoC (~/IdeaProjects/aiapp) —
-    // clinical accuracy was validated against this exact runtime, so converting / upgrading
-    // would force re-validation. torchvision was dropped: zero usages in source.
-    //
-    // fbjni-java-only must be excluded: pytorch_android transitively pulls fbjni 0.2.2
-    // (java-only), but React Native 0.77 ships the newer com.facebook.fbjni:fbjni:0.7.0 as
-    // an AAR with the same class names, causing checkDuplicateClasses to fail. RN's fbjni is
-    // a superset of the java-only one for our purposes.
-    //
-    // Follow-up for tanuh's own Play compliance: rebuild pytorch_android 1.13.1 from source
-    // with `-Wl,-z,max-page-size=16384` so the tanuh AAB also clears the 16 KB check.
-    tanuhImplementation('org.pytorch:pytorch_android:1.13.1') {
-        exclude group: 'com.facebook.fbjni', module: 'fbjni-java-only'
-    }
+    // Why ONNX Runtime over PyTorch Mobile 1.13.1: PyTorch's prebuilt libpytorch_jni.so is
+    // 4 KB-page-aligned on arm64-v8a, which Google Play rejects for targetSdk 35 ("does not
+    // support 16 KB memory page sizes"). ONNX Runtime 1.22.0's 64-bit libs (libonnxruntime.so,
+    // libonnxruntime4j_jni.so) are already 16 KB-aligned — verified by objdump — so the tanuh
+    // AAB clears the Play 16 KB check with a stock Maven Central artifact, no custom rebuild.
+    // (The 32-bit JNI shim is 4 KB-aligned, which is irrelevant: 16 KB pages are 64-bit-only.)
+    // onnxruntime-android has no transitive deps, so no fbjni exclude is needed.
+    tanuhImplementation('com.microsoft.onnxruntime:onnxruntime-android:1.22.0')
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01'

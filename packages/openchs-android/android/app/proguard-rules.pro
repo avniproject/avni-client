@@ -25,15 +25,13 @@
 -keep class com.facebook.jni.** { *; }
 -keepnames public class com.openchsclient.TamperCheckPackage implements com.facebook.react.ReactPackage
 
-# ── Edge-model (PyTorch Mobile) ────────────────────────────────────────────────────
-# libpytorch_jni.so resolves Java class + method references by name through JNI.
-# If R8 renames any of these, calls into Module.forward / Tensor.fromBlob throw
+# ── Edge-model (ONNX Runtime Mobile) ───────────────────────────────────────────────
+# libonnxruntime4j_jni.so resolves Java class + method references by name through JNI.
+# If R8 renames any of these, calls into OrtSession.run / OnnxTensor.createTensor throw
 # NoSuchMethodError / NoClassDefFoundError at inference time. Debug works because
 # R8 is disabled there. See ~/.claude/plans/composed-tumbling-bachman.md.
--keep class org.pytorch.** { *; }
--keepclassmembers class org.pytorch.** { *; }
--keep class com.facebook.fbjni.** { *; }
--keepclassmembers class com.facebook.fbjni.** { *; }
+-keep class ai.onnxruntime.** { *; }
+-keepclassmembers class ai.onnxruntime.** { *; }
 
 # Our own native bridge + plugin registries — looked up by string name in
 # Preprocessors.REGISTRY / Decoders.REGISTRY at runtime. Keep classes and members
@@ -45,9 +43,8 @@
 -keep class com.openchsclient.preprocessing.** { *; }
 -keep class com.openchsclient.decoding.** { *; }
 
-# PyTorch Mobile is now tanuh-scoped, so non-tanuh release variants no longer have these
-# packages on the classpath. The keep rules above match nothing there (harmless no-ops),
-# but R8 still emits "missing class" diagnostics for the unresolved references. -dontwarn
-# silences those; it is harmless in the tanuh variant where the classes are present.
--dontwarn org.pytorch.**
--dontwarn com.facebook.fbjni.**
+# ONNX Runtime is tanuh-scoped, so non-tanuh release variants don't have ai.onnxruntime on
+# the classpath. The keep rules above match nothing there (harmless no-ops), but R8 still
+# emits "missing class" diagnostics for the unresolved references. -dontwarn silences those;
+# it is harmless in the tanuh variant where the classes are present.
+-dontwarn ai.onnxruntime.**

@@ -29,9 +29,9 @@ import javax.crypto.spec.SecretKeySpec
  *   • Per-model semantics — which engine, which preprocessor, which decoder — live in
  *     `assets/models/registry.json` as a small declarative DSL. This file owns no model-specific
  *     math and does not branch on `modelKey`.
- *   • Engine = `org.pytorch.Module` etc., dispatched via `InferenceEngine` (Kotlin interface).
- *     PyTorch Mobile is the only backend in this iteration; adding TFLite/ExecuTorch is one
- *     new class drop, not a rewrite.
+ *   • Engine = `ai.onnxruntime.OrtSession` etc., dispatched via `InferenceEngine` (Kotlin
+ *     interface). ONNX Runtime Mobile is the backend for the tanuh ensemble; adding
+ *     TFLite/ExecuTorch is one new class drop, not a rewrite.
  *   • Preprocessor + decoder = named Kotlin classes registered in `Preprocessors.REGISTRY`
  *     and `Decoders.REGISTRY`. Override JSON references them by string name; the bridge
  *     dispatches via lookup. Adding a new pipeline = drop a new class, register by name.
@@ -43,9 +43,9 @@ import javax.crypto.spec.SecretKeySpec
  * rebuild without round-tripping to JS.
  *
  * Encrypted models are stream-decrypted directly into a private temp file at
- * `filesDir/<modelKey>.pt.tmp` (MODE_PRIVATE, 0600) — 64 KB chunk peak on the JVM heap.
- * The engine reads the file (`Module.load(path)` for PyTorch) and the bridge deletes the
- * file in a `finally` block; plaintext exists on disk for the duration of decrypt + load
+ * `filesDir/<modelKey>.model.tmp` (MODE_PRIVATE, 0600) — 64 KB chunk peak on the JVM heap.
+ * The engine reads the file (`OrtEnvironment.createSession(path)` for ONNX) and the bridge
+ * deletes the file in a `finally` block; plaintext exists on disk for the duration of decrypt + load
  * (single-digit seconds for a ~18 MB model). This is consistent with the existing
  * `tools/edge-model/README.md` threat model: the AES key ships in the APK, so encryption
  * is obfuscation, not full IP protection. A determined reverser decrypts offline from the
@@ -79,14 +79,13 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
 
     /**
      * Engine providers, one per supported `engine` name in the registry override, resolved
-     * lazily and reflectively. PyTorchEngine lives in the tanuh source set and
-     * `org.pytorch:pytorch_android` is tanuh-scoped — its prebuilt .so files are 4 KB-page-
-     * aligned, which Google Play rejects for targetSdk 35 ("does not support 16 KB memory
-     * page sizes"). Reflective lookup means non-tanuh flavours compile and boot without the
-     * class; their registries ship empty so no code path ever requests the engine.
+     * lazily and reflectively. OnnxEngine lives in the tanuh source set and
+     * `com.microsoft.onnxruntime:onnxruntime-android` is tanuh-scoped, so its native libs stay
+     * out of non-tanuh AABs. Reflective lookup means non-tanuh flavours compile and boot
+     * without the class; their registries ship empty so no code path ever requests the engine.
      */
     private val engineProviders: Map<String, () -> InferenceEngine> by lazy {
-        buildMap { registerEngine("pytorch", "com.openchsclient.engine.PyTorchEngine") }
+        buildMap { registerEngine("onnx", "com.openchsclient.engine.OnnxEngine") }
     }
 
     /** Realised engines, built on first request and cached. */
@@ -108,7 +107,7 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
         engines.getOrPut(engineName) {
             (engineProviders[engineName] ?: throw IllegalArgumentException(
                 "Unknown or unavailable engine '$engineName'. Available: ${engineProviders.keys}. " +
-                "(PyTorch ships only in the tanuh flavour.)"
+                "(ONNX Runtime ships only in the tanuh flavour.)"
             )).invoke()
         }
 
@@ -182,9 +181,8 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
     }
 
     /**
-     * Load an AES-GCM-encrypted model from APK assets. Plaintext is held only in a direct
-     * off-heap `ByteBuffer` until handed to the engine; the engine may then write a brief
-     * temp file (PyTorch — see `PyTorchEngine`) before deleting it.
+     * Load an AES-GCM-encrypted model from APK assets. Plaintext is streamed to a private
+     * temp file which the engine reads during `load`; the bridge deletes it immediately after.
      */
     @ReactMethod
     fun loadEncryptedModel(
@@ -335,7 +333,7 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
                 "Model not loaded: '$modelKey'. Call loadModel()/loadEncryptedModel() before inference."
             )
         val safeKey = modelKey.replace(Regex("[^A-Za-z0-9._-]"), "_")
-        val plaintextFile = File(reactApplicationContext.filesDir, "$safeKey.pt.tmp")
+        val plaintextFile = File(reactApplicationContext.filesDir, "$safeKey.model.tmp")
         try {
             when (args) {
                 is LoadArgs.Plain -> streamAssetToFile(args.assetPath, plaintextFile)

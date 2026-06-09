@@ -14,7 +14,7 @@ import org.json.JSONObject
  * Schema (`assets/models/registry.json` → models.<key>.override):
  *
  *   {
- *     "engine": "pytorch",
+ *     "engine": "onnx",
  *     "input":  { "preprocessor": "<name>", "params": { ... } },
  *     "output": { "decoder":      "<name>", "params": { ... } }
  *   }
@@ -47,7 +47,7 @@ data class ModelContract(
             }
             val root = JSONObject(overrideJson)
             val engine = root.optString("engine", "").ifBlank {
-                throw IllegalStateException("override is missing 'engine' (e.g., \"pytorch\")")
+                throw IllegalStateException("override is missing 'engine' (e.g., \"onnx\")")
             }
             val input = root.optJSONObject("input")
                 ?: throw IllegalStateException("override is missing 'input' block")

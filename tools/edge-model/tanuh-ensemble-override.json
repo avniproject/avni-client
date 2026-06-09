@@ -1,6 +1,6 @@
 {
-  "_comment": "Override for TANUH's MViT2 oral-cancer fold ensemble (model6/model8/model8-2 → mvit2_fold1_6/fold1_8/fold2_8). All 3 folds share this block: single-logit sigmoid-binary head (confirmed from the ONNX classifier.bias dims=[1]). Preprocessing follows the new models' reference (assets/android_pre_processing.kt): bicubic resize to 256, gray-world white-balance (per-channel mean→128, clip), straight uint8 cast, then /255 → [0,1] RGB CHW (matches HF MobileViTV2: RGB, rescale 1/255, no mean/std). The JS EdgeModelService soft-votes across the 3 folds. interpolation=cubic → preprocessing/Preprocessors.kt bicubicResize (cv2.INTER_CUBIC parity); decoder → SigmoidBinaryDecoder.",
-  "engine": "pytorch",
+  "_comment": "Override for TANUH's MViT2 oral-cancer fold ensemble (model6/model8/model8-2 → mvit2_fold1_6/fold1_8/fold2_8). Runs on ONNX Runtime Mobile (engine=onnx) against the ONNX exports of the three folds — input [1,3,256,256], single-logit [1,1] sigmoid-binary head. Preprocessing follows the new models' reference (assets/android_pre_processing.kt): bicubic resize to 256, gray-world white-balance (per-channel mean→128, clip), straight uint8 cast, then /255 → [0,1] RGB CHW (matches HF MobileViTV2: RGB, rescale 1/255, no mean/std). The JS EdgeModelService soft-votes across the 3 folds. interpolation=cubic → preprocessing/Preprocessors.kt bicubicResize (cv2.INTER_CUBIC parity); decoder → SigmoidBinaryDecoder.",
+  "engine": "onnx",
   "input": {
     "preprocessor": "mean-target-bgr-rounded",
     "params": {

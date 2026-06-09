@@ -1,6 +1,6 @@
 {
   "_comment": "Sample override block for an ImageNet-style model. Picked up by `tanuh-encrypt` when no model-specific override is given. Two named plugins resolve at runtime: 'imagenet-rgb-chw' (preprocessor) and 'argmax-labels' (decoder). See packages/openchs-android/.../preprocessing/Preprocessors.kt and decoding/Decoders.kt for the plugin registries.",
-  "engine": "pytorch",
+  "engine": "onnx",
   "input": {
     "preprocessor": "imagenet-rgb-chw",
     "params": {

@@ -4,9 +4,10 @@
 #   make tanuh-setup     # one-time: generate signing keystore
 #   make tanuh-apk       # per-build: encrypt model → assemble signed APK
 #
-# The on-device runtime is PyTorch Mobile (org.pytorch:pytorch_android:1.13.1) and the
-# bundled model is a TorchScript .pt file. Versions are pinned to match the TANUH AI team's
-# PoC at ~/IdeaProjects/aiapp — clinical accuracy was validated against that exact runtime.
+# The on-device runtime is ONNX Runtime Mobile (com.microsoft.onnxruntime:onnxruntime-android)
+# and the shipped models are ONNX exports of the clinically-validated MViT2 folds. ONNX Runtime
+# is used because its 64-bit native libs are 16 KB-page-aligned (Play targetSdk 35 compliant),
+# unlike PyTorch Mobile 1.13.1 (avni-product-ops#186). The ensemble path is `make tanuh-ensemble`.
 #
 # Plaintext model: tools/edge-model/source/<TANUH_MODEL_KEY>.pt    (gitignored)
 # Encrypted output: packages/openchs-android/android/app/src/tanuh/assets/models/
@@ -16,8 +17,10 @@
 # See tools/edge-model/README.md for the full documentation.
 
 # Override on the command line: TANUH_MODEL_KEY=mvit2_fold5_2_latest_traced make tanuh-apk
+# Model file extension for the plaintext sources (onnx by default; the runtime is ONNX Runtime).
+TANUH_MODEL_EXT ?= onnx
 TANUH_MODEL_KEY ?= mvit2_fold5_2_latest_traced
-TANUH_MODEL_SRC := tools/edge-model/source/$(TANUH_MODEL_KEY).pt
+TANUH_MODEL_SRC := tools/edge-model/source/$(TANUH_MODEL_KEY).$(TANUH_MODEL_EXT)
 TANUH_OUT_DIR   := packages/openchs-android/android/app/src/tanuh/assets/models
 # Default override captures the PoC pipeline. Swap on the command line for a different model:
 #   TANUH_OVERRIDE=tools/edge-model/my-other-model-override.json make tanuh-apk
@@ -43,8 +46,8 @@ tanuh-setup: ## One-time: generate the tanuh release keystore.
 tanuh-encrypt: ## Encrypt the plaintext model and emit registry.json.
 	@if [ ! -f "$(TANUH_MODEL_SRC)" ]; then \
 		echo "ERROR: $(TANUH_MODEL_SRC) not found."; \
-		echo "Drop your plaintext .pt there (filename = TANUH_MODEL_KEY + .pt)."; \
-		echo "  cp /path/to/$(TANUH_MODEL_KEY).pt tools/edge-model/source/"; \
+		echo "Drop your plaintext .$(TANUH_MODEL_EXT) there (filename = TANUH_MODEL_KEY + .$(TANUH_MODEL_EXT))."; \
+		echo "  cp /path/to/$(TANUH_MODEL_KEY).$(TANUH_MODEL_EXT) tools/edge-model/source/"; \
 		exit 1; \
 	fi
 	@mkdir -p $(TANUH_OUT_DIR)
@@ -82,21 +85,22 @@ _tanuh-release-assemble: ## (internal) Assemble + sign the tanuh release APK fro
 	@echo "Signed APK: packages/openchs-android/android/app/build/outputs/apk/tanuh/release/app-tanuh-release.apk"
 
 # ── 3-fold MViT2 ensemble ───────────────────────────────────────────────────────────
-# model6/model8/model8-2.pt are cross-validation folds of one MViT2 oral-cancer model,
-# soft-voted in JS by EdgeModelService.runEnsembleInferenceOnImage. Drop the 3 plaintext
-# .pt files in $(TANUH_ENSEMBLE_SRC_DIR); `tanuh-ensemble` clears the registry then encrypts
-# all three (bicubic ensemble override) under keys mvit2_fold1_6/fold1_8/fold2_8.
-TANUH_ENSEMBLE_SRC_DIR  ?= /Users/himeshr/Avni/Tanuh/tanuh_models
+# model6/model8/model8-2 are cross-validation folds of one MViT2 oral-cancer model, shipped
+# as ONNX exports and soft-voted in JS by EdgeModelService.runEnsembleInferenceOnImage. Drop
+# the 3 plaintext .onnx files (named model6.onnx model8.onnx model8-2.onnx) in
+# $(TANUH_ENSEMBLE_SRC_DIR); `tanuh-ensemble` clears the registry then encrypts all three
+# (bicubic ensemble override, engine=onnx) under keys mvit2_fold1_6/fold1_8/fold2_8.
+TANUH_ENSEMBLE_SRC_DIR  ?= $(HOME)/Desktop/avni/assets/ml
 TANUH_ENSEMBLE_OVERRIDE := tools/edge-model/tanuh-ensemble-override.json
 # Mapping of source-file basename → registry model key.
 TANUH_ENSEMBLE_FOLDS    := model6:mvit2_fold1_6 model8:mvit2_fold1_8 model8-2:mvit2_fold2_8
 
 tanuh-ensemble: ## Encrypt the 3 MViT2 folds into one registry (bicubic ensemble override).
 	@for pair in $(TANUH_ENSEMBLE_FOLDS); do \
-		src="$(TANUH_ENSEMBLE_SRC_DIR)/$${pair%%:*}.pt"; \
+		src="$(TANUH_ENSEMBLE_SRC_DIR)/$${pair%%:*}.$(TANUH_MODEL_EXT)"; \
 		if [ ! -f "$$src" ]; then \
 			echo "ERROR: $$src not found."; \
-			echo "Set TANUH_ENSEMBLE_SRC_DIR to the dir holding model6.pt model8.pt model8-2.pt"; \
+			echo "Set TANUH_ENSEMBLE_SRC_DIR to the dir holding model6.$(TANUH_MODEL_EXT) model8.$(TANUH_MODEL_EXT) model8-2.$(TANUH_MODEL_EXT)"; \
 			exit 1; \
 		fi; \
 	done
@@ -104,9 +108,9 @@ tanuh-ensemble: ## Encrypt the 3 MViT2 folds into one registry (bicubic ensemble
 	@mkdir -p $(TANUH_OUT_DIR) tools/edge-model/source
 	@for pair in $(TANUH_ENSEMBLE_FOLDS); do \
 		file="$${pair%%:*}"; key="$${pair##*:}"; \
-		cp "$(TANUH_ENSEMBLE_SRC_DIR)/$$file.pt" "tools/edge-model/source/$$key.pt"; \
+		cp "$(TANUH_ENSEMBLE_SRC_DIR)/$$file.$(TANUH_MODEL_EXT)" "tools/edge-model/source/$$key.$(TANUH_MODEL_EXT)"; \
 		node tools/edge-model/encrypt-model.js \
-			--in "tools/edge-model/source/$$key.pt" \
+			--in "tools/edge-model/source/$$key.$(TANUH_MODEL_EXT)" \
 			--out-dir $(TANUH_OUT_DIR) \
 			--model-key "$$key" \
 			--override $(TANUH_ENSEMBLE_OVERRIDE); \
@@ -177,25 +181,25 @@ tanuh-universal-apk: tanuh-aab ## Build signed AAB + signed universal APK via bu
 	@echo "Universal apks (zip): $(TANUH_UNIVERSAL)"
 	@echo "Extract installable APK: unzip -p $(TANUH_UNIVERSAL) universal.apk > tanuh-universal.apk"
 
-# Placeholder model setup for local development without TANUH's actual .pt.
-# Downloads PyTorch's official Hello World traced MobileNetV2 (~20 MB, ImageNet 224x224 RGB,
+# Placeholder model setup for local development without TANUH's actual models.
+# Downloads the ONNX model zoo's public MobileNetV2 (~14 MB, ImageNet 224x224 RGB,
 # 1000-class output) and encrypts it under TANUH_MODEL_KEY=placeholder using
 # tools/edge-model/placeholder-override.json. Inference values are unrelated to TANUH's
 # domain — use it to verify the build/load/inference plumbing only.
-PLACEHOLDER_PT_URL := https://raw.githubusercontent.com/pytorch/android-demo-app/master/HelloWorldApp/app/src/main/assets/model.pt
-PLACEHOLDER_PT_DST := tools/edge-model/source/placeholder.pt
+PLACEHOLDER_ONNX_URL := https://github.com/onnx/models/raw/main/validated/vision/classification/mobilenet/model/mobilenetv2-7.onnx
+PLACEHOLDER_ONNX_DST := tools/edge-model/source/placeholder.onnx
 
-tanuh-placeholder: ## Download a public placeholder .pt and encrypt as 'placeholder' for local builds.
-	@if [ ! -f "$(PLACEHOLDER_PT_DST)" ]; then \
-		echo "Downloading placeholder model from PyTorch's android-demo-app..."; \
-		mkdir -p $$(dirname $(PLACEHOLDER_PT_DST)); \
-		curl -fSL -o $(PLACEHOLDER_PT_DST) $(PLACEHOLDER_PT_URL); \
+tanuh-placeholder: ## Download a public placeholder .onnx and encrypt as 'placeholder' for local builds.
+	@if [ ! -f "$(PLACEHOLDER_ONNX_DST)" ]; then \
+		echo "Downloading placeholder ONNX MobileNetV2 from the onnx/models zoo..."; \
+		mkdir -p $$(dirname $(PLACEHOLDER_ONNX_DST)); \
+		curl -fSL -o $(PLACEHOLDER_ONNX_DST) $(PLACEHOLDER_ONNX_URL); \
 	else \
-		echo "$(PLACEHOLDER_PT_DST) already present — skipping download."; \
+		echo "$(PLACEHOLDER_ONNX_DST) already present — skipping download."; \
 	fi
 	@mkdir -p $(TANUH_OUT_DIR)
 	node tools/edge-model/encrypt-model.js \
-		--in $(PLACEHOLDER_PT_DST) \
+		--in $(PLACEHOLDER_ONNX_DST) \
 		--out-dir $(TANUH_OUT_DIR) \
 		--model-key placeholder \
 		--override tools/edge-model/placeholder-override.json \
