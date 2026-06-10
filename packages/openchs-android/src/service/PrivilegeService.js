@@ -52,7 +52,7 @@ class PrivilegeService extends BaseService {
 
     allowedEntityTypeUUIDListForCriteria(criteria, privilegeParam) {
         const ownedGroupsQuery = this.ownedGroups().map(({groupUuid}) => `group.uuid = '${groupUuid}'`).join(' OR ');
-        return this.db.objects(GroupPrivileges.schema.name)
+        return this.getRepository(GroupPrivileges.schema.name).findAll()
             .filtered(_.isEmpty(ownedGroupsQuery) ? 'uuid = null' : ownedGroupsQuery)
             .filtered(_.isEmpty(criteria) ? 'uuid = null' : criteria)
             .filtered('allow = true')
@@ -63,7 +63,7 @@ class PrivilegeService extends BaseService {
 
     hasAllPrivileges() {
         const ownedGroupsQuery = this.ownedGroups().map(({groupUuid}) => `uuid = '${groupUuid}'`).join(' OR ');
-        return this.db.objects(Groups.schema.name)
+        return this.getRepository(Groups.schema.name).findAll()
             .filtered(_.isEmpty(ownedGroupsQuery) ? 'uuid = null' : ownedGroupsQuery)
             .filtered('hasAllPrivileges=true').length > 0;
     }
@@ -91,11 +91,10 @@ class PrivilegeService extends BaseService {
     }
 
     deleteEntity(entityName, filterQuery) {
-        const db = this.db;
-        db.write(() => {
-            const objects = db.objects(entityName)
+        this.transactionManager.write(() => {
+            const objects = this.getRepository(entityName).findAll()
                 .filtered(filterQuery);
-            db.delete(objects);
+            this.getRepository(entityName).deleteInTransaction(objects);
         })
     }
 
@@ -151,7 +150,7 @@ class PrivilegeService extends BaseService {
     }
 
     ownedGroups() {
-        return this.db.objects(MyGroups.schema.name).filtered('voided=false');
+        return this.getRepository(MyGroups.schema.name).findAll().filtered('voided=false');
     }
 
     displayProgramTab(subjectType) {

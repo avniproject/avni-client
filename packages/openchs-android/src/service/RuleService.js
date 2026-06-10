@@ -63,7 +63,7 @@ class RuleService extends BaseService {
 
     getRulesByType(type) {
         return this.getRuleFunctions(
-            this.db.objects(Rule.schema.name)
+            this.repository.findAll()
             .filtered(`voided = false and type=$0`, type)
             .map(_.identity));
     }

@@ -1,0 +1,1342 @@
+/**
+ * RealmQueryParser - Translates Realm query strings to SQL WHERE clauses.
+ *
+ * Supported Realm query features:
+ * - Comparison operators: =, ==, !=, <>, <, >, <=, >=
+ * - String operators: CONTAINS, BEGINSWITH, ENDSWITH, LIKE (with [c] case-insensitive modifier)
+ * - Logical operators: AND, OR, NOT
+ * - Parentheses for grouping
+ * - Parameter substitution: $0, $1, ... $N
+ * - Dot-notation paths (e.g., individual.uuid) → generate JOINs
+ * - null comparison
+ * - String literals with single or double quotes
+ * - Boolean literals: true, false
+ *
+ * Patterns routed to JS fallback (JsFallbackFilterEvaluator):
+ * - TRUEPREDICATE DISTINCT(field) — post-hydration deduplication
+ * - SUBQUERY(listProp, $var, conds).@count OP N — list sub-filtering
+ * - listProp.@count / @size OP N — collection size check
+ * - ANY listProp.field OP value — quantifier over list elements
+ * - limit(N) — inline result limit
+ * - @links.@count — inverse relationships (not evaluable, returns empty)
+ * - ALL, NONE quantifiers, @sum/@avg/@min/@max aggregates (unused in codebase)
+ */
+
+import _ from "lodash";
+import {camelToSnake, schemaNameToTableName, normalizeRealmType} from "./SqliteUtils";
+import {EMBEDDED_SCHEMA_NAMES} from "./SchemaGenerator";
+
+const TOKEN_TYPES = {
+    STRING: "STRING",
+    NUMBER: "NUMBER",
+    BOOLEAN: "BOOLEAN",
+    NULL: "NULL",
+    IDENTIFIER: "IDENTIFIER",
+    PARAMETER: "PARAMETER",
+    OPERATOR: "OPERATOR",
+    COMPARISON: "COMPARISON",
+    LPAREN: "LPAREN",
+    RPAREN: "RPAREN",
+    LBRACE: "LBRACE",
+    RBRACE: "RBRACE",
+    COMMA: "COMMA",
+    IN: "IN",
+    AND: "AND",
+    OR: "OR",
+    NOT: "NOT",
+    STRING_OP: "STRING_OP",
+};
+
+class Token {
+    constructor(type, value) {
+        this.type = type;
+        this.value = value;
+    }
+}
+
+class UnsupportedRealmQueryError extends Error {
+    constructor(query, reason) {
+        super(`Unsupported Realm query: ${reason} in "${query}"`);
+        this.name = "UnsupportedRealmQueryError";
+        this.query = query;
+        this.reason = reason;
+    }
+}
+
+// ──────────────── Tokenizer ────────────────
+
+function tokenize(query) {
+    const tokens = [];
+    let i = 0;
+    const len = query.length;
+
+    while (i < len) {
+        // Skip whitespace
+        if (/\s/.test(query[i])) {
+            i++;
+            continue;
+        }
+
+        // Parentheses
+        if (query[i] === "(") {
+            tokens.push(new Token(TOKEN_TYPES.LPAREN, "("));
+            i++;
+            continue;
+        }
+        if (query[i] === ")") {
+            tokens.push(new Token(TOKEN_TYPES.RPAREN, ")"));
+            i++;
+            continue;
+        }
+        if (query[i] === "{") {
+            tokens.push(new Token(TOKEN_TYPES.LBRACE, "{"));
+            i++;
+            continue;
+        }
+        if (query[i] === "}") {
+            tokens.push(new Token(TOKEN_TYPES.RBRACE, "}"));
+            i++;
+            continue;
+        }
+        if (query[i] === ",") {
+            tokens.push(new Token(TOKEN_TYPES.COMMA, ","));
+            i++;
+            continue;
+        }
+
+        // String literals (single or double quoted)
+        if (query[i] === '"' || query[i] === "'") {
+            const quote = query[i];
+            let str = "";
+            i++; // skip opening quote
+            while (i < len && query[i] !== quote) {
+                if (query[i] === "\\" && i + 1 < len) {
+                    str += query[i + 1];
+                    i += 2;
+                } else {
+                    str += query[i];
+                    i++;
+                }
+            }
+            i++; // skip closing quote
+            tokens.push(new Token(TOKEN_TYPES.STRING, str));
+            continue;
+        }
+
+        // Parameter substitution ($0, $1, etc.)
+        if (query[i] === "$") {
+            let num = "";
+            i++; // skip $
+            while (i < len && /\d/.test(query[i])) {
+                num += query[i];
+                i++;
+            }
+            tokens.push(new Token(TOKEN_TYPES.PARAMETER, parseInt(num, 10)));
+            continue;
+        }
+
+        // Two-character logical operators (Realm accepts && and || as AND/OR)
+        if (i + 1 < len) {
+            const two = query[i] + query[i + 1];
+            if (two === "&&") {
+                tokens.push(new Token(TOKEN_TYPES.AND, "AND"));
+                i += 2;
+                continue;
+            }
+            if (two === "||") {
+                tokens.push(new Token(TOKEN_TYPES.OR, "OR"));
+                i += 2;
+                continue;
+            }
+
+            // Two-character comparison operators
+            if (two === "<=" || two === ">=" || two === "!=" || two === "<>" || two === "==") {
+                tokens.push(new Token(TOKEN_TYPES.COMPARISON, two === "==" ? "=" : two));
+                i += 2;
+                continue;
+            }
+        }
+
+        // Single-character comparison operators
+        if (query[i] === "=" || query[i] === "<" || query[i] === ">") {
+            tokens.push(new Token(TOKEN_TYPES.COMPARISON, query[i]));
+            i++;
+            continue;
+        }
+
+        // Numbers (including negative and decimal)
+        if (/[\d]/.test(query[i]) || (query[i] === "-" && i + 1 < len && /\d/.test(query[i + 1]))) {
+            let num = "";
+            if (query[i] === "-") {
+                num = "-";
+                i++;
+            }
+            while (i < len && /[\d.]/.test(query[i])) {
+                num += query[i];
+                i++;
+            }
+            tokens.push(new Token(TOKEN_TYPES.NUMBER, parseFloat(num)));
+            continue;
+        }
+
+        // Identifiers and keywords
+        if (/[a-zA-Z_@]/.test(query[i])) {
+            let ident = "";
+            while (i < len && /[a-zA-Z0-9_.\-@]/.test(query[i])) {
+                ident += query[i];
+                i++;
+            }
+
+            const upper = ident.toUpperCase();
+
+            // Check for [c] modifier following string operators
+            if (["CONTAINS", "BEGINSWITH", "ENDSWITH", "LIKE"].includes(upper)) {
+                let caseInsensitive = false;
+                // Check for [c] modifier
+                const remaining = query.substring(i);
+                const ciMatch = remaining.match(/^\s*\[c\]/i);
+                if (ciMatch) {
+                    caseInsensitive = true;
+                    i += ciMatch[0].length;
+                }
+                tokens.push(new Token(TOKEN_TYPES.STRING_OP, {op: upper, caseInsensitive}));
+                continue;
+            }
+
+            if (upper === "IN") {
+                tokens.push(new Token(TOKEN_TYPES.IN, "IN"));
+                continue;
+            }
+
+            if (upper === "AND") {
+                tokens.push(new Token(TOKEN_TYPES.AND, "AND"));
+            } else if (upper === "OR") {
+                tokens.push(new Token(TOKEN_TYPES.OR, "OR"));
+            } else if (upper === "NOT") {
+                tokens.push(new Token(TOKEN_TYPES.NOT, "NOT"));
+            } else if (upper === "TRUE") {
+                tokens.push(new Token(TOKEN_TYPES.BOOLEAN, true));
+            } else if (upper === "FALSE") {
+                tokens.push(new Token(TOKEN_TYPES.BOOLEAN, false));
+            } else if (upper === "NULL" || upper === "NIL") {
+                tokens.push(new Token(TOKEN_TYPES.NULL, null));
+            } else {
+                tokens.push(new Token(TOKEN_TYPES.IDENTIFIER, ident));
+            }
+            continue;
+        }
+
+        // Unknown character — skip
+        i++;
+    }
+
+    return tokens;
+}
+
+// ──────────────── Parser → AST ────────────────
+
+class Parser {
+    constructor(tokens) {
+        this.tokens = tokens;
+        this.pos = 0;
+    }
+
+    peek() {
+        return this.pos < this.tokens.length ? this.tokens[this.pos] : null;
+    }
+
+    consume(expectedType) {
+        const token = this.tokens[this.pos];
+        if (expectedType && token?.type !== expectedType) {
+            throw new Error(`Expected ${expectedType} but got ${token?.type} (${token?.value}) at position ${this.pos}`);
+        }
+        this.pos++;
+        return token;
+    }
+
+    parse() {
+        const result = this.parseOr();
+        return result;
+    }
+
+    parseOr() {
+        let left = this.parseAnd();
+        while (this.peek()?.type === TOKEN_TYPES.OR) {
+            this.consume();
+            const right = this.parseAnd();
+            left = {type: "OR", left, right};
+        }
+        return left;
+    }
+
+    parseAnd() {
+        let left = this.parseNot();
+        while (this.peek()?.type === TOKEN_TYPES.AND) {
+            this.consume();
+            const right = this.parseNot();
+            left = {type: "AND", left, right};
+        }
+        return left;
+    }
+
+    parseNot() {
+        if (this.peek()?.type === TOKEN_TYPES.NOT) {
+            this.consume();
+            const expr = this.parsePrimary();
+            return {type: "NOT", expr};
+        }
+        return this.parsePrimary();
+    }
+
+    parsePrimary() {
+        const token = this.peek();
+
+        // Grouped expression
+        if (token?.type === TOKEN_TYPES.LPAREN) {
+            this.consume();
+            const expr = this.parseOr();
+            this.consume(TOKEN_TYPES.RPAREN);
+            return expr;
+        }
+
+        // Must be a comparison: identifier COMPARISON value, or identifier STRING_OP value
+        if (token?.type === TOKEN_TYPES.IDENTIFIER) {
+            const field = this.consume().value;
+            const opToken = this.peek();
+
+            if (opToken?.type === TOKEN_TYPES.COMPARISON) {
+                const op = this.consume().value;
+                const value = this.parseValue();
+                return {type: "COMPARISON", field, op, value};
+            }
+
+            if (opToken?.type === TOKEN_TYPES.STRING_OP) {
+                const {op, caseInsensitive} = this.consume().value;
+                const value = this.parseValue();
+                return {type: "STRING_OP", field, op, value, caseInsensitive};
+            }
+
+            // field IN {value1, value2, ...}  — Realm IN syntax
+            if (opToken?.type === TOKEN_TYPES.IN) {
+                this.consume(); // consume IN
+                this.consume(TOKEN_TYPES.LBRACE);
+                const values = [];
+                while (this.peek()?.type !== TOKEN_TYPES.RBRACE) {
+                    values.push(this.parseValue());
+                    if (this.peek()?.type === TOKEN_TYPES.COMMA) {
+                        this.consume();
+                    }
+                }
+                this.consume(TOKEN_TYPES.RBRACE);
+                return {type: "IN", field, values};
+            }
+
+            throw new Error(`Unexpected token after identifier "${field}": ${opToken?.type} ${opToken?.value}`);
+        }
+
+        throw new Error(`Unexpected token: ${token?.type} ${token?.value} at position ${this.pos}`);
+    }
+
+    parseValue() {
+        const token = this.peek();
+        if (!token) throw new Error("Unexpected end of query");
+
+        if (token.type === TOKEN_TYPES.STRING ||
+            token.type === TOKEN_TYPES.NUMBER ||
+            token.type === TOKEN_TYPES.BOOLEAN ||
+            token.type === TOKEN_TYPES.NULL ||
+            token.type === TOKEN_TYPES.PARAMETER) {
+            return this.consume();
+        }
+
+        throw new Error(`Expected value but got ${token.type} (${token.value})`);
+    }
+}
+
+// ──────────────── AST → SQL ────────────────
+
+class SqlGenerator {
+    constructor(schemaMap, rootSchemaName, args) {
+        this.schemaMap = schemaMap; // Map<schemaName, schema>
+        this.rootSchemaName = rootSchemaName;
+        this.args = args || [];
+        this.params = [];
+        this.joins = [];
+        this.joinAliases = new Map(); // dot-path → alias
+        this.aliasCounter = 0;
+    }
+
+    generate(ast) {
+        const where = this.visitNode(ast);
+        return {
+            where,
+            params: this.params,
+            joins: this.joins,
+        };
+    }
+
+    visitNode(node) {
+        switch (node.type) {
+            case "AND":
+                return `(${this.visitNode(node.left)} AND ${this.visitNode(node.right)})`;
+            case "OR":
+                return `(${this.visitNode(node.left)} OR ${this.visitNode(node.right)})`;
+            case "NOT":
+                return `NOT (${this.visitNode(node.expr)})`;
+            case "COMPARISON":
+                return this.visitComparison(node);
+            case "STRING_OP":
+                return this.visitStringOp(node);
+            case "IN":
+                return this.visitIn(node);
+            default:
+                throw new Error(`Unknown AST node type: ${node.type}`);
+        }
+    }
+
+    resolveField(fieldPath) {
+        const parts = fieldPath.split(".");
+        if (parts.length === 1) {
+            // Simple field on root table - convert camelCase to snake_case for column name
+            return {column: `t0."${camelToSnake(parts[0])}"`, needsJoin: false};
+        }
+
+        // Dot-notation: resolve through schema relationships
+        let currentSchema = this.rootSchemaName;
+        let currentAlias = "t0";
+        let pathSoFar = "";
+
+        for (let i = 0; i < parts.length - 1; i++) {
+            const propName = parts[i];
+            pathSoFar = pathSoFar ? `${pathSoFar}.${propName}` : propName;
+
+            if (this.joinAliases.has(pathSoFar)) {
+                currentAlias = this.joinAliases.get(pathSoFar);
+                const schema = this.schemaMap.get(currentSchema);
+                if (schema) {
+                    const propSchema = schema.properties[propName];
+                    if (propSchema?.objectType) {
+                        currentSchema = propSchema.objectType;
+                    }
+                }
+                continue;
+            }
+
+            const schema = this.schemaMap.get(currentSchema);
+            if (!schema) {
+                // Schema not found — fall back to simple column reference
+                return {column: `t0."${camelToSnake(fieldPath.replace(/\./g, "_"))}"`, needsJoin: false};
+            }
+
+            const propSchema = schema.properties[propName];
+            if (!propSchema || (propSchema.type !== "object" && propSchema.type !== "list")) {
+                // Not a relationship — treat as a nested column name
+                return {column: `${currentAlias}."${camelToSnake(propName)}"`, needsJoin: false};
+            }
+
+            const targetSchema = propSchema.objectType;
+
+            // Embedded list/object (Observation, Point, etc.) stored as JSON column on parent table.
+            // e.g., "observations.valueJSON" → search within the parent's "observations" JSON text column.
+            // Remaining path parts (e.g., "valueJSON") are ignored since the JSON is searched as text.
+            if (targetSchema && EMBEDDED_SCHEMA_NAMES.has(targetSchema)) {
+                return {column: `${currentAlias}."${camelToSnake(propName)}"`, needsJoin: false};
+            }
+
+            const newAlias = `t${++this.aliasCounter}`;
+            const targetTableName = schemaNameToTableName(targetSchema);
+
+            if (propSchema.type === "list") {
+                // List property: reverse JOIN — child table has FK pointing back to parent
+                const childFkColumn = this._findChildFkColumn(currentSchema, targetSchema);
+                this.joins.push({
+                    table: targetTableName,
+                    alias: newAlias,
+                    on: `${newAlias}."${childFkColumn}" = ${currentAlias}."uuid"`,
+                });
+            } else {
+                // Object property: forward JOIN — parent has FK to child
+                const fkColumn = `${camelToSnake(propName)}_uuid`;
+                this.joins.push({
+                    table: targetTableName,
+                    alias: newAlias,
+                    on: `${currentAlias}."${fkColumn}" = ${newAlias}."uuid"`,
+                });
+            }
+
+            this.joinAliases.set(pathSoFar, newAlias);
+            currentAlias = newAlias;
+            currentSchema = targetSchema;
+        }
+
+        const lastPart = parts[parts.length - 1];
+        return {column: `${currentAlias}."${camelToSnake(lastPart)}"`, needsJoin: true};
+    }
+
+    /**
+     * Find the FK column on a child table that references the parent schema.
+     * Looks at the child's schema for a property of type "object" whose objectType matches the parent.
+     * Falls back to convention: parent_schema_name_uuid.
+     */
+    _findChildFkColumn(parentSchemaName, childSchemaName) {
+        const childSchema = this.schemaMap.get(childSchemaName);
+        if (childSchema) {
+            for (const [propName, propDef] of Object.entries(childSchema.properties || {})) {
+                if (typeof propDef === "object" && propDef.type === "object" && propDef.objectType === parentSchemaName) {
+                    return `${camelToSnake(propName)}_uuid`;
+                }
+            }
+        }
+        // Fallback convention
+        return `${camelToSnake(parentSchemaName)}_uuid`;
+    }
+
+    resolveValue(valueToken) {
+        if (valueToken.type === TOKEN_TYPES.PARAMETER) {
+            const idx = valueToken.value;
+            if (idx >= this.args.length) {
+                throw new Error(`Parameter $${idx} referenced but only ${this.args.length} args provided`);
+            }
+            const val = this.args[idx];
+            // Convert Date to epoch ms for SQLite
+            if (val instanceof Date) {
+                this.params.push(val.getTime());
+            } else {
+                this.params.push(val);
+            }
+            return "?";
+        }
+        if (valueToken.type === TOKEN_TYPES.NULL) {
+            return null; // handled specially in comparison
+        }
+        if (valueToken.type === TOKEN_TYPES.BOOLEAN) {
+            this.params.push(valueToken.value ? 1 : 0);
+            return "?";
+        }
+        if (valueToken.type === TOKEN_TYPES.NUMBER) {
+            this.params.push(valueToken.value);
+            return "?";
+        }
+        if (valueToken.type === TOKEN_TYPES.STRING) {
+            this.params.push(valueToken.value);
+            return "?";
+        }
+        throw new Error(`Unknown value token type: ${valueToken.type}`);
+    }
+
+    visitComparison(node) {
+        const {column} = this.resolveField(node.field);
+        const op = node.op === "<>" ? "!=" : node.op;
+
+        if (node.value.type === TOKEN_TYPES.NULL) {
+            return op === "=" ? `${column} IS NULL` : `${column} IS NOT NULL`;
+        }
+
+        const valuePlaceholder = this.resolveValue(node.value);
+        return `${column} ${op} ${valuePlaceholder}`;
+    }
+
+    visitStringOp(node) {
+        const {column} = this.resolveField(node.field);
+        const valuePlaceholder = this.resolveValue(node.value);
+        const ci = node.caseInsensitive;
+
+        // For case-insensitive, we wrap in LOWER()
+        const col = ci ? `LOWER(${column})` : column;
+        // If case-insensitive, we also need to lowercase the parameter
+        if (ci && this.params.length > 0) {
+            const lastIdx = this.params.length - 1;
+            if (typeof this.params[lastIdx] === "string") {
+                this.params[lastIdx] = this.params[lastIdx].toLowerCase();
+            }
+        }
+
+        switch (node.op) {
+            case "CONTAINS":
+                // Replace the last param with a LIKE pattern
+                if (this.params.length > 0) {
+                    const lastIdx = this.params.length - 1;
+                    this.params[lastIdx] = `%${this.params[lastIdx]}%`;
+                }
+                return `${col} LIKE ?`;
+            case "BEGINSWITH":
+                if (this.params.length > 0) {
+                    const lastIdx = this.params.length - 1;
+                    this.params[lastIdx] = `${this.params[lastIdx]}%`;
+                }
+                return `${col} LIKE ?`;
+            case "ENDSWITH":
+                if (this.params.length > 0) {
+                    const lastIdx = this.params.length - 1;
+                    this.params[lastIdx] = `%${this.params[lastIdx]}`;
+                }
+                return `${col} LIKE ?`;
+            case "LIKE":
+                // Realm LIKE uses * and ? as wildcards; SQL uses % and _
+                if (this.params.length > 0) {
+                    const lastIdx = this.params.length - 1;
+                    if (typeof this.params[lastIdx] === "string") {
+                        this.params[lastIdx] = this.params[lastIdx]
+                            .replace(/%/g, "\\%")
+                            .replace(/_/g, "\\_")
+                            .replace(/\*/g, "%")
+                            .replace(/\?/g, "_");
+                    }
+                }
+                return `${col} LIKE ? ESCAPE '\\'`;
+            default:
+                throw new Error(`Unknown string operator: ${node.op}`);
+        }
+    }
+
+    visitIn(node) {
+        const {column} = this.resolveField(node.field);
+        if (node.values.length === 0) {
+            return "1=0"; // empty IN → always false
+        }
+        const placeholders = node.values.map(v => this.resolveValue(v)).join(", ");
+        return `${column} IN (${placeholders})`;
+    }
+
+}
+
+// ──────────────── JS fallback detection ────────────────
+//
+// Patterns that can't be translated to SQL directly.
+// When detected, the query (or clause) is routed to JsFallbackFilterEvaluator
+// for post-filtering on hydrated entities in JavaScript.
+
+const JS_FALLBACK_PATTERNS = [
+    /SUBQUERY\s*\(/i,           // SUBQUERY(list, $var, conds).@count OP N
+    /TRUEPREDICATE/i,           // TRUEPREDICATE DISTINCT(field)
+    /@links/i,                  // @links.@count (inverse relationships — not evaluable)
+    /@count/i,                  // listProp.@count OP N
+    /@size/i,                   // listProp.@size OP N (same as @count)
+    /@sum/i,                    // collection aggregates (unused in codebase)
+    /@avg/i,
+    /@min/i,
+    /@max/i,
+    /\bANY\b/i,                // ANY listProp.field OP value
+    /\bALL\b/i,                // ALL/NONE quantifiers (unused in codebase)
+    /\bNONE\b/i,
+    // limit(N) is NOT here — it's stripped and handled by parse() directly
+];
+
+function requiresJsFallback(query) {
+    return JS_FALLBACK_PATTERNS.some(pattern => pattern.test(query));
+}
+
+/**
+ * Split a query string on top-level AND operators, respecting parentheses.
+ * e.g., "a = 1 AND SUBQUERY(b, $x, $x.c = 2).@count > 0 AND d = 3"
+ * → ["a = 1", "SUBQUERY(b, $x, $x.c = 2).@count > 0", "d = 3"]
+ */
+function splitTopLevelAnd(query) {
+    const clauses = [];
+    let depth = 0;
+    let start = 0;
+    const upper = query.toUpperCase();
+
+    for (let i = 0; i < query.length; i++) {
+        const ch = query[i];
+        if (ch === '(' || ch === '[') {
+            depth++;
+        } else if (ch === ')' || ch === ']') {
+            depth--;
+        } else if (depth === 0) {
+            // Check for top-level AND (word boundary)
+            if (upper.substring(i, i + 3) === 'AND' &&
+                (i === 0 || /\s/.test(query[i - 1])) &&
+                (i + 3 >= query.length || /\s/.test(query[i + 3]))) {
+                const clause = query.substring(start, i).trim();
+                if (clause.length > 0) {
+                    clauses.push(clause);
+                }
+                start = i + 3;
+            }
+            // Check for top-level && (Realm also accepts && as AND)
+            if (query[i] === '&' && i + 1 < query.length && query[i + 1] === '&') {
+                const clause = query.substring(start, i).trim();
+                if (clause.length > 0) {
+                    clauses.push(clause);
+                }
+                i += 1; // skip second &, loop will increment past it
+                start = i + 1;
+            }
+        }
+    }
+
+    // Last clause
+    const last = query.substring(start).trim();
+    if (last.length > 0) {
+        clauses.push(last);
+    }
+
+    return clauses;
+}
+
+// ──────────────── Public API ────────────────
+
+class RealmQueryParser {
+    /**
+     * Parse a Realm query string and produce SQL WHERE clause.
+     *
+     * @param {string} query - Realm query string (e.g., 'voided = false AND uuid = $0')
+     * @param {Array} args - Substitution arguments for $0, $1, etc.
+     * @param {string} rootSchemaName - The Realm schema name for the root table
+     * @param {Map} schemaMap - Map<schemaName, schemaObject> for resolving relationships
+     * @returns {{ where: string, params: Array, joins: Array<{table, alias, on}>, unsupported: boolean }}
+     */
+    static parse(query, args = [], rootSchemaName = null, schemaMap = new Map(), aliasOffset = 0) {
+        if (!query || typeof query !== "string") {
+            return {where: "1=1", params: [], joins: [], unsupported: false, limit: null};
+        }
+
+        let trimmed = query.trim();
+
+        // Strip limit(N) before any processing — it's a result-set modifier,
+        // not a filter predicate. Extracted here so the remaining query can be
+        // parsed normally (e.g., "hasMigrated = false limit(1)" → parse "hasMigrated = false").
+        let limitValue = null;
+        const limitMatch = trimmed.match(/\blimit\s*\(\s*(\d+)\s*\)/i);
+        if (limitMatch) {
+            limitValue = parseInt(limitMatch[1], 10);
+            trimmed = trimmed.replace(/\blimit\s*\(\s*\d+\s*\)/i, "").trim();
+            // Clean up trailing/leading AND left after stripping
+            trimmed = trimmed.replace(/\bAND\s*$/i, "").replace(/^\s*AND\b/i, "").trim();
+        }
+
+        if (trimmed.length === 0) {
+            return {where: "1=1", params: [], joins: [], unsupported: false, limit: limitValue};
+        }
+
+        // Check for patterns that need JS fallback
+        if (requiresJsFallback(trimmed)) {
+            // Try direct SUBQUERY → SQL translation for single-clause queries
+            if (/^SUBQUERY\s*\(/i.test(trimmed)) {
+                // Referenced lists (enrolments, encounters) → IN subquery
+                const inResult = this._tryTranslateSubqueryToIn(trimmed, rootSchemaName, schemaMap, args);
+                if (inResult) {
+                    return {
+                        where: inResult.where,
+                        params: inResult.params,
+                        joins: [],
+                        unsupported: false,
+                        limit: limitValue,
+                    };
+                }
+                // Embedded lists (observations) → json_each EXISTS
+                const jsonResult = this._tryTranslateObservationSubquery(trimmed, rootSchemaName, schemaMap);
+                if (jsonResult) {
+                    return {
+                        where: jsonResult.where,
+                        params: jsonResult.params,
+                        joins: [],
+                        unsupported: false,
+                        limit: limitValue,
+                    };
+                }
+            }
+
+            // Try partial parsing: split on top-level AND, translate supported clauses to SQL,
+            // route JS-fallback clauses (SUBQUERY, TRUEPREDICATE, @count, etc.) to
+            // JsFallbackFilterEvaluator for post-hydration filtering.
+            const partialResult = this._parsePartial(trimmed, args, rootSchemaName, schemaMap, aliasOffset);
+            if (partialResult) {
+                partialResult.limit = limitValue;
+                return partialResult;
+            }
+
+            // For single-clause observation SUBQUERYs, add LIKE pre-filter to narrow
+            // rows before hydration even though the full query goes to JS fallback.
+            const preFilter = this._extractObservationPreFilter(trimmed, rootSchemaName, schemaMap);
+            if (preFilter) {
+                return {
+                    where: preFilter.where,
+                    params: preFilter.params,
+                    joins: [],
+                    unsupported: false,
+                    partialParse: true,
+                    skippedClauses: [trimmed],
+                    limit: limitValue,
+                };
+            }
+
+            return {
+                where: null,
+                params: [],
+                joins: [],
+                unsupported: true,
+                originalQuery: trimmed,
+                reason: "Query requires JS fallback (SUBQUERY, TRUEPREDICATE, @links, @count, @size, ANY, etc.)",
+                limit: limitValue,
+            };
+        }
+
+        try {
+            const tokens = tokenize(trimmed);
+            const parser = new Parser(tokens);
+            const ast = parser.parse();
+
+            const generator = new SqlGenerator(schemaMap, rootSchemaName, args);
+            generator.aliasCounter = aliasOffset;
+            const result = generator.generate(ast);
+
+            return {
+                where: result.where,
+                params: result.params,
+                joins: result.joins,
+                unsupported: false,
+                limit: limitValue,
+            };
+        } catch (e) {
+            // If parsing fails, flag as unsupported for JS fallback
+            return {
+                where: null,
+                params: [],
+                joins: [],
+                unsupported: true,
+                originalQuery: trimmed,
+                reason: `Parse error: ${e.message}`,
+                limit: limitValue,
+            };
+        }
+    }
+
+    /**
+     * Attempt partial parsing of a query containing JS-fallback patterns.
+     * Splits on top-level AND, parses each clause independently, and combines
+     * the SQL-translatable ones into a WHERE clause. JS-fallback clauses are
+     * collected as skippedClauses and later evaluated by JsFallbackFilterEvaluator.
+     *
+     * Returns a parse result if at least one clause was successfully parsed,
+     * or null if no clauses could be parsed.
+     */
+    /**
+     * Attempt to translate a SUBQUERY on a referenced list to a SQL IN clause.
+     * Uses non-correlated subquery: t0.uuid IN (SELECT fk FROM child WHERE conditions)
+     *
+     * For embedded lists (observations), returns null — use _extractObservationPreFilter instead.
+     * For nested SUBQUERYs, recurses to build nested IN clauses.
+     *
+     * @returns {{ where: string, params: Array }} | null
+     */
+    static _tryTranslateSubqueryToIn(clause, rootSchemaName, schemaMap, args, depth = 0) {
+        if (depth > 3) return null;
+
+        const parsed = this._parseSubqueryClause(clause);
+        if (!parsed) return null;
+
+        const {listProp, varName, conditions, operator, count} = parsed;
+
+        const rootSchema = schemaMap.get(rootSchemaName);
+        if (!rootSchema) return null;
+
+        const propDef = rootSchema.properties[listProp];
+        if (!propDef || (typeof propDef === 'object' ? propDef.type : null) !== 'list') return null;
+
+        const childSchemaName = typeof propDef === 'object' ? propDef.objectType : null;
+        if (!childSchemaName || EMBEDDED_SCHEMA_NAMES.has(childSchemaName)) return null;
+
+        const childTableName = schemaNameToTableName(childSchemaName);
+
+        // Find FK column on child table that points back to parent
+        const childSchema = schemaMap.get(childSchemaName);
+        let fkColumn = `${camelToSnake(rootSchemaName)}_uuid`;
+        if (childSchema) {
+            for (const [propName, propDef2] of Object.entries(childSchema.properties || {})) {
+                if (typeof propDef2 === 'object' && propDef2.type === 'object' && propDef2.objectType === rootSchemaName) {
+                    fkColumn = `${camelToSnake(propName)}_uuid`;
+                    break;
+                }
+            }
+        }
+
+        // Strip variable prefix from conditions
+        const varPrefix = varName.replace('$', '\\$') + '\\.';
+        const strippedConditions = conditions.replace(new RegExp(varPrefix, 'g'), '');
+
+        // Split conditions on top-level AND and translate each
+        const parts = splitTopLevelAnd(strippedConditions);
+        const whereParts = [];
+        const params = [];
+
+        for (const part of parts) {
+            const trimmed = part.trim();
+
+            // Check for nested SUBQUERY — recurse
+            if (/SUBQUERY\s*\(/i.test(trimmed)) {
+                const nested = this._tryTranslateSubqueryToIn(trimmed, childSchemaName, schemaMap, args, depth + 1);
+                if (!nested) return null;
+                // Rewrite: the nested IN references the child table's uuid
+                // We need to scope it: child.uuid IN (SELECT grandchild.parent_fk FROM ...)
+                whereParts.push(nested.where.replace(/t0\."uuid"/g, `"uuid"`));
+                params.push(...nested.params);
+                continue;
+            }
+
+            // Translate condition — resolve dot-notation FK references to scalar subqueries
+            // e.g., program.name = 'Child' → program_uuid = (SELECT uuid FROM program WHERE name = ?)
+            const dotMatch = trimmed.match(/^([\w]+)\.([\w]+)\s*(==|=|!=|<>)\s*(['"])(.*?)\4$/);
+            if (dotMatch) {
+                const [, refProp, field, op, , value] = dotMatch;
+                const refPropDef = childSchema?.properties[refProp];
+                if (refPropDef && typeof refPropDef === 'object' && refPropDef.type === 'object') {
+                    const refTable = schemaNameToTableName(refPropDef.objectType);
+                    const fkCol = `${camelToSnake(refProp)}_uuid`;
+                    const sqlOp = (op === '==' ? '=' : op);
+                    params.push(value);
+                    whereParts.push(`"${fkCol}" ${sqlOp === '!=' || sqlOp === '<>' ? 'NOT ' : ''}IN (SELECT "uuid" FROM ${refTable} WHERE "${camelToSnake(field)}" = ?)`);
+                    continue;
+                }
+            }
+
+            // Simple scalar condition: field OP value
+            try {
+                const tokens = tokenize(trimmed);
+                const parser = new Parser(tokens);
+                const ast = parser.parse();
+                const gen = new SqlGenerator(schemaMap, childSchemaName, args);
+                const result = gen.generate(ast);
+                // Replace t0. alias with bare column names for the subquery
+                whereParts.push(result.where.replace(/t0\./g, ''));
+                params.push(...result.params);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        if (whereParts.length === 0) return null;
+
+        const innerWhere = whereParts.join(' AND ');
+
+        let where;
+        if ((operator === '>' && count === 0) || (operator === '>=' && count === 1) || (operator === '!=' && count === 0)) {
+            where = `t0."uuid" IN (SELECT "${fkColumn}" FROM ${childTableName} WHERE ${innerWhere})`;
+        } else if ((operator === '=' && count === 0) || (operator === '<' && count === 1)) {
+            where = `t0."uuid" NOT IN (SELECT "${fkColumn}" FROM ${childTableName} WHERE ${innerWhere})`;
+        } else {
+            const op = operator === '==' ? '=' : operator;
+            where = `(SELECT COUNT(*) FROM ${childTableName} WHERE "${fkColumn}" = t0."uuid" AND ${innerWhere}) ${op} ${count}`;
+        }
+
+        return {where, params, joins: []};
+    }
+
+    static _parseSubqueryClause(clause) {
+        const match = clause.match(/^SUBQUERY\s*\(/i);
+        if (!match) return null;
+
+        const openIdx = match[0].length;
+        const argStrs = [];
+        let parenDepth = 0, current = "";
+
+        for (let i = openIdx; i < clause.length; i++) {
+            const ch = clause[i];
+            if (ch === '(') { parenDepth++; current += ch; }
+            else if (ch === ')') {
+                if (parenDepth === 0) {
+                    if (current.trim()) argStrs.push(current);
+                    const tail = clause.substring(i + 1).trim();
+                    const countMatch = tail.match(/^\.@count\s*(==|!=|<>|<=|>=|<|>|=)\s*(\d+)/i);
+                    if (!countMatch) return null;
+                    return {
+                        listProp: argStrs[0]?.trim(),
+                        varName: argStrs[1]?.trim(),
+                        conditions: argStrs[2]?.trim(),
+                        operator: countMatch[1] === '==' ? '=' : countMatch[1],
+                        count: parseInt(countMatch[2], 10),
+                    };
+                }
+                parenDepth--;
+                current += ch;
+            } else if (ch === ',' && parenDepth === 0) {
+                argStrs.push(current);
+                current = "";
+            } else {
+                current += ch;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Translate a SUBQUERY on an embedded list (observations) to SQL using json_each().
+     * Converts Realm observation queries to:
+     *   EXISTS (SELECT 1 FROM json_each(t0."observations") AS jobs WHERE ...)
+     *
+     * Supported condition patterns within the SUBQUERY:
+     *   $obs.concept.uuid = "uuid"       → json_extract(jobs.value, '$.concept.uuid') = ?
+     *   $obs.valueJSON contains "text"    → jobs.value LIKE '%text%'
+     *   $obs.concept.name = "name"        → json_extract(jobs.value, '$.concept.name') = ?
+     *   Combined with AND/OR
+     *
+     * @returns {{ where: string, params: Array }} | null
+     */
+    static _tryTranslateObservationSubquery(clause, rootSchemaName, schemaMap) {
+        const parsed = this._parseSubqueryClause(clause);
+        if (!parsed) return null;
+
+        const {listProp, varName, conditions, operator, count} = parsed;
+
+        // Verify this is an embedded list
+        const rootSchema = schemaMap.get(rootSchemaName);
+        if (!rootSchema) return null;
+        const propDef = rootSchema.properties[listProp];
+        if (!propDef) return null;
+        const objectType = typeof propDef === 'object' ? propDef.objectType : null;
+        if (!objectType || !EMBEDDED_SCHEMA_NAMES.has(objectType)) return null;
+
+        const colName = camelToSnake(listProp);
+        const varPrefix = varName.replace('$', '\\$') + '\\.';
+        const strippedConditions = conditions.replace(new RegExp(varPrefix, 'g'), '');
+
+        // Translate conditions to json_each WHERE clauses
+        const translated = this._translateObservationConditions(strippedConditions);
+        if (!translated) return null;
+
+        const innerWhere = translated.where;
+        const params = translated.params;
+
+        let where;
+        if ((operator === '>' && count === 0) || (operator === '>=' && count === 1) || (operator === '!=' && count === 0)) {
+            where = `EXISTS (SELECT 1 FROM json_each(t0."${colName}") AS jobs WHERE ${innerWhere})`;
+        } else if ((operator === '=' && count === 0) || (operator === '<' && count === 1)) {
+            where = `NOT EXISTS (SELECT 1 FROM json_each(t0."${colName}") AS jobs WHERE ${innerWhere})`;
+        } else {
+            const op = operator === '==' ? '=' : operator;
+            where = `(SELECT COUNT(*) FROM json_each(t0."${colName}") AS jobs WHERE ${innerWhere}) ${op} ${count}`;
+        }
+
+        return {where, params};
+    }
+
+    /**
+     * Translate observation SUBQUERY conditions to json_each WHERE clause.
+     * Handles AND/OR combinations and parentheses.
+     *
+     * @returns {{ where: string, params: Array }} | null
+     */
+    static _translateObservationConditions(conditions) {
+        const params = [];
+
+        // Split on top-level AND/OR while preserving operator and parentheses
+        const result = this._translateObsExpr(conditions.trim(), params);
+        if (!result) return null;
+
+        return {where: result, params};
+    }
+
+    /**
+     * Recursively translate an observation condition expression.
+     * Handles: AND, OR, parenthesized groups, and leaf conditions.
+     */
+    static _translateObsExpr(expr, params) {
+        const trimmed = expr.trim();
+
+        // Handle parenthesized expression
+        if (trimmed.startsWith('(') && this._findMatchingParen(trimmed, 0) === trimmed.length - 1) {
+            const inner = this._translateObsExpr(trimmed.substring(1, trimmed.length - 1).trim(), params);
+            return inner ? `(${inner})` : null;
+        }
+
+        // Split on top-level OR first (lower precedence)
+        const orParts = this._splitTopLevelLogical(trimmed, 'OR');
+        if (orParts.length > 1) {
+            const translated = orParts.map(p => this._translateObsExpr(p.trim(), params));
+            if (translated.some(t => t === null)) return null;
+            return `(${translated.join(' OR ')})`;
+        }
+
+        // Split on top-level AND
+        const andParts = this._splitTopLevelLogical(trimmed, 'AND');
+        if (andParts.length > 1) {
+            const translated = andParts.map(p => this._translateObsExpr(p.trim(), params));
+            if (translated.some(t => t === null)) return null;
+            return translated.join(' AND ');
+        }
+
+        // Leaf condition — translate single observation condition
+        return this._translateSingleObsCondition(trimmed, params);
+    }
+
+    /**
+     * Split expression on top-level logical operator (AND or OR),
+     * respecting parentheses depth.
+     */
+    static _splitTopLevelLogical(expr, op) {
+        const parts = [];
+        let depth = 0;
+        let current = '';
+        const opUpper = op.toUpperCase();
+        const opLen = opUpper.length;
+
+        for (let i = 0; i < expr.length; i++) {
+            const ch = expr[i];
+            if (ch === '(') { depth++; current += ch; }
+            else if (ch === ')') { depth--; current += ch; }
+            else if (depth === 0) {
+                // Check for " AND " or " OR " (with word boundaries)
+                const ahead = expr.substring(i, i + opLen + 2).toUpperCase();
+                if (ahead.startsWith(' ' + opUpper + ' ') || ahead.startsWith(' ' + opUpper.toLowerCase() + ' ')) {
+                    const before = current.trim();
+                    if (before) parts.push(before);
+                    current = '';
+                    i += opLen + 1; // skip past " OP "
+                    continue;
+                }
+                current += ch;
+            } else {
+                current += ch;
+            }
+        }
+        const last = current.trim();
+        if (last) parts.push(last);
+        return parts;
+    }
+
+    /**
+     * Find matching closing parenthesis position.
+     */
+    static _findMatchingParen(str, openIdx) {
+        let depth = 0;
+        for (let i = openIdx; i < str.length; i++) {
+            if (str[i] === '(') depth++;
+            else if (str[i] === ')') {
+                depth--;
+                if (depth === 0) return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Translate a single observation condition to json_each SQL.
+     *
+     * Patterns:
+     *   concept.uuid = "uuid"          → json_extract(jobs.value, '$.concept.uuid') = ?
+     *   concept.name = "name"          → json_extract(jobs.value, '$.concept.name') = ?
+     *   valueJSON contains "text"      → jobs.value LIKE ?
+     *   valueJSON CONTAINS[c] "text"   → jobs.value LIKE ?
+     */
+    static _translateSingleObsCondition(condition, params) {
+        const trimmed = condition.trim();
+
+        // Pattern: dotPath OP value  (e.g., concept.uuid = "abc-123")
+        const eqMatch = trimmed.match(/^([\w.]+)\s*(==|=|!=|<>)\s*(['"])(.*?)\3$/);
+        if (eqMatch) {
+            const [, fieldPath, op, , value] = eqMatch;
+            const jsonPath = '$.' + fieldPath;
+            const sqlOp = (op === '==' || op === '=') ? '=' : (op === '!=' || op === '<>') ? '!=' : op;
+            params.push(value);
+            return `json_extract(jobs.value, '${jsonPath}') ${sqlOp} ?`;
+        }
+
+        // Pattern: field CONTAINS[c] value or field contains value
+        const containsMatch = trimmed.match(/^([\w.]+)\s+contains(?:\[c\])?\s+(['"])(.*?)\2$/i);
+        if (containsMatch) {
+            const [, fieldPath, , value] = containsMatch;
+            if (fieldPath.toLowerCase() === 'valuejson') {
+                // valueJSON contains "text" → search in the raw JSON value
+                params.push(`%${value}%`);
+                return `jobs.value LIKE ?`;
+            } else {
+                // Other field contains → json_extract + LIKE
+                const jsonPath = '$.' + fieldPath;
+                params.push(`%${value}%`);
+                return `json_extract(jobs.value, '${jsonPath}') LIKE ?`;
+            }
+        }
+
+        // Pattern: field = null / field = nil
+        const nullMatch = trimmed.match(/^([\w.]+)\s*(==|=|!=|<>)\s*null$/i);
+        if (nullMatch) {
+            const [, fieldPath, op] = nullMatch;
+            const jsonPath = '$.' + fieldPath;
+            const isNull = (op === '=' || op === '==');
+            return `json_extract(jobs.value, '${jsonPath}') IS ${isNull ? 'NULL' : 'NOT NULL'}`;
+        }
+
+        // Unrecognized pattern — bail out
+        return null;
+    }
+
+    /**
+     * Extract LIKE pre-filter from a SUBQUERY on an embedded list (observations).
+     * Pulls string literals from conditions and adds them as SQL LIKE clauses
+     * on the parent JSON column to narrow rows before hydration.
+     *
+     * Conservative: may produce false positives (text match in unrelated fields),
+     * never false negatives. JS fallback still verifies the full SUBQUERY.
+     *
+     * @returns {{ where: string, params: Array }} | null
+     */
+    static _extractObservationPreFilter(clause, rootSchemaName, schemaMap) {
+        // Only handle SUBQUERY patterns
+        const subqueryMatch = clause.match(/^SUBQUERY\s*\(\s*(\w+)\s*,/i);
+        if (!subqueryMatch) return null;
+
+        const listProp = subqueryMatch[1];
+
+        // Check if this list property is an embedded type (observations, etc.)
+        const rootSchema = schemaMap.get(rootSchemaName);
+        if (!rootSchema) return null;
+
+        const propDef = rootSchema.properties[listProp];
+        if (!propDef) return null;
+        const objectType = typeof propDef === 'object' ? propDef.objectType : null;
+        if (!objectType || !EMBEDDED_SCHEMA_NAMES.has(objectType)) return null;
+
+        // Extract all quoted string literals from the SUBQUERY conditions
+        const literals = [];
+        const stringPattern = /['"]([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})['"]/gi;
+        let match;
+        while ((match = stringPattern.exec(clause)) !== null) {
+            literals.push(match[1]);
+        }
+
+        if (literals.length === 0) return null;
+
+        // Build LIKE pre-filter: column LIKE '%uuid1%' AND column LIKE '%uuid2%'
+        const colName = camelToSnake(listProp);
+        const likeClauses = literals.map(() => `t0."${colName}" LIKE ?`);
+        const params = literals.map(lit => `%${lit}%`);
+
+        return {
+            where: likeClauses.join(' AND '),
+            params,
+        };
+    }
+
+    static _parsePartial(query, args, rootSchemaName, schemaMap, aliasOffset) {
+        // Split on top-level AND — we need to handle parenthesized SUBQUERY() blocks
+        // by tracking paren depth so we don't split inside them.
+        const clauses = splitTopLevelAnd(query);
+        if (clauses.length <= 1) {
+            // Single clause that needs JS fallback — can't do partial parsing
+            return null;
+        }
+
+        const supportedWhere = [];
+        const supportedParams = [];
+        const supportedJoins = [];
+        const skippedClauses = [];
+        let currentAliasOffset = aliasOffset;
+
+        for (const clause of clauses) {
+            const trimmedClause = clause.trim();
+            if (requiresJsFallback(trimmedClause)) {
+                // Try SUBQUERY → SQL translation
+                if (/SUBQUERY\s*\(/i.test(trimmedClause)) {
+                    // Referenced lists → IN subquery
+                    const inResult = this._tryTranslateSubqueryToIn(trimmedClause, rootSchemaName, schemaMap, args);
+                    if (inResult) {
+                        supportedWhere.push(inResult.where);
+                        supportedParams.push(...inResult.params);
+                        continue;
+                    }
+                    // Embedded lists (observations) → json_each EXISTS
+                    const jsonResult = this._tryTranslateObservationSubquery(trimmedClause, rootSchemaName, schemaMap);
+                    if (jsonResult) {
+                        supportedWhere.push(jsonResult.where);
+                        supportedParams.push(...jsonResult.params);
+                        continue;
+                    }
+                }
+                // For observation SUBQUERYs that couldn't be fully translated,
+                // add LIKE pre-filters to narrow rows before hydration.
+                const preFilter = this._extractObservationPreFilter(trimmedClause, rootSchemaName, schemaMap);
+                if (preFilter) {
+                    supportedWhere.push(preFilter.where);
+                    supportedParams.push(...preFilter.params);
+                }
+                skippedClauses.push(trimmedClause);
+                continue;
+            }
+
+            try {
+                const tokens = tokenize(trimmedClause);
+                const parser = new Parser(tokens);
+                const ast = parser.parse();
+
+                const generator = new SqlGenerator(schemaMap, rootSchemaName, args);
+                generator.aliasCounter = currentAliasOffset;
+                const result = generator.generate(ast);
+
+                if (result.where) {
+                    supportedWhere.push(result.where);
+                    supportedParams.push(...result.params);
+                    supportedJoins.push(...result.joins);
+                    currentAliasOffset = generator.aliasCounter;
+                }
+            } catch (e) {
+                // This clause failed to parse — route to JS fallback
+                skippedClauses.push(trimmedClause);
+            }
+        }
+
+        if (supportedWhere.length === 0) {
+            return null; // No clauses could be parsed
+        }
+
+        if (skippedClauses.length > 0) {
+            console.warn(
+                `RealmQueryParser: Partial parse — ${skippedClauses.length} clause(s) routed to JS fallback:`,
+                skippedClauses.map(c => c.substring(0, 80))
+            );
+        }
+
+        return {
+            where: supportedWhere.join(" AND "),
+            params: supportedParams,
+            joins: supportedJoins,
+            unsupported: false,
+            partialParse: true,
+            skippedClauses,
+        };
+    }
+
+    /**
+     * Build a complete SELECT SQL from a parsed query result.
+     *
+     * @param {string} tableName - The root table name
+     * @param {Object} parseResult - Result from parse()
+     * @param {string} orderBy - Optional ORDER BY clause
+     * @param {number} limit - Optional LIMIT
+     * @param {number} offset - Optional OFFSET
+     * @returns {{ sql: string, params: Array }}
+     */
+    static buildSelect(tableName, parseResult, orderBy = null, limit = null, offset = null) {
+        let sql = `SELECT t0.* FROM ${tableName} AS t0`;
+
+        // Add JOINs
+        if (parseResult.joins && parseResult.joins.length > 0) {
+            for (const join of parseResult.joins) {
+                sql += ` LEFT JOIN ${join.table} AS ${join.alias} ON ${join.on}`;
+            }
+        }
+
+        // Add WHERE
+        if (parseResult.where) {
+            sql += ` WHERE ${parseResult.where}`;
+        }
+
+        // Add ORDER BY
+        if (orderBy) {
+            sql += ` ORDER BY ${orderBy}`;
+        }
+
+        // Add LIMIT / OFFSET
+        if (limit != null) {
+            sql += ` LIMIT ${limit}`;
+        }
+        if (offset != null) {
+            sql += ` OFFSET ${offset}`;
+        }
+
+        return {sql, params: parseResult.params || []};
+    }
+}
+
+export {RealmQueryParser, UnsupportedRealmQueryError, camelToSnake, schemaNameToTableName, normalizeRealmType};
+export default RealmQueryParser;

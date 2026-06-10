@@ -1,6 +1,5 @@
 import {Alert} from 'react-native';
-import BackupRestoreRealmService from '../service/BackupRestoreRealmService';
-import MediaQueueService from '../service/MediaQueueService';
+import AppInfoUploadService from '../service/AppInfoUploadService';
 import General from './General';
 
 // IssueUploadUtil is used after login (sync failure, login failure) - translations available
@@ -9,12 +8,12 @@ class IssueUploadUtil {
         if (avniError && avniError.reportingText) {
             General.logDebug(callerName || "IssueUploadUtil", avniError.reportingText);
         }
-        
+
         if (onStartUpload) onStartUpload();
-        
-        const backupRestoreService = context.getService(BackupRestoreRealmService);
-        
-        backupRestoreService.backup(MediaQueueService.DumpType.Adhoc, (percentDone, message) => {
+
+        const appInfoUploadService = context.getService(AppInfoUploadService);
+
+        appInfoUploadService.upload((percentDone, message) => {
             General.logDebug("IssueUploadUtil", `${percentDone}% - ${message}`);
             if (onProgressUpdate) {
                 onProgressUpdate(percentDone, message);

@@ -166,10 +166,10 @@ class RuleEvaluationService extends BaseService {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                 const ruleFunc = eval(form.decisionRule);
                 // Rule may be async (e.g. when it calls params.services.edgeModelService.runInference)
-                const ruleDecisions = await ruleFunc({
+                const ruleDecisions = await this.runEvalRule(ruleFunc, {
                     params: _.merge({decisions: defaultDecisions, entity, entityContext}, this.getCommonParams()),
                     imports: getImports(this.globalRuleFunction)
-                });
+                }, `decision:${form.uuid}`);
                 const decisionsMap = this.validateDecisions(ruleDecisions, form.uuid, individualUUID);
                 const trimmedDecisions = trimDecisionsMap(decisionsMap);
                 General.logDebug("RuleEvaluationService", trimmedDecisions);
@@ -317,33 +317,48 @@ class RuleEvaluationService extends BaseService {
         if (_.isEmpty(form.editFormRule)) {
             return ActionEligibilityResponse.createAllowedResponse();
         } else {
+            // Dedupe the rule's repeated identical SQLite reads within this single invocation
+            // (same pattern as the dashboard card loop). No-op on Realm.
+            const db = this.db;
+            const cacheActive = db && db.isSqlite && db.beginQueryCache;
+            if (cacheActive) db.beginQueryCache();
             try {
                 const ruleFunc = eval(form.editFormRule);
-                const ruleResponse = ruleFunc({
+                // Route through runEvalRule so the editFormRule emits a RulePerf timing log like other rules.
+                const ruleResponse = this.runEvalRule(ruleFunc, {
                     params: _.merge({entity, form}, this.getCommonParams()),
                     imports: getImports(this.globalRuleFunction)
-                });
+                }, `EditFormRule:${form.uuid}`);
                 return ActionEligibilityResponse.createRuleResponse(ruleResponse);
             } catch (e) {
                 General.logDebug("Rule-Failure", `EditFormRule failed: ${JSONStringify(e)}`);
                 this.saveFailedRules(e, form.uuid, this.getIndividualUUID(entity, entityName), 'EditForm', form.uuid, entityName, entity.uuid);
                 return ActionEligibilityResponse.createAllowedResponse();
+            } finally {
+                if (cacheActive) db.endQueryCache();
             }
         }
     }
 
     runRuleAndSaveFailure(rule, entityName, entity, ruleTypeValue, config, context, entityContext) {
         try {
+            const start = Date.now();
+            let result;
             if (entityName === 'WorkList') {
                 ruleTypeValue = entity;
-                return rule.fn.exec(entity, context, entityContext)
+                result = rule.fn.exec(entity, context, entityContext);
             } else {
                 General.logDebug("Rule-to-run", `Rule context and config: ${JSONStringify(context)}, ${JSONStringify(config)}, ${JSONStringify(entityContext)}`);
                 General.logDebug("Rule-to-run", `Rule function: ${rule.name}, uuid: ${rule.uuid}, ${JSONStringify(rule.fn)}`);
-                return _.isNil(context) ?
+                result = _.isNil(context) ?
                     rule.fn.exec(entity, ruleTypeValue, config, entityContext) :
                     rule.fn.exec(entity, ruleTypeValue, context, config, entityContext);
             }
+            const elapsed = Date.now() - start;
+            if (elapsed > 50) {
+                General.logWarn("RulePerf", `Bundle rule ${rule.name} (${rule.uuid}) took ${elapsed}ms for ${entityName}`);
+            }
+            return result;
         } catch (error) {
             General.logDebug("Rule-Failure", `Rule failed: ${rule.name}, uuid: ${rule.uuid}`, error.message);
             this.saveFailedRules(error, rule.uuid, this.getIndividualUUID(entity, entityName),
@@ -555,10 +570,10 @@ class RuleEvaluationService extends BaseService {
         try {
             let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
             const ruleFunc = eval(form.validationRule);
-            return ruleFunc({
+            return this.runEvalRule(ruleFunc, {
                 params: _.merge({entity, entityContext}, this.getCommonParams()),
                 imports: getImports(this.globalRuleFunction)
-            });
+            }, `validation:${form.uuid}`);
         } catch (e) {
             console.log(e);
             General.logDebug("Rule-Failure", `Validation failed for: ${form.name} form name`);
@@ -825,10 +840,10 @@ class RuleEvaluationService extends BaseService {
         try {
             let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
             const ruleFunc = eval(formElementGroup.rule);
-            return ruleFunc({
+            return this.runEvalRule(ruleFunc, {
                 params: _.merge({formElementGroup, entity, entityContext}, this.getCommonParams()),
                 imports: getImports(this.globalRuleFunction)
-            });
+            }, `formElementGroup:${formElementGroup.uuid}`);
         } catch (e) {
             General.logDebug("Rule-Failure", `New form element group rule failed for: ${formElementGroup.uuid}`);
             this.saveFailedRules(e, formElementGroup.uuid, this.getIndividualUUID(entity, entityName),
@@ -928,10 +943,10 @@ class RuleEvaluationService extends BaseService {
         try {
             let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
             const ruleFunc = eval(formElement.rule);
-            const result = ruleFunc({
+            const result = this.runEvalRule(ruleFunc, {
                 params: _.merge({formElement, entity, questionGroupIndex, entityContext}, this.getCommonParams()),
                 imports: getImports(this.globalRuleFunction)
-            });
+            }, `formElement:${formElement.uuid}`);
             if (result && typeof result.then === 'function') {
                 // Form-element rule contract is sync. A Promise return indicates a bug
                 // in the rule — log loudly so it's visible in prod logcat.
@@ -1061,11 +1076,10 @@ class RuleEvaluationService extends BaseService {
     executeDashboardCardRule(reportCard, ruleInput) {
         try {
             const ruleFunc = eval(reportCard.query);
-            const result = ruleFunc({
+            return this.runEvalRule(ruleFunc, {
                 params: _.merge({ruleInput: ruleInput}, this.getCommonParams()),
                 imports: getImports(this.globalRuleFunction)
-            });
-            return result;
+            }, `reportCard:${reportCard.name}:${reportCard.uuid}`);
         } catch (error) {
             General.logError("Rule-Failure", `DashboardCard report card rule failed for uuid: ${reportCard.uuid}, name: ${reportCard.name}`);
             General.logError("Rule-Failure", error);
@@ -1085,13 +1099,18 @@ class RuleEvaluationService extends BaseService {
     getDashboardCardResult(reportCard, ruleInput) {
         const queryResult = this.executeDashboardCardRule(reportCard, ruleInput);
         if (!queryResult.hasErrorMsg && this.isOldStyleQueryResult(queryResult)) {
+            General.logInfo("CardCount", `${reportCard.name} = ${queryResult.length}`);
             return ReportCardResult.create(queryResult.length, null, true);
         } else if (reportCard.nested) {
-            return _.map(queryResult.reportCards, (result, index) => {
+            const nestedResults = _.map(queryResult.reportCards, (result, index) => {
                 return NestedReportCardResult.fromQueryResult(result, reportCard, index);
             });
+            General.logInfo("CardCount", `${reportCard.name} [nested] = ${nestedResults.map(r => r.primaryValue).join(',')}`);
+            return nestedResults;
         } else {
-            return ReportCardResult.fromQueryResult(queryResult);
+            const result = ReportCardResult.fromQueryResult(queryResult);
+            General.logInfo("CardCount", `${reportCard.name} = ${result.primaryValue}`);
+            return result;
         }
     }
 
@@ -1166,6 +1185,16 @@ class RuleEvaluationService extends BaseService {
             return null;
 
         }
+    }
+
+    runEvalRule(ruleFunc, params, ruleLabel) {
+        const start = Date.now();
+        const result = ruleFunc(params);
+        const elapsed = Date.now() - start;
+        if (elapsed > 50) {
+            General.logWarn("RulePerf", `Eval rule [${ruleLabel}] took ${elapsed}ms`);
+        }
+        return result;
     }
 
     getCommonParams(excludeDBAccess = false) {

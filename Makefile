@@ -348,7 +348,31 @@ open-db: open_db
 open_db_only:
 	$(call _open_resource,../db/default.realm)
 open-db-only: open_db_only
+get_sqlite_db: ## Get SQLite db and WAL from device
+	mkdir -p ../db
+	adb exec-out run-as ${app_android_package_name} cat databases/avni_sqlite.db > ../db/avni_sqlite.db
+	adb exec-out run-as ${app_android_package_name} cat databases/avni_sqlite.db-wal > ../db/avni_sqlite.db-wal 2>/dev/null || true
+	adb exec-out run-as ${app_android_package_name} cat databases/avni_sqlite.db-shm > ../db/avni_sqlite.db-shm 2>/dev/null || true
+	sqlite3 ../db/avni_sqlite.db "PRAGMA wal_checkpoint(TRUNCATE)" && rm -f ../db/avni_sqlite.db-wal ../db/avni_sqlite.db-shm
+sqlitedb:=$(if $(sqlitedb),$(sqlitedb),../db/avni_sqlite.db)
+put_sqlite_db: ## Push SQLite db to device (sqlitedb=path, default ../db/avni_sqlite.db)
+	adb shell am force-stop ${app_android_package_name}
+	adb push $(sqlitedb) /data/local/tmp/avni_sqlite.db
+	adb shell "run-as ${app_android_package_name} cp /data/local/tmp/avni_sqlite.db /data/data/${app_android_package_name}/databases/avni_sqlite.db"
+	adb shell "run-as ${app_android_package_name} rm -f /data/data/${app_android_package_name}/databases/avni_sqlite.db-wal /data/data/${app_android_package_name}/databases/avni_sqlite.db-shm"
+	adb shell rm /data/local/tmp/avni_sqlite.db
 # </db>
+
+# <sqlite-migrations>
+migration_generate: ## Generate a new SQLite migration after schema changes (name=<migration-name>)
+	cd packages/openchs-android && bash -c '. $$HOME/.nvm/nvm.sh && nvm use 20 && npx drizzle-kit generate --name $(if $(name),$(name),auto) && node scripts/bundle-migrations.js'
+
+migration_bundle: ## Re-bundle existing drizzle migrations into JS module
+	cd packages/openchs-android && bash -c '. $$HOME/.nvm/nvm.sh && nvm use 20 && node scripts/bundle-migrations.js'
+
+migration_export_schema: ## Print current SQLite schema table count
+	cd packages/openchs-android && bash -c '. $$HOME/.nvm/nvm.sh && nvm use 20 && node -e "const t = require(\"./src/framework/db/DrizzleSchemaExport\"); console.log(Object.keys(t).length + \" tables exported\")"'
+# </sqlite-migrations>
 
 local_deploy_apk:
 	cp packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk ../openchs-server/external/app.apk

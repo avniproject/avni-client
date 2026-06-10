@@ -139,6 +139,54 @@ class MyDashboardActions {
         const dashboardCacheFilter = dashboardCache.getFilter();
         const fetchFromDB = action.fetchFromDB || state.fetchFromDB;
 
+        // When fetching from DB, compute counts only (fast) and return empty entity lists.
+        // Entity lists are built on-demand when the user taps a card (via ON_LIST_LOAD).
+        // This works for both Realm (where counts via .length are O(1)) and SQLite
+        // (where counts use SELECT COUNT). Avoids 40s+ hydration of all entity lists upfront.
+        if (fetchFromDB && !state.returnEmpty) {
+            const card = {
+                scheduled: individualService.countScheduledVisits(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.encountersFilters, dashboardCacheFilter.generalEncountersFilters),
+                overdue: individualService.countOverdueVisits(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.encountersFilters, dashboardCacheFilter.generalEncountersFilters),
+                recentlyCompletedVisits: individualService.countRecentlyCompletedVisits(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.encountersFilters, dashboardCacheFilter.generalEncountersFilters),
+                recentlyCompletedRegistration: individualService.countRecentlyRegistered(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.individualFilters),
+                recentlyCompletedEnrolment: individualService.countRecentlyEnrolled(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.enrolmentFilters),
+                total: individualService.countAllIn(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.individualFilters),
+                dueChecklist: 0,
+            };
+            dashboardCacheService.updateCard(card);
+
+            const subjectType = context.get(SubjectTypeService).findByUUID(dashboardCacheFilter.selectedSubjectTypeUUID);
+            const privilegeService = context.get(PrivilegeService);
+            const displayProgramTab = privilegeService.displayProgramTab(subjectType);
+
+            return {
+                ...state,
+                scheduled: [], overdue: [], recentlyCompletedVisits: [],
+                recentlyCompletedRegistration: [], recentlyCompletedEnrolment: [],
+                total: [], dueChecklist: [],
+                dueChecklistWithChecklistItem: {individual: [], checklistItemNames: []},
+                visits: MyDashboardActions.getRowCount(card, displayProgramTab),
+                selectedSubjectType: subjectType,
+                individualFilters: dashboardCacheFilter.individualFilters,
+                encountersFilters: dashboardCacheFilter.encountersFilters,
+                generalEncountersFilters: dashboardCacheFilter.generalEncountersFilters,
+                enrolmentFilters: dashboardCacheFilter.enrolmentFilters,
+                dueChecklistFilter: dashboardCacheFilter.dueChecklistFilter,
+                itemsToDisplay: [],
+                fetchFromDB: false,
+                loading: false,
+                addressLevelState: new AddressLevelState(dashboardCacheFilter.selectedAddressesInfo),
+                selectedAddressesInfo: dashboardCacheFilter.selectedAddressesInfo,
+                selectedLocations: dashboardCacheFilter.selectedLocations,
+                selectedCustomFilters: dashboardCacheFilter.selectedCustomFilters,
+                selectedGenders: dashboardCacheFilter.selectedGenders,
+                selectedPrograms: dashboardCacheFilter.selectedPrograms,
+                selectedEncounterTypes: dashboardCacheFilter.selectedEncounterTypes,
+                selectedGeneralEncounterTypes: dashboardCacheFilter.selectedGeneralEncounterTypes,
+                date: {value: dashboardCacheFilter.filterDate}
+            };
+        }
+
         const queryProgramEncounter = MyDashboardActions.shouldQueryProgramEncounter(state);
         const queryGeneralEncounter = MyDashboardActions.shouldQueryGeneralEncounter(state);
         const dueChecklistWithChecklistItem = individualService.dueChecklistForDefaultDashboard(dashboardCacheFilter.filterDate, dashboardCacheFilter.dueChecklistFilter);
@@ -151,16 +199,8 @@ class MyDashboardActions {
             allIndividualsWithRecentEnrolments,
             allIndividuals,
             dueChecklist
-        ] = state.returnEmpty ? [[], [], [], [], [], [], [], []] : (fetchFromDB ? [
-                MyDashboardActions.commonIndividuals(individualService.allScheduledVisitsIn(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.encountersFilters, dashboardCacheFilter.generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
-                MyDashboardActions.commonIndividuals(individualService.allOverdueVisitsIn(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.encountersFilters, dashboardCacheFilter.generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
-                MyDashboardActions.commonIndividuals(individualService.recentlyCompletedVisitsIn(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.encountersFilters, dashboardCacheFilter.generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
-                MyDashboardActions.commonIndividuals(individualService.recentlyRegistered(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.individualFilters, dashboardCacheFilter.selectedPrograms, getApplicableEncounterTypes(dashboardCacheFilter)), state.individualUUIDs),
-                MyDashboardActions.commonIndividuals(individualService.recentlyEnrolled(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.enrolmentFilters), state.individualUUIDs),
-                MyDashboardActions.commonIndividuals(individualService.allInWithFilters(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.individualFilters, dashboardCacheFilter.selectedPrograms, getApplicableEncounterTypes(dashboardCacheFilter)), state.individualUUIDs, true),
-                MyDashboardActions.commonIndividuals(dueChecklistWithChecklistItem.individual, state.individualUUIDs)
-            ]
-            : [state.scheduled, state.overdue, state.recentlyCompletedVisits, state.recentlyCompletedRegistration, state.recentlyCompletedEnrolment, state.total, state.dueChecklist]);
+        ] = state.returnEmpty ? [[], [], [], [], [], [], [], []] :
+            [state.scheduled, state.overdue, state.recentlyCompletedVisits, state.recentlyCompletedRegistration, state.recentlyCompletedEnrolment, state.total, state.dueChecklist];
 
         dueChecklistWithChecklistItem.individual = dueChecklist;
 
@@ -175,7 +215,7 @@ class MyDashboardActions {
             dueChecklistWithChecklistItem: dueChecklistWithChecklistItem
         };
 
-        if (state.returnEmpty || fetchFromDB) {
+        if (state.returnEmpty) {
             const card = _.mapValues(queryResult, v => v && v.length || 0);
             dashboardCacheService.updateCard(card);
         }

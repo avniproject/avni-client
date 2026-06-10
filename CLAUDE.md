@@ -67,11 +67,12 @@ Flavors: `generic`, `lfe`, `sakhi`, `gramin`, `lfeTeachNagaland`, `lfeTeachNagal
 
 ### Database
 
-| Command | Description |
-|---|---|
-| `make get_db` | Pull Realm DB from device to `../db/` |
-| `make put_db` | Push Realm DB from `../db/default.realm` to device |
-| `make rm_db` | Remove local copy of the DB |
+| Command              | Description |
+|----------------------|---|
+| `make get_db_force`  | Pull Realm DB from device to `../db/` |
+| `make put_db`        | Push Realm DB from `../db/default.realm` to device |
+| `make rm_db`         | Remove local copy of the DB |
+| `make get_sqlite_db` | Pull SQLite DB (+ WAL/SHM) from device to `../db/avni_sqlite.db` |
 
 #### Compare Realm Databases
 
@@ -84,6 +85,35 @@ node packages/openchs-android/src/utility/compareRealmDatabases.js <realmFileA> 
 
 Must be run from the repo root so that the `realm` module resolves correctly.
 
+#### Compare Realm and SQLite Databases
+
+Compare a Realm database with a SQLite database for row count differences, sync status, and missing data:
+
+```
+source ~/.nvm/nvm.sh && nvm use 20
+node packages/openchs-android/src/utility/compareRealmAndSqlite.js <realmFile> <sqliteFile>
+```
+
+Example:
+```
+node packages/openchs-android/src/utility/compareRealmAndSqlite.js ../db/default.realm ../db/avni_sqlite.db
+```
+
+To pull both databases from device:
+```
+make get_db_force              # Realm → ../db/default.realm
+make get_sqlite_db             # SQLite → ../db/avni_sqlite.db
+```
+
+### SQLite Migrations
+
+| Command | Description |
+|---|---|
+| `make migration_generate name=X` | Generate a new migration after schema changes |
+| `make migration_bundle` | Re-bundle drizzle migrations into JS module |
+| `make migration_export_schema` | Verify DrizzleSchemaExport table count |
+| `make get_sqlite_db` | Pull SQLite DB from device to `../db/` |
+
 ### Cleanup
 
 | Command | Description |
@@ -92,6 +122,10 @@ Must be run from the repo root so that the `realm` module resolves correctly.
 | `make clean_all` | Full clean: node_modules, packager cache, and bundle |
 | `make clean_packager_cache` | Clear Metro/watchman caches |
 | `make renew_env` | Full clean + fresh dependency install |
+
+## Workflow
+
+- **Do not commit eagerly.** Wait for the user to test changes on-device and confirm correctness before creating commits. Only commit when explicitly asked.
 
 ## GitHub Board
 
@@ -125,6 +159,7 @@ Requires `project` scope on the gh token — if the mutation fails with a scope 
 
 - **No verbose method docstrings or block comments.** Don't preface a method with a paragraph explaining what it does — well-named identifiers do that already. Only add a comment when the *why* is non-obvious (a hidden constraint, a workaround for a specific bug, behavior that would surprise a reader). One short line; never a multi-line block.
 - Don't reference the current task, ticket, or phase in comments ("added for #1933 Phase 7", "see review #4") — that belongs in the PR description and rots as the code evolves.
+
 ## Key Technical Details
 
 - React Native 0.77.3, React 18.3.1

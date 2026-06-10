@@ -37,6 +37,7 @@ import StaticMenuItem from "./menu/StaticMenuItem";
 import AvniIcon from "./common/AvniIcon";
 import EntityService from "../service/EntityService";
 import EnvironmentConfig from "../framework/EnvironmentConfig";
+import GlobalContext from "../GlobalContext";
 import { getAvniError } from "../service/ServerError";
 import { AlertMessage } from "./common/AlertMessage";
 import MessageService from "../service/MessageService";
@@ -382,16 +383,36 @@ class MenuView extends AbstractComponent {
                                             color: 'black',
                                             fontSize: Styles.normalTextSize
                                         }}>{this.state.serverURL}</Text></Text>
-                                    <Text style={Styles.textList}>Database Schema : <Text
-                                        style={{
-                                            color: 'black',
-                                            fontSize: Styles.normalTextSize
-                                        }}>{this.getService(EntityService).getActualSchemaVersion()}</Text></Text>
-                                    {!EnvironmentConfig.isProd() && <Text style={Styles.textList}>Code Schema Version: <Text
-                                        style={{
-                                            color: 'black',
-                                            fontSize: Styles.normalTextSize
-                                        }}>{EntityMappingConfig.getInstance().getSchemaVersion()}</Text></Text>}
+                                    {(() => {
+                                        const globalContext = GlobalContext.getInstance();
+                                        const activeBackend = globalContext.getActiveBackend() || 'realm';
+                                        const isSqlite = activeBackend === 'sqlite';
+                                        const migration = isSqlite && globalContext.sqliteDb ? globalContext.sqliteDb.getCurrentMigration() : null;
+                                        const dbSchemaValue = isSqlite
+                                            ? (migration ? migration.idx : 'unknown')
+                                            : this.getService(EntityService).getActualSchemaVersion();
+                                        return (
+                                            <>
+                                                <Text style={Styles.textList}>Backend: <Text
+                                                    style={{
+                                                        color: 'black',
+                                                        fontSize: Styles.normalTextSize
+                                                    }}>{activeBackend}</Text></Text>
+                                                <Text style={Styles.textList}>Database Schema : <Text
+                                                    style={{
+                                                        color: 'black',
+                                                        fontSize: Styles.normalTextSize
+                                                    }}>{dbSchemaValue}</Text></Text>
+                                                {!isSqlite && !EnvironmentConfig.isProd() && (
+                                                    <Text style={Styles.textList}>Code Schema Version: <Text
+                                                        style={{
+                                                            color: 'black',
+                                                            fontSize: Styles.normalTextSize
+                                                        }}>{EntityMappingConfig.getInstance().getSchemaVersion()}</Text></Text>
+                                                )}
+                                            </>
+                                        );
+                                    })()}
                                     <Text style={Styles.textList}>BuildVersion: <Text
                                         style={{
                                             color: 'black',

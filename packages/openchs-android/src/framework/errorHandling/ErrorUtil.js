@@ -22,7 +22,12 @@ class ErrorUtil {
     }
 
     static getAvniErrorSync(error) {
-        return AvniError.createFromUserMessageAndStackTrace(error.message, createNavigableStackTrace(ErrorStackParser.parse(error)));
+        try {
+            return AvniError.createFromUserMessageAndStackTrace(error.message, createNavigableStackTrace(ErrorStackParser.parse(error)));
+        } catch (e) {
+            console.error("ErrorUtil.getAvniErrorSync: failed to parse error object:", error);
+            return AvniError.createFromUserMessageAndStackTrace(String(error.message || error), "No stack available");
+        }
     }
 
     static getNavigableStackTraceSync(error) {

@@ -12,21 +12,51 @@
     "url": "https://github.com/OpenCHS/openchs-client.git"
   },
   "jest": {
-    "moduleNameMapper": {
-      "^avni-models$": "<rootDir>/node_modules/openchs-models"
-    },
-    "preset": "react-native",
-    "testMatch": [
-      "<rootDir>/test/**/*Test.js"
-    ],
-    "transformIgnorePatterns": [
-      "!<rootDir>\\/node_modules\\/react-native-i18n/"
-    ],
-    "setupFiles": [
-      "<rootDir>/test/jestSetupFile.js"
+    "projects": [
+      {
+        "displayName": "unit",
+        "preset": "react-native",
+        "moduleNameMapper": {
+          "^avni-models$": "<rootDir>/node_modules/openchs-models",
+          "^@op-engineering/op-sqlite$": "<rootDir>/test/__mocks__/op-sqlite.js"
+        },
+        "testMatch": [
+          "<rootDir>/test/**/*Test.js"
+        ],
+        "testPathIgnorePatterns": [
+          "/node_modules/",
+          "<rootDir>/test/integration/"
+        ],
+        "transformIgnorePatterns": [
+          "!<rootDir>\\/node_modules\\/react-native-i18n/"
+        ],
+        "setupFiles": [
+          "<rootDir>/test/jestSetupFile.js"
+        ]
+      },
+      {
+        "displayName": "integration",
+        "preset": "react-native",
+        "moduleNameMapper": {
+          "^avni-models$": "<rootDir>/node_modules/openchs-models",
+          "^@op-engineering/op-sqlite$": "<rootDir>/test/helpers/nodeSqliteAdapter.js"
+        },
+        "testMatch": [
+          "<rootDir>/test/integration/**/*Test.js"
+        ],
+        "transformIgnorePatterns": [
+          "!<rootDir>\\/node_modules\\/react-native-i18n/"
+        ],
+        "setupFiles": [
+          "<rootDir>/test/jestSetupFile.js"
+        ]
+      }
     ]
   },
   "license": "AGPL-3.0",
+  "op-sqlite": {
+    "sqlcipher": true
+  },
   "scripts": {
     "start": "npx react-native start",
     "test": "jest",
@@ -34,13 +64,15 @@
     "coverage": "istanbul cover --report lcov _mocha --require ./node_modules/react-native-mock/mock.js --require src/test/testHelper.js $(find ./test -name '*Test.js')",
     "flow": "flow",
     "postinstall": "patch-package && npx jetify",
-    "prebuild:android": "node scripts/generate-autolinking.js"
+    "prebuild:android": "node scripts/generate-autolinking.js",
+    "migration:diff": "bash scripts/generate-migration-diff.sh"
   },
   "dependencies-comment": [
     "react-native-safe-area-context and react-native-svg are peer dependencies of native base"
   ],
   "dependencies": {
     "@bugsnag/react-native": "8.0.0",
+    "@op-engineering/op-sqlite": "^11.3.0",
     "@react-native-async-storage/async-storage": "2.1.2",
     "@react-native-clipboard/clipboard": "1.16.0",
     "@react-native-community/datetimepicker": "8.4.5",
@@ -58,6 +90,7 @@
     "create-react-class": "15.6.3",
     "deprecated-react-native-listview": "^0.0.8",
     "deprecated-react-native-prop-types": "2.3.0",
+    "drizzle-orm": "^0.38.4",
     "error-stack-parser": "2.1.4",
     "exifreader": "^4.26.2",
     "i18n-js": "3.9.2",
@@ -127,8 +160,10 @@
     "@react-native/metro-config": "0.77.3",
     "babel-jest": "^29.2.1",
     "babel-plugin-syntax-hermes-parser": "^0.25.1",
+    "better-sqlite3": "^12.8.0",
     "bugsnag-sourcemaps": "1.3.0",
     "chai": "4.3.6",
+    "drizzle-kit": "^0.30.6",
     "faker": "6.6.6",
     "flow-bin": "0.98.1",
     "jest": "28.1.3",

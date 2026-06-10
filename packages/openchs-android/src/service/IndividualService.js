@@ -29,6 +29,7 @@ import OrganisationConfigService from './OrganisationConfigService';
 import RealmQueryService from "./query/RealmQueryService";
 import {DashboardReportFilter} from "../model/DashboardReportFilter";
 import CustomFilterService from "./CustomFilterService";
+import UpdateMode from "../repository/UpdateMode";
 
 function uniqSubjectWithVisitName(individualsWithVisits, individualWithVisit) {
     const permissionAllowed = individualWithVisit.visitInfo.allow;
@@ -51,6 +52,14 @@ function uniqSubjectWithVisitName(individualsWithVisits, individualWithVisit) {
         permissionAllowed && individualsWithVisits.set(individualWithVisit.individual.uuid, individualWithVisit);
     }
     return individualsWithVisits;
+}
+
+function countAfterFilters(entities, criteria, reportFilters, schema, customFilterService) {
+    entities = applyConfiguredFilters(entities, criteria);
+    entities = applyUserFilters(entities, reportFilters, schema, customFilterService);
+    // SQLite proxy has count() which uses SELECT COUNT(*) without hydration.
+    // Realm.Results only has .length (which is already O(1) internally).
+    return (typeof entities.count === 'function') ? entities.count() : entities.length;
 }
 
 function filterSubjects(subjects, subjectCriteria, reportFilters, customFilterService) {
@@ -186,12 +195,92 @@ class IndividualService extends BaseService {
         this.showDueChecklistOnDashboard = this.getService(OrganisationConfigService).hasShowDueChecklistOnDashboard();
     }
 
+    // ── Count-only methods for dashboard cards (no hydration) ──
+
+    countScheduledVisits(date, reportFilters, programEncounterCriteria, encounterCriteria) {
+        const {dateMidnight, dateMorning} = get24HoursDateRange(date);
+        const customFilterService = this.getService(CustomFilterService);
+
+        let peQuery = this.getRepository(ProgramEncounter.schema.name).findAll()
+            .filtered('earliestVisitDateTime <= $0 AND maxVisitDateTime >= $1 AND encounterDateTime = null AND cancelDateTime = null AND programEnrolment.programExitDateTime = null AND programEnrolment.voided = false AND programEnrolment.individual.voided = false AND voided = false',
+                dateMidnight, dateMorning);
+        const peCount = countAfterFilters(peQuery, programEncounterCriteria, reportFilters, ProgramEncounter.schema.name, customFilterService);
+
+        let encQuery = this.getRepository(Encounter.schema.name).findAll()
+            .filtered('earliestVisitDateTime <= $0 AND maxVisitDateTime >= $1 AND encounterDateTime = null AND cancelDateTime = null AND individual.voided = false AND voided = false',
+                dateMidnight, dateMorning);
+        const encCount = countAfterFilters(encQuery, encounterCriteria, reportFilters, Encounter.schema.name, customFilterService);
+
+        return peCount + encCount;
+    }
+
+    countOverdueVisits(date, reportFilters, programEncounterCriteria, encounterCriteria) {
+        const {dateMorning} = get24HoursDateRange(date);
+        const customFilterService = this.getService(CustomFilterService);
+
+        let peQuery = this.getRepository(ProgramEncounter.schema.name).findAll()
+            .filtered('maxVisitDateTime < $0 AND cancelDateTime = null AND encounterDateTime = null AND programEnrolment.programExitDateTime = null AND programEnrolment.voided = false AND programEnrolment.individual.voided = false AND voided = false',
+                dateMorning);
+        const peCount = countAfterFilters(peQuery, programEncounterCriteria, reportFilters, ProgramEncounter.schema.name, customFilterService);
+
+        let encQuery = this.getRepository(Encounter.schema.name).findAll()
+            .filtered('maxVisitDateTime < $0 AND cancelDateTime = null AND encounterDateTime = null AND individual.voided = false AND voided = false',
+                dateMorning);
+        const encCount = countAfterFilters(encQuery, encounterCriteria, reportFilters, Encounter.schema.name, customFilterService);
+
+        return peCount + encCount;
+    }
+
+    countAllIn(date, reportFilters, subjectCriteria) {
+        const {dateMidnight} = get24HoursDateRange(date);
+        let subjects = this.repository.findAll()
+            .filtered('voided = false AND registrationDate <= $0', dateMidnight);
+        return countAfterFilters(subjects, subjectCriteria, reportFilters, Individual.schema.name, this.getService(CustomFilterService));
+    }
+
+    countRecentlyRegistered(date, reportFilters, subjectCriteria, duration = new Duration(1, Duration.Day)) {
+        const {tillDate, fromDate} = getDateRange(date, duration);
+        let subjects = this.repository.findAll()
+            .filtered('voided = false AND registrationDate <= $0 AND registrationDate >= $1', tillDate, fromDate);
+        return countAfterFilters(subjects, subjectCriteria, reportFilters, Individual.schema.name, this.getService(CustomFilterService));
+    }
+
+    countRecentlyEnrolled(date, reportFilters, programEnrolmentCriteria, duration = new Duration(1, Duration.Day)) {
+        const {fromDate, tillDate} = getDateRange(date, duration);
+        let enrolments = this.getRepository(ProgramEnrolment.schema.name).findAll()
+            .filtered('voided = false AND individual.voided = false AND enrolmentDateTime <= $0 AND enrolmentDateTime >= $1', tillDate, fromDate);
+        return countAfterFilters(enrolments, programEnrolmentCriteria, reportFilters, ProgramEnrolment.schema.name, this.getService(CustomFilterService));
+    }
+
+    countRecentlyCompletedVisits(date, reportFilters, programEncounterCriteria, encounterCriteria, duration = new Duration(1, Duration.Day)) {
+        const {fromDate, tillDate} = getDateRange(date, duration);
+        const customFilterService = this.getService(CustomFilterService);
+
+        let peQuery = this.getRepository(ProgramEncounter.schema.name).findAll()
+            .filtered('encounterDateTime <= $0 AND encounterDateTime >= $1 AND programEnrolment.voided = false AND programEnrolment.individual.voided = false AND voided = false',
+                tillDate, fromDate);
+        const peCount = countAfterFilters(peQuery, programEncounterCriteria, reportFilters, ProgramEncounter.schema.name, customFilterService);
+
+        let encQuery = this.getRepository(Encounter.schema.name).findAll()
+            .filtered('encounterDateTime <= $0 AND encounterDateTime >= $1 AND individual.voided = false AND voided = false',
+                tillDate, fromDate);
+        const encCount = countAfterFilters(encQuery, encounterCriteria, reportFilters, Encounter.schema.name, customFilterService);
+
+        return peCount + encCount;
+    }
+
     search(criteria, individualUUIDs) {
         const filterCriteria = criteria.getFilterCriteria();
         let searchResults, finalSearchResults = [];
 
+        // Use shallow hydration for search results (skipLists + depth 1).
+        // Search UI only needs name, subjectType, gender, address — all in referenceDataCache.
+        const shallowOpts = {skipLists: true, depth: 1};
+        const allResults = this.repository.findAll();
+        const base = allResults.withHydration ? allResults.withHydration(shallowOpts) : allResults;
+
         if (_.isEmpty(filterCriteria)) {
-            searchResults = this.db.objects(Individual.schema.name).sorted("name");
+            searchResults = base.sorted("name");
             finalSearchResults = getUnderlyingRealmCollection(searchResults);
         } else {
             function filterIndividualsByChunks(baseResult) {
@@ -205,8 +294,7 @@ class IndividualService extends BaseService {
                 }
             }
 
-            const baseResult = this.db
-                .objects(Individual.schema.name)
+            const baseResult = base
                 .filtered(
                     filterCriteria,
                     criteria.getMinDateOfBirth(),
@@ -225,48 +313,45 @@ class IndividualService extends BaseService {
     }
 
     register(individual, nextScheduledVisits, skipCreatingPendingStatus, groupSubjectObservations) {
-        const db = this.db;
         ObservationsHolder.convertObsForSave(individual.observations);
         const formMappingService = this.getService(FormMappingService);
         const registrationForm = formMappingService.findRegistrationForm(individual.subjectType);
         const isApprovalEnabled = formMappingService.isApprovalEnabledForRegistrationForm(individual.subjectType);
         const isNew = this.isNew(individual);
-        this.db.write(() => {
+        this.transactionManager.write(() => {
             if (!skipCreatingPendingStatus && isApprovalEnabled)
-                this.entityApprovalStatusService.createPendingStatus(individual, Individual.schema.name, db, individual.subjectType.uuid);
+                this.entityApprovalStatusService.createPendingStatus(individual, Individual.schema.name, individual.subjectType.uuid);
             individual.updateAudit(this.getUserInfo(), isNew);
-            const saved = db.create(Individual.schema.name, individual, Realm.UpdateMode.Modified);
-            db.create(EntityQueue.schema.name, EntityQueue.create(individual, Individual.schema.name));
+            const saved = this.repository.create(individual, UpdateMode.Modified);
+            this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(individual, Individual.schema.name));
             this.getService(MediaQueueService).addMediaToQueue(individual, Individual.schema.name);
             this.getService(IdentifierAssignmentService).assignPopulatedIdentifiersFromObservations(registrationForm, individual.observations, saved);
-            _.forEach(groupSubjectObservations, this.getService(GroupSubjectService).addSubjectToGroup(saved, db));
-            this.encounterService.saveScheduledVisits(saved, nextScheduledVisits, db, saved.registrationDate);
+            _.forEach(groupSubjectObservations, this.getService(GroupSubjectService).addSubjectToGroup(saved));
+            this.encounterService.saveScheduledVisits(saved, nextScheduledVisits, saved.registrationDate);
         });
     }
 
     updateObservations(individual) {
-        const db = this.db;
         individual.updateAudit(this.getUserInfo(), false);
-        this.db.write(() => {
+        this.transactionManager.write(() => {
             ObservationsHolder.convertObsForSave(individual.observations);
-            db.create(Individual.schema.name, {
+            this.repository.create({
                 uuid: individual.uuid,
                 observations: individual.observations,
                 profilePicture: individual.profilePicture
-            }, Realm.UpdateMode.Modified);
-            db.create(EntityQueue.schema.name, EntityQueue.create(individual, Individual.schema.name));
+            }, UpdateMode.Modified);
+            this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(individual, Individual.schema.name));
         });
     }
 
     updateSubjectLocation(individual) {
-        const db = this.db;
         individual.updateAudit(this.getUserInfo(), false);
-        this.db.write(() => {
-            db.create(Individual.schema.name, {
+        this.transactionManager.write(() => {
+            this.repository.create({
                 uuid: individual.uuid,
                 subjectLocation: individual.subjectLocation
-            }, Realm.UpdateMode.Modified);
-            db.create(EntityQueue.schema.name, EntityQueue.create(individual, Individual.schema.name));
+            }, UpdateMode.Modified);
+            this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(individual, Individual.schema.name));
         });
     }
 
@@ -296,7 +381,7 @@ class IndividualService extends BaseService {
 
     allIn(ignored, reportFilters, queryAdditions) {
         const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
-        let individuals = this.db.objects(Individual.schema.name).filtered('voided = false ');
+        let individuals = this.repository.getAllNonVoided();
         if (!_.isEmpty(queryAdditions)) {
             individuals = individuals.filtered(queryAdditions);
         }
@@ -312,7 +397,7 @@ class IndividualService extends BaseService {
 
         let programEncounters = [];
         if (queryProgramEncounter) {
-            programEncounters = this.db.objects(ProgramEncounter.schema.name)
+            programEncounters = this.getRepository(ProgramEncounter.schema.name).findAll()
                 .filtered('earliestVisitDateTime <= $0 ' +
                     'AND maxVisitDateTime >= $1 ' +
                     'AND encounterDateTime = null ' +
@@ -352,7 +437,7 @@ class IndividualService extends BaseService {
         const allowedGeneralEncounterTypeUuidsForPerformVisit = this.getService(PrivilegeService).allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'encounterTypeUuid');
         let encounters = [];
         if (queryGeneralEncounter) {
-            encounters = this.db.objects(Encounter.schema.name)
+            encounters = this.getRepository(Encounter.schema.name).findAll()
                 .filtered('earliestVisitDateTime <= $0 ' +
                     'AND maxVisitDateTime >= $1 ' +
                     'AND encounterDateTime = null ' +
@@ -401,7 +486,7 @@ class IndividualService extends BaseService {
 
         let programEncounters = [];
         if (queryProgramEncounter) {
-            programEncounters = this.db.objects(ProgramEncounter.schema.name)
+            programEncounters = this.getRepository(ProgramEncounter.schema.name).findAll()
                 .filtered('maxVisitDateTime < $0 ' +
                     'AND cancelDateTime = null ' +
                     'AND encounterDateTime = null ' +
@@ -439,7 +524,7 @@ class IndividualService extends BaseService {
         const allowedGeneralEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'encounterTypeUuid');
         let encounters = [];
         if (queryGeneralEncounter) {
-            encounters = this.db.objects(Encounter.schema.name)
+            encounters = this.getRepository(Encounter.schema.name).findAll()
                 .filtered('maxVisitDateTime < $0 ' +
                     'AND cancelDateTime = null ' +
                     'AND encounterDateTime = null ' +
@@ -480,7 +565,7 @@ class IndividualService extends BaseService {
 
     allCompletedVisitsIn(date, queryAdditions) {
         const {dateMidnight, dateMorning} = get24HoursDateRange(date);
-        return [...this.db.objects(ProgramEncounter.schema.name)
+        return [...this.getRepository(ProgramEncounter.schema.name).findAll()
             .filtered('encounterDateTime <= $0 ' +
                 'AND encounterDateTime >= $1 ',
                 dateMidnight,
@@ -499,7 +584,7 @@ class IndividualService extends BaseService {
 
         let programEncounters = [];
         if (queryProgramEncounter) {
-            programEncounters = this.db.objects(ProgramEncounter.schema.name)
+            programEncounters = this.getRepository(ProgramEncounter.schema.name).findAll()
                 .filtered('voided = false ' +
                     'AND programEnrolment.voided = false ' +
                     'AND programEnrolment.individual.voided = false ' +
@@ -529,7 +614,7 @@ class IndividualService extends BaseService {
 
         let encounters = [];
         if (queryGeneralEncounter) {
-            encounters = this.db.objects(Encounter.schema.name)
+            encounters = this.getRepository(Encounter.schema.name).findAll()
                 .filtered('voided = false ' +
                     'AND individual.voided = false ' +
                     'AND encounterDateTime <= $0 ' +
@@ -564,7 +649,7 @@ class IndividualService extends BaseService {
         const {fromDate, tillDate} = getDateRange(date, new Duration(1, Duration.Day));
         const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
 
-        let individuals = this.db.objects(Individual.schema.name)
+        let individuals = this.repository.findAll()
             .filtered('voided = false ' +
                 'AND registrationDate <= $0 ' +
                 'AND registrationDate >= $1 ',
@@ -602,7 +687,7 @@ class IndividualService extends BaseService {
 
     allInV2(date, reportFilters, subjectCriteria) {
         let {dateMidnight} = get24HoursDateRange(date);
-        let subjects = this.db.objects(Individual.schema.name)
+        let subjects = this.repository.findAll()
             .filtered('voided = false AND registrationDate <= $0', dateMidnight);
 
         return filterSubjects(subjects, subjectCriteria, reportFilters, this.getService(CustomFilterService));
@@ -611,7 +696,7 @@ class IndividualService extends BaseService {
     recentlyRegisteredV2(date, reportFilters, subjectCriteria, duration) {
         const {tillDate, fromDate} = getDateRange(date, duration);
 
-        let subjects = this.db.objects(Individual.schema.name)
+        let subjects = this.repository.findAll()
             .filtered('voided = false ' +
                 'AND registrationDate <= $0 ' +
                 'AND registrationDate >= $1 ',
@@ -626,7 +711,7 @@ class IndividualService extends BaseService {
 
         General.logDebug("IndividualService", "recentlyEnrolled", "fromDate", fromDate, "tillDate", tillDate, programEnrolmentCriteria);
 
-        let enrolments = this.db.objects(ProgramEnrolment.schema.name)
+        let enrolments = this.getRepository(ProgramEnrolment.schema.name).findAll()
             .filtered('voided = false ' +
                 'AND individual.voided = false ' +
                 'AND enrolmentDateTime <= $0 ' +
@@ -666,7 +751,7 @@ class IndividualService extends BaseService {
 
     dueChecklists(ignored, reportFilters, queryAdditions) {
         const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
-        let childEnrolments = this.db.objects(ProgramEnrolment.schema.name)
+        let childEnrolments = this.getRepository(ProgramEnrolment.schema.name).findAll()
             .filtered('voided = false ' + 'AND individual.voided = false ' + 'AND program.name = $0', 'Child');
         if (!_.isEmpty(queryAdditions)) {
             childEnrolments = childEnrolments.filtered(`${queryAdditions}`);

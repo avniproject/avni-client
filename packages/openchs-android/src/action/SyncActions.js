@@ -11,17 +11,29 @@ class SyncActions {
             message: '',
             syncMessage: '',
             startSync: false,
-            backgroundSyncInProgress: false
+            backgroundSyncInProgress: false,
+            showOkButton: false,
         };
     }
 
     static preSync(state) {
         const startTime = Date.now();
-        return {...state, syncing: true, syncMessage: "syncingData", startTime};
+        return {...state, syncing: true, syncMessage: "syncingData", startTime, showOkButton: false};
     }
 
     static postSync(state) {
-        return {...state, syncing: false, startSync: false};
+        return {...state, syncing: false, startSync: false, showOkButton: false};
+    }
+
+    // NOTE: setShowOkButton and POST_SYNC must stay paired.
+    // During a migration sync, the OK button is decoupled from progress=100% so the
+    // regular-sync → "Switching backend" → migration-sync flow reads as one continuous
+    // operation. SyncComponent._runMigrationIfNeeded dispatches SET_SHOW_OK_BUTTON only
+    // after the migration sync completes; the user then taps OK, which dispatches
+    // POST_SYNC and clears the flag here. If either side is refactored in isolation,
+    // the OK button can reappear mid-flight or never appear at all.
+    static setShowOkButton(state, action) {
+        return {...state, showOkButton: !!action.show};
     }
 
     static onError(state) {
@@ -75,7 +87,8 @@ const SyncActionNames = {
     ON_CONNECTION_CHANGE: `${ActionPrefix}.ON_CONNECTION_CHANGE`,
     ON_UPDATE: `${ActionPrefix}.ON_UPDATE`,
     ON_MESSAGE_CALLBACK: `${ActionPrefix}.ON_MESSAGE_CALLBACK`,
-    ON_BACKGROUND_SYNC_STATUS_CHANGE: `${ActionPrefix}.ON_BACKGROUND_SYNC_STATUS_CHANGE`
+    ON_BACKGROUND_SYNC_STATUS_CHANGE: `${ActionPrefix}.ON_BACKGROUND_SYNC_STATUS_CHANGE`,
+    SET_SHOW_OK_BUTTON: `${ActionPrefix}.SET_SHOW_OK_BUTTON`,
 };
 
 const SyncActionMap = new Map([
@@ -86,6 +99,7 @@ const SyncActionMap = new Map([
     [SyncActionNames.ON_UPDATE, SyncActions.onUpdate],
     [SyncActionNames.ON_MESSAGE_CALLBACK, SyncActions.onMessageCallback],
     [SyncActionNames.ON_BACKGROUND_SYNC_STATUS_CHANGE, SyncActions.onBackgroundSyncStatusChange],
+    [SyncActionNames.SET_SHOW_OK_BUTTON, SyncActions.setShowOkButton],
 ]);
 
 export {

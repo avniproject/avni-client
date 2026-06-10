@@ -27,10 +27,9 @@ class SubjectProgramEligibilityService extends BaseService {
         General.logDebug('SubjectProgramEligibilityService', `Saving Subject Program Eligibility UUID: ${subjectProgramEligibility.uuid}`);
         if(!_.isNil(subjectProgramEligibility.observations))
         ObservationsHolder.convertObsForSave(subjectProgramEligibility.observations);
-        const db = this.db;
-        this.db.write(() => {
-            const savedSubjectProgramEligibility = db.create(this.getSchema(), subjectProgramEligibility, true);
-            db.create(EntityQueue.schema.name, EntityQueue.create(savedSubjectProgramEligibility, this.getSchema()));
+        this.transactionManager.write(() => {
+            const savedSubjectProgramEligibility = this.repository.create(subjectProgramEligibility, true);
+            this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(savedSubjectProgramEligibility, this.getSchema()));
         });
     }
 

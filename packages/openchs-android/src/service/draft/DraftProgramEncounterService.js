@@ -2,6 +2,7 @@ import BaseService from '../BaseService';
 import Service from '../../framework/bean/Service';
 import {DraftProgramEncounter} from 'avni-models';
 import {ObservationsHolder, ProgramEnrolment} from 'openchs-models';
+import UpdateMode from "../../repository/UpdateMode";
 
 @Service("draftProgramEncounterService")
 class DraftProgramEncounterService extends BaseService {
@@ -68,13 +69,11 @@ class DraftProgramEncounterService extends BaseService {
      * @returns {DraftProgramEncounter}
      */
     saveDraft(programEncounter) {
-        const db = this.db;
-        
         // Find existing draft - handles both scheduled and unscheduled encounters
         const existingDraft = this.findDraftFor(programEncounter);
-        
+
         let draftProgramEncounter = DraftProgramEncounter.create(programEncounter);
-        
+
         // If existing draft found, use its UUID to update instead of creating new
         if (existingDraft) {
             draftProgramEncounter.uuid = existingDraft.uuid;
@@ -88,8 +87,8 @@ class DraftProgramEncounterService extends BaseService {
         ObservationsHolder.convertObsForSave(draftProgramEncounter.observations);
         ObservationsHolder.convertObsForSave(draftProgramEncounter.cancelObservations);
 
-        return this.db.write(() => {
-            return db.create(DraftProgramEncounter.schema.name, draftProgramEncounter, Realm.UpdateMode.Modified);
+        return this.transactionManager.write(() => {
+            return this.repository.create(draftProgramEncounter, UpdateMode.Modified);
         });
     }
 
@@ -98,17 +97,16 @@ class DraftProgramEncounterService extends BaseService {
      * @param {string} programEncounterUUID
      */
     deleteDraftByUUID(programEncounterUUID) {
-        const db = this.db;
         const draft = this.findByUUID(programEncounterUUID);
         if (draft) {
-            db.write(() => {
-                db.delete(draft.observations);
-                db.delete(draft.cancelObservations);
+            this.transactionManager.write(() => {
+                this.repository.deleteInTransaction(draft.observations);
+                this.repository.deleteInTransaction(draft.cancelObservations);
 
                 this.safeDelete(draft.encounterLocation);
                 this.safeDelete(draft.cancelLocation);
 
-                db.delete(draft);
+                this.repository.deleteInTransaction(draft);
             });
         }
     }

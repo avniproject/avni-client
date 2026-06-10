@@ -1,6 +1,8 @@
 import UserInfoService from "../service/UserInfoService";
 import SettingsService from "../service/SettingsService";
 import BackupRestoreRealmService from "../service/BackupRestoreRealmService";
+import AppInfoUploadService from "../service/AppInfoUploadService";
+import MediaQueueService from "../service/MediaQueueService";
 import SyncTelemetryService from "../service/SyncTelemetryService";
 import EntitySyncStatusService from "../service/EntitySyncStatusService";
 import General from "../utility/General";
@@ -45,12 +47,15 @@ class MenuActions {
 
     static onBackupDump(state, action, context) {
         let newState = MenuActions.clone(state);
-        const {organisationName, username} = state.userInfo;
-        let backupAndRestoreRealmService = context.get(BackupRestoreRealmService);
-        backupAndRestoreRealmService.backup(action.dumpType, (percentage, message) => {
+        const cb = (percentage, message) => {
             General.logDebug("MenuActions.onBackupDump", message);
             action.onBackupDumpCb(percentage, message);
-        });
+        };
+        if (action.dumpType === MediaQueueService.DumpType.Adhoc) {
+            context.get(AppInfoUploadService).upload(cb);
+        } else {
+            context.get(BackupRestoreRealmService).backup(action.dumpType, cb);
+        }
         newState.backupInProgress = true;
         newState.backupProgressUserMessage = "backupStarting";
         newState.percentDone = 1;

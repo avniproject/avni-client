@@ -1,0 +1,34 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1774266493259,
+      "tag": "0000_initial",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1777292036708,
+      "tag": "0001_custom_card_config_and_report_card_actions",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1777367952391,
+      "tag": "0002_add_high_value_indexes",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1780487227995,
+      "tag": "0003_models_1_33_37_to_1_33_65_field_additions",
+      "breakpoints": true
+    }
+  ]
+}

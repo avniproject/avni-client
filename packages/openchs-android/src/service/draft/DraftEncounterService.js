@@ -2,6 +2,7 @@ import BaseService from '../BaseService';
 import Service from '../../framework/bean/Service';
 import {DraftEncounter} from 'avni-models';
 import {Individual, ObservationsHolder} from 'openchs-models';
+import UpdateMode from "../../repository/UpdateMode";
 
 @Service("draftEncounterService")
 class DraftEncounterService extends BaseService {
@@ -56,13 +57,11 @@ class DraftEncounterService extends BaseService {
     }
 
     saveDraft(encounter) {
-        const db = this.db;
-        
         // Find existing draft - handles both scheduled and unscheduled encounters
         const existingDraft = this.findDraftFor(encounter);
-        
+
         let draftEncounter = DraftEncounter.create(encounter);
-        
+
         // If existing draft found, use its UUID to update instead of creating new
         if (existingDraft) {
             draftEncounter.uuid = existingDraft.uuid;
@@ -73,23 +72,22 @@ class DraftEncounterService extends BaseService {
 
         ObservationsHolder.convertObsForSave(draftEncounter.observations);
 
-        return this.db.write(() => {
-            return db.create(DraftEncounter.schema.name, draftEncounter, Realm.UpdateMode.Modified);
+        return this.transactionManager.write(() => {
+            return this.repository.create(draftEncounter, UpdateMode.Modified);
         });
     }
 
     deleteDraftByUUID(encounterUUID) {
-        const db = this.db;
         const draft = this.findByUUID(encounterUUID);
         if (draft) {
-            db.write(() => {
-                    db.delete(draft.observations);
-                    db.delete(draft.cancelObservations);
+            this.transactionManager.write(() => {
+                    this.repository.deleteInTransaction(draft.observations);
+                    this.repository.deleteInTransaction(draft.cancelObservations);
 
                     this.safeDelete(draft.encounterLocation);
                     this.safeDelete(draft.cancelLocation);
 
-                    db.delete(draft);
+                    this.repository.deleteInTransaction(draft);
                 }
             );
         }

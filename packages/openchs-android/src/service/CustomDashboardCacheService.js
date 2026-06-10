@@ -176,9 +176,41 @@ class CustomDashboardCacheService extends BaseService {
         });
     }
 
+    /**
+     * Batch-write all card results in a single transaction.
+     * @param {string} dashboardUUID
+     * @param {Array<{card, result}>} singleCardResults — [{card: ReportCard, result: reportCardResult}]
+     * @param {Array<{card, results}>} nestedCardResults — [{card: ReportCard, results: [reportCardResult, ...]}]
+     */
+    batchUpdateResults(dashboardUUID, singleCardResults, nestedCardResults) {
+        if (singleCardResults.length === 0 && nestedCardResults.length === 0) return;
+
+        this.transactionManager.write(() => {
+            let dashboardCache = this.findByFiltered("dashboard.uuid", dashboardUUID, CustomDashboardCache.schema.name);
+
+            for (const {card, result} of singleCardResults) {
+                _.remove(dashboardCache.reportCardResults, (x) => x.reportCard === card.uuid && x.dashboard === dashboardCache.dashboard.uuid);
+                result.dashboard = dashboardUUID;
+                result.reportCard = card.uuid;
+                dashboardCache.reportCardResults.push(result);
+            }
+
+            for (const {card, results} of nestedCardResults) {
+                results.forEach((nestedResult, index) => {
+                    _.remove(dashboardCache.nestedReportCardResults, (x) => x.reportCard === card.getCardId(index) && x.dashboard === dashboardCache.dashboard.uuid);
+                    nestedResult.dashboard = dashboardUUID;
+                    nestedResult.reportCard = card.getCardId(index);
+                    dashboardCache.nestedReportCardResults.push(nestedResult);
+                });
+            }
+
+            dashboardCache.updatedAt = new Date();
+            this.repository.persistMutations(dashboardCache);
+        });
+    }
+
     updateNestedCardResults(dashboardUUID, reportCard, results) {
-        const db = this.db;
-        db.write(() => {
+        this.transactionManager.write(() => {
             let dashboardCache = this.findByFiltered("dashboard.uuid", dashboardUUID, CustomDashboardCache.schema.name);
             results.forEach((nestedReportCardResult, index) => {
                 const matching = _.filter(dashboardCache.nestedReportCardResults, (x) => x.reportCard === reportCard.getCardId(index) && x.dashboard === dashboardCache.dashboard.uuid);
@@ -190,12 +222,12 @@ class CustomDashboardCacheService extends BaseService {
                 dashboardCache.nestedReportCardResults.push(nestedReportCardResult);
             });
             dashboardCache.updatedAt = new Date();
+            this.repository.persistMutations(dashboardCache);
         });
     }
 
     updateReportCardResult(dashboardUUID, reportCard, reportCardResult) {
-        const db = this.db;
-        db.write(() => {
+        this.transactionManager.write(() => {
             let dashboardCache = this.findByFiltered("dashboard.uuid", dashboardUUID, CustomDashboardCache.schema.name);
             const matching = _.filter(dashboardCache.reportCardResults, (x) => x.reportCard === reportCard.uuid && x.dashboard === dashboardCache.dashboard.uuid);
             matching.forEach((x) => {
@@ -205,6 +237,7 @@ class CustomDashboardCacheService extends BaseService {
             reportCardResult.reportCard = reportCard.uuid;
             dashboardCache.reportCardResults.push(reportCardResult);
             dashboardCache.updatedAt = new Date();
+            this.repository.persistMutations(dashboardCache);
         });
     }
 }

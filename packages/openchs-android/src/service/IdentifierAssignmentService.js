@@ -57,7 +57,6 @@ class IdentifierAssignmentService extends BaseService {
     }
 
     assignPopulatedIdentifiersFromObservations(form, observations, individual, programEnrolment) {
-        const db = this.db;
         const identifiersToBeSaved = [];
         const entityQueueItems = [];
         const observationsHolder = new ObservationsHolder(observations);
@@ -85,11 +84,11 @@ class IdentifierAssignmentService extends BaseService {
         });
 
         _.each(identifiersToBeSaved, (identifier) => {
-            db.create(IdentifierAssignment.schema.name, identifier, true);
+            this.repository.create(identifier, true);
         });
 
         _.each(entityQueueItems, (entityQueueItem) => {
-            db.create(EntityQueue.schema.name, entityQueueItem, true)
+            this.getRepository(EntityQueue.schema.name).create(entityQueueItem, true)
         });
     }
 }

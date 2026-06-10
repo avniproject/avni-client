@@ -72,6 +72,7 @@ import './RuleEvaluationService';
 import './RuleService';
 import './SessionService';
 import './SettingsService';
+import './SqliteMigrationService';
 import './SubjectMigrationService';
 import './SubjectTypeService';
 import './SyncService';
@@ -132,10 +133,14 @@ import './BaseAuthProviderService';
 
 // Edge model (on-device PyTorch Mobile inference; engine selected per-model via registry)
 import './EdgeModelService';
+// Performance
+import './PerformanceBenchmarkService';
 
 // Other services
 import './AnonymizeRealmService';
+import './AppInfoUploadService';
 import './BackupRestoreRealmService'; // Note: File named BackupRestoreRealmService.js, class is BackupRestoreRealmService
+import './BackupRestoreSqliteService';
 import './BeneficiaryModePinService';
 import './CallService';
 import './EncryptionService';
