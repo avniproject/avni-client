@@ -299,6 +299,15 @@ dependencies {
     // AAB clears the Play 16 KB check with a stock Maven Central artifact, no custom rebuild.
     // (The 32-bit JNI shim is 4 KB-aligned, which is irrelevant: 16 KB pages are 64-bit-only.)
     // onnxruntime-android has no transitive deps, so no fbjni exclude is needed.
+    //
+    // NOTE: tanuh-scoping is only valid while models are *bundled per-flavour* (tanuh ships the
+    // encrypted .bin assets, no other flavour does). If/when edge models move to a *remote fetch*
+    // (any flavour can download + run a model at runtime), promote this to a plain `implementation`
+    // so the runtime is present in the generic build too — otherwise a non-tanuh flavour that
+    // fetches a model would have no engine to run it (Class.forName("OnnxEngine") fails). Unlike
+    // PyTorch Mobile, this is Play-safe to ship everywhere: ONNX Runtime's 64-bit libs are already
+    // 16 KB-aligned, so widening the scope costs ~17 MB/ABI but does NOT reintroduce a 16 KB failure.
+    // (OnnxEngine.kt would also need to move out of src/tanuh/ into src/main/ at that point.)
     tanuhImplementation('com.microsoft.onnxruntime:onnxruntime-android:1.22.0')
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
