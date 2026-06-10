@@ -16,6 +16,8 @@ import java.io.FileOutputStream
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
 import java.security.MessageDigest
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.locks.ReentrantLock
 import javax.crypto.Cipher
 import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
@@ -125,6 +127,15 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
      */
     private val loadArgs = HashMap<String, LoadArgs>()
 
+    /**
+     * Serialises model load/inference against memory-pressure eviction. ONNX Runtime aborts
+     * (destroyed-mutex SIGABRT / null-deref SIGSEGV) if a session is closed while a `run` is
+     * in flight — and `onTrimMemory` runs on the main thread while inference runs on the
+     * native-modules thread. Inference and loading hold this lock; `onTrimMemory` `tryLock`s
+     * and simply defers eviction when inference is in progress (never blocks the main thread).
+     */
+    private val inferenceLock = ReentrantLock()
+
     private sealed class LoadArgs {
         abstract val overrideJson: String?
         data class Plain(val assetPath: String, override val overrideJson: String?) : LoadArgs()
@@ -170,6 +181,7 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
      */
     @ReactMethod
     fun loadModel(modelKey: String, assetPath: String, overrideJson: String?, promise: Promise) {
+        inferenceLock.lock()
         try {
             loadArgs[modelKey] = LoadArgs.Plain(assetPath, overrideJson)
             ensureLoaded(modelKey)
@@ -177,6 +189,8 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
         } catch (e: Exception) {
             Log.e(TAG, "loadModel($modelKey): ${e.message}", e)
             promise.reject("EDGE_MODEL_LOAD_ERROR", "Failed to load model '$modelKey': ${e.message}", e)
+        } finally {
+            inferenceLock.unlock()
         }
     }
 
@@ -193,6 +207,7 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
         overrideJson: String?,
         promise: Promise
     ) {
+        inferenceLock.lock()
         try {
             loadArgs[modelKey] = LoadArgs.Encrypted(encryptedAssetPath, base64Key, sha256Hex, overrideJson)
             ensureLoaded(modelKey)
@@ -200,6 +215,8 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
         } catch (e: Exception) {
             Log.e(TAG, "loadEncryptedModel($modelKey): ${e.message}", e)
             promise.reject("EDGE_MODEL_LOAD_ERROR", "Failed to load encrypted model '$modelKey': ${e.message}", e)
+        } finally {
+            inferenceLock.unlock()
         }
     }
 
@@ -210,6 +227,7 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
      */
     @ReactMethod
     fun runInference(modelKey: String, inputData: ReadableArray, shape: ReadableArray?, promise: Promise) {
+        inferenceLock.lock()
         try {
             ensureLoaded(modelKey)
             val handle = handles[modelKey]!!
@@ -228,6 +246,8 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
         } catch (e: Exception) {
             Log.e(TAG, "runInference($modelKey): ${e.message}", e)
             promise.reject("EDGE_MODEL_INFERENCE_ERROR", "Inference failed: ${e.message}", e)
+        } finally {
+            inferenceLock.unlock()
         }
     }
 
@@ -239,6 +259,7 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
      */
     @ReactMethod
     fun runInferenceOnImage(modelKey: String, imagePath: String, promise: Promise) {
+        inferenceLock.lock()
         try {
             ensureLoaded(modelKey)
             val handle = handles[modelKey]!!
@@ -277,6 +298,8 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
         } catch (e: Exception) {
             Log.e(TAG, "runInferenceOnImage($modelKey): ${e.message}", e)
             promise.reject("EDGE_MODEL_INFERENCE_ERROR", "Image inference failed: ${e.message}", e)
+        } finally {
+            inferenceLock.unlock()
         }
     }
 
@@ -288,11 +311,21 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
      * next inference can self-heal-reload without involving JS.
      */
     override fun onTrimMemory(level: Int) {
-        if (level >= ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW) {
+        if (level < ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW) return
+        // Never close a session that a `run` is mid-flight on (would crash the native runtime).
+        // tryLock keeps the main thread non-blocking; if inference holds the lock we defer —
+        // a later trim, or the next inference completing, frees the memory.
+        if (!inferenceLock.tryLock()) {
+            Log.w(TAG, "onTrimMemory(level=$level) — inference in progress; deferring eviction")
+            return
+        }
+        try {
             Log.w(TAG, "onTrimMemory(level=$level) — releasing ${handles.size} handle(s); load-args retained for self-heal reload")
             handles.values.forEach { it.close() }
             handles.clear()
             contracts.clear()
+        } finally {
+            inferenceLock.unlock()
         }
     }
 
@@ -304,12 +337,19 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
     override fun onConfigurationChanged(newConfig: Configuration) { /* no-op */ }
 
     override fun onCatalystInstanceDestroy() {
-        Log.d(TAG, "onCatalystInstanceDestroy: closing ${handles.size} handle(s)")
-        handles.values.forEach { it.close() }
-        handles.clear()
-        contracts.clear()
-        loadArgs.clear()
-        reactApplicationContext.applicationContext.unregisterComponentCallbacks(this)
+        // Wait briefly for any in-flight inference so we don't close a session mid-run, then
+        // tear down regardless — the RN instance is going away.
+        val locked = try { inferenceLock.tryLock(1, TimeUnit.SECONDS) } catch (e: InterruptedException) { false }
+        try {
+            Log.d(TAG, "onCatalystInstanceDestroy: closing ${handles.size} handle(s)")
+            handles.values.forEach { it.close() }
+            handles.clear()
+            contracts.clear()
+            loadArgs.clear()
+            reactApplicationContext.applicationContext.unregisterComponentCallbacks(this)
+        } finally {
+            if (locked) inferenceLock.unlock()
+        }
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────────────
