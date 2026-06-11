@@ -15,6 +15,7 @@ import fs from "react-native-fs";
 import MigrationRunner from "./MigrationRunner";
 import SchemaGenerator from "./SchemaGenerator";
 import SqliteProxy from "./SqliteProxy";
+import {encryptionKeyToHex} from "./SqliteUtils";
 import Config from "../Config";
 import InitialSettings from "../../../config/initialSettings.json";
 import General from "../../utility/General";
@@ -38,16 +39,7 @@ class SqliteFactory {
 
         const encryptionKey = await EncryptionService.getEncryptionKey();
         if (!_.isNil(encryptionKey)) {
-            if (encryptionKey instanceof Uint8Array || encryptionKey instanceof ArrayBuffer) {
-                const bytes = encryptionKey instanceof ArrayBuffer
-                    ? new Uint8Array(encryptionKey)
-                    : encryptionKey;
-                dbOptions.encryptionKey = Array.from(bytes)
-                    .map(b => b.toString(16).padStart(2, "0"))
-                    .join("");
-            } else if (typeof encryptionKey === "string") {
-                dbOptions.encryptionKey = encryptionKey;
-            }
+            dbOptions.encryptionKey = encryptionKeyToHex(encryptionKey);
             General.logInfo("SqliteFactory", `Opening database with encryption (key length: ${dbOptions.encryptionKey.length} chars)`);
         } else {
             General.logInfo("SqliteFactory", "Opening database without encryption (no key found)");

@@ -13,7 +13,7 @@
 import _ from "lodash";
 import SqliteResultsProxy from "./SqliteResultsProxy";
 import EntityHydrator from "./EntityHydrator";
-import {schemaNameToTableName, camelToSnake} from "./SqliteUtils";
+import {schemaNameToTableName, camelToSnake, encryptionKeyToHex} from "./SqliteUtils";
 import {EMBEDDED_SCHEMA_NAMES} from "./SchemaGenerator";
 import General from "../../utility/General";
 
@@ -588,10 +588,30 @@ class SqliteProxy {
         }
     }
 
+    /**
+     * Write a copy of this database to config.path, encrypted with
+     * config.encryptionKey if given, plaintext otherwise (KEY '' disables
+     * SQLCipher on the attached database). Mirrors Realm's writeCopyTo contract.
+     */
     writeCopyTo(config) {
-        // For SQLite, we can copy the database file
-        // This is a simplified implementation for the spike
-        console.warn("SqliteProxy.writeCopyTo: Not yet implemented for SQLite");
+        const targetPath = config && config.path;
+        if (!targetPath) {
+            throw new Error("SqliteProxy.writeCopyTo: config.path is required");
+        }
+        const keyHex = _.isNil(config.encryptionKey) ? "" : encryptionKeyToHex(config.encryptionKey);
+        this._executeRaw("PRAGMA wal_checkpoint(TRUNCATE)");
+        // sqlcipher_export inserts rows in sqlite_master order, which may put child
+        // tables before their parents — FK enforcement must be off for the copy
+        const fkRows = this._executeQuery("PRAGMA foreign_keys");
+        const fkWasOn = fkRows.length > 0 && Number(Object.values(fkRows[0])[0]) === 1;
+        this._executeRaw("PRAGMA foreign_keys = OFF");
+        this._executeRaw("ATTACH DATABASE ? AS copy_target KEY ?", [targetPath, keyHex]);
+        try {
+            this._executeRaw("SELECT sqlcipher_export('copy_target')");
+        } finally {
+            this._executeRaw("DETACH DATABASE copy_target");
+            if (fkWasOn) this._executeRaw("PRAGMA foreign_keys = ON");
+        }
     }
 
     // ──── Properties ────

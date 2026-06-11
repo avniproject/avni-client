@@ -21,4 +21,14 @@ function normalizeRealmType(realmType) {
     return realmType;
 }
 
-export {camelToSnake, schemaNameToTableName, normalizeRealmType};
+// SQLCipher derives the cipher key from the passphrase string itself, so the same
+// hex string must be used everywhere a key is supplied (open and ATTACH ... KEY).
+function encryptionKeyToHex(encryptionKey) {
+    if (typeof encryptionKey === "string") return encryptionKey;
+    const bytes = encryptionKey instanceof ArrayBuffer ? new Uint8Array(encryptionKey) : encryptionKey;
+    return Array.from(bytes)
+        .map(b => b.toString(16).padStart(2, "0"))
+        .join("");
+}
+
+export {camelToSnake, schemaNameToTableName, normalizeRealmType, encryptionKeyToHex};

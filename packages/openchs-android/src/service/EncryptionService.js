@@ -4,6 +4,7 @@ import OrganisationConfigService from "./OrganisationConfigService";
 // REMOVED: Circular dependency with RealmFactory - now lazy loaded in methods
 // import RealmFactory from "../framework/db/RealmFactory";
 import fs from "react-native-fs";
+import _ from "lodash";
 
 import * as Keychain from 'react-native-keychain';
 import General from "../utility/General";
@@ -24,9 +25,9 @@ export default class EncryptionService extends BaseService {
     async encryptOrDecryptDbIfRequired() {
         const isDbEncryptionEnabled = this.getService(OrganisationConfigService).isDbEncryptionEnabled();
         if(isDbEncryptionEnabled)
-            await this.encryptRealm();
+            await this.encryptDb();
         else
-            await this.decryptRealm();
+            await this.decryptDb();
     }
 
     async isAlreadyEncrypted() {
@@ -34,58 +35,123 @@ export default class EncryptionService extends BaseService {
         return (credentials && credentials.username === CREDENTIAL_USERNAME);
     }
 
-    async encryptRealm() {
+    async encryptDb() {
         let isAlreadyEncrypted = await this.isAlreadyEncrypted();
         if (isAlreadyEncrypted) {
-            General.logDebug("EncryptionService", "Realm already encrypted");
+            General.logDebug("EncryptionService", "Db already encrypted");
             return;
         }
         General.logDebug("EncryptionService", "Encryption started");
         const key = await this.createKey();
-        let oldPath = this.db.path;
-        let newPath = `${oldPath}.encrypted`;
-        let newConfig = {encryptionKey: key, path: newPath};
-
-        General.logDebug("EncryptionService", "Writing encrypted copy");
-        this.db.writeCopyTo(newConfig);
-        this.db.close();
-
-        General.logDebug("EncryptionService", "Moving the encrypted copy to the old path");
-        await fs.moveFile(newPath, oldPath);
-
+        try {
+            await this._rewriteDatabases(key);
+        } catch (e) {
+            // No file has been swapped yet — drop the key so both DBs keep opening as plaintext
+            await this.resetEncryptionKey();
+            throw e;
+        }
         General.logDebug("EncryptionService", "Reinitializing the db");
-        // Lazy load to avoid circular dependency
-        const RealmFactory = require('../framework/db/RealmFactory').default;
-        await GlobalContext.getInstance().reinitializeDatabase(RealmFactory);
+        await this._reinitializeDatabases();
         General.logDebug("EncryptionService", "Encryption completed");
     }
 
-    async decryptRealm() {
+    async decryptDb() {
         let isAlreadyEncrypted = await this.isAlreadyEncrypted();
         if (!isAlreadyEncrypted) {
-            General.logDebug("EncryptionService", "Realm already decrypted");
+            General.logDebug("EncryptionService", "Db already decrypted");
             return;
         }
         General.logDebug("EncryptionService", "Decryption started");
-        let oldPath = this.db.path;
-        let newPath = `${oldPath}.decrypted`;
-        let newConfig = {path: newPath};
-
-        General.logDebug("EncryptionService", "Writing decrypted copy");
-        this.db.writeCopyTo(newConfig); //No key implies no encryption
-
-        this.db.close();
-        General.logDebug("EncryptionService", "Moving the decrypted copy to the old path");
-        await fs.moveFile(newPath, oldPath);
+        await this._rewriteDatabases(null);
 
         General.logDebug("EncryptionService", "Resetting the encryption key");
         await this.resetEncryptionKey();
 
         General.logDebug("EncryptionService", "Reinitializing the db");
+        await this._reinitializeDatabases();
+        General.logDebug("EncryptionService", "Decryption complete");
+    }
+
+    // Realm and SQLite must flip together — RealmFactory and SqliteFactory both read
+    // the same keychain key on the next open, so leaving one plaintext while the key
+    // exists would make it unopenable. Copies are written first while both DBs stay
+    // open (a failure leaves everything untouched), then swapped in.
+    async _rewriteDatabases(encryptionKey) {
+        const globalContext = GlobalContext.getInstance();
+        const suffix = encryptionKey ? ".encrypted" : ".decrypted";
+        const databases = [];
+        if (globalContext.sqliteDb) {
+            databases.push({db: globalContext.sqliteDb, isSqlite: true});
+        } else {
+            General.logWarn("EncryptionService", "SQLite db not initialised — only Realm will be rewritten");
+        }
+        databases.push({db: globalContext.db, isSqlite: false});
+
+        for (const entry of databases) {
+            entry.path = entry.db.path;
+            entry.copyPath = `${entry.path}${suffix}`;
+            await this._removeIfExists(entry.copyPath);
+            General.logDebug("EncryptionService", `Writing ${suffix.substring(1)} copy of ${entry.isSqlite ? "SQLite" : "Realm"} db`);
+            entry.db.writeCopyTo(encryptionKey ? {path: entry.copyPath, encryptionKey} : {path: entry.copyPath});
+        }
+
+        for (const entry of databases) {
+            entry.db.close();
+            if (entry.isSqlite) {
+                // Stale WAL/SHM from the old file would corrupt the swapped-in copy
+                await this._removeIfExists(`${entry.path}-wal`);
+                await this._removeIfExists(`${entry.path}-shm`);
+            }
+            General.logDebug("EncryptionService", `Moving the ${suffix.substring(1)} copy to the old path`);
+            await fs.moveFile(entry.copyPath, entry.path);
+        }
+    }
+
+    async _removeIfExists(path) {
+        if (await fs.exists(path)) await fs.unlink(path);
+    }
+
+    async _reinitializeDatabases() {
         // Lazy load to avoid circular dependency
         const RealmFactory = require('../framework/db/RealmFactory').default;
         await GlobalContext.getInstance().reinitializeDatabase(RealmFactory);
-        General.logDebug("EncryptionService", "Decryption complete");
+    }
+
+    /**
+     * Heal the stale-key state left behind by an interrupted/failed encryption
+     * attempt: key in keychain but DB files still plaintext. Opening a plaintext
+     * Realm with a key crashes natively (SIGSEGV in librealm) before any JS error
+     * handling, so this must run before the first Realm open.
+     */
+    static async removeStaleKeyIfDbsPlaintext() {
+        const key = await EncryptionService.getEncryptionKey();
+        if (_.isNil(key)) return;
+
+        const RealmModule = require("realm");
+        const Realm = RealmModule.default || RealmModule.Realm || RealmModule;
+        const SqliteFactory = require("../framework/db/SqliteFactory").default;
+
+        const states = [
+            await EncryptionService._dbFileState(Realm.defaultPath, "T-DB", 16),
+            await EncryptionService._dbFileState(SqliteFactory.getDbFullPath(), "SQLite format 3", 0),
+        ].filter(s => s !== "missing");
+
+        if (states.length > 0 && states.every(s => s === "plaintext")) {
+            General.logWarn("EncryptionService", "Encryption key found but all db files are plaintext — removing stale key");
+            await Keychain.resetGenericPassword();
+        }
+    }
+
+    static async _dbFileState(path, magic, offset) {
+        try {
+            if (!(await fs.exists(path))) return "missing";
+            const headerBase64 = await fs.read(path, offset + magic.length, 0, "base64");
+            const header = base64.decode(headerBase64);
+            return header.substring(offset, offset + magic.length) === magic ? "plaintext" : "encrypted";
+        } catch (e) {
+            General.logWarn("EncryptionService", `Could not inspect db header at ${path}: ${e.message}`);
+            return "unknown";
+        }
     }
 
     static async getEncryptionKey() {

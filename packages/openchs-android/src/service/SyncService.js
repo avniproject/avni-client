@@ -279,8 +279,15 @@ class SyncService extends BaseService {
                     migrationSwitched = true;
                 }
             })
-            .then(() => this._buildReferenceCacheIfSqlite())
             .then(() => this.getService(EncryptionService).encryptOrDecryptDbIfRequired())
+            .then(() => {
+                // Encryption/decryption reinitializes the DB; the fresh proxy comes up
+                // with FK ON and shallow hydration off — re-apply sync modes for the
+                // tx-data downloads still ahead.
+                this._disableForeignKeysIfSqlite();
+                this._enableShallowHydrationIfSqlite();
+            })
+            .then(() => this._buildReferenceCacheIfSqlite())
             .then(() => syncDetailsWithPrivileges = this.updateAsPerNewPrivilege(allEntitiesMetaData, updateProgressSteps, currentVersionEntitySyncDetails))
             .then(() => statusMessageCallBack("downloadNewDataFromServer"))
             .then(() => this.getTxData(subjectMigrationMetadata, onProgressPerEntity, syncDetailsWithPrivileges, endDateTime))

@@ -35,6 +35,12 @@ class GlobalContext {
     }
 
     async initialiseGlobalContext(appStore, realmFactory) {
+        // A stale key with plaintext db files (interrupted encryption) crashes the
+        // Realm open natively — reconcile before touching either database.
+        // Lazy load to avoid circular dependency.
+        const EncryptionService = require("./service/EncryptionService").default;
+        await EncryptionService.removeStaleKeyIfDbsPlaintext();
+
         // Always initialize Realm (needed during transition for unsynced data verification)
         this.db = await realmFactory.createRealm();
 
