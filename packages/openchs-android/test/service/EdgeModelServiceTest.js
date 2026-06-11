@@ -72,6 +72,18 @@ describe('EdgeModelService', () => {
         service.init();
     });
 
+    // Inference results are coalesced behind a trailing debounce before dispatch. Flush it
+    // deterministically in tests instead of waiting on the real timer; afterEach clears any
+    // timer a test left armed.
+    const flushInference = () => service._flushPendingResults();
+
+    afterEach(() => {
+        if (service && service._flushTimer) {
+            clearTimeout(service._flushTimer);
+            service._flushTimer = null;
+        }
+    });
+
     it('reads the registry once at init via EdgeModelModule.getRegistry', async () => {
         await service._registryReady;
         expect(NativeModules.EdgeModelModule.getRegistry).toHaveBeenCalledTimes(1);
@@ -232,27 +244,29 @@ describe('EdgeModelService', () => {
             service.dispatchAction = jest.fn();
         });
 
-        it('dispatches INFERENCE_RESULT_AVAILABLE with the decoder label on resolve', async () => {
+        it('queues a batched result with the decoder label on resolve', async () => {
             service.scheduleImageInference('oral-cancer-v1', '/tmp/x.jpg', fakeEntity('e1'), 'AI Suspicion Result');
             await new Promise(r => setImmediate(r));
 
             expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(1);
+            flushInference();
             expect(service.dispatchAction).toHaveBeenCalledWith(
-                'EDGE_MODEL.INFERENCE_RESULT_AVAILABLE',
-                {conceptName: 'AI Suspicion Result', value: 'Positive'}
+                'EDGE_MODEL.INFERENCE_RESULTS_BATCH',
+                {results: [{conceptName: 'AI Suspicion Result', value: 'Positive'}]}
             );
         });
 
-        it('applies labelMap before dispatching so the obs holds the user-facing string', async () => {
+        it('applies labelMap before queuing so the obs holds the user-facing string', async () => {
             service.scheduleImageInference(
                 'oral-cancer-v1', '/tmp/x.jpg', fakeEntity('e1'), 'AI Suspicion Result',
                 {'Positive': 'Suspicious', 'Negative': 'Non Suspicious'}
             );
             await new Promise(r => setImmediate(r));
 
+            flushInference();
             expect(service.dispatchAction).toHaveBeenCalledWith(
-                'EDGE_MODEL.INFERENCE_RESULT_AVAILABLE',
-                {conceptName: 'AI Suspicion Result', value: 'Suspicious'}
+                'EDGE_MODEL.INFERENCE_RESULTS_BATCH',
+                {results: [{conceptName: 'AI Suspicion Result', value: 'Suspicious'}]}
             );
         });
 
@@ -263,9 +277,10 @@ describe('EdgeModelService', () => {
             );
             await new Promise(r => setImmediate(r));
 
+            flushInference();
             expect(service.dispatchAction).toHaveBeenCalledWith(
-                'EDGE_MODEL.INFERENCE_RESULT_AVAILABLE',
-                {conceptName: 'AI Suspicion Result', value: 'Positive'}
+                'EDGE_MODEL.INFERENCE_RESULTS_BATCH',
+                {results: [{conceptName: 'AI Suspicion Result', value: 'Positive'}]}
             );
         });
 
@@ -286,7 +301,21 @@ describe('EdgeModelService', () => {
 
             resolveFn({label: 'Positive'});
             await new Promise(r => setImmediate(r));
+            flushInference();
             expect(service.dispatchAction).toHaveBeenCalledTimes(1);
+        });
+
+        it('does not re-infer a resolved-but-unflushed result for the same image (covered-until-flushed window)', async () => {
+            const entity = fakeEntity('e1');  // getObservationValue returns undefined → target obs stays unwritten until flush
+            service.scheduleImageInference('oral-cancer-v1', '/tmp/x.jpg', entity, 'AI Suspicion Result');
+            await new Promise(r => setImmediate(r));  // inference resolves → lastImage set, result queued (NOT flushed)
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(1);
+
+            // A re-eval during the flush debounce re-schedules the same image+target while the
+            // obs is still unwritten. lastImage === imagePath must short-circuit it — no duplicate.
+            service.scheduleImageInference('oral-cancer-v1', '/tmp/x.jpg', entity, 'AI Suspicion Result');
+            await new Promise(r => setImmediate(r));
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(1);
         });
 
         it('skips scheduling when the entity already has the target observation', () => {
@@ -305,6 +334,7 @@ describe('EdgeModelService', () => {
             service.scheduleImageInference('oral-cancer-v1', '/tmp/x.jpg', entity, 'AI Suspicion Result');
             await new Promise(r => setImmediate(r));
 
+            flushInference();
             expect(service.dispatchAction).not.toHaveBeenCalled();
 
             // After the failure, the slot is free — a retry should fire a new inference call.
@@ -313,7 +343,7 @@ describe('EdgeModelService', () => {
             expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(2);
         });
 
-        it('soft-votes a fold-array modelKey and dispatches the combined verdict (post-labelMap)', async () => {
+        it('soft-votes a fold-array modelKey and queues the combined verdict (post-labelMap)', async () => {
             NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation((k) => Promise.resolve(({
                 'mvit2_fold1_6': {label: 'Positive', confidence: 0.8},
                 'mvit2_fold1_8': {label: 'Negative', confidence: 0.6},
@@ -327,9 +357,10 @@ describe('EdgeModelService', () => {
 
             expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(3);
             // mean prob = 0.7 > 0.5 → 'Positive' → labelMap → 'Suspicious'
+            flushInference();
             expect(service.dispatchAction).toHaveBeenCalledWith(
-                'EDGE_MODEL.INFERENCE_RESULT_AVAILABLE',
-                {conceptName: 'AI Suspicion Result', value: 'Suspicious'}
+                'EDGE_MODEL.INFERENCE_RESULTS_BATCH',
+                {results: [{conceptName: 'AI Suspicion Result', value: 'Suspicious'}]}
             );
         });
 
@@ -343,6 +374,7 @@ describe('EdgeModelService', () => {
             await new Promise(r => setImmediate(r));
 
             expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(3);  // 3 folds once, not 6
+            flushInference();
             expect(service.dispatchAction).toHaveBeenCalledTimes(1);
         });
     });
@@ -374,7 +406,7 @@ describe('EdgeModelService', () => {
             service.dispatchAction = jest.fn();
         });
 
-        it('dispatches INFERENCE_RESULT_AVAILABLE with the question group coordinates on resolve', async () => {
+        it('queues a batched result with the question group coordinates on resolve', async () => {
             service.scheduleImageInferenceIntoGroup(
                 'oral-cancer-v1', '/tmp/x.jpg', fakeRqgEntity('e1', [{}]),
                 'Lesion Group', 'AI Suspicion Result', 0
@@ -382,13 +414,14 @@ describe('EdgeModelService', () => {
             await new Promise(r => setImmediate(r));
 
             expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(1);
+            flushInference();
             expect(service.dispatchAction).toHaveBeenCalledWith(
-                'EDGE_MODEL.INFERENCE_RESULT_AVAILABLE',
-                {questionGroupConceptName: 'Lesion Group', conceptName: 'AI Suspicion Result', questionGroupIndex: 0, value: 'Positive'}
+                'EDGE_MODEL.INFERENCE_RESULTS_BATCH',
+                {results: [{questionGroupConceptName: 'Lesion Group', conceptName: 'AI Suspicion Result', questionGroupIndex: 0, value: 'Positive'}]}
             );
         });
 
-        it('applies labelMap before dispatching', async () => {
+        it('applies labelMap before queuing', async () => {
             service.scheduleImageInferenceIntoGroup(
                 'oral-cancer-v1', '/tmp/x.jpg', fakeRqgEntity('e1', [{}]),
                 'Lesion Group', 'AI Suspicion Result', 0,
@@ -396,9 +429,10 @@ describe('EdgeModelService', () => {
             );
             await new Promise(r => setImmediate(r));
 
+            flushInference();
             expect(service.dispatchAction).toHaveBeenCalledWith(
-                'EDGE_MODEL.INFERENCE_RESULT_AVAILABLE',
-                {questionGroupConceptName: 'Lesion Group', conceptName: 'AI Suspicion Result', questionGroupIndex: 0, value: 'Suspicious'}
+                'EDGE_MODEL.INFERENCE_RESULTS_BATCH',
+                {results: [{questionGroupConceptName: 'Lesion Group', conceptName: 'AI Suspicion Result', questionGroupIndex: 0, value: 'Suspicious'}]}
             );
         });
 
@@ -447,10 +481,27 @@ describe('EdgeModelService', () => {
             await new Promise(r => setImmediate(r));
 
             expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(3);
+            flushInference();
             expect(service.dispatchAction).toHaveBeenCalledWith(
-                'EDGE_MODEL.INFERENCE_RESULT_AVAILABLE',
-                {questionGroupConceptName: 'Lesion Group', conceptName: 'AI Suspicion Result', questionGroupIndex: 0, value: 'Suspicious'}
+                'EDGE_MODEL.INFERENCE_RESULTS_BATCH',
+                {results: [{questionGroupConceptName: 'Lesion Group', conceptName: 'AI Suspicion Result', questionGroupIndex: 0, value: 'Suspicious'}]}
             );
+        });
+
+        it('coalesces a burst of N RQG results into a single batched dispatch', async () => {
+            const entity = fakeRqgEntity('e1', [{}, {}, {}]);
+            service.scheduleImageInferenceIntoGroup('oral-cancer-v1', '/tmp/a.jpg', entity, 'Lesion Group', 'AI Suspicion Result', 0);
+            service.scheduleImageInferenceIntoGroup('oral-cancer-v1', '/tmp/b.jpg', entity, 'Lesion Group', 'AI Suspicion Result', 1);
+            service.scheduleImageInferenceIntoGroup('oral-cancer-v1', '/tmp/c.jpg', entity, 'Lesion Group', 'AI Suspicion Result', 2);
+            for (let i = 0; i < 5; i++) await new Promise(r => setImmediate(r));
+
+            // Without batching this would be 3 dispatches (3 full re-evals); coalesced it's one.
+            flushInference();
+            expect(service.dispatchAction).toHaveBeenCalledTimes(1);
+            const [action, payload] = service.dispatchAction.mock.calls[0];
+            expect(action).toBe('EDGE_MODEL.INFERENCE_RESULTS_BATCH');
+            expect(payload.results).toHaveLength(3);
+            expect(payload.results.map(r => r.questionGroupIndex).sort()).toEqual([0, 1, 2]);
         });
     });
 });

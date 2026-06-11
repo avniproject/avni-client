@@ -42,7 +42,10 @@ import General from "../utility/General";
  *   // Result' obs inside row `rowIdx` of the 'Lesion Group' repeatable question group.
  */
 export const EDGE_MODEL_ACTION = {
-    INFERENCE_RESULT_AVAILABLE: 'EDGE_MODEL.INFERENCE_RESULT_AVAILABLE'
+    INFERENCE_RESULT_AVAILABLE: 'EDGE_MODEL.INFERENCE_RESULT_AVAILABLE',
+    // Coalesced variant: several inference results from one burst applied together so the
+    // form re-evaluates once instead of once-per-result. See _queueInferenceResult below.
+    INFERENCE_RESULTS_BATCH: 'EDGE_MODEL.INFERENCE_RESULTS_BATCH'
 };
 
 @Service("edgeModelService")
@@ -64,6 +67,13 @@ class EdgeModelService extends BaseService {
         // with the current imagePath the first time we see a populated target obs, on the
         // assumption that the persisted verdict was produced from the persisted image.
         this._lastInferredImageByTarget = new Map();
+        // Inference results wait here for a short trailing-debounce window so a burst of N
+        // verdicts (one per image on the summary screen) is applied in a single dispatch —
+        // the form then re-evaluates all rules once instead of N times. See
+        // _queueInferenceResult / _flushPendingResults.
+        this._pendingResults = [];
+        this._flushTimer = null;
+        this._flushDelayMs = 120;
     }
 
     /**
@@ -237,8 +247,18 @@ class EdgeModelService extends BaseService {
             ? this._readRqgChildValue(entity, questionGroupConceptName, rqgIdx, targetConceptName)
             : entity.getObservationValue(targetConceptName);
 
+        const lastImage = this._lastInferredImageByTarget.get(targetKey);
+        if (lastImage === imagePath) {
+            // We've already run inference for this exact image+target. The verdict is either
+            // persisted (existing != null — steady-state rule re-fire), or computed and waiting
+            // in the pending-results batch to be flushed (existing == null, between resolve and
+            // the debounced dispatch). In BOTH cases there's no work to do. Checking this before
+            // the `existing != null` guard is what covers the resolved-but-not-yet-written
+            // window — otherwise an unrelated re-eval during the flush debounce would launch a
+            // duplicate inference for an image we just inferred. No log: this is the hot path.
+            return;
+        }
         if (existing != null) {
-            const lastImage = this._lastInferredImageByTarget.get(targetKey);
             if (lastImage === undefined) {
                 // First time we're seeing this target in-session and it's already
                 // populated → persisted verdict from a previous session. Trust it,
@@ -248,12 +268,7 @@ class EdgeModelService extends BaseService {
                     `scheduleImageInference SKIP trust persisted verdict for '${targetConceptName}' (seeded lastImage=${imagePath})`);
                 return;
             }
-            if (lastImage === imagePath) {
-                // Steady-state rule re-fire on the same image — no log to avoid noise on
-                // every form render. The decision is implicit: target set + image
-                // unchanged → no work.
-                return;
-            }
+            // existing populated but lastImage defined and != imagePath → the photo was retaken.
             General.logDebug('EdgeModelSvc',
                 `scheduleImageInference image CHANGED for '${targetConceptName}' (was ${lastImage}, now ${imagePath}) — re-running`);
         }
@@ -283,8 +298,8 @@ class EdgeModelService extends BaseService {
                 // later retake (different imagePath) re-runs inference.
                 this._lastInferredImageByTarget.set(targetKey, imagePath);
                 General.logDebug('EdgeModelSvc',
-                    `scheduleImageInference DISPATCH: target=${targetConceptName}${isRqg ? ` qg=${questionGroupConceptName}[${rqgIdx}]` : ''} rawLabel=${rawLabel} mappedValue=${value}`);
-                this.dispatchAction(EDGE_MODEL_ACTION.INFERENCE_RESULT_AVAILABLE, isRqg
+                    `scheduleImageInference QUEUE: target=${targetConceptName}${isRqg ? ` qg=${questionGroupConceptName}[${rqgIdx}]` : ''} rawLabel=${rawLabel} mappedValue=${value}`);
+                this._queueInferenceResult(isRqg
                     ? {questionGroupConceptName, conceptName: targetConceptName, questionGroupIndex: rqgIdx, value}
                     : {conceptName: targetConceptName, value});
             })
@@ -295,6 +310,32 @@ class EdgeModelService extends BaseService {
             .finally(() => {
                 this._scheduled.delete(inflightKey);
             });
+    }
+
+    /**
+     * Accumulate a resolved inference result and (re)arm a short trailing-debounce timer.
+     * On the summary screen N images resolve in a burst; without this each result would
+     * dispatch separately and re-run every form-element rule (O(N × all-rules) on the JS
+     * thread) plus re-render N times — which also remounts/blanks the read-only images.
+     * Coalescing the burst into one INFERENCE_RESULTS_BATCH dispatch makes the form
+     * re-evaluate once. A single result simply flushes ~120ms later — negligible.
+     */
+    _queueInferenceResult(result) {
+        this._pendingResults.push(result);
+        if (this._flushTimer) clearTimeout(this._flushTimer);
+        this._flushTimer = setTimeout(() => this._flushPendingResults(), this._flushDelayMs);
+    }
+
+    _flushPendingResults() {
+        if (this._flushTimer) {
+            clearTimeout(this._flushTimer);
+            this._flushTimer = null;
+        }
+        if (this._pendingResults.length === 0) return;
+        const results = this._pendingResults;
+        this._pendingResults = [];
+        General.logDebug('EdgeModelSvc', `Flushing ${results.length} pending inference result(s)`);
+        this.dispatchAction(EDGE_MODEL_ACTION.INFERENCE_RESULTS_BATCH, {results});
     }
 
     /**

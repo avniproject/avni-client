@@ -135,67 +135,100 @@ class ObservationsHolderActions {
      */
     static onInferenceResultAvailable(state, action, context) {
         if (!state || !state.formElementGroup || !state.observationsHolder) return state;
-        if (action.questionGroupConceptName != null) {
-            return ObservationsHolderActions._writeInferenceIntoGroup(state, action, context);
-        }
-        const formElement = _.find(
-            state.formElementGroup.getFormElements(),
-            fe => fe && fe.concept && fe.concept.name === action.conceptName
-        );
-        if (!formElement) return state;
         const newState = state.clone();
-        if (formElement.concept.isCodedConcept()) {
-            newState.observationsHolder.addOrUpdateCodedObs(
-                formElement.concept, action.value, formElement.isSingleSelect()
-            );
-        } else {
-            newState.observationsHolder.addOrUpdatePrimitiveObs(formElement.concept, action.value);
-        }
+        if (!ObservationsHolderActions._applyInferenceWrite(newState, action)) return state;
         ObservationsHolderActions._getFormElementStatuses(newState, context);
         return newState;
     }
 
-    static _writeInferenceIntoGroup(state, action, context) {
-        const childFormElement = _.find(
-            state.formElementGroup.getFormElements(),
-            fe => fe && fe.concept && fe.concept.name === action.conceptName && fe.isQuestionGroup()
-                && _.get(fe.getParentFormElement(), 'concept.name') === action.questionGroupConceptName
-        );
-        if (!childFormElement) return state;
-        const parentFormElement = childFormElement.getParentFormElement();
-        if (!parentFormElement || !parentFormElement.isRepeatableQuestionGroup()) return state;
-
+    /**
+     * Handler for EDGE_MODEL.INFERENCE_RESULTS_BATCH — a burst of inference results coalesced
+     * by EdgeModelService. Applies every write first, then re-runs the form-element rules
+     * ONCE, instead of once per result. The writes are independent (each targets its own
+     * concept / RQG row) so the single trailing re-eval sees them all. Results whose target
+     * isn't on the current page are skipped, exactly as the per-result handler does.
+     */
+    static onInferenceResultsBatch(state, action, context) {
+        if (!state || !state.formElementGroup || !state.observationsHolder) return state;
+        if (_.isEmpty(action.results)) return state;
         const newState = state.clone();
+        let appliedAny = false;
+        for (const result of action.results) {
+            if (ObservationsHolderActions._applyInferenceWrite(newState, result)) appliedAny = true;
+        }
+        if (!appliedAny) return state;
+        ObservationsHolderActions._getFormElementStatuses(newState, context);
+        return newState;
+    }
+
+    /**
+     * Writes a single inference result into `newState.observationsHolder` WITHOUT re-running
+     * the form-element rules — the caller does that once (so a batch re-evals once, not N
+     * times). Returns true if a write was applied, false if the result's target concept/row
+     * isn't on the current page (so the caller can leave the state untouched). Routing mirrors
+     * onInferenceResultAvailable:
+     *   • Coded concept: value is the answer NAME, resolved to the answer UUID.
+     *   • Primitive (text/numeric/date): value stored verbatim.
+     *   • questionGroupConceptName present: written into row `questionGroupIndex` of that RQG.
+     */
+    static _applyInferenceWrite(newState, result) {
+        if (result.questionGroupConceptName != null) {
+            return ObservationsHolderActions._applyInferenceWriteIntoGroup(newState, result);
+        }
+        const formElement = _.find(
+            newState.formElementGroup.getFormElements(),
+            fe => fe && fe.concept && fe.concept.name === result.conceptName
+        );
+        if (!formElement) return false;
+        if (formElement.concept.isCodedConcept()) {
+            newState.observationsHolder.addOrUpdateCodedObs(
+                formElement.concept, result.value, formElement.isSingleSelect()
+            );
+        } else {
+            newState.observationsHolder.addOrUpdatePrimitiveObs(formElement.concept, result.value);
+        }
+        return true;
+    }
+
+    static _applyInferenceWriteIntoGroup(newState, result) {
+        const childFormElement = _.find(
+            newState.formElementGroup.getFormElements(),
+            fe => fe && fe.concept && fe.concept.name === result.conceptName && fe.isQuestionGroup()
+                && _.get(fe.getParentFormElement(), 'concept.name') === result.questionGroupConceptName
+        );
+        if (!childFormElement) return false;
+        const parentFormElement = childFormElement.getParentFormElement();
+        if (!parentFormElement || !parentFormElement.isRepeatableQuestionGroup()) return false;
+
         const parentObs = newState.observationsHolder.getObservation(parentFormElement.concept);
         const rqg = parentObs && parentObs.getValueWrapper();
-        if (!rqg || rqg.size() <= action.questionGroupIndex) {
+        if (!rqg || rqg.size() <= result.questionGroupIndex) {
             General.logDebug('ObservationsHolderActions',
-                `onInferenceResultAvailable SKIP: RQG '${action.questionGroupConceptName}' has no row ${action.questionGroupIndex}`);
-            return state;
+                `onInferenceResult SKIP: RQG '${result.questionGroupConceptName}' has no row ${result.questionGroupIndex}`);
+            return false;
         }
 
         const childConcept = childFormElement.concept;
-        let value = action.value;
+        let value = result.value;
         if (childConcept.isCodedConcept()) {
             // updateChildObservations expects the answer concept UUID for coded; resolve the
             // (already label-mapped) answer name the same way addOrUpdateCodedObs does.
-            const answer = childConcept.getAnswerWithConceptName(action.value);
+            const answer = childConcept.getAnswerWithConceptName(result.value);
             value = answer && answer.concept ? answer.concept.uuid : null;
             if (value == null) {
                 General.logError('ObservationsHolderActions',
-                    `onInferenceResultAvailable SKIP: no coded answer '${action.value}' on concept '${childConcept.name}'`);
-                return state;
+                    `onInferenceResult SKIP: no coded answer '${result.value}' on concept '${childConcept.name}'`);
+                return false;
             }
             // updateRepeatableGroupQuestion toggles coded answers, so re-writing the same answer
             // (e.g. a retake that re-confirms the verdict) would clear it. Drop any existing
             // child obs first so the answer is always set fresh — parity with addOrUpdateCodedObs.
-            rqg.getGroupObservationAtIndex(action.questionGroupIndex).removeExistingObs(childConcept);
+            rqg.getGroupObservationAtIndex(result.questionGroupIndex).removeExistingObs(childConcept);
         }
         newState.observationsHolder.updateRepeatableGroupQuestion(
-            action.questionGroupIndex, parentFormElement, childFormElement, value
+            result.questionGroupIndex, parentFormElement, childFormElement, value
         );
-        ObservationsHolderActions._getFormElementStatuses(newState, context);
-        return newState;
+        return true;
     }
 
     static toggleSingleSelectAnswer(state, action, context) {

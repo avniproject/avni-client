@@ -166,15 +166,63 @@ classifier. Each fold is a **single-logit sigmoid-binary** head (verified from t
 `EdgeModelService.runEnsembleInferenceOnImage`. All 3 share `tanuh-ensemble-override.json`; this
 **replaces** the old single `mvit2_fold5_2` path.
 
-```bash
-# Encrypt all 3 folds into one registry.json (clears any single-model registry first).
-# Default source dir is /Users/himeshr/Avni/Tanuh/tanuh_models; override with TANUH_ENSEMBLE_SRC_DIR.
-make tanuh-ensemble                 # → keys: mvit2_fold1_6, mvit2_fold1_8, mvit2_fold2_8
-make run_packager                   # in another terminal
-make run_app_tanuh_dev              # debug build, prod backend, dev menu
+### Models you need
 
-# Signed release APK with the ensemble:
-make tanuh-ensemble-apk
+Three **ONNX** exports of the MViT2 folds (the on-device runtime is ONNX Runtime — see the note
+below). `make tanuh-ensemble` keys off the source-file **basename** and maps it to a registry key:
+
+| Source basename | Registry key    |
+|-----------------|-----------------|
+| `model6.onnx`   | `mvit2_fold1_6` |
+| `model8.onnx`   | `mvit2_fold1_8` |
+| `model8-2.onnx` | `mvit2_fold2_8` |
+
+The files the AI team hands over are usually named with extra suffixes (the names and the directory
+you receive them in vary per handover), but each carries a `(model6)` / `(model8)` / `(model8-2)` tag
+telling you which fold it is. Stage the three under the exact basenames `model6` / `model8` /
+`model8-2` in one directory first:
+
+```bash
+SRC=<dir holding the received .onnx files>     # varies per handover
+STAGE=<your staging dir>                        # e.g. anywhere you like
+mkdir -p "$STAGE"
+cp "$SRC/<...(model6)...>.onnx"   "$STAGE/model6.onnx"
+cp "$SRC/<...(model8)...>.onnx"   "$STAGE/model8.onnx"
+cp "$SRC/<...(model8-2)...>.onnx" "$STAGE/model8-2.onnx"
+```
+
+> **ONNX, not PyTorch.** The runtime is ONNX Runtime Mobile, so the encrypted blobs must be built
+> from `.onnx` (`engine=onnx` in `tanuh-ensemble-override.json`). If you switch onto the ONNX branch
+> and the APK's models seem to "go missing", it's because the bundled `src/tanuh/assets/models/*.bin`
+> were encrypted from the old PyTorch `.pt` (`engine=pytorch`) and ONNX Runtime can't load them —
+> just re-run `tanuh-ensemble` from the `.onnx` sources to regenerate them.
+
+### Build
+
+```bash
+source ~/.nvm/nvm.sh && nvm use 20          # repo-pinned Node 20; the metro bundle needs it
+export tanuh_KEYSTORE_PASSWORD='…'          # the password you chose at `make tanuh-setup`
+export tanuh_KEY_ALIAS='tanuh'
+
+# Encrypt all 3 folds into one registry.json (clears any prior single-model registry first), then
+# assemble the signed release APK. TANUH_ENSEMBLE_SRC_DIR has a machine-specific default in the
+# makefile, so always set it explicitly to your staging dir from above.
+TANUH_ENSEMBLE_SRC_DIR=<your staging dir> make tanuh-ensemble-apk    # → keys: mvit2_fold1_6/_1_8/_2_8
+
+# Debug iteration instead of a signed APK:
+TANUH_ENSEMBLE_SRC_DIR=<your staging dir> make tanuh-ensemble        # encrypt only → src/tanuh/assets/models/
+make run_packager                                          # in another terminal
+make run_app_tanuh_dev                                     # debug build, prod backend, dev menu
+```
+
+Signed APK: `packages/openchs-android/android/app/build/outputs/apk/tanuh/release/app-tanuh-release.apk`
+
+Verify the bundled registry targets ONNX before distributing:
+
+```bash
+unzip -p .../app-tanuh-release.apk assets/models/registry.json \
+  | python3 -c "import json,sys; d=json.load(sys.stdin); print({k: v['override'].get('engine') for k,v in d['models'].items()})"
+# expect every key → 'onnx'
 ```
 
 ### Inference methodology

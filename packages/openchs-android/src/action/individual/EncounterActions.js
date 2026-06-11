@@ -223,6 +223,7 @@ const individualEncounterViewActionsMap = new Map([
     [individualEncounterViewActions.ON_TIMED_FORM, TimerActions.onTimedForm],
     [individualEncounterViewActions.ON_START_TIMER, TimerActions.onStartTimer],
     [EDGE_MODEL_ACTION.INFERENCE_RESULT_AVAILABLE, ObservationsHolderActions.onInferenceResultAvailable],
+    [EDGE_MODEL_ACTION.INFERENCE_RESULTS_BATCH, ObservationsHolderActions.onInferenceResultsBatch],
 ]);
 
 export {
