@@ -225,6 +225,42 @@ unzip -p .../app-tanuh-release.apk assets/models/registry.json \
 # expect every key → 'onnx'
 ```
 
+### Universal APK / AAB (ensemble)
+
+`tanuh-ensemble-apk` above produces a per-arch APK. For a **single installable APK that runs on any
+device ABI** (the artefact you hand to the programme team), or a Play-Store **AAB**, use the bundle
+pipeline. Both build the **ensemble** — `tanuh-aab` encrypts the 3 folds before bundling, so the
+universal APK can never accidentally ship the retired single model.
+
+```bash
+# Signed universal APK (builds the ensemble AAB, then derives the universal APK via bundletool):
+TANUH_ENSEMBLE_SRC_DIR=<your staging dir> make tanuh-universal-apk
+#   alias: make tanuh-ensemble-universal-apk
+
+# Just the signed Play-Store AAB:
+TANUH_ENSEMBLE_SRC_DIR=<your staging dir> make tanuh-aab
+#   alias: make tanuh-ensemble-aab
+```
+
+Outputs:
+- AAB: `packages/openchs-android/android/app/build/outputs/bundle/tanuhRelease/app-tanuh-release.aab`
+- Universal: `tanuh-universal.apks` (a zip) — extract the installable APK:
+  ```bash
+  unzip -p tanuh-universal.apks universal.apk > tanuh-universal.apk
+  ```
+
+Optional version stamping: prepend `versionCode=N versionName=X` to the make command (see the
+`versionCode`/`versionName` note in the makefile). Bundletool is auto-downloaded on first use.
+
+Verify the **AAB** registry targets ONNX (note the `base/` asset prefix inside an AAB, vs `assets/`
+in a plain APK):
+
+```bash
+unzip -p .../app-tanuh-release.aab base/assets/models/registry.json \
+  | python3 -c "import json,sys; d=json.load(sys.stdin); print({k: v['override'].get('engine') for k,v in d['models'].items()})"
+# expect every key → 'onnx'
+```
+
 ### Inference methodology
 
 **Soft-vote.** `runEnsembleInferenceOnImage(modelKeys, imagePath, opts)` runs each fold through the
