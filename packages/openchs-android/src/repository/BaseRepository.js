@@ -51,6 +51,10 @@ class BaseRepository {
         throw new Error("deleteInTransaction() not implemented");
     }
 
+    deleteAll() {
+        this.deleteInTransaction(this.findAll());
+    }
+
     objectForPrimaryKey(key) {
         throw new Error("objectForPrimaryKey() not implemented");
     }

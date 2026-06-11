@@ -76,6 +76,11 @@ class SqliteRepository extends BaseRepository {
         this.db.delete(objectOrObjects);
     }
 
+    // Full-table wipe without hydrating every row first
+    deleteAll() {
+        this.db.deleteAllInSchema(this.schemaName);
+    }
+
     objectForPrimaryKey(key) {
         return this.db.objectForPrimaryKey(this.schemaName, key);
     }

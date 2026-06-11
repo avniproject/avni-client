@@ -163,13 +163,21 @@ class BaseService {
     }
 
     clearDataIn(entityTypes) {
-        entityTypes.forEach((entityType) => {
-            General.logDebug("BaseService", `Deleting all data from ${entityType.schema.name}`);
-            const repo = this.getRepository(entityType.schema.name);
-            this.transactionManager.write(() => {
-                repo.deleteInTransaction(repo.findAll());
+        const repositoryFactory = this.context.getRepositoryFactory();
+        // Wipes are not FK-ordered (Realm nullified links on delete, so callers
+        // never had to care) — suspend enforcement for the duration of the wipe
+        const fkDisabled = repositoryFactory.setForeignKeysEnabled(false);
+        try {
+            entityTypes.forEach((entityType) => {
+                General.logDebug("BaseService", `Deleting all data from ${entityType.schema.name}`);
+                const repo = this.getRepository(entityType.schema.name);
+                this.transactionManager.write(() => {
+                    repo.deleteAll();
+                });
             });
-        });
+        } finally {
+            if (fkDisabled) repositoryFactory.setForeignKeysEnabled(true);
+        }
     }
 
     unVoided(item) {

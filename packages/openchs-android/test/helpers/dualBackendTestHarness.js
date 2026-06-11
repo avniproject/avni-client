@@ -49,11 +49,14 @@ export function createMockSqliteDb() {
         objects: jest.fn().mockReturnValue(resultProxy),
         create: jest.fn((schema, entity) => entity),
         delete: jest.fn(),
+        deleteAllInSchema: jest.fn(),
         write: jest.fn((fn) => fn()),
         objectForPrimaryKey: jest.fn(),
         isInTransaction: false,
         schemaVersion: 1,
         buildReferenceCache: jest.fn(),
+        _executeRaw: jest.fn(),
+        _executeQuery: jest.fn().mockReturnValue([]),
         _resultProxy: resultProxy,
     };
 }

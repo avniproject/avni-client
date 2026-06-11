@@ -100,8 +100,25 @@ describe.each(BACKENDS)('BaseService repository delegation [%s]', (backend) => {
             service.clearDataIn(entityTypes);
 
             expect(harness.mockDb.write).toHaveBeenCalledTimes(2);
-            expect(harness.mockDb.objects).toHaveBeenCalledWith('TypeA');
-            expect(harness.mockDb.objects).toHaveBeenCalledWith('TypeB');
+            if (backend === 'sqlite') {
+                expect(harness.mockDb.deleteAllInSchema).toHaveBeenCalledWith('TypeA');
+                expect(harness.mockDb.deleteAllInSchema).toHaveBeenCalledWith('TypeB');
+            } else {
+                expect(harness.mockDb.objects).toHaveBeenCalledWith('TypeA');
+                expect(harness.mockDb.objects).toHaveBeenCalledWith('TypeB');
+            }
+        });
+
+        it('clearDataIn() suspends and restores FK enforcement on sqlite', () => {
+            if (backend !== 'sqlite') return;
+
+            service.clearDataIn([{schema: {name: 'TypeA'}}]);
+
+            const pragmas = harness.mockDb._executeRaw.mock.calls.map(c => c[0]);
+            expect(pragmas).toContain('PRAGMA foreign_keys = OFF');
+            expect(pragmas).toContain('PRAGMA foreign_keys = ON');
+            expect(pragmas.indexOf('PRAGMA foreign_keys = OFF'))
+                .toBeLessThan(pragmas.indexOf('PRAGMA foreign_keys = ON'));
         });
     });
 });

@@ -88,6 +88,7 @@ function createMockRepository() {
         filtered: jest.fn().mockReturnValue([]),
         create: jest.fn((entity) => entity),
         deleteInTransaction: jest.fn(),
+        deleteAll: jest.fn(),
     };
 }
 
@@ -113,6 +114,7 @@ function createTestHarness() {
             if (!repositories[schema]) repositories[schema] = createMockRepository();
             return repositories[schema];
         }),
+        setForeignKeysEnabled: jest.fn().mockReturnValue(false),
         transactionManager: mockTransactionManager,
     };
 

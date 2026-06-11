@@ -230,8 +230,8 @@ class SyncComponent extends AbstractComponent {
                 ToastAndroid.show(this.I18n.t('backgroundSyncInProgress'), ToastAndroid.SHORT);
                 return;
             }
+            let syncSucceeded = false;
             try {
-                const onError = this._onError.bind(this);
                 this._preSync();
                 //sending connection info like this because this returns promise and not possible in the action
                 const connectionInfo = await getConnectionInfo();
@@ -244,11 +244,17 @@ class SyncComponent extends AbstractComponent {
                   this.state.startTime,
                   SyncService.syncSources.SYNC_BUTTON,
                   () => AsyncAlert('resetSyncTitle', 'resetSyncDetails', this.I18n)
-                )
-                .then(() => this._runMigrationIfNeeded())
-                .catch(onError);
+                );
+                syncSucceeded = true;
+            } catch (e) {
+                this._onError(e);
             } finally {
                 syncService.releaseLock(lockId);
+            }
+            // Outside the lock scope — the migration's own sync acquires the lock
+            // itself, which would deadlock against ours if run before release
+            if (syncSucceeded) {
+                await this._runMigrationIfNeeded();
             }
         } else {
             const ignoreBugsnag = true;

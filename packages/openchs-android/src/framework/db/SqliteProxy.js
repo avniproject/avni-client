@@ -540,6 +540,12 @@ class SqliteProxy {
         }
     }
 
+    deleteAllInSchema(schemaName) {
+        const tableMeta = this.tableMetaMap.get(schemaName);
+        if (!tableMeta) return; // embedded schemas have no table
+        this._executeRaw(`DELETE FROM ${tableMeta.tableName}`);
+    }
+
     objectForPrimaryKey(type, key) {
         const entityClass = this.entityMappingConfig.getEntityClass(type);
         const tableMeta = this.tableMetaMap.get(type);
