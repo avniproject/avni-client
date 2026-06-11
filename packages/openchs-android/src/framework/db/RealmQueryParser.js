@@ -398,7 +398,7 @@ class SqlGenerator {
         const parts = fieldPath.split(".");
         if (parts.length === 1) {
             // Simple field on root table - convert camelCase to snake_case for column name
-            return {column: `t0."${camelToSnake(parts[0])}"`, needsJoin: false};
+            return {column: `t0."${this._columnForProperty(this.rootSchemaName, parts[0])}"`, needsJoin: false};
         }
 
         // Dot-notation: resolve through schema relationships
@@ -470,7 +470,23 @@ class SqlGenerator {
         }
 
         const lastPart = parts[parts.length - 1];
-        return {column: `${currentAlias}."${camelToSnake(lastPart)}"`, needsJoin: true};
+        return {column: `${currentAlias}."${this._columnForProperty(currentSchema, lastPart)}"`, needsJoin: true};
+    }
+
+    /**
+     * Object-link properties are stored as "<prop>_uuid" FK columns (e.g.
+     * "programEnrolment = null" must hit program_enrolment_uuid). Embedded
+     * objects live in a JSON column under the plain name; everything else is
+     * a plain snake_case column.
+     */
+    _columnForProperty(schemaName, propName) {
+        const schema = this.schemaMap.get(schemaName);
+        const propSchema = schema?.properties?.[propName];
+        if (typeof propSchema === "object" && propSchema.type === "object" &&
+            !EMBEDDED_SCHEMA_NAMES.has(propSchema.objectType)) {
+            return `${camelToSnake(propName)}_uuid`;
+        }
+        return camelToSnake(propName);
     }
 
     /**
@@ -501,6 +517,11 @@ class SqlGenerator {
             // Convert Date to epoch ms for SQLite
             if (val instanceof Date) {
                 this.params.push(val.getTime());
+            } else if (!_.isNil(val) && typeof val === "object" && !_.isNil(val.uuid)) {
+                // Realm allows comparing a link property to an entity instance
+                // ("subjectType = $0" with a SubjectType object) — bind its PK,
+                // matching the _uuid FK column the field resolves to
+                this.params.push(val.uuid);
             } else {
                 this.params.push(val);
             }

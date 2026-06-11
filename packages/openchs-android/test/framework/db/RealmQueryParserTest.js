@@ -251,6 +251,75 @@ describe("RealmQueryParser", () => {
         });
     });
 
+    describe("object-link properties resolve to FK columns", () => {
+        const schemaMap = new Map();
+        schemaMap.set("IdentifierAssignment", {
+            name: "IdentifierAssignment",
+            primaryKey: "uuid",
+            properties: {
+                uuid: "string",
+                identifierSource: {type: "object", objectType: "IdentifierSource"},
+                identifier: "string",
+                individual: {type: "object", objectType: "Individual", optional: true},
+                programEnrolment: {type: "object", objectType: "ProgramEnrolment", optional: true},
+                voided: {type: "bool", default: false},
+                used: {type: "bool", default: false},
+            }
+        });
+        schemaMap.set("IdentifierSource", {
+            name: "IdentifierSource",
+            primaryKey: "uuid",
+            properties: {uuid: "string", name: "string"}
+        });
+
+        it("should resolve object property = null to the _uuid FK column", () => {
+            const result = RealmQueryParser.parse(
+                'voided = false AND individual = null AND programEnrolment = null and used = false',
+                [],
+                "IdentifierAssignment",
+                schemaMap
+            );
+            expect(result.unsupported).toBe(false);
+            expect(result.where).toContain('t0."individual_uuid" IS NULL');
+            expect(result.where).toContain('t0."program_enrolment_uuid" IS NULL');
+        });
+
+        it("should resolve object property at the end of a dot-path to the FK column", () => {
+            const result = RealmQueryParser.parse(
+                'identifierSource.uuid = $0 AND programEnrolment != null',
+                ["is-uuid"],
+                "IdentifierAssignment",
+                schemaMap
+            );
+            expect(result.unsupported).toBe(false);
+            expect(result.where).toContain('t0."program_enrolment_uuid" IS NOT NULL');
+        });
+
+        it("should leave scalar properties untouched without a schema", () => {
+            const result = RealmQueryParser.parse("programEnrolment = null");
+            expect(result.where).toBe('t0."program_enrolment" IS NULL');
+        });
+
+        it("should bind an entity instance parameter as its uuid", () => {
+            const subjectType = {uuid: "st-uuid", name: "Household"};
+            const result = RealmQueryParser.parse(
+                "individual = $0", [subjectType], "IdentifierAssignment", schemaMap);
+            expect(result.where).toBe('t0."individual_uuid" = ?');
+            expect(result.params).toEqual(["st-uuid"]);
+        });
+
+        it("should bind entity instances inside IN as uuids", () => {
+            const result = RealmQueryParser.parse(
+                "individual IN {$0, $1}",
+                [{uuid: "i1"}, {uuid: "i2"}],
+                "IdentifierAssignment",
+                schemaMap
+            );
+            expect(result.where).toBe('t0."individual_uuid" IN (?, ?)');
+            expect(result.params).toEqual(["i1", "i2"]);
+        });
+    });
+
     describe("camelCase to snake_case", () => {
         it("should convert simple camelCase", () => {
             const result = RealmQueryParser.parse("encounterDateTime = null");
