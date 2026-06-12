@@ -1,5 +1,7 @@
 import FormMappingService from "../../service/FormMappingService";
 import ObservationsHolderActions from '../common/ObservationsHolderActions';
+import {EDGE_MODEL_ACTION} from '../../service/EdgeModelService';
+import {RULE_SERVICE_ACTION} from '../../service/RuleService';
 import ProgramEncounterService from "../../service/program/ProgramEncounterService";
 import _ from 'lodash';
 import ProgramEncounterCancelState from "./ProgramEncounterCancelState";
@@ -150,6 +152,9 @@ const ProgramEncounterCancelActionsMap = new Map([
     [ProgramEncounterCancelActionsNames.REPEATABLE_GROUP_QUESTION_VALUE_CHANGE, ObservationsHolderActions.onRepeatableGroupQuestionChange],
     [ProgramEncounterCancelActionsNames.ON_SUCCESS_OTP_VERIFICATION, PhoneNumberVerificationActions.onSuccessVerification],
     [ProgramEncounterCancelActionsNames.ON_SKIP_VERIFICATION, PhoneNumberVerificationActions.onSkipVerification],
+    [EDGE_MODEL_ACTION.INFERENCE_RESULT_AVAILABLE, ObservationsHolderActions.onInferenceResultAvailable],
+    [EDGE_MODEL_ACTION.INFERENCE_RESULTS_BATCH, ObservationsHolderActions.onObservationWriteBatch],
+    [RULE_SERVICE_ACTION.OBSERVATION_WRITE_BATCH, ObservationsHolderActions.onObservationWriteBatch],
 ]);
 
 export {

@@ -5,6 +5,8 @@ import {SubjectProgramEligibility} from 'avni-models';
 import _ from 'lodash';
 import SubjectProgramEligibilityState from "../../state/SubjectProgramEligibilityState";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
+import {EDGE_MODEL_ACTION} from "../../service/EdgeModelService";
+import {RULE_SERVICE_ACTION} from "../../service/RuleService";
 
 class ManualProgramEligibilityActions {
 
@@ -89,6 +91,9 @@ const ManualProgramEligibilityActionMap = new Map([
     [ManualProgramEligibilityActionNames.PHONE_NUMBER_CHANGE, ObservationsHolderActions.onPhoneNumberChange],
     [ManualProgramEligibilityActionNames.GROUP_QUESTION_VALUE_CHANGE, ObservationsHolderActions.onGroupQuestionChange],
     [ManualProgramEligibilityActionNames.REPEATABLE_GROUP_QUESTION_VALUE_CHANGE, ObservationsHolderActions.onRepeatableGroupQuestionChange],
+    [EDGE_MODEL_ACTION.INFERENCE_RESULT_AVAILABLE, ObservationsHolderActions.onInferenceResultAvailable],
+    [EDGE_MODEL_ACTION.INFERENCE_RESULTS_BATCH, ObservationsHolderActions.onObservationWriteBatch],
+    [RULE_SERVICE_ACTION.OBSERVATION_WRITE_BATCH, ObservationsHolderActions.onObservationWriteBatch],
 ]);
 
 export {

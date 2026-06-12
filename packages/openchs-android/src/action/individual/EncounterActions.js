@@ -17,6 +17,7 @@ import DraftEncounterService from '../../service/draft/DraftEncounterService';
 import DraftConfigService from "../../service/DraftConfigService";
 import {dispatchHandleNext} from "../common/DispatchHelpers";
 import {EDGE_MODEL_ACTION} from "../../service/EdgeModelService";
+import {RULE_SERVICE_ACTION} from "../../service/RuleService";
 
 function getPreviousEncounter(action, form, context) {
     const previousEncounter = action.encounter.individual.findLastEncounterOfType(action.encounter, [action.encounter.encounterType.name]);
@@ -223,7 +224,8 @@ const individualEncounterViewActionsMap = new Map([
     [individualEncounterViewActions.ON_TIMED_FORM, TimerActions.onTimedForm],
     [individualEncounterViewActions.ON_START_TIMER, TimerActions.onStartTimer],
     [EDGE_MODEL_ACTION.INFERENCE_RESULT_AVAILABLE, ObservationsHolderActions.onInferenceResultAvailable],
-    [EDGE_MODEL_ACTION.INFERENCE_RESULTS_BATCH, ObservationsHolderActions.onInferenceResultsBatch],
+    [EDGE_MODEL_ACTION.INFERENCE_RESULTS_BATCH, ObservationsHolderActions.onObservationWriteBatch],
+    [RULE_SERVICE_ACTION.OBSERVATION_WRITE_BATCH, ObservationsHolderActions.onObservationWriteBatch],
 ]);
 
 export {

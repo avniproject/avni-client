@@ -1,5 +1,5 @@
 /**
- * Focused unit tests for ObservationsHolderActions.onInferenceResultsBatch — the handler for
+ * Focused unit tests for ObservationsHolderActions.onObservationWriteBatch — the handler for
  * EDGE_MODEL.INFERENCE_RESULTS_BATCH. The invariant that matters for performance: a burst of N
  * inference results applies N writes but re-evaluates the form exactly ONCE (not N times).
  * The actual obs-write internals are exercised by the integration tests; here we spy on the
@@ -7,7 +7,7 @@
  */
 import ObservationsHolderActions from "../../src/action/common/ObservationsHolderActions";
 
-describe('ObservationsHolderActions.onInferenceResultsBatch', () => {
+describe('ObservationsHolderActions.onObservationWriteBatch', () => {
     const makeState = () => {
         const newState = {formElementGroup: {}, observationsHolder: {}};
         return {
@@ -30,7 +30,7 @@ describe('ObservationsHolderActions.onInferenceResultsBatch', () => {
             {questionGroupConceptName: 'G', conceptName: 'V', questionGroupIndex: 1, value: 'Non-Suspicious'},
             {conceptName: 'Top', value: 'X'},
         ];
-        const result = ObservationsHolderActions.onInferenceResultsBatch(state, {results}, {});
+        const result = ObservationsHolderActions.onObservationWriteBatch(state, {results}, {});
 
         expect(applySpy).toHaveBeenCalledTimes(3);
         // each write targets the cloned state and carries its own result
@@ -43,7 +43,7 @@ describe('ObservationsHolderActions.onInferenceResultsBatch', () => {
     it('returns the original state and does not re-evaluate when results is empty', () => {
         const state = makeState();
         const reevalSpy = jest.spyOn(ObservationsHolderActions, '_getFormElementStatuses').mockImplementation(() => {});
-        expect(ObservationsHolderActions.onInferenceResultsBatch(state, {results: []}, {})).toBe(state);
+        expect(ObservationsHolderActions.onObservationWriteBatch(state, {results: []}, {})).toBe(state);
         expect(reevalSpy).not.toHaveBeenCalled();
         expect(state.clone).not.toHaveBeenCalled();
     });
@@ -52,7 +52,7 @@ describe('ObservationsHolderActions.onInferenceResultsBatch', () => {
         const state = makeState();
         jest.spyOn(ObservationsHolderActions, '_applyInferenceWrite').mockReturnValue(false);
         const reevalSpy = jest.spyOn(ObservationsHolderActions, '_getFormElementStatuses').mockImplementation(() => {});
-        const result = ObservationsHolderActions.onInferenceResultsBatch(state, {results: [{conceptName: 'X', value: 'Y'}]}, {});
+        const result = ObservationsHolderActions.onObservationWriteBatch(state, {results: [{conceptName: 'X', value: 'Y'}]}, {});
         expect(reevalSpy).not.toHaveBeenCalled();
         expect(result).toBe(state);
     });
@@ -60,7 +60,7 @@ describe('ObservationsHolderActions.onInferenceResultsBatch', () => {
     it('bails when no form is open (no formElementGroup)', () => {
         const reevalSpy = jest.spyOn(ObservationsHolderActions, '_getFormElementStatuses').mockImplementation(() => {});
         const state = {observationsHolder: {}};
-        expect(ObservationsHolderActions.onInferenceResultsBatch(state, {results: [{conceptName: 'X', value: 'Y'}]}, {})).toBe(state);
+        expect(ObservationsHolderActions.onObservationWriteBatch(state, {results: [{conceptName: 'X', value: 'Y'}]}, {})).toBe(state);
         expect(reevalSpy).not.toHaveBeenCalled();
     });
 });

@@ -142,13 +142,14 @@ class ObservationsHolderActions {
     }
 
     /**
-     * Handler for EDGE_MODEL.INFERENCE_RESULTS_BATCH — a burst of inference results coalesced
-     * by EdgeModelService. Applies every write first, then re-runs the form-element rules
-     * ONCE, instead of once per result. The writes are independent (each targets its own
-     * concept / RQG row) so the single trailing re-eval sees them all. Results whose target
+     * Handler for a coalesced burst of observation writes — EDGE_MODEL.INFERENCE_RESULTS_BATCH
+     * (verdicts from EdgeModelService) and RULE_SERVICE.OBSERVATION_WRITE_BATCH (direct group
+     * copies from RuleService) both route here. Applies every write first, then re-runs the
+     * form-element rules ONCE, instead of once per result. The writes are independent (each targets
+     * its own concept / RQG row) so the single trailing re-eval sees them all. Results whose target
      * isn't on the current page are skipped, exactly as the per-result handler does.
      */
-    static onInferenceResultsBatch(state, action, context) {
+    static onObservationWriteBatch(state, action, context) {
         if (!state || !state.formElementGroup || !state.observationsHolder) return state;
         if (_.isEmpty(action.results)) return state;
         const newState = state.clone();
@@ -217,12 +218,17 @@ class ObservationsHolderActions {
             value = answer && answer.concept ? answer.concept.uuid : null;
             if (value == null) {
                 General.logError('ObservationsHolderActions',
-                    `onInferenceResult SKIP: no coded answer '${result.value}' on concept '${childConcept.name}'`);
+                    `onWrite SKIP: no coded answer '${result.value}' on concept '${childConcept.name}'`);
                 return false;
             }
-            // updateRepeatableGroupQuestion toggles coded answers, so re-writing the same answer
-            // (e.g. a retake that re-confirms the verdict) would clear it. Drop any existing
-            // child obs first so the answer is always set fresh — parity with addOrUpdateCodedObs.
+        } else if (childConcept.isMediaConcept() && value == null) {
+            return false;
+        }
+        // Coded answers and media URIs are both stored single-select, so updateRepeatableGroupQuestion
+        // TOGGLES — re-writing the same answer/URI (e.g. a retake re-confirming a verdict, or a rule
+        // re-emitting an image) would clear it. Drop any existing child obs first so the value is
+        // always set fresh (parity with addOrUpdateCodedObs).
+        if (childConcept.isCodedConcept() || childConcept.isMediaConcept()) {
             rqg.getGroupObservationAtIndex(result.questionGroupIndex).removeExistingObs(childConcept);
         }
         newState.observationsHolder.updateRepeatableGroupQuestion(

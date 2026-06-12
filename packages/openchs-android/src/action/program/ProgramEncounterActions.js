@@ -18,6 +18,7 @@ import DraftProgramEncounterService from "../../service/draft/DraftProgramEncoun
 import DraftConfigService from "../../service/DraftConfigService";
 import {dispatchHandleNext} from "../common/DispatchHelpers";
 import {EDGE_MODEL_ACTION} from "../../service/EdgeModelService";
+import {RULE_SERVICE_ACTION} from "../../service/RuleService";
 
 class ProgramEncounterActions {
     static getInitialState() {
@@ -259,7 +260,8 @@ const ProgramEncounterActionsMap = new Map([
     [ProgramEncounterActionsNames.ON_TIMED_FORM, TimerActions.onTimedForm],
     [ProgramEncounterActionsNames.ON_START_TIMER, TimerActions.onStartTimer],
     [EDGE_MODEL_ACTION.INFERENCE_RESULT_AVAILABLE, ObservationsHolderActions.onInferenceResultAvailable],
-    [EDGE_MODEL_ACTION.INFERENCE_RESULTS_BATCH, ObservationsHolderActions.onInferenceResultsBatch],
+    [EDGE_MODEL_ACTION.INFERENCE_RESULTS_BATCH, ObservationsHolderActions.onObservationWriteBatch],
+    [RULE_SERVICE_ACTION.OBSERVATION_WRITE_BATCH, ObservationsHolderActions.onObservationWriteBatch],
 ]);
 
 export {
