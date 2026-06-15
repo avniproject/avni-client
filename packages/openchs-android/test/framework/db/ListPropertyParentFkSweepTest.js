@@ -40,6 +40,13 @@ const ROLE_CONFUSED_LIST_PROPS = new Set([
     'Concept.answers', // ConceptAnswer.concept = the answer option, not the question
 ]);
 
+// Legacy list properties with no live sync path that populates them, so they are
+// intentionally left unresolved (no storage column, no override). Family is a
+// deprecated shim — nothing in EntityMetaData associates members to it.
+const LEGACY_UNSYNCED_LIST_PROPS = new Set([
+    'Family.members',
+]);
+
 describe('list-property parent back-reference sweep over real schemas (#1955)', () => {
     it('every child-table list property resolves an unambiguous parent FK', () => {
         const emc = EntityMappingConfig.getInstance();
@@ -55,6 +62,9 @@ describe('list-property parent back-reference sweep over real schemas (#1955)', 
 
                 // An explicit override names the back-reference column → resolvable.
                 if (EXPLICIT_LIST_FK_OVERRIDES[key]) continue;
+
+                // Legacy/unsynced — intentionally unresolved.
+                if (LEGACY_UNSYNCED_LIST_PROPS.has(key)) continue;
 
                 const child = schemaByName.get(childName);
                 if (!child) {

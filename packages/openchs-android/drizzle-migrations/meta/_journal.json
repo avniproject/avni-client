@@ -29,6 +29,13 @@
       "when": 1780487227995,
       "tag": "0003_models_1_33_37_to_1_33_65_field_additions",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1781520165648,
+      "tag": "0004_json_array_list_columns",
+      "breakpoints": true
     }
   ]
 }

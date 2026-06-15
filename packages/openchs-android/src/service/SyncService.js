@@ -47,6 +47,7 @@ import LocalCacheService from "./LocalCacheService";
 import DeviceInfo from "react-native-device-info";
 import {pruneConceptMedia} from "../task/PruneMedia";
 import FileSystem from "../model/FileSystem";
+import {JSON_UUID_ARRAY_LIST_PROPERTIES} from "../framework/db/SchemaGenerator";
 
 function transformResourceToEntity(entityMetaData, entityResources) {
     return (acc, resource) => {
@@ -492,6 +493,13 @@ class SyncService extends BaseService {
         return _.values(_.groupBy(parentEntities, 'uuid')).map(entities => entityMetaData.parent.entityClass.mergeMultipleParents(entityMetaData.entityClass.schema.name, entities));
     }
 
+    _parentStoresChildAsJsonArray(entityMetaData) {
+        const parentSchema = entityMetaData.parent.schemaName;
+        const childSchema = entityMetaData.schemaName;
+        return _.some(JSON_UUID_ARRAY_LIST_PROPERTIES, (childType, key) =>
+            childType === childSchema && key.startsWith(`${parentSchema}.`));
+    }
+
     async persistAll(entityMetaData, entityResources) {
         if (_.isEmpty(entityResources)) return;
         entityResources = _.sortBy(entityResources, 'lastModifiedDateTime');
@@ -530,11 +538,21 @@ class SyncService extends BaseService {
     }
 
     // Batch path: uses executeBatch for main entities.
-    // Skips parent association — in SQLite, parent-child relationships are expressed via FK
-    // columns (e.g., program_enrolment_uuid on program_encounter), so updating the parent
-    // entity is unnecessary. In Realm, associateParent updates in-memory live objects.
+    // Parent association is skipped for FK-on-child relationships (e.g.
+    // program_encounter.program_enrolment_uuid) — the child row carries the link.
+    // But a JSON-array list property stores the relationship ON the parent row
+    // (e.g. concept.answers), so for those the parent must be re-saved to populate
+    // it. bulkCreate's COALESCE upsert updates only the present columns, so the
+    // partial {uuid, <listProp>} parent leaves the parent's other fields intact.
     async _persistAllBatch(entityMetaData, entityResources, entities, loadedSince) {
         await this.db.bulkCreate(entityMetaData.schemaName, entities);
+
+        if (!_.isEmpty(entityMetaData.parent) && this._parentStoresChildAsJsonArray(entityMetaData)) {
+            const mergedParents = entityMetaData.hasMoreThanOneAssociation
+                ? this.associateMultipleParents(entityResources, entities, entityMetaData)
+                : this.associateParent(entityResources, entities, entityMetaData);
+            await this.db.bulkCreate(entityMetaData.parent.schemaName, mergedParents);
+        }
 
         // Update sync status (1 row)
         const currentEntitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName, entityMetaData.syncStatus.entityTypeUuid);

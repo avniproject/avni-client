@@ -58,6 +58,18 @@ const ADDITIONAL_INDEXES = {
     program_enrolment: ["enrolment_date_time"],
 };
 
+// Keep in sync with JSON_UUID_ARRAY_LIST_PROPERTIES in SchemaGenerator.js.
+// List properties stored as a JSON-array TEXT column on the parent row
+// instead of via a child table.
+const JSON_UUID_ARRAY_LIST_PROPERTIES = new Set([
+    "Concept.answers",
+    "ReportCard.standardReportCardInputSubjectTypes",
+    "ReportCard.standardReportCardInputPrograms",
+    "ReportCard.standardReportCardInputEncounterTypes",
+    "TaskType.metadataSearchFields",
+    "AttendanceRecord.reasonConceptUUIDs",
+]);
+
 function realmTypeToSql(realmType) {
     switch (realmType) {
         case "string": return "TEXT";
@@ -114,7 +126,11 @@ function buildDrizzleTables() {
                     fkTargetTable = schemaNameToTableName(propDef.objectType);
                 }
             } else if (propDef.type === "list") {
-                if (EMBEDDED_SCHEMA_NAMES.has(propDef.objectType)) {
+                if (JSON_UUID_ARRAY_LIST_PROPERTIES.has(`${schema.name}.${propName}`)) {
+                    colName = camelToSnake(propName);
+                    sqlType = "TEXT";
+                    defaultVal = "[]";
+                } else if (EMBEDDED_SCHEMA_NAMES.has(propDef.objectType)) {
                     colName = camelToSnake(propName);
                     sqlType = "TEXT";
                     defaultVal = "[]";

@@ -97,20 +97,6 @@ const CASES = [
         },
     },
     {
-        name: 'Family.members — no FK back to Family',
-        parentSchema: 'Family',
-        getList: (e) => e.members,
-        expected: 1,
-        setup: () => {
-            const f = 'lp-fam-1', m = 'lp-mem-1';
-            save([
-                ['Individual', {uuid: m, firstName: 'Member', voided: false}],
-                ['Family', {uuid: f, voided: false, members: [{uuid: m}]}],
-            ]);
-            return f;
-        },
-    },
-    {
         name: 'AttendanceRecord.reasonConceptUUIDs — primitive string[] list',
         parentSchema: 'AttendanceRecord',
         getList: (e) => e.reasonConceptUUIDs,
@@ -149,5 +135,28 @@ describe('parent→child list round-trip via SqliteProxy (#1955)', () => {
         expect(reloaded).toBeTruthy();
         const list = testCase.getList(reloaded) || [];
         expect(list.length).toBe(testCase.expected);
+    });
+
+    // ConceptAnswer is synced as its own entity; the parent Concept's answers
+    // column is populated only when the parent is re-saved during sync association
+    // (Concept.associateChild), as a partial {uuid, answers} upsert. This mirrors
+    // that write order — concept saved first WITHOUT answers, then the partial
+    // parent re-save — to guard against the parent association being skipped.
+    it('populates Concept.answers via a partial parent re-save without clobbering other columns', async () => {
+        const q = 'sync-concept-q', a1 = 'sync-ans-1';
+        await proxy.bulkCreate('Concept', [
+            {uuid: q, name: 'Coded Q', datatype: 'Coded', voided: false},
+            {uuid: a1, name: 'Yes', datatype: 'NA', voided: false},
+        ]);
+        await proxy.bulkCreate('ConceptAnswer', [
+            {uuid: 'sync-ca-1', concept: {uuid: a1}, answerOrder: 1, abnormal: false, unique: false, voided: false},
+        ]);
+        // The association write: partial parent, only uuid + answers present.
+        await proxy.bulkCreate('Concept', [{uuid: q, answers: [{uuid: 'sync-ca-1'}]}]);
+
+        const reloaded = proxy.objectForPrimaryKey('Concept', q);
+        expect(reloaded.datatype).toBe('Coded');      // COALESCE upsert preserved it
+        expect(reloaded.name).toBe('Coded Q');
+        expect(reloaded.getAnswers().length).toBe(1); // answers populated
     });
 });

@@ -25,6 +25,20 @@ const EMBEDDED_SCHEMA_NAMES = new Set([
     "NestedReportCardResult",
 ]);
 
+// List properties stored as a JSON array on the PARENT row instead of via a
+// child table. Used for many-to-many references to shared/standalone entities
+// (no place for a parent FK on the child) and for primitive scalar lists.
+// Value = the child schema each UUID resolves to on hydrate, or null for a
+// scalar (string) array stored verbatim. Keep in sync with DrizzleSchemaExport.
+const JSON_UUID_ARRAY_LIST_PROPERTIES = {
+    'Concept.answers': 'ConceptAnswer',
+    'ReportCard.standardReportCardInputSubjectTypes': 'SubjectType',
+    'ReportCard.standardReportCardInputPrograms': 'Program',
+    'ReportCard.standardReportCardInputEncounterTypes': 'EncounterType',
+    'TaskType.metadataSearchFields': 'Concept',
+    'AttendanceRecord.reasonConceptUUIDs': null,
+};
+
 // Tables → columns that need an explicit index beyond the auto-generated
 // FK + voided indexes. Used for hierarchy traversal (parent_uuid, type_uuid
 // on address_level / location_hierarchy — declared as plain string columns,
@@ -50,12 +64,13 @@ class ColumnDef {
 }
 
 class TableMeta {
-    constructor(schemaName, tableName, columns, listProperties, embeddedProperties) {
+    constructor(schemaName, tableName, columns, listProperties, embeddedProperties, jsonArrayProperties) {
         this.schemaName = schemaName;
         this.tableName = tableName;
         this.columns = columns;
         this.listProperties = listProperties;
         this.embeddedProperties = embeddedProperties;
+        this.jsonArrayProperties = jsonArrayProperties || {};
         this.primaryKey = columns.find(c => c.isPrimaryKey)?.name || null;
     }
 
@@ -98,10 +113,21 @@ class SchemaGenerator {
         const columns = [];
         const listProperties = {};
         const embeddedProperties = {};
+        const jsonArrayProperties = {};
         const properties = schema.properties || {};
 
         Object.keys(properties).forEach(propName => {
             const propDef = properties[propName];
+
+            // JSON-array lists are stored as a single TEXT column on this row,
+            // not via a child table — bypass the normal list handling.
+            const jsonArrayKey = `${schema.name}.${propName}`;
+            if (Object.prototype.hasOwnProperty.call(JSON_UUID_ARRAY_LIST_PROPERTIES, jsonArrayKey)) {
+                jsonArrayProperties[propName] = JSON_UUID_ARRAY_LIST_PROPERTIES[jsonArrayKey];
+                columns.push(new ColumnDef(camelToSnake(propName), "TEXT", false, true, "[]"));
+                return;
+            }
+
             const parsed = SchemaGenerator.parseProperty(propName, propDef, schema.primaryKey, schemaPKMap);
 
             if (parsed.skip) {
@@ -118,7 +144,7 @@ class SchemaGenerator {
             columns.push(parsed.column);
         });
 
-        return new TableMeta(schema.name, tableName, columns, listProperties, embeddedProperties);
+        return new TableMeta(schema.name, tableName, columns, listProperties, embeddedProperties, jsonArrayProperties);
     }
 
     static parseProperty(propName, propDef, primaryKeyName, schemaPKMap) {
@@ -275,5 +301,5 @@ function realmTypeToSql(realmType) {
     }
 }
 
-export {SchemaGenerator, TableMeta, ColumnDef, EMBEDDED_SCHEMA_NAMES, realmTypeToSql};
+export {SchemaGenerator, TableMeta, ColumnDef, EMBEDDED_SCHEMA_NAMES, JSON_UUID_ARRAY_LIST_PROPERTIES, realmTypeToSql};
 export default SchemaGenerator;

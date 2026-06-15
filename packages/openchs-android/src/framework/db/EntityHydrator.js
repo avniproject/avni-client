@@ -11,7 +11,7 @@
 
 import _ from "lodash";
 import {Individual} from "openchs-models";
-import {EMBEDDED_SCHEMA_NAMES} from "./SchemaGenerator";
+import {EMBEDDED_SCHEMA_NAMES, JSON_UUID_ARRAY_LIST_PROPERTIES} from "./SchemaGenerator";
 import {camelToSnake, schemaNameToTableName, normalizeRealmType} from "./SqliteUtils";
 import General from "../../utility/General";
 
@@ -177,15 +177,27 @@ class EntityHydrator {
                         result[propName] = this.resolveReference(objectType, fkValue, depth - 1);
                     }
                 }
-            } else if (resolvedType === "list" && objectType) {
-                if (EMBEDDED_SCHEMA_NAMES.has(objectType)) {
+            } else if (resolvedType === "list") {
+                const jsonArrayKey = `${schemaName}.${propName}`;
+                if (Object.prototype.hasOwnProperty.call(JSON_UUID_ARRAY_LIST_PROPERTIES, jsonArrayKey)) {
+                    // JSON array of child UUIDs (or raw scalars) stored on this row.
+                    const childType = JSON_UUID_ARRAY_LIST_PROPERTIES[jsonArrayKey];
+                    const parsed = parseJsonSafe(row[snakeName]) || [];
+                    if (!childType) {
+                        result[propName] = parsed; // scalar array stored verbatim
+                    } else if (depth > 0) {
+                        result[propName] = parsed.map(uuid => this.resolveReference(childType, uuid, depth - 1));
+                    } else {
+                        result[propName] = parsed.map(uuid => this._resolveCachedReference(childType, uuid));
+                    }
+                } else if (objectType && EMBEDDED_SCHEMA_NAMES.has(objectType)) {
                     // Embedded list stored as JSON — resolve eagerly (no DB query)
                     const jsonVal = row[snakeName];
                     const _jt1 = this._profileCounters ? Date.now() : 0;
                     const parsed = parseJsonSafe(jsonVal) || [];
                     if (this._profileCounters) { this._profileCounters.jsonParseCalls++; this._profileCounters.jsonParseMs += Date.now() - _jt1; }
                     result[propName] = parsed.map(item => item != null ? this._hydrateEmbedded(item, objectType) : null);
-                } else if (!skipLists && depth > 0) {
+                } else if (objectType && !skipLists && depth > 0) {
                     // Referenced list — query child table
                     result[propName] = this.resolveList(schemaName, propName, objectType, row.uuid, depth - 1);
                 } else {
@@ -766,7 +778,17 @@ class EntityHydrator {
                     result[fkColName] = (fkUuid && DUMMY_UUIDS.has(fkUuid)) ? null : fkUuid;
                 }
             } else if (resolvedType === "list" && objectType) {
-                if (EMBEDDED_SCHEMA_NAMES.has(objectType)) {
+                const jsonArrayKey = `${schemaName}.${propName}`;
+                if (Object.prototype.hasOwnProperty.call(JSON_UUID_ARRAY_LIST_PROPERTIES, jsonArrayKey)) {
+                    // JSON array of child UUIDs (or raw scalars) on this row.
+                    const childType = JSON_UUID_ARRAY_LIST_PROPERTIES[jsonArrayKey];
+                    const list = data[propName];
+                    const arr = Array.isArray(list) ? list : (list && list.realmList ? Array.from(list) : []);
+                    const values = childType
+                        ? arr.map(item => (item && item.uuid) ? item.uuid : (typeof item === "string" ? item : null)).filter(v => v != null)
+                        : arr.map(v => (v && v.uuid) ? v.uuid : v);
+                    result[camelToSnake(propName)] = JSON.stringify(values);
+                } else if (EMBEDDED_SCHEMA_NAMES.has(objectType)) {
                     // Embedded list -> JSON array (schema-aware to avoid cycles)
                     const list = data[propName];
                     if (list) {
@@ -776,7 +798,7 @@ class EntityHydrator {
                         result[camelToSnake(propName)] = "[]";
                     }
                 }
-                // Referenced lists are skipped — FK is on child table
+                // Other referenced lists are skipped — FK is on child table
             } else {
                 // Scalar
                 const value = data[propName];
