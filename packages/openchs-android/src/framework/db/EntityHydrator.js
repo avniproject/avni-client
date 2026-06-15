@@ -58,6 +58,13 @@ export const EXPLICIT_LIST_FK_OVERRIDES = {
     'Individual.relationships': 'individual_a_uuid',
     'Individual.groupSubjects': 'group_subject_uuid',
     'Individual.groups': 'member_subject_uuid',
+    // EntityApprovalStatus links back via a generic entity_uuid (no typed FK);
+    // the parent uuid is globally unique, so it disambiguates across all owners.
+    'Individual.approvalStatuses': 'entity_uuid',
+    'ProgramEnrolment.approvalStatuses': 'entity_uuid',
+    'ProgramEncounter.approvalStatuses': 'entity_uuid',
+    'Encounter.approvalStatuses': 'entity_uuid',
+    'ChecklistItem.approvalStatuses': 'entity_uuid',
 };
 
 class EntityHydrator {
