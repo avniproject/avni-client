@@ -280,7 +280,10 @@ class IndividualProfile extends AbstractComponent {
     }
 
     renderSubjectLocationIcon() {
-        const hasLocation = this.props.individual.subjectLocation != null;
+        // Prefer the freshly re-read subject saved into state after a location
+        // capture — the prop is a stale SQLite snapshot post-save.
+        const individual = _.get(this.state, 'individual') || this.props.individual;
+        const hasLocation = individual.subjectLocation != null;
 
         return (
             <TouchableOpacity 

@@ -23,7 +23,7 @@ class NewsActions {
         newsService.saveOrUpdate(readNews);
         newState.news = newsService.getAllOrderedNews();
         cb();
-        return state;
+        return newState;
     }
 }
 
