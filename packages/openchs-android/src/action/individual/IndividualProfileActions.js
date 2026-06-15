@@ -90,9 +90,7 @@ export class IndividualProfileActions {
             individual.subjectLocation = action.subjectLocation;
             const individualService = context.get(IndividualService);
             individualService.updateSubjectLocation(individual);
-            // Re-read so the icon reflects the persisted location: under SQLite the
-            // prop individual is a detached snapshot that the write doesn't update
-            // (unlike a live Realm object).
+            // Re-read: under SQLite the prop is a detached snapshot the write won't update.
             newState.individual = individualService.findByUUID(individual.uuid);
             return newState;
         } catch (error) {

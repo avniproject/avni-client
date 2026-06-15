@@ -280,8 +280,7 @@ class IndividualProfile extends AbstractComponent {
     }
 
     renderSubjectLocationIcon() {
-        // Prefer the freshly re-read subject saved into state after a location
-        // capture — the prop is a stale SQLite snapshot post-save.
+        // state holds the re-read subject after a location save; prop is stale under SQLite.
         const individual = _.get(this.state, 'individual') || this.props.individual;
         const hasLocation = individual.subjectLocation != null;
 

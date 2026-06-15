@@ -497,10 +497,6 @@ class SyncService extends BaseService {
         return !_.isNil(jsonArrayListPropFor(entityMetaData.parent.schemaName, entityMetaData.schemaName));
     }
 
-    // The reference cache (built before the pull) backs associateChild's parent
-    // lookups; bulkCreate doesn't touch it. Mutate each written parent's cached
-    // list so the next page accumulates onto the just-written answers instead of a
-    // stale snapshot. Skipped for parents not in the cache (read fresh from DB).
     _refreshParentCacheForJsonArray(entityMetaData, mergedParents) {
         if (typeof this.db.getCachedEntity !== 'function') return;
         const parentSchema = entityMetaData.parent.schemaName;
@@ -552,13 +548,8 @@ class SyncService extends BaseService {
         });
     }
 
-    // Batch path: uses executeBatch for main entities.
-    // Parent association is skipped for FK-on-child relationships (e.g.
-    // program_encounter.program_enrolment_uuid) — the child row carries the link.
-    // But a JSON-array list property stores the relationship ON the parent row
-    // (e.g. concept.answers), so for those the parent must be re-saved to populate
-    // it. bulkCreate's COALESCE upsert updates only the present columns, so the
-    // partial {uuid, <listProp>} parent leaves the parent's other fields intact.
+    // FK-on-child relationships need no parent re-save, but JSON-array lists store
+    // the link on the parent row (e.g. concept.answers), so re-save those parents.
     async _persistAllBatch(entityMetaData, entityResources, entities, loadedSince) {
         await this.db.bulkCreate(entityMetaData.schemaName, entities);
 
@@ -567,9 +558,7 @@ class SyncService extends BaseService {
                 ? this.associateMultipleParents(entityResources, entities, entityMetaData)
                 : this.associateParent(entityResources, entities, entityMetaData);
             await this.db.bulkCreate(entityMetaData.parent.schemaName, mergedParents);
-            // bulkCreate writes the DB but not the in-memory reference cache that
-            // associateChild reads via findByKey. Without this, a later page reads a
-            // stale parent and its COALESCE write drops answers accumulated earlier.
+            // Keep the cache in step so a later page doesn't overwrite what this one wrote.
             this._refreshParentCacheForJsonArray(entityMetaData, mergedParents);
         }
 

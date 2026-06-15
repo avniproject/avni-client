@@ -25,11 +25,9 @@ const EMBEDDED_SCHEMA_NAMES = new Set([
     "NestedReportCardResult",
 ]);
 
-// List properties stored as a JSON array on the PARENT row instead of via a
-// child table. Used for many-to-many references to shared/standalone entities
-// (no place for a parent FK on the child) and for primitive scalar lists.
-// Value = the child schema each UUID resolves to on hydrate, or null for a
-// scalar (string) array stored verbatim. Keep in sync with DrizzleSchemaExport.
+// List properties stored as a JSON array on the parent row, not a child table.
+// Value = child schema to resolve each UUID to, or null for a scalar array.
+// Keep in sync with DrizzleSchemaExport.
 const JSON_UUID_ARRAY_LIST_PROPERTIES = {
     'Concept.answers': 'ConceptAnswer',
     'ReportCard.standardReportCardInputSubjectTypes': 'SubjectType',
@@ -39,9 +37,7 @@ const JSON_UUID_ARRAY_LIST_PROPERTIES = {
     'AttendanceRecord.reasonConceptUUIDs': null,
 };
 
-// Returns the parent's JSON-array list property that holds the given child
-// schema (e.g. ('Concept','ConceptAnswer') -> 'answers'), or null if the
-// parent doesn't store that child as a JSON array.
+// e.g. ('Concept','ConceptAnswer') -> 'answers'; null if not a JSON-array list.
 function jsonArrayListPropFor(parentSchemaName, childSchemaName) {
     const key = Object.keys(JSON_UUID_ARRAY_LIST_PROPERTIES).find(
         k => JSON_UUID_ARRAY_LIST_PROPERTIES[k] === childSchemaName && k.startsWith(`${parentSchemaName}.`));
@@ -128,8 +124,7 @@ class SchemaGenerator {
         Object.keys(properties).forEach(propName => {
             const propDef = properties[propName];
 
-            // JSON-array lists are stored as a single TEXT column on this row,
-            // not via a child table — bypass the normal list handling.
+            // JSON-array list: a single TEXT column, not a child table.
             const jsonArrayKey = `${schema.name}.${propName}`;
             if (Object.prototype.hasOwnProperty.call(JSON_UUID_ARRAY_LIST_PROPERTIES, jsonArrayKey)) {
                 jsonArrayProperties[propName] = JSON_UUID_ARRAY_LIST_PROPERTIES[jsonArrayKey];

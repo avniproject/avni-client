@@ -58,8 +58,7 @@ export const EXPLICIT_LIST_FK_OVERRIDES = {
     'Individual.relationships': 'individual_a_uuid',
     'Individual.groupSubjects': 'group_subject_uuid',
     'Individual.groups': 'member_subject_uuid',
-    // EntityApprovalStatus links back via a generic entity_uuid (no typed FK);
-    // the parent uuid is globally unique, so it disambiguates across all owners.
+    // EntityApprovalStatus links via a generic entity_uuid (uuid is globally unique).
     'Individual.approvalStatuses': 'entity_uuid',
     'ProgramEnrolment.approvalStatuses': 'entity_uuid',
     'ProgramEncounter.approvalStatuses': 'entity_uuid',
@@ -814,9 +813,7 @@ class EntityHydrator {
 
 // ──────────────── Helper functions ────────────────
 
-// resolveReference returns a bare {uuid} when the row isn't found. Drop those
-// from JSON-array lists so consumers that walk the resolved children (e.g.
-// Concept.getAnswers reading answer.concept) don't trip over stubs.
+// resolveReference returns a bare {uuid} on miss; drop those from JSON-array lists.
 function isUnresolvedReference(ref) {
     return ref == null || (typeof ref === "object" && Object.keys(ref).length === 1 && "uuid" in ref);
 }
