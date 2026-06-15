@@ -47,7 +47,7 @@ import LocalCacheService from "./LocalCacheService";
 import DeviceInfo from "react-native-device-info";
 import {pruneConceptMedia} from "../task/PruneMedia";
 import FileSystem from "../model/FileSystem";
-import {JSON_UUID_ARRAY_LIST_PROPERTIES} from "../framework/db/SchemaGenerator";
+import {jsonArrayListPropFor} from "../framework/db/SchemaGenerator";
 
 function transformResourceToEntity(entityMetaData, entityResources) {
     return (acc, resource) => {
@@ -494,10 +494,25 @@ class SyncService extends BaseService {
     }
 
     _parentStoresChildAsJsonArray(entityMetaData) {
+        return !_.isNil(jsonArrayListPropFor(entityMetaData.parent.schemaName, entityMetaData.schemaName));
+    }
+
+    // The reference cache (built before the pull) backs associateChild's parent
+    // lookups; bulkCreate doesn't touch it. Mutate each written parent's cached
+    // list so the next page accumulates onto the just-written answers instead of a
+    // stale snapshot. Skipped for parents not in the cache (read fresh from DB).
+    _refreshParentCacheForJsonArray(entityMetaData, mergedParents) {
+        if (typeof this.db.getCachedEntity !== 'function') return;
         const parentSchema = entityMetaData.parent.schemaName;
-        const childSchema = entityMetaData.schemaName;
-        return _.some(JSON_UUID_ARRAY_LIST_PROPERTIES, (childType, key) =>
-            childType === childSchema && key.startsWith(`${parentSchema}.`));
+        const listProp = jsonArrayListPropFor(parentSchema, entityMetaData.schemaName);
+        if (!listProp) return;
+        mergedParents.forEach(parent => {
+            const cached = this.db.getCachedEntity(parentSchema, parent.uuid);
+            if (cached) {
+                const data = parent.that || parent;
+                cached.that[listProp] = data[listProp];
+            }
+        });
     }
 
     async persistAll(entityMetaData, entityResources) {
@@ -552,6 +567,10 @@ class SyncService extends BaseService {
                 ? this.associateMultipleParents(entityResources, entities, entityMetaData)
                 : this.associateParent(entityResources, entities, entityMetaData);
             await this.db.bulkCreate(entityMetaData.parent.schemaName, mergedParents);
+            // bulkCreate writes the DB but not the in-memory reference cache that
+            // associateChild reads via findByKey. Without this, a later page reads a
+            // stale parent and its COALESCE write drops answers accumulated earlier.
+            this._refreshParentCacheForJsonArray(entityMetaData, mergedParents);
         }
 
         // Update sync status (1 row)

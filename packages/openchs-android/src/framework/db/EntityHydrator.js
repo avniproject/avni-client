@@ -186,9 +186,9 @@ class EntityHydrator {
                     if (!childType) {
                         result[propName] = parsed; // scalar array stored verbatim
                     } else if (depth > 0) {
-                        result[propName] = parsed.map(uuid => this.resolveReference(childType, uuid, depth - 1));
+                        result[propName] = parsed.map(uuid => this.resolveReference(childType, uuid, depth - 1)).filter(ref => !isUnresolvedReference(ref));
                     } else {
-                        result[propName] = parsed.map(uuid => this._resolveCachedReference(childType, uuid));
+                        result[propName] = parsed.map(uuid => this._resolveCachedReference(childType, uuid)).filter(ref => !isUnresolvedReference(ref));
                     }
                 } else if (objectType && EMBEDDED_SCHEMA_NAMES.has(objectType)) {
                     // Embedded list stored as JSON — resolve eagerly (no DB query)
@@ -811,6 +811,13 @@ class EntityHydrator {
 }
 
 // ──────────────── Helper functions ────────────────
+
+// resolveReference returns a bare {uuid} when the row isn't found. Drop those
+// from JSON-array lists so consumers that walk the resolved children (e.g.
+// Concept.getAnswers reading answer.concept) don't trip over stubs.
+function isUnresolvedReference(ref) {
+    return ref == null || (typeof ref === "object" && Object.keys(ref).length === 1 && "uuid" in ref);
+}
 
 function parseJsonSafe(value) {
     if (_.isNil(value)) return null;

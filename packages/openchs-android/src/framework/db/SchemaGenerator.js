@@ -39,6 +39,15 @@ const JSON_UUID_ARRAY_LIST_PROPERTIES = {
     'AttendanceRecord.reasonConceptUUIDs': null,
 };
 
+// Returns the parent's JSON-array list property that holds the given child
+// schema (e.g. ('Concept','ConceptAnswer') -> 'answers'), or null if the
+// parent doesn't store that child as a JSON array.
+function jsonArrayListPropFor(parentSchemaName, childSchemaName) {
+    const key = Object.keys(JSON_UUID_ARRAY_LIST_PROPERTIES).find(
+        k => JSON_UUID_ARRAY_LIST_PROPERTIES[k] === childSchemaName && k.startsWith(`${parentSchemaName}.`));
+    return key ? key.slice(parentSchemaName.length + 1) : null;
+}
+
 // Tables → columns that need an explicit index beyond the auto-generated
 // FK + voided indexes. Used for hierarchy traversal (parent_uuid, type_uuid
 // on address_level / location_hierarchy — declared as plain string columns,
@@ -301,5 +310,5 @@ function realmTypeToSql(realmType) {
     }
 }
 
-export {SchemaGenerator, TableMeta, ColumnDef, EMBEDDED_SCHEMA_NAMES, JSON_UUID_ARRAY_LIST_PROPERTIES, realmTypeToSql};
+export {SchemaGenerator, TableMeta, ColumnDef, EMBEDDED_SCHEMA_NAMES, JSON_UUID_ARRAY_LIST_PROPERTIES, jsonArrayListPropFor, realmTypeToSql};
 export default SchemaGenerator;

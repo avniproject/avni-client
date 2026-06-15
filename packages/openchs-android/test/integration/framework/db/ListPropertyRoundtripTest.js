@@ -159,4 +159,36 @@ describe('parent→child list round-trip via SqliteProxy (#1955)', () => {
         expect(reloaded.name).toBe('Coded Q');
         expect(reloaded.getAnswers().length).toBe(1); // answers populated
     });
+
+    // _persistAllBatch's cross-page fix mutates the reference-cache entry after
+    // writing the parent so a later page accumulates onto it. That relies on
+    // getCachedEntity exposing a view whose `.that` is the cached object itself —
+    // mutations must survive to the next read. Guard that contract.
+    it('getCachedEntity mutations persist to the reference cache across reads', async () => {
+        const q = 'cache-concept-q';
+        await proxy.bulkCreate('Concept', [{uuid: q, name: 'Q', datatype: 'Coded', voided: false}]);
+        proxy.buildReferenceCache([{schemaName: 'Concept', depth: 2, skipLists: false}]);
+
+        const first = proxy.getCachedEntity('Concept', q);
+        expect(first).toBeTruthy();
+        first.that.answers = [{uuid: 'ca-x'}, {uuid: 'ca-y'}]; // mirrors the cache refresh
+
+        const second = proxy.getCachedEntity('Concept', q);
+        expect(second.that.answers.map(a => a.uuid)).toEqual(['ca-x', 'ca-y']);
+
+        proxy.clearReferenceCache();
+    });
+
+    // A uuid in the answers array with no concept_answer row hydrates to a bare
+    // {uuid} stub; without filtering, Concept.getAnswers (reading answer.concept)
+    // would throw. The hydrate guard drops unresolved references.
+    it('drops unresolved answer references so getAnswers does not throw', async () => {
+        const q = 'guard-concept-q';
+        await proxy.bulkCreate('Concept', [{uuid: q, name: 'Q', datatype: 'Coded', voided: false}]);
+        await proxy.bulkCreate('Concept', [{uuid: q, answers: [{uuid: 'missing-ca'}]}]);
+
+        const reloaded = proxy.objectForPrimaryKey('Concept', q);
+        expect(() => reloaded.getAnswers()).not.toThrow();
+        expect(reloaded.getAnswers().length).toBe(0);
+    });
 });
