@@ -273,9 +273,8 @@ class IndividualService extends BaseService {
         const filterCriteria = criteria.getFilterCriteria();
         let searchResults, finalSearchResults = [];
 
-        // Use shallow hydration for search results (skipLists + depth 1).
-        // Search UI only needs name, subjectType, gender, address — all in referenceDataCache.
-        const shallowOpts = {skipLists: true, depth: 1};
+        // Shallow, but keep enrolments — the result card shows active-program badges.
+        const shallowOpts = {skipLists: true, depth: 1, listsToInclude: new Set(['enrolments'])};
         const allResults = this.repository.findAll();
         const base = allResults.withHydration ? allResults.withHydration(shallowOpts) : allResults;
 

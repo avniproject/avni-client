@@ -136,6 +136,8 @@ class EntityHydrator {
 
         const depth = options.depth != null ? options.depth : 2;
         const skipLists = options.skipLists || false;
+        // Child lists kept even when skipLists is on (e.g. search needs enrolments).
+        const listsToInclude = options.listsToInclude || null;
 
         const result = {};
 
@@ -197,7 +199,7 @@ class EntityHydrator {
                     const parsed = parseJsonSafe(jsonVal) || [];
                     if (this._profileCounters) { this._profileCounters.jsonParseCalls++; this._profileCounters.jsonParseMs += Date.now() - _jt1; }
                     result[propName] = parsed.map(item => item != null ? this._hydrateEmbedded(item, objectType) : null);
-                } else if (objectType && !skipLists && depth > 0) {
+                } else if (objectType && depth > 0 && (!skipLists || (listsToInclude && listsToInclude.has(propName)))) {
                     // Referenced list — query child table
                     result[propName] = this.resolveList(schemaName, propName, objectType, row.uuid, depth - 1);
                 } else {
