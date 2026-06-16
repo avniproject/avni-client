@@ -238,6 +238,11 @@ class CustomDashboardActions {
                     setTimeout(() => action.onCustomRecordCardResults(result, status, viewName,
                         standardReportCardType && standardReportCardType.getApprovalStatusForType(), ruleInputArray, reportCard, displayName), 0);
                 }
+            } else if (standardReportCardType && standardReportCardType.isChecklistType()) {
+                // Checklist result is a {individual, checklistItemNames} object (not
+                // array-like); ChecklistListingView consumes that shape directly.
+                setTimeout(() => action.onCustomRecordCardResults(result, status, viewName,
+                    standardReportCardType.getApprovalStatusForType(), ruleInputArray, reportCard, displayName), 0);
             } else {
                 General.logDebug('CustomDashboardActions', `onCardPress - result not array-like, dismissing loader`);
                 setTimeout(() => action.onDismissLoading(), 0);
