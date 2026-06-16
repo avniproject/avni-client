@@ -130,7 +130,7 @@ import './KeycloakAuthService';
 import './StubbedAuthService';
 import './BaseAuthProviderService';
 
-// Edge model (on-device PyTorch Mobile inference; engine selected per-model via registry)
+// Edge model (on-device ONNX Runtime Mobile inference; engine selected per-model via registry)
 import './EdgeModelService';
 
 // Other services

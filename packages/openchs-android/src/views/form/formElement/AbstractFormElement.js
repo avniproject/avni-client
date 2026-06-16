@@ -40,7 +40,7 @@ class AbstractFormElement extends AbstractComponent {
     renderReadOnlyMediaList(uris) {
         if (_.isEmpty(uris)) return this.showEmptyReadOnly();
         return _.map(uris, (uri, index) => (
-            <View key={index} style={{marginBottom: 3}}>
+            <View key={`${uri}-${index}`} style={{marginBottom: 3}}>
                 {this.showMedia(uri)}
                 <View style={{flex: 1, borderColor: Colors.BlackBackground, borderBottomWidth: StyleSheet.hairlineWidth, opacity: 0.1}}/>
             </View>

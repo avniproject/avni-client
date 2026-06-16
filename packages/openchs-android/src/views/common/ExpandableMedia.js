@@ -102,7 +102,10 @@ export default class ExpandableMedia extends AbstractFormElement {
 
 
     showDownloadIcon() {
-        if (!this.state.exists) {
+        // Only offer the download affordance once the async exists() probe has CONFIRMED the file
+        // is absent (state.exists === false). While the probe is unresolved (undefined) we render
+        // the media optimistically instead — see showExpandableMedia.
+        if (this.state.exists === false) {
             return <View>
                 <TouchableNativeFeedback onPress={() => this.download()}>
                     <View>
@@ -129,7 +132,12 @@ export default class ExpandableMedia extends AbstractFormElement {
     }
 
     showExpandableMedia() {
-        if (this.props.source && this.state.exists) {
+        // Render unless the probe has CONFIRMED the file is missing. exists === undefined (probe
+        // not yet resolved) renders optimistically: a present local file (e.g. a just-captured
+        // image) paints on the first frame and stays stable across re-renders/remounts — fixing
+        // the "read-only image blank on first view, appears after navigating back" flicker. For a
+        // genuinely-absent file the probe resolves false and showDownloadIcon takes over.
+        if (this.props.source && this.state.exists !== false) {
             const MediaComponent = this.getMediaComponentByType(this.props.type);
             return <MediaComponent source={this.mediaUriInDevice} fileName={this.fileName} allMediaAbsolutePath={this.state.allMediaAbsolutePath}/>;
         }

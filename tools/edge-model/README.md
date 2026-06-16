@@ -5,10 +5,15 @@ edge-model integration in the `tanuh` Gradle flavour. It exists so that a TANUH 
 produce a signed APK with their proprietary model bundled and AES-GCM-encrypted, on their own
 machine, in two commands.
 
-The on-device runtime is **PyTorch Mobile 1.13.1** (`org.pytorch:pytorch_android:1.13.1`).
-Versions are pinned exactly to the AI team's PoC at `~/IdeaProjects/aiapp` because clinical
-accuracy was validated against that exact runtime; converting to a different runtime (e.g.
-TFLite) would force re-validation.
+The on-device runtime is **ONNX Runtime Mobile** (`com.microsoft.onnxruntime:onnxruntime-android`,
+tanuh-scoped). The shipped models are **ONNX exports** of the clinically-validated MViT2 fold
+ensemble. ONNX Runtime is used in place of PyTorch Mobile 1.13.1 because its 64-bit native libs
+are 16 KB-page-aligned and therefore Google-Play-compliant for targetSdk 35, whereas PyTorch
+Mobile's prebuilt `libpytorch_jni.so` is 4 KB-aligned and rejected (avni-product-ops#186). It is
+a **stock Maven Central artifact** — no custom AAR build or local-maven hosting is required.
+Because the runtime *math* changes from PyTorch to ONNX Runtime, a numerical-equivalence check
+against the validated TorchScript ensemble + TANUH AI sign-off gate the clinical re-validation
+scope (tracked in the issue).
 
 The full design is documented at `~/.claude/plans/composed-tumbling-bachman.md`.
 
@@ -21,11 +26,11 @@ not the §5.1 protection in `~/.claude/plans/frolicking-pondering-marble.md`:
 - It defeats casual extraction (`unzip the APK, grab the .pt` no longer works).
 - It does *not* defeat a determined reverser who reads the bundled key and decrypts.
 
-There is also a brief **on-disk plaintext window** at load time: PyTorch Mobile's
-`Module.load(path)` requires a file path, not a buffer, so the AES decrypt is streamed
-directly into the app's private `filesDir/<modelKey>.pt.tmp` (mode 0600 via
-`MODE_PRIVATE`), the model is loaded, and the file is deleted in a `finally` block.
-Plaintext exists on disk for the duration of decrypt + `Module.load` (low single-digit
+There is also a brief **on-disk plaintext window** at load time: ONNX Runtime's
+`OrtEnvironment.createSession(path)` loads from a file path, so the AES decrypt is streamed
+directly into the app's private `filesDir/<modelKey>.model.tmp` (mode 0600 via
+`MODE_PRIVATE`), the session is created, and the file is deleted in a `finally` block.
+Plaintext exists on disk for the duration of decrypt + `createSession` (low single-digit
 seconds for an 18 MB model). The streaming decrypt — rather than first materialising the
 plaintext in a `ByteBuffer.allocateDirect` and then writing it out — keeps the JVM-heap
 peak under 64 KB, which lets the bridge run inside the default ~96 MB heap without
@@ -161,15 +166,99 @@ classifier. Each fold is a **single-logit sigmoid-binary** head (verified from t
 `EdgeModelService.runEnsembleInferenceOnImage`. All 3 share `tanuh-ensemble-override.json`; this
 **replaces** the old single `mvit2_fold5_2` path.
 
-```bash
-# Encrypt all 3 folds into one registry.json (clears any single-model registry first).
-# Default source dir is /Users/himeshr/Avni/Tanuh/tanuh_models; override with TANUH_ENSEMBLE_SRC_DIR.
-make tanuh-ensemble                 # → keys: mvit2_fold1_6, mvit2_fold1_8, mvit2_fold2_8
-make run_packager                   # in another terminal
-make run_app_tanuh_dev              # debug build, prod backend, dev menu
+### Models you need
 
-# Signed release APK with the ensemble:
-make tanuh-ensemble-apk
+Three **ONNX** exports of the MViT2 folds (the on-device runtime is ONNX Runtime — see the note
+below). `make tanuh-ensemble` keys off the source-file **basename** and maps it to a registry key:
+
+| Source basename | Registry key    |
+|-----------------|-----------------|
+| `model6.onnx`   | `mvit2_fold1_6` |
+| `model8.onnx`   | `mvit2_fold1_8` |
+| `model8-2.onnx` | `mvit2_fold2_8` |
+
+The files the AI team hands over are usually named with extra suffixes (the names and the directory
+you receive them in vary per handover), but each carries a `(model6)` / `(model8)` / `(model8-2)` tag
+telling you which fold it is. Stage the three under the exact basenames `model6` / `model8` /
+`model8-2` in one directory first:
+
+```bash
+SRC=<dir holding the received .onnx files>     # varies per handover
+STAGE=<your staging dir>                        # e.g. anywhere you like
+mkdir -p "$STAGE"
+cp "$SRC/<...(model6)...>.onnx"   "$STAGE/model6.onnx"
+cp "$SRC/<...(model8)...>.onnx"   "$STAGE/model8.onnx"
+cp "$SRC/<...(model8-2)...>.onnx" "$STAGE/model8-2.onnx"
+```
+
+> **ONNX, not PyTorch.** The runtime is ONNX Runtime Mobile, so the encrypted blobs must be built
+> from `.onnx` (`engine=onnx` in `tanuh-ensemble-override.json`). If you switch onto the ONNX branch
+> and the APK's models seem to "go missing", it's because the bundled `src/tanuh/assets/models/*.bin`
+> were encrypted from the old PyTorch `.pt` (`engine=pytorch`) and ONNX Runtime can't load them —
+> just re-run `tanuh-ensemble` from the `.onnx` sources to regenerate them.
+
+### Build
+
+```bash
+source ~/.nvm/nvm.sh && nvm use 20          # repo-pinned Node 20; the metro bundle needs it
+export tanuh_KEYSTORE_PASSWORD='…'          # the password you chose at `make tanuh-setup`
+export tanuh_KEY_ALIAS='tanuh'
+
+# Encrypt all 3 folds into one registry.json (clears any prior single-model registry first), then
+# assemble the signed release APK. TANUH_ENSEMBLE_SRC_DIR has a machine-specific default in the
+# makefile, so always set it explicitly to your staging dir from above.
+TANUH_ENSEMBLE_SRC_DIR=<your staging dir> make tanuh-ensemble-apk    # → keys: mvit2_fold1_6/_1_8/_2_8
+
+# Debug iteration instead of a signed APK:
+TANUH_ENSEMBLE_SRC_DIR=<your staging dir> make tanuh-ensemble        # encrypt only → src/tanuh/assets/models/
+make run_packager                                          # in another terminal
+make run_app_tanuh_dev                                     # debug build, prod backend, dev menu
+```
+
+Signed APK: `packages/openchs-android/android/app/build/outputs/apk/tanuh/release/app-tanuh-release.apk`
+
+Verify the bundled registry targets ONNX before distributing:
+
+```bash
+unzip -p .../app-tanuh-release.apk assets/models/registry.json \
+  | python3 -c "import json,sys; d=json.load(sys.stdin); print({k: v['override'].get('engine') for k,v in d['models'].items()})"
+# expect every key → 'onnx'
+```
+
+### Universal APK / AAB (ensemble)
+
+`tanuh-ensemble-apk` above produces a per-arch APK. For a **single installable APK that runs on any
+device ABI** (the artefact you hand to the programme team), or a Play-Store **AAB**, use the bundle
+pipeline. Both build the **ensemble** — `tanuh-aab` encrypts the 3 folds before bundling, so the
+universal APK can never accidentally ship the retired single model.
+
+```bash
+# Signed universal APK (builds the ensemble AAB, then derives the universal APK via bundletool):
+TANUH_ENSEMBLE_SRC_DIR=<your staging dir> make tanuh-universal-apk
+#   alias: make tanuh-ensemble-universal-apk
+
+# Just the signed Play-Store AAB:
+TANUH_ENSEMBLE_SRC_DIR=<your staging dir> make tanuh-aab
+#   alias: make tanuh-ensemble-aab
+```
+
+Outputs:
+- AAB: `packages/openchs-android/android/app/build/outputs/bundle/tanuhRelease/app-tanuh-release.aab`
+- Universal: `tanuh-universal.apks` (a zip) — extract the installable APK:
+  ```bash
+  unzip -p tanuh-universal.apks universal.apk > tanuh-universal.apk
+  ```
+
+Optional version stamping: prepend `versionCode=N versionName=X` to the make command (see the
+`versionCode`/`versionName` note in the makefile). Bundletool is auto-downloaded on first use.
+
+Verify the **AAB** registry targets ONNX (note the `base/` asset prefix inside an AAB, vs `assets/`
+in a plain APK):
+
+```bash
+unzip -p .../app-tanuh-release.aab base/assets/models/registry.json \
+  | python3 -c "import json,sys; d=json.load(sys.stdin); print({k: v['override'].get('engine') for k,v in d['models'].items()})"
+# expect every key → 'onnx'
 ```
 
 ### Inference methodology
@@ -311,7 +400,7 @@ packages/openchs-android/android/app/src/tanuh/
 packages/openchs-android/android/app/src/main/java/com/openchsclient/
 ├─ EdgeModelModule.kt            # React Native bridge — engine-agnostic, model-agnostic
 ├─ ModelContract.kt              # parses the override JSON DSL
-├─ engine/                       # InferenceEngine interface + PyTorchEngine
+├─ engine/                       # InferenceEngine interface; OnnxEngine lives in src/tanuh/
 ├─ preprocessing/                # ImagePreprocessor interface + named registry
 └─ decoding/                     # OutputDecoder interface + named registry
 ```
@@ -331,7 +420,7 @@ declared as a small JSON DSL in the registry's `override` block:
 
 ```json
 {
-  "engine": "pytorch",
+  "engine": "onnx",
   "input":  { "preprocessor": "<name>", "params": { … } },
   "output": { "decoder":      "<name>", "params": { … } }
 }
@@ -409,12 +498,6 @@ install the right NDK (27.1.12297006) explicitly. See platform prerequisites.
 Gradle can't reach `plugins.gradle.org`. Check `curl -sI https://plugins.gradle.org/`.
 Configure proxy in `~/.gradle/gradle.properties` if behind a corporate firewall.
 
-### `Duplicate class com.facebook.jni.* found in modules fbjni-0.7.0 and fbjni-java-only-0.2.2`
-PyTorch Mobile transitively pulls `fbjni-java-only:0.2.2`, which clashes with React Native
-0.77's `fbjni:0.7.0`. The fix is in `app/build.gradle` — `fbjni-java-only` is excluded
-from PyTorch's deps. If a future PyTorch upgrade reintroduces the clash, replicate the
-exclusion for the new version.
-
 ### `This file can not be opened as a file descriptor; it is probably compressed`
 aapt2 compressed an asset that needs to be mmap-able. Add the extension to
 `androidResources.noCompress` in `app/build.gradle`. Currently covered: `bin`, `pt`,
@@ -426,9 +509,9 @@ The encrypted blob was rebuilt with a different key/IV than what's recorded in
 followed by `make tanuh-encrypt` (or `make tanuh-apk`) to regenerate consistently.
 
 ### Release APK crashes on inference but debug build works
-R8 stripped or renamed a JNI-resolved class. PyTorch's `org.pytorch.**` and
-`com.facebook.fbjni.**` are kept by `proguard-rules.pro`. If you add a new JNI-using
-library or a new `EdgeModelModule`/plugin class that's reflected on, add a `-keep` rule.
+R8 stripped or renamed a JNI-resolved class. ONNX Runtime's `ai.onnxruntime.**` is kept by
+`proguard-rules.pro`. If you add a new JNI-using library or a new `EdgeModelModule`/plugin
+class that's reflected on, add a `-keep` rule.
 
 ### Inference returns nonsense / saturated outputs
 Most likely a preprocessing divergence vs the AI team's PoC. Compare per-channel raw
