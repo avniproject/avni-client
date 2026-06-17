@@ -17,11 +17,16 @@ function node(level, type, parent, name) {
     return al;
 }
 
-// A service whose only Realm-touching method (getChildren) is served from an in-memory tree.
+// A service whose Realm-touching methods are served from an in-memory tree. getChildren backs the
+// drill-down; getAllRootParents/getAllAtLevel back highestLevel (roots = nodes with no parent).
 function serviceWith(nodes) {
     const service = new AddressLevelService(null, null);
     const childrenByParent = _.groupBy(nodes.filter(n => n.parentUuid), 'parentUuid');
     service.getChildren = (uuid) => (childrenByParent[uuid] || []);
+    const roots = nodes.filter(n => !n.parentUuid);
+    const rootLevels = _.uniq(roots.map(n => n.level));
+    service.getAllRootParents = () => roots;
+    service.getAllAtLevel = () => _.orderBy(nodes.filter(n => _.includes(rootLevels, n.level)), 'level', 'desc');
     return service;
 }
 
@@ -126,5 +131,25 @@ describe('AddressLevelService drill-down filtering (#1958)', () => {
         // Each reconstruction step still surfaces the saved descendant as a selectable option.
         assert.isTrue(service.getDescendantsOfParent(district.uuid, village_t).some(n => n.uuid === taluka.uuid));
         assert.isTrue(service.getDescendantsOfParent(taluka.uuid, village_t).some(n => n.uuid === village.uuid));
+    });
+
+    // The Location form-element fix: with no Highest Location Level configured the picker uses
+    // highestLevel(minLevelTypeUUIDs). When the catchment's top is District and the State ancestor
+    // isn't synced, the District Hospitals (5.5) are sibling roots that must still be surfaced.
+    it('highestLevel surfaces fractional-level sibling roots when the configured highest type is absent', () => {
+        const district = node(6, 'District');
+        const dh1 = node(5.5, 'DistrictHospital', null, 'Victoria Hospital');
+        const dh2 = node(5.5, 'DistrictHospital', null, 'Bowring hospital');
+        const taluka = node(5, 'Taluka', district);
+        const village = node(4, 'Village', taluka);
+        const service = serviceWith([district, dh1, dh2, taluka, village]);
+        const dhType = [dh1.typeUuid];
+
+        const top = service.highestLevel(dhType);
+        assert.sameMembers(top.map(n => n.uuid), [dh1.uuid, dh2.uuid]);
+        assert.isTrue(top.every(n => n.type === 'DistrictHospital'));
+
+        // Contrast: seeding from a District (the old maxTypeUUID() else-branch) can never reach a DH.
+        assert.isEmpty(service.getDescendantsOfParent(district.uuid, dhType));
     });
 });
