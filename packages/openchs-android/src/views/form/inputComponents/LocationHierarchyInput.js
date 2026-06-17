@@ -30,7 +30,9 @@ class LocationHierarchyInput extends AbstractComponent {
 
     maxLevelTypeUUID() {
         const highestAddressLevelTypeUUID = this.props.concept.recordValueByKey(Concept.keys.highestAddressLevelTypeUUID);
-        return !_.isEmpty(highestAddressLevelTypeUUID) ? highestAddressLevelTypeUUID : this.addressLevelService.maxTypeUUID();
+        // Unset → let AddressLevels derive the top from on-device roots via highestLevel(); falling back
+        // to maxTypeUUID() dead-ends a sibling-branch lowest type whose ancestor isn't synced in-catchment.
+        return !_.isEmpty(highestAddressLevelTypeUUID) ? highestAddressLevelTypeUUID : undefined;
     }
 
     render() {
