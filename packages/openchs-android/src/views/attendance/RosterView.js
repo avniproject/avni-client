@@ -194,6 +194,7 @@ class RosterView extends AbstractComponent {
                         data={roster || []}
                         keyExtractor={(r) => r.subjectUUID}
                         keyboardShouldPersistTaps="handled"
+                        removeClippedSubviews={false}
                         renderItem={this._renderItem}
                         ListFooterComponent={(
                             <View style={styles.footer}>
