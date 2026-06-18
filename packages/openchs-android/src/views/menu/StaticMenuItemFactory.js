@@ -6,6 +6,8 @@ import EntitySyncStatusView from "../entitysyncstatus/EntitySyncStatusView";
 import DevSettingsView from "../settings/DevSettingsView";
 import CustomDashboardView from "../customDashboard/CustomDashboardView";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
+import GlobalContext from "../../GlobalContext";
+import {BACKENDS} from "../../framework/BackendTypes";
 import _ from "lodash";
 
 const FunctionalityMenus = [
@@ -39,10 +41,11 @@ class StaticMenuItemFactory {
     }
 
     static getSyncMenus(context) {
-        if(context.getService(OrganisationConfigService).isDbEncryptionEnabled())
-            this.removeMenuItem(SyncMenus, "uploadCatchmentDatabase");
-
-        return [...SyncMenus];
+        // Fast-sync setup (catchment DB upload) isn't supported with DB encryption or the SQLite backend.
+        const hideUploadCatchmentDatabase = context.getService(OrganisationConfigService).isDbEncryptionEnabled()
+            || GlobalContext.getInstance().getActiveBackend() === BACKENDS.SQLITE;
+        return SyncMenus.filter(menuItem =>
+            !(menuItem.uniqueName === "uploadCatchmentDatabase" && hideUploadCatchmentDatabase));
     }
 
     static getUserMenus() {
