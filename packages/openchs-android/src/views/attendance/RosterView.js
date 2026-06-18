@@ -193,6 +193,7 @@ class RosterView extends AbstractComponent {
                     <FlatList
                         data={roster || []}
                         keyExtractor={(r) => r.subjectUUID}
+                        keyboardShouldPersistTaps="handled"
                         renderItem={this._renderItem}
                         ListFooterComponent={(
                             <View style={styles.footer}>
