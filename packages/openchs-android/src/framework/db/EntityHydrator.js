@@ -812,8 +812,14 @@ class EntityHydrator {
                 }
                 // Other referenced lists are skipped — FK is on child table
             } else {
-                // Scalar
-                const value = data[propName];
+                // Scalar. Realm applies a property's schema default when the stored value is nil;
+                // mirror that so a present-but-undefined defaulted field (e.g. voided, set as a key
+                // by cloneForEdit) persists as its default instead of NULL — otherwise `= false`
+                // filters silently drop the row.
+                let value = data[propName];
+                if (_.isNil(value) && typeof propDef === "object" && propDef.default !== undefined) {
+                    value = propDef.default;
+                }
                 result[camelToSnake(propName)] = convertToSqliteValue(resolvedType, value);
             }
         });
