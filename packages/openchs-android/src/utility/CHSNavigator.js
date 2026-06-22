@@ -425,6 +425,7 @@ class CHSNavigator {
             PersonRegisterFormView,
             PersonRegisterView,
             SubjectRegisterView,
+            SubjectRegisterFormView,
             ProgramEncounterView,
             ProgramEnrolmentView,
             AddNewMemberView,
