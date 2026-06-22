@@ -21,6 +21,14 @@ const DUMMY_UUIDS = new Set([
     Individual.getAddressLevelDummyUUID(),
 ]);
 
+// Referenced schemas whose own child-FK lists must still hydrate even when the
+// reference is reached at depth 0. Floors the resolved depth for these refs.
+// FormElement.documentation is reached at depth 0 in the form tree, but its
+// documentationItems (a child-FK list) only resolve at depth >= 1.
+const MIN_REFERENCE_DEPTH = {
+    Documentation: 1,
+};
+
 // Overrides for parent.listProp pairs where the child schema has multiple FKs back
 // to the same parent type and convention can't disambiguate which FK is the back-reference.
 //
@@ -170,8 +178,11 @@ class EntityHydrator {
                     // Referenced entity — FK column is propName_uuid
                     const fkColName = `${snakeName}_uuid`;
                     const fkValue = row[fkColName];
+                    const refFloor = MIN_REFERENCE_DEPTH[objectType] || 0;
                     if (_.isNil(fkValue)) {
                         result[propName] = null;
+                    } else if (refFloor > 0) {
+                        result[propName] = this.resolveReference(objectType, fkValue, Math.max(depth - 1, refFloor));
                     } else if (depth <= 0) {
                         result[propName] = this._resolveCachedReference(objectType, fkValue);
                     } else {
