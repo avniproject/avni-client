@@ -369,17 +369,10 @@ class SqliteProxy {
         // Determine SQL operation based on updateMode
         const shouldUpsert = updateMode === true || updateMode === "modified" || updateMode === "all";
 
-        // Build column lists (only include columns that are in the flatRow AND in the table schema)
-        const validColumns = tableMeta.getColumnNames();
-        const columnsToInsert = [];
-        const valuesToInsert = [];
-
-        validColumns.forEach(colName => {
-            if (flatRow.hasOwnProperty(colName)) {
-                columnsToInsert.push(colName);
-                valuesToInsert.push(flatRow[colName]);
-            }
-        });
+        // Only columns present on the object AND backed by a real table column (absent
+        // columns are omitted so a partial upsert leaves their existing DB values untouched).
+        const columnsToInsert = this._presentColumns(tableMeta, flatRow);
+        const valuesToInsert = columnsToInsert.map(c => flatRow[c]);
 
         if (columnsToInsert.length === 0) {
             throw new Error(`SqliteProxy.create: No valid columns to insert for ${schemaName}`);
@@ -398,27 +391,12 @@ class SqliteProxy {
             );
         }
 
-        let sql;
-        if (shouldUpsert) {
-            // Use INSERT ... ON CONFLICT DO UPDATE with COALESCE to match
-            // Realm's UpdateMode.Modified: null values in the new data should
-            // NOT overwrite existing non-null values in the database.
-            const pk = tableMeta.primaryKey || "uuid";
-            const updateCols = columnsToInsert
-                .filter(c => c !== pk)
-                .map(c => `"${c}" = COALESCE(excluded."${c}", "${c}")`)
-                .join(", ");
-            if (updateCols.length === 0) {
-                // Partial object with only PK — nothing to update, use INSERT OR IGNORE
-                sql = `INSERT OR IGNORE INTO ${tableMeta.tableName} (${colList}) VALUES (${placeholders})`;
-            } else {
-                sql = `INSERT INTO ${tableMeta.tableName} (${colList}) VALUES (${placeholders})` +
-                    ` ON CONFLICT("${pk}") DO UPDATE SET ${updateCols}`;
-            }
-        } else {
-            // INSERT for strict create (will fail on duplicate PK)
-            sql = `INSERT INTO ${tableMeta.tableName} (${colList}) VALUES (${placeholders})`;
-        }
+        // Upsert SQL (present columns written incl. intentional nulls; ON CONFLICT vs
+        // INSERT OR IGNORE) is identical to the batch path, so reuse _buildUpsertTemplate.
+        // Strict create stays a plain INSERT so a duplicate PK still errors.
+        const sql = shouldUpsert
+            ? this._buildUpsertTemplate(schemaName, columnsToInsert).sql
+            : `INSERT INTO ${tableMeta.tableName} (${colList}) VALUES (${placeholders})`;
 
         try {
             this._executeRaw(sql, valuesToInsert);
@@ -647,33 +625,42 @@ class SqliteProxy {
     // ──── Bulk operations for sync optimization ────
 
     /**
-     * Build a reusable UPSERT SQL template for a schema. Same SQL for all entities.
+     * Build an UPSERT SQL template for a schema and a specific set of PRESENT columns.
+     * Only present columns are written, so absent properties keep their existing DB
+     * values (partial-update safety) while present columns — including intentional
+     * nulls — are written verbatim. Templates are cached per present-column signature
+     * so a homogeneous sync batch still shares one prepared statement.
      * @returns {{ sql: string, columnNames: string[] }}
      */
-    _buildUpsertTemplate(schemaName) {
+    _buildUpsertTemplate(schemaName, presentColumns) {
         const tableMeta = this.tableMetaMap.get(schemaName);
         if (!tableMeta) throw new Error(`No table metadata for schema "${schemaName}"`);
 
-        const columnNames = tableMeta.getColumnNames();
+        const columnNames = presentColumns;
         const colList = columnNames.map(c => `"${c}"`).join(", ");
         const placeholders = columnNames.map(() => "?").join(", ");
         const pk = tableMeta.primaryKey || "uuid";
         const updateCols = columnNames
             .filter(c => c !== pk)
-            .map(c => `"${c}" = COALESCE(excluded."${c}", "${c}")`)
+            .map(c => `"${c}" = excluded."${c}"`)
             .join(", ");
 
-        const sql = `INSERT INTO ${tableMeta.tableName} (${colList}) VALUES (${placeholders})` +
-            ` ON CONFLICT("${pk}") DO UPDATE SET ${updateCols}`;
+        const sql = updateCols.length === 0
+            ? `INSERT OR IGNORE INTO ${tableMeta.tableName} (${colList}) VALUES (${placeholders})`
+            : `INSERT INTO ${tableMeta.tableName} (${colList}) VALUES (${placeholders})` +
+                ` ON CONFLICT("${pk}") DO UPDATE SET ${updateCols}`;
 
         return {sql, columnNames};
     }
 
     /**
-     * Extract ordered param array from a flat row matching the template's column order.
+     * Columns to write for an entity: present on the flattened row AND backed by a real
+     * table column, in table-column order. Absent columns are omitted so a partial upsert
+     * leaves their existing DB values untouched. Shared by create() and bulkCreate() so
+     * single-entity and batch writes select columns identically.
      */
-    _extractParams(flatRow, columnNames) {
-        return columnNames.map(col => flatRow.hasOwnProperty(col) ? flatRow[col] : null);
+    _presentColumns(tableMeta, flatRow) {
+        return tableMeta.getColumnNames().filter(col => Object.prototype.hasOwnProperty.call(flatRow, col));
     }
 
     /**
@@ -687,12 +674,25 @@ class SqliteProxy {
     async bulkCreate(schemaName, entities) {
         if (!entities || entities.length === 0) return;
 
-        const {sql, columnNames} = this._buildUpsertTemplate(schemaName);
+        const tableMeta = this.tableMetaMap.get(schemaName);
+        if (!tableMeta) throw new Error(`No table metadata for schema "${schemaName}"`);
+
+        // Cache one template per distinct set of present columns. Homogeneous batches
+        // (the common case for sync) share a single template; only present columns are
+        // written so absent properties never clobber existing values.
+        const templateCache = new Map();
 
         const commands = entities.map(entity => {
             const rawObject = (entity && entity.that) ? entity.that : entity;
             const flatRow = this.hydrator.flatten(schemaName, {that: rawObject});
-            return [sql, this._extractParams(flatRow, columnNames)];
+            const columns = this._presentColumns(tableMeta, flatRow);
+            const signature = columns.join(",");
+            let template = templateCache.get(signature);
+            if (!template) {
+                template = this._buildUpsertTemplate(schemaName, columns);
+                templateCache.set(signature, template);
+            }
+            return [template.sql, template.columnNames.map(col => flatRow[col])];
         });
 
         const start = Date.now();

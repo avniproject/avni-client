@@ -361,9 +361,11 @@ describe('Sync parity: PK-only upsert does not generate malformed SQL', () => {
 
         const insertCall = executedSql.find(c => c.sql.includes("INSERT"));
         expect(insertCall).toBeDefined();
-        // Should use ON CONFLICT DO UPDATE (has columns to update)
+        // Should use ON CONFLICT DO UPDATE (has columns to update), writing the present
+        // column directly so intentional nulls clear; absent columns are excluded from
+        // the SQL entirely (that's what keeps existing values, not COALESCE).
         expect(insertCall.sql).toContain("ON CONFLICT");
-        expect(insertCall.sql).toContain("COALESCE");
+        expect(insertCall.sql).toContain('excluded."');
         // Should NOT include observations (absent from source)
         expect(insertCall.sql).not.toContain("observations");
     });

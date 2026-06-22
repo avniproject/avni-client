@@ -94,4 +94,20 @@ describe('Sync parity: partial upsert preserves existing data on real SQLite', (
         expect(rows).toHaveLength(1);
         expect(rows[0].uuid).toBe(indUuid);
     });
+
+    it('present-null upsert clears the existing value (undo / un-exit), not keeps it', () => {
+        const indUuid = 'ind-null-clear-1';
+
+        proxy.write(() => {
+            proxy.create('Individual', {uuid: indUuid, firstName: 'Jane', voided: false}, true, {skipHydration: true});
+        });
+        expect(rawDb.executeSync('SELECT first_name FROM individual WHERE uuid = ?', [indUuid]).rows[0].first_name).toBe('Jane');
+
+        // Upsert with first_name present-but-null must CLEAR it. The old COALESCE upsert
+        // kept 'Jane' — the same mechanism that left undone checklist items "done".
+        proxy.write(() => {
+            proxy.create('Individual', {uuid: indUuid, firstName: null}, true, {skipHydration: true});
+        });
+        expect(rawDb.executeSync('SELECT first_name FROM individual WHERE uuid = ?', [indUuid]).rows[0].first_name).toBeNull();
+    });
 });
