@@ -121,6 +121,7 @@ class RuleEvaluationService extends BaseService {
             addressLevelService: addressLevelServiceFacade,
             edgeModelService: this.getService(EdgeModelService),
             mediaService: this.getService(MediaService),
+            ruleService: this.getService(RuleService),
         };
         this.globalRuleFunction = getGlobalRuleFunction(this);
     }

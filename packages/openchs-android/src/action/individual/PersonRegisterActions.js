@@ -1,6 +1,8 @@
 import {InteractionManager} from "react-native";
 import IndividualService from "../../service/IndividualService";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
+import {EDGE_MODEL_ACTION} from "../../service/EdgeModelService";
+import {RULE_SERVICE_ACTION} from "../../service/RuleService";
 import EntityService from "../../service/EntityService";
 import {DraftSubject, Gender, Individual, ObservationsHolder, Point, SubjectType} from "avni-models";
 import IndividualRegistrationState from "../../state/IndividualRegistrationState";
@@ -333,6 +335,9 @@ export default new Map([
     [actions.TOGGLE_GROUPS, GroupAffiliationActions.updateValue],
     [actions.ON_TIMED_FORM, TimerActions.onTimedForm],
     [actions.ON_START_TIMER, TimerActions.onStartTimer],
+    [EDGE_MODEL_ACTION.INFERENCE_RESULT_AVAILABLE, ObservationsHolderActions.onInferenceResultAvailable],
+    [EDGE_MODEL_ACTION.INFERENCE_RESULTS_BATCH, ObservationsHolderActions.onObservationWriteBatch],
+    [RULE_SERVICE_ACTION.OBSERVATION_WRITE_BATCH, ObservationsHolderActions.onObservationWriteBatch],
 ]);
 
 export {actions as Actions};

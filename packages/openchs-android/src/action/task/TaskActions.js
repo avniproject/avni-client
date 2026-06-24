@@ -6,6 +6,8 @@ import FormMappingService from "../../service/FormMappingService";
 import _ from 'lodash';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
+import {EDGE_MODEL_ACTION} from "../../service/EdgeModelService";
+import {RULE_SERVICE_ACTION} from "../../service/RuleService";
 
 class TaskActions {
     static getInitialState(context) {
@@ -128,6 +130,9 @@ const TaskActionMap = new Map([
     [TaskActionNames.PHONE_NUMBER_CHANGE, ObservationsHolderActions.onPhoneNumberChange],
     [TaskActionNames.GROUP_QUESTION_VALUE_CHANGE, ObservationsHolderActions.onGroupQuestionChange],
     [TaskActionNames.REPEATABLE_GROUP_QUESTION_VALUE_CHANGE, ObservationsHolderActions.onRepeatableGroupQuestionChange],
+    [EDGE_MODEL_ACTION.INFERENCE_RESULT_AVAILABLE, ObservationsHolderActions.onInferenceResultAvailable],
+    [EDGE_MODEL_ACTION.INFERENCE_RESULTS_BATCH, ObservationsHolderActions.onObservationWriteBatch],
+    [RULE_SERVICE_ACTION.OBSERVATION_WRITE_BATCH, ObservationsHolderActions.onObservationWriteBatch],
 ]);
 
 

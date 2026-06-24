@@ -38,4 +38,4 @@ source SVGs.
 
 ## edge-model/
 
-PyTorch Mobile model packaging for the tanuh flavor. See `edge-model/README.md`.
+ONNX Runtime Mobile model packaging for the tanuh flavor. See `edge-model/README.md`.

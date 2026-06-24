@@ -112,7 +112,7 @@ class SelectableItem extends React.Component {
                                     {displayText}
                                 </Text>
                                 {hasMediaContent && <View style={{marginLeft: 'auto', paddingLeft: 10}}>
-                                    <MediaContent media={media || []} size={30} />
+                                    <MediaContent media={media || []} size={64} />
                                 </View>}
                             </View>}
                     </View>

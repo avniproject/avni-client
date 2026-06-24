@@ -1,9 +1,10 @@
 import React from 'react';
 import {Image, TouchableWithoutFeedback, View, Modal} from 'react-native';
+import {ImageViewer} from 'react-native-image-zoom-viewer';
+import {Button} from 'native-base';
 import PropTypes from 'prop-types';
 import AbstractComponent from '../../framework/view/AbstractComponent';
 import MediaService from '../../service/MediaService';
-import AvniModel from './AvniModel';
 import AvniIcon from './AvniIcon';
 import VideoPlayerWrapper from '../videos/VideoPlayerWrapper';
 import Colors from '../primitives/Colors';
@@ -68,7 +69,7 @@ class MediaContent extends AbstractComponent {
 
     renderImageIcon(mediaItem) {
         const { size, style } = this.props;
-        const { mediaPaths } = this.state;
+        const { mediaPaths, imageAspectRatio } = this.state;
 
         if (!mediaPaths[mediaItem.url]) {
             return null;
@@ -76,13 +77,22 @@ class MediaContent extends AbstractComponent {
 
         // Get the absolute path using MediaService
         const absolutePath = this.mediaService.getAbsolutePath(mediaItem.url, 'Metadata');
+        // Cap the width so extremely wide images don't push the option layout around
+        const width = size * Math.min(imageAspectRatio, 2);
 
         return (
             <TouchableWithoutFeedback onPress={() => this.toggleImageExpand(true)}>
                 <View>
                     <Image
                         source={{ uri: `file://${absolutePath}` }}
-                        style={[{ height: size, width: size }, style]}
+                        style={[{ height: size, width }, style]}
+                        resizeMode="contain"
+                        onLoad={(event) => {
+                            const { width: imageWidth, height: imageHeight } = event.nativeEvent.source;
+                            if (imageWidth && imageHeight) {
+                                this.setState({ imageAspectRatio: imageWidth / imageHeight });
+                            }
+                        }}
                     />
                 </View>
             </TouchableWithoutFeedback>
@@ -124,40 +134,19 @@ class MediaContent extends AbstractComponent {
 
         return (
             <View style={{ marginTop: 5 }}>
-                {imageMedia && (
-                    <AvniModel
-                        dismiss={() => this.toggleImageExpand(false)}
-                        visible={imageExpanded}
-                    >
-                        <View style={{
-                            backgroundColor: 'white',
-                            borderRadius: 4,
-                            borderWidth: 1,
-                            borderColor: 'black',
-                            padding: 4,
-                            maxHeight: '80%',
-                            maxWidth: '90%',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                        }}>
-                            <Image
-                                source={{ uri: `file://${this.mediaService.getAbsolutePath(imageMedia.url, 'Metadata')}` }}
-                                style={{
-                                    width: '100%',
-                                    height: undefined,
-                                    aspectRatio: this.state.imageAspectRatio,
-                                    maxHeight: '100%',
-                                }}
-                                resizeMode="contain"
-                                onLoad={(event) => {
-                                    const { width, height } = event.nativeEvent.source;
-                                    if (width && height) {
-                                        this.setState({ imageAspectRatio: width / height });
-                                    }
-                                }}
-                            />
+                {imageMedia && imageExpanded && (
+                    <Modal onRequestClose={() => this.toggleImageExpand(false)}>
+                        <View style={{ backgroundColor: 'black', padding: 5 }}>
+                            <Button onPress={() => this.toggleImageExpand(false)}
+                                    style={{ height: 35, alignSelf: 'flex-end', backgroundColor: Colors.ActionButtonColor }}
+                                    leftIcon={<AvniIcon type="MaterialIcons" name="close"
+                                                        style={{ color: Colors.headerIconColor, fontSize: 15 }}/>}>
+                            </Button>
                         </View>
-                    </AvniModel>
+                        <ImageViewer
+                            imageUrls={[{ url: `file://${this.mediaService.getAbsolutePath(imageMedia.url, 'Metadata')}` }]}
+                        />
+                    </Modal>
                 )}
 
                 {videoMedia && (

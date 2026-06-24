@@ -86,7 +86,7 @@ class PrivilegeService extends BaseService {
         this.deleteEnrolments(getNonPrivilegeUUIDs(ProgramEnrolment.schema.name), 'program.uuid');
         this.deleteSubjects(getNonPrivilegeUUIDs(Individual.schema.name), 'subjectType.uuid');
         _.forEach(EntityApprovalStatus.entityType, (value, key) => {
-            this.deleteEntityApprovalStatuses(getNonPrivilegeUUIDs(`${value}${EntityApprovalStatus.schema.name}`), 'entityTypeUuid');
+            this.deleteEntityApprovalStatuses(getNonPrivilegeUUIDs(`${value}${EntityApprovalStatus.schema.name}`), 'entityTypeUuid', value);
         })
     }
 
@@ -110,8 +110,9 @@ class PrivilegeService extends BaseService {
         this.deleteEntity(Individual.schema.name, this.getRequiredFilterQuery(nonPrivilegedEntityTypeUUIDs, queryParam));
     }
 
-    deleteEntityApprovalStatuses(nonPrivilegedEntityTypeUUIDs, queryParam) {
-        this.deleteEntity(EntityApprovalStatus.schema.name, this.getRequiredFilterQuery(nonPrivilegedEntityTypeUUIDs, queryParam));
+    deleteEntityApprovalStatuses(nonPrivilegedEntityTypeUUIDs, queryParam, entityType) {
+        const filterQuery = this.getRequiredFilterQuery(nonPrivilegedEntityTypeUUIDs, queryParam);
+        this.deleteEntity(EntityApprovalStatus.schema.name, `entityType = '${entityType}' AND (${filterQuery})`);
     }
 
     deleteEnrolments(nonPrivilegedEntityTypeUUIDs, queryParam) {
