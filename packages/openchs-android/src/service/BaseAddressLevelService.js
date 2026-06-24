@@ -113,7 +113,9 @@ class BaseAddressLevelService extends BaseService {
             return [];
         } else {
             const parents = this.getParent(leaf.parentUuid);
-            let lowestLevelParent = this.lowestLevelAmongst(parents);
+            const lowestLevelParent = this.lowestLevelAmongst(parents);
+            // parentUuid may be unresolvable (dangling, or voided and filtered out) — stop here.
+            if (_.isNil(lowestLevelParent)) return [];
             return this.getParentsOfLeaf(lowestLevelParent, maxLevelTypeUUID).concat([lowestLevelParent]);
         }
     }

@@ -47,3 +47,42 @@ describe('AddressLevelService hierarchy reconstruction (#1951)', () => {
         assert.isFalse(service.isRoot(school));  // has a parent mapping -> not a root, despite sharing level 1
     });
 });
+
+// Under SQLite the AddressLevel reference cache skips lists, so the walk runs off parentUuid, which
+// can be unresolvable (dangling at a catchment/type boundary, or voided and filtered from the cache).
+describe('AddressLevelService hierarchy reconstruction — dangling parentUuid', () => {
+    function sqliteChain() {
+        const state = TestAddressLevelFactory.createWithDefaults({level: 4, name: 'state', type: 'State'});
+        const district = TestAddressLevelFactory.createWithDefaults({level: 3, name: 'district', type: 'District'});
+        const community = TestAddressLevelFactory.createWithDefaults({level: 2, name: 'community', type: 'Community'});
+        const school = TestAddressLevelFactory.createWithDefaults({level: 1, name: 'school', type: 'School'});
+
+        // SQLite: list properties (locationMappings) are not hydrated; the walk uses parentUuid.
+        [state, district, community, school].forEach(al => { al.locationMappings = []; al.typeUuid = `${al.type}-type`; });
+        district.parentUuid = state.uuid;
+        community.parentUuid = district.uuid;
+        school.parentUuid = community.uuid;
+        // top of the catchment: its real parent is above the catchment and was not synced.
+        state.parentUuid = 'unsynced-parent-above-catchment';
+
+        const byUuid = _.keyBy([state, district, community, school], 'uuid');
+        const service = new AddressLevelService(null, null);
+        // Realistic getParent: a cache miss (unsynced/voided parent) yields [], not [undefined].
+        service.getParent = (uuid) => { const p = byUuid[uuid]; return p ? [p] : []; };
+        return {service, state, district, community, school};
+    }
+
+    it('reconstructs the synced sub-tree and stops where the top parentUuid dangles', () => {
+        const {service, state, district, community, school} = sqliteChain();
+        let ancestors;
+        assert.doesNotThrow(() => { ancestors = service.getParentsOfLeaf(school, undefined); });
+        assert.deepEqual(ancestors.map(a => a.name), ['state', 'district', 'community']);
+        assert.deepEqual(ancestors.map(a => a.uuid), [state.uuid, district.uuid, community.uuid]);
+    });
+
+    it('returns no ancestors without crashing when the leaf parentUuid itself is unresolvable', () => {
+        const {service, school} = sqliteChain();
+        school.parentUuid = 'unsynced-uuid';
+        assert.deepEqual(service.getParentsOfLeaf(school, undefined), []);
+    });
+});
