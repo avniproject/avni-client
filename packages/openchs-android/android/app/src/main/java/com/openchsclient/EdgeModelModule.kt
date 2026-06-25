@@ -48,10 +48,9 @@ import javax.crypto.spec.SecretKeySpec
  * `filesDir/<modelKey>.model.tmp` (MODE_PRIVATE, 0600) — 64 KB chunk peak on the JVM heap.
  * The engine reads the file (`OrtEnvironment.createSession(path)` for ONNX) and the bridge
  * deletes the file in a `finally` block; plaintext exists on disk for the duration of decrypt + load
- * (single-digit seconds for a ~18 MB model). This is consistent with the existing
- * `tools/edge-model/README.md` threat model: the AES key ships in the APK, so encryption
- * is obfuscation, not full IP protection. A determined reverser decrypts offline from the
- * APK and never touches the device — the brief on-disk window doesn't change that.
+ * (single-digit seconds for a ~18 MB model). For the asset-bundled flow the AES key ships in the
+ * APK (obfuscation, not full IP protection per `tools/edge-model/README.md`); for the file-path
+ * flow the key arrives as a call argument delivered out-of-band from the server key endpoint.
  *
  * The module registers `ComponentCallbacks2` to receive memory-pressure signals.
  * Backgrounding the app for a camera intent or phone call does *not* trigger eviction unless
@@ -62,6 +61,7 @@ import javax.crypto.spec.SecretKeySpec
  *   getRegistry(): Promise<object>
  *   loadModel(modelKey, assetPath, overrideJson): Promise<boolean>
  *   loadEncryptedModel(modelKey, encryptedAssetPath, base64Key, sha256, overrideJson): Promise<boolean>
+ *   loadEncryptedModelFromFile(modelKey, encryptedFilePath, base64Key, sha256, overrideJson): Promise<boolean>
  *   runInference(modelKey, inputData: number[], shape?: number[]): Promise<object>
  *   runInferenceOnImage(modelKey, imagePath): Promise<object>
  *
@@ -145,6 +145,13 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
             val sha256Hex: String,
             override val overrideJson: String?
         ) : LoadArgs()
+        /** Encrypted blob from an absolute device file path; AES key arrives as a call argument. */
+        data class EncryptedFile(
+            val encryptedFilePath: String,
+            val base64Key: String,
+            val sha256Hex: String,
+            override val overrideJson: String?
+        ) : LoadArgs()
     }
 
     init {
@@ -215,6 +222,29 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
         } catch (e: Exception) {
             Log.e(TAG, "loadEncryptedModel($modelKey): ${e.message}", e)
             promise.reject("EDGE_MODEL_LOAD_ERROR", "Failed to load encrypted model '$modelKey': ${e.message}", e)
+        } finally {
+            inferenceLock.unlock()
+        }
+    }
+
+    /** Load an AES-GCM-encrypted model from an absolute device file path; AES key supplied as a call argument. */
+    @ReactMethod
+    fun loadEncryptedModelFromFile(
+        modelKey: String,
+        encryptedFilePath: String,
+        base64Key: String,
+        sha256Hex: String,
+        overrideJson: String?,
+        promise: Promise
+    ) {
+        inferenceLock.lock()
+        try {
+            loadArgs[modelKey] = LoadArgs.EncryptedFile(encryptedFilePath, base64Key, sha256Hex, overrideJson)
+            ensureLoaded(modelKey)
+            promise.resolve(true)
+        } catch (e: Exception) {
+            Log.e(TAG, "loadEncryptedModelFromFile($modelKey): ${e.message}", e)
+            promise.reject("EDGE_MODEL_LOAD_ERROR", "Failed to load encrypted model '$modelKey' from file: ${e.message}", e)
         } finally {
             inferenceLock.unlock()
         }
@@ -370,7 +400,7 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
         if (handles.containsKey(modelKey)) return
         val args = loadArgs[modelKey]
             ?: throw IllegalStateException(
-                "Model not loaded: '$modelKey'. Call loadModel()/loadEncryptedModel() before inference."
+                "Model not loaded: '$modelKey'. Call loadModel()/loadEncryptedModel()/loadEncryptedModelFromFile() before inference."
             )
         val safeKey = modelKey.replace(Regex("[^A-Za-z0-9._-]"), "_")
         val plaintextFile = File(reactApplicationContext.filesDir, "$safeKey.model.tmp")
@@ -378,6 +408,7 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
             when (args) {
                 is LoadArgs.Plain -> streamAssetToFile(args.assetPath, plaintextFile)
                 is LoadArgs.Encrypted -> streamDecryptToFile(args.encryptedAssetPath, args.base64Key, args.sha256Hex, plaintextFile)
+                is LoadArgs.EncryptedFile -> streamDecryptFileToFile(args.encryptedFilePath, args.base64Key, args.sha256Hex, plaintextFile)
             }
             // Defensive — `filesDir` already gives 0600 via MODE_PRIVATE, but older devices
             // don't always honour the default. Owner-only readable.
@@ -426,25 +457,8 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
     }
 
     /**
-     * Stream-decrypt an AES-GCM-encrypted asset directly into a private file. Peak JVM-heap
-     * footprint is the two 64 KB chunk buffers + the cipher's internal tag-buffer (≤16 B);
-     * the 18 MB plaintext never materialises as a single allocation.
-     *
-     * Layout of the on-disk blob (matches `tools/edge-model/encrypt-model.js`):
-     *   [12-byte IV][ciphertext...][16-byte GCM tag]
-     *
-     * We decrypt in `DECRYPT_CHUNK_BYTES` chunks via `Cipher.update` and stream the
-     * produced plaintext straight into the destination `FileChannel`. SHA-256 is computed
-     * incrementally over the same chunks; verification happens before the file is handed
-     * to the engine — a mismatch deletes the file and throws.
-     *
-     * Note on AES/GCM streaming: Android's Conscrypt provider (Android 7+) streams GCM
-     * decrypt output as ciphertext arrives, buffering only the final 16-byte tag.
-     * `cipher.update` therefore emits ~chunk-sized plaintext per call; `doFinal` returns
-     * at most a few bytes of tail. The pre-refactor 18 MB JVM-heap peak came from
-     * `ByteBuffer.allocateDirect(plaintextLen)` (ART counts direct buffers against the
-     * growth limit), not from `doFinal` — eliminating it gets the bridge below the
-     * default 96 MB heap cap without needing `largeHeap`.
+     * Stream-decrypt an AES-GCM-encrypted APK asset into a private file via [streamDecryptChannelToFile].
+     * Blob layout (matches `tools/edge-model/encrypt-model.js`): [12-byte IV][ciphertext][16-byte GCM tag].
      */
     private fun streamDecryptToFile(
         encryptedAssetPath: String,
@@ -452,19 +466,67 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
         expectedSha256Hex: String,
         outFile: File
     ) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "streamDecryptToFile(asset=$encryptedAssetPath) → ${outFile.absolutePath}")
+        }
         val fd = reactApplicationContext.assets.openFd(encryptedAssetPath)
-        val totalLen = fd.declaredLength
+        FileInputStream(fd.fileDescriptor).use { fis ->
+            streamDecryptChannelToFile(fis.channel, fd.startOffset, fd.declaredLength, base64Key, expectedSha256Hex, outFile)
+        }
+    }
+
+    /** Stream-decrypt a file-path AES-GCM blob (offset 0) into a private file via [streamDecryptChannelToFile]. */
+    private fun streamDecryptFileToFile(
+        encryptedFilePath: String,
+        base64Key: String,
+        expectedSha256Hex: String,
+        outFile: File
+    ) {
+        val src = File(encryptedFilePath)
+        if (!src.exists() || !src.isFile || !src.canRead()) {
+            throw java.io.FileNotFoundException(
+                "Encrypted model blob missing or unreadable at '$encryptedFilePath'."
+            )
+        }
+        // A truncated/partial blob smaller than the IV passes the exists/isFile/canRead guard
+        // but would BufferUnderflow opaquely while reading the IV. Reject it cleanly first.
+        if (src.length() < GCM_IV_BYTES) {
+            throw IllegalArgumentException(
+                "Encrypted model blob at '$encryptedFilePath' is truncated: ${src.length()} bytes, need at least $GCM_IV_BYTES for the IV."
+            )
+        }
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "streamDecryptFileToFile(path=$encryptedFilePath, len=${src.length()}) → ${outFile.absolutePath}")
+        }
+        FileInputStream(src).use { fis ->
+            streamDecryptChannelToFile(fis.channel, 0L, src.length(), base64Key, expectedSha256Hex, outFile)
+        }
+    }
+
+    /**
+     * Shared AES-GCM decrypt core — chunked-reads ciphertext from an already-opened `FileChannel`
+     * (`startOffset` .. `startOffset + totalLen`) and stream-decrypts it into a private file.
+     * Source-agnostic: only the byte source differs between the asset and file callers.
+     */
+    private fun streamDecryptChannelToFile(
+        channel: FileChannel,
+        startOffset: Long,
+        totalLen: Long,
+        base64Key: String,
+        expectedSha256Hex: String,
+        outFile: File
+    ) {
         val ciphertextLen = totalLen - GCM_IV_BYTES
 
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "streamDecryptToFile($encryptedAssetPath): total=$totalLen → ${outFile.absolutePath}")
-        }
+        // Position the channel at the source's start (offset 0 for a cache file; the asset's
+        // startOffset into the packed assets/ blob). Read the IV + ciphertext in chunks rather
+        // than mmap'ing the source — a MappedByteBuffer survives channel.close() until GC, which
+        // would pin the cached <sha256>.bin blob and let a later version-bump delete fail/defer.
+        channel.position(startOffset)
+        val readBuf = ByteBuffer.allocate(DECRYPT_CHUNK_BYTES)
 
-        val mapped = FileInputStream(fd.fileDescriptor).use { fis ->
-            fis.channel.map(FileChannel.MapMode.READ_ONLY, fd.startOffset, totalLen)
-        }
         // First 12 bytes = IV.
-        val iv = ByteArray(GCM_IV_BYTES).also { mapped.get(it) }
+        val iv = readFully(channel, readBuf, GCM_IV_BYTES)
 
         val key = Base64.decode(base64Key, Base64.DEFAULT)
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
@@ -480,7 +542,7 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
                 var remaining = ciphertextLen.toInt()
                 while (remaining > 0) {
                     val n = minOf(remaining, DECRYPT_CHUNK_BYTES)
-                    mapped.get(chunk, 0, n)
+                    readChunk(channel, readBuf, chunk, n)
                     val produced = cipher.update(chunk, 0, n, outChunk)
                     if (produced > 0) {
                         outCh.write(ByteBuffer.wrap(outChunk, 0, produced))
@@ -503,10 +565,30 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
                 throw SecurityException("Decrypted plaintext SHA-256 mismatch (expected=$expectedSha256Hex, actual=$actual)")
             }
         } finally {
-            // Zero the Java byte arrays. We can't un-page the mmap'd ciphertext (it's the
-            // APK asset) or the on-disk plaintext (caller deletes it), but we clean up our
-            // own scratch space so it doesn't linger in a GC-able allocation.
+            // Zero the Java byte arrays. We can't scrub the on-disk plaintext (caller deletes it),
+            // but we clean up our own scratch space so it doesn't linger in a GC-able allocation.
             chunk.fill(0); outChunk.fill(0); key.fill(0)
+        }
+    }
+
+    /** Read exactly `n` bytes from `channel` (via the reusable `readBuf`) and return them. */
+    private fun readFully(channel: FileChannel, readBuf: ByteBuffer, n: Int): ByteArray {
+        val out = ByteArray(n)
+        readChunk(channel, readBuf, out, n)
+        return out
+    }
+
+    /** Fill `dst[0 until n]` from `channel`, reusing `readBuf`; throws on short read (truncated source). */
+    private fun readChunk(channel: FileChannel, readBuf: ByteBuffer, dst: ByteArray, n: Int) {
+        var read = 0
+        while (read < n) {
+            readBuf.clear()
+            readBuf.limit(minOf(readBuf.capacity(), n - read))
+            val r = channel.read(readBuf)
+            if (r <= 0) throw java.io.IOException("Unexpected end of ciphertext: read $read of $n bytes")
+            readBuf.flip()
+            readBuf.get(dst, read, r)
+            read += r
         }
     }
 
