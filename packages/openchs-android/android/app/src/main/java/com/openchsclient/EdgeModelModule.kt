@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.media.ExifInterface
 import android.util.Base64
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import com.facebook.react.bridge.*
 import com.openchsclient.decoding.Decoders
 import com.openchsclient.engine.InferenceEngine
@@ -77,6 +78,126 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
         private const val GCM_TAG_BITS = 128                  // AES-GCM authentication-tag size
         private const val GCM_IV_BYTES = 12                   // 96-bit IV — recommended for GCM
         private const val DECRYPT_CHUNK_BYTES = 64 * 1024     // 64 KB chunks: balance syscalls vs Java-heap pressure
+
+        /**
+         * Decrypt a file-path AES-GCM blob (offset 0) into a private file, applying the
+         * existence/readability and truncation guards before handing off to [decryptChannelToFile].
+         * Pure-JVM (key arrives Base64-decoded) — see `EdgeModelDecryptTest`.
+         */
+        @JvmStatic
+        @VisibleForTesting
+        internal fun decryptFileToFile(src: File, key: ByteArray, expectedSha256Hex: String, outFile: File) {
+            if (!src.exists() || !src.isFile || !src.canRead()) {
+                throw java.io.FileNotFoundException(
+                    "Encrypted model blob missing or unreadable at '${src.absolutePath}'."
+                )
+            }
+            // A truncated/partial blob smaller than the IV passes the exists/isFile/canRead guard
+            // but would BufferUnderflow opaquely while reading the IV. Reject it cleanly first.
+            if (src.length() < GCM_IV_BYTES) {
+                throw IllegalArgumentException(
+                    "Encrypted model blob at '${src.absolutePath}' is truncated: ${src.length()} bytes, need at least $GCM_IV_BYTES for the IV."
+                )
+            }
+            FileInputStream(src).use { fis ->
+                decryptChannelToFile(fis.channel, 0L, src.length(), key, expectedSha256Hex, outFile)
+            }
+        }
+
+        /**
+         * Shared AES-GCM decrypt core — chunked-reads ciphertext from an already-opened `FileChannel`
+         * (`startOffset` .. `startOffset + totalLen`) and stream-decrypts it into a private file.
+         * Source-agnostic: only the byte source differs between the asset and file callers. The AES
+         * key arrives already Base64-decoded so this core touches no Android framework class — keeping
+         * it a pure-JVM unit (see `EdgeModelDecryptTest`).
+         *
+         * `@VisibleForTesting`: exercised directly from the JVM unit test (`src/test`); production
+         * callers reach it through the private `streamDecrypt*` wrappers, which own the Base64 decode.
+         */
+        @JvmStatic
+        @VisibleForTesting
+        internal fun decryptChannelToFile(
+            channel: FileChannel,
+            startOffset: Long,
+            totalLen: Long,
+            key: ByteArray,
+            expectedSha256Hex: String,
+            outFile: File
+        ) {
+            val ciphertextLen = totalLen - GCM_IV_BYTES
+
+            // Position the channel at the source's start (offset 0 for a cache file; the asset's
+            // startOffset into the packed assets/ blob). Read the IV + ciphertext in chunks rather
+            // than mmap'ing the source — a MappedByteBuffer survives channel.close() until GC, which
+            // would pin the cached <sha256>.bin blob and let a later version-bump delete fail/defer.
+            channel.position(startOffset)
+            val readBuf = ByteBuffer.allocate(DECRYPT_CHUNK_BYTES)
+
+            // First 12 bytes = IV.
+            val iv = readFully(channel, readBuf, GCM_IV_BYTES)
+
+            val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+            cipher.init(Cipher.DECRYPT_MODE, SecretKeySpec(key, "AES"), GCMParameterSpec(GCM_TAG_BITS, iv))
+
+            val md = MessageDigest.getInstance("SHA-256")
+            val chunk = ByteArray(DECRYPT_CHUNK_BYTES)
+            val outChunk = ByteArray(DECRYPT_CHUNK_BYTES + 32)
+
+            try {
+                FileOutputStream(outFile).use { fos ->
+                    val outCh = fos.channel
+                    var remaining = ciphertextLen.toInt()
+                    while (remaining > 0) {
+                        val n = minOf(remaining, DECRYPT_CHUNK_BYTES)
+                        readChunk(channel, readBuf, chunk, n)
+                        val produced = cipher.update(chunk, 0, n, outChunk)
+                        if (produced > 0) {
+                            outCh.write(ByteBuffer.wrap(outChunk, 0, produced))
+                            md.update(outChunk, 0, produced)
+                        }
+                        remaining -= n
+                    }
+                    // doFinal verifies the GCM tag — throws AEADBadTagException on tamper or wrong key.
+                    val tail = cipher.doFinal()
+                    if (tail.isNotEmpty()) {
+                        outCh.write(ByteBuffer.wrap(tail))
+                        md.update(tail)
+                    }
+                }
+
+                // Plaintext integrity check — defends against a swapped blob with valid GCM auth
+                // (e.g. someone re-encrypted a different model with the same key).
+                val actual = md.digest().joinToString("") { "%02x".format(it) }
+                if (!actual.equals(expectedSha256Hex, ignoreCase = true)) {
+                    throw SecurityException("Decrypted plaintext SHA-256 mismatch (expected=$expectedSha256Hex, actual=$actual)")
+                }
+            } finally {
+                // Zero the Java byte arrays. We can't scrub the on-disk plaintext (caller deletes it),
+                // but we clean up our own scratch space so it doesn't linger in a GC-able allocation.
+                chunk.fill(0); outChunk.fill(0); key.fill(0)
+            }
+        }
+
+        /** Read exactly `n` bytes from `channel` (via the reusable `readBuf`) and return them. */
+        private fun readFully(channel: FileChannel, readBuf: ByteBuffer, n: Int): ByteArray {
+            val out = ByteArray(n)
+            readChunk(channel, readBuf, out, n)
+            return out
+        }
+
+        /** Fill `dst[0 until n]` from `channel`, reusing `readBuf`; throws on short read (truncated source). */
+        private fun readChunk(channel: FileChannel, readBuf: ByteBuffer, dst: ByteArray, n: Int) {
+            var read = 0
+            while (read < n) {
+                readBuf.clear()
+                readBuf.limit(minOf(readBuf.capacity(), n - read))
+                val r = channel.read(readBuf)
+                if (r <= 0) throw java.io.IOException("Unexpected end of ciphertext: read $read of $n bytes")
+                readBuf.flip()
+                readBuf.get(dst, read, r)
+                read += r
+            }
+        }
     }
 
     /**
@@ -471,126 +592,23 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
         }
         val fd = reactApplicationContext.assets.openFd(encryptedAssetPath)
         FileInputStream(fd.fileDescriptor).use { fis ->
-            streamDecryptChannelToFile(fis.channel, fd.startOffset, fd.declaredLength, base64Key, expectedSha256Hex, outFile)
+            decryptChannelToFile(fis.channel, fd.startOffset, fd.declaredLength, Base64.decode(base64Key, Base64.DEFAULT), expectedSha256Hex, outFile)
         }
     }
 
-    /** Stream-decrypt a file-path AES-GCM blob (offset 0) into a private file via [streamDecryptChannelToFile]. */
+    /** Stream-decrypt a file-path AES-GCM blob (offset 0) into a private file via [decryptFileToFile]. */
     private fun streamDecryptFileToFile(
         encryptedFilePath: String,
         base64Key: String,
         expectedSha256Hex: String,
         outFile: File
     ) {
-        val src = File(encryptedFilePath)
-        if (!src.exists() || !src.isFile || !src.canRead()) {
-            throw java.io.FileNotFoundException(
-                "Encrypted model blob missing or unreadable at '$encryptedFilePath'."
-            )
-        }
-        // A truncated/partial blob smaller than the IV passes the exists/isFile/canRead guard
-        // but would BufferUnderflow opaquely while reading the IV. Reject it cleanly first.
-        if (src.length() < GCM_IV_BYTES) {
-            throw IllegalArgumentException(
-                "Encrypted model blob at '$encryptedFilePath' is truncated: ${src.length()} bytes, need at least $GCM_IV_BYTES for the IV."
-            )
-        }
         if (BuildConfig.DEBUG) {
-            Log.d(TAG, "streamDecryptFileToFile(path=$encryptedFilePath, len=${src.length()}) → ${outFile.absolutePath}")
+            Log.d(TAG, "streamDecryptFileToFile(path=$encryptedFilePath) → ${outFile.absolutePath}")
         }
-        FileInputStream(src).use { fis ->
-            streamDecryptChannelToFile(fis.channel, 0L, src.length(), base64Key, expectedSha256Hex, outFile)
-        }
+        decryptFileToFile(File(encryptedFilePath), Base64.decode(base64Key, Base64.DEFAULT), expectedSha256Hex, outFile)
     }
 
-    /**
-     * Shared AES-GCM decrypt core — chunked-reads ciphertext from an already-opened `FileChannel`
-     * (`startOffset` .. `startOffset + totalLen`) and stream-decrypts it into a private file.
-     * Source-agnostic: only the byte source differs between the asset and file callers.
-     */
-    private fun streamDecryptChannelToFile(
-        channel: FileChannel,
-        startOffset: Long,
-        totalLen: Long,
-        base64Key: String,
-        expectedSha256Hex: String,
-        outFile: File
-    ) {
-        val ciphertextLen = totalLen - GCM_IV_BYTES
-
-        // Position the channel at the source's start (offset 0 for a cache file; the asset's
-        // startOffset into the packed assets/ blob). Read the IV + ciphertext in chunks rather
-        // than mmap'ing the source — a MappedByteBuffer survives channel.close() until GC, which
-        // would pin the cached <sha256>.bin blob and let a later version-bump delete fail/defer.
-        channel.position(startOffset)
-        val readBuf = ByteBuffer.allocate(DECRYPT_CHUNK_BYTES)
-
-        // First 12 bytes = IV.
-        val iv = readFully(channel, readBuf, GCM_IV_BYTES)
-
-        val key = Base64.decode(base64Key, Base64.DEFAULT)
-        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        cipher.init(Cipher.DECRYPT_MODE, SecretKeySpec(key, "AES"), GCMParameterSpec(GCM_TAG_BITS, iv))
-
-        val md = MessageDigest.getInstance("SHA-256")
-        val chunk = ByteArray(DECRYPT_CHUNK_BYTES)
-        val outChunk = ByteArray(DECRYPT_CHUNK_BYTES + 32)
-
-        try {
-            FileOutputStream(outFile).use { fos ->
-                val outCh = fos.channel
-                var remaining = ciphertextLen.toInt()
-                while (remaining > 0) {
-                    val n = minOf(remaining, DECRYPT_CHUNK_BYTES)
-                    readChunk(channel, readBuf, chunk, n)
-                    val produced = cipher.update(chunk, 0, n, outChunk)
-                    if (produced > 0) {
-                        outCh.write(ByteBuffer.wrap(outChunk, 0, produced))
-                        md.update(outChunk, 0, produced)
-                    }
-                    remaining -= n
-                }
-                // doFinal verifies the GCM tag — throws AEADBadTagException on tamper or wrong key.
-                val tail = cipher.doFinal()
-                if (tail.isNotEmpty()) {
-                    outCh.write(ByteBuffer.wrap(tail))
-                    md.update(tail)
-                }
-            }
-
-            // Plaintext integrity check — defends against a swapped blob with valid GCM auth
-            // (e.g. someone re-encrypted a different model with the same key).
-            val actual = md.digest().joinToString("") { "%02x".format(it) }
-            if (!actual.equals(expectedSha256Hex, ignoreCase = true)) {
-                throw SecurityException("Decrypted plaintext SHA-256 mismatch (expected=$expectedSha256Hex, actual=$actual)")
-            }
-        } finally {
-            // Zero the Java byte arrays. We can't scrub the on-disk plaintext (caller deletes it),
-            // but we clean up our own scratch space so it doesn't linger in a GC-able allocation.
-            chunk.fill(0); outChunk.fill(0); key.fill(0)
-        }
-    }
-
-    /** Read exactly `n` bytes from `channel` (via the reusable `readBuf`) and return them. */
-    private fun readFully(channel: FileChannel, readBuf: ByteBuffer, n: Int): ByteArray {
-        val out = ByteArray(n)
-        readChunk(channel, readBuf, out, n)
-        return out
-    }
-
-    /** Fill `dst[0 until n]` from `channel`, reusing `readBuf`; throws on short read (truncated source). */
-    private fun readChunk(channel: FileChannel, readBuf: ByteBuffer, dst: ByteArray, n: Int) {
-        var read = 0
-        while (read < n) {
-            readBuf.clear()
-            readBuf.limit(minOf(readBuf.capacity(), n - read))
-            val r = channel.read(readBuf)
-            if (r <= 0) throw java.io.IOException("Unexpected end of ciphertext: read $read of $n bytes")
-            readBuf.flip()
-            readBuf.get(dst, read, r)
-            read += r
-        }
-    }
 
     private fun jsonStringToWritableMap(raw: String): WritableMap {
         val obj = org.json.JSONObject(raw)

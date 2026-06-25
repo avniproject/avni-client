@@ -270,6 +270,10 @@ android {
     androidResources {
         noCompress += ['bin', 'pt', 'ptl', 'tflite', 'onnx']
     }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 dependencies {
@@ -314,6 +318,10 @@ dependencies {
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01'
     implementation 'androidx.work:work-runtime:2.8.1'
     implementation 'org.jetbrains:annotations:16.0.2'
+
+    // JVM unit tests (src/test) — pure-JVM coverage of EdgeModelModule's AES-GCM decrypt core
+    // (avni-client#1947). No Robolectric: the tested helpers touch no Android framework class.
+    testImplementation 'junit:junit:4.13.2'
 
     // Flipper removed - React Native 0.76+ uses React DevTools instead
 }
