@@ -177,10 +177,9 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
 
     /**
      * Engine providers, one per supported `engine` name in the registry override, resolved
-     * lazily and reflectively. OnnxEngine lives in the tanuh source set and
-     * `com.microsoft.onnxruntime:onnxruntime-android` is tanuh-scoped, so its native libs stay
-     * out of non-tanuh AABs. Reflective lookup means non-tanuh flavours compile and boot
-     * without the class; their registries ship empty so no code path ever requests the engine.
+     * lazily and reflectively. OnnxEngine ships in every flavour; reflective lookup means a
+     * flavour still boots even if an engine class is absent, and the engine is only realised
+     * when an org has a configured model that requests it.
      */
     private val engineProviders: Map<String, () -> InferenceEngine> by lazy {
         buildMap { registerEngine("onnx", "com.openchsclient.engine.OnnxEngine") }

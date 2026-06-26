@@ -12,13 +12,13 @@ import java.nio.FloatBuffer
 import java.util.Collections
 
 /**
- * ONNX Runtime Mobile inference backend (~/.claude/plans/composed-tumbling-bachman.md).
+ * ONNX Runtime Mobile inference backend.
  *
  * Uses Microsoft's `com.microsoft.onnxruntime:onnxruntime-android`. Unlike PyTorch Mobile
  * 1.13.1 (whose prebuilt `.so` LOAD segments are 4 KB-aligned and rejected by Google Play
  * for targetSdk 35), ONNX Runtime's 64-bit native libs are already 16 KB-page-aligned, so
- * the tanuh AAB clears the Play 16 KB check without a custom rebuild. The MViT2 fold
- * ensemble is shipped as ONNX exports of the clinically-validated TorchScript models.
+ * the AAB clears the Play 16 KB check without a custom rebuild. Models are supplied as ONNX
+ * exports and run via this engine regardless of flavour.
  *
  * ── Memory posture on low-RAM devices ───────────────────────────────────────────────
  * The 3-fold ensemble holds three sessions resident. With ORT's defaults each session spins
