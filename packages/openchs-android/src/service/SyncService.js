@@ -25,6 +25,7 @@ import {firebaseEvents, logEvent} from "../utility/Analytics";
 import MediaService from "./MediaService";
 import NewsService from "./news/NewsService";
 import ExtensionService from "./ExtensionService";
+import DownloadableContentService from "./DownloadableContentService";
 import CustomCardConfigService from "./CustomCardConfigService";
 import FormShareTemplateService from "./FormShareTemplateService";
 import ConceptService from "./ConceptService";
@@ -95,6 +96,7 @@ class SyncService extends BaseService {
         this.conceptService = this.getService(ConceptService);
         this.newsService = this.getService(NewsService);
         this.extensionService = this.getService(ExtensionService);
+        this.downloadableContentService = this.getService(DownloadableContentService);
         this.customCardConfigService = this.getService(CustomCardConfigService);
         this.formShareTemplateService = this.getService(FormShareTemplateService);
         this.subjectTypeService = this.getService(SubjectTypeService);
@@ -276,10 +278,15 @@ class SyncService extends BaseService {
             .then(() => this.downloadCustomCardHtmlFiles())
             .then(() => this.downloadFormShareTemplates())
             .then(() => this.downloadIcons())
+            .then(() => this.downloadContent(statusMessageCallBack))
     }
 
     downloadExtensions() {
         this.extensionService.downloadExtensions();
+    }
+
+    downloadContent(statusMessageCallBack) {
+        return this.downloadableContentService.downloadContent(statusMessageCallBack);
     }
 
     downloadCustomCardHtmlFiles() {

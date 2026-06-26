@@ -219,6 +219,7 @@
     "uploadLocallySavedData": "Uploading saved data",
     "downloadForms": "Downloading new forms",
     "downloadNewDataFromServer": "Downloading new data from server",
+    "contentNotDownloaded": "Some content could not be downloaded. It will be retried at next sync.",
     "getLocation": "Get GPS Location",
     "gpsCoordinates": "GPS Coordinates",
     "giveLocationPermissions": "Click on Get Location button and give permissions when asked",

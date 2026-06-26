@@ -140,6 +140,7 @@ import './BeneficiaryModePinService';
 import './CallService';
 import './EncryptionService';
 import './ExtensionService';
+import './DownloadableContentService';
 import './CustomCardConfigService';
 import './PDFGenerationService';
 import './FormPDFService';
