@@ -79,11 +79,6 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
         private const val GCM_IV_BYTES = 12                   // 96-bit IV — recommended for GCM
         private const val DECRYPT_CHUNK_BYTES = 64 * 1024     // 64 KB chunks: balance syscalls vs Java-heap pressure
 
-        /**
-         * Decrypt a file-path AES-GCM blob (offset 0) into a private file, applying the
-         * existence/readability and truncation guards before handing off to [decryptChannelToFile].
-         * Pure-JVM (key arrives Base64-decoded) — see `EdgeModelDecryptTest`.
-         */
         @JvmStatic
         @VisibleForTesting
         internal fun decryptFileToFile(src: File, key: ByteArray, expectedSha256Hex: String, outFile: File) {
@@ -92,8 +87,7 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
                     "Encrypted model blob missing or unreadable at '${src.absolutePath}'."
                 )
             }
-            // A truncated/partial blob smaller than the IV passes the exists/isFile/canRead guard
-            // but would BufferUnderflow opaquely while reading the IV. Reject it cleanly first.
+            // Reject a sub-IV blob cleanly; otherwise it BufferUnderflows opaquely reading the IV.
             if (src.length() < GCM_IV_BYTES) {
                 throw IllegalArgumentException(
                     "Encrypted model blob at '${src.absolutePath}' is truncated: ${src.length()} bytes, need at least $GCM_IV_BYTES for the IV."
@@ -104,16 +98,6 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
             }
         }
 
-        /**
-         * Shared AES-GCM decrypt core — chunked-reads ciphertext from an already-opened `FileChannel`
-         * (`startOffset` .. `startOffset + totalLen`) and stream-decrypts it into a private file.
-         * Source-agnostic: only the byte source differs between the asset and file callers. The AES
-         * key arrives already Base64-decoded so this core touches no Android framework class — keeping
-         * it a pure-JVM unit (see `EdgeModelDecryptTest`).
-         *
-         * `@VisibleForTesting`: exercised directly from the JVM unit test (`src/test`); production
-         * callers reach it through the private `streamDecrypt*` wrappers, which own the Base64 decode.
-         */
         @JvmStatic
         @VisibleForTesting
         internal fun decryptChannelToFile(
@@ -126,14 +110,10 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
         ) {
             val ciphertextLen = totalLen - GCM_IV_BYTES
 
-            // Position the channel at the source's start (offset 0 for a cache file; the asset's
-            // startOffset into the packed assets/ blob). Read the IV + ciphertext in chunks rather
-            // than mmap'ing the source — a MappedByteBuffer survives channel.close() until GC, which
-            // would pin the cached <sha256>.bin blob and let a later version-bump delete fail/defer.
+            // Chunked-read rather than mmap: a MappedByteBuffer survives channel.close() until GC, pinning the cached blob and deferring a later delete.
             channel.position(startOffset)
             val readBuf = ByteBuffer.allocate(DECRYPT_CHUNK_BYTES)
 
-            // First 12 bytes = IV.
             val iv = readFully(channel, readBuf, GCM_IV_BYTES)
 
             val cipher = Cipher.getInstance("AES/GCM/NoPadding")
@@ -165,27 +145,22 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
                     }
                 }
 
-                // Plaintext integrity check — defends against a swapped blob with valid GCM auth
-                // (e.g. someone re-encrypted a different model with the same key).
+                // Plaintext SHA check — catches a swapped blob re-encrypted with the same key (valid GCM auth).
                 val actual = md.digest().joinToString("") { "%02x".format(it) }
                 if (!actual.equals(expectedSha256Hex, ignoreCase = true)) {
                     throw SecurityException("Decrypted plaintext SHA-256 mismatch (expected=$expectedSha256Hex, actual=$actual)")
                 }
             } finally {
-                // Zero the Java byte arrays. We can't scrub the on-disk plaintext (caller deletes it),
-                // but we clean up our own scratch space so it doesn't linger in a GC-able allocation.
                 chunk.fill(0); outChunk.fill(0); key.fill(0)
             }
         }
 
-        /** Read exactly `n` bytes from `channel` (via the reusable `readBuf`) and return them. */
         private fun readFully(channel: FileChannel, readBuf: ByteBuffer, n: Int): ByteArray {
             val out = ByteArray(n)
             readChunk(channel, readBuf, out, n)
             return out
         }
 
-        /** Fill `dst[0 until n]` from `channel`, reusing `readBuf`; throws on short read (truncated source). */
         private fun readChunk(channel: FileChannel, readBuf: ByteBuffer, dst: ByteArray, n: Int) {
             var read = 0
             while (read < n) {
@@ -266,7 +241,6 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
             val sha256Hex: String,
             override val overrideJson: String?
         ) : LoadArgs()
-        /** Encrypted blob from an absolute device file path; AES key arrives as a call argument. */
         data class EncryptedFile(
             val encryptedFilePath: String,
             val base64Key: String,
@@ -348,7 +322,6 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
         }
     }
 
-    /** Load an AES-GCM-encrypted model from an absolute device file path; AES key supplied as a call argument. */
     @ReactMethod
     fun loadEncryptedModelFromFile(
         modelKey: String,
@@ -577,10 +550,7 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
         }
     }
 
-    /**
-     * Stream-decrypt an AES-GCM-encrypted APK asset into a private file via [streamDecryptChannelToFile].
-     * Blob layout (matches `tools/edge-model/encrypt-model.js`): [12-byte IV][ciphertext][16-byte GCM tag].
-     */
+    // Blob layout (matches `tools/edge-model/encrypt-model.js`): [12-byte IV][ciphertext][16-byte GCM tag].
     private fun streamDecryptToFile(
         encryptedAssetPath: String,
         base64Key: String,
@@ -596,7 +566,6 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
         }
     }
 
-    /** Stream-decrypt a file-path AES-GCM blob (offset 0) into a private file via [decryptFileToFile]. */
     private fun streamDecryptFileToFile(
         encryptedFilePath: String,
         base64Key: String,
@@ -608,7 +577,6 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
         }
         decryptFileToFile(File(encryptedFilePath), Base64.decode(base64Key, Base64.DEFAULT), expectedSha256Hex, outFile)
     }
-
 
     private fun jsonStringToWritableMap(raw: String): WritableMap {
         val obj = org.json.JSONObject(raw)
