@@ -29,11 +29,11 @@ import javax.crypto.spec.SecretKeySpec
  *
  * ── Design ─────────────────────────────────────────────────────────────────────────
  * The bridge is **engine-agnostic** and **model-agnostic**:
- *   • Per-model semantics — which engine, which preprocessor, which decoder — live in
- *     `assets/models/registry.json` as a small declarative DSL. This file owns no model-specific
- *     math and does not branch on `modelKey`.
+ *   • Per-model semantics — which engine, which preprocessor, which decoder — come from the
+ *     synced DownloadableContent row's payload as a small declarative DSL. It owns no
+ *     model-specific math and does not branch on `modelKey`.
  *   • Engine = `ai.onnxruntime.OrtSession` etc., dispatched via `InferenceEngine` (Kotlin
- *     interface). ONNX Runtime Mobile is the backend for the tanuh ensemble; adding
+ *     interface). ONNX Runtime Mobile is the default engine, shipped in every flavour; adding
  *     TFLite/ExecuTorch is one new class drop, not a rewrite.
  *   • Preprocessor + decoder = named Kotlin classes registered in `Preprocessors.REGISTRY`
  *     and `Decoders.REGISTRY`. Override JSON references them by string name; the bridge
@@ -203,8 +203,7 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
     private fun engineFor(engineName: String): InferenceEngine =
         engines.getOrPut(engineName) {
             (engineProviders[engineName] ?: throw IllegalArgumentException(
-                "Unknown or unavailable engine '$engineName'. Available: ${engineProviders.keys}. " +
-                "(ONNX Runtime ships only in the tanuh flavour.)"
+                "Unknown or unavailable engine '$engineName'. Available: ${engineProviders.keys}."
             )).invoke()
         }
 
