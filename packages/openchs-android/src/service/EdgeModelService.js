@@ -85,7 +85,10 @@ class EdgeModelService extends BaseService {
      */
     _edgeModelRows() {
         return _.sortBy(
-            this.getAllNonVoided().filter(row => row.category === EDGE_MODEL_CATEGORY && !_.isNil(row.sha256)),
+            // Predicate matches the downloader (DownloadableContentService.downloadContent),
+            // which requires both contentKey and sha256 — a row missing either is never cached,
+            // so treating it as a loadable fold would silently degrade inference.
+            this.getAllNonVoided().filter(row => row.category === EDGE_MODEL_CATEGORY && !_.isNil(row.sha256) && !_.isNil(row.contentKey)),
             row => row.sha256
         );
     }
@@ -123,9 +126,23 @@ class EdgeModelService extends BaseService {
             throw new Error('EdgeModelService.runInferenceOnImage: no edgeModel content row is synced');
         }
         if (rows.length === 1) {
-            return this._runInferenceOnImageForRow(rows[0], imagePath);
+            const result = await this._runInferenceOnImageForRow(rows[0], imagePath);
+            return this._withPositive(result, rows[0]);
         }
         return this.runEnsembleInferenceOnImage(imagePath);
+    }
+
+    /**
+     * Guarantee the `positive` boolean on a verdict. The native single-model result omits it;
+     * derive it from the row's decoder labels (positive = label matches labels[1]) so the
+     * single-row and ensemble paths share the same {label, confidence, positive} shape.
+     */
+    _withPositive(result, row) {
+        if (!_.isNil(result.positive)) {
+            return result;
+        }
+        const labels = row.getPayload()?.output?.params?.labels || ['Negative', 'Positive'];
+        return {...result, positive: result.label === labels[1]};
     }
 
     async _runInferenceOnImageForRow(row, imagePath) {
@@ -356,12 +373,14 @@ class EdgeModelService extends BaseService {
         const overrideJson = this._overrideJsonFor(row);
         const t0 = Date.now();
 
+        let nativeLoadAttempted = false;
         try {
             const key = row.needsKey ? await this._readKey(sha256) : null;
             if (row.needsKey && _.isNil(key)) {
                 throw new Error(`EdgeModelService: AES key not cached yet for sha256 '${sha256}' (key fetch pending or failed at sync)`);
             }
             General.logDebug('EdgeModelSvc', `_ensureLoaded ENCRYPTED FILE: sha256=${sha256} path=${blobPath}`);
+            nativeLoadAttempted = true;
             await NativeModules.EdgeModelModule.loadEncryptedModelFromFile(
                 sha256,
                 blobPath,
@@ -374,6 +393,12 @@ class EdgeModelService extends BaseService {
         } catch (e) {
             General.logError('EdgeModelSvc',
                 `_ensureLoaded FAIL (${Date.now() - t0}ms) ${sha256}: ${e && e.message}`);
+            // A native load failure (GCM/sha mismatch) means the cached blob is corrupt/poisoned;
+            // drop it so the next sync re-fetches. Pre-native guard throws are transient pending
+            // states — the cache is fine, so leave it alone.
+            if (nativeLoadAttempted) {
+                await fs.unlink(this.blobPath(sha256)).catch(() => {});
+            }
             throw e;
         }
     }

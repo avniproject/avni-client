@@ -68,10 +68,21 @@ class DownloadableContentService extends BaseService {
         const signedUrl = await this.getBlobUrl(item.contentKey);
         const response = await downloadWithoutAuth(signedUrl, blobPath);
         try {
+            // A signed URL can resolve with a non-2xx error body (e.g. expired URL returns a
+            // small XML error). Reject it before the size check so the error body is never
+            // cached as the blob and read as ciphertext on the next sync.
+            this.verifyDownloadStatus(response);
             await this.verifyDownloadSize(response, blobPath);
         } catch (error) {
             await this.unlinkIfExists(blobPath);
             throw error;
+        }
+    }
+
+    verifyDownloadStatus(response) {
+        const status = response.respInfo && response.respInfo.status;
+        if (!(status >= 200 && status < 300)) {
+            throw new Error(`Blob download failed with HTTP ${status}`);
         }
     }
 

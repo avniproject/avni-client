@@ -42,10 +42,11 @@
       console.log(TAG, "calling edgeModelService.runInferenceOnImage(imagePath)");
 
       // The model is the set of synced `edgeModel` content rows — no modelKey is passed.
-      // One row runs a single model; multiple rows run a soft-vote ensemble. Both return a
-      // verdict shaped the same way:
-      //   { label: "Positive"|"Negative", confidence, positive, perModel? }
-      // (`positive` is the boolean verdict; `perModel` is the per-fold breakdown for ensembles.)
+      // One row runs a single model; multiple rows run a soft-vote ensemble. Only the common
+      // shape is guaranteed across both paths:
+      //   { label: "Positive"|"Negative", confidence, positive }
+      // (`positive` is the boolean verdict.) `perModel` (per-fold breakdown) is ensemble-only;
+      // `logit`/`raw`/`threshold` are single-model-only — none of these are guaranteed.
       return params.services.edgeModelService.runInferenceOnImage(imagePath)
         .then(result => {
           console.log(TAG, "inference result:", JSON.stringify({

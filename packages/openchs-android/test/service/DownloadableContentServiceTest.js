@@ -7,7 +7,7 @@ const mockDownloadWithoutAuth = jest.fn();
 jest.mock('../../src/service/AuthAwareDownload', () => ({downloadWithoutAuth: (...args) => mockDownloadWithoutAuth(...args)}));
 
 const mockFsState = {existing: new Set(), dirContents: {}, sizes: {}};
-const blobResponse = (size) => ({respInfo: {headers: {'Content-Length': String(size)}}});
+const blobResponse = (size, status = 200) => ({respInfo: {status, headers: {'Content-Length': String(size)}}});
 jest.mock('react-native-fs', () => ({
     DocumentDirectoryPath: '/mock/private',
     ExternalDirectoryPath: '/mock/external',
@@ -129,6 +129,24 @@ describe('DownloadableContentService', () => {
         expect(statusMessageCallBack).toHaveBeenCalledWith('contentNotDownloaded');
     });
 
+    it('rejects a non-2xx response (e.g. expired signed URL → 403 error body) and unlinks the partial', async () => {
+        items = [item()];
+        // RNFetchBlob resolves even on HTTP errors; the small error body would otherwise pass
+        // the size check and be cached as the blob.
+        mockDownloadWithoutAuth.mockImplementation((url, target) => {
+            mockFsState.existing.add(target);
+            mockFsState.sizes[target] = 120;  // non-empty XML error body
+            return Promise.resolve(blobResponse(120, 403));
+        });
+
+        const failures = await service.downloadContent(statusMessageCallBack);
+
+        expect(failures).toEqual(['edge-model']);
+        expect(fs.unlink).toHaveBeenCalledWith(blobPath('abc'));
+        expect(mockFsState.existing.has(blobPath('abc'))).toBe(false);
+        expect(statusMessageCallBack).toHaveBeenCalledWith('contentNotDownloaded');
+    });
+
     it('rejects an empty download (zero bytes) and unlinks the partial', async () => {
         items = [item()];
         mockDownloadWithoutAuth.mockImplementation((url, target) => {
@@ -148,7 +166,7 @@ describe('DownloadableContentService', () => {
         mockDownloadWithoutAuth.mockImplementation((url, target) => {
             mockFsState.existing.add(target);
             mockFsState.sizes[target] = 100;
-            return Promise.resolve({respInfo: {headers: {}}});
+            return Promise.resolve({respInfo: {status: 200, headers: {}}});
         });
 
         const failures = await service.downloadContent(statusMessageCallBack);

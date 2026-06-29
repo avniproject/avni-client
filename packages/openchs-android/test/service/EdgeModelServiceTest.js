@@ -17,6 +17,7 @@ jest.mock('react-native-fs', () => ({
     ExternalDirectoryPath: '/mock/external',
     exists: jest.fn((p) => Promise.resolve(mockFsState.existing.has(p))),
     readFile: jest.fn((p) => Promise.resolve(mockFsState.files[p])),
+    unlink: jest.fn((p) => { mockFsState.existing.delete(p); return Promise.resolve(); }),
 }));
 
 jest.mock('react-native', () => ({
@@ -32,6 +33,7 @@ jest.mock('react-native', () => ({
 jest.mock('../../src/framework/bean/Service', () => () => (target) => target);
 
 import {NativeModules} from 'react-native';
+import fs from 'react-native-fs';
 import EdgeModelService from '../../src/service/EdgeModelService';
 import FileSystem from '../../src/model/FileSystem';
 
@@ -49,7 +51,7 @@ const OVERRIDE = {
 // Mirrors DownloadableContent: payload is a JSON string, getPayload() parses it.
 const row = (overrides = {}) => {
     const base = {
-        category: 'edgeModel', sha256: 'sha-a', needsKey: true, voided: false,
+        category: 'edgeModel', sha256: 'sha-a', contentKey: 'models/sha-a.bin', needsKey: true, voided: false,
         payload: JSON.stringify(OVERRIDE), ...overrides,
     };
     return {
@@ -572,6 +574,71 @@ describe('EdgeModelService', () => {
             const [, payload] = service.dispatchAction.mock.calls[0];
             expect(payload.results).toHaveLength(3);
             expect(payload.results.map(r => r.questionGroupIndex).sort()).toEqual([0, 1, 2]);
+        });
+    });
+
+    describe('result shape', () => {
+        it('the single-model result includes the derived `positive` boolean (matches the ensemble shape)', async () => {
+            const r = row();
+            rows = [r];
+            cacheRow(r);
+            // Native single-model result omits `positive`; the service must derive it.
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockResolvedValueOnce({label: 'Positive', confidence: 0.9});
+
+            const result = await service.runInferenceOnImage('/tmp/x.jpg');
+
+            expect(result.positive).toBe(true);
+            expect(result.label).toBe('Positive');
+            expect(result.confidence).toBe(0.9);
+        });
+
+        it('derives positive=false when the single-model label is the negative class', async () => {
+            const r = row();
+            rows = [r];
+            cacheRow(r);
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockResolvedValueOnce({label: 'Negative', confidence: 0.1});
+
+            const result = await service.runInferenceOnImage('/tmp/x.jpg');
+
+            expect(result.positive).toBe(false);
+        });
+    });
+
+    describe('_edgeModelRows predicate (matches the downloader)', () => {
+        it('excludes a row with a null contentKey — it is never downloaded, so it is not a loadable fold', () => {
+            const ok = row({sha256: 'sha-ok', contentKey: 'models/sha-ok.bin'});
+            const noKey = row({sha256: 'sha-nokey', contentKey: null});
+            rows = [ok, noKey];
+
+            const resolved = service._edgeModelRows();
+
+            expect(resolved.map(r => r.sha256)).toEqual(['sha-ok']);
+        });
+    });
+
+    describe('self-heal a poisoned blob', () => {
+        it('unlinks the cached blob when the native load throws (corrupt/GCM/sha failure)', async () => {
+            const r = row();
+            rows = [r];
+            cacheRow(r);
+            NativeModules.EdgeModelModule.loadEncryptedModelFromFile.mockRejectedValueOnce(new Error('GCM tag mismatch'));
+
+            await expect(service.runInferenceOnImage('/tmp/x.jpg')).rejects.toThrow('GCM tag mismatch');
+
+            expect(fs.unlink).toHaveBeenCalledWith(blobPath(r.sha256));
+            expect(mockFsState.existing.has(blobPath(r.sha256))).toBe(false);
+        });
+
+        it('does not unlink the blob for a pre-native guard throw (key not cached yet)', async () => {
+            const r = row();
+            rows = [r];
+            // Blob present, key absent ⇒ throws before the native load is attempted.
+            mockFsState.existing.add(blobPath(r.sha256));
+
+            await expect(service.runInferenceOnImage('/tmp/x.jpg')).rejects.toThrow('AES key not cached');
+
+            expect(fs.unlink).not.toHaveBeenCalled();
+            expect(mockFsState.existing.has(blobPath(r.sha256))).toBe(true);
         });
     });
 });
