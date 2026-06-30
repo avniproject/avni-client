@@ -381,7 +381,7 @@ class CHSNavigator {
     }
 
     static onSaveGoToProgramEnrolmentDashboardView(recommendationsView, individualUUID, message) {
-        const toBeRemoved = [SystemRecommendationView, PersonRegisterFormView, PersonRegisterView, SubjectRegisterView, AddNewMemberView];
+        const toBeRemoved = [SystemRecommendationView, PersonRegisterFormView, PersonRegisterView, SubjectRegisterFormView, SubjectRegisterView, AddNewMemberView, GenericDashboardView];
         TypedTransition
             .from(recommendationsView)
             .resetStack(toBeRemoved, [
@@ -424,6 +424,7 @@ class CHSNavigator {
             SystemRecommendationView,
             PersonRegisterFormView,
             PersonRegisterView,
+            SubjectRegisterFormView,
             SubjectRegisterView,
             ProgramEncounterView,
             ProgramEnrolmentView,
