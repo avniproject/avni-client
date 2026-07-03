@@ -8,6 +8,24 @@ import fs from 'react-native-fs';
 import _ from "lodash";
 import {DownloadableContent} from 'avni-models';
 
+// A failed request rejects with a ServerError whose message is the coerced Response ("[object Object]");
+// the useful detail is the HTTP status. Produce a diagnosable string: HTTP status, a usable message, or a
+// JSON fallback — never a bare "[object Object]".
+export function describeError(error) {
+    if (!error) return "unknown error";
+    const status = _.get(error, "response.status");
+    const message = _.isString(error.message) && error.message !== "[object Object]" ? error.message : null;
+    const parts = [];
+    if (status) parts.push(`HTTP ${status}`);
+    if (message) parts.push(message);
+    if (parts.length > 0) return parts.join(" ");
+    try {
+        const json = JSON.stringify(error);
+        if (json && json !== "{}") return json;
+    } catch (e) { /* circular/unserializable — fall through */ }
+    return "unserializable error";
+}
+
 @Service("downloadableContentService")
 class DownloadableContentService extends BaseService {
     constructor(db, context) {
@@ -36,7 +54,7 @@ class DownloadableContentService extends BaseService {
             try {
                 await this.downloadItem(item);
             } catch (error) {
-                General.logError("DownloadableContentService", `Failed to download content '${item.name}': ${error && error.message}`);
+                General.logError("DownloadableContentService", `Failed to download content '${item.name}' (${item.contentKey}): ${describeError(error)}`);
                 failures.push(item.name);
             }
         }

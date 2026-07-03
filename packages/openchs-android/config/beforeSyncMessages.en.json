@@ -14,6 +14,7 @@
   "myDashboard": "My Dashboard",
   "home": "Home",
   "menu": "Menu",
+  "contentNotDownloaded": "Some content could not be downloaded. It will be retried at next sync.",
   "syncComplete": "Sync Complete ",
   "total": "Total",
   "RecentRegistration": "Last 24 hours Registrations",

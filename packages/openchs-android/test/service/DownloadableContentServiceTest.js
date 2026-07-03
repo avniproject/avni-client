@@ -23,7 +23,7 @@ jest.mock('react-native-fs', () => ({
 jest.mock('react-native', () => ({NativeModules: {}}));
 
 import fs from 'react-native-fs';
-import DownloadableContentService from '../../src/service/DownloadableContentService';
+import DownloadableContentService, {describeError} from '../../src/service/DownloadableContentService';
 import FileSystem from '../../src/model/FileSystem';
 
 const MODELS_DIR = FileSystem.getModelsDir();
@@ -42,6 +42,26 @@ const writesBlob = (size) => (url, target) => {
     mockFsState.sizes[target] = size;
     return Promise.resolve(blobResponse(size));
 };
+
+describe('describeError', () => {
+    it('reports the HTTP status for a ServerError whose message is [object Object]', () => {
+        expect(describeError({response: {status: 500}, message: '[object Object]'})).toBe('HTTP 500');
+    });
+    it('uses a clean error message when present', () => {
+        expect(describeError(new Error('Blob download failed with HTTP 403'))).toBe('Blob download failed with HTTP 403');
+    });
+    it('combines status and message when both are useful', () => {
+        const e = new Error('boom');
+        e.response = {status: 404};
+        expect(describeError(e)).toBe('HTTP 404 boom');
+    });
+    it('falls back to JSON for an opaque object', () => {
+        expect(describeError({code: 'X'})).toBe('{"code":"X"}');
+    });
+    it('handles a null error', () => {
+        expect(describeError(null)).toBe('unknown error');
+    });
+});
 
 describe('DownloadableContentService', () => {
     let service;

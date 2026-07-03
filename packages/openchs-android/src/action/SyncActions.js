@@ -11,13 +11,14 @@ class SyncActions {
             message: '',
             syncMessage: '',
             startSync: false,
-            backgroundSyncInProgress: false
+            backgroundSyncInProgress: false,
+            contentDownloadWarning: false
         };
     }
 
     static preSync(state) {
         const startTime = Date.now();
-        return {...state, syncing: true, syncMessage: "syncingData", startTime};
+        return {...state, syncing: true, syncMessage: "syncingData", startTime, contentDownloadWarning: false};
     }
 
     static postSync(state) {
@@ -61,7 +62,10 @@ class SyncActions {
     static onMessageCallback(state, action, context) {
         return {
             ...state,
-            message: action.message
+            message: action.message,
+            // A content-download failure is signalled by this transient status message, which the completion
+            // state then overwrites. Latch a flag (reset at preSync) so the "sync complete" modal can surface it.
+            contentDownloadWarning: state.contentDownloadWarning || action.message === "contentNotDownloaded"
         }
     }
 }

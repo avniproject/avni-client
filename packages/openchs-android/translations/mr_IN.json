@@ -188,6 +188,7 @@
     "giveLocationPermissionFromSettings": "कृपया Settings > Apps > Avni मध्ये जाऊन Avni ला ठिकाणाची अनुमति द्या",
     "Name": "नाव",
     "percentageDone": "टक्केवारी",
+    "contentNotDownloaded": "काही सामग्री डाउनलोड होऊ शकली नाही. पुढील संकालनाच्या वेळी पुन्हा प्रयत्न केला जाईल.",
     "syncComplete": "संकालन पूर्ण",
     "internetConnectionError": "इंटरनेट कनेक्शन नाही कृपया इंटरनेटशी कनेक्ट करा.",
     "syncServerError": "त्रुटी आढळली आहे. कृपया काही वेळानंतर प्रयत्न करा.",
