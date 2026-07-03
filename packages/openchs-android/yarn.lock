@@ -11407,6 +11407,11 @@ react-native-video@6.16.1:
   resolved "https://registry.npmjs.org/react-native-video/-/react-native-video-6.16.1.tgz"
   integrity sha512-+G6tVVGbwFqNTyPivqb+PhQzWr5OudDQ1dgvBNyBRAgcS8rOcbwuS6oX+m8cxOsXHn1UT9ofQnjQEwkGOsvomg==
 
+react-native-vision-camera@^4.7.3:
+  version "4.7.3"
+  resolved "https://registry.npmjs.org/react-native-vision-camera/-/react-native-vision-camera-4.7.3.tgz"
+  integrity sha512-g1/neOyjSqn1kaAa2FxI/qp5KzNvPcF0bnQw6NntfbxH6tm0+8WFZszlgb5OV+iYlB6lFUztCbDtyz5IpL47OA==
+
 react-native-webview@13.16.0:
   version "13.16.0"
   resolved "https://registry.npmjs.org/react-native-webview/-/react-native-webview-13.16.0.tgz"

@@ -10,6 +10,8 @@ import ExpandableMedia from "../../common/ExpandableMedia";
 import FileSystem from "../../../model/FileSystem";
 import DeviceInfo from 'react-native-device-info';
 import _ from "lodash";
+import GuidedCameraModal, {toPickerResponse} from "./GuidedCameraModal";
+import EdgeModelService from "../../../service/EdgeModelService";
 
 const styles = StyleSheet.create({
     icon: {
@@ -42,6 +44,16 @@ const DEFAULT_IMG_HEIGHT = 960;
 const DEFAULT_IMG_QUALITY = 1;
 const DEFAULT_VIDEO_QUALITY = 'high';
 const DEFAULT_DURATION_LIMIT = 60;
+
+// ⚠️ SPIKE #222 DEV-ONLY — set false / delete before any merge. When true, the guided
+// camera opens on EVERY image element regardless of the `guidedCamera` keyValue, so the
+// camera UI can be smoke-tested without server-side config.
+const SPIKE_FORCE_GUIDED_CAMERA = true;
+
+// ⚠️ SPIKE #222 DEV-ONLY — set false / delete before any merge. Runs on-device ONNX directly on
+// the captured vision-camera JPEG (bypassing the org AI-projection rule) to prove Gate-2 in
+// isolation. Verdict is logged under the [SPIKE222] tag.
+const SPIKE_DIRECT_INFERENCE = true;
 
 export default class MediaFormElement extends AbstractFormElement {
     constructor(props, context) {
@@ -118,6 +130,36 @@ export default class MediaFormElement extends AbstractFormElement {
         });
     }
 
+    // Spike #222: config-driven opt-in — a `guidedCamera` keyValue on the concept's form element
+    // routes the camera button to the forced-flash guided in-app camera instead of the OS picker.
+    get isGuidedCamera() {
+        const v = this.getFromKeyValue('guidedCamera', false);
+        return this.isImage && (SPIKE_FORCE_GUIDED_CAMERA || v === true || v === 'true');
+    }
+
+    openGuidedCamera(onUpdateObservations) {
+        this._guidedOnUpdate = onUpdateObservations;
+        this.setState({mode: Mode.Camera, showGuidedCamera: true});
+    }
+
+    async onGuidedCapture(photoPath) {
+        this.setState({showGuidedCamera: false});
+        // Gate-2 harness: run ONNX directly on the raw camera JPEG BEFORE addMediaFromPicker moves it,
+        // so we prove a valid verdict on a vision-camera image independent of the org rule wiring.
+        if (SPIKE_DIRECT_INFERENCE) {
+            const path = photoPath.replace('file://', '');
+            const t0 = Date.now();
+            try {
+                const verdict = await this.getService(EdgeModelService).runInferenceOnImage(path);
+                General.logInfo('SPIKE222', `direct ONNX verdict on vision-camera JPEG (${Date.now() - t0}ms): ${JSON.stringify(verdict)} | path=${path}`);
+            } catch (e) {
+                General.logError('SPIKE222', `direct ONNX FAILED (${Date.now() - t0}ms) path=${path}: ${e && e.message}`);
+            }
+        }
+        // Adapter (B1): feed the vision-camera output through the unchanged picker pipeline → observation.
+        this.addMediaFromPicker(toPickerResponse(photoPath), this._guidedOnUpdate);
+    }
+
     async launchCamera(onUpdateObservations) {
         this.setState({ mode: Mode.Camera });
         const options = { ...this.getDefaultOptions(),
@@ -171,21 +213,28 @@ export default class MediaFormElement extends AbstractFormElement {
     }
 
     showInputOptions(onUpdateObservations) {
+        const guided = this.isGuidedCamera;
         return (
             <View style={[styles.contentRow, {justifyContent: 'flex-end'}]}>
-                {!this.props.element.restrictGalleryUpload && <TouchableNativeFeedback onPress={() => {
+                {!guided && !this.props.element.restrictGalleryUpload && <TouchableNativeFeedback onPress={() => {
                     this.launchMediaLibrary(onUpdateObservations)
                 }}
                                          background={TouchableNativeFeedback.SelectableBackground()}>
                     <Icon name={'folder-open'} style={styles.icon}/>
                 </TouchableNativeFeedback>}
                 <TouchableNativeFeedback onPress={() => {
-                    this.launchCamera(onUpdateObservations)
+                    guided ? this.openGuidedCamera(onUpdateObservations) : this.launchCamera(onUpdateObservations)
                 }}
                                          background={TouchableNativeFeedback.SelectableBackground()}>
                     <Icon name={this.isImage ? 'camera' : this.isVideo ? 'video' : 'alert-octagon'}
                           style={styles.icon}/>
                 </TouchableNativeFeedback>
+                {guided && <GuidedCameraModal
+                    visible={!!this.state.showGuidedCamera}
+                    questionGroupIndex={this.props.questionGroupIndex}
+                    onClose={() => this.setState({showGuidedCamera: false})}
+                    onCapture={(photoPath) => this.onGuidedCapture(photoPath)}
+                />}
             </View>
         );
     }
