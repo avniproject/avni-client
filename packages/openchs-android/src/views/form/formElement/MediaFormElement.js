@@ -12,6 +12,7 @@ import DeviceInfo from 'react-native-device-info';
 import _ from "lodash";
 import GuidedCameraModal, {toPickerResponse} from "./GuidedCameraModal";
 import EdgeModelService from "../../../service/EdgeModelService";
+import MediaService from "../../../service/MediaService";
 
 const styles = StyleSheet.create({
     icon: {
@@ -137,6 +138,15 @@ export default class MediaFormElement extends AbstractFormElement {
         return this.isImage && (SPIKE_FORCE_GUIDED_CAMERA || v === true || v === 'true');
     }
 
+    // Config-driven, indexed per-row guide asset (C1/D2/F): the concept's ordered `media` rail,
+    // picked by questionGroupIndex, prefetched offline to the Metadata dir at sync. Nothing hardcoded.
+    guideUriForRow() {
+        const media = _.get(this.props, 'element.concept.media') || [];
+        const item = media[this.props.questionGroupIndex || 0];
+        if (!item || !item.url) return null;
+        return `file://${this.getService(MediaService).getAbsolutePath(item.url, 'Metadata')}`;
+    }
+
     openGuidedCamera(onUpdateObservations) {
         this._guidedOnUpdate = onUpdateObservations;
         this.setState({mode: Mode.Camera, showGuidedCamera: true});
@@ -232,6 +242,7 @@ export default class MediaFormElement extends AbstractFormElement {
                 {guided && <GuidedCameraModal
                     visible={!!this.state.showGuidedCamera}
                     questionGroupIndex={this.props.questionGroupIndex}
+                    guideUri={this.guideUriForRow()}
                     onClose={() => this.setState({showGuidedCamera: false})}
                     onCapture={(photoPath) => this.onGuidedCapture(photoPath)}
                 />}
