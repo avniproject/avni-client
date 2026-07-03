@@ -49,9 +49,8 @@ import javax.crypto.spec.SecretKeySpec
  * `filesDir/<modelKey>.model.tmp` (MODE_PRIVATE, 0600) — 64 KB chunk peak on the JVM heap.
  * The engine reads the file (`OrtEnvironment.createSession(path)` for ONNX) and the bridge
  * deletes the file in a `finally` block; plaintext exists on disk for the duration of decrypt + load
- * (single-digit seconds for a ~18 MB model). For the asset-bundled flow the AES key ships in the
- * APK (obfuscation, not full IP protection per `tools/edge-model/README.md`); for the file-path
- * flow the key arrives as a call argument delivered out-of-band from the server key endpoint.
+ * (single-digit seconds for a ~18 MB model). The AES key arrives as a call argument, delivered
+ * out-of-band from the server key endpoint.
  *
  * The module registers `ComponentCallbacks2` to receive memory-pressure signals.
  * Backgrounding the app for a camera intent or phone call does *not* trigger eviction unless
@@ -59,9 +58,6 @@ import javax.crypto.spec.SecretKeySpec
  * keeps the runtime warm.
  *
  * ── JS-facing API (via NativeModules.EdgeModelModule) ─────────────────────────────
- *   getRegistry(): Promise<object>
- *   loadModel(modelKey, assetPath, overrideJson): Promise<boolean>
- *   loadEncryptedModel(modelKey, encryptedAssetPath, base64Key, sha256, overrideJson): Promise<boolean>
  *   loadEncryptedModelFromFile(modelKey, encryptedFilePath, base64Key, sha256, overrideJson): Promise<boolean>
  *   runInference(modelKey, inputData: number[], shape?: number[]): Promise<object>
  *   runInferenceOnImage(modelKey, imagePath): Promise<object>
@@ -74,7 +70,6 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
 
     companion object {
         private const val TAG = "EdgeModelModule"
-        private const val REGISTRY_ASSET = "models/registry.json"
         private const val GCM_TAG_BITS = 128                  // AES-GCM authentication-tag size
         private const val GCM_IV_BYTES = 12                   // 96-bit IV — recommended for GCM
         private const val DECRYPT_CHUNK_BYTES = 64 * 1024     // 64 KB chunks: balance syscalls vs Java-heap pressure
@@ -176,7 +171,7 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
     }
 
     /**
-     * Engine providers, one per supported `engine` name in the registry override, resolved
+     * Engine providers, one per supported `engine` name in the payload override, resolved
      * lazily and reflectively. OnnxEngine ships in every flavour; reflective lookup means a
      * flavour still boots even if an engine class is absent, and the engine is only realised
      * when an org has a configured model that requests it.
@@ -232,13 +227,6 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
 
     private sealed class LoadArgs {
         abstract val overrideJson: String?
-        data class Plain(val assetPath: String, override val overrideJson: String?) : LoadArgs()
-        data class Encrypted(
-            val encryptedAssetPath: String,
-            val base64Key: String,
-            val sha256Hex: String,
-            override val overrideJson: String?
-        ) : LoadArgs()
         data class EncryptedFile(
             val encryptedFilePath: String,
             val base64Key: String,
@@ -256,69 +244,6 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
     override fun getName(): String = "EdgeModelModule"
 
     // ── React-callable methods ─────────────────────────────────────────────────────────
-
-    /**
-     * Read the per-flavour model registry (`assets/models/registry.json`) and return its
-     * parsed contents. Called once at app boot from `EdgeModelService.init()`. The JS side
-     * caches the result and uses it to resolve `modelKey` → asset spec on each inference.
-     */
-    @ReactMethod
-    fun getRegistry(promise: Promise) {
-        try {
-            val raw = reactApplicationContext.assets.open(REGISTRY_ASSET).bufferedReader().use { it.readText() }
-            val map = jsonStringToWritableMap(raw)
-            promise.resolve(map)
-        } catch (e: Exception) {
-            Log.e(TAG, "getRegistry: failed to read $REGISTRY_ASSET: ${e.message}", e)
-            promise.reject("REGISTRY_LOAD_ERROR", "Failed to read $REGISTRY_ASSET: ${e.message}", e)
-        }
-    }
-
-    /**
-     * Load a plaintext model from APK assets. Idempotent — calling twice for the same
-     * `modelKey` is a no-op. The override JSON is mandatory and describes the engine,
-     * preprocessor, and decoder for this model.
-     */
-    @ReactMethod
-    fun loadModel(modelKey: String, assetPath: String, overrideJson: String?, promise: Promise) {
-        inferenceLock.lock()
-        try {
-            loadArgs[modelKey] = LoadArgs.Plain(assetPath, overrideJson)
-            ensureLoaded(modelKey)
-            promise.resolve(true)
-        } catch (e: Exception) {
-            Log.e(TAG, "loadModel($modelKey): ${e.message}", e)
-            promise.reject("EDGE_MODEL_LOAD_ERROR", "Failed to load model '$modelKey': ${e.message}", e)
-        } finally {
-            inferenceLock.unlock()
-        }
-    }
-
-    /**
-     * Load an AES-GCM-encrypted model from APK assets. Plaintext is streamed to a private
-     * temp file which the engine reads during `load`; the bridge deletes it immediately after.
-     */
-    @ReactMethod
-    fun loadEncryptedModel(
-        modelKey: String,
-        encryptedAssetPath: String,
-        base64Key: String,
-        sha256Hex: String,
-        overrideJson: String?,
-        promise: Promise
-    ) {
-        inferenceLock.lock()
-        try {
-            loadArgs[modelKey] = LoadArgs.Encrypted(encryptedAssetPath, base64Key, sha256Hex, overrideJson)
-            ensureLoaded(modelKey)
-            promise.resolve(true)
-        } catch (e: Exception) {
-            Log.e(TAG, "loadEncryptedModel($modelKey): ${e.message}", e)
-            promise.reject("EDGE_MODEL_LOAD_ERROR", "Failed to load encrypted model '$modelKey': ${e.message}", e)
-        } finally {
-            inferenceLock.unlock()
-        }
-    }
 
     @ReactMethod
     fun loadEncryptedModelFromFile(
@@ -397,9 +322,8 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
                 if (BuildConfig.DEBUG) {
                     // Diagnostic — log decoded bitmap geometry + EXIF orientation. If EXIF reports
                     // anything other than 1 (NORMAL), the on-screen image is rotated relative to the
-                    // raw pixels we feed the model. The TANUH PoC has the same `decodeFile` codepath,
-                    // so for parity-comparison runs both apps should agree. But if training data was
-                    // pre-rotated and field images aren't, the model sees inputs it wasn't trained on.
+                    // raw pixels we feed the model — and if training data was pre-rotated and field
+                    // images aren't, the model sees inputs it wasn't trained on.
                     val exif = try { ExifInterface(imagePath) } catch (e: Exception) { null }
                     val orientation = exif?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
                     Log.d(TAG, "decodeFile: w=${raw.width} h=${raw.height} config=${raw.config} exifOrientation=$orientation")
@@ -492,14 +416,12 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
         if (handles.containsKey(modelKey)) return
         val args = loadArgs[modelKey]
             ?: throw IllegalStateException(
-                "Model not loaded: '$modelKey'. Call loadModel()/loadEncryptedModel()/loadEncryptedModelFromFile() before inference."
+                "Model not loaded: '$modelKey'. Call loadEncryptedModelFromFile() before inference."
             )
         val safeKey = modelKey.replace(Regex("[^A-Za-z0-9._-]"), "_")
         val plaintextFile = File(reactApplicationContext.filesDir, "$safeKey.model.tmp")
         try {
             when (args) {
-                is LoadArgs.Plain -> streamAssetToFile(args.assetPath, plaintextFile)
-                is LoadArgs.Encrypted -> streamDecryptToFile(args.encryptedAssetPath, args.base64Key, args.sha256Hex, plaintextFile)
                 is LoadArgs.EncryptedFile -> streamDecryptFileToFile(args.encryptedFilePath, args.base64Key, args.sha256Hex, plaintextFile)
             }
             // Defensive — `filesDir` already gives 0600 via MODE_PRIVATE, but older devices
@@ -527,43 +449,7 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
         contracts[modelKey] = contract
     }
 
-    /**
-     * Copy a plaintext APK asset into a private file. Uses `FileChannel.transferTo` so the
-     * kernel can splice page-cache pages directly into the destination without bouncing
-     * through the Java heap.
-     */
-    private fun streamAssetToFile(assetPath: String, outFile: File) {
-        val fd = reactApplicationContext.assets.openFd(assetPath)
-        FileInputStream(fd.fileDescriptor).use { fis ->
-            FileOutputStream(outFile).use { fos ->
-                val inCh = fis.channel
-                val outCh = fos.channel
-                var transferred = 0L
-                while (transferred < fd.declaredLength) {
-                    val n = inCh.transferTo(fd.startOffset + transferred, fd.declaredLength - transferred, outCh)
-                    if (n <= 0) throw IllegalStateException("Asset transfer stalled at $transferred / ${fd.declaredLength}")
-                    transferred += n
-                }
-            }
-        }
-    }
-
     // Blob layout (matches `tools/edge-model/encrypt-model.js`): [12-byte IV][ciphertext][16-byte GCM tag].
-    private fun streamDecryptToFile(
-        encryptedAssetPath: String,
-        base64Key: String,
-        expectedSha256Hex: String,
-        outFile: File
-    ) {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "streamDecryptToFile(asset=$encryptedAssetPath) → ${outFile.absolutePath}")
-        }
-        val fd = reactApplicationContext.assets.openFd(encryptedAssetPath)
-        FileInputStream(fd.fileDescriptor).use { fis ->
-            decryptChannelToFile(fis.channel, fd.startOffset, fd.declaredLength, Base64.decode(base64Key, Base64.DEFAULT), expectedSha256Hex, outFile)
-        }
-    }
-
     private fun streamDecryptFileToFile(
         encryptedFilePath: String,
         base64Key: String,
@@ -576,46 +462,4 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
         decryptFileToFile(File(encryptedFilePath), Base64.decode(base64Key, Base64.DEFAULT), expectedSha256Hex, outFile)
     }
 
-    private fun jsonStringToWritableMap(raw: String): WritableMap {
-        val obj = org.json.JSONObject(raw)
-        return jsonObjectToWritableMap(obj)
-    }
-
-    private fun jsonObjectToWritableMap(obj: org.json.JSONObject): WritableMap {
-        val map = Arguments.createMap()
-        val keys = obj.keys()
-        while (keys.hasNext()) {
-            val key = keys.next()
-            when (val v = obj.opt(key)) {
-                null, org.json.JSONObject.NULL -> map.putNull(key)
-                is org.json.JSONObject -> map.putMap(key, jsonObjectToWritableMap(v))
-                is org.json.JSONArray -> map.putArray(key, jsonArrayToWritableArray(v))
-                is Boolean -> map.putBoolean(key, v)
-                is Int -> map.putInt(key, v)
-                is Long -> map.putDouble(key, v.toDouble())
-                is Double -> map.putDouble(key, v)
-                is String -> map.putString(key, v)
-                else -> map.putString(key, v.toString())
-            }
-        }
-        return map
-    }
-
-    private fun jsonArrayToWritableArray(arr: org.json.JSONArray): WritableArray {
-        val out = Arguments.createArray()
-        for (i in 0 until arr.length()) {
-            when (val v = arr.opt(i)) {
-                null, org.json.JSONObject.NULL -> out.pushNull()
-                is org.json.JSONObject -> out.pushMap(jsonObjectToWritableMap(v))
-                is org.json.JSONArray -> out.pushArray(jsonArrayToWritableArray(v))
-                is Boolean -> out.pushBoolean(v)
-                is Int -> out.pushInt(v)
-                is Long -> out.pushDouble(v.toDouble())
-                is Double -> out.pushDouble(v)
-                is String -> out.pushString(v)
-                else -> out.pushString(v.toString())
-            }
-        }
-        return out
-    }
 }
