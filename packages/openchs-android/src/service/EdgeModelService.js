@@ -36,6 +36,10 @@ const EDGE_MODEL_CATEGORY = 'edgeModel';
  *   params.services.edgeModelService.scheduleImageInferenceIntoGroup(
  *     imagePath, encounter, 'Lesion Group', 'AI Suspicion Result', rowIdx, labelMap
  *   );
+ *
+ * Both schedule methods also accept the legacy `newmodel`-era shape with a leading model key
+ * (e.g. `scheduleImageInferenceIntoGroup(modelKey, imagePath, encounter, ...)`); the key is
+ * ignored (the model resolves from synced DownloadableContent). See _stripLegacyModelKey.
  */
 export const EDGE_MODEL_ACTION = {
     INFERENCE_RESULT_AVAILABLE: 'EDGE_MODEL.INFERENCE_RESULT_AVAILABLE',
@@ -205,10 +209,27 @@ class EdgeModelService extends BaseService {
     }
 
     /**
+     * Backward-compatible dispatch. The `newmodel`-era signature prepended a `modelKey`
+     * (single sha/name or an ensemble array); 17.0 dropped it and resolves the model from
+     * synced DownloadableContent. Deployed org rules still call the 7-/5-arg legacy shape,
+     * so accept both. The unambiguous discriminator is `args[1]`: it's the imagePath (a
+     * string) in the legacy shape and the entity (an object) in the 17.0 shape. When legacy,
+     * drop args[0] (the modelKey — resolved internally now) and read the rest shifted.
+     * (Arg-count can't be used: labelMap is optional, so a new N-arg call collides with a
+     * legacy (N)-arg call that omitted labelMap.)
+     */
+    _stripLegacyModelKey(args) {
+        return typeof args[1] === 'string' ? args.slice(1) : args;
+    }
+
+    /**
      * Inline-async path for form-element rules, target is a top-level concept on the entity.
      * Thin wrapper over _scheduleImageInference — see that method for the full contract.
+     * Accepts both the 17.0 shape `(imagePath, entity, targetConceptName, labelMap)` and the
+     * legacy `(modelKey, imagePath, entity, targetConceptName, labelMap)`.
      */
-    scheduleImageInference(imagePath, entity, targetConceptName, labelMap) {
+    scheduleImageInference(...args) {
+        const [imagePath, entity, targetConceptName, labelMap] = this._stripLegacyModelKey(args);
         return this._scheduleImageInference({
             imagePath, entity, targetConceptName, labelMap,
             questionGroupConceptName: null, rqgIdx: null
@@ -218,8 +239,12 @@ class EdgeModelService extends BaseService {
     /**
      * Same as scheduleImageInference, but writes the verdict into the `targetConceptName`
      * obs inside row `rqgIdx` of the `questionGroupConceptName` Repeatable Question Group.
+     * Accepts both the 17.0 shape `(imagePath, entity, questionGroupConceptName,
+     * targetConceptName, rqgIdx, labelMap)` and the legacy shape with a leading `modelKey`.
      */
-    scheduleImageInferenceIntoGroup(imagePath, entity, questionGroupConceptName, targetConceptName, rqgIdx, labelMap) {
+    scheduleImageInferenceIntoGroup(...args) {
+        const [imagePath, entity, questionGroupConceptName, targetConceptName, rqgIdx, labelMap] =
+            this._stripLegacyModelKey(args);
         return this._scheduleImageInference({
             imagePath, entity, targetConceptName, labelMap,
             questionGroupConceptName, rqgIdx

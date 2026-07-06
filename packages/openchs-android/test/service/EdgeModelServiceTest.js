@@ -36,6 +36,7 @@ import {NativeModules} from 'react-native';
 import fs from 'react-native-fs';
 import EdgeModelService from '../../src/service/EdgeModelService';
 import FileSystem from '../../src/model/FileSystem';
+import General from '../../src/utility/General';
 
 const MODELS_DIR = FileSystem.getModelsDir();
 const KEYS_DIR = FileSystem.getModelKeysDir();
@@ -639,6 +640,75 @@ describe('EdgeModelService', () => {
 
             expect(fs.unlink).not.toHaveBeenCalled();
             expect(mockFsState.existing.has(blobPath(r.sha256))).toBe(true);
+        });
+    });
+
+    // #1984 — accept the legacy newmodel shape (leading modelKey) and the 17.0 shape.
+    // Discriminator is args[1]: imagePath (string) in the legacy shape, entity (object) in 17.0.
+    describe('backward-compatible dispatch (#1984)', () => {
+        let captured;
+        beforeEach(() => {
+            captured = null;
+            service._scheduleImageInference = jest.fn((normalized) => { captured = normalized; });
+        });
+        const entity = () => ({uuid: 'e1', getObservationValue: jest.fn()});
+        const labelMap = {Positive: 'Suspicious', Negative: 'Non Suspicious'};
+
+        it('group: legacy 7-arg (modelKey, imagePath, entity, qg, target, rqgIdx, labelMap) → shifted, modelKey dropped, rqgIdx numeric', () => {
+            const e = entity();
+            service.scheduleImageInferenceIntoGroup('sha-a', '/tmp/x.jpg', e, 'Lesion Group', 'AI Verdict', 3, labelMap);
+            expect(captured).toEqual({
+                imagePath: '/tmp/x.jpg', entity: e, targetConceptName: 'AI Verdict', labelMap,
+                questionGroupConceptName: 'Lesion Group', rqgIdx: 3,
+            });
+        });
+
+        it('group: new 6-arg (imagePath, entity, qg, target, rqgIdx, labelMap) → unchanged', () => {
+            const e = entity();
+            service.scheduleImageInferenceIntoGroup('/tmp/x.jpg', e, 'Lesion Group', 'AI Verdict', 3, labelMap);
+            expect(captured).toEqual({
+                imagePath: '/tmp/x.jpg', entity: e, targetConceptName: 'AI Verdict', labelMap,
+                questionGroupConceptName: 'Lesion Group', rqgIdx: 3,
+            });
+        });
+
+        it('group: legacy with an ENSEMBLE array modelKey → still detected via args[1] and shifted', () => {
+            const e = entity();
+            service.scheduleImageInferenceIntoGroup(['fold1', 'fold2'], '/tmp/x.jpg', e, 'Lesion Group', 'AI Verdict', 0);
+            expect(captured).toMatchObject({
+                imagePath: '/tmp/x.jpg', entity: e, questionGroupConceptName: 'Lesion Group',
+                targetConceptName: 'AI Verdict', rqgIdx: 0,
+            });
+        });
+
+        it('non-group: legacy 5-arg (modelKey, imagePath, entity, target, labelMap) → shifted', () => {
+            const e = entity();
+            service.scheduleImageInference('sha-a', '/tmp/x.jpg', e, 'AI Suspicion Result', labelMap);
+            expect(captured).toEqual({
+                imagePath: '/tmp/x.jpg', entity: e, targetConceptName: 'AI Suspicion Result', labelMap,
+                questionGroupConceptName: null, rqgIdx: null,
+            });
+        });
+
+        it('non-group: new 4-arg (imagePath, entity, target, labelMap) → unchanged', () => {
+            const e = entity();
+            service.scheduleImageInference('/tmp/x.jpg', e, 'AI Suspicion Result');
+            expect(captured).toMatchObject({
+                imagePath: '/tmp/x.jpg', entity: e, targetConceptName: 'AI Suspicion Result',
+                questionGroupConceptName: null, rqgIdx: null,
+            });
+        });
+
+        it('guard still fires on a genuinely malformed call — the shift does not mask real errors', () => {
+            delete service._scheduleImageInference;   // remove the beforeEach stub → use the real prototype method
+            const logSpy = jest.spyOn(General, 'logError').mockImplementation(() => {});
+            const e = entity();
+            // New shape with a non-numeric rqgIdx (the exact bug class) → SKIP, no throw.
+            expect(() =>
+                service.scheduleImageInferenceIntoGroup('/tmp/x.jpg', e, 'Lesion Group', 'AI Verdict', 'not-a-number')
+            ).not.toThrow();
+            expect(logSpy).toHaveBeenCalledWith('EdgeModelSvc', expect.stringContaining('SKIP missing-arg'));
+            logSpy.mockRestore();
         });
     });
 });
