@@ -1,4 +1,5 @@
 import _ from "lodash";
+import moment from "moment";
 import {AttendanceRecord, Concept, Encounter, ProgramEncounter, Session, WorkItem} from "avni-models";
 import General from "../../utility/General";
 import GroupSubjectService from "../../service/GroupSubjectService";
@@ -35,7 +36,7 @@ export class RosterActions {
         const conceptService = context.get(ConceptService);
 
         const members = groupSubjectService.getGroupSubjects(groupSubject)
-            .filter(gs => !gs.memberSubject.voided && _.isNil(gs.membershipEndDate));
+            .filter(gs => !gs.memberSubject.voided && RosterActions._isEligibleOn(gs, scheduledDate));
 
         const realmSession = sessionService.findExistingSession(groupSubject.uuid, scheduledDate, attendanceType.uuid);
         const existingRecords = realmSession
@@ -227,12 +228,13 @@ export class RosterActions {
             }
         });
 
-        // Members in the prior record set who are no longer in the roster (left the group).
-        // Their AttendanceRecords + linked follow-ups cascade-void inside saveOrUpdate.
-        const newSubjectUUIDs = new Set(attendanceRecords.map(r => r.subjectUUID));
-        const voidedRecordUUIDs = previousRecords
-            .filter(r => !newSubjectUUIDs.has(r.subjectUUID))
-            .map(r => r.uuid);
+        // Preserve the attendance history of students not on this date's roster (since
+        // departed, or not yet enrolled): scope all write/void logic to currently-rendered
+        // members only. Reopening an old sheet must never touch a departed student's records
+        // or their linked follow-ups — hence no cross-roster void, and voidStaleFollowUps is
+        // fed only the prior records of rendered members.
+        const renderedSubjectUUIDs = new Set(attendanceRecords.map(r => r.subjectUUID));
+        const scopedPreviousRecords = previousRecords.filter(r => renderedSubjectUUIDs.has(r.subjectUUID));
 
         const memberSubjectType = state.groupSubject.subjectType.group
             ? RosterActions._inferMemberSubjectType(context, state.groupSubject)
@@ -262,8 +264,7 @@ export class RosterActions {
             session,
             attendanceRecords,
             followUps: followUpsForSave,
-            previousRecords,
-            voidedRecordUUIDs,
+            previousRecords: scopedPreviousRecords,
         });
 
         const pendingAutoShareWorkItem = RosterActions._buildAutoShareWorkItem(attendanceType, session);
@@ -327,6 +328,23 @@ export class RosterActions {
         const members = context.get(GroupSubjectService).getGroupSubjects(groupSubject)
             .filter(gs => !gs.memberSubject.voided);
         return members.length > 0 ? members[0].memberSubject.subjectType : null;
+    }
+
+    // A member appears on a sheet only for dates within their class-membership window:
+    // [start, end], where start = membershipStartDate (falling back to the member's
+    // registrationDate when unset) and end = membershipEndDate (open if unset). Both
+    // bounds inclusive; compared as YYYY-MM-DD calendar dates (scheduledDate is already
+    // canonical), so a since-departed student still shows on the past sheets where they
+    // were enrolled, and a newly-added student never shows on pre-join sheets.
+    static _isEligibleOn(gs, scheduledDate) {
+        const start = gs.membershipStartDate || (gs.memberSubject && gs.memberSubject.registrationDate);
+        if (start && RosterActions._toCalendarDate(start) > scheduledDate) return false;
+        if (!_.isNil(gs.membershipEndDate) && RosterActions._toCalendarDate(gs.membershipEndDate) < scheduledDate) return false;
+        return true;
+    }
+
+    static _toCalendarDate(d) {
+        return moment(d).format("YYYY-MM-DD");
     }
 
     static _answersFor(conceptService, conceptUUID) {
