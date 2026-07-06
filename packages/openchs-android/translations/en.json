@@ -273,6 +273,7 @@
     "jumpToDate": "Jump to date",
     "attendanceEditWindowClosed": "Editing closed for dates more than {{days}} days ago. You can still view records.",
     "reasonForAbsence": "Reason for absence",
+    "otherReasonPlaceholder": "Specify other reason",
     "selectReason": "Select reason",
     "needsFollowUp": "Needs follow-up",
     "followUpScheduled": "Follow-up scheduled",

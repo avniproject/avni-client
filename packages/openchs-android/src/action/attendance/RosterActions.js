@@ -1,5 +1,5 @@
 import _ from "lodash";
-import {AttendanceRecord, Encounter, ProgramEncounter, Session, WorkItem} from "avni-models";
+import {AttendanceRecord, Concept, Encounter, ProgramEncounter, Session, WorkItem} from "avni-models";
 import General from "../../utility/General";
 import GroupSubjectService from "../../service/GroupSubjectService";
 import SessionService from "../../service/SessionService";
@@ -49,6 +49,7 @@ export class RosterActions {
                 name: gs.memberSubject.nameString,
                 status: prior ? prior.status : AttendanceRecord.status.PRESENT,
                 reasonConceptUUIDs: prior ? [...(prior.reasonConceptUUIDs || [])] : [],
+                otherReasonText: prior ? (prior.otherReasonText || "") : "",
                 needsFollowUp: prior ? !!prior.needsFollowUp : false,
                 followUpEncounterUUID: prior ? (prior.followUpEncounterUUID || null) : null,
             };
@@ -101,6 +102,7 @@ export class RosterActions {
                 ...r,
                 status: flipped,
                 reasonConceptUUIDs: becamePresent ? [] : r.reasonConceptUUIDs,
+                otherReasonText: becamePresent ? "" : r.otherReasonText,
                 needsFollowUp: becamePresent ? false : r.needsFollowUp,
             };
         });
@@ -116,9 +118,30 @@ export class RosterActions {
             const reasonConceptUUIDs = current.includes(action.reasonConceptUUID)
                 ? current.filter(uuid => uuid !== action.reasonConceptUUID)
                 : [...current, action.reasonConceptUUID];
-            return {...r, reasonConceptUUIDs};
+            // "Other" free text only lives while a Text-datatype reason is selected.
+            const otherReasonText = RosterActions._hasTextReasonSelected(state, reasonConceptUUIDs)
+                ? r.otherReasonText
+                : "";
+            return {...r, reasonConceptUUIDs, otherReasonText};
         });
         return {...state, roster};
+    }
+
+    static onSetOtherReasonText(state, action) {
+        const roster = state.roster.map(r =>
+            r.subjectUUID === action.subjectUUID
+                ? {...r, otherReasonText: action.text}
+                : r
+        );
+        return {...state, roster};
+    }
+
+    // A reason answer with a Text datatype is the config-driven "Other → fill it in" option.
+    static _hasTextReasonSelected(state, reasonConceptUUIDs) {
+        const textAnswerUUIDs = (state.absenceReasonAnswers || [])
+            .filter(a => a.datatype === Concept.dataType.Text)
+            .map(a => a.uuid);
+        return (reasonConceptUUIDs || []).some(uuid => textAnswerUUIDs.includes(uuid));
     }
 
     static onToggleNeedsFollowUp(state, action) {
@@ -143,6 +166,7 @@ export class RosterActions {
             ...r,
             status: AttendanceRecord.status.PRESENT,
             reasonConceptUUIDs: [],
+            otherReasonText: "",
             needsFollowUp: false,
         }));
         return {...state, roster};
@@ -293,6 +317,7 @@ export class RosterActions {
             subjectUUID: record.subjectUUID,
             status: record.status,
             reasonConceptUUIDs: record.reasonConceptUUIDs ? [...record.reasonConceptUUIDs] : [],
+            otherReasonText: record.otherReasonText || null,
             followUpEncounterUUID: record.followUpEncounterUUID || null,
             needsFollowUp: !!record.needsFollowUp,
         };
@@ -310,7 +335,7 @@ export class RosterActions {
         const answers = concept.getAnswers ? concept.getAnswers() : [];
         return answers
             .filter(a => a && a.concept && !a.concept.voided)
-            .map(a => ({uuid: a.concept.uuid, name: a.concept.name}));
+            .map(a => ({uuid: a.concept.uuid, name: a.concept.name, datatype: a.concept.datatype}));
     }
 
     static clone(state) {
@@ -328,6 +353,7 @@ RosterActions.Names = {
     ON_LOAD: `${Prefix}.ON_LOAD`,
     TOGGLE_PRESENCE: `${Prefix}.TOGGLE_PRESENCE`,
     TOGGLE_REASON: `${Prefix}.TOGGLE_REASON`,
+    SET_OTHER_REASON_TEXT: `${Prefix}.SET_OTHER_REASON_TEXT`,
     TOGGLE_NEEDS_FOLLOW_UP: `${Prefix}.TOGGLE_NEEDS_FOLLOW_UP`,
     SET_SESSION_REASON: `${Prefix}.SET_SESSION_REASON`,
     MARK_ALL_ABSENT: `${Prefix}.MARK_ALL_ABSENT`,
@@ -340,6 +366,7 @@ RosterActions.Map = new Map([
     [RosterActions.Names.ON_LOAD, RosterActions.onLoad],
     [RosterActions.Names.TOGGLE_PRESENCE, RosterActions.onTogglePresence],
     [RosterActions.Names.TOGGLE_REASON, RosterActions.onToggleReason],
+    [RosterActions.Names.SET_OTHER_REASON_TEXT, RosterActions.onSetOtherReasonText],
     [RosterActions.Names.TOGGLE_NEEDS_FOLLOW_UP, RosterActions.onToggleNeedsFollowUp],
     [RosterActions.Names.SET_SESSION_REASON, RosterActions.onSetSessionReason],
     [RosterActions.Names.MARK_ALL_ABSENT, RosterActions.onMarkAllAbsent],

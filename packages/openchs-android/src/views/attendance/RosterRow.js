@@ -1,7 +1,7 @@
 import React from "react";
-import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import PropTypes from "prop-types";
-import {AttendanceRecord} from "avni-models";
+import {AttendanceRecord, Concept} from "avni-models";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
@@ -18,6 +18,7 @@ class RosterRow extends AbstractComponent {
         followUpEncounterTypeUuid: PropTypes.string,
         onToggle: PropTypes.func.isRequired,
         onToggleReason: PropTypes.func.isRequired,
+        onChangeOtherReason: PropTypes.func.isRequired,
         onToggleNeedsFollowUp: PropTypes.func.isRequired,
     };
 
@@ -26,11 +27,15 @@ class RosterRow extends AbstractComponent {
     }
 
     render() {
-        const {row, index, reasonAnswers, followUpEncounterTypeUuid, onToggle, onToggleReason, onToggleNeedsFollowUp} = this.props;
+        const {row, index, reasonAnswers, followUpEncounterTypeUuid, onToggle, onToggleReason, onChangeOtherReason, onToggleNeedsFollowUp} = this.props;
         const isAbsent = row.status === AttendanceRecord.status.ABSENT;
         const showNeedsFollowUp = isAbsent && !!followUpEncounterTypeUuid;
         const checked = !!row.needsFollowUp;
         const selectedReasons = row.reasonConceptUUIDs || [];
+        // Show the free-text box when a selected reason is the config-driven Text ("Other") answer.
+        const showOtherReason = (reasonAnswers || []).some(
+            a => a.datatype === Concept.dataType.Text && selectedReasons.includes(a.uuid)
+        );
 
         return (
             <View style={styles.row}>
@@ -64,6 +69,14 @@ class RosterRow extends AbstractComponent {
                                 );
                             })}
                         </View>
+                        {showOtherReason && (
+                            <TextInput
+                                value={row.otherReasonText || ""}
+                                onChangeText={text => onChangeOtherReason(row.subjectUUID, text)}
+                                placeholder={this.I18n.t("otherReasonPlaceholder")}
+                                style={styles.otherReasonInput}
+                            />
+                        )}
                         {showNeedsFollowUp && (
                             <TouchableOpacity
                                 onPress={() => onToggleNeedsFollowUp(row.subjectUUID)}
@@ -125,6 +138,17 @@ const styles = StyleSheet.create({
     },
     reasonChipText: {fontSize: Styles.smallTextSize, color: Colors.InputNormal},
     reasonChipTextSelected: {color: Colors.TextOnPrimaryColor, fontWeight: 'bold'},
+    otherReasonInput: {
+        borderWidth: 1,
+        borderColor: Colors.InputBorderNormal,
+        borderRadius: 4,
+        paddingHorizontal: 8,
+        paddingVertical: 6,
+        marginTop: 2,
+        marginBottom: 4,
+        fontSize: Styles.normalTextSize,
+        color: Colors.InputNormal,
+    },
     followUpRow: {flexDirection: 'row', alignItems: 'center', marginTop: 10},
     checkbox: {
         width: 20,
