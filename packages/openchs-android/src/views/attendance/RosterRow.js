@@ -1,7 +1,7 @@
 import React from "react";
 import {StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import PropTypes from "prop-types";
-import {AttendanceRecord, Concept} from "avni-models";
+import {AttendanceRecord} from "avni-models";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
@@ -13,6 +13,8 @@ class RosterRow extends AbstractComponent {
         row: PropTypes.object.isRequired,
         // [{uuid, name}]
         reasonAnswers: PropTypes.array.isRequired,
+        // UUID of the configured "Other" answer (null when not configured).
+        otherReasonConceptUUID: PropTypes.string,
         // null if the AttendanceType has no followUpEncounterType (so the
         // checkbox is hidden when no follow-up encounter can be created).
         followUpEncounterTypeUuid: PropTypes.string,
@@ -27,15 +29,13 @@ class RosterRow extends AbstractComponent {
     }
 
     render() {
-        const {row, index, reasonAnswers, followUpEncounterTypeUuid, onToggle, onToggleReason, onChangeOtherReason, onToggleNeedsFollowUp} = this.props;
+        const {row, index, reasonAnswers, otherReasonConceptUUID, followUpEncounterTypeUuid, onToggle, onToggleReason, onChangeOtherReason, onToggleNeedsFollowUp} = this.props;
         const isAbsent = row.status === AttendanceRecord.status.ABSENT;
         const showNeedsFollowUp = isAbsent && !!followUpEncounterTypeUuid;
         const checked = !!row.needsFollowUp;
         const selectedReasons = row.reasonConceptUUIDs || [];
-        // Show the free-text box when a selected reason is the config-driven Text ("Other") answer.
-        const showOtherReason = (reasonAnswers || []).some(
-            a => a.datatype === Concept.dataType.Text && selectedReasons.includes(a.uuid)
-        );
+        // Show the free-text box when the configured "Other" answer is the selected reason.
+        const showOtherReason = !!otherReasonConceptUUID && selectedReasons.includes(otherReasonConceptUUID);
 
         return (
             <View style={styles.row}>

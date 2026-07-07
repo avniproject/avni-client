@@ -1,6 +1,6 @@
 import _ from "lodash";
 import moment from "moment";
-import {AttendanceRecord, Concept, Encounter, ProgramEncounter, Session, WorkItem} from "avni-models";
+import {AttendanceRecord, Encounter, ProgramEncounter, Session, WorkItem} from "avni-models";
 import General from "../../utility/General";
 import GroupSubjectService from "../../service/GroupSubjectService";
 import SessionService from "../../service/SessionService";
@@ -20,6 +20,7 @@ export class RosterActions {
             roster: [],
             notes: "",
             absenceReasonAnswers: [],
+            otherReasonConceptUUID: null,
             sessionReasonAnswers: [],
             sessionReasonConceptUUID: null,
             followUpEncounterTypeUuid: null,
@@ -61,6 +62,11 @@ export class RosterActions {
             ? RosterActions._answersFor(conceptService, absenceReasonConceptUUID)
             : [];
 
+        // The "Other → fill it in" answer is declared explicitly in the attendance type
+        // config (one of the absence-reason answers); the free-text box shows only when it
+        // is the selected reason. Empty when the org hasn't configured an Other reason.
+        const otherReasonConceptUUID = attendanceType.getConfig().otherReasonConcept || null;
+
         const sessionOutcomeConceptUUID = attendanceType.getSessionOutcomeReasonConceptUUID();
         const sessionReasonAnswers = sessionOutcomeConceptUUID
             ? RosterActions._answersFor(conceptService, sessionOutcomeConceptUUID)
@@ -76,6 +82,7 @@ export class RosterActions {
             roster,
             notes: realmSession ? (realmSession.notes || "") : "",
             absenceReasonAnswers,
+            otherReasonConceptUUID,
             sessionReasonAnswers,
             sessionReasonConceptUUID: realmSession ? (realmSession.reasonConceptUUID || null) : null,
             followUpEncounterTypeUuid: attendanceType.getFollowUpEncounterTypeUUID(),
@@ -119,8 +126,8 @@ export class RosterActions {
             const reasonConceptUUIDs = current.includes(action.reasonConceptUUID)
                 ? current.filter(uuid => uuid !== action.reasonConceptUUID)
                 : [...current, action.reasonConceptUUID];
-            // "Other" free text only lives while a Text-datatype reason is selected.
-            const otherReasonText = RosterActions._hasTextReasonSelected(state, reasonConceptUUIDs)
+            // "Other" free text only lives while the configured Other reason is selected.
+            const otherReasonText = RosterActions._hasOtherReasonSelected(state, reasonConceptUUIDs)
                 ? r.otherReasonText
                 : "";
             return {...r, reasonConceptUUIDs, otherReasonText};
@@ -137,12 +144,11 @@ export class RosterActions {
         return {...state, roster};
     }
 
-    // A reason answer with a Text datatype is the config-driven "Other → fill it in" option.
-    static _hasTextReasonSelected(state, reasonConceptUUIDs) {
-        const textAnswerUUIDs = (state.absenceReasonAnswers || [])
-            .filter(a => a.datatype === Concept.dataType.Text)
-            .map(a => a.uuid);
-        return (reasonConceptUUIDs || []).some(uuid => textAnswerUUIDs.includes(uuid));
+    // The "Other → fill it in" answer is declared in the attendance type config
+    // (otherReasonConcept); the free text lives only while that answer is selected.
+    static _hasOtherReasonSelected(state, reasonConceptUUIDs) {
+        const otherUUID = state.otherReasonConceptUUID;
+        return !!otherUUID && (reasonConceptUUIDs || []).includes(otherUUID);
     }
 
     static onToggleNeedsFollowUp(state, action) {
@@ -353,7 +359,7 @@ export class RosterActions {
         const answers = concept.getAnswers ? concept.getAnswers() : [];
         return answers
             .filter(a => a && a.concept && !a.concept.voided)
-            .map(a => ({uuid: a.concept.uuid, name: a.concept.name, datatype: a.concept.datatype}));
+            .map(a => ({uuid: a.concept.uuid, name: a.concept.name}));
     }
 
     static clone(state) {

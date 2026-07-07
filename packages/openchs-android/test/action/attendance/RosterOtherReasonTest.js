@@ -1,20 +1,21 @@
-// Reducer-level coverage for the per-student "Other" free-text reason (#1982).
-// The free-text box is driven by a Text-datatype reason answer; the text is cleared
-// whenever no Text reason is selected (deselect, mark-present, mark-all-present).
+// Reducer-level coverage for the per-student "Other" free-text reason.
+// The free-text box is driven by the attendance-type config's otherReasonConcept; the text
+// is cleared whenever that reason is not selected (deselect, mark-present, mark-all-present).
 
 import {assert} from "chai";
 
 jest.mock("../../../src/framework/bean/Service", () => () => (target) => target);
 
-import {AttendanceRecord, Concept} from "avni-models";
+import {AttendanceRecord} from "avni-models";
 import {RosterActions} from "../../../src/action/attendance/RosterActions";
 
-// "other" is the Text-datatype answer; "sick" is an ordinary coded answer.
+// "other" is the configured Other reason (config.otherReasonConcept); "sick" is an ordinary answer.
 function baseState() {
     return {
+        otherReasonConceptUUID: "other",
         absenceReasonAnswers: [
-            {uuid: "sick", name: "Sick", datatype: Concept.dataType.Coded},
-            {uuid: "other", name: "Other", datatype: Concept.dataType.Text},
+            {uuid: "sick", name: "Sick"},
+            {uuid: "other", name: "Other"},
         ],
         roster: [
             {subjectUUID: "s1", status: AttendanceRecord.status.ABSENT, reasonConceptUUIDs: [], otherReasonText: "", needsFollowUp: false},
@@ -65,5 +66,14 @@ describe("RosterActions — Other free-text reason", () => {
         state = RosterActions.onSetOtherReasonText(state, {subjectUUID: "s1", text: "away"});
         state = RosterActions.onMarkAllPresent(state);
         state.roster.forEach(r => assert.equal(r.otherReasonText, ""));
+    });
+
+    it("never retains Other text when the attendance type has no configured Other reason", () => {
+        const noConfig = {...baseState(), otherReasonConceptUUID: null};
+        let state = RosterActions.onToggleReason(noConfig, {subjectUUID: "s1", reasonConceptUUID: "other"});
+        state = RosterActions.onSetOtherReasonText(state, {subjectUUID: "s1", text: "should not stick"});
+        // Re-running the reason toggle recomputes otherReasonText against the (absent) config → cleared.
+        state = RosterActions.onToggleReason(state, {subjectUUID: "s1", reasonConceptUUID: "sick"});
+        assert.equal(state.roster[0].otherReasonText, "");
     });
 });

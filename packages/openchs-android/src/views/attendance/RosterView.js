@@ -155,6 +155,7 @@ class RosterView extends AbstractComponent {
             row={item}
             index={index}
             reasonAnswers={this.state.absenceReasonAnswers}
+            otherReasonConceptUUID={this.state.otherReasonConceptUUID}
             followUpEncounterTypeUuid={this.state.followUpEncounterTypeUuid}
             onToggle={this._onToggle}
             onToggleReason={this._onToggleReason}
