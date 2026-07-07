@@ -10,6 +10,9 @@ import ExpandableMedia from "../../common/ExpandableMedia";
 import FileSystem from "../../../model/FileSystem";
 import DeviceInfo from 'react-native-device-info';
 import _ from "lodash";
+import GuidedCameraModal from "./GuidedCameraModal";
+import {toPickerResponse, isGuidedCameraEnabled, resizeCapturedImage} from "./GuidedCameraHelper";
+import ImageResizer from "@bam.tech/react-native-image-resizer";
 
 const styles = StyleSheet.create({
     icon: {
@@ -118,6 +121,27 @@ export default class MediaFormElement extends AbstractFormElement {
         });
     }
 
+    get isGuidedCamera() {
+        return isGuidedCameraEnabled(this.isImage, this.getFromKeyValue('guidedCamera', false));
+    }
+
+    openGuidedCamera(onUpdateObservations) {
+        this._guidedOnUpdate = onUpdateObservations;
+        this.setState({mode: Mode.Camera, showGuidedCamera: true});
+    }
+
+    async onGuidedCapture(photoPath) {
+        this.setState({showGuidedCamera: false});
+        try {
+            const options = this.getDefaultOptions();
+            const resizedUri = await resizeCapturedImage(ImageResizer, photoPath, options);
+            this.addMediaFromPicker(toPickerResponse(resizedUri), this._guidedOnUpdate);
+        } catch (e) {
+            General.logError('MediaFormElement', `guided capture failed: ${e && e.message}`);
+            this.setState({guidedCaptureError: true, showGuidedCamera: true});
+        }
+    }
+
     async launchCamera(onUpdateObservations) {
         this.setState({ mode: Mode.Camera });
         const options = { ...this.getDefaultOptions(),
@@ -171,21 +195,27 @@ export default class MediaFormElement extends AbstractFormElement {
     }
 
     showInputOptions(onUpdateObservations) {
+        const guided = this.isGuidedCamera;
         return (
             <View style={[styles.contentRow, {justifyContent: 'flex-end'}]}>
-                {!this.props.element.restrictGalleryUpload && <TouchableNativeFeedback onPress={() => {
+                {!guided && !this.props.element.restrictGalleryUpload && <TouchableNativeFeedback onPress={() => {
                     this.launchMediaLibrary(onUpdateObservations)
                 }}
                                          background={TouchableNativeFeedback.SelectableBackground()}>
                     <Icon name={'folder-open'} style={styles.icon}/>
                 </TouchableNativeFeedback>}
                 <TouchableNativeFeedback onPress={() => {
-                    this.launchCamera(onUpdateObservations)
+                    guided ? this.openGuidedCamera(onUpdateObservations) : this.launchCamera(onUpdateObservations)
                 }}
                                          background={TouchableNativeFeedback.SelectableBackground()}>
                     <Icon name={this.isImage ? 'camera' : this.isVideo ? 'video' : 'alert-octagon'}
                           style={styles.icon}/>
                 </TouchableNativeFeedback>
+                {guided && <GuidedCameraModal
+                    visible={!!this.state.showGuidedCamera}
+                    onClose={() => this.setState({showGuidedCamera: false})}
+                    onCapture={(photoPath) => this.onGuidedCapture(photoPath)}
+                />}
             </View>
         );
     }
