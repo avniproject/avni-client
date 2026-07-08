@@ -131,15 +131,16 @@ export default class MediaFormElement extends AbstractFormElement {
     }
 
     async onGuidedCapture(photoPath) {
+        // Close on capture so the shutter can't fire a second time during the async resize.
+        this.setState({showGuidedCamera: false, guidedCaptureError: null});
         try {
             const options = this.getDefaultOptions();
             const resizedUri = await resizeCapturedImage(ImageResizer, photoPath, options);
-            this.setState({showGuidedCamera: false, guidedCaptureError: null});
             this.addMediaFromPicker(toPickerResponse(resizedUri), this._guidedOnUpdate);
         } catch (e) {
-            // Keep the camera open with an error so the user can retake; no asset is saved.
+            // Reopen with an error so the user can retake; no asset is saved.
             General.logError('MediaFormElement', `guided capture failed: ${e && e.message}`);
-            this.setState({guidedCaptureError: 'Could not process the photo. Please retake.'});
+            this.setState({showGuidedCamera: true, guidedCaptureError: 'Could not process the photo. Please retake.'});
         }
     }
 
