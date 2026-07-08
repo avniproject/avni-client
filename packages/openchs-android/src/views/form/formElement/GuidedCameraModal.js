@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
     btnText: {color: "black", fontWeight: "700"},
 });
 
-export default function GuidedCameraModal({visible, onClose, onCapture}) {
+export default function GuidedCameraModal({visible, onClose, onCapture, captureError}) {
     const cameraRef = useRef(null);
     const device = useCameraDevice("back");
     const {hasPermission, requestPermission} = useCameraPermission();
@@ -60,8 +60,8 @@ export default function GuidedCameraModal({visible, onClose, onCapture}) {
             <View style={styles.fill}>
                 <Camera ref={cameraRef} style={StyleSheet.absoluteFill} device={device} isActive={visible} photo={true} />
                 <TouchableOpacity style={styles.close} onPress={onClose}><Text style={styles.closeText}>✕</Text></TouchableOpacity>
-                {error && (
-                    <View style={styles.errorBanner}><Text style={styles.err}>{error}</Text></View>
+                {(error || captureError) && (
+                    <View style={styles.errorBanner}><Text style={styles.err}>{error || captureError}</Text></View>
                 )}
                 <View style={styles.controls}>
                     <TouchableOpacity

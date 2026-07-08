@@ -127,19 +127,19 @@ export default class MediaFormElement extends AbstractFormElement {
 
     openGuidedCamera(onUpdateObservations) {
         this._guidedOnUpdate = onUpdateObservations;
-        this.setState({mode: Mode.Camera, showGuidedCamera: true});
+        this.setState({mode: Mode.Camera, showGuidedCamera: true, guidedCaptureError: null});
     }
 
     async onGuidedCapture(photoPath) {
-        this.setState({showGuidedCamera: false});
         try {
             const options = this.getDefaultOptions();
             const resizedUri = await resizeCapturedImage(ImageResizer, photoPath, options);
+            this.setState({showGuidedCamera: false, guidedCaptureError: null});
             this.addMediaFromPicker(toPickerResponse(resizedUri), this._guidedOnUpdate);
         } catch (e) {
-            // No asset is saved; reopen the camera so the user can retake.
+            // Keep the camera open with an error so the user can retake; no asset is saved.
             General.logError('MediaFormElement', `guided capture failed: ${e && e.message}`);
-            this.setState({showGuidedCamera: true});
+            this.setState({guidedCaptureError: 'Could not process the photo. Please retake.'});
         }
     }
 
@@ -214,6 +214,7 @@ export default class MediaFormElement extends AbstractFormElement {
                 </TouchableNativeFeedback>
                 {guided && <GuidedCameraModal
                     visible={!!this.state.showGuidedCamera}
+                    captureError={this.state.guidedCaptureError}
                     onClose={() => this.setState({showGuidedCamera: false})}
                     onCapture={(photoPath) => this.onGuidedCapture(photoPath)}
                 />}
