@@ -297,53 +297,80 @@ describe('EdgeModelService', () => {
             }
         });
 
-        it('mean-prob (default): averages per-fold probabilities and thresholds', async () => {
+        it('unanimous-and (default): Positive only when all folds decode positive', async () => {
             mockPerFold({
                 fold1: {label: 'Positive', confidence: 0.8},
-                fold2: {label: 'Negative', confidence: 0.6},
-                fold3: {label: 'Positive', confidence: 0.7},
+                fold2: {label: 'Positive', confidence: 0.6},
+                fold3: {label: 'Positive', confidence: 0.9},
             });
 
             const r = await service.runInferenceOnImage('/tmp/x.jpg');
 
             expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(3);
-            expect(r.confidence).toBeCloseTo(0.7, 6);
-            expect(r.label).toBe('Positive');
             expect(r.positive).toBe(true);
+            expect(r.label).toBe('Positive');
+            expect(r.confidence).toBeCloseTo(0.6, 6); // min(perModel.confidence) — the weakest fold
             expect(r.perModel.map(p => p.sha256)).toEqual(['fold1', 'fold2', 'fold3']);
         });
 
-        it('mean-logit: averages raw logits then applies sigmoid', async () => {
-            const sigmoid = (x) => 1 / (1 + Math.exp(-x));
-            mockPerFold({
-                fold1: {logit: 2.0}, fold2: {logit: -1.0}, fold3: {logit: 0.0},
-            });
+        it('any single fold Negative ⇒ Negative (AND truth table)', async () => {
+            const positives = {
+                fold1: {label: 'Positive', confidence: 0.8},
+                fold2: {label: 'Positive', confidence: 0.6},
+                fold3: {label: 'Positive', confidence: 0.9},
+            };
+            for (const neg of ['fold1', 'fold2', 'fold3']) {
+                mockPerFold({...positives, [neg]: {label: 'Negative', confidence: 0.2}});
 
-            const r = await service.runEnsembleInferenceOnImage('/tmp/x.jpg', {combine: 'mean-logit'});
+                const r = await service.runInferenceOnImage('/tmp/x.jpg');
 
-            expect(r.confidence).toBeCloseTo(sigmoid((2.0 - 1.0 + 0.0) / 3), 6);
-            expect(r.label).toBe('Positive');
+                expect(r.positive).toBe(false);
+                expect(r.label).toBe('Negative');
+            }
         });
 
-        it('honours a custom threshold and labels', async () => {
+        it('all folds Negative ⇒ Negative', async () => {
             mockPerFold({
-                fold1: {confidence: 0.55}, fold2: {confidence: 0.6}, fold3: {confidence: 0.65},
+                fold1: {label: 'Negative', confidence: 0.1},
+                fold2: {label: 'Negative', confidence: 0.2},
+                fold3: {label: 'Negative', confidence: 0.3},
             });
 
-            const r = await service.runEnsembleInferenceOnImage('/tmp/x.jpg',
-                {threshold: 0.7, labels: ['Benign', 'Malignant']});
+            const r = await service.runInferenceOnImage('/tmp/x.jpg');
 
-            expect(r.confidence).toBeCloseTo(0.6, 6);
-            expect(r.label).toBe('Benign');
+            expect(r.positive).toBe(false);
+            expect(r.label).toBe('Negative');
         });
 
-        it('fails loud on a non-finite score (a fold lacked the needed numeric field)', async () => {
+        it('keeps the per-model breakdown (sha256/logit/confidence/label)', async () => {
             mockPerFold({
-                fold1: {confidence: 0.8}, fold2: {}, fold3: {confidence: 0.7},  // fold2 has no confidence
+                fold1: {label: 'Positive', confidence: 0.8, logit: 1.2},
+                fold2: {label: 'Positive', confidence: 0.6, logit: 0.4},
+                fold3: {label: 'Positive', confidence: 0.9, logit: 2.0},
+            });
+
+            const r = await service.runInferenceOnImage('/tmp/x.jpg');
+
+            expect(r.perModel).toEqual([
+                {sha256: 'fold1', logit: 1.2, confidence: 0.8, label: 'Positive'},
+                {sha256: 'fold2', logit: 0.4, confidence: 0.6, label: 'Positive'},
+                {sha256: 'fold3', logit: 2.0, confidence: 0.9, label: 'Positive'},
+            ]);
+        });
+
+        it('rejects an unsupported combiner in the payload (only unanimous-and is shipped)', async () => {
+            const meanProbOverride = {...OVERRIDE, output: {...OVERRIDE.output,
+                params: {...OVERRIDE.output.params, combine: 'mean-prob'}}};
+            rows = [row({sha256: 'fold1', payload: JSON.stringify(meanProbOverride)}), FOLDS[1], FOLDS[2]];
+            rows.forEach(r => cacheRow(r));
+            mockPerFold({
+                fold1: {label: 'Positive', confidence: 0.8},
+                fold2: {label: 'Positive', confidence: 0.6},
+                fold3: {label: 'Positive', confidence: 0.9},
             });
 
             await expect(service.runEnsembleInferenceOnImage('/tmp/x.jpg'))
-                .rejects.toThrow('non-finite score');
+                .rejects.toThrow("unsupported combine='mean-prob'");
         });
 
         describe('partial degradation (one fold not cached)', () => {

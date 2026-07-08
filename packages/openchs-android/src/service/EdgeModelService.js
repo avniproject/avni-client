@@ -166,44 +166,38 @@ class EdgeModelService extends BaseService {
     }
 
     /**
-     * Soft-vote ensemble over the synced `edgeModel` rows (e.g. cross-validation folds of the
-     * same model). Runs each row, then combines:
-     *   • 'mean-prob'  (default): average the per-model sigmoid probabilities.
-     *   • 'mean-logit'          : average the raw logits, then sigmoid.
-     * `threshold` picks labels[1] (positive) vs labels[0]. Returns the combined verdict plus a
-     * per-model breakdown. The combined `label` is shaped like a single model's, so callers
+     * Unanimous-AND ensemble over the synced `edgeModel` rows (cross-validation folds of the same
+     * model): the image is positive only when every fold's decoded verdict is positive. This cuts
+     * false positives vs a soft mean-vote — the reason the deployment moved from 1 to 3 models.
+     * The combiner is read from the synced payload override (`output.params.combine`) and defaults
+     * to `unanimous-and`, the only shipped value. Returns the combined verdict plus a per-model
+     * breakdown; the combined `label` is shaped like a single model's, so callers
      * (e.g. _scheduleImageInference) and `labelMap` treat it identically.
      */
-    async runEnsembleInferenceOnImage(imagePath, opts = {}) {
+    async runEnsembleInferenceOnImage(imagePath) {
         const rows = this._edgeModelRows();
         if (rows.length === 0) {
             throw new Error('EdgeModelService.runEnsembleInferenceOnImage: no edgeModel content row is synced');
         }
-        // Default threshold/labels from the first fold's decoder params so the combined verdict
-        // tracks the synced payload like the single-row path does; explicit opts win.
+        // Combiner + labels track the synced payload like the single-row path does.
         const decoderParams = rows[0].getPayload()?.output?.params || {};
-        const combine = opts.combine ?? 'mean-prob';
-        const threshold = opts.threshold ?? decoderParams.threshold ?? 0.5;
-        const labels = opts.labels ?? decoderParams.labels ?? ['Negative', 'Positive'];
+        const combine = decoderParams.combine ?? 'unanimous-and';
+        if (combine !== 'unanimous-and') {
+            throw new Error(`EdgeModelService.runEnsembleInferenceOnImage: unsupported combine='${combine}' (only 'unanimous-and' is shipped)`);
+        }
+        const labels = decoderParams.labels ?? ['Negative', 'Positive'];
 
         const t0 = Date.now();
         const results = await Promise.all(rows.map(row => this._runInferenceOnImageForRow(row, imagePath)));
-        const mean = nums => nums.reduce((s, x) => s + x, 0) / nums.length;
-        const score = combine === 'mean-logit'
-            ? 1 / (1 + Math.exp(-mean(results.map(r => r.logit))))
-            : mean(results.map(r => r.confidence));
-        // Fail loud rather than silently scoring NaN — NaN > threshold is false, which would
-        // masquerade as a confident negative verdict. A non-finite score means a fold result
-        // lacked the field this combine mode needs (confidence / logit).
-        if (!Number.isFinite(score)) {
-            throw new Error(`EdgeModelService.runEnsembleInferenceOnImage: non-finite score (combine=${combine}) — a fold result lacked a numeric ${combine === 'mean-logit' ? 'logit' : 'confidence'}; rows=[${rows.map(r => r.sha256).join(',')}]`);
-        }
-        const positive = score > threshold;
+        // Each fold binarises against its own threshold natively; the ensemble is positive only if
+        // all folds decoded positive (labels[1]). confidence is the weakest fold's — informational.
+        const positive = results.every(r => r.label === labels[1]);
         const label = positive ? labels[1] : labels[0];
+        const confidence = Math.min(...results.map(r => r.confidence));
         General.logDebug('EdgeModelSvc',
-            `runEnsembleInferenceOnImage OK (${Date.now() - t0}ms): combine=${combine} score=${score.toFixed(4)} label=${label} rows=${rows.length}`);
+            `runEnsembleInferenceOnImage OK (${Date.now() - t0}ms): combine=${combine} label=${label} positive=${positive} rows=${rows.length}`);
         return {
-            label, confidence: score, positive,
+            label, confidence, positive,
             perModel: results.map((r, i) => ({sha256: rows[i].sha256, logit: r.logit, confidence: r.confidence, label: r.label}))
         };
     }

@@ -99,7 +99,7 @@ _tanuh-release-assemble: tanuh-verify-no-model ## (internal) Assemble + sign the
 
 # ── 3-fold MViT2 ensemble ───────────────────────────────────────────────────────────
 # model6/model8/model8-2 are cross-validation folds of one MViT2 oral-cancer model, shipped
-# as ONNX exports and soft-voted in JS by EdgeModelService.runEnsembleInferenceOnImage. Drop
+# as ONNX exports and combined by unanimous AND in JS by EdgeModelService.runEnsembleInferenceOnImage. Drop
 # the 3 plaintext .onnx files (named model6.onnx model8.onnx model8-2.onnx) in
 # $(TANUH_ENSEMBLE_SRC_DIR); `tanuh-ensemble` clears staging then encrypts all three
 # (bicubic ensemble override, engine=onnx) under names mvit2_fold1_6/fold1_8/fold2_8.
@@ -132,7 +132,7 @@ tanuh-ensemble: ## Encrypt the 3 MViT2 folds into the staging dir (bicubic ensem
 	@echo "Staged 3 folds into $(TANUH_STAGING_DIR)/ (manifest.json + keys.json): mvit2_fold1_6, mvit2_fold1_8, mvit2_fold2_8"
 	@echo "Provision: upload $(TANUH_STAGING_DIR)/*.bin to the org GCS models/ prefix, create the reference-data"
 	@echo "items from manifest.json, and load keys.json into the server key store."
-	@echo "From a form-element rule (soft-vote ensemble → one verdict):"
+	@echo "From a form-element rule (unanimous-AND ensemble → one verdict):"
 	@echo "  services.edgeModelService.scheduleImageInference("
 	@echo "    ['mvit2_fold1_6','mvit2_fold1_8','mvit2_fold2_8'], imagePath, entity,"
 	@echo "    'AI Suspicion Result', {Positive:'Suspicious', Negative:'Non Suspicious'})"
