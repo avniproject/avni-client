@@ -137,8 +137,9 @@ export default class MediaFormElement extends AbstractFormElement {
             const resizedUri = await resizeCapturedImage(ImageResizer, photoPath, options);
             this.addMediaFromPicker(toPickerResponse(resizedUri), this._guidedOnUpdate);
         } catch (e) {
+            // No asset is saved; reopen the camera so the user can retake.
             General.logError('MediaFormElement', `guided capture failed: ${e && e.message}`);
-            this.setState({guidedCaptureError: true, showGuidedCamera: true});
+            this.setState({showGuidedCamera: true});
         }
     }
 
