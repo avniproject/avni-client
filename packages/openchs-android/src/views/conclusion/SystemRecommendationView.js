@@ -196,11 +196,18 @@ class SystemRecommendationView extends AbstractComponent {
         return bottom > viewHeight;
     }
 
+    // Only re-render on a real measurement change, so a wobbling child can't drive a render loop.
+    setViewMeasurement(key, value) {
+        if (Math.round(this.state[key]) !== Math.round(value)) {
+            this.setState({[key]: value});
+        }
+    }
+
     render() {
         General.logDebug(this.viewName(), `render`);
         const displayScrollButton = this.doDisplayScrollButton();
         return (
-            <CHSContainer onLayout={(e) => this.setState({viewHeight: e.nativeEvent.layout.height})}>
+            <CHSContainer onLayout={(e) => this.setViewMeasurement('viewHeight', e.nativeEvent.layout.height)}>
                 <CHSContent>
                     <AppHeader title={this.props.headerMessage}
                                func={() => this.onAppHeaderBack(this.props.isSaveDraftOn)}
@@ -261,7 +268,7 @@ class SystemRecommendationView extends AbstractComponent {
                                                style={{marginHorizontal: 24}}/>
 
                             </View>
-                            <View onLayout={(e) => this.setState({bottom: e.nativeEvent.layout.y})}/>
+                            <View onLayout={(e) => this.setViewMeasurement('bottom', e.nativeEvent.layout.y)}/>
                             <ApprovalDialog
                                 primaryButton={this.I18n.t('yes')}
                                 secondaryButton={this.I18n.t('no')}

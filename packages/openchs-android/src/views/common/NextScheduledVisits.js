@@ -1,5 +1,4 @@
 import {StyleSheet, Text, View} from "react-native";
-import ListView from "deprecated-react-native-listview";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -77,7 +76,7 @@ class NextScheduledVisits extends AbstractComponent {
             moment(visit.earliestDate).format(format),
             moment(visit.maxDate).format(format) ]);
 
-        const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(nextScheduledVisits);
+        // Mapped rows, not a virtualized ListView nested in a ScrollView (clip/unclip churn destabilises height).
         return (
             <View style={[{flexDirection: "column", paddingBottom: 10}, this.props.style]}>
                 {this.renderTitle()}
@@ -86,30 +85,29 @@ class NextScheduledVisits extends AbstractComponent {
                     <Text style={[this.styles.tableColHeader, {flex: 1.5,}]}>{this.I18n.t('schedulingFor')}</Text>
                     <Text style={[this.styles.tableColHeader, {flex: 1.5,}]}>{this.I18n.t('overdueBy')}</Text>
                 </View>
-                <ListView
-                    enableEmptySections={true}
-                    dataSource={dataSource}
-                    style={this.styles.visitTable}
-                    removeClippedSubviews={true}
-                    renderSeparator={(ig, idx) => (<Separator key={idx} height={1}/>)}
-                    renderRow={([visitName, scheduledFor, overdueBy]) =>
-                        < View style={[{flexDirection: "row"}, this.styles.visitRow]}>
-                            <Text style={[{
-                                textAlign: 'left',
-                                fontSize: Fonts.Normal,
-                                color: Styles.greyText
-                            }, this.styles.visitColumn]}>{visitName}</Text>
-                            <Text style={[{
-                                textAlign: 'left',
-                                fontSize: Fonts.Medium,
-                            }, this.styles.visitColumn]}>{scheduledFor}</Text>
-                            <Text style={[{
-                                textAlign: 'left',
-                                fontSize: Fonts.Normal,
-                                color: Styles.greyText
-                            }, this.styles.visitColumn]}>{overdueBy}</Text>
-                        </View>}
-                />
+                <View style={this.styles.visitTable}>
+                    {nextScheduledVisits.map(([visitName, scheduledFor, overdueBy], idx) => (
+                        <React.Fragment key={idx}>
+                            < View style={[{flexDirection: "row"}, this.styles.visitRow]}>
+                                <Text style={[{
+                                    textAlign: 'left',
+                                    fontSize: Fonts.Normal,
+                                    color: Styles.greyText
+                                }, this.styles.visitColumn]}>{visitName}</Text>
+                                <Text style={[{
+                                    textAlign: 'left',
+                                    fontSize: Fonts.Medium,
+                                }, this.styles.visitColumn]}>{scheduledFor}</Text>
+                                <Text style={[{
+                                    textAlign: 'left',
+                                    fontSize: Fonts.Normal,
+                                    color: Styles.greyText
+                                }, this.styles.visitColumn]}>{overdueBy}</Text>
+                            </View>
+                            {idx < nextScheduledVisits.length - 1 && <Separator height={1}/>}
+                        </React.Fragment>
+                    ))}
+                </View>
             </View>
         );
     }
