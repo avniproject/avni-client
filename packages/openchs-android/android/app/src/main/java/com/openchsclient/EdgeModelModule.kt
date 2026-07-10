@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.media.ExifInterface
 import android.util.Base64
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import com.facebook.react.bridge.*
 import com.openchsclient.decoding.Decoders
 import com.openchsclient.engine.InferenceEngine
@@ -28,11 +29,11 @@ import javax.crypto.spec.SecretKeySpec
  *
  * ── Design ─────────────────────────────────────────────────────────────────────────
  * The bridge is **engine-agnostic** and **model-agnostic**:
- *   • Per-model semantics — which engine, which preprocessor, which decoder — live in
- *     `assets/models/registry.json` as a small declarative DSL. This file owns no model-specific
- *     math and does not branch on `modelKey`.
+ *   • Per-model semantics — which engine, which preprocessor, which decoder — come from the
+ *     synced DownloadableContent row's payload as a small declarative DSL. It owns no
+ *     model-specific math and does not branch on `modelKey`.
  *   • Engine = `ai.onnxruntime.OrtSession` etc., dispatched via `InferenceEngine` (Kotlin
- *     interface). ONNX Runtime Mobile is the backend for the tanuh ensemble; adding
+ *     interface). ONNX Runtime Mobile is the default engine, shipped in every flavour; adding
  *     TFLite/ExecuTorch is one new class drop, not a rewrite.
  *   • Preprocessor + decoder = named Kotlin classes registered in `Preprocessors.REGISTRY`
  *     and `Decoders.REGISTRY`. Override JSON references them by string name; the bridge
@@ -48,10 +49,8 @@ import javax.crypto.spec.SecretKeySpec
  * `filesDir/<modelKey>.model.tmp` (MODE_PRIVATE, 0600) — 64 KB chunk peak on the JVM heap.
  * The engine reads the file (`OrtEnvironment.createSession(path)` for ONNX) and the bridge
  * deletes the file in a `finally` block; plaintext exists on disk for the duration of decrypt + load
- * (single-digit seconds for a ~18 MB model). This is consistent with the existing
- * `tools/edge-model/README.md` threat model: the AES key ships in the APK, so encryption
- * is obfuscation, not full IP protection. A determined reverser decrypts offline from the
- * APK and never touches the device — the brief on-disk window doesn't change that.
+ * (single-digit seconds for a ~18 MB model). The AES key arrives as a call argument, delivered
+ * out-of-band from the server key endpoint.
  *
  * The module registers `ComponentCallbacks2` to receive memory-pressure signals.
  * Backgrounding the app for a camera intent or phone call does *not* trigger eviction unless
@@ -59,9 +58,7 @@ import javax.crypto.spec.SecretKeySpec
  * keeps the runtime warm.
  *
  * ── JS-facing API (via NativeModules.EdgeModelModule) ─────────────────────────────
- *   getRegistry(): Promise<object>
- *   loadModel(modelKey, assetPath, overrideJson): Promise<boolean>
- *   loadEncryptedModel(modelKey, encryptedAssetPath, base64Key, sha256, overrideJson): Promise<boolean>
+ *   loadEncryptedModelFromFile(modelKey, encryptedFilePath, base64Key, sha256, overrideJson): Promise<boolean>
  *   runInference(modelKey, inputData: number[], shape?: number[]): Promise<object>
  *   runInferenceOnImage(modelKey, imagePath): Promise<object>
  *
@@ -73,18 +70,111 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
 
     companion object {
         private const val TAG = "EdgeModelModule"
-        private const val REGISTRY_ASSET = "models/registry.json"
         private const val GCM_TAG_BITS = 128                  // AES-GCM authentication-tag size
         private const val GCM_IV_BYTES = 12                   // 96-bit IV — recommended for GCM
         private const val DECRYPT_CHUNK_BYTES = 64 * 1024     // 64 KB chunks: balance syscalls vs Java-heap pressure
+
+        @JvmStatic
+        @VisibleForTesting
+        internal fun decryptFileToFile(src: File, key: ByteArray, expectedSha256Hex: String, outFile: File) {
+            if (!src.exists() || !src.isFile || !src.canRead()) {
+                throw java.io.FileNotFoundException(
+                    "Encrypted model blob missing or unreadable at '${src.absolutePath}'."
+                )
+            }
+            // Reject a sub-IV blob cleanly; otherwise it BufferUnderflows opaquely reading the IV.
+            if (src.length() < GCM_IV_BYTES) {
+                throw IllegalArgumentException(
+                    "Encrypted model blob at '${src.absolutePath}' is truncated: ${src.length()} bytes, need at least $GCM_IV_BYTES for the IV."
+                )
+            }
+            FileInputStream(src).use { fis ->
+                decryptChannelToFile(fis.channel, 0L, src.length(), key, expectedSha256Hex, outFile)
+            }
+        }
+
+        @JvmStatic
+        @VisibleForTesting
+        internal fun decryptChannelToFile(
+            channel: FileChannel,
+            startOffset: Long,
+            totalLen: Long,
+            key: ByteArray,
+            expectedSha256Hex: String,
+            outFile: File
+        ) {
+            val ciphertextLen = totalLen - GCM_IV_BYTES
+
+            // Chunked-read rather than mmap: a MappedByteBuffer survives channel.close() until GC, pinning the cached blob and deferring a later delete.
+            channel.position(startOffset)
+            val readBuf = ByteBuffer.allocate(DECRYPT_CHUNK_BYTES)
+
+            val iv = readFully(channel, readBuf, GCM_IV_BYTES)
+
+            val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+            cipher.init(Cipher.DECRYPT_MODE, SecretKeySpec(key, "AES"), GCMParameterSpec(GCM_TAG_BITS, iv))
+
+            val md = MessageDigest.getInstance("SHA-256")
+            val chunk = ByteArray(DECRYPT_CHUNK_BYTES)
+            val outChunk = ByteArray(DECRYPT_CHUNK_BYTES + 32)
+
+            try {
+                FileOutputStream(outFile).use { fos ->
+                    val outCh = fos.channel
+                    var remaining = ciphertextLen.toInt()
+                    while (remaining > 0) {
+                        val n = minOf(remaining, DECRYPT_CHUNK_BYTES)
+                        readChunk(channel, readBuf, chunk, n)
+                        val produced = cipher.update(chunk, 0, n, outChunk)
+                        if (produced > 0) {
+                            outCh.write(ByteBuffer.wrap(outChunk, 0, produced))
+                            md.update(outChunk, 0, produced)
+                        }
+                        remaining -= n
+                    }
+                    // doFinal verifies the GCM tag — throws AEADBadTagException on tamper or wrong key.
+                    val tail = cipher.doFinal()
+                    if (tail.isNotEmpty()) {
+                        outCh.write(ByteBuffer.wrap(tail))
+                        md.update(tail)
+                    }
+                }
+
+                // Plaintext SHA check — catches a swapped blob re-encrypted with the same key (valid GCM auth).
+                val actual = md.digest().joinToString("") { "%02x".format(it) }
+                if (!actual.equals(expectedSha256Hex, ignoreCase = true)) {
+                    throw SecurityException("Decrypted plaintext SHA-256 mismatch (expected=$expectedSha256Hex, actual=$actual)")
+                }
+            } finally {
+                chunk.fill(0); outChunk.fill(0); key.fill(0)
+            }
+        }
+
+        private fun readFully(channel: FileChannel, readBuf: ByteBuffer, n: Int): ByteArray {
+            val out = ByteArray(n)
+            readChunk(channel, readBuf, out, n)
+            return out
+        }
+
+        private fun readChunk(channel: FileChannel, readBuf: ByteBuffer, dst: ByteArray, n: Int) {
+            var read = 0
+            while (read < n) {
+                readBuf.clear()
+                readBuf.limit(minOf(readBuf.capacity(), n - read))
+                val r = channel.read(readBuf)
+                if (r <= 0) throw java.io.IOException("Unexpected end of ciphertext: read $read of $n bytes")
+                readBuf.flip()
+                readBuf.get(dst, read, r)
+                read += r
+            }
+        }
     }
 
     /**
-     * Engine providers, one per supported `engine` name in the registry override, resolved
-     * lazily and reflectively. OnnxEngine lives in the tanuh source set and
-     * `com.microsoft.onnxruntime:onnxruntime-android` is tanuh-scoped, so its native libs stay
-     * out of non-tanuh AABs. Reflective lookup means non-tanuh flavours compile and boot
-     * without the class; their registries ship empty so no code path ever requests the engine.
+     * Engine providers, one per supported `engine` name in the payload override, resolved
+     * lazily and reflectively. OnnxEngine ships in every flavour; reflective lookup means a
+     * flavour still boots even if an engine class is absent, and the engine is only realised
+     * when an org has a configured model that requests it.
      */
     private val engineProviders: Map<String, () -> InferenceEngine> by lazy {
         buildMap { registerEngine("onnx", "com.openchsclient.engine.OnnxEngine") }
@@ -108,8 +198,7 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
     private fun engineFor(engineName: String): InferenceEngine =
         engines.getOrPut(engineName) {
             (engineProviders[engineName] ?: throw IllegalArgumentException(
-                "Unknown or unavailable engine '$engineName'. Available: ${engineProviders.keys}. " +
-                "(ONNX Runtime ships only in the tanuh flavour.)"
+                "Unknown or unavailable engine '$engineName'. Available: ${engineProviders.keys}."
             )).invoke()
         }
 
@@ -138,9 +227,8 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
 
     private sealed class LoadArgs {
         abstract val overrideJson: String?
-        data class Plain(val assetPath: String, override val overrideJson: String?) : LoadArgs()
-        data class Encrypted(
-            val encryptedAssetPath: String,
+        data class EncryptedFile(
+            val encryptedFilePath: String,
             val base64Key: String,
             val sha256Hex: String,
             override val overrideJson: String?
@@ -157,51 +245,10 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
 
     // ── React-callable methods ─────────────────────────────────────────────────────────
 
-    /**
-     * Read the per-flavour model registry (`assets/models/registry.json`) and return its
-     * parsed contents. Called once at app boot from `EdgeModelService.init()`. The JS side
-     * caches the result and uses it to resolve `modelKey` → asset spec on each inference.
-     */
     @ReactMethod
-    fun getRegistry(promise: Promise) {
-        try {
-            val raw = reactApplicationContext.assets.open(REGISTRY_ASSET).bufferedReader().use { it.readText() }
-            val map = jsonStringToWritableMap(raw)
-            promise.resolve(map)
-        } catch (e: Exception) {
-            Log.e(TAG, "getRegistry: failed to read $REGISTRY_ASSET: ${e.message}", e)
-            promise.reject("REGISTRY_LOAD_ERROR", "Failed to read $REGISTRY_ASSET: ${e.message}", e)
-        }
-    }
-
-    /**
-     * Load a plaintext model from APK assets. Idempotent — calling twice for the same
-     * `modelKey` is a no-op. The override JSON is mandatory and describes the engine,
-     * preprocessor, and decoder for this model.
-     */
-    @ReactMethod
-    fun loadModel(modelKey: String, assetPath: String, overrideJson: String?, promise: Promise) {
-        inferenceLock.lock()
-        try {
-            loadArgs[modelKey] = LoadArgs.Plain(assetPath, overrideJson)
-            ensureLoaded(modelKey)
-            promise.resolve(true)
-        } catch (e: Exception) {
-            Log.e(TAG, "loadModel($modelKey): ${e.message}", e)
-            promise.reject("EDGE_MODEL_LOAD_ERROR", "Failed to load model '$modelKey': ${e.message}", e)
-        } finally {
-            inferenceLock.unlock()
-        }
-    }
-
-    /**
-     * Load an AES-GCM-encrypted model from APK assets. Plaintext is streamed to a private
-     * temp file which the engine reads during `load`; the bridge deletes it immediately after.
-     */
-    @ReactMethod
-    fun loadEncryptedModel(
+    fun loadEncryptedModelFromFile(
         modelKey: String,
-        encryptedAssetPath: String,
+        encryptedFilePath: String,
         base64Key: String,
         sha256Hex: String,
         overrideJson: String?,
@@ -209,12 +256,12 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
     ) {
         inferenceLock.lock()
         try {
-            loadArgs[modelKey] = LoadArgs.Encrypted(encryptedAssetPath, base64Key, sha256Hex, overrideJson)
+            loadArgs[modelKey] = LoadArgs.EncryptedFile(encryptedFilePath, base64Key, sha256Hex, overrideJson)
             ensureLoaded(modelKey)
             promise.resolve(true)
         } catch (e: Exception) {
-            Log.e(TAG, "loadEncryptedModel($modelKey): ${e.message}", e)
-            promise.reject("EDGE_MODEL_LOAD_ERROR", "Failed to load encrypted model '$modelKey': ${e.message}", e)
+            Log.e(TAG, "loadEncryptedModelFromFile($modelKey): ${e.message}", e)
+            promise.reject("EDGE_MODEL_LOAD_ERROR", "Failed to load encrypted model '$modelKey' from file: ${e.message}", e)
         } finally {
             inferenceLock.unlock()
         }
@@ -275,9 +322,8 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
                 if (BuildConfig.DEBUG) {
                     // Diagnostic — log decoded bitmap geometry + EXIF orientation. If EXIF reports
                     // anything other than 1 (NORMAL), the on-screen image is rotated relative to the
-                    // raw pixels we feed the model. The TANUH PoC has the same `decodeFile` codepath,
-                    // so for parity-comparison runs both apps should agree. But if training data was
-                    // pre-rotated and field images aren't, the model sees inputs it wasn't trained on.
+                    // raw pixels we feed the model — and if training data was pre-rotated and field
+                    // images aren't, the model sees inputs it wasn't trained on.
                     val exif = try { ExifInterface(imagePath) } catch (e: Exception) { null }
                     val orientation = exif?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
                     Log.d(TAG, "decodeFile: w=${raw.width} h=${raw.height} config=${raw.config} exifOrientation=$orientation")
@@ -370,14 +416,13 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
         if (handles.containsKey(modelKey)) return
         val args = loadArgs[modelKey]
             ?: throw IllegalStateException(
-                "Model not loaded: '$modelKey'. Call loadModel()/loadEncryptedModel() before inference."
+                "Model not loaded: '$modelKey'. Call loadEncryptedModelFromFile() before inference."
             )
         val safeKey = modelKey.replace(Regex("[^A-Za-z0-9._-]"), "_")
         val plaintextFile = File(reactApplicationContext.filesDir, "$safeKey.model.tmp")
         try {
             when (args) {
-                is LoadArgs.Plain -> streamAssetToFile(args.assetPath, plaintextFile)
-                is LoadArgs.Encrypted -> streamDecryptToFile(args.encryptedAssetPath, args.base64Key, args.sha256Hex, plaintextFile)
+                is LoadArgs.EncryptedFile -> streamDecryptFileToFile(args.encryptedFilePath, args.base64Key, args.sha256Hex, plaintextFile)
             }
             // Defensive — `filesDir` already gives 0600 via MODE_PRIVATE, but older devices
             // don't always honour the default. Owner-only readable.
@@ -404,152 +449,17 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
         contracts[modelKey] = contract
     }
 
-    /**
-     * Copy a plaintext APK asset into a private file. Uses `FileChannel.transferTo` so the
-     * kernel can splice page-cache pages directly into the destination without bouncing
-     * through the Java heap.
-     */
-    private fun streamAssetToFile(assetPath: String, outFile: File) {
-        val fd = reactApplicationContext.assets.openFd(assetPath)
-        FileInputStream(fd.fileDescriptor).use { fis ->
-            FileOutputStream(outFile).use { fos ->
-                val inCh = fis.channel
-                val outCh = fos.channel
-                var transferred = 0L
-                while (transferred < fd.declaredLength) {
-                    val n = inCh.transferTo(fd.startOffset + transferred, fd.declaredLength - transferred, outCh)
-                    if (n <= 0) throw IllegalStateException("Asset transfer stalled at $transferred / ${fd.declaredLength}")
-                    transferred += n
-                }
-            }
-        }
-    }
-
-    /**
-     * Stream-decrypt an AES-GCM-encrypted asset directly into a private file. Peak JVM-heap
-     * footprint is the two 64 KB chunk buffers + the cipher's internal tag-buffer (≤16 B);
-     * the 18 MB plaintext never materialises as a single allocation.
-     *
-     * Layout of the on-disk blob (matches `tools/edge-model/encrypt-model.js`):
-     *   [12-byte IV][ciphertext...][16-byte GCM tag]
-     *
-     * We decrypt in `DECRYPT_CHUNK_BYTES` chunks via `Cipher.update` and stream the
-     * produced plaintext straight into the destination `FileChannel`. SHA-256 is computed
-     * incrementally over the same chunks; verification happens before the file is handed
-     * to the engine — a mismatch deletes the file and throws.
-     *
-     * Note on AES/GCM streaming: Android's Conscrypt provider (Android 7+) streams GCM
-     * decrypt output as ciphertext arrives, buffering only the final 16-byte tag.
-     * `cipher.update` therefore emits ~chunk-sized plaintext per call; `doFinal` returns
-     * at most a few bytes of tail. The pre-refactor 18 MB JVM-heap peak came from
-     * `ByteBuffer.allocateDirect(plaintextLen)` (ART counts direct buffers against the
-     * growth limit), not from `doFinal` — eliminating it gets the bridge below the
-     * default 96 MB heap cap without needing `largeHeap`.
-     */
-    private fun streamDecryptToFile(
-        encryptedAssetPath: String,
+    // Blob layout (matches `tools/edge-model/encrypt-model.js`): [12-byte IV][ciphertext][16-byte GCM tag].
+    private fun streamDecryptFileToFile(
+        encryptedFilePath: String,
         base64Key: String,
         expectedSha256Hex: String,
         outFile: File
     ) {
-        val fd = reactApplicationContext.assets.openFd(encryptedAssetPath)
-        val totalLen = fd.declaredLength
-        val ciphertextLen = totalLen - GCM_IV_BYTES
-
         if (BuildConfig.DEBUG) {
-            Log.d(TAG, "streamDecryptToFile($encryptedAssetPath): total=$totalLen → ${outFile.absolutePath}")
+            Log.d(TAG, "streamDecryptFileToFile(path=$encryptedFilePath) → ${outFile.absolutePath}")
         }
-
-        val mapped = FileInputStream(fd.fileDescriptor).use { fis ->
-            fis.channel.map(FileChannel.MapMode.READ_ONLY, fd.startOffset, totalLen)
-        }
-        // First 12 bytes = IV.
-        val iv = ByteArray(GCM_IV_BYTES).also { mapped.get(it) }
-
-        val key = Base64.decode(base64Key, Base64.DEFAULT)
-        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        cipher.init(Cipher.DECRYPT_MODE, SecretKeySpec(key, "AES"), GCMParameterSpec(GCM_TAG_BITS, iv))
-
-        val md = MessageDigest.getInstance("SHA-256")
-        val chunk = ByteArray(DECRYPT_CHUNK_BYTES)
-        val outChunk = ByteArray(DECRYPT_CHUNK_BYTES + 32)
-
-        try {
-            FileOutputStream(outFile).use { fos ->
-                val outCh = fos.channel
-                var remaining = ciphertextLen.toInt()
-                while (remaining > 0) {
-                    val n = minOf(remaining, DECRYPT_CHUNK_BYTES)
-                    mapped.get(chunk, 0, n)
-                    val produced = cipher.update(chunk, 0, n, outChunk)
-                    if (produced > 0) {
-                        outCh.write(ByteBuffer.wrap(outChunk, 0, produced))
-                        md.update(outChunk, 0, produced)
-                    }
-                    remaining -= n
-                }
-                // doFinal verifies the GCM tag — throws AEADBadTagException on tamper or wrong key.
-                val tail = cipher.doFinal()
-                if (tail.isNotEmpty()) {
-                    outCh.write(ByteBuffer.wrap(tail))
-                    md.update(tail)
-                }
-            }
-
-            // Plaintext integrity check — defends against a swapped blob with valid GCM auth
-            // (e.g. someone re-encrypted a different model with the same key).
-            val actual = md.digest().joinToString("") { "%02x".format(it) }
-            if (!actual.equals(expectedSha256Hex, ignoreCase = true)) {
-                throw SecurityException("Decrypted plaintext SHA-256 mismatch (expected=$expectedSha256Hex, actual=$actual)")
-            }
-        } finally {
-            // Zero the Java byte arrays. We can't un-page the mmap'd ciphertext (it's the
-            // APK asset) or the on-disk plaintext (caller deletes it), but we clean up our
-            // own scratch space so it doesn't linger in a GC-able allocation.
-            chunk.fill(0); outChunk.fill(0); key.fill(0)
-        }
+        decryptFileToFile(File(encryptedFilePath), Base64.decode(base64Key, Base64.DEFAULT), expectedSha256Hex, outFile)
     }
 
-    private fun jsonStringToWritableMap(raw: String): WritableMap {
-        val obj = org.json.JSONObject(raw)
-        return jsonObjectToWritableMap(obj)
-    }
-
-    private fun jsonObjectToWritableMap(obj: org.json.JSONObject): WritableMap {
-        val map = Arguments.createMap()
-        val keys = obj.keys()
-        while (keys.hasNext()) {
-            val key = keys.next()
-            when (val v = obj.opt(key)) {
-                null, org.json.JSONObject.NULL -> map.putNull(key)
-                is org.json.JSONObject -> map.putMap(key, jsonObjectToWritableMap(v))
-                is org.json.JSONArray -> map.putArray(key, jsonArrayToWritableArray(v))
-                is Boolean -> map.putBoolean(key, v)
-                is Int -> map.putInt(key, v)
-                is Long -> map.putDouble(key, v.toDouble())
-                is Double -> map.putDouble(key, v)
-                is String -> map.putString(key, v)
-                else -> map.putString(key, v.toString())
-            }
-        }
-        return map
-    }
-
-    private fun jsonArrayToWritableArray(arr: org.json.JSONArray): WritableArray {
-        val out = Arguments.createArray()
-        for (i in 0 until arr.length()) {
-            when (val v = arr.opt(i)) {
-                null, org.json.JSONObject.NULL -> out.pushNull()
-                is org.json.JSONObject -> out.pushMap(jsonObjectToWritableMap(v))
-                is org.json.JSONArray -> out.pushArray(jsonArrayToWritableArray(v))
-                is Boolean -> out.pushBoolean(v)
-                is Int -> out.pushInt(v)
-                is Long -> out.pushDouble(v.toDouble())
-                is Double -> out.pushDouble(v)
-                is String -> out.pushString(v)
-                else -> out.pushString(v.toString())
-            }
-        }
-        return out
-    }
 }

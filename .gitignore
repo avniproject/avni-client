@@ -101,20 +101,26 @@ packages/openchs-android/.jso/
 /fillLogin.sh
 
 # Edge-model build artefacts — produced per-build by tools/edge-model/encrypt-model.js
-# on the partner's developer machine. Never committed: contains AES key + encrypted blob,
-# plus any plaintext model dropped into source/.
+# on the partner's developer machine. Never committed: the staging dir holds the encrypted
+# blobs, manifest, and AES keys (keys.json) for provisioning; source/ holds plaintext models.
 tools/edge-model/source/*
 !tools/edge-model/source/.gitkeep
+tools/edge-model/staging/
+# Belt-and-braces: the AES key file and blobs must never be committed even under an overridden staging dir.
+tools/edge-model/**/keys.json
+tools/edge-model/**/*.bin
 packages/openchs-android/android/app/src/tanuh/assets/models/*
 !packages/openchs-android/android/app/src/tanuh/assets/models/.gitkeep
 
-# TANUH release keystore — never committed.
+# tanuh release keystore — never committed.
 tanuh-release-key.keystore
 
-# bundletool jar + bundletool output, downloaded/produced by `make tanuh-universal-apk`.
+# bundletool jar + bundletool output, downloaded/produced by the bundle targets.
 bundletool.jar
 tanuh-universal.apks
 tanuh-universal.apk
+tanuh-size-gate.apks
+tanuh-size-report.csv
 
 # Claude Code local session files
 .claude/

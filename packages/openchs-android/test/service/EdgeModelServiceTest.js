@@ -1,57 +1,30 @@
 /**
  * EdgeModelService unit tests.
  *
- * Verifies the registry-driven, lazy-load-once design described in the plan
- * (~/.claude/plans/composed-tumbling-bachman.md):
- *   • init() reads the registry once via EdgeModelModule.getRegistry; the Promise is awaited
- *     by any subsequent inference call.
- *   • Each modelKey is loaded exactly once per app lifetime (no double load).
- *   • Plain vs encrypted asset types route to loadModel vs loadEncryptedModel.
- *   • Override blocks are JSON-stringified before crossing the bridge.
+ * Verifies the DownloadableContent-driven design (avniproject/avni-client#1949):
+ *   • The model is resolved from synced `edgeModel` content rows, not an in-APK registry.
+ *   • Each row loads via loadEncryptedModelFromFile with its cached blob path, app-private
+ *     key, sha256, and overrideJson built from the row's payload.
+ *   • An ensemble = multiple rows, each loaded from its own path/key.
+ *   • A missing cached blob or key degrades gracefully (no native load, no throw via schedule;
+ *     inference absent).
+ *   • An unknown/empty engine in the payload fails loud.
  */
 
-const buildRegistry = (override) => ({
-    defaultModel: 'oral-cancer-v1',
-    models: {
-        'oral-cancer-v1': {
-            asset: {
-                type: 'plain',
-                path: 'models/oral-cancer-v1.tflite',
-                encryptionKey: null,
-                sha256OfPlaintext: null,
-            },
-            override: override ?? {
-                input: {
-                    type: 'image', width: 224, height: 224, channels: 3,
-                    layout: 'CHW', dtype: 'float32',
-                    normalization: { scale: 1 / 255, mean: [0.485, 0.456, 0.406], std: [0.229, 0.224, 0.225] }
-                },
-                output: { shape: [1, 2], dtype: 'float32', labels: ['oral_normal', 'oral_scc'] }
-            }
-        },
-        'encrypted-model': {
-            asset: {
-                type: 'encrypted',
-                path: 'models/encrypted-model.bin',
-                encryptionKey: 'YmFzZTY0a2V5',
-                sha256OfPlaintext: 'abcd1234',
-            }
-        },
-        // The 3 MViT2 folds soft-voted by runEnsembleInferenceOnImage.
-        'mvit2_fold1_6': {asset: {type: 'plain', path: 'models/mvit2_fold1_6.bin'}, override: {}},
-        'mvit2_fold1_8': {asset: {type: 'plain', path: 'models/mvit2_fold1_8.bin'}, override: {}},
-        'mvit2_fold2_8': {asset: {type: 'plain', path: 'models/mvit2_fold2_8.bin'}, override: {}},
-    }
-});
+const mockFsState = {existing: new Set(), files: {}};
+jest.mock('react-native-fs', () => ({
+    DocumentDirectoryPath: '/mock/private',
+    ExternalDirectoryPath: '/mock/external',
+    exists: jest.fn((p) => Promise.resolve(mockFsState.existing.has(p))),
+    readFile: jest.fn((p) => Promise.resolve(mockFsState.files[p])),
+    unlink: jest.fn((p) => { mockFsState.existing.delete(p); return Promise.resolve(); }),
+}));
 
 jest.mock('react-native', () => ({
     NativeModules: {
         EdgeModelModule: {
-            getRegistry: jest.fn(),
-            loadModel: jest.fn(() => Promise.resolve(true)),
-            loadEncryptedModel: jest.fn(() => Promise.resolve(true)),
-            runInference: jest.fn(() => Promise.resolve([0.9, 0.1])),
-            runInferenceOnImage: jest.fn(() => Promise.resolve([0.9, 0.1])),
+            loadEncryptedModelFromFile: jest.fn(() => Promise.resolve(true)),
+            runInferenceOnImage: jest.fn(() => Promise.resolve({label: 'Positive', confidence: 0.9})),
         },
     },
 }));
@@ -60,21 +33,65 @@ jest.mock('react-native', () => ({
 jest.mock('../../src/framework/bean/Service', () => () => (target) => target);
 
 import {NativeModules} from 'react-native';
+import fs from 'react-native-fs';
 import EdgeModelService from '../../src/service/EdgeModelService';
+import FileSystem from '../../src/model/FileSystem';
+import General from '../../src/utility/General';
+
+const MODELS_DIR = FileSystem.getModelsDir();
+const KEYS_DIR = FileSystem.getModelKeysDir();
+const blobPath = (sha) => `${MODELS_DIR}/${sha}.bin`;
+const keyPath = (sha) => `${KEYS_DIR}/${sha}.key`;
+
+const OVERRIDE = {
+    engine: 'onnx',
+    input: {preprocessor: 'mean-target-bgr-rounded', params: {size: [256, 256]}},
+    output: {decoder: 'sigmoid-binary', params: {threshold: 0.5, labels: ['Negative', 'Positive']}},
+};
+
+// Mirrors DownloadableContent: payload is a JSON string, getPayload() parses it.
+const row = (overrides = {}) => {
+    const base = {
+        category: 'edgeModel', sha256: 'sha-a', contentKey: 'models/sha-a.bin', needsKey: true, voided: false,
+        payload: JSON.stringify(OVERRIDE), ...overrides,
+    };
+    return {
+        ...base,
+        getPayload() {
+            if (!this.payload) return {};
+            try {
+                const p = JSON.parse(this.payload);
+                return p && typeof p === 'object' && !Array.isArray(p) ? p : {};
+            } catch (e) {
+                return {};
+            }
+        },
+    };
+};
+
+// Marks a row's blob (+ key if needsKey) as present in the cache with the given key bytes.
+const cacheRow = (r, keyBytes = 'base64-key') => {
+    mockFsState.existing.add(blobPath(r.sha256));
+    if (r.needsKey) {
+        mockFsState.existing.add(keyPath(r.sha256));
+        mockFsState.files[keyPath(r.sha256)] = keyBytes;
+    }
+};
 
 describe('EdgeModelService', () => {
     let service;
+    let rows;
 
     beforeEach(() => {
         jest.clearAllMocks();
-        NativeModules.EdgeModelModule.getRegistry.mockResolvedValue(buildRegistry());
+        mockFsState.existing = new Set();
+        mockFsState.files = {};
+        rows = [];
+
         service = new EdgeModelService(null, null);
-        service.init();
+        service.getAllNonVoided = () => rows;
     });
 
-    // Inference results are coalesced behind a trailing debounce before dispatch. Flush it
-    // deterministically in tests instead of waiting on the real timer; afterEach clears any
-    // timer a test left armed.
     const flushInference = () => service._flushPendingResults();
 
     afterEach(() => {
@@ -84,152 +101,363 @@ describe('EdgeModelService', () => {
         }
     });
 
-    it('reads the registry once at init via EdgeModelModule.getRegistry', async () => {
-        await service._registryReady;
-        expect(NativeModules.EdgeModelModule.getRegistry).toHaveBeenCalledTimes(1);
+    describe('resolution from DownloadableContent', () => {
+        it('loads a single edgeModel row via loadEncryptedModelFromFile with cached path, key, sha256 and overrideJson from payload', async () => {
+            const r = row();
+            rows = [r];
+            cacheRow(r);
+
+            await service.runInferenceOnImage('/tmp/x.jpg');
+
+            expect(NativeModules.EdgeModelModule.loadEncryptedModelFromFile).toHaveBeenCalledTimes(1);
+            const [modelKey, path, key, sha, overrideJson] =
+                NativeModules.EdgeModelModule.loadEncryptedModelFromFile.mock.calls[0];
+            expect(modelKey).toBe('sha-a');
+            expect(path).toBe(blobPath('sha-a'));
+            expect(key).toBe('base64-key');
+            expect(sha).toBe('sha-a');
+            expect(JSON.parse(overrideJson)).toEqual(OVERRIDE);
+        });
+
+        it('runs inference against the row sha256 after loading', async () => {
+            const r = row();
+            rows = [r];
+            cacheRow(r);
+
+            await service.runInferenceOnImage('/tmp/x.jpg');
+
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledWith('sha-a', '/tmp/x.jpg');
+        });
+
+        it('passes a null key for a row that does not need one', async () => {
+            const r = row({needsKey: false});
+            rows = [r];
+            cacheRow(r);
+
+            await service.runInferenceOnImage('/tmp/x.jpg');
+
+            const [, , key] = NativeModules.EdgeModelModule.loadEncryptedModelFromFile.mock.calls[0];
+            expect(key).toBeNull();
+        });
+
+        it('does not reload the model on subsequent inference calls', async () => {
+            const r = row();
+            rows = [r];
+            cacheRow(r);
+
+            await service.runInferenceOnImage('/tmp/a.jpg');
+            await service.runInferenceOnImage('/tmp/b.jpg');
+
+            expect(NativeModules.EdgeModelModule.loadEncryptedModelFromFile).toHaveBeenCalledTimes(1);
+        });
+
+        it('throws when no edgeModel row is synced', async () => {
+            rows = [];
+            await expect(service.runInferenceOnImage('/tmp/x.jpg'))
+                .rejects.toThrow('no edgeModel content row is synced');
+        });
+
+        it('ignores rows of other categories', async () => {
+            const r = row();
+            rows = [r, row({category: 'other', sha256: 'sha-other'})];
+            cacheRow(r);
+
+            await service.runInferenceOnImage('/tmp/x.jpg');
+
+            expect(NativeModules.EdgeModelModule.loadEncryptedModelFromFile).toHaveBeenCalledTimes(1);
+            expect(NativeModules.EdgeModelModule.loadEncryptedModelFromFile.mock.calls[0][0]).toBe('sha-a');
+        });
     });
 
-    it('loads a plain model on first inference call and routes via loadModel', async () => {
-        await service.runInference('oral-cancer-v1', [1.0, 2.0]);
+    describe('model-version change (sha256 changes)', () => {
+        it('loads the new blob/key/sha256 when a row sha256 changes — does not serve the stale handle', async () => {
+            const v1 = row({sha256: 'sha-v1'});
+            rows = [v1];
+            cacheRow(v1, 'key-v1');
 
-        expect(NativeModules.EdgeModelModule.loadModel).toHaveBeenCalledTimes(1);
-        const [modelKey, assetPath, overrideJson] = NativeModules.EdgeModelModule.loadModel.mock.calls[0];
-        expect(modelKey).toBe('oral-cancer-v1');
-        expect(assetPath).toBe('models/oral-cancer-v1.tflite');
-        expect(JSON.parse(overrideJson).input.width).toBe(224);
+            await service.runInferenceOnImage('/tmp/x.jpg');
+            expect(NativeModules.EdgeModelModule.loadEncryptedModelFromFile).toHaveBeenCalledTimes(1);
+            expect(NativeModules.EdgeModelModule.loadEncryptedModelFromFile.mock.calls[0][0]).toBe('sha-v1');
+
+            // Admin republishes the model: the synced row now carries a new sha256.
+            const v2 = row({sha256: 'sha-v2'});
+            rows = [v2];
+            cacheRow(v2, 'key-v2');
+
+            await service.runInferenceOnImage('/tmp/x.jpg');
+
+            // A new cache key ⇒ a fresh native load with the new blob/key/sha256.
+            expect(NativeModules.EdgeModelModule.loadEncryptedModelFromFile).toHaveBeenCalledTimes(2);
+            const [modelKey, path, key, sha] =
+                NativeModules.EdgeModelModule.loadEncryptedModelFromFile.mock.calls[1];
+            expect(modelKey).toBe('sha-v2');
+            expect(path).toBe(blobPath('sha-v2'));
+            expect(key).toBe('key-v2');
+            expect(sha).toBe('sha-v2');
+            // Inference runs against the new version, not the cached one.
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenLastCalledWith('sha-v2', '/tmp/x.jpg');
+        });
     });
 
-    it('does not reload the model on subsequent inference calls', async () => {
-        await service.runInference('oral-cancer-v1', [1.0]);
-        await service.runInference('oral-cancer-v1', [2.0]);
-        await service.runInferenceOnImage('oral-cancer-v1', '/tmp/x.jpg');
+    describe('overrideJson mapping', () => {
+        it('builds overrideJson verbatim from the row payload (engine/preprocessor/decoder DSL)', async () => {
+            const r = row();
+            rows = [r];
+            cacheRow(r);
 
-        expect(NativeModules.EdgeModelModule.loadModel).toHaveBeenCalledTimes(1);
+            await service.runInferenceOnImage('/tmp/x.jpg');
+
+            const overrideJson = NativeModules.EdgeModelModule.loadEncryptedModelFromFile.mock.calls[0][4];
+            const parsed = JSON.parse(overrideJson);
+            expect(parsed.engine).toBe('onnx');
+            expect(parsed.input.preprocessor).toBe('mean-target-bgr-rounded');
+            expect(parsed.output.decoder).toBe('sigmoid-binary');
+        });
+
+        it('fails loud on an unknown engine — passes the faithful payload mapping to native, then propagates its rejection', async () => {
+            const unknownEnginePayload = {
+                engine: 'made-up-engine',
+                input: {preprocessor: 'mean-target-bgr-rounded', params: {size: [128, 128]}},
+                output: {decoder: 'sigmoid-binary', params: {threshold: 0.4}},
+            };
+            const r = row({payload: JSON.stringify(unknownEnginePayload)});
+            rows = [r];
+            cacheRow(r);
+            NativeModules.EdgeModelModule.loadEncryptedModelFromFile.mockRejectedValueOnce(
+                new Error("Unknown or unavailable engine.")
+            );
+
+            await expect(service.runInferenceOnImage('/tmp/x.jpg'))
+                .rejects.toThrow('Unknown or unavailable engine.');
+
+            // The JS must have handed native exactly the payload-derived overrideJson — the
+            // rejection is the native engine rejecting that mapping, not a JS-side shortcut.
+            expect(NativeModules.EdgeModelModule.loadEncryptedModelFromFile).toHaveBeenCalledTimes(1);
+            const sentOverride = NativeModules.EdgeModelModule.loadEncryptedModelFromFile.mock.calls[0][4];
+            expect(JSON.parse(sentOverride)).toEqual(unknownEnginePayload);
+            // The bad engine reached native, so inference must never have been attempted.
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).not.toHaveBeenCalled();
+        });
+
+        it('fails loud when payload is absent — passes null overrideJson and propagates the native rejection', async () => {
+            const r = row({payload: null});
+            rows = [r];
+            cacheRow(r);
+            // The native side rejects a null override loudly.
+            NativeModules.EdgeModelModule.loadEncryptedModelFromFile.mockRejectedValueOnce(
+                new Error("Missing model override.")
+            );
+
+            await expect(service.runInferenceOnImage('/tmp/x.jpg'))
+                .rejects.toThrow('Missing model override.');
+
+            expect(NativeModules.EdgeModelModule.loadEncryptedModelFromFile.mock.calls[0][4]).toBeNull();
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).not.toHaveBeenCalled();
+        });
+
+        it('passes null overrideJson when payload is an empty object', async () => {
+            const r = row({payload: JSON.stringify({})});
+            rows = [r];
+            cacheRow(r);
+
+            await service.runInferenceOnImage('/tmp/x.jpg');
+
+            expect(NativeModules.EdgeModelModule.loadEncryptedModelFromFile.mock.calls[0][4]).toBeNull();
+        });
     });
 
-    it('routes encrypted asset entries to loadEncryptedModel with key and sha256', async () => {
-        await service.runInference('encrypted-model', [1.0]);
+    describe('ensemble (multiple rows)', () => {
+        const FOLDS = [
+            row({sha256: 'fold1'}),
+            row({sha256: 'fold2'}),
+            row({sha256: 'fold3'}),
+        ];
 
-        expect(NativeModules.EdgeModelModule.loadEncryptedModel).toHaveBeenCalledTimes(1);
-        expect(NativeModules.EdgeModelModule.loadModel).not.toHaveBeenCalled();
-        const [modelKey, path, key, sha, override] = NativeModules.EdgeModelModule.loadEncryptedModel.mock.calls[0];
-        expect(modelKey).toBe('encrypted-model');
-        expect(path).toBe('models/encrypted-model.bin');
-        expect(key).toBe('YmFzZTY0a2V5');
-        expect(sha).toBe('abcd1234');
-        expect(override).toBeNull();
-    });
-
-    it('forwards inputData and modelKey to runInference correctly', async () => {
-        await service.runInference('oral-cancer-v1', [1.0, 2.0]);
-
-        expect(NativeModules.EdgeModelModule.runInference).toHaveBeenCalledWith('oral-cancer-v1', [1.0, 2.0], null);
-    });
-
-    it('returns the output array from the native module', async () => {
-        const result = await service.runInference('oral-cancer-v1', [1.0]);
-
-        expect(result).toEqual([0.9, 0.1]);
-    });
-
-    it('throws a clear error when modelKey is not in the registry', async () => {
-        await expect(service.runInference('does-not-exist', [1.0]))
-            .rejects.toThrow("no entry for modelKey 'does-not-exist'");
-    });
-
-    it('propagates load errors from the native module', async () => {
-        NativeModules.EdgeModelModule.loadModel.mockRejectedValueOnce(
-            new Error('TFLITE_LOAD_ERROR: model file not found')
-        );
-
-        await expect(service.runInference('oral-cancer-v1', [1.0])).rejects.toThrow('model file not found');
-    });
-
-    it('propagates inference errors from the native module', async () => {
-        await service.runInference('oral-cancer-v1', [1.0]);  // load first
-        NativeModules.EdgeModelModule.runInference.mockRejectedValueOnce(
-            new Error('TFLITE_INFERENCE_ERROR: shape mismatch')
-        );
-
-        await expect(service.runInference('oral-cancer-v1', [1.0])).rejects.toThrow('shape mismatch');
-    });
-
-    it('surfaces registry load failure on first inference call (not at init)', async () => {
-        NativeModules.EdgeModelModule.getRegistry.mockRejectedValueOnce(new Error('asset not found'));
-        const failingService = new EdgeModelService(null, null);
-        failingService.init();
-
-        await expect(failingService.runInference('oral-cancer-v1', [1.0])).rejects.toThrow('asset not found');
-    });
-
-    describe('runEnsembleInferenceOnImage (soft-vote)', () => {
-        const FOLDS = ['mvit2_fold1_6', 'mvit2_fold1_8', 'mvit2_fold2_8'];
-        const sigmoid = (x) => 1 / (1 + Math.exp(-x));
         const mockPerFold = (byKey) =>
-            NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation((k) => Promise.resolve(byKey[k]));
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation((sha) => Promise.resolve(byKey[sha]));
 
-        it('mean-prob (default): averages per-model sigmoid probabilities and thresholds', async () => {
+        beforeEach(() => {
+            rows = FOLDS;
+            FOLDS.forEach(r => cacheRow(r));
+        });
+
+        it('loads each fold from its own cached path and key', async () => {
             mockPerFold({
-                'mvit2_fold1_6': {label: 'Positive', confidence: 0.8, logit: 1.4},
-                'mvit2_fold1_8': {label: 'Negative', confidence: 0.6, logit: 0.4},
-                'mvit2_fold2_8': {label: 'Positive', confidence: 0.7, logit: 0.85},
+                fold1: {confidence: 0.8}, fold2: {confidence: 0.6}, fold3: {confidence: 0.7},
             });
 
-            const r = await service.runEnsembleInferenceOnImage(FOLDS, '/tmp/x.jpg');
+            await service.runInferenceOnImage('/tmp/x.jpg');
+
+            expect(NativeModules.EdgeModelModule.loadEncryptedModelFromFile).toHaveBeenCalledTimes(3);
+            const calls = NativeModules.EdgeModelModule.loadEncryptedModelFromFile.mock.calls;
+            const byKey = Object.fromEntries(calls.map(c => [c[0], c]));
+            for (const sha of ['fold1', 'fold2', 'fold3']) {
+                expect(byKey[sha][1]).toBe(blobPath(sha));
+                expect(byKey[sha][3]).toBe(sha);
+            }
+        });
+
+        it('unanimous-and (default): Positive only when all folds decode positive', async () => {
+            mockPerFold({
+                fold1: {label: 'Positive', confidence: 0.8},
+                fold2: {label: 'Positive', confidence: 0.6},
+                fold3: {label: 'Positive', confidence: 0.9},
+            });
+
+            const r = await service.runInferenceOnImage('/tmp/x.jpg');
 
             expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(3);
-            expect(r.confidence).toBeCloseTo(0.7, 6);      // (0.8 + 0.6 + 0.7) / 3
-            expect(r.label).toBe('Positive');              // 0.7 > 0.5
             expect(r.positive).toBe(true);
-            expect(r.perModel.map(p => p.modelKey)).toEqual(FOLDS);
+            expect(r.label).toBe('Positive');
+            expect(r.confidence).toBeCloseTo(0.6, 6); // min(perModel.confidence) — the weakest fold
+            expect(r.perModel.map(p => p.sha256)).toEqual(['fold1', 'fold2', 'fold3']);
         });
 
-        it('mean-prob: picks the negative label when the mean is below threshold', async () => {
+        it('any single fold Negative ⇒ Negative (AND truth table)', async () => {
+            const positives = {
+                fold1: {label: 'Positive', confidence: 0.8},
+                fold2: {label: 'Positive', confidence: 0.6},
+                fold3: {label: 'Positive', confidence: 0.9},
+            };
+            for (const neg of ['fold1', 'fold2', 'fold3']) {
+                mockPerFold({...positives, [neg]: {label: 'Negative', confidence: 0.2}});
+
+                const r = await service.runInferenceOnImage('/tmp/x.jpg');
+
+                expect(r.positive).toBe(false);
+                expect(r.label).toBe('Negative');
+            }
+        });
+
+        it('all folds Negative ⇒ Negative', async () => {
             mockPerFold({
-                'mvit2_fold1_6': {confidence: 0.2},
-                'mvit2_fold1_8': {confidence: 0.3},
-                'mvit2_fold2_8': {confidence: 0.4},
+                fold1: {label: 'Negative', confidence: 0.1},
+                fold2: {label: 'Negative', confidence: 0.2},
+                fold3: {label: 'Negative', confidence: 0.3},
             });
 
-            const r = await service.runEnsembleInferenceOnImage(FOLDS, '/tmp/x.jpg');
+            const r = await service.runInferenceOnImage('/tmp/x.jpg');
 
-            expect(r.confidence).toBeCloseTo(0.3, 6);
-            expect(r.label).toBe('Negative');
             expect(r.positive).toBe(false);
+            expect(r.label).toBe('Negative');
         });
 
-        it('mean-logit: averages raw logits then applies sigmoid', async () => {
+        it('keeps the per-model breakdown (sha256/logit/confidence/label)', async () => {
             mockPerFold({
-                'mvit2_fold1_6': {logit: 2.0, confidence: sigmoid(2.0)},
-                'mvit2_fold1_8': {logit: -1.0, confidence: sigmoid(-1.0)},
-                'mvit2_fold2_8': {logit: 0.0, confidence: 0.5},
+                fold1: {label: 'Positive', confidence: 0.8, logit: 1.2},
+                fold2: {label: 'Positive', confidence: 0.6, logit: 0.4},
+                fold3: {label: 'Positive', confidence: 0.9, logit: 2.0},
             });
 
-            const r = await service.runEnsembleInferenceOnImage(FOLDS, '/tmp/x.jpg', {combine: 'mean-logit'});
+            const r = await service.runInferenceOnImage('/tmp/x.jpg');
 
-            expect(r.confidence).toBeCloseTo(sigmoid((2.0 - 1.0 + 0.0) / 3), 6);
-            expect(r.label).toBe('Positive');              // sigmoid(0.333) ≈ 0.582 > 0.5
+            expect(r.perModel).toEqual([
+                {sha256: 'fold1', logit: 1.2, confidence: 0.8, label: 'Positive'},
+                {sha256: 'fold2', logit: 0.4, confidence: 0.6, label: 'Positive'},
+                {sha256: 'fold3', logit: 2.0, confidence: 0.9, label: 'Positive'},
+            ]);
         });
 
-        it('honours a custom threshold and labels', async () => {
+        it('rejects an unsupported combiner in the payload (only unanimous-and is shipped)', async () => {
+            const meanProbOverride = {...OVERRIDE, output: {...OVERRIDE.output,
+                params: {...OVERRIDE.output.params, combine: 'mean-prob'}}};
+            rows = [row({sha256: 'fold1', payload: JSON.stringify(meanProbOverride)}), FOLDS[1], FOLDS[2]];
+            rows.forEach(r => cacheRow(r));
             mockPerFold({
-                'mvit2_fold1_6': {confidence: 0.55},
-                'mvit2_fold1_8': {confidence: 0.6},
-                'mvit2_fold2_8': {confidence: 0.65},
+                fold1: {label: 'Positive', confidence: 0.8},
+                fold2: {label: 'Positive', confidence: 0.6},
+                fold3: {label: 'Positive', confidence: 0.9},
             });
 
-            const r = await service.runEnsembleInferenceOnImage(FOLDS, '/tmp/x.jpg',
-                {threshold: 0.7, labels: ['Benign', 'Malignant']});
-
-            expect(r.confidence).toBeCloseTo(0.6, 6);
-            expect(r.label).toBe('Benign');                // 0.6 < 0.7
+            await expect(service.runEnsembleInferenceOnImage('/tmp/x.jpg'))
+                .rejects.toThrow("unsupported combine='mean-prob'");
         });
 
-        it('rejects a non-array or empty modelKeys', async () => {
-            await expect(service.runEnsembleInferenceOnImage('mvit2_fold1_6', '/tmp/x.jpg'))
-                .rejects.toThrow('non-empty array');
-            await expect(service.runEnsembleInferenceOnImage([], '/tmp/x.jpg'))
-                .rejects.toThrow('non-empty array');
+        describe('partial degradation (one fold not cached)', () => {
+            beforeEach(() => {
+                // Reset the cache: cache only fold1 and fold3 — fold2 is degraded below.
+                mockFsState.existing = new Set();
+                mockFsState.files = {};
+                cacheRow(FOLDS[0]);
+                cacheRow(FOLDS[2]);
+                mockPerFold({
+                    fold1: {confidence: 0.8}, fold2: {confidence: 0.6}, fold3: {confidence: 0.7},
+                });
+            });
+
+            it('one fold blob missing ⇒ the whole ensemble rejects — no combined verdict is produced', async () => {
+                // fold2 blob absent (key present): not cached.
+                mockFsState.existing.add(keyPath('fold2'));
+                mockFsState.files[keyPath('fold2')] = 'base64-key';
+
+                // The ensemble fails as a unit: it never returns a (partial) verdict object.
+                await expect(service.runEnsembleInferenceOnImage('/tmp/x.jpg'))
+                    .rejects.toThrow('blob not cached');
+                // The missing fold is never loaded — no partial-ensemble scoring across the rest.
+                const loadedShas = NativeModules.EdgeModelModule.loadEncryptedModelFromFile.mock.calls.map(c => c[0]);
+                expect(loadedShas).not.toContain('fold2');
+            });
+
+            it('one fold key missing ⇒ the whole ensemble rejects — no combined verdict is produced', async () => {
+                // fold2 blob present, key absent.
+                mockFsState.existing.add(blobPath('fold2'));
+
+                await expect(service.runEnsembleInferenceOnImage('/tmp/x.jpg'))
+                    .rejects.toThrow('AES key not cached');
+            });
+
+            it('via scheduleImageInference: a degraded ensemble yields no dispatch and no throw (verdict absent)', async () => {
+                // fold2 not cached at all ⇒ ensemble cannot be scored.
+                service.dispatchAction = jest.fn();
+                const entity = {uuid: 'e1', getObservationValue: jest.fn(() => undefined)};
+
+                // Must not throw out of the synchronous schedule call.
+                expect(() =>
+                    service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result')
+                ).not.toThrow();
+                await new Promise(res => setImmediate(res));
+                flushInference();
+
+                expect(service.dispatchAction).not.toHaveBeenCalled();
+            });
+        });
+    });
+
+    describe('graceful degradation (not cached yet)', () => {
+        it('does not call native load and throws a recognisable error when the blob is missing', async () => {
+            const r = row();
+            rows = [r];
+            // blob NOT cached; key present
+            mockFsState.existing.add(keyPath(r.sha256));
+            mockFsState.files[keyPath(r.sha256)] = 'base64-key';
+
+            await expect(service.runInferenceOnImage('/tmp/x.jpg'))
+                .rejects.toThrow('blob not cached');
+            expect(NativeModules.EdgeModelModule.loadEncryptedModelFromFile).not.toHaveBeenCalled();
+        });
+
+        it('does not call native load and throws when the key is missing for a needsKey row', async () => {
+            const r = row();
+            rows = [r];
+            mockFsState.existing.add(blobPath(r.sha256));  // blob present, key absent
+
+            await expect(service.runInferenceOnImage('/tmp/x.jpg'))
+                .rejects.toThrow('AES key not cached');
+            expect(NativeModules.EdgeModelModule.loadEncryptedModelFromFile).not.toHaveBeenCalled();
+        });
+
+        it('via scheduleImageInference: missing cache yields no native load, no throw, no dispatch (verdict absent)', async () => {
+            const r = row();
+            rows = [r];  // nothing cached
+            service.dispatchAction = jest.fn();
+
+            const entity = {uuid: 'e1', getObservationValue: jest.fn(() => undefined)};
+            service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
+            await new Promise(res => setImmediate(res));
+            flushInference();
+
+            expect(NativeModules.EdgeModelModule.loadEncryptedModelFromFile).not.toHaveBeenCalled();
+            expect(service.dispatchAction).not.toHaveBeenCalled();
         });
     });
 
@@ -240,13 +468,16 @@ describe('EdgeModelService', () => {
         });
 
         beforeEach(() => {
+            const r = row();
+            rows = [r];
+            cacheRow(r);
             NativeModules.EdgeModelModule.runInferenceOnImage.mockResolvedValue({label: 'Positive', confidence: 0.91});
             service.dispatchAction = jest.fn();
         });
 
         it('queues a batched result with the decoder label on resolve', async () => {
-            service.scheduleImageInference('oral-cancer-v1', '/tmp/x.jpg', fakeEntity('e1'), 'AI Suspicion Result');
-            await new Promise(r => setImmediate(r));
+            service.scheduleImageInference('/tmp/x.jpg', fakeEntity('e1'), 'AI Suspicion Result');
+            await new Promise(res => setImmediate(res));
 
             expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(1);
             flushInference();
@@ -257,11 +488,9 @@ describe('EdgeModelService', () => {
         });
 
         it('applies labelMap before queuing so the obs holds the user-facing string', async () => {
-            service.scheduleImageInference(
-                'oral-cancer-v1', '/tmp/x.jpg', fakeEntity('e1'), 'AI Suspicion Result',
-                {'Positive': 'Suspicious', 'Negative': 'Non Suspicious'}
-            );
-            await new Promise(r => setImmediate(r));
+            service.scheduleImageInference('/tmp/x.jpg', fakeEntity('e1'), 'AI Suspicion Result',
+                {'Positive': 'Suspicious', 'Negative': 'Non Suspicious'});
+            await new Promise(res => setImmediate(res));
 
             flushInference();
             expect(service.dispatchAction).toHaveBeenCalledWith(
@@ -270,130 +499,61 @@ describe('EdgeModelService', () => {
             );
         });
 
-        it('falls back to the raw label when labelMap has no entry for it', async () => {
-            service.scheduleImageInference(
-                'oral-cancer-v1', '/tmp/x.jpg', fakeEntity('e1'), 'AI Suspicion Result',
-                {'Negative': 'Non Suspicious'}  // no entry for "Positive"
-            );
-            await new Promise(r => setImmediate(r));
-
-            flushInference();
-            expect(service.dispatchAction).toHaveBeenCalledWith(
-                'EDGE_MODEL.INFERENCE_RESULTS_BATCH',
-                {results: [{conceptName: 'AI Suspicion Result', value: 'Positive'}]}
-            );
-        });
-
-        it('dedups repeated calls for the same (entity, modelKey, imagePath) while in flight', async () => {
+        it('dedups repeated calls for the same (entity, imagePath) while in flight', async () => {
             let resolveFn;
-            NativeModules.EdgeModelModule.runInferenceOnImage.mockReturnValueOnce(new Promise(r => { resolveFn = r; }));
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockReturnValueOnce(new Promise(res => { resolveFn = res; }));
             const entity = fakeEntity('e1');
 
-            // Three schedule calls back-to-back — second and third should hit the dedup guard
-            // (which checks _scheduled synchronously before delegating to runInferenceOnImage).
-            service.scheduleImageInference('oral-cancer-v1', '/tmp/x.jpg', entity, 'AI Suspicion Result');
-            service.scheduleImageInference('oral-cancer-v1', '/tmp/x.jpg', entity, 'AI Suspicion Result');
-            service.scheduleImageInference('oral-cancer-v1', '/tmp/x.jpg', entity, 'AI Suspicion Result');
+            service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
+            service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
+            service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
 
-            // Let the first scheduling's _ensureLoaded chain flush so native runInferenceOnImage is invoked.
-            await new Promise(r => setImmediate(r));
+            await new Promise(res => setImmediate(res));
             expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(1);
 
             resolveFn({label: 'Positive'});
-            await new Promise(r => setImmediate(r));
+            await new Promise(res => setImmediate(res));
             flushInference();
             expect(service.dispatchAction).toHaveBeenCalledTimes(1);
-        });
-
-        it('does not re-infer a resolved-but-unflushed result for the same image (covered-until-flushed window)', async () => {
-            const entity = fakeEntity('e1');  // getObservationValue returns undefined → target obs stays unwritten until flush
-            service.scheduleImageInference('oral-cancer-v1', '/tmp/x.jpg', entity, 'AI Suspicion Result');
-            await new Promise(r => setImmediate(r));  // inference resolves → lastImage set, result queued (NOT flushed)
-            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(1);
-
-            // A re-eval during the flush debounce re-schedules the same image+target while the
-            // obs is still unwritten. lastImage === imagePath must short-circuit it — no duplicate.
-            service.scheduleImageInference('oral-cancer-v1', '/tmp/x.jpg', entity, 'AI Suspicion Result');
-            await new Promise(r => setImmediate(r));
-            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(1);
         });
 
         it('skips scheduling when the entity already has the target observation', () => {
             const entity = fakeEntity('e1', 'Suspicious');
 
-            service.scheduleImageInference('oral-cancer-v1', '/tmp/x.jpg', entity, 'AI Suspicion Result');
+            service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
 
             expect(NativeModules.EdgeModelModule.runInferenceOnImage).not.toHaveBeenCalled();
             expect(service.dispatchAction).not.toHaveBeenCalled();
         });
 
         it('swallows native errors without dispatching and releases the dedup slot', async () => {
-            NativeModules.EdgeModelModule.runInferenceOnImage.mockRejectedValueOnce(new Error('TFLITE_INFERENCE_ERROR'));
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockRejectedValueOnce(new Error('inference error'));
             const entity = fakeEntity('e1');
 
-            service.scheduleImageInference('oral-cancer-v1', '/tmp/x.jpg', entity, 'AI Suspicion Result');
-            await new Promise(r => setImmediate(r));
+            service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
+            await new Promise(res => setImmediate(res));
 
             flushInference();
             expect(service.dispatchAction).not.toHaveBeenCalled();
 
-            // After the failure, the slot is free — a retry should fire a new inference call.
-            service.scheduleImageInference('oral-cancer-v1', '/tmp/x.jpg', entity, 'AI Suspicion Result');
-            await new Promise(r => setImmediate(r));
+            service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
+            await new Promise(res => setImmediate(res));
             expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(2);
-        });
-
-        it('soft-votes a fold-array modelKey and queues the combined verdict (post-labelMap)', async () => {
-            NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation((k) => Promise.resolve(({
-                'mvit2_fold1_6': {label: 'Positive', confidence: 0.8},
-                'mvit2_fold1_8': {label: 'Negative', confidence: 0.6},
-                'mvit2_fold2_8': {label: 'Positive', confidence: 0.7},
-            })[k]));
-            const folds = ['mvit2_fold1_6', 'mvit2_fold1_8', 'mvit2_fold2_8'];
-
-            service.scheduleImageInference(folds, '/tmp/x.jpg', fakeEntity('e1'), 'AI Suspicion Result',
-                {Positive: 'Suspicious', Negative: 'Non Suspicious'});
-            await new Promise(r => setImmediate(r));
-
-            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(3);
-            // mean prob = 0.7 > 0.5 → 'Positive' → labelMap → 'Suspicious'
-            flushInference();
-            expect(service.dispatchAction).toHaveBeenCalledWith(
-                'EDGE_MODEL.INFERENCE_RESULTS_BATCH',
-                {results: [{conceptName: 'AI Suspicion Result', value: 'Suspicious'}]}
-            );
-        });
-
-        it('dedups a fold-array ensemble as a single in-flight unit', async () => {
-            NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation(() => Promise.resolve({label: 'Positive', confidence: 0.9}));
-            const folds = ['mvit2_fold1_6', 'mvit2_fold1_8', 'mvit2_fold2_8'];
-            const entity = fakeEntity('e1');
-
-            service.scheduleImageInference(folds, '/tmp/x.jpg', entity, 'AI Suspicion Result');
-            service.scheduleImageInference(folds, '/tmp/x.jpg', entity, 'AI Suspicion Result');  // deduped as one unit
-            await new Promise(r => setImmediate(r));
-
-            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(3);  // 3 folds once, not 6
-            flushInference();
-            expect(service.dispatchAction).toHaveBeenCalledTimes(1);
         });
     });
 
     describe('scheduleImageInferenceIntoGroup', () => {
-        // rows: array (one entry per RQG row) of {targetConceptName: value} maps; a missing
-        // key (or null row) means the child obs is absent for that row. Models the entity's
-        // persisted obs tree as _readRqgChildValue walks it.
-        const fakeRqgEntity = (uuid, rows) => ({
+        const fakeRqgEntity = (uuid, groupRows) => ({
             uuid,
-            findObservation: jest.fn(() => rows == null ? undefined : ({
+            findObservation: jest.fn(() => groupRows == null ? undefined : ({
                 getValueWrapper: () => ({
-                    size: () => rows.length,
+                    size: () => groupRows.length,
                     getGroupObservationAtIndex: (idx) => {
-                        const row = rows[idx];
-                        return row == null ? null : ({
+                        const r = groupRows[idx];
+                        return r == null ? null : ({
                             findObservationByConceptUUID: (target) =>
-                                Object.prototype.hasOwnProperty.call(row, target)
-                                    ? {getValue: () => row[target]}
+                                Object.prototype.hasOwnProperty.call(r, target)
+                                    ? {getValue: () => r[target]}
                                     : undefined,
                         });
                     },
@@ -402,18 +562,18 @@ describe('EdgeModelService', () => {
         });
 
         beforeEach(() => {
+            const r = row();
+            rows = [r];
+            cacheRow(r);
             NativeModules.EdgeModelModule.runInferenceOnImage.mockResolvedValue({label: 'Positive', confidence: 0.91});
             service.dispatchAction = jest.fn();
         });
 
         it('queues a batched result with the question group coordinates on resolve', async () => {
-            service.scheduleImageInferenceIntoGroup(
-                'oral-cancer-v1', '/tmp/x.jpg', fakeRqgEntity('e1', [{}]),
-                'Lesion Group', 'AI Suspicion Result', 0
-            );
-            await new Promise(r => setImmediate(r));
+            service.scheduleImageInferenceIntoGroup('/tmp/x.jpg', fakeRqgEntity('e1', [{}]),
+                'Lesion Group', 'AI Suspicion Result', 0);
+            await new Promise(res => setImmediate(res));
 
-            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(1);
             flushInference();
             expect(service.dispatchAction).toHaveBeenCalledWith(
                 'EDGE_MODEL.INFERENCE_RESULTS_BATCH',
@@ -421,87 +581,161 @@ describe('EdgeModelService', () => {
             );
         });
 
-        it('applies labelMap before queuing', async () => {
-            service.scheduleImageInferenceIntoGroup(
-                'oral-cancer-v1', '/tmp/x.jpg', fakeRqgEntity('e1', [{}]),
-                'Lesion Group', 'AI Suspicion Result', 0,
-                {'Positive': 'Suspicious', 'Negative': 'Non Suspicious'}
-            );
-            await new Promise(r => setImmediate(r));
-
-            flushInference();
-            expect(service.dispatchAction).toHaveBeenCalledWith(
-                'EDGE_MODEL.INFERENCE_RESULTS_BATCH',
-                {results: [{questionGroupConceptName: 'Lesion Group', conceptName: 'AI Suspicion Result', questionGroupIndex: 0, value: 'Suspicious'}]}
-            );
-        });
-
-        it('dedups the same row but runs a different rqgIdx for the same image', async () => {
-            let resolveFn;
-            NativeModules.EdgeModelModule.runInferenceOnImage.mockReturnValueOnce(new Promise(r => { resolveFn = r; }));
-            const entity = fakeRqgEntity('e1', [{}, {}]);
-
-            service.scheduleImageInferenceIntoGroup('oral-cancer-v1', '/tmp/x.jpg', entity, 'Lesion Group', 'AI Suspicion Result', 0);
-            service.scheduleImageInferenceIntoGroup('oral-cancer-v1', '/tmp/x.jpg', entity, 'Lesion Group', 'AI Suspicion Result', 0); // same row → dedup
-            service.scheduleImageInferenceIntoGroup('oral-cancer-v1', '/tmp/x.jpg', entity, 'Lesion Group', 'AI Suspicion Result', 1); // different row → fires
-
-            await new Promise(r => setImmediate(r));
-            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(2);
-
-            resolveFn({label: 'Positive'});
-            await new Promise(r => setImmediate(r));
-        });
-
         it('skips scheduling when that RQG row already has the target observation', () => {
             const entity = fakeRqgEntity('e1', [{'AI Suspicion Result': 'Suspicious'}]);
 
-            service.scheduleImageInferenceIntoGroup('oral-cancer-v1', '/tmp/x.jpg', entity, 'Lesion Group', 'AI Suspicion Result', 0);
+            service.scheduleImageInferenceIntoGroup('/tmp/x.jpg', entity, 'Lesion Group', 'AI Suspicion Result', 0);
 
             expect(NativeModules.EdgeModelModule.runInferenceOnImage).not.toHaveBeenCalled();
             expect(service.dispatchAction).not.toHaveBeenCalled();
-        });
-
-        it('skips on a non-numeric rqgIdx without firing inference', () => {
-            service.scheduleImageInferenceIntoGroup('oral-cancer-v1', '/tmp/x.jpg', fakeRqgEntity('e1', [{}]), 'Lesion Group', 'AI Suspicion Result', undefined);
-
-            expect(NativeModules.EdgeModelModule.runInferenceOnImage).not.toHaveBeenCalled();
-            expect(service.dispatchAction).not.toHaveBeenCalled();
-        });
-
-        it('soft-votes a fold-array modelKey into an RQG row', async () => {
-            NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation((k) => Promise.resolve(({
-                'mvit2_fold1_6': {label: 'Positive', confidence: 0.8},
-                'mvit2_fold1_8': {label: 'Negative', confidence: 0.6},
-                'mvit2_fold2_8': {label: 'Positive', confidence: 0.7},
-            })[k]));
-            const folds = ['mvit2_fold1_6', 'mvit2_fold1_8', 'mvit2_fold2_8'];
-
-            service.scheduleImageInferenceIntoGroup(folds, '/tmp/x.jpg', fakeRqgEntity('e1', [{}]),
-                'Lesion Group', 'AI Suspicion Result', 0, {Positive: 'Suspicious', Negative: 'Non Suspicious'});
-            await new Promise(r => setImmediate(r));
-
-            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(3);
-            flushInference();
-            expect(service.dispatchAction).toHaveBeenCalledWith(
-                'EDGE_MODEL.INFERENCE_RESULTS_BATCH',
-                {results: [{questionGroupConceptName: 'Lesion Group', conceptName: 'AI Suspicion Result', questionGroupIndex: 0, value: 'Suspicious'}]}
-            );
         });
 
         it('coalesces a burst of N RQG results into a single batched dispatch', async () => {
             const entity = fakeRqgEntity('e1', [{}, {}, {}]);
-            service.scheduleImageInferenceIntoGroup('oral-cancer-v1', '/tmp/a.jpg', entity, 'Lesion Group', 'AI Suspicion Result', 0);
-            service.scheduleImageInferenceIntoGroup('oral-cancer-v1', '/tmp/b.jpg', entity, 'Lesion Group', 'AI Suspicion Result', 1);
-            service.scheduleImageInferenceIntoGroup('oral-cancer-v1', '/tmp/c.jpg', entity, 'Lesion Group', 'AI Suspicion Result', 2);
-            for (let i = 0; i < 5; i++) await new Promise(r => setImmediate(r));
+            service.scheduleImageInferenceIntoGroup('/tmp/a.jpg', entity, 'Lesion Group', 'AI Suspicion Result', 0);
+            service.scheduleImageInferenceIntoGroup('/tmp/b.jpg', entity, 'Lesion Group', 'AI Suspicion Result', 1);
+            service.scheduleImageInferenceIntoGroup('/tmp/c.jpg', entity, 'Lesion Group', 'AI Suspicion Result', 2);
+            for (let i = 0; i < 5; i++) await new Promise(res => setImmediate(res));
 
-            // Without batching this would be 3 dispatches (3 full re-evals); coalesced it's one.
             flushInference();
             expect(service.dispatchAction).toHaveBeenCalledTimes(1);
-            const [action, payload] = service.dispatchAction.mock.calls[0];
-            expect(action).toBe('EDGE_MODEL.INFERENCE_RESULTS_BATCH');
+            const [, payload] = service.dispatchAction.mock.calls[0];
             expect(payload.results).toHaveLength(3);
             expect(payload.results.map(r => r.questionGroupIndex).sort()).toEqual([0, 1, 2]);
+        });
+    });
+
+    describe('result shape', () => {
+        it('the single-model result includes the derived `positive` boolean (matches the ensemble shape)', async () => {
+            const r = row();
+            rows = [r];
+            cacheRow(r);
+            // Native single-model result omits `positive`; the service must derive it.
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockResolvedValueOnce({label: 'Positive', confidence: 0.9});
+
+            const result = await service.runInferenceOnImage('/tmp/x.jpg');
+
+            expect(result.positive).toBe(true);
+            expect(result.label).toBe('Positive');
+            expect(result.confidence).toBe(0.9);
+        });
+
+        it('derives positive=false when the single-model label is the negative class', async () => {
+            const r = row();
+            rows = [r];
+            cacheRow(r);
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockResolvedValueOnce({label: 'Negative', confidence: 0.1});
+
+            const result = await service.runInferenceOnImage('/tmp/x.jpg');
+
+            expect(result.positive).toBe(false);
+        });
+    });
+
+    describe('_edgeModelRows predicate (matches the downloader)', () => {
+        it('excludes a row with a null contentKey — it is never downloaded, so it is not a loadable fold', () => {
+            const ok = row({sha256: 'sha-ok', contentKey: 'models/sha-ok.bin'});
+            const noKey = row({sha256: 'sha-nokey', contentKey: null});
+            rows = [ok, noKey];
+
+            const resolved = service._edgeModelRows();
+
+            expect(resolved.map(r => r.sha256)).toEqual(['sha-ok']);
+        });
+    });
+
+    describe('self-heal a poisoned blob', () => {
+        it('unlinks the cached blob when the native load throws (corrupt/GCM/sha failure)', async () => {
+            const r = row();
+            rows = [r];
+            cacheRow(r);
+            NativeModules.EdgeModelModule.loadEncryptedModelFromFile.mockRejectedValueOnce(new Error('GCM tag mismatch'));
+
+            await expect(service.runInferenceOnImage('/tmp/x.jpg')).rejects.toThrow('GCM tag mismatch');
+
+            expect(fs.unlink).toHaveBeenCalledWith(blobPath(r.sha256));
+            expect(mockFsState.existing.has(blobPath(r.sha256))).toBe(false);
+        });
+
+        it('does not unlink the blob for a pre-native guard throw (key not cached yet)', async () => {
+            const r = row();
+            rows = [r];
+            // Blob present, key absent ⇒ throws before the native load is attempted.
+            mockFsState.existing.add(blobPath(r.sha256));
+
+            await expect(service.runInferenceOnImage('/tmp/x.jpg')).rejects.toThrow('AES key not cached');
+
+            expect(fs.unlink).not.toHaveBeenCalled();
+            expect(mockFsState.existing.has(blobPath(r.sha256))).toBe(true);
+        });
+    });
+
+    // #1984 — accept the legacy newmodel shape (leading modelKey) and the 17.0 shape.
+    // Discriminator is args[1]: imagePath (string) in the legacy shape, entity (object) in 17.0.
+    describe('backward-compatible dispatch (#1984)', () => {
+        let captured;
+        beforeEach(() => {
+            captured = null;
+            service._scheduleImageInference = jest.fn((normalized) => { captured = normalized; });
+        });
+        const entity = () => ({uuid: 'e1', getObservationValue: jest.fn()});
+        const labelMap = {Positive: 'Suspicious', Negative: 'Non Suspicious'};
+
+        it('group: legacy 7-arg (modelKey, imagePath, entity, qg, target, rqgIdx, labelMap) → shifted, modelKey dropped, rqgIdx numeric', () => {
+            const e = entity();
+            service.scheduleImageInferenceIntoGroup('sha-a', '/tmp/x.jpg', e, 'Lesion Group', 'AI Verdict', 3, labelMap);
+            expect(captured).toEqual({
+                imagePath: '/tmp/x.jpg', entity: e, targetConceptName: 'AI Verdict', labelMap,
+                questionGroupConceptName: 'Lesion Group', rqgIdx: 3,
+            });
+        });
+
+        it('group: new 6-arg (imagePath, entity, qg, target, rqgIdx, labelMap) → unchanged', () => {
+            const e = entity();
+            service.scheduleImageInferenceIntoGroup('/tmp/x.jpg', e, 'Lesion Group', 'AI Verdict', 3, labelMap);
+            expect(captured).toEqual({
+                imagePath: '/tmp/x.jpg', entity: e, targetConceptName: 'AI Verdict', labelMap,
+                questionGroupConceptName: 'Lesion Group', rqgIdx: 3,
+            });
+        });
+
+        it('group: legacy with an ENSEMBLE array modelKey → still detected via args[1] and shifted', () => {
+            const e = entity();
+            service.scheduleImageInferenceIntoGroup(['fold1', 'fold2'], '/tmp/x.jpg', e, 'Lesion Group', 'AI Verdict', 0);
+            expect(captured).toMatchObject({
+                imagePath: '/tmp/x.jpg', entity: e, questionGroupConceptName: 'Lesion Group',
+                targetConceptName: 'AI Verdict', rqgIdx: 0,
+            });
+        });
+
+        it('non-group: legacy 5-arg (modelKey, imagePath, entity, target, labelMap) → shifted', () => {
+            const e = entity();
+            service.scheduleImageInference('sha-a', '/tmp/x.jpg', e, 'AI Suspicion Result', labelMap);
+            expect(captured).toEqual({
+                imagePath: '/tmp/x.jpg', entity: e, targetConceptName: 'AI Suspicion Result', labelMap,
+                questionGroupConceptName: null, rqgIdx: null,
+            });
+        });
+
+        it('non-group: new 4-arg (imagePath, entity, target, labelMap) → unchanged', () => {
+            const e = entity();
+            service.scheduleImageInference('/tmp/x.jpg', e, 'AI Suspicion Result');
+            expect(captured).toMatchObject({
+                imagePath: '/tmp/x.jpg', entity: e, targetConceptName: 'AI Suspicion Result',
+                questionGroupConceptName: null, rqgIdx: null,
+            });
+        });
+
+        it('guard still fires on a genuinely malformed call — the shift does not mask real errors', () => {
+            delete service._scheduleImageInference;   // remove the beforeEach stub → use the real prototype method
+            const logSpy = jest.spyOn(General, 'logError').mockImplementation(() => {});
+            const e = entity();
+            // New shape with a non-numeric rqgIdx (the exact bug class) → SKIP, no throw.
+            expect(() =>
+                service.scheduleImageInferenceIntoGroup('/tmp/x.jpg', e, 'Lesion Group', 'AI Verdict', 'not-a-number')
+            ).not.toThrow();
+            expect(logSpy).toHaveBeenCalledWith('EdgeModelSvc', expect.stringContaining('SKIP missing-arg'));
+            logSpy.mockRestore();
         });
     });
 });

@@ -105,6 +105,8 @@ class RosterView extends AbstractComponent {
 
     _onToggleReason = (subjectUUID, reasonConceptUUID) =>
         this.dispatchAction(RosterActions.Names.TOGGLE_REASON, {subjectUUID, reasonConceptUUID});
+    _onChangeOtherReason = (subjectUUID, text) =>
+        this.dispatchAction(RosterActions.Names.SET_OTHER_REASON_TEXT, {subjectUUID, text});
 
     _onPickSessionReason = () => this.setState({sessionReasonPickerVisible: true});
     _hideSessionReasonPicker = () => this.setState({sessionReasonPickerVisible: false});
@@ -153,9 +155,11 @@ class RosterView extends AbstractComponent {
             row={item}
             index={index}
             reasonAnswers={this.state.absenceReasonAnswers}
+            otherReasonConceptUUID={this.state.otherReasonConceptUUID}
             followUpEncounterTypeUuid={this.state.followUpEncounterTypeUuid}
             onToggle={this._onToggle}
             onToggleReason={this._onToggleReason}
+            onChangeOtherReason={this._onChangeOtherReason}
             onToggleNeedsFollowUp={this._onToggleNeedsFollowUp}
         />
     );

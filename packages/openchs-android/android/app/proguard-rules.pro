@@ -29,7 +29,7 @@
 # libonnxruntime4j_jni.so resolves Java class + method references by name through JNI.
 # If R8 renames any of these, calls into OrtSession.run / OnnxTensor.createTensor throw
 # NoSuchMethodError / NoClassDefFoundError at inference time. Debug works because
-# R8 is disabled there. See ~/.claude/plans/composed-tumbling-bachman.md.
+# R8 is disabled there.
 -keep class ai.onnxruntime.** { *; }
 -keepclassmembers class ai.onnxruntime.** { *; }
 
@@ -43,8 +43,7 @@
 -keep class com.openchsclient.preprocessing.** { *; }
 -keep class com.openchsclient.decoding.** { *; }
 
-# ONNX Runtime is tanuh-scoped, so non-tanuh release variants don't have ai.onnxruntime on
-# the classpath. The keep rules above match nothing there (harmless no-ops), but R8 still
-# emits "missing class" diagnostics for the unresolved references. -dontwarn silences those;
-# it is harmless in the tanuh variant where the classes are present.
+# Silence R8 "missing class" diagnostics for any ai.onnxruntime references the shrinker can't
+# resolve while tracing; the keep rules above apply in every flavour now that the engine ships
+# in the mainline build.
 -dontwarn ai.onnxruntime.**

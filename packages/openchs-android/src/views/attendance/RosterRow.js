@@ -1,5 +1,5 @@
 import React from "react";
-import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import PropTypes from "prop-types";
 import {AttendanceRecord} from "avni-models";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -13,11 +13,14 @@ class RosterRow extends AbstractComponent {
         row: PropTypes.object.isRequired,
         // [{uuid, name}]
         reasonAnswers: PropTypes.array.isRequired,
+        // UUID of the configured "Other" answer (null when not configured).
+        otherReasonConceptUUID: PropTypes.string,
         // null if the AttendanceType has no followUpEncounterType (so the
         // checkbox is hidden when no follow-up encounter can be created).
         followUpEncounterTypeUuid: PropTypes.string,
         onToggle: PropTypes.func.isRequired,
         onToggleReason: PropTypes.func.isRequired,
+        onChangeOtherReason: PropTypes.func.isRequired,
         onToggleNeedsFollowUp: PropTypes.func.isRequired,
     };
 
@@ -26,11 +29,13 @@ class RosterRow extends AbstractComponent {
     }
 
     render() {
-        const {row, index, reasonAnswers, followUpEncounterTypeUuid, onToggle, onToggleReason, onToggleNeedsFollowUp} = this.props;
+        const {row, index, reasonAnswers, otherReasonConceptUUID, followUpEncounterTypeUuid, onToggle, onToggleReason, onChangeOtherReason, onToggleNeedsFollowUp} = this.props;
         const isAbsent = row.status === AttendanceRecord.status.ABSENT;
         const showNeedsFollowUp = isAbsent && !!followUpEncounterTypeUuid;
         const checked = !!row.needsFollowUp;
         const selectedReasons = row.reasonConceptUUIDs || [];
+        // Show the free-text box when the configured "Other" answer is the selected reason.
+        const showOtherReason = !!otherReasonConceptUUID && selectedReasons.includes(otherReasonConceptUUID);
 
         return (
             <View style={styles.row}>
@@ -64,6 +69,14 @@ class RosterRow extends AbstractComponent {
                                 );
                             })}
                         </View>
+                        {showOtherReason && (
+                            <TextInput
+                                value={row.otherReasonText || ""}
+                                onChangeText={text => onChangeOtherReason(row.subjectUUID, text)}
+                                placeholder={this.I18n.t("otherReasonPlaceholder")}
+                                style={styles.otherReasonInput}
+                            />
+                        )}
                         {showNeedsFollowUp && (
                             <TouchableOpacity
                                 onPress={() => onToggleNeedsFollowUp(row.subjectUUID)}
@@ -125,6 +138,17 @@ const styles = StyleSheet.create({
     },
     reasonChipText: {fontSize: Styles.smallTextSize, color: Colors.InputNormal},
     reasonChipTextSelected: {color: Colors.TextOnPrimaryColor, fontWeight: 'bold'},
+    otherReasonInput: {
+        borderWidth: 1,
+        borderColor: Colors.InputBorderNormal,
+        borderRadius: 4,
+        paddingHorizontal: 8,
+        paddingVertical: 6,
+        marginTop: 2,
+        marginBottom: 4,
+        fontSize: Styles.normalTextSize,
+        color: Colors.InputNormal,
+    },
     followUpRow: {flexDirection: 'row', alignItems: 'center', marginTop: 10},
     checkbox: {
         width: 20,

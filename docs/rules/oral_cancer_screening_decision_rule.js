@@ -39,16 +39,20 @@
       const imageUri = imageUriObs.getValue();
       const imagePath = params.services.mediaService.getAbsolutePath(imageUri, 'Image');
       console.log(TAG, "imageUri =", imageUri, "imagePath =", imagePath);
-      console.log(TAG, "calling edgeModelService.runInferenceOnImage('mvit2_fold5_2_latest_traced', ...)");
+      console.log(TAG, "calling edgeModelService.runInferenceOnImage(imagePath)");
 
-      // result: { label: "Positive"|"Negative", confidence, logit, threshold, raw }
-      return params.services.edgeModelService.runInferenceOnImage('mvit2_fold5_2_latest_traced', imagePath)
+      // The model is the set of synced `edgeModel` content rows — no modelKey is passed.
+      // One row runs a single model; multiple rows run a soft-vote ensemble. Only the common
+      // shape is guaranteed across both paths:
+      //   { label: "Positive"|"Negative", confidence, positive }
+      // (`positive` is the boolean verdict.) `perModel` (per-fold breakdown) is ensemble-only;
+      // `logit`/`raw`/`threshold` are single-model-only — none of these are guaranteed.
+      return params.services.edgeModelService.runInferenceOnImage(imagePath)
         .then(result => {
           console.log(TAG, "inference result:", JSON.stringify({
             label: result.label,
             confidence: result.confidence,
-            logit: result.logit,
-            threshold: result.threshold
+            positive: result.positive
           }));
           const value = result.label === "Positive" ? "Suspected Oral SCC" : "Normal";
           console.log(TAG, "decision:", value);

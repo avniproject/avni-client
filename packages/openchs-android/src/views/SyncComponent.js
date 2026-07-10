@@ -285,6 +285,7 @@ class SyncComponent extends AbstractComponent {
             onPress={this._postSync.bind(this)}
             notifyUserOnCompletion={true}
             showOkButton={!!this.state.showOkButton}
+            contentDownloadWarning={this.state.contentDownloadWarning}
         />;
     }
 

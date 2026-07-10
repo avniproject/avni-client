@@ -1,47 +1,58 @@
-# Edge-model build flow (TANUH interim)
+# Edge-model build flow (TANUH)
 
-This directory holds the offline encryption tool and per-build artefacts for the on-device
-edge-model integration in the `tanuh` Gradle flavour. It exists so that a TANUH developer can
-produce a signed APK with their proprietary model bundled and AES-GCM-encrypted, on their own
-machine, in two commands.
+This directory holds the offline encryption tool and the provisioning workflow for the
+on-device edge-model integration. **Nothing model-related ships in the APK/AAB.** The model is
+delivered to the device **via sync**, as downloadable-content reference data: the encrypted blob
+is fetched from the org's GCS (presigned GET), the AES key from a server key-delivery endpoint,
+and the model is decrypted natively on-device.
 
-The on-device runtime is **ONNX Runtime Mobile** (`com.microsoft.onnxruntime:onnxruntime-android`,
-tanuh-scoped). The shipped models are **ONNX exports** of the clinically-validated MViT2 fold
-ensemble. ONNX Runtime is used in place of PyTorch Mobile 1.13.1 because its 64-bit native libs
-are 16 KB-page-aligned and therefore Google-Play-compliant for targetSdk 35, whereas PyTorch
-Mobile's prebuilt `libpytorch_jni.so` is 4 KB-aligned and rejected (avni-product-ops#186). It is
-a **stock Maven Central artifact** — no custom AAR build or local-maven hosting is required.
-Because the runtime *math* changes from PyTorch to ONNX Runtime, a numerical-equivalence check
-against the validated TorchScript ensemble + TANUH AI sign-off gate the clinical re-validation
-scope (tracked in the issue).
+The build tooling therefore does two separate jobs:
 
-The full design is documented at `~/.claude/plans/composed-tumbling-bachman.md`.
+1. **`encrypt-model.js`** turns a plaintext model into *provisioning artefacts* (an encrypted
+   blob, a `manifest.json` describing the reference-data items, and a `keys.json` holding the AES
+   keys) under a gitignored staging dir. None of these go into the binary.
+2. The Gradle release targets build a **model-free** signed APK/AAB.
+
+A separate, manual **provisioning** step (see below) then publishes the artefacts: blobs to the
+org's GCS, items to the webapp admin screen, keys to the server key store. The device pulls the
+reference data on its next sync and fetches blob + key at sync time.
+
+The on-device runtime is **ONNX Runtime Mobile** (`com.microsoft.onnxruntime:onnxruntime-android`).
+The shipped models are **ONNX exports** of the clinically-validated MViT2 fold ensemble. ONNX
+Runtime is used in place of PyTorch Mobile 1.13.1 because its 64-bit native libs are 16 KB-page-aligned
+and therefore Google-Play-compliant for targetSdk 35, whereas PyTorch Mobile's prebuilt
+`libpytorch_jni.so` is 4 KB-aligned and rejected (avni-product-ops#186). It is a **stock Maven
+Central artifact** — no custom AAR build or local-maven hosting is required. Because the runtime
+*math* changes from PyTorch to ONNX Runtime, a numerical-equivalence check against the validated
+TorchScript ensemble + TANUH AI sign-off gate the clinical re-validation scope (tracked in the issue).
 
 ## Threat model — read first
 
-This is the **interim** build. The encrypted model **and the AES key both ship in the same
-APK** (the key lives in `registry.json` inside `assets/models/`). That is *obfuscation*,
-not the §5.1 protection in `~/.claude/plans/frolicking-pondering-marble.md`:
+The encrypted blob and the AES key are **kept apart, and both are out of the APK**:
 
-- It defeats casual extraction (`unzip the APK, grab the .pt` no longer works).
-- It does *not* defeat a determined reverser who reads the bundled key and decrypts.
+- **AES key — off-device, server-only.** It lives only in the **server key store**, never in the
+  APK, never on the reference-data record, never in GCS. The device fetches it at sync time from
+  the server's key-delivery endpoint (gated by the org's normal auth), keyed by the blob's
+  sha256. `keys.json` (produced by `encrypt-model.js`) is the staging-side copy that ops load
+  into the key store — it is never committed and never uploaded anywhere else.
+- **Encrypted blob — org GCS.** The `[12-byte IV][ciphertext][16-byte GCM tag]` blob sits under
+  the org's GCS `models/` prefix and is fetched over a **presigned GET URL**. It is useless
+  without the key.
 
-There is also a brief **on-disk plaintext window** at load time: ONNX Runtime's
+So extracting the APK yields nothing model-related, and an attacker needs to compromise *both*
+the org's authenticated key endpoint and its GCS object to obtain plaintext.
+
+There is an honest **on-disk plaintext window** at load time: ONNX Runtime's
 `OrtEnvironment.createSession(path)` loads from a file path, so the AES decrypt is streamed
-directly into the app's private `filesDir/<modelKey>.model.tmp` (mode 0600 via
-`MODE_PRIVATE`), the session is created, and the file is deleted in a `finally` block.
-Plaintext exists on disk for the duration of decrypt + `createSession` (low single-digit
-seconds for an 18 MB model). The streaming decrypt — rather than first materialising the
-plaintext in a `ByteBuffer.allocateDirect` and then writing it out — keeps the JVM-heap
-peak under 64 KB, which lets the bridge run inside the default ~96 MB heap without
-needing `largeHeap`. The longer disk window doesn't change the threat model: a reverser
-with the APK already has the AES key and decrypts offline; a reverser with shell-as-app-uid
-or root can read the temp file in either window, or dump live process memory.
-
-The proper defence — encrypted blob in TANUH's S3, key in `organisation_config`, plus a
-custom JNI shim that calls `torch::jit::load(istream)` to keep plaintext entirely off-disk —
-arrives in a later iteration. Use this build for trainings, demos, and pre-go-live
-validation, not for unrestricted public distribution.
+directly into an app-private temp file (`filesDir/…`, mode 0600 via `MODE_PRIVATE`), the session
+is created, and the file is **deleted in a `finally` block** once the engine session exists.
+Plaintext exists on disk only for the duration of decrypt + `createSession` (low single-digit
+seconds for an 18 MB model). The streaming decrypt — rather than first materialising the plaintext
+in a `ByteBuffer.allocateDirect` and then writing it out — keeps the JVM-heap peak under 64 KB,
+which lets the bridge run inside the default ~96 MB heap without needing `largeHeap`. A reverser
+with shell-as-app-uid or root can read the temp file during that window, or dump live process
+memory; that residual risk is inherent to loading via a file path and is documented honestly
+rather than hidden.
 
 ## One-time setup
 
@@ -129,13 +140,13 @@ export tanuh_KEY_ALIAS='tanuh'
 ## Per-build flow
 
 1. **Drop the plaintext model in the source dir.** Anything under
-   `tools/edge-model/source/*.pt` is gitignored.
+   `tools/edge-model/source/*.onnx` is gitignored.
 
    ```bash
-   cp /path/to/mvit2_fold5_2_latest_traced.pt tools/edge-model/source/
+   cp /path/to/mvit2_fold5_2_latest_traced.onnx tools/edge-model/source/
    ```
 
-2. **Build the signed APK.**
+2. **Encrypt + build the signed (model-free) APK.**
 
    ```bash
    make tanuh-apk
@@ -143,10 +154,14 @@ export tanuh_KEY_ALIAS='tanuh'
 
    This target chains:
    - `tanuh-encrypt`: runs `node tools/edge-model/encrypt-model.js`, encrypts the source
-     model with a fresh AES-GCM-256 key, writes the encrypted blob and `registry.json`
-     into `packages/openchs-android/android/app/src/tanuh/assets/models/` (gitignored).
+     model with a fresh AES-GCM-256 key, and writes the **provisioning artefacts** into
+     `tools/edge-model/staging/` (gitignored) — see "Staging artefacts" below. Nothing is
+     written into the flavour assets.
+   - `tanuh-verify-no-model`: fails the build if any `.bin` is left in
+     `packages/openchs-android/android/app/src/tanuh/assets/models/` (a leftover blob would
+     silently re-bloat the binary).
    - `assembleTanuhRelease`: Gradle release build for the `tanuh` flavour, signed with
-     the keystore from `make tanuh-setup`.
+     the keystore from `make tanuh-setup`. The model is **not** in this APK.
 
    The signed APK lands at:
 
@@ -154,13 +169,56 @@ export tanuh_KEY_ALIAS='tanuh'
    packages/openchs-android/android/app/build/outputs/apk/tanuh/release/app-tanuh-release.apk
    ```
 
-3. **Distribute.** Upload the APK to gdrive (or wherever the TANUH programme team
-   distributes from). The plaintext model never leaves the build machine.
+3. **Provision the model** so devices can fetch it on sync — see "Provisioning the model" below.
+
+4. **Distribute the APK.** Upload it to gdrive (or wherever the TANUH programme team distributes
+   from). It carries no model; devices acquire the model via sync after provisioning. The
+   plaintext model never leaves the build machine.
+
+### Staging artefacts
+
+`encrypt-model.js` writes three files into the staging dir (default `tools/edge-model/staging/`,
+gitignored). The CLI contract is:
+
+```bash
+node tools/edge-model/encrypt-model.js \
+  --in <plaintext> \
+  --staging-dir <dir> \
+  --name <model-name> \
+  [--override <override.json>] \
+  [--category <category>]      # default: edgeModel
+```
+
+The blob is **content-addressed by the sha256 of the plaintext**. That one hash is simultaneously
+the GCS object key (`models/<sha256>.bin`), the device cache key, the key-store key, and the
+post-decrypt integrity check.
+
+| File | Contents | Where it goes |
+|---|---|---|
+| `<sha256>.bin` | `[12-byte IV][ciphertext][16-byte GCM tag]` | uploaded to the org's GCS `models/` prefix |
+| `manifest.json` | `{ items: [ { name, category, sha256, contentKey, needsKey, payload, blob } ] }` — **no key material** | drives the reference-data items created in the webapp admin screen |
+| `keys.json` | `{ "<sha256>": "<base64 AES key>" }` — **the only place the key lives** | loaded into the **server key store** only; never committed, never uploaded to GCS, never on the reference-data record / in the APK |
+
+Each `manifest.json` item is:
+
+- `name` — the reference-data item name (`--name`).
+- `category` — `edgeModel` by default (override with `--category`).
+- `sha256` — sha256 of the plaintext (the content address).
+- `contentKey` — `models/<sha256>.bin`, the GCS object key (the `models/` prefix routes the
+  object to the model storage backend).
+- `needsKey: true` — tells the device this item needs a key fetched from the key endpoint.
+- `payload` — the override JSON (the engine/preprocessor/decoder DSL; `{}` if `--override` is
+  omitted).
+- `blob` — the staging-side filename (`<sha256>.bin`) so ops know which file maps to which item.
+
+`manifest.json` and `keys.json` are **accumulated and content-addressed**: re-encrypting the same
+plaintext replaces that sha's entry rather than duplicating it, and encrypting several models into
+the same staging dir (e.g. the 3-fold ensemble) collects them into one manifest + one key map.
 
 ## 3-fold ensemble flow (current TANUH path)
 
 The TANUH model is an **ensemble of 3 cross-validation folds** (`model6` / `model8` / `model8-2`,
-registered as `mvit2_fold1_6` / `mvit2_fold1_8` / `mvit2_fold2_8`) of one MViT2 oral-cancer
+provisioned as `mvit2_fold1_6` / `mvit2_fold1_8` / `mvit2_fold2_8`) of one MViT2 oral-cancer
 classifier. Each fold is a **single-logit sigmoid-binary** head (verified from the model's
 `classifier.bias` shape). The 3 folds run independently on-device and are **soft-voted in JS** by
 `EdgeModelService.runEnsembleInferenceOnImage`. All 3 share `tanuh-ensemble-override.json`; this
@@ -168,10 +226,10 @@ classifier. Each fold is a **single-logit sigmoid-binary** head (verified from t
 
 ### Models you need
 
-Three **ONNX** exports of the MViT2 folds (the on-device runtime is ONNX Runtime — see the note
-below). `make tanuh-ensemble` keys off the source-file **basename** and maps it to a registry key:
+Three **ONNX** exports of the MViT2 folds (the on-device runtime is ONNX Runtime). `make tanuh-ensemble`
+keys off the source-file **basename** and maps it to a reference-data item name:
 
-| Source basename | Registry key    |
+| Source basename | Item name       |
 |-----------------|-----------------|
 | `model6.onnx`   | `mvit2_fold1_6` |
 | `model8.onnx`   | `mvit2_fold1_8` |
@@ -191,11 +249,10 @@ cp "$SRC/<...(model8)...>.onnx"   "$STAGE/model8.onnx"
 cp "$SRC/<...(model8-2)...>.onnx" "$STAGE/model8-2.onnx"
 ```
 
-> **ONNX, not PyTorch.** The runtime is ONNX Runtime Mobile, so the encrypted blobs must be built
-> from `.onnx` (`engine=onnx` in `tanuh-ensemble-override.json`). If you switch onto the ONNX branch
-> and the APK's models seem to "go missing", it's because the bundled `src/tanuh/assets/models/*.bin`
-> were encrypted from the old PyTorch `.pt` (`engine=pytorch`) and ONNX Runtime can't load them —
-> just re-run `tanuh-ensemble` from the `.onnx` sources to regenerate them.
+> **ONNX, not PyTorch.** The runtime is ONNX Runtime Mobile, so the blobs must be encrypted from
+> `.onnx` (`engine=onnx` in `tanuh-ensemble-override.json`). If you provision blobs encrypted from
+> the old PyTorch `.pt` (`engine=pytorch`), ONNX Runtime can't load them — re-run `tanuh-ensemble`
+> from the `.onnx` sources and re-provision.
 
 ### Build
 
@@ -204,36 +261,39 @@ source ~/.nvm/nvm.sh && nvm use 20          # repo-pinned Node 20; the metro bun
 export tanuh_KEYSTORE_PASSWORD='…'          # the password you chose at `make tanuh-setup`
 export tanuh_KEY_ALIAS='tanuh'
 
-# Encrypt all 3 folds into one registry.json (clears any prior single-model registry first), then
-# assemble the signed release APK. TANUH_ENSEMBLE_SRC_DIR has a machine-specific default in the
-# makefile, so always set it explicitly to your staging dir from above.
-TANUH_ENSEMBLE_SRC_DIR=<your staging dir> make tanuh-ensemble-apk    # → keys: mvit2_fold1_6/_1_8/_2_8
+# Encrypt all 3 folds into the staging dir (clears prior staging first), then assemble the signed
+# model-free release APK. TANUH_ENSEMBLE_SRC_DIR has a machine-specific default in the makefile,
+# so always set it explicitly to your staging dir from above.
+TANUH_ENSEMBLE_SRC_DIR=<your staging dir> make tanuh-ensemble-apk    # → items: mvit2_fold1_6/_1_8/_2_8
 
-# Debug iteration instead of a signed APK:
-TANUH_ENSEMBLE_SRC_DIR=<your staging dir> make tanuh-ensemble        # encrypt only → src/tanuh/assets/models/
-make run_packager                                          # in another terminal
-make run_app_tanuh_dev                                     # debug build, prod backend, dev menu
+# Encrypt only (no build), to staging:
+TANUH_ENSEMBLE_SRC_DIR=<your staging dir> make tanuh-ensemble        # → tools/edge-model/staging/
 ```
 
 Signed APK: `packages/openchs-android/android/app/build/outputs/apk/tanuh/release/app-tanuh-release.apk`
 
-Verify the bundled registry targets ONNX before distributing:
+Then **provision** (see below) and verify the build carries no model:
 
 ```bash
-unzip -p .../app-tanuh-release.apk assets/models/registry.json \
-  | python3 -c "import json,sys; d=json.load(sys.stdin); print({k: v['override'].get('engine') for k,v in d['models'].items()})"
-# expect every key → 'onnx'
+# The APK must contain no model blobs (only the guarded .gitkeep, if any):
+unzip -l .../app-tanuh-release.apk | grep assets/models    # expect nothing (or only .gitkeep)
+
+# And the staged manifest's items must target ONNX:
+python3 -c "import json; d=json.load(open('tools/edge-model/staging/manifest.json')); \
+  print({i['name']: i['payload'].get('engine') for i in d['items']})"
+# expect every item → 'onnx'
 ```
 
 ### Universal APK / AAB (ensemble)
 
 `tanuh-ensemble-apk` above produces a per-arch APK. For a **single installable APK that runs on any
 device ABI** (the artefact you hand to the programme team), or a Play-Store **AAB**, use the bundle
-pipeline. Both build the **ensemble** — `tanuh-aab` encrypts the 3 folds before bundling, so the
-universal APK can never accidentally ship the retired single model.
+pipeline. Both build the **ensemble's** provisioning artefacts (`tanuh-aab` runs `tanuh-ensemble`
+before bundling), and both produce a **model-free** binary (`tanuh-verify-no-model` fails the build
+if a blob was left in the flavour assets).
 
 ```bash
-# Signed universal APK (builds the ensemble AAB, then derives the universal APK via bundletool):
+# Signed universal APK (builds the model-free AAB, then derives the universal APK via bundletool):
 TANUH_ENSEMBLE_SRC_DIR=<your staging dir> make tanuh-universal-apk
 #   alias: make tanuh-ensemble-universal-apk
 
@@ -252,14 +312,94 @@ Outputs:
 Optional version stamping: prepend `versionCode=N versionName=X` to the make command (see the
 `versionCode`/`versionName` note in the makefile). Bundletool is auto-downloaded on first use.
 
-Verify the **AAB** registry targets ONNX (note the `base/` asset prefix inside an AAB, vs `assets/`
+Verify the **AAB** carries no model (note the `base/` asset prefix inside an AAB, vs `assets/`
 in a plain APK):
 
 ```bash
-unzip -p .../app-tanuh-release.aab base/assets/models/registry.json \
-  | python3 -c "import json,sys; d=json.load(sys.stdin); print({k: v['override'].get('engine') for k,v in d['models'].items()})"
-# expect every key → 'onnx'
+unzip -l .../app-tanuh-release.aab | grep assets/models   # expect nothing (or only .gitkeep)
 ```
+
+### Size gate (go-live check)
+
+`make tanuh-size-gate` is the Google-Play go-live gate: it builds device-split APKs from the
+release AAB and runs `bundletool get-size total --dimensions=ABI`, then **fails if the largest
+per-device download exceeds 200 MB**.
+
+```bash
+TANUH_ENSEMBLE_SRC_DIR=<your staging dir> make tanuh-size-gate
+```
+
+It depends on `tanuh-aab`, so it rebuilds the model-free AAB first, then prints a per-ABI size
+report (`tanuh-size-report.csv`) and exits non-zero if any ABI's download exceeds the limit. The
+limit is `TANUH_SIZE_LIMIT_BYTES` (default `209715200` = 200 MB). Because the model is no longer in
+the binary, this is comfortably under the ceiling — the gate catches future growth in the binary
+itself (native libs, bundled assets, dependencies) before it crosses the Play limit. A leaked model
+blob is a separate concern already handled by `tanuh-verify-no-model`, which fails the AAB build the
+gate measures.
+
+## Quick-iteration debug build
+
+For JS / native iteration with the real TANUH model. The model is delivered via sync, so there is
+no bundled fallback: **provision it on the dev server the app points at**, then let a sync pull it.
+
+```bash
+make tanuh-encrypt TANUH_MODEL_KEY=mvit2_fold5_2_latest_traced  # → staging artefacts
+# provision the staged artefacts on your dev server (see "Provisioning the model")
+make run_packager                                               # in another terminal
+make run_app_tanuh_dev                                          # debug build, prod backend, dev menu
+```
+
+If you haven't provisioned a model, the app still boots, but `EdgeModelService` refuses inference
+for any `modelKey` whose reference data hasn't synced.
+
+### Placeholder model for local development (no TANUH model)
+
+If you don't have access to TANUH's model yet but want to exercise the full pipeline:
+
+```bash
+make tanuh-placeholder      # downloads a public MobileNetV2 .onnx, encrypts as 'placeholder' → staging
+# provision the staged 'placeholder' artefacts on your dev server (see "Provisioning the model")
+make run_packager
+make run_app_tanuh_dev
+```
+
+`make tanuh-placeholder` curls the ONNX model zoo's public `mobilenetv2-7.onnx` (ImageNet 224×224
+RGB, 1000-class) and stages it under the name `placeholder` using
+`tools/edge-model/placeholder-override.json` (`imagenet-rgb-chw` + `argmax-labels`). It does **not**
+provision anything — upload the blob to the dev org's GCS `models/`, create the reference-data item
+from `manifest.json` in the webapp admin screen, and load `keys.json` into the server key store.
+After a sync pulls the reference data, inference values are unrelated to TANUH's domain — use this to
+validate that the bridge, preprocessor, decoder, encryption, sync delivery, and on-disk-decrypt-then-load
+flow all work end-to-end.
+
+In a decision rule:
+
+```js
+const result = await params.services.edgeModelService.runInferenceOnImage(
+    'placeholder', imagePath
+);
+// result: { label: <classIndex>, confidence, classIndex, raw: number[1000] }
+```
+
+## Provisioning the model
+
+This is the manual ops step that replaces "bundle the model into the APK". After encrypting (any of
+`tanuh-encrypt` / `tanuh-ensemble` / `tanuh-placeholder`), the staging dir holds `*.bin`,
+`manifest.json`, and `keys.json`. To make the model reachable by devices:
+
+1. **Upload the blobs to GCS.** Put `tools/edge-model/staging/*.bin` under the org's GCS `models/`
+   prefix (the `contentKey` in the manifest is exactly `models/<sha256>.bin`). This can be done
+   directly, or via the avni-webapp admin screen's blob upload.
+2. **Create the reference-data items.** From `manifest.json`, create the downloadable-content
+   reference-data **items** via the avni-webapp admin screen (one per manifest item: `name`,
+   `category`, `sha256`, `contentKey`, `needsKey`, `payload`). **No key material is on these
+   records.**
+3. **Load the keys into the server key store.** Load `keys.json` (`<sha256> → base64 AES key`)
+   into the **server key store**. This is the only system that ever holds the key.
+
+On the device's next sync, it pulls the reference data, and at sync time fetches the blob (presigned
+GCS GET, keyed by `contentKey`) and the key (server key endpoint, keyed by `sha256`), then decrypts
+natively. The post-decrypt sha256 must match `sha256`, or the model is rejected.
 
 ### Inference methodology
 
@@ -271,7 +411,7 @@ single-model path and combines the outputs:
   fold's confidence magnitude (not just its binary call) counts.
 - `combine: 'mean-logit'` — average the raw **logits**, then apply sigmoid once.
 
-`threshold` and `labels` default to the folds' **registry decoder override** (`output.params` of
+`threshold` and `labels` default to the folds' **decoder override** (`output.params` of
 `tanuh-ensemble-override.json` — `0.5` / `["Negative","Positive"]`), so the combined verdict tracks
 the same config as the single-model path; values passed explicitly in `opts` win. The result is
 `{label, confidence, positive, modelKeys, perModel}` — `perModel` carries each fold's logit/confidence
@@ -287,55 +427,13 @@ no normalise).
 
 Reference a fold array from the rule — see "Using inference from a form rule".
 
-## Quick-iteration debug build (no encryption, no signing)
-
-For JS / native iteration with the real TANUH model:
-
-```bash
-make tanuh-encrypt TANUH_MODEL_KEY=mvit2_fold5_2_latest_traced  # populate src/tanuh/assets/models/
-make run_packager                                               # in another terminal
-make run_app_tanuh_dev                                          # debug build, prod backend, dev menu
-```
-
-Skip the `tanuh-encrypt` step if you don't need the model loaded — the app will still boot
-but `EdgeModelService` will refuse inference for any unknown `modelKey`.
-
-### Placeholder model for local development (no Python, no TANUH .pt)
-
-If you don't have access to TANUH's `.pt` yet but want to exercise the full pipeline:
-
-```bash
-make tanuh-placeholder      # downloads a 20 MB public MobileNetV2 .pt, encrypts as 'placeholder'
-make run_packager
-make run_app_tanuh_dev
-```
-
-`make tanuh-placeholder` curls PyTorch's official `HelloWorldApp/model.pt` (ImageNet
-224×224 RGB, 1000-class) and registers it under `placeholder` using
-`tools/edge-model/placeholder-override.json` (`imagenet-rgb-chw` + `argmax-labels`).
-Inference values are unrelated to TANUH's domain — use this to validate that the bridge,
-preprocessor, decoder, encryption, and on-disk-decrypt-then-load flow all work end-to-end.
-
-In a decision rule:
-
-```js
-const result = await params.services.edgeModelService.runInferenceOnImage(
-    'placeholder', imagePath
-);
-// result: { label: <classIndex>, confidence, classIndex, raw: number[1000] }
-```
-
-Alternative — if you'd rather generate a tiny stub model that matches the real MViT2 shape
-exactly (`[1, 3, 256, 256]` BGR/CHW → single logit), see
-`tools/edge-model/make-placeholder-pt.py` (requires PyTorch installed locally).
-
 ## Using inference from a form rule
 
 `params.services.edgeModelService` exposes these entry points. All take `imagePath` — the
 **absolute** device path of the captured image (`file://` stripped), derived from the image
-observation's stored filename — plus a `modelKey` (a key in `registry.json`). The `schedule*`
-methods accept `modelKey` as **either a single key or an array of keys**; an array runs a
-**soft-vote ensemble** (see below).
+observation's stored filename — plus a `modelKey` (the `name` of a provisioned reference-data item).
+The `schedule*` methods accept `modelKey` as **either a single key or an array of keys**; an array
+runs a **soft-vote ensemble** (see below).
 
 | Method | Use |
 |---|---|
@@ -385,38 +483,49 @@ field above so the model's output can be viewed but not hand-edited.
 
 ```
 tools/edge-model/
-├─ encrypt-model.js              # AES-GCM-256 encryption CLI — format-agnostic
+├─ encrypt-model.js              # AES-GCM-256 encryption CLI — emits staging provisioning artefacts
 ├─ sample-override.json          # ImageNet-style sample (imagenet-rgb-chw + argmax-labels)
 ├─ tanuh-mvit2-override.json     # single-model PoC pipeline — used by `make tanuh-apk`
 ├─ tanuh-ensemble-override.json  # 3-fold MViT2 ensemble (bicubic) — used by `make tanuh-ensemble`
-├─ source/                       # plaintext .pt / .tflite files — gitignored
+├─ placeholder-override.json     # public MobileNetV2 placeholder — used by `make tanuh-placeholder`
+├─ source/                       # plaintext .onnx / .pt files — gitignored
+├─ staging/                      # provisioning artefacts (<sha256>.bin, manifest.json, keys.json) — gitignored
 └─ README.md                     # this file
 
 packages/openchs-android/android/app/src/tanuh/
-├─ assets/models/                # encrypted blob + registry.json — gitignored, build-time only
+├─ assets/models/                # empty — only `.gitkeep`; `tanuh-verify-no-model` fails the build
+│                                #   if any .bin appears here (the model must NOT ship in the APK)
 ├─ res/                          # branding (icons / splash) — replace generic placeholders with TANUH assets
 └─ README.md
 
 packages/openchs-android/android/app/src/main/java/com/openchsclient/
 ├─ EdgeModelModule.kt            # React Native bridge — engine-agnostic, model-agnostic
 ├─ ModelContract.kt              # parses the override JSON DSL
-├─ engine/                       # InferenceEngine interface; OnnxEngine lives in src/tanuh/
+├─ engine/                       # InferenceEngine interface (OnnxEngine currently in src/tanuh/)
 ├─ preprocessing/                # ImagePreprocessor interface + named registry
 └─ decoding/                     # OutputDecoder interface + named registry
 ```
 
+`OnnxEngine` currently lives in the `tanuh` flavour (`src/tanuh/.../engine/OnnxEngine.kt`); moving it
+to `src/main` so the engine ships in **every** flavour is a separate change. Either way, a model only
+runs if the org has a configured `edgeModel` downloadable-content reference-data row that the device
+has synced. No model, no inference; the engine alone adds nothing model-specific to the binary.
+
 ## When the model changes
 
-Re-run `make tanuh-ensemble-apk` (or `make tanuh-apk` for a single model). The encryption CLI
-generates a fresh AES key and IV per run, so old encrypted blobs become invalid. This is
-intentional — there's no key-rotation ambiguity, the build is reproducible from the plaintext
-source.
+Re-run `make tanuh-ensemble` (or `make tanuh-encrypt` for a single model) to regenerate the staging
+artefacts, then **re-provision**: re-upload the new blob to GCS, create or update the reference-data
+item from the new `manifest.json`, and load the new key from `keys.json` into the server key store.
+Because the blob is content-addressed by the plaintext sha256, a changed model produces a new
+`<sha256>.bin` and a new item/key entry; an unchanged plaintext re-uses the same sha. The encryption
+CLI generates a fresh AES key and IV per run, so the key store entry for that sha must be reloaded
+whenever the blob is regenerated.
 
 ## The plugin model — adding a new model with novel preprocessing
 
 The bridge is **engine-agnostic** and **model-agnostic**. Per-model semantics — which
 inference engine to use, how to preprocess the image, how to decode the output — are
-declared as a small JSON DSL in the registry's `override` block:
+declared as a small JSON DSL in the item's `payload` (the override JSON):
 
 ```json
 {
@@ -441,15 +550,15 @@ To add a new model:
    `OutputDecoder`) into the relevant registry, register it by name in the `REGISTRY` map,
    and reference the new name from your override JSON. **No edits to `EdgeModelModule.kt`.**
 
-The DSL is **pure data** — no executable code. It travels in the AES-encrypted bundle and
-parses through `org.json.JSONObject` only; there is no `eval`, no JS callback, no
+The DSL is **pure data** — no executable code. It travels in the reference-data item's `payload`
+and parses through `org.json.JSONObject` only; there is no `eval`, no JS callback, no
 dynamic class loading.
 
 ## Adding a new inference engine (e.g. ExecuTorch, ONNX Runtime, TFLite)
 
 1. Add the engine's Gradle dependency to `app/build.gradle`.
 2. Implement `InferenceEngine` in a new class under `engine/`.
-3. Register it in `EdgeModelModule.engines` (the `engine` field in JSON now matches the new key).
+3. Register it in `EdgeModelModule.engines` (the `engine` field in the payload JSON now matches the new key).
 
 `EdgeModelModule.kt` itself does not need to change — only the engine inventory map at
 construction time.
@@ -466,7 +575,9 @@ build/outputs/apk/tanuh/release/app-tanuh-x86_64-release.apk         # x86_64 em
 ```
 
 Pick the ABI that matches the target device. For modern phones, that's `arm64-v8a`; for
-Genymotion's default x86_64 image, that's `app-tanuh-x86_64-release.apk`.
+Genymotion's default x86_64 image, that's `app-tanuh-x86_64-release.apk`. The installed app fetches
+the model via sync — confirm the device's org has the model provisioned (blob in GCS, item created,
+key loaded) before expecting inference to work.
 
 If multiple devices are connected (e.g. a Genymotion emulator and a phone via USB),
 `adb install` errors with `more than one device/emulator`. Disambiguate with `-s`:
@@ -503,10 +614,20 @@ aapt2 compressed an asset that needs to be mmap-able. Add the extension to
 `androidResources.noCompress` in `app/build.gradle`. Currently covered: `bin`, `pt`,
 `ptl`, `tflite`, `onnx`. Adding a new model format → add the extension here.
 
+### Build fails at `tanuh-verify-no-model`: model blob(s) found in `src/tanuh/assets/models`
+A stale `.bin` is sitting in the flavour assets and would have shipped in the APK. The model must
+be delivered via sync, not bundled — remove the leftover and rebuild:
+```bash
+rm -f packages/openchs-android/android/app/src/tanuh/assets/models/*.bin
+```
+
 ### `Failed to load encrypted model: AEADBadTagException` or SHA-256 mismatch
-The encrypted blob was rebuilt with a different key/IV than what's recorded in
-`registry.json`, or the blob was tampered/corrupted in the APK. Run `make tanuh-clean`
-followed by `make tanuh-encrypt` (or `make tanuh-apk`) to regenerate consistently.
+The AES key in the **server key store** doesn't match the blob in GCS — typically the blob was
+re-encrypted (fresh key/IV) but the key store entry for that sha256 wasn't reloaded, or blob/key
+belong to different runs, or the blob was corrupted in transit. **Re-provision** consistently:
+regenerate via `make tanuh-clean` + `make tanuh-encrypt` (or `tanuh-ensemble`), then re-upload the
+blob to GCS and reload the matching `keys.json` entry into the key store. The blob's post-decrypt
+sha256 must equal its `contentKey` sha.
 
 ### Release APK crashes on inference but debug build works
 R8 stripped or renamed a JNI-resolved class. ONNX Runtime's `ai.onnxruntime.**` is kept by

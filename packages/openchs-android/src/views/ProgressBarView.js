@@ -20,7 +20,8 @@ class ProgressBarView extends AbstractComponent {
         notifyUserOnCompletion: PropTypes.bool.isRequired,
         showOkButton: PropTypes.bool,
         currentPageNumber: PropTypes.number,
-        totalNumberOfPages: PropTypes.number
+        totalNumberOfPages: PropTypes.number,
+        contentDownloadWarning: PropTypes.bool
     };
 
     constructor(props, context) {
@@ -89,6 +90,11 @@ class ProgressBarView extends AbstractComponent {
                                             </Text>
                                             <Icon name='check-circle' size={21} style={[{color: Colors.TextOnPrimaryColor}]}/>
                                         </View>
+                                        {this.props.contentDownloadWarning &&
+                                            <Text style={[Fonts.typography("paperFontBody1"),
+                                                {color: Colors.TextOnPrimaryColor, paddingTop: 12, textAlign: 'center'}]}>
+                                                {this.I18n.t("contentNotDownloaded")}
+                                            </Text>}
                                         <View style={{paddingTop: 20}}>
                                             <Button
                                                 title={`${this.I18n.t('ok')}`}

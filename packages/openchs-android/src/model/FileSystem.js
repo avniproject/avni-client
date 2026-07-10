@@ -42,6 +42,8 @@ export default class FileSystem {
                         .then(() => FileSystem.mkdir(FileSystem.getFileDir(), 'file'))
                         .then(() => FileSystem.mkdir(FileSystem.getIconsDir(), 'icons'))
                         .then(() => FileSystem.mkdir(FileSystem.getMetadataDir(), 'metadata'))
+                        .then(() => FileSystem.mkdir(FileSystem.getModelsDir(), 'models'))
+                        .then(() => FileSystem.mkdir(FileSystem.getModelKeysDir(), 'model-keys'))
                         .then(() => FileSystem.mkdir(FileSystem.getProfilePicsDir(), 'profile-pics'))
                         .then(() => {
                             const olderBasePath = `${fs.ExternalStorageDirectoryPath}/OpenCHS`;
@@ -107,6 +109,15 @@ export default class FileSystem {
 
     static getMetadataDir() {
         return `${fs.ExternalDirectoryPath}/Avni/metadata`;
+    }
+
+    static getModelsDir() {
+        return `${fs.ExternalDirectoryPath}/Avni/models`;
+    }
+
+    // App-private internal storage - model AES keys must never be on external storage.
+    static getModelKeysDir() {
+        return `${fs.DocumentDirectoryPath}/model-keys`;
     }
 
     static getProfilePicsDir() {

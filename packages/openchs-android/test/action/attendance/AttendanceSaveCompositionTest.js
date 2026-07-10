@@ -138,7 +138,6 @@ describe("RosterActions.onSave — atomic save composition", () => {
         assert.equal(args.attendanceRecords.length, 3);
         assert.deepEqual(args.followUps, []);
         assert.deepEqual(args.previousRecords, []);
-        assert.deepEqual(args.voidedRecordUUIDs, []);
     });
 
     it("emits no follow-up encounters when the configured EncounterType is voided / missing", () => {
@@ -334,11 +333,12 @@ describe("RosterActions.onSave — atomic save composition", () => {
         assert.equal(args.previousRecords[0].followUpEncounterUUID, "enc-prior-live");
     });
 
-    it("cascade-voids AttendanceRecords for members who left the group between marks", () => {
-        // s2 was in the prior records but has been removed from the current
-        // roster (membershipEndDate set, filtered out at ON_LOAD time). Their
-        // AttendanceRecord must be voided so it doesn't sync as live attendance.
-        const priorR2 = {uuid: "rec-2-prior", subjectUUID: "s2", status: AttendanceRecord.status.ABSENT, followUpEncounterUUID: null, voided: false};
+    it("preserves the attendance of a member no longer on the roster (departed-student erase defect #1983)", () => {
+        // s2 was in the prior records but is not on the current roster (they left the
+        // class, so the eligibility window excludes them from this date's sheet).
+        // Reopening + saving the sheet must NOT void or otherwise touch s2's historical
+        // record — writes are scoped to currently-rendered members only.
+        const priorR2 = {uuid: "rec-2-prior", subjectUUID: "s2", status: AttendanceRecord.status.ABSENT, followUpEncounterUUID: "enc-s2", needsFollowUp: true, voided: false};
         attendanceRecordService.findBySession.mockReturnValue([priorR2]);
         const state = makeBaseState();
         state.existingSession = {uuid: "session-existing", status: Session.status.HELD, notes: "", reasonConceptUUID: null};
@@ -351,7 +351,14 @@ describe("RosterActions.onSave — atomic save composition", () => {
         RosterActions.onSave(state, {}, buildContext());
 
         const args = saveOrUpdateSpy.mock.calls[0][0];
-        assert.deepEqual(args.voidedRecordUUIDs, ["rec-2-prior"]);
+        // No cross-roster void: the departed member's record UUID is never handed to the void path.
+        assert.isTrue(_.isEmpty(args.voidedRecordUUIDs), "must not void records for members off the roster");
+        // And their prior record is filtered out of the snapshot that drives voidStaleFollowUps,
+        // so even their follow-up encounter is left untouched.
+        assert.isUndefined(args.previousRecords.find(r => r.subjectUUID === "s2"), "departed member's prior record must not be in scope");
+        // Only the rendered members' records are written.
+        const writtenSubjects = args.attendanceRecords.map(r => r.subjectUUID).sort();
+        assert.deepEqual(writtenSubjects, ["s1", "s3"]);
     });
 
     it("refuses to save when the roster is empty (no active group members)", () => {
