@@ -62,8 +62,11 @@ class GroupSubjectService extends BaseService {
     }
 
     saveGroupSubject(db, groupSubject) {
-        const alreadyAMember = !_.isEmpty(this.getGroupSubjects(groupSubject.groupSubject).filter(gs => gs.memberSubject.uuid === groupSubject.memberSubject.uuid));
-        if (groupSubject.voided || !alreadyAMember) {
+        // Only a *different* membership row for the same member is a duplicate add; the same
+        // uuid means the user is editing that membership (e.g. its start date) and must upsert.
+        const duplicateAdd = !_.isEmpty(this.getGroupSubjects(groupSubject.groupSubject)
+            .filter(gs => gs.memberSubject.uuid === groupSubject.memberSubject.uuid && gs.uuid !== groupSubject.uuid));
+        if (groupSubject.voided || !duplicateAdd) {
             const savedGroupSubject = db.create(GroupSubject.schema.name, groupSubject, true);
             let groupSubjectInd = this.getService(EntityService).findByUUID(groupSubject.groupSubject.uuid, Individual.schema.name);
             let memberSubjectInd = this.getService(EntityService).findByUUID(groupSubject.memberSubject.uuid, Individual.schema.name);
