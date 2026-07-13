@@ -137,47 +137,47 @@ class EdgeModelService extends BaseService {
     }
 
     /**
-     * Soft-vote ensemble over several single-logit sigmoid-binary models (e.g. cross-validation
-     * folds of the same model). Runs each via runInferenceOnImage, then combines:
-     *   • 'mean-prob'  (default): average the per-model sigmoid probabilities.
-     *   • 'mean-logit'          : average the raw logits, then sigmoid.
-     * `threshold` picks labels[1] (positive) vs labels[0]. Returns the combined verdict plus a
-     * per-model breakdown. The combined `label` is shaped like a single model's, so callers
-     * (e.g. _scheduleImageInference) and `labelMap` treat it identically.
+     * Unanimous-AND ensemble over several single-logit sigmoid-binary models (e.g. cross-validation
+     * folds of the same model). Runs each via runInferenceOnImage; the image is Positive (suspicious)
+     * only when EVERY fold is positive (sigmoid(logit) > threshold) — the false-positive control from
+     * TANUH's validated spec (soft-vote over-referred). `combine` is sourced from the folds' shared
+     * decoder override; 'unanimous-and' is the default and only shipped value. Returns the combined
+     * verdict plus a per-model breakdown; the combined `label` is shaped like a single model's, so
+     * callers (e.g. _scheduleImageInference) and `labelMap` treat it identically. `confidence` is the
+     * least-confident fold — a diagnostic, NOT a calibrated probability for a hard-AND verdict.
      */
     async runEnsembleInferenceOnImage(modelKeys, imagePath, opts = {}) {
         if (!Array.isArray(modelKeys) || modelKeys.length === 0) {
             throw new Error('EdgeModelService.runEnsembleInferenceOnImage: modelKeys must be a non-empty array');
         }
-        // Default threshold/labels from the folds' shared decoder override so the combined verdict
-        // tracks the registry (tanuh-ensemble-override.json) like the single-model path does;
-        // explicit opts win.
+        // Combine rule comes from the folds' shared decoder override (tanuh-ensemble-override.json);
+        // explicit opts win. 'unanimous-and' is the default and only shipped value.
         await this._registryReady;
         const decoderParams = this._registry?.models?.[modelKeys[0]]?.override?.output?.params || {};
-        const combine = opts.combine ?? 'mean-prob';
+        const combine = opts.combine ?? decoderParams.combine ?? 'unanimous-and';
         const threshold = opts.threshold ?? decoderParams.threshold ?? 0.5;
         const labels = opts.labels ?? decoderParams.labels ?? ['Negative', 'Positive'];
+        if (combine !== 'unanimous-and') {
+            throw new Error(`EdgeModelService.runEnsembleInferenceOnImage: unsupported combine='${combine}' (only 'unanimous-and' is shipped)`);
+        }
 
         const t0 = Date.now();
         const results = await Promise.all(modelKeys.map(k => this.runInferenceOnImage(k, imagePath)));
-        const mean = nums => nums.reduce((s, x) => s + x, 0) / nums.length;
-        const score = combine === 'mean-logit'
-            ? 1 / (1 + Math.exp(-mean(results.map(r => r.logit))))
-            : mean(results.map(r => r.confidence));
-        // Fail loud rather than silently scoring NaN — NaN > threshold is false, which would
-        // masquerade as a confident negative verdict. A non-finite score means a fold result
-        // lacked the field this combine mode needs (confidence / logit).
-        if (!Number.isFinite(score)) {
-            throw new Error(`EdgeModelService.runEnsembleInferenceOnImage: non-finite score (combine=${combine}) — a fold result lacked a numeric ${combine === 'mean-logit' ? 'logit' : 'confidence'}; models=[${modelKeys.join(',')}]`);
-        }
-        const positive = score > threshold;
+        const sigmoid = (x) => 1 / (1 + Math.exp(-x));
+        // Per-model positive is sigmoid(logit) > threshold — unambiguous, independent of how each
+        // fold result defines `confidence`. Unanimous AND: suspicious iff ALL folds are positive.
+        const perModel = results.map((r, i) => ({
+            modelKey: modelKeys[i], logit: r.logit, confidence: r.confidence, label: r.label,
+            positive: sigmoid(r.logit) > threshold
+        }));
+        const positive = perModel.every(p => p.positive);
+        // No single probability is meaningful for a hard-AND verdict; report the least-confident
+        // fold's confidence as a diagnostic (NOT a calibrated probability).
+        const confidence = Math.min(...perModel.map(p => p.confidence));
         const label = positive ? labels[1] : labels[0];
         General.logDebug('EdgeModelSvc',
-            `runEnsembleInferenceOnImage OK (${Date.now() - t0}ms): combine=${combine} score=${score.toFixed(4)} label=${label} models=[${modelKeys.join(',')}]`);
-        return {
-            label, confidence: score, positive, modelKeys,
-            perModel: results.map((r, i) => ({modelKey: modelKeys[i], logit: r.logit, confidence: r.confidence, label: r.label}))
-        };
+            `runEnsembleInferenceOnImage OK (${Date.now() - t0}ms): combine=unanimous-and positive=${positive} label=${label} models=[${modelKeys.join(',')}]`);
+        return {label, confidence, positive, modelKeys, perModel};
     }
 
     /**
