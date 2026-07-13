@@ -37,6 +37,7 @@ class AbstractDataEntryState {
         newState.timerState = _.isNil(this.timerState) ? this.timerState : this.timerState.clone();
         newState.isFirstFlow = this.isFirstFlow;
         newState.isDraft = this.isDraft;
+        newState.wizardCompletionInProgress = this.wizardCompletionInProgress;
         return newState;
     }
 

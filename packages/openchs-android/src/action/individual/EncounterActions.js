@@ -15,7 +15,7 @@ import _ from "lodash";
 import {DraftEncounter, ObservationsHolder} from "openchs-models";
 import DraftEncounterService from '../../service/draft/DraftEncounterService';
 import DraftConfigService from "../../service/DraftConfigService";
-import {dispatchHandleNext} from "../common/DispatchHelpers";
+import {dispatchHandleNext, runWizardCompletion} from "../common/DispatchHelpers";
 import {EDGE_MODEL_ACTION} from "../../service/EdgeModelService";
 import {RULE_SERVICE_ACTION} from "../../service/RuleService";
 
@@ -118,7 +118,13 @@ export class EncounterActions {
     }
 
     static onSummaryPage(state, action, context) {
-        return state.clone().handleSummaryPage(action, context);
+        if (state.wizardCompletionInProgress) return state;
+        const newState = state.clone();
+        return runWizardCompletion(newState, action, () => newState.handleSummaryPageAsync(action, context), 'EncounterActions.onSummaryPage');
+    }
+
+    static onUseThisState(state, action, context) {
+        return action.state;
     }
 
     static onPrevious(state, action, context) {
@@ -197,6 +203,7 @@ const individualEncounterViewActions = {
     ON_SKIP_VERIFICATION: "EA.ON_SKIP_VERIFICATION",
     ON_TIMED_FORM: "EA.ON_TIMED_FORM",
     ON_START_TIMER: "EA.ON_START_TIMER",
+    USE_THIS_STATE: "EA.USE_THIS_STATE",
 };
 
 const individualEncounterViewActionsMap = new Map([
@@ -223,6 +230,7 @@ const individualEncounterViewActionsMap = new Map([
     [individualEncounterViewActions.ON_SKIP_VERIFICATION, PhoneNumberVerificationActions.onSkipVerification],
     [individualEncounterViewActions.ON_TIMED_FORM, TimerActions.onTimedForm],
     [individualEncounterViewActions.ON_START_TIMER, TimerActions.onStartTimer],
+    [individualEncounterViewActions.USE_THIS_STATE, EncounterActions.onUseThisState],
     [EDGE_MODEL_ACTION.INFERENCE_RESULT_AVAILABLE, ObservationsHolderActions.onInferenceResultAvailable],
     [EDGE_MODEL_ACTION.INFERENCE_RESULTS_BATCH, ObservationsHolderActions.onObservationWriteBatch],
     [RULE_SERVICE_ACTION.OBSERVATION_WRITE_BATCH, ObservationsHolderActions.onObservationWriteBatch],

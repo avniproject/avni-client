@@ -277,6 +277,97 @@ describe('EncounterActionsTest', () => {
         action.assert();
     });
 
+    it('summary page awaits async inference before completing (issue #1986)', async () => {
+        // Regression: the Summary / fast-forward button routed through the sync completion path,
+        // which called action.completed with a still-pending decisions Promise -> the recommendation
+        // screen rendered an absent verdict and defaulted to "nothing suspicious".
+        const originalExecuteRule = EncounterActionState.prototype.executeRule;
+        const resolvedDecisions = {enrolmentDecisions: [], encounterDecisions: [], registrationDecisions: []};
+        let ruleResolved = false;
+        EncounterActionState.prototype.executeRule = function () {
+            return new Promise(resolve => setImmediate(() => {
+                ruleResolved = true;
+                resolve(resolvedDecisions);
+            }));
+        };
+        try {
+            const {state, formElement} = createIntialState(Concept.dataType.Numeric, true, false);
+            let newState = ObservationsHolderActions.onPrimitiveObsUpdateValue(state, {
+                value: '10',
+                formElement: formElement
+            }, testContext);
+
+            const recorded = {completedCalled: false, decisions: undefined, ruleWasResolvedWhenCompleted: undefined};
+            const action = {
+                completed: (s, decisions) => {
+                    recorded.completedCalled = true;
+                    recorded.decisions = decisions;
+                    recorded.ruleWasResolvedWhenCompleted = ruleResolved;
+                },
+                movedNext: () => {}
+            };
+
+            newState = EncounterActions.onSummaryPage(newState, action, testContext);
+
+            // Must not complete synchronously with an unresolved decisions Promise.
+            expect(recorded.completedCalled).is.equal(false);
+
+            await new Promise(resolve => setImmediate(resolve));
+            await new Promise(resolve => setImmediate(resolve));
+
+            expect(recorded.completedCalled).is.equal(true);
+            expect(recorded.ruleWasResolvedWhenCompleted).is.equal(true);
+            expect(recorded.decisions).is.equal(resolvedDecisions); // resolved value, not a thenable
+        } finally {
+            EncounterActionState.prototype.executeRule = originalExecuteRule;
+        }
+    });
+
+    it('summary page locks down and ignores re-taps while inference is unresolved (issue #1986)', async () => {
+        const originalExecuteRule = EncounterActionState.prototype.executeRule;
+        let resolveRule;
+        EncounterActionState.prototype.executeRule = function () {
+            return new Promise(resolve => {
+                resolveRule = () => resolve({enrolmentDecisions: [], encounterDecisions: [], registrationDecisions: []});
+            });
+        };
+        try {
+            const {state, formElement} = createIntialState(Concept.dataType.Numeric, true, false);
+            const s = ObservationsHolderActions.onPrimitiveObsUpdateValue(state, {value: '10', formElement: formElement}, testContext);
+
+            let completedCount = 0;
+            let settledState;
+            const action = {
+                completed: () => { completedCount++; },
+                settleCompletion: (st) => { settledState = st; },
+                movedNext: () => {}
+            };
+
+            const afterFirst = EncounterActions.onSummaryPage(s, action, testContext);
+            // In-progress lockdown flag set synchronously -> spinner shows, buttons blocked.
+            expect(afterFirst.wizardCompletionInProgress).is.equal(true);
+
+            // A second tap while inference is unresolved is ignored (no second completion).
+            const afterSecond = EncounterActions.onSummaryPage(afterFirst, action, testContext);
+            expect(afterSecond).is.equal(afterFirst);
+
+            // Let the async summary loop advance to the last-page inference call.
+            for (let i = 0; i < 20 && !resolveRule; i++) {
+                await new Promise(resolve => setImmediate(resolve));
+            }
+            expect(typeof resolveRule).is.equal('function');
+            resolveRule();
+            await new Promise(resolve => setImmediate(resolve));
+            await new Promise(resolve => setImmediate(resolve));
+
+            expect(completedCount).is.equal(1); // single navigation despite two taps
+            expect(afterFirst.wizardCompletionInProgress).is.equal(false); // lockdown cleared on settle
+            expect(settledState).is.equal(afterFirst);
+        } finally {
+            EncounterActionState.prototype.executeRule = originalExecuteRule;
+        }
+    });
+
     it('next on second view should give validation error', () => {
         const {state, formElement, formElement2} = createIntialState(Concept.dataType.Numeric, true, true);
 
