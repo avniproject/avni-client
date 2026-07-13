@@ -64,6 +64,11 @@ class EdgeModelService extends BaseService {
         // (now-stale) verdict. In-memory only — on app restart we lazily seed the cache
         // with the current imagePath the first time we see a populated target obs.
         this._lastInferredImageByTarget = new Map();
+        // On a cold session cache we recompute (rather than trust) a persisted verdict, since an
+        // edit may have swapped the image under it. This caps that recompute to one attempt per
+        // image+target per session so a synced-in encounter whose media isn't downloaded (inference
+        // keeps failing) doesn't re-fire on every page re-eval. Keyed by targetKey|imagePath.
+        this._coldStartRecomputeAttempted = new Set();
         // Inference results wait here for a short trailing-debounce window so a burst of N
         // verdicts (one per image on the summary screen) is applied in a single dispatch.
         this._pendingResults = [];
@@ -287,15 +292,24 @@ class EdgeModelService extends BaseService {
         if (existing != null) {
             if (lastImage === undefined) {
                 // First time we're seeing this target in-session and it's already populated →
-                // persisted verdict from a previous session. Trust it, seed the cache so a
-                // later retake (different imagePath) re-runs.
-                this._lastInferredImageByTarget.set(targetKey, imagePath);
+                // persisted verdict from a previous session. We can't tell whether it still matches
+                // the current image (an edit may have swapped the image under it), so recompute
+                // instead of trusting it: same image → idempotent, swapped image → stale verdict
+                // superseded. Cap it to one attempt per image so a missing media file doesn't retry.
+                const coldStartKey = `${targetKey}|${imagePath}`;
+                if (this._coldStartRecomputeAttempted.has(coldStartKey)) {
+                    General.logDebug('EdgeModelSvc',
+                        `scheduleImageInference SKIP cold-start recompute already attempted for '${targetConceptName}' (${imagePath})`);
+                    return;
+                }
+                this._coldStartRecomputeAttempted.add(coldStartKey);
                 General.logDebug('EdgeModelSvc',
-                    `scheduleImageInference SKIP trust persisted verdict for '${targetConceptName}' (seeded lastImage=${imagePath})`);
-                return;
+                    `scheduleImageInference cold-start recompute for '${targetConceptName}' (persisted verdict, imagePath=${imagePath})`);
+            } else {
+                // existing populated but lastImage defined and != imagePath → the photo was retaken.
+                General.logDebug('EdgeModelSvc',
+                    `scheduleImageInference image CHANGED for '${targetConceptName}' (was ${lastImage}, now ${imagePath}) — re-running`);
             }
-            General.logDebug('EdgeModelSvc',
-                `scheduleImageInference image CHANGED for '${targetConceptName}' (was ${lastImage}, now ${imagePath}) — re-running`);
         }
 
         const inflightKey = isRqg
