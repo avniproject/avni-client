@@ -2,6 +2,7 @@ import {getJSON} from '../../framework/http/requests';
 import _ from "lodash";
 import moment from "moment";
 import ChainedRequests from "../../framework/http/ChainedRequests";
+import General from "../../utility/General";
 
 class ConventionalRestClient {
     constructor(settingsService, privilegeService) {
@@ -40,10 +41,20 @@ class ConventionalRestClient {
     }
 
     chainPostEntities(url, entities, onComplete) {
+        // Diagnostics must never block field-data upload; a failed post is dropped from the queue instead of aborting the sync.
+        const bestEffortPushEntities = ["RuleFailureTelemetry"];
+        const isBestEffort = _.includes(bestEffortPushEntities, entities.metaData.entityName);
         return () => {
             const chainedRequest = new ChainedRequests();
             entities.entities.map((entity) => {
-                return chainedRequest.push(chainedRequest.post(url, entity.resource, onComplete(entities.metaData, entity.resource.uuid)))
+                const onEntityPushed = onComplete(entities.metaData, entity.resource.uuid);
+                const postRequest = chainedRequest.post(url, entity.resource, onEntityPushed);
+                return chainedRequest.push(isBestEffort
+                    ? () => postRequest().catch((error) => {
+                        General.logWarn('ConventionalRestClient', `Dropping unpushable ${entities.metaData.entityName} ${entity.resource.uuid}: ${_.get(error, 'message', error)} | entity: ${JSON.stringify(entity.resource)}`);
+                        return onEntityPushed();
+                    })
+                    : postRequest);
             });
             return chainedRequest.fire();
         }
