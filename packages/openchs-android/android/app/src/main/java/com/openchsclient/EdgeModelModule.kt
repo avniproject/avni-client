@@ -2,7 +2,9 @@ package com.openchsclient
 
 import android.content.ComponentCallbacks2
 import android.content.res.Configuration
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.media.ExifInterface
 import android.util.Base64
 import android.util.Log
@@ -252,6 +254,34 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
     }
 
     /**
+     * Apply the JPEG EXIF orientation tag to the decoded bitmap (all 8 cases), matching the
+     * reference pipeline (cv2.imread auto-applies; the TANUH PoC's rotateBitmapIfNeeded).
+     * BitmapFactory does NOT apply it, so a portrait field photo would otherwise reach the
+     * models rotated and the (non-rotation-invariant) models could flip a verdict. Returns the
+     * original bitmap when the tag is NORMAL/undefined; recycles the source only when a new
+     * bitmap is produced.
+     */
+    private fun applyExifOrientation(src: Bitmap, imagePath: String): Bitmap {
+        val orientation = try {
+            ExifInterface(imagePath).getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+        } catch (e: Exception) { ExifInterface.ORIENTATION_NORMAL }
+        val m = Matrix()
+        when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> m.postRotate(90f)
+            ExifInterface.ORIENTATION_ROTATE_180 -> m.postRotate(180f)
+            ExifInterface.ORIENTATION_ROTATE_270 -> m.postRotate(270f)
+            ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> m.postScale(-1f, 1f)
+            ExifInterface.ORIENTATION_FLIP_VERTICAL -> m.postScale(1f, -1f)
+            ExifInterface.ORIENTATION_TRANSPOSE -> { m.postRotate(90f); m.postScale(-1f, 1f) }
+            ExifInterface.ORIENTATION_TRANSVERSE -> { m.postRotate(270f); m.postScale(-1f, 1f) }
+            else -> return src   // NORMAL / UNDEFINED — nothing to do
+        }
+        val rotated = Bitmap.createBitmap(src, 0, 0, src.width, src.height, m, true)
+        if (rotated != src) src.recycle()
+        return rotated
+    }
+
+    /**
      * Run inference directly on an image file. Image preprocessing (decode → resize →
      * normalise → layout transpose) is driven entirely by the resolved preprocessor plugin;
      * **no per-model math lives here**. Adding a new model with novel preprocessing is a
@@ -266,18 +296,19 @@ class EdgeModelModule(reactContext: ReactApplicationContext) :
             val contract = contracts[modelKey]!!
             val engine = engineFor(contract.engine)
 
-            val raw = BitmapFactory.decodeFile(imagePath)
+            val decoded = BitmapFactory.decodeFile(imagePath)
                 ?: throw IllegalArgumentException("Cannot decode image at '$imagePath'. Check the path and file format.")
+            // Apply EXIF orientation before preprocessing — matches cv2.imread / the reference PoC.
+            val raw = applyExifOrientation(decoded, imagePath)
             // Bitmaps back pixel data in native heap; release eagerly so a session of camera-path
             // images doesn't pile up native memory and trigger onTrimMemory (which would evict
             // the model). The preprocessor never retains `raw` past return.
             try {
                 if (BuildConfig.DEBUG) {
-                    // Diagnostic — log decoded bitmap geometry + EXIF orientation. If EXIF reports
-                    // anything other than 1 (NORMAL), the on-screen image is rotated relative to the
-                    // raw pixels we feed the model. The TANUH PoC has the same `decodeFile` codepath,
-                    // so for parity-comparison runs both apps should agree. But if training data was
-                    // pre-rotated and field images aren't, the model sees inputs it wasn't trained on.
+                    // Diagnostic — log decoded bitmap geometry + EXIF orientation. We now apply EXIF
+                    // via applyExifOrientation above (matching cv2.imread / the reference PoC's
+                    // rotateBitmapIfNeeded), so `raw` is already upright here; a non-NORMAL tag below
+                    // reflects the ORIGINAL file, logged for parity debugging only.
                     val exif = try { ExifInterface(imagePath) } catch (e: Exception) { null }
                     val orientation = exif?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
                     Log.d(TAG, "decodeFile: w=${raw.width} h=${raw.height} config=${raw.config} exifOrientation=$orientation")
