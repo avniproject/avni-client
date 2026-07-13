@@ -8,6 +8,7 @@
 verify/fixtures/
 verify/out/
 verify/.venv/
+__pycache__/
 # Ground truth + derived scores
 *true_label*.xlsx
 *.xlsx
