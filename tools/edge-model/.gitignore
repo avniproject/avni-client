@@ -4,9 +4,10 @@
 *.onnx.data
 *.pt
 *.pth
-# Verification fixtures + outputs (if ever staged inside the tree by mistake)
+# Verification fixtures + outputs + local venv (if ever staged inside the tree by mistake)
 verify/fixtures/
 verify/out/
+verify/.venv/
 # Ground truth + derived scores
 *true_label*.xlsx
 *.xlsx
