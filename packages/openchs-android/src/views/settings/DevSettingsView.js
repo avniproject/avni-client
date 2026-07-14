@@ -23,6 +23,7 @@ import DashboardCacheService from "../../service/DashboardCacheService";
 import {MyDashboardActionNames} from "../../action/mydashboard/MyDashboardActions";
 import CustomDashboardCacheService from "../../service/CustomDashboardCacheService";
 import PerformanceBenchmarkService from "../../service/PerformanceBenchmarkService";
+import P2PSpike from "../../framework/p2p/P2PSpike";
 
 @Path('/devSettingsView')
 class DevSettingsView extends AbstractComponent {
@@ -79,6 +80,51 @@ class DevSettingsView extends AbstractComponent {
                 return `${r.name}: ${r.elapsed}ms (${r.rows} rows)${status}`;
             }).join("\n");
         Alert.alert("Benchmark Results", summary);
+    }
+
+    p2pLog(message) {
+        General.logInfo('P2PSpike', message);
+        this.setState((prev) => ({p2pLogs: [...(prev.p2pLogs || []), `${moment().format('HH:mm:ss')} ${message}`].slice(-15)}));
+    }
+
+    p2pDetectHubIp() {
+        P2PSpike.detectHubIp((m) => this.p2pLog(m)).then((hubIp) => {
+            if (hubIp) this.setState({p2pHost: hubIp});
+        });
+    }
+
+    renderP2PButton(label, onPress) {
+        return <TouchableNativeFeedback onPress={onPress}>
+            <View style={[Styles.basicPrimaryButtonView, {marginTop: 8}]}>
+                <Text style={{fontSize: Fonts.Medium, color: Colors.TextOnPrimaryColor}}>{label}</Text>
+            </View>
+        </TouchableNativeFeedback>;
+    }
+
+    renderP2PSpike() {
+        const log = (m) => this.p2pLog(m);
+        const host = this.state.p2pHost || '';
+        return <View style={{marginTop: 24, marginBottom: 16}}>
+            <Text style={{fontSize: Fonts.Large}}>P2P Transport Spike (T1)</Text>
+            <Text>Hub: enable phone hotspot, then Start Hub. Spoke: join hotspot, Detect, Ping.</Text>
+            {this.renderP2PButton(P2PSpike.isHubRunning() ? 'Stop Hub' : 'Start Hub',
+                () => {
+                    P2PSpike.isHubRunning() ? P2PSpike.stopHub(log) : P2PSpike.startHub(log);
+                    this.setState({});
+                })}
+            <View style={{marginTop: 8}}>
+                <Text>Hub IP:</Text>
+                <TextInput value={host} placeholder='192.168.x.1' keyboardType='numeric'
+                           onChangeText={(text) => this.setState({p2pHost: text})}/>
+            </View>
+            {this.renderP2PButton('Detect Hub IP', () => this.p2pDetectHubIp())}
+            {this.renderP2PButton('Ping Hub', () => P2PSpike.ping(host, log))}
+            {this.renderP2PButton('Send 2MB Payload', () => P2PSpike.sendTestPayload(host, 2, log))}
+            <View style={{marginTop: 8, backgroundColor: '#f0f0f0', padding: 8}}>
+                {(this.state.p2pLogs || []).map((line, index) =>
+                    <Text key={index} style={{fontSize: Fonts.Small, fontFamily: 'monospace'}}>{line}</Text>)}
+            </View>
+        </View>;
     }
 
     clearDashboardCache() {
@@ -151,6 +197,7 @@ class DevSettingsView extends AbstractComponent {
                 <CHSContent>
                     <AppHeader title={'Dev Settings'}/>
                     <ScrollView style={{paddingHorizontal: Distances.ContentDistanceFromEdge}}>
+                        {this.renderP2PSpike()}
                         {this.renderDevOptions()}
                         {this.renderLogLevels()}
                     </ScrollView>
