@@ -113,6 +113,14 @@ const SQL_TRANSLATABLE = [
 
 // ── Queries that should route to JS fallback (handled by JsFallbackFilterEvaluator) ──
 const JS_FALLBACK = [
+    '@links.@count == 0',
+    '@links.@count > 0',
+    'media.@size > 0',
+    'ANY media.url CONTAINS[c] $0',
+];
+
+// ── TRUEPREDICATE sort/Distinct now translate to SQL (window / ORDER BY) ──
+const TRUEPREDICATE_SQL = [
     'TRUEPREDICATE DISTINCT(entity)',
     'TRUEPREDICATE DISTINCT(entityName)',
     'TRUEPREDICATE DISTINCT(level)',
@@ -120,10 +128,6 @@ const JS_FALLBACK = [
     'TRUEPREDICATE DISTINCT(dashboard.uuid)',
     'TRUEPREDICATE DISTINCT(groupSubject.uuid)',
     'TRUEPREDICATE sort(createdDateTime asc) Distinct(commentThread.uuid)',
-    '@links.@count == 0',
-    '@links.@count > 0',
-    'media.@size > 0',
-    'ANY media.url CONTAINS[c] $0',
 ];
 
 // ── Partial-parse queries: SQL handles some clauses, JS handles the rest ──
@@ -168,6 +172,15 @@ describe('Query pattern validation against RealmQueryParser', () => {
             const result = RealmQueryParser.parse(query, DUMMY_ARGS);
             // Should either be fully unsupported or partially parsed
             expect(result.unsupported === true || result.partialParse === true).toBe(true);
+        });
+    });
+
+    describe('TRUEPREDICATE sort/Distinct → SQL', () => {
+        test.each(TRUEPREDICATE_SQL)('%s', (query) => {
+            const result = RealmQueryParser.parse(query, DUMMY_ARGS, 'Comment', realmSchemaMap, 0);
+            expect(result.unsupported).toBe(false);
+            expect(result.partialParse).toBeFalsy();
+            expect(result.distinct || result.orderBy).toBeTruthy();
         });
     });
 

@@ -251,6 +251,87 @@ describe("RealmQueryParser", () => {
         });
     });
 
+    describe("TRUEPREDICATE sort/Distinct → SQL window", () => {
+        const schemaMap = new Map();
+        schemaMap.set("Encounter", {
+            name: "Encounter", primaryKey: "uuid",
+            properties: {
+                uuid: "string",
+                encounterDateTime: "date",
+                programEnrolment: {type: "object", objectType: "ProgramEnrolment"},
+            }
+        });
+        schemaMap.set("ProgramEnrolment", {
+            name: "ProgramEnrolment", primaryKey: "uuid",
+            properties: {
+                uuid: "string",
+                enrolmentDateTime: "date",
+                individual: {type: "object", objectType: "Individual"},
+            }
+        });
+        schemaMap.set("Individual", {
+            name: "Individual", primaryKey: "uuid",
+            properties: {uuid: "string"}
+        });
+
+        it("sort only (no distinct) → orderBy, no distinct descriptor", () => {
+            const r = RealmQueryParser.parse(
+                "TRUEPREDICATE sort(encounterDateTime desc)", [], "Encounter", schemaMap);
+            expect(r.unsupported).toBe(false);
+            expect(r.distinct).toBeFalsy();
+            expect(r.orderBy).toBe('t0."encounter_date_time" DESC');
+            expect(r.joins.length).toBe(0);
+        });
+
+        it("multi-key dot-path sort + distinct → window descriptor with JOINs", () => {
+            const r = RealmQueryParser.parse(
+                "TRUEPREDICATE sort(programEnrolment.individual.uuid asc , encounterDateTime desc) Distinct(programEnrolment.individual.uuid)",
+                [], "Encounter", schemaMap);
+            expect(r.unsupported).toBe(false);
+            // two JOINs: Encounter→ProgramEnrolment (t1), ProgramEnrolment→Individual (t2)
+            expect(r.joins.length).toBe(2);
+            expect(r.orderBy).toBe('t2."uuid" ASC, t0."encounter_date_time" DESC');
+            expect(r.distinct.columns).toEqual(['t2."uuid"']);
+            expect(r.distinct.orderBy).toBe('t2."uuid" ASC, t0."encounter_date_time" DESC');
+        });
+
+        it("bare Distinct (no sort) → distinct descriptor, orderBy null", () => {
+            const r = RealmQueryParser.parse(
+                "TRUEPREDICATE DISTINCT(entityName)", [], "EntitySyncStatus", new Map());
+            expect(r.unsupported).toBe(false);
+            expect(r.distinct.columns).toEqual(['t0."entity_name"']);
+            expect(r.distinct.orderBy).toBeNull();
+            expect(r.orderBy).toBeNull();
+        });
+
+        it("inline sort + distinct on different keys (CommentService shape)", () => {
+            const cm = new Map();
+            cm.set("Comment", {
+                name: "Comment", primaryKey: "uuid",
+                properties: {
+                    uuid: "string", createdDateTime: "date",
+                    commentThread: {type: "object", objectType: "CommentThread"},
+                }
+            });
+            cm.set("CommentThread", {name: "CommentThread", primaryKey: "uuid", properties: {uuid: "string"}});
+            const r = RealmQueryParser.parse(
+                "TRUEPREDICATE sort(createdDateTime asc) Distinct(commentThread.uuid)", [], "Comment", cm);
+            expect(r.unsupported).toBe(false);
+            expect(r.distinct.orderBy).toBe('t0."created_date_time" ASC');
+            expect(r.distinct.columns).toEqual(['t1."uuid"']);
+        });
+
+        it("non-grammar TRUEPREDICATE (leftover tokens) stays unsupported", () => {
+            const r = RealmQueryParser.parse("TRUEPREDICATE AND voided = false", [], "Encounter", schemaMap);
+            // Leftover "AND voided = false" after TRUEPREDICATE isn't the sort/distinct
+            // grammar, so _tryTranslateTruePredicate returns null and the query falls
+            // through to the pre-existing JS-fallback/partial-parse path — it never
+            // produces the recognized sort/distinct descriptor.
+            expect(r.unsupported === true || r.partialParse === true).toBe(true);
+            expect(r.distinct).toBeFalsy();
+        });
+    });
+
     describe("object-link properties resolve to FK columns", () => {
         const schemaMap = new Map();
         schemaMap.set("IdentifierAssignment", {
@@ -340,11 +421,12 @@ describe("RealmQueryParser", () => {
             expect(result.unsupported).toBe(true);
         });
 
-        it("should flag TRUEPREDICATE as unsupported", () => {
+        it("should translate TRUEPREDICATE DISTINCT to a distinct descriptor", () => {
             const result = RealmQueryParser.parse(
                 'TRUEPREDICATE DISTINCT(observationsTypeEntityUUID)'
             );
-            expect(result.unsupported).toBe(true);
+            expect(result.unsupported).toBe(false);
+            expect(result.distinct.columns).toEqual(['t0."observations_type_entity_uuid"']);
         });
 
         it("should flag @links as unsupported", () => {

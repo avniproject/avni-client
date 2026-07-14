@@ -759,6 +759,15 @@ class RealmQueryParser {
                 }
             }
 
+            // TRUEPREDICATE [sort(...)] [Distinct(...)] → SQL ORDER BY / window
+            if (/^TRUEPREDICATE\b/i.test(trimmed)) {
+                const tpResult = this._tryTranslateTruePredicate(trimmed, args, rootSchemaName, schemaMap, aliasOffset);
+                if (tpResult) {
+                    tpResult.limit = limitValue;
+                    return tpResult;
+                }
+            }
+
             // Try partial parsing: split on top-level AND, translate supported clauses to SQL,
             // route JS-fallback clauses (SUBQUERY, TRUEPREDICATE, @count, etc.) to
             // JsFallbackFilterEvaluator for post-hydration filtering.
@@ -942,6 +951,71 @@ class RealmQueryParser {
         }
 
         return {where, params, joins: []};
+    }
+
+    /**
+     * Translate `TRUEPREDICATE [sort(...)] [Distinct(...)]` to a SQL window descriptor.
+     * TRUEPREDICATE contributes no row filter (where stays null); sort → ORDER BY,
+     * Distinct → ROW_NUMBER() partition. Returns null when the string isn't a pure
+     * TRUEPREDICATE sort/distinct (caller keeps it on JS fallback).
+     */
+    static _tryTranslateTruePredicate(query, args, rootSchemaName, schemaMap, aliasOffset = 0) {
+        const head = query.match(/^TRUEPREDICATE\b(.*)$/is);
+        if (!head) return null;
+        let rest = head[1].trim();
+
+        let sortBody = null;
+        const sortMatch = rest.match(/sort\s*\(([^)]*)\)/i);
+        if (sortMatch) {
+            sortBody = sortMatch[1];
+            rest = (rest.slice(0, sortMatch.index) + rest.slice(sortMatch.index + sortMatch[0].length)).trim();
+        }
+
+        let distinctBody = null;
+        const distinctMatch = rest.match(/distinct\s*\(([^)]*)\)/i);
+        if (distinctMatch) {
+            distinctBody = distinctMatch[1];
+            rest = (rest.slice(0, distinctMatch.index) + rest.slice(distinctMatch.index + distinctMatch[0].length)).trim();
+        }
+
+        // Anything left over (extra predicate, reversed order, junk) → not our grammar.
+        if (rest.length > 0) return null;
+        if (sortBody == null && distinctBody == null) return null;
+
+        // Shared generator so sort + distinct reuse the same JOIN aliases.
+        const gen = new SqlGenerator(schemaMap, rootSchemaName, args);
+        gen.aliasCounter = aliasOffset;
+
+        let orderBy = null;
+        if (sortBody != null) {
+            const keys = sortBody.split(",").map(s => s.trim()).filter(Boolean);
+            if (keys.length === 0) return null;
+            const parts = keys.map(k => {
+                const mk = k.match(/^([\w.]+)(?:\s+(asc|desc))?$/i);
+                if (!mk) throw new Error(`Unparseable sort key: "${k}"`);
+                const {column} = gen.resolveField(mk[1]);
+                const dir = mk[2] ? mk[2].toUpperCase() : "ASC";
+                return `${column} ${dir}`;
+            });
+            orderBy = parts.join(", ");
+        }
+
+        let distinct = null;
+        if (distinctBody != null) {
+            const fields = distinctBody.split(",").map(s => s.trim()).filter(Boolean);
+            if (fields.length === 0) return null;
+            const columns = fields.map(f => gen.resolveField(f).column);
+            distinct = {columns, orderBy};
+        }
+
+        return {
+            where: null,
+            params: gen.params,
+            joins: gen.joins,
+            distinct,
+            orderBy,
+            unsupported: false,
+        };
     }
 
     static _parseSubqueryClause(clause) {
