@@ -13,7 +13,9 @@
  * - Boolean literals: true, false
  *
  * Patterns routed to JS fallback (JsFallbackFilterEvaluator):
- * - TRUEPREDICATE DISTINCT(field) — post-hydration deduplication
+ * - TRUEPREDICATE [sort(...)] [Distinct(...)] is translated to SQL (ORDER BY / ROW_NUMBER
+ *   window); only out-of-grammar TRUEPREDICATE forms (unparseable sort keys, reversed
+ *   "Distinct(...) sort(...)" order, extra predicates) fall back to JS.
  * - SUBQUERY(listProp, $var, conds).@count OP N — list sub-filtering
  * - listProp.@count / @size OP N — collection size check
  * - ANY listProp.field OP value — quantifier over list elements
@@ -629,7 +631,7 @@ class SqlGenerator {
 
 const JS_FALLBACK_PATTERNS = [
     /SUBQUERY\s*\(/i,           // SUBQUERY(list, $var, conds).@count OP N
-    /TRUEPREDICATE/i,           // TRUEPREDICATE DISTINCT(field)
+    /TRUEPREDICATE/i,           // first attempted as a SQL sort/distinct translation (see _tryTranslateTruePredicate); falls back only if out-of-grammar
     /@links/i,                  // @links.@count (inverse relationships — not evaluable)
     /@count/i,                  // listProp.@count OP N
     /@size/i,                   // listProp.@size OP N (same as @count)
@@ -759,9 +761,15 @@ class RealmQueryParser {
                 }
             }
 
-            // TRUEPREDICATE [sort(...)] [Distinct(...)] → SQL ORDER BY / window
+            // TRUEPREDICATE [sort(...)] [Distinct(...)] → SQL ORDER BY / window.
+            // Any translation error (out-of-grammar sort key, etc.) degrades to JS fallback.
             if (/^TRUEPREDICATE\b/i.test(trimmed)) {
-                const tpResult = this._tryTranslateTruePredicate(trimmed, args, rootSchemaName, schemaMap, aliasOffset);
+                let tpResult = null;
+                try {
+                    tpResult = this._tryTranslateTruePredicate(trimmed, args, rootSchemaName, schemaMap, aliasOffset);
+                } catch (e) {
+                    tpResult = null;
+                }
                 if (tpResult) {
                     tpResult.limit = limitValue;
                     return tpResult;
@@ -963,6 +971,11 @@ class RealmQueryParser {
         const head = query.match(/^TRUEPREDICATE\b(.*)$/is);
         if (!head) return null;
         let rest = head[1].trim();
+
+        // Spec: sort precedes Distinct. Reversed order is out-of-grammar → JS fallback.
+        const sortPos = rest.search(/sort\s*\(/i);
+        const distinctPos = rest.search(/distinct\s*\(/i);
+        if (sortPos >= 0 && distinctPos >= 0 && distinctPos < sortPos) return null;
 
         let sortBody = null;
         const sortMatch = rest.match(/sort\s*\(([^)]*)\)/i);

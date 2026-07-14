@@ -33,9 +33,9 @@ describe("SqliteResultsProxy fallback filter integration", () => {
         console.warn.mockRestore();
     });
 
-    // ──── Fully unsupported → JS fallback ────
+    // ──── TRUEPREDICATE sort/Distinct → SQL window (not JS fallback) ────
 
-    describe("fully unsupported query → entire filter goes to JS fallback", () => {
+    describe("TRUEPREDICATE sort/Distinct → SQL window (not JS fallback)", () => {
         it("TRUEPREDICATE DISTINCT builds a ROW_NUMBER window (no JS fallback)", () => {
             const rows = [{uuid: "1", entity_name: "Individual"}];
             const executeQuery = jest.fn(() => rows);
@@ -49,7 +49,11 @@ describe("SqliteResultsProxy fallback filter integration", () => {
             expect(sql).toContain('ROW_NUMBER() OVER (PARTITION BY t0."entity_name"');
             expect(sql).toContain("WHERE __rn = 1");
         });
+    });
 
+    // ──── Fully unsupported → JS fallback ────
+
+    describe("fully unsupported query → entire filter goes to JS fallback", () => {
         it("@links.@count returns empty", () => {
             const rows = [{uuid: "1"}, {uuid: "2"}, {uuid: "3"}];
             const executeQuery = jest.fn(() => rows);

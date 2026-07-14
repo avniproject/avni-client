@@ -91,4 +91,10 @@ describe('TRUEPREDICATE sort/Distinct parity on SQLite', () => {
             .filtered('TRUEPREDICATE DISTINCT(programEnrolment.uuid)').count();
         expect(c).toBe(3);
     });
+
+    it('min() over a windowed distinct aggregates the deduped set, not the full table', () => {
+        const latestPerEnrol = proxy.objects('ProgramEncounter')
+            .filtered('TRUEPREDICATE sort(encounterDateTime desc) Distinct(programEnrolment.uuid)');
+        expect(latestPerEnrol.min('encounterDateTime')).toBe(new Date(2024, 5, 3).getTime());
+    });
 });

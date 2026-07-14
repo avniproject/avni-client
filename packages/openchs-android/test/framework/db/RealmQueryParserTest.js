@@ -330,6 +330,18 @@ describe("RealmQueryParser", () => {
             expect(r.unsupported === true || r.partialParse === true).toBe(true);
             expect(r.distinct).toBeFalsy();
         });
+
+        it("malformed sort key degrades to JS fallback instead of throwing", () => {
+            expect(() => RealmQueryParser.parse("TRUEPREDICATE sort(name ascending) Distinct(uuid)", [], "X", new Map())).not.toThrow();
+            const r = RealmQueryParser.parse("TRUEPREDICATE sort(name ascending) Distinct(uuid)", [], "X", new Map());
+            expect(r.distinct).toBeFalsy();
+        });
+
+        it("reversed Distinct(...) sort(...) is not translated (stays on fallback)", () => {
+            const r = RealmQueryParser.parse("TRUEPREDICATE Distinct(entityName) sort(createdDateTime asc)", [], "X", new Map());
+            expect(r.distinct).toBeFalsy();
+            expect(r.orderBy).toBeFalsy();
+        });
     });
 
     describe("object-link properties resolve to FK columns", () => {

@@ -581,7 +581,9 @@ class SqliteResultsProxy {
     max(property) {
         const col = camelToSnake(property);
         const {sql: baseSql, params} = this._buildSql();
-        const sql = baseSql.replace(/^SELECT t0\.\*/, `SELECT MAX(t0."${col}") as max_val`);
+        const sql = this.distinctColumns && this.distinctColumns.length > 0
+            ? `SELECT MAX("${col}") as max_val FROM (${baseSql})`
+            : baseSql.replace(/^SELECT t0\.\*/, `SELECT MAX(t0."${col}") as max_val`);
         const rows = this.executeQuery(sql, params);
         return rows && rows.length > 0 ? rows[0].max_val : undefined;
     }
@@ -589,7 +591,9 @@ class SqliteResultsProxy {
     min(property) {
         const col = camelToSnake(property);
         const {sql: baseSql, params} = this._buildSql();
-        const sql = baseSql.replace(/^SELECT t0\.\*/, `SELECT MIN(t0."${col}") as min_val`);
+        const sql = this.distinctColumns && this.distinctColumns.length > 0
+            ? `SELECT MIN("${col}") as min_val FROM (${baseSql})`
+            : baseSql.replace(/^SELECT t0\.\*/, `SELECT MIN(t0."${col}") as min_val`);
         const rows = this.executeQuery(sql, params);
         return rows && rows.length > 0 ? rows[0].min_val : undefined;
     }
@@ -597,7 +601,9 @@ class SqliteResultsProxy {
     sum(property) {
         const col = camelToSnake(property);
         const {sql: baseSql, params} = this._buildSql();
-        const sql = baseSql.replace(/^SELECT t0\.\*/, `SELECT SUM(t0."${col}") as sum_val`);
+        const sql = this.distinctColumns && this.distinctColumns.length > 0
+            ? `SELECT SUM("${col}") as sum_val FROM (${baseSql})`
+            : baseSql.replace(/^SELECT t0\.\*/, `SELECT SUM(t0."${col}") as sum_val`);
         const rows = this.executeQuery(sql, params);
         return rows && rows.length > 0 ? (rows[0].sum_val || 0) : 0;
     }
