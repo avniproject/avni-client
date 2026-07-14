@@ -78,7 +78,12 @@ describe('TRUEPREDICATE sort/Distinct parity on SQLite', () => {
         const results = proxy.objects('ProgramEncounter').filtered('TRUEPREDICATE DISTINCT(name)');
         expect(results.length).toBe(9); // names are all distinct here
         const enrol = proxy.objects('ProgramEncounter').filtered('TRUEPREDICATE DISTINCT(programEnrolment.uuid)');
-        expect(enrol.length).toBe(3); // one row per enrolment (first inserted encounter)
+        // rowid tie-break must keep the FIRST-inserted encounter per enrolment (j=0)
+        expect(enrol.length).toBe(3);
+        enrol.forEach(enc => {
+            expect(enc.name.endsWith('_0')).toBe(true);
+            expect(enc.encounterDateTime.getTime()).toBe(new Date(2024, 5, 1).getTime());
+        });
     });
 
     it('count() over a windowed distinct returns the deduped count', () => {
