@@ -729,7 +729,7 @@ describe("TRUEPREDICATE window query", () => {
              .getLength();
         const sql = getExecutedSql(executeQuery);
         expect(sql).toContain('ORDER BY t0."created_date_time" ASC)');   // window internal
-        expect(sql.trim()).toMatch(/WHERE __rn = 1 ORDER BY t0\."created_date_time" DESC$/); // outer
+        expect(sql.trim()).toMatch(/WHERE __rn = 1 ORDER BY __ob0 DESC$/); // outer
     });
 
     it("sort-only (no distinct) → plain ORDER BY, no window", () => {

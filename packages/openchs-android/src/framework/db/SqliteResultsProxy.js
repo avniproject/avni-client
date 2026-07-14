@@ -294,6 +294,19 @@ class SqliteResultsProxy {
 
     // ──── Query execution ────
 
+    // Split an ORDER BY fragment ("t0.\"a\" ASC, t2.\"b\" DESC") into [{expr, dir}].
+    // Order expressions here are simple alias."col" refs (no commas inside), so a
+    // top-level comma split is sufficient.
+    _splitOrderTerms(orderBy) {
+        return orderBy.split(",").map(s => s.trim()).filter(Boolean).map(term => {
+            const m = term.match(/\s+(ASC|DESC)$/i);
+            if (m) {
+                return {expr: term.slice(0, m.index).trim(), dir: m[1].toUpperCase()};
+            }
+            return {expr: term, dir: "ASC"};
+        });
+    }
+
     _buildSql() {
         // Windowed DISTINCT: ROW_NUMBER() OVER (PARTITION BY <cols> ORDER BY <sort|rowid>) = 1.
         // The window wraps the fully-accumulated WHERE (distinct applied last — matches the
@@ -301,7 +314,19 @@ class SqliteResultsProxy {
         if (this.distinctColumns && this.distinctColumns.length > 0) {
             const partition = this.distinctColumns.join(", ");
             const windowOrder = this.distinctOrderBy || "t0.rowid";
-            let inner = `SELECT t0.*, ROW_NUMBER() OVER (PARTITION BY ${partition} ORDER BY ${windowOrder}) AS __rn FROM ${this.tableName} AS t0`;
+
+            // The outer query sees only t0.* from the subquery, so an outer ORDER BY
+            // that references t0 or a joined alias must be projected into the subquery
+            // and referenced from the outer scope by a synthetic alias.
+            let extraSelect = "";
+            let outerOrderBy = null;
+            if (this.orderByClause) {
+                const terms = this._splitOrderTerms(this.orderByClause);
+                extraSelect = terms.map((t, i) => `, ${t.expr} AS __ob${i}`).join("");
+                outerOrderBy = terms.map((t, i) => `__ob${i} ${t.dir}`).join(", ");
+            }
+
+            let inner = `SELECT t0.*, ROW_NUMBER() OVER (PARTITION BY ${partition} ORDER BY ${windowOrder}) AS __rn${extraSelect} FROM ${this.tableName} AS t0`;
             for (const join of this.joinClauses) {
                 inner += ` LEFT JOIN ${join.table} AS ${join.alias} ON ${join.on}`;
             }
@@ -309,8 +334,8 @@ class SqliteResultsProxy {
                 inner += ` WHERE ${this.whereClauses.join(" AND ")}`;
             }
             let sql = `SELECT * FROM (${inner}) WHERE __rn = 1`;
-            if (this.orderByClause) {
-                sql += ` ORDER BY ${this.orderByClause}`;
+            if (outerOrderBy) {
+                sql += ` ORDER BY ${outerOrderBy}`;
             }
             if (this.limitClause != null && this.jsFallbackFilters.length === 0) {
                 sql += ` LIMIT ${this.limitClause}`;
