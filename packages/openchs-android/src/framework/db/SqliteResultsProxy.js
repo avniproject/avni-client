@@ -68,6 +68,8 @@ class SqliteResultsProxy {
                     whereParams = [],
                     joinClauses = [],
                     orderByClause = null,
+                    distinctColumns = null,
+                    distinctOrderBy = null,
                     jsFallbackFilters = [],
                     limitClause = null,
                     hydrationOptions = null,
@@ -85,6 +87,8 @@ class SqliteResultsProxy {
         this.whereParams = [...whereParams];
         this.joinClauses = [...joinClauses];
         this.orderByClause = orderByClause;
+        this.distinctColumns = distinctColumns;
+        this.distinctOrderBy = distinctOrderBy;
         this.jsFallbackFilters = [...jsFallbackFilters];
         this.limitClause = limitClause;
         // Hydration options: {skipLists, depth} — default is full hydration
@@ -138,6 +142,8 @@ class SqliteResultsProxy {
             whereParams: [...this.whereParams],
             joinClauses: [...this.joinClauses],
             orderByClause: this.orderByClause,
+            distinctColumns: this.distinctColumns,
+            distinctOrderBy: this.distinctOrderBy,
             jsFallbackFilters: [...this.jsFallbackFilters],
             limitClause: this.limitClause,
             hydrationOptions: options,
@@ -163,6 +169,8 @@ class SqliteResultsProxy {
             whereParams: [...this.whereParams],
             joinClauses: [...this.joinClauses],
             orderByClause: this.orderByClause,
+            distinctColumns: this.distinctColumns,
+            distinctOrderBy: this.distinctOrderBy,
             jsFallbackFilters: [...this.jsFallbackFilters],
             limitClause: this.limitClause,
             hydrationOptions: this.hydrationOptions,
@@ -181,6 +189,13 @@ class SqliteResultsProxy {
                 parseResult.joins.forEach(j => {
                     newParams.joinClauses.push(j);
                 });
+            }
+            if (parseResult.distinct) {
+                newParams.distinctColumns = parseResult.distinct.columns;
+                newParams.distinctOrderBy = parseResult.distinct.orderBy;
+            }
+            if (parseResult.orderBy) {
+                newParams.orderByClause = parseResult.orderBy;
             }
             // Capture clauses that partial parse couldn't translate — route to JS fallback
             if (parseResult.partialParse && parseResult.skippedClauses?.length > 0) {
@@ -268,6 +283,8 @@ class SqliteResultsProxy {
             whereParams: [...this.whereParams],
             joinClauses: [...this.joinClauses, ...extraJoins],
             orderByClause: orderBy,
+            distinctColumns: this.distinctColumns,
+            distinctOrderBy: this.distinctOrderBy,
             jsFallbackFilters: [...this.jsFallbackFilters],
             limitClause: this.limitClause,
             hydrationOptions: this.hydrationOptions,
@@ -278,35 +295,45 @@ class SqliteResultsProxy {
     // ──── Query execution ────
 
     _buildSql() {
+        // Windowed DISTINCT: ROW_NUMBER() OVER (PARTITION BY <cols> ORDER BY <sort|rowid>) = 1.
+        // The window wraps the fully-accumulated WHERE (distinct applied last — matches the
+        // prior JS fallback), so filters added after the distinct still narrow rows first.
+        if (this.distinctColumns && this.distinctColumns.length > 0) {
+            const partition = this.distinctColumns.join(", ");
+            const windowOrder = this.distinctOrderBy || "t0.rowid";
+            let inner = `SELECT t0.*, ROW_NUMBER() OVER (PARTITION BY ${partition} ORDER BY ${windowOrder}) AS __rn FROM ${this.tableName} AS t0`;
+            for (const join of this.joinClauses) {
+                inner += ` LEFT JOIN ${join.table} AS ${join.alias} ON ${join.on}`;
+            }
+            if (this.whereClauses.length > 0) {
+                inner += ` WHERE ${this.whereClauses.join(" AND ")}`;
+            }
+            let sql = `SELECT * FROM (${inner}) WHERE __rn = 1`;
+            if (this.orderByClause) {
+                sql += ` ORDER BY ${this.orderByClause}`;
+            }
+            if (this.limitClause != null && this.jsFallbackFilters.length === 0) {
+                sql += ` LIMIT ${this.limitClause}`;
+            }
+            return {sql, params: this.whereParams};
+        }
+
         // Use DISTINCT when JOINs are present to avoid duplicate parent rows.
-        // In Realm, .filtered() on an object type always returns unique objects.
-        // With SQL JOINs, a parent with multiple matching children would appear
-        // multiple times without DISTINCT.
         const distinct = this.joinClauses.length > 0 ? "DISTINCT " : "";
         let sql = `SELECT ${distinct}t0.* FROM ${this.tableName} AS t0`;
 
-        // JOINs
         for (const join of this.joinClauses) {
             sql += ` LEFT JOIN ${join.table} AS ${join.alias} ON ${join.on}`;
         }
-
-        // WHERE
         if (this.whereClauses.length > 0) {
             sql += ` WHERE ${this.whereClauses.join(" AND ")}`;
         }
-
-        // ORDER BY
         if (this.orderByClause) {
             sql += ` ORDER BY ${this.orderByClause}`;
         }
-
-        // LIMIT — only when there are no JS fallback filters.
-        // If JS fallbacks exist, they may further reduce results,
-        // and the LIMIT should apply to the final set (Realm semantics).
         if (this.limitClause != null && this.jsFallbackFilters.length === 0) {
             sql += ` LIMIT ${this.limitClause}`;
         }
-
         return {sql, params: this.whereParams};
     }
 

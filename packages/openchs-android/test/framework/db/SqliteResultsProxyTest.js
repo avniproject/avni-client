@@ -705,3 +705,38 @@ describe("SqliteResultsProxy — supported query types", () => {
         });
     });
 });
+
+describe("TRUEPREDICATE window query", () => {
+    it("bare DISTINCT → ROW_NUMBER partition ordered by rowid", () => {
+        const {proxy, executeQuery} = createProxy({schemaName: "EntitySyncStatus", tableName: "entity_sync_status"});
+        proxy.filtered("TRUEPREDICATE DISTINCT(entityName)").getLength();
+        const sql = getExecutedSql(executeQuery);
+        expect(sql).toContain('ROW_NUMBER() OVER (PARTITION BY t0."entity_name" ORDER BY t0.rowid)');
+        expect(sql).toContain("WHERE __rn = 1");
+    });
+
+    it("WHERE before distinct is inside the window; distinct applies over it", () => {
+        const {proxy, executeQuery} = createProxy({schemaName: "AddressLevel", tableName: "address_level"});
+        proxy.filtered("voided = false").filtered("TRUEPREDICATE DISTINCT(typeUuid)").getLength();
+        const sql = getExecutedSql(executeQuery);
+        expect(sql).toMatch(/WHERE t0\."voided" = \?\)\s*WHERE __rn = 1/);
+    });
+
+    it("inline sort drives partition order; later .sorted() is the outer ORDER BY", () => {
+        const {proxy, executeQuery} = createProxy({schemaName: "Comment", tableName: "comment"});
+        proxy.filtered("TRUEPREDICATE sort(createdDateTime asc) Distinct(commentThread.uuid)")
+             .sorted("createdDateTime", true)
+             .getLength();
+        const sql = getExecutedSql(executeQuery);
+        expect(sql).toContain('ORDER BY t0."created_date_time" ASC)');   // window internal
+        expect(sql.trim()).toMatch(/WHERE __rn = 1 ORDER BY t0\."created_date_time" DESC$/); // outer
+    });
+
+    it("sort-only (no distinct) → plain ORDER BY, no window", () => {
+        const {proxy, executeQuery} = createProxy();
+        proxy.filtered("TRUEPREDICATE sort(encounterDateTime desc)").getLength();
+        const sql = getExecutedSql(executeQuery);
+        expect(sql).not.toContain("ROW_NUMBER");
+        expect(sql).toContain('ORDER BY t0."encounter_date_time" DESC');
+    });
+});
