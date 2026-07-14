@@ -223,7 +223,7 @@ class IndividualEncounterView extends AbstractComponent {
                     </View>
                     </ScrollView>
                 </CHSContent>
-                <CustomActivityIndicator loading={this.state.wizardCompletionInProgress}/>
+                <CustomActivityIndicator loading={!!this.state.wizardCompletionInProgress}/>
             </CHSContainer>
         );
     }
