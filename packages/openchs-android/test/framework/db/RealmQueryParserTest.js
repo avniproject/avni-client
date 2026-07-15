@@ -707,6 +707,22 @@ describe("RealmQueryParser", () => {
                 '(SELECT "program_enrolment_uuid" FROM program_encounter WHERE "encounter_date_time" IS NULL))');
         });
 
+        it("C: multi-hop @count comparison (>= 2) stays on JS fallback (not miscorrelated SQL)", () => {
+            const sm = new Map();
+            sm.set("Individual", {name: "Individual", primaryKey: "uuid", properties: {
+                uuid: "string", enrolments: {type: "list", objectType: "ProgramEnrolment"}}});
+            sm.set("ProgramEnrolment", {name: "ProgramEnrolment", primaryKey: "uuid", properties: {
+                uuid: "string", individual: {type: "object", objectType: "Individual"},
+                encounters: {type: "list", objectType: "ProgramEncounter"}}});
+            sm.set("ProgramEncounter", {name: "ProgramEncounter", primaryKey: "uuid", properties: {
+                uuid: "string", encounterDateTime: "date",
+                programEnrolment: {type: "object", objectType: "ProgramEnrolment"}}});
+            const r = RealmQueryParser.parse(
+                "SUBQUERY(enrolments.encounters, $enc, $enc.encounterDateTime = null).@count >= 2",
+                [], "Individual", sm);
+            expect(r.unsupported).toBe(true); // falls back, not miscorrelated SQL
+        });
+
         it("C: object→list path (programEnrolment.encounters) with @count == 0 → NOT IN", () => {
             const sm = new Map();
             sm.set("ProgramEncounter", {name: "ProgramEncounter", primaryKey: "uuid", properties: {

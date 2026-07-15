@@ -980,8 +980,10 @@ class RealmQueryParser {
         } else if ((operator === "=" && count === 0) || (operator === "<" && count === 1)) {
             where = `${outerCol} NOT IN (${childSelect})`;
         } else {
-            const op = operator === "==" ? "=" : operator;
-            where = `(SELECT COUNT(*) FROM (${childSelect}) WHERE 1=1) ${op} ${count}`;
+            // Multi-hop @count comparisons (>= 2, == 3, …) can't be correlated to t0 through the
+            // nested IN chain, so we can't emit correct SQL — fall back to the JS evaluator
+            // (JsFallbackFilterEvaluator._applySubqueryCount counts per entity). See #1978 review.
+            return null;
         }
         return {where, params, joins: []};
     }
