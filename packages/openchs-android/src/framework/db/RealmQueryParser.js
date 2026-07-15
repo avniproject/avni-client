@@ -1034,7 +1034,7 @@ class RealmQueryParser {
             if (emb) return emb;
             const nested = this._tryTranslateSubqueryToIn(trimmed, childSchemaName, schemaMap, args, 1);
             if (!nested) return null;
-            return {where: nested.where.replace(/t0\."uuid"/g, '"uuid"'), params: nested.params};
+            return {where: nested.where.replace(/t0\./g, ""), params: nested.params};
         }
 
         // FK dot-ref: refProp.field OP (quoted | $N | number)
@@ -1048,7 +1048,11 @@ class RealmQueryParser {
                 const sqlOp = op === "==" ? "=" : op;
                 let val;
                 if (dotMatch[5] !== undefined) val = dotMatch[5];
-                else if (dotMatch[6] !== undefined) val = args[parseInt(dotMatch[6].slice(1), 10)];
+                else if (dotMatch[6] !== undefined) {
+                    const raw = args[parseInt(dotMatch[6].slice(1), 10)];
+                    val = raw instanceof Date ? raw.getTime()
+                        : (raw && typeof raw === "object" && raw.uuid) ? raw.uuid : raw;
+                }
                 else val = Number(dotMatch[7]);
                 const neg = sqlOp === "!=" || sqlOp === "<>" ? "NOT " : "";
                 return {

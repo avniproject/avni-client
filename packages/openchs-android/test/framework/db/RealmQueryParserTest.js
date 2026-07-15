@@ -751,5 +751,24 @@ describe("RealmQueryParser", () => {
             expect(r.unsupported).toBe(false);
             expect(r.where).toContain('json_each("observations")');
         });
+
+        it("nested object-hop list-path does not leak the outer t0 alias", () => {
+            const sm = new Map();
+            sm.set("A", {name: "A", primaryKey: "uuid", properties: {
+                uuid: "string", bs: {type: "list", objectType: "B"}}});
+            sm.set("B", {name: "B", primaryKey: "uuid", properties: {
+                uuid: "string", a: {type: "object", objectType: "A"},
+                c: {type: "object", objectType: "C"}}});
+            sm.set("C", {name: "C", primaryKey: "uuid", properties: {
+                uuid: "string", ds: {type: "list", objectType: "D"}}});
+            sm.set("D", {name: "D", primaryKey: "uuid", properties: {
+                uuid: "string", x: "date", c: {type: "object", objectType: "C"}}});
+            const q = "SUBQUERY(bs, $b, SUBQUERY($b.c.ds, $d, $d.x = null).@count > 0).@count > 0";
+            const r = RealmQueryParser.parse(q, [], "A", sm);
+            expect(r.unsupported).toBe(false);
+            // The nested subquery's inner condition must reference the bare child FK, not t0.
+            const innerIn = r.where.slice(r.where.indexOf("IN (") + 4);
+            expect(innerIn).not.toContain("t0.");
+        });
     });
 });
