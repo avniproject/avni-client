@@ -87,8 +87,8 @@ class DevSettingsView extends AbstractComponent {
         this.setState((prev) => ({p2pLogs: [...(prev.p2pLogs || []), `${moment().format('HH:mm:ss')} ${message}`].slice(-15)}));
     }
 
-    p2pDetectHubIp() {
-        P2PSpike.detectHubIp((m) => this.p2pLog(m)).then((hubIp) => {
+    p2pFindHub() {
+        P2PSpike.scanForHub((m) => this.p2pLog(m)).then((hubIp) => {
             if (hubIp) this.setState({p2pHost: hubIp});
         });
     }
@@ -117,7 +117,7 @@ class DevSettingsView extends AbstractComponent {
                 <TextInput value={host} placeholder='192.168.x.1' keyboardType='numeric'
                            onChangeText={(text) => this.setState({p2pHost: text})}/>
             </View>
-            {this.renderP2PButton('Detect Hub IP', () => this.p2pDetectHubIp())}
+            {this.renderP2PButton('Find Hub (scan subnet)', () => this.p2pFindHub())}
             {this.renderP2PButton('Ping Hub', () => P2PSpike.ping(host, log))}
             {this.renderP2PButton('Send 2MB Payload', () => P2PSpike.sendTestPayload(host, 2, log))}
             <View style={{marginTop: 8, backgroundColor: '#f0f0f0', padding: 8}}>

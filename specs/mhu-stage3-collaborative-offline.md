@@ -314,3 +314,46 @@ One thing to check early in the B spike because it's the likeliest failure point
 virtual table, bypassing the app layer — so anything Avni computes on write (derived fields, rule side-effects) needs to be either
 recomputed after merge or confirmed to live entirely in columns that sync. Worth adding to spike 3's checklist.
 
+
+## T1-lite spike results (2026-07-15, Galaxy F41 hub / Galaxy S24 spoke, staging build)
+
+**PASSED (happy path):** ping/pong and 2MB payload over F41 hotspot, no internet.
+Byte count exact (2,097,152) on both sides — NDJSON framing survived multi-MB
+transfer. Laptop as third client on same hotspot also connected to hub:7373.
+
+Field-relevant findings (all Samsung):
+
+1. **Hotspot gateway is NOT reliably `.1`** — F41 assigned itself 10.101.177.249.
+   The `.1` heuristic fails; discovery must be dynamic (subnet port-scan for spike,
+   mDNS/NSD or Nearby for production).
+2. **Mobile data breaks app sockets to the hotspot.** With a SIM active, Android
+   keeps cellular as the default network (hotspot fails internet validation), so app
+   sockets route via cellular and get "host unreachable" — while shell ping works.
+   Fix: bind client sockets to the wifi network (`interface: 'wifi'` in
+   react-native-tcp-socket; `WifiNetworkSpecifier` in production). Field devices
+   always have SIMs — this is mandatory, not optional.
+3. **"No internet" Wi-Fi fallback:** Samsung prompts "Keep connection?" on joining
+   the hotspot and may silently drop back to mobile data. Operator guidance or
+   WifiNetworkSpecifier (app-scoped connection, exempt from fallback) required.
+4. **Dev-loop note:** Metro Fast Refresh orphans the native TCP listener (JS
+   singleton resets, native socket stays bound) — restart app after edits. Not a
+   field concern.
+
+5. **Screen-off endurance: PASSED at 10 minutes** — hub (F41) answered ping after
+   10 min with screen off. Longer durations (2h+ clinic session) still worth a pass
+   later; a foreground service remains the production hardening.
+
+Fixes applied post-test: `interface: 'wifi'` on client sockets — **validated**:
+pong received both fully offline (all SIM data off) and with mobile data ON on the
+spoke. T1-lite verdict: **TRANSPORT GATE PASSED**. Remaining for production, not
+spike: hub discovery (NSD/zeroconf or UDP beacon — see finding 6), automated
+hotspot join (WifiNetworkSpecifier), foreground service for multi-hour endurance.
+Next spike: Design B gate — cr-sqlite build (`"crsqlite": true` in the op-sqlite
+package.json block, verified available in op-sqlite 11.3.0's gradle).
+
+6. **Subnet port-scan discovery is NOT viable with react-native-tcp-socket** — its
+   native module serializes all connects through a 2-thread pool with no connect
+   timeout, so parallel probing stalls behind dead-host connects. Discovery needs
+   NSD/mDNS (react-native-zeroconf) or a UDP broadcast beacon (react-native-udp);
+   manual IP entry is the spike fallback. `interface: 'wifi'` binding works fine
+   for individual connections.

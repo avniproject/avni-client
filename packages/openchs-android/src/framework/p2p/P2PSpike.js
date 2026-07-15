@@ -4,6 +4,8 @@ import NetInfo from '@react-native-community/netinfo';
 const PORT = 7373;
 const CHUNK_SIZE = 64 * 1024;
 
+const errStr = (error) => (error && error.message) || JSON.stringify(error);
+
 // T1-lite transport spike: NDJSON over TCP between two devices on a phone hotspot.
 class P2PSpike {
     constructor() {
@@ -31,9 +33,9 @@ class P2PSpike {
                     if (line.length > 0) this._onHubMessage(JSON.parse(line), socket, session, log);
                 }
             });
-            socket.on('error', (error) => log(`Socket error: ${error.message}`));
+            socket.on('error', (error) => log(`Socket error: ${errStr(error)}`));
         });
-        this.server.on('error', (error) => log(`Hub error: ${error.message}`));
+        this.server.on('error', (error) => log(`Hub error: ${errStr(error)}`));
         this.server.listen({port: PORT, host: '0.0.0.0'}, () => log(`Hub listening on :${PORT}`));
     }
 
@@ -67,16 +69,51 @@ class P2PSpike {
         }
     }
 
-    detectHubIp(log) {
-        return NetInfo.fetch().then((state) => {
+    scanForHub(log) {
+        return NetInfo.fetch('wifi').then((state) => {
             const ip = state.details && state.details.ipAddress;
-            if (state.type === 'wifi' && ip) {
-                const hubIp = ip.replace(/\.\d+$/, '.1');
-                log(`My IP ${ip}, hub likely at ${hubIp}`);
-                return hubIp;
+            if (!(state.isConnected && ip)) {
+                log(`Wifi not connected — join the hub's hotspot first (mobile data can stay on)`);
+                return null;
             }
-            log(`Not on wifi (type=${state.type}) — join the hub's hotspot first`);
-            return null;
+            const base = ip.substring(0, ip.lastIndexOf('.'));
+            log(`My IP ${ip}, scanning ${base}.* for hub on :${PORT}...`);
+            const startedAt = Date.now();
+            const candidates = [];
+            for (let i = 1; i <= 254; i++) {
+                const candidate = `${base}.${i}`;
+                if (candidate !== ip) candidates.push(candidate);
+            }
+            return this._probeBatches(candidates, 0).then((found) => {
+                log(found ? `Hub found at ${found} (${Date.now() - startedAt}ms)` : 'No hub found on subnet — is Start Hub running?');
+                return found;
+            });
+        });
+    }
+
+    _probeBatches(hosts, offset) {
+        if (offset >= hosts.length) return Promise.resolve(null);
+        const batch = hosts.slice(offset, offset + 32).map((host) => this._probe(host));
+        return Promise.all(batch).then((results) => results.find((r) => r !== null) || this._probeBatches(hosts, offset + 32));
+    }
+
+    _probe(host) {
+        return new Promise((resolve) => {
+            const socket = TcpSocket.createConnection({port: PORT, host: host, interface: 'wifi'}, () => {});
+            const timer = setTimeout(() => {
+                socket.destroy();
+                resolve(null);
+            }, 700);
+            socket.on('connect', () => {
+                clearTimeout(timer);
+                socket.destroy();
+                resolve(host);
+            });
+            socket.on('error', () => {
+                clearTimeout(timer);
+                socket.destroy();
+                resolve(null);
+            });
         });
     }
 
@@ -115,7 +152,9 @@ class P2PSpike {
     }
 
     _connect(host, log, onMessage) {
-        const socket = TcpSocket.createConnection({port: PORT, host: host}, () => {});
+        // interface:'wifi' binds to the wifi network — without it, an active SIM makes
+        // Android route app sockets via cellular and the hotspot subnet is unreachable.
+        const socket = TcpSocket.createConnection({port: PORT, host: host, interface: 'wifi'}, () => {});
         let buffer = '';
         socket.on('data', (data) => {
             buffer += data.toString();
@@ -126,7 +165,7 @@ class P2PSpike {
                 if (line.length > 0) onMessage(JSON.parse(line));
             }
         });
-        socket.on('error', (error) => log(`Connection error: ${error.message}`));
+        socket.on('error', (error) => log(`Connection error: ${errStr(error)}`));
         return socket;
     }
 }
