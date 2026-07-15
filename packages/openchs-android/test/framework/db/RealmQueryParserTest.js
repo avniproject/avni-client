@@ -658,5 +658,16 @@ describe("RealmQueryParser", () => {
             expect(r.unsupported).toBe(false);
             expect(r.where).toMatch(/"program_exit_date_time" IS NULL/);
         });
+
+        it("guard also fires for unknown field inside && / || / NOT compounds", () => {
+            for (const q of [
+                "SUBQUERY(enrolments, $e, nonExistentField = false && voided = true).@count > 0",
+                "SUBQUERY(enrolments, $e, nonExistentField = false || voided = true).@count > 0",
+                "SUBQUERY(enrolments, $e, NOT (nonExistentField = false)).@count > 0",
+            ]) {
+                const r = RealmQueryParser.parse(q, [], "Individual", schemaMap);
+                expect(r.unsupported).toBe(true);
+            }
+        });
     });
 });

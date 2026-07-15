@@ -951,7 +951,7 @@ class RealmQueryParser {
         if (/^SUBQUERY\s*\(/i.test(trimmed)) {
             const emb = this._tryTranslateChildEmbeddedSubquery(trimmed, childSchemaName, schemaMap);
             if (emb) return emb;
-            const nested = this._tryTranslateSubqueryToIn(trimmed, childSchemaName, schemaMap, args);
+            const nested = this._tryTranslateSubqueryToIn(trimmed, childSchemaName, schemaMap, args, 1);
             if (!nested) return null;
             return {where: nested.where.replace(/t0\."uuid"/g, '"uuid"'), params: nested.params};
         }
@@ -981,17 +981,35 @@ class RealmQueryParser {
         // Scalar condition on the child.
         try {
             const ast = new Parser(tokenize(trimmed)).parse();
-            // Child-scoping guard: a simple field must be a real property of the child.
-            if (ast.type === "COMPARISON" || ast.type === "STRING_OP" || ast.type === "IN") {
-                const root = String(ast.field).split(".")[0];
-                if (childSchema && !(root in childSchema.properties)) return null;
-            }
+            // Child-scoping guard: every field in the (possibly compound) condition must be
+            // a real property of the child schema, else fall back rather than emit a bad column.
+            if (childSchema && !this._refLeafFieldsValid(ast, childSchema)) return null;
             const gen = new SqlGenerator(schemaMap, childSchemaName, args);
             const result = gen.generate(ast);
             if (result.joins && result.joins.length > 0) return null; // JOIN can't live in a bare subquery
             return {where: result.where.replace(/t0\./g, ""), params: result.params};
         } catch (e) {
             return null;
+        }
+    }
+
+    // Recursively verify every comparison field's root property exists on the child schema.
+    static _refLeafFieldsValid(node, childSchema) {
+        if (!node || typeof node !== "object") return true;
+        switch (node.type) {
+            case "AND":
+            case "OR":
+                return this._refLeafFieldsValid(node.left, childSchema) && this._refLeafFieldsValid(node.right, childSchema);
+            case "NOT":
+                return this._refLeafFieldsValid(node.expr, childSchema);
+            case "COMPARISON":
+            case "STRING_OP":
+            case "IN": {
+                const root = String(node.field).split(".")[0];
+                return root in childSchema.properties;
+            }
+            default:
+                return true;
         }
     }
 
