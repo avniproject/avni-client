@@ -1312,13 +1312,15 @@ class RealmQueryParser {
             if (ch === '(') { depth++; current += ch; }
             else if (ch === ')') { depth--; current += ch; }
             else if (depth === 0) {
-                // Check for " AND " or " OR " (with word boundaries)
-                const ahead = expr.substring(i, i + opLen + 2).toUpperCase();
-                if (ahead.startsWith(' ' + opUpper + ' ') || ahead.startsWith(' ' + opUpper.toLowerCase() + ' ')) {
+                // Word-boundary AND/OR delimited by any whitespace (space, newline, tab).
+                const prevWs = i === 0 || /\s/.test(expr[i - 1]);
+                const afterCh = expr[i + opLen];
+                const nextWs = afterCh === undefined || /\s/.test(afterCh);
+                if (prevWs && nextWs && expr.substr(i, opLen).toUpperCase() === opUpper) {
                     const before = current.trim();
                     if (before) parts.push(before);
                     current = '';
-                    i += opLen + 1; // skip past " OP "
+                    i += opLen - 1; // advance past the operator (loop's i++ consumes one more)
                     continue;
                 }
                 current += ch;

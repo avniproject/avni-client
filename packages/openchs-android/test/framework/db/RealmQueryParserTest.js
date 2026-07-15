@@ -738,5 +738,18 @@ describe("RealmQueryParser", () => {
             expect(r.unsupported).toBe(false);
             expect(r.where).toContain('t0."program_enrolment_uuid" NOT IN (SELECT "uuid" FROM program_enrolment WHERE "uuid" IN (SELECT "program_enrolment_uuid" FROM program_encounter WHERE "encounter_date_time" IS NOT NULL))');
         });
+
+        it("splits AND/OR across newlines (real rule formatting) — nested embedded still translates", () => {
+            const sm = new Map();
+            sm.set("Individual", {name: "Individual", primaryKey: "uuid", properties: {
+                uuid: "string", encounters: {type: "list", objectType: "Encounter"}}});
+            sm.set("Encounter", {name: "Encounter", primaryKey: "uuid", properties: {
+                uuid: "string", name: "string", individual: {type: "object", objectType: "Individual"},
+                observations: {type: "list", objectType: "Observation"}}});
+            const q = 'SUBQUERY(encounters, $e,\n  $e.name == "Delivery" and\n  SUBQUERY(observations, $o, $o.concept.uuid == "x").@count > 0\n).@count > 0';
+            const r = RealmQueryParser.parse(q, [], "Individual", sm);
+            expect(r.unsupported).toBe(false);
+            expect(r.where).toContain('json_each("observations")');
+        });
     });
 });
