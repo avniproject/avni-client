@@ -687,5 +687,40 @@ describe("RealmQueryParser", () => {
             expect(r.where).toContain("json_extract(jobs.value, '$.concept.uuid') = ?");
             expect(r.where).not.toContain('t0."program_exit_observations"'); // bare, not t0-scoped
         });
+
+        it("C: list→list path (enrolments.encounters) → nested IN", () => {
+            const sm = new Map(schemaMap);
+            sm.set("ProgramEnrolment", {name: "ProgramEnrolment", primaryKey: "uuid", properties: {
+                uuid: "string", individual: {type: "object", objectType: "Individual"},
+                encounters: {type: "list", objectType: "ProgramEncounter"},
+            }});
+            sm.set("ProgramEncounter", {name: "ProgramEncounter", primaryKey: "uuid", properties: {
+                uuid: "string", encounterDateTime: "date",
+                programEnrolment: {type: "object", objectType: "ProgramEnrolment"},
+            }});
+            const r = RealmQueryParser.parse(
+                "SUBQUERY(enrolments.encounters, $enc, $enc.encounterDateTime = null).@count > 0",
+                [], "Individual", sm);
+            expect(r.unsupported).toBe(false);
+            expect(r.where).toBe(
+                't0."uuid" IN (SELECT "individual_uuid" FROM program_enrolment WHERE "uuid" IN ' +
+                '(SELECT "program_enrolment_uuid" FROM program_encounter WHERE "encounter_date_time" IS NULL))');
+        });
+
+        it("C: object→list path (programEnrolment.encounters) with @count == 0 → NOT IN", () => {
+            const sm = new Map();
+            sm.set("ProgramEncounter", {name: "ProgramEncounter", primaryKey: "uuid", properties: {
+                uuid: "string", encounterDateTime: "date",
+                programEnrolment: {type: "object", objectType: "ProgramEnrolment"},
+            }});
+            sm.set("ProgramEnrolment", {name: "ProgramEnrolment", primaryKey: "uuid", properties: {
+                uuid: "string", encounters: {type: "list", objectType: "ProgramEncounter"},
+            }});
+            const r = RealmQueryParser.parse(
+                "SUBQUERY(programEnrolment.encounters, $enc, $enc.encounterDateTime != null).@count == 0",
+                [], "ProgramEncounter", sm);
+            expect(r.unsupported).toBe(false);
+            expect(r.where).toContain('t0."program_enrolment_uuid" NOT IN (SELECT "uuid" FROM program_enrolment WHERE "uuid" IN (SELECT "program_enrolment_uuid" FROM program_encounter WHERE "encounter_date_time" IS NOT NULL))');
+        });
     });
 });

@@ -870,6 +870,10 @@ class RealmQueryParser {
         const rootSchema = schemaMap.get(rootSchemaName);
         if (!rootSchema) return null;
 
+        if (listProp.includes(".")) {
+            return this._translateSubqueryListPath(rootSchemaName, listProp, conditions, varName, operator, count, schemaMap, args);
+        }
+
         const propDef = rootSchema.properties[listProp];
         if (!propDef || (typeof propDef === 'object' ? propDef.type : null) !== 'list') return null;
 
@@ -910,6 +914,75 @@ class RealmQueryParser {
             where = `(SELECT COUNT(*) FROM ${childTableName} WHERE "${fkColumn}" = t0."uuid" AND ${innerWhere}) ${op} ${count}`;
         }
 
+        return {where, params, joins: []};
+    }
+
+    // FK column on childSchema's table that references parentSchema (list back-reference).
+    static _childFkColumn(parentSchemaName, childSchemaName, schemaMap) {
+        const childSchema = schemaMap.get(childSchemaName);
+        if (childSchema) {
+            for (const [propName, pd] of Object.entries(childSchema.properties || {})) {
+                if (typeof pd === "object" && pd.type === "object" && pd.objectType === parentSchemaName) {
+                    return `${camelToSnake(propName)}_uuid`;
+                }
+            }
+        }
+        return `${camelToSnake(parentSchemaName)}_uuid`;
+    }
+
+    /**
+     * Translate SUBQUERY(<a.b[.c]>, $v, conds).@count OP N — a dotted list/object path —
+     * into a nested IN chain. Each hop is resolved by schema type: a list hop links via the
+     * child's back-FK; an object hop links via the parent's <prop>_uuid.
+     */
+    static _translateSubqueryListPath(rootSchemaName, pathStr, conditions, varName, operator, count, schemaMap, args) {
+        const parts = pathStr.split(".");
+        let cur = rootSchemaName;
+        const hops = [];
+        for (const prop of parts) {
+            const s = schemaMap.get(cur);
+            if (!s) return null;
+            const pd = s.properties[prop];
+            if (!pd || typeof pd !== "object" || (pd.type !== "list" && pd.type !== "object")) return null;
+            const target = pd.objectType;
+            if (!target || EMBEDDED_SCHEMA_NAMES.has(target)) return null;
+            hops.push({fromSchema: cur, prop, kind: pd.type, targetSchema: target});
+            cur = target;
+        }
+        const leafSchema = cur;
+
+        const varPrefix = varName.replace("$", "\\$") + "\\.";
+        const stripped = conditions.replace(new RegExp(varPrefix, "g"), "");
+        const translated = this._translateRefListExpr(stripped, leafSchema, schemaMap, args);
+        if (!translated) return null;
+        const params = translated.params;
+
+        // Build inner-to-outer: at each hop produce a SELECT yielding the parent-identifying key.
+        // list hop:   SELECT <backFk> FROM <target> WHERE <inner|uuid IN childSelect>
+        // object hop: SELECT "uuid"   FROM <target> WHERE <inner|uuid IN childSelect>
+        let childSelect = null;
+        for (let i = hops.length - 1; i >= 0; i--) {
+            const hop = hops[i];
+            const table = schemaNameToTableName(hop.targetSchema);
+            const cond = childSelect ? `"uuid" IN (${childSelect})` : translated.where;
+            if (hop.kind === "list") {
+                const backFk = this._childFkColumn(hop.fromSchema, hop.targetSchema, schemaMap);
+                childSelect = `SELECT "${backFk}" FROM ${table} WHERE ${cond}`;
+            } else {
+                childSelect = `SELECT "uuid" FROM ${table} WHERE ${cond}`;
+            }
+        }
+        const outerCol = hops[0].kind === "list" ? 't0."uuid"' : `t0."${camelToSnake(hops[0].prop)}_uuid"`;
+
+        let where;
+        if ((operator === ">" && count === 0) || (operator === ">=" && count === 1) || (operator === "!=" && count === 0)) {
+            where = `${outerCol} IN (${childSelect})`;
+        } else if ((operator === "=" && count === 0) || (operator === "<" && count === 1)) {
+            where = `${outerCol} NOT IN (${childSelect})`;
+        } else {
+            const op = operator === "==" ? "=" : operator;
+            where = `(SELECT COUNT(*) FROM (${childSelect}) WHERE 1=1) ${op} ${count}`;
+        }
         return {where, params, joins: []};
     }
 
