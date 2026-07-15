@@ -24,6 +24,7 @@ import {MyDashboardActionNames} from "../../action/mydashboard/MyDashboardAction
 import CustomDashboardCacheService from "../../service/CustomDashboardCacheService";
 import PerformanceBenchmarkService from "../../service/PerformanceBenchmarkService";
 import P2PSpike from "../../framework/p2p/P2PSpike";
+import CrSqliteProbe from "../../framework/p2p/CrSqliteProbe";
 
 @Path('/devSettingsView')
 class DevSettingsView extends AbstractComponent {
@@ -120,6 +121,7 @@ class DevSettingsView extends AbstractComponent {
             {this.renderP2PButton('Find Hub (scan subnet)', () => this.p2pFindHub())}
             {this.renderP2PButton('Ping Hub', () => P2PSpike.ping(host, log))}
             {this.renderP2PButton('Send 2MB Payload', () => P2PSpike.sendTestPayload(host, 2, log))}
+            {this.renderP2PButton('CR-SQLite Probe (Design B gate)', () => CrSqliteProbe.run(log))}
             <View style={{marginTop: 8, backgroundColor: '#f0f0f0', padding: 8}}>
                 {(this.state.p2pLogs || []).map((line, index) =>
                     <Text key={index} style={{fontSize: Fonts.Small, fontFamily: 'monospace'}}>{line}</Text>)}

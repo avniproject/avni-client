@@ -55,7 +55,8 @@
   },
   "license": "AGPL-3.0",
   "op-sqlite": {
-    "sqlcipher": true
+    "sqlcipher": true,
+    "crsqlite": true
   },
   "scripts": {
     "start": "npx react-native start",

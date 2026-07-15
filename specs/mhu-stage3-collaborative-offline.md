@@ -357,3 +357,16 @@ package.json block, verified available in op-sqlite 11.3.0's gradle).
    NSD/mDNS (react-native-zeroconf) or a UDP broadcast beacon (react-native-udp);
    manual IP entry is the spike fallback. `interface: 'wifi'` binding works fine
    for individual connections.
+
+## Design B gate results (2026-07-15, Galaxy F41, staging build)
+
+- **Phase 1 (build) PASSED**: `"crsqlite": true` + `"sqlcipher": true` compile
+  together (both defines verified on every native compile command);
+  libcrsqlite.so packaged; app boots clean on both test devices.
+- **Phase 2 (runtime probe) PASSED** on device: two SQLCipher-encrypted DBs,
+  `crsql_as_crr` conversion, change capture via `crsql_changes`, and
+  bidirectional merge with column-level LWW (A→B insert+update, B→A update wins).
+  Probe: `src/framework/p2p/CrSqliteProbe.js`, button in Dev Settings.
+- Phase 3 pending: real Avni DDL (individual, encounter) with FK constraints —
+  does `crsql_as_crr` accept FK-bearing tables; drizzle ALTER on a CRR
+  (crsql_begin_alter/commit_alter).
