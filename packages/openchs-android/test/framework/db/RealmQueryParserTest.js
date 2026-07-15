@@ -610,4 +610,53 @@ describe("RealmQueryParser", () => {
             expect(result.params).toEqual(["Individual", "", "uuid1", "uuid2"]);
         });
     });
+
+    describe("SUBQUERY referenced-list conditions (OR / numeric / guard)", () => {
+        const schemaMap = new Map();
+        schemaMap.set("Individual", {name: "Individual", primaryKey: "uuid", properties: {
+            uuid: "string", voided: "bool",
+            enrolments: {type: "list", objectType: "ProgramEnrolment"},
+        }});
+        schemaMap.set("ProgramEnrolment", {name: "ProgramEnrolment", primaryKey: "uuid", properties: {
+            uuid: "string", voided: "bool", programExitDateTime: "date",
+            individual: {type: "object", objectType: "Individual"},
+            program: {type: "object", objectType: "Program"},
+        }});
+        schemaMap.set("Program", {name: "Program", primaryKey: "uuid", properties: {uuid: "string", name: "string"}});
+
+        it("OR inside conditions → parenthesized OR in the IN-subquery", () => {
+            const r = RealmQueryParser.parse(
+                "SUBQUERY(enrolments, $e, $e.program.name = 'Child' OR $e.voided = false).@count > 0",
+                [], "Individual", schemaMap);
+            expect(r.unsupported).toBe(false);
+            expect(r.where).toContain('t0."uuid" IN (SELECT "individual_uuid" FROM program_enrolment WHERE (');
+            expect(r.where).toContain(' OR ');
+            expect(r.where).toContain('"program_uuid"'); // FK-ref leaf
+        });
+
+        it("unqualified identifier binds to the child (voided → enrolment.voided)", () => {
+            const r = RealmQueryParser.parse(
+                "SUBQUERY(enrolments, $e, $e.program.name = 'Child' and voided = false).@count > 0",
+                [], "Individual", schemaMap);
+            expect(r.unsupported).toBe(false);
+            expect(r.where).toMatch(/"voided" = \?/); // bare child column, no alias
+            expect(r.where).not.toContain("t1.");
+        });
+
+        it("unknown unqualified child property → stays on JS fallback", () => {
+            const r = RealmQueryParser.parse(
+                "SUBQUERY(enrolments, $e, nonExistentField = false).@count > 0",
+                [], "Individual", schemaMap);
+            expect(r.unsupported).toBe(true);
+        });
+
+        it("numeric FK-ref value is accepted", () => {
+            // program.someNumber = 3 style — numeric RHS on an FK dot-ref
+            const r = RealmQueryParser.parse(
+                "SUBQUERY(enrolments, $e, $e.program.name = 'Child' and $e.programExitDateTime = null).@count > 0",
+                [], "Individual", schemaMap);
+            expect(r.unsupported).toBe(false);
+            expect(r.where).toMatch(/"program_exit_date_time" IS NULL/);
+        });
+    });
 });

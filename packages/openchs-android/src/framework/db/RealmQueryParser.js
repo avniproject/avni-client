@@ -894,59 +894,11 @@ class RealmQueryParser {
         const varPrefix = varName.replace('$', '\\$') + '\\.';
         const strippedConditions = conditions.replace(new RegExp(varPrefix, 'g'), '');
 
-        // Split conditions on top-level AND and translate each
-        const parts = splitTopLevelAnd(strippedConditions);
-        const whereParts = [];
-        const params = [];
-
-        for (const part of parts) {
-            const trimmed = part.trim();
-
-            // Check for nested SUBQUERY — recurse
-            if (/SUBQUERY\s*\(/i.test(trimmed)) {
-                const nested = this._tryTranslateSubqueryToIn(trimmed, childSchemaName, schemaMap, args, depth + 1);
-                if (!nested) return null;
-                // Rewrite: the nested IN references the child table's uuid
-                // We need to scope it: child.uuid IN (SELECT grandchild.parent_fk FROM ...)
-                whereParts.push(nested.where.replace(/t0\."uuid"/g, `"uuid"`));
-                params.push(...nested.params);
-                continue;
-            }
-
-            // Translate condition — resolve dot-notation FK references to scalar subqueries
-            // e.g., program.name = 'Child' → program_uuid = (SELECT uuid FROM program WHERE name = ?)
-            const dotMatch = trimmed.match(/^([\w]+)\.([\w]+)\s*(==|=|!=|<>)\s*(['"])(.*?)\4$/);
-            if (dotMatch) {
-                const [, refProp, field, op, , value] = dotMatch;
-                const refPropDef = childSchema?.properties[refProp];
-                if (refPropDef && typeof refPropDef === 'object' && refPropDef.type === 'object') {
-                    const refTable = schemaNameToTableName(refPropDef.objectType);
-                    const fkCol = `${camelToSnake(refProp)}_uuid`;
-                    const sqlOp = (op === '==' ? '=' : op);
-                    params.push(value);
-                    whereParts.push(`"${fkCol}" ${sqlOp === '!=' || sqlOp === '<>' ? 'NOT ' : ''}IN (SELECT "uuid" FROM ${refTable} WHERE "${camelToSnake(field)}" = ?)`);
-                    continue;
-                }
-            }
-
-            // Simple scalar condition: field OP value
-            try {
-                const tokens = tokenize(trimmed);
-                const parser = new Parser(tokens);
-                const ast = parser.parse();
-                const gen = new SqlGenerator(schemaMap, childSchemaName, args);
-                const result = gen.generate(ast);
-                // Replace t0. alias with bare column names for the subquery
-                whereParts.push(result.where.replace(/t0\./g, ''));
-                params.push(...result.params);
-            } catch (e) {
-                return null;
-            }
-        }
-
-        if (whereParts.length === 0) return null;
-
-        const innerWhere = whereParts.join(' AND ');
+        // Translate the (prefix-stripped) conditions as an AND/OR/paren expression tree.
+        const translated = this._translateRefListExpr(strippedConditions, childSchemaName, schemaMap, args);
+        if (!translated) return null;
+        const innerWhere = translated.where;
+        const params = translated.params;
 
         let where;
         if ((operator === '>' && count === 0) || (operator === '>=' && count === 1) || (operator === '!=' && count === 0)) {
@@ -959,6 +911,88 @@ class RealmQueryParser {
         }
 
         return {where, params, joins: []};
+    }
+
+    /**
+     * Translate a referenced-list SUBQUERY condition expression (AND/OR/parens) into a
+     * bare-column SQL predicate usable inside `SELECT … FROM <child> WHERE …`.
+     * Returns null if any leaf can't be safely translated (→ JS fallback).
+     */
+    static _translateRefListExpr(expr, childSchemaName, schemaMap, args) {
+        const trimmed = expr.trim();
+        if (trimmed.startsWith("(") && this._findMatchingParen(trimmed, 0) === trimmed.length - 1) {
+            const inner = this._translateRefListExpr(trimmed.slice(1, -1).trim(), childSchemaName, schemaMap, args);
+            return inner ? {where: `(${inner.where})`, params: inner.params} : null;
+        }
+        for (const op of ["OR", "AND"]) {
+            const parts = this._splitTopLevelLogical(trimmed, op);
+            if (parts.length > 1) {
+                const out = [], params = [];
+                for (const p of parts) {
+                    const r = this._translateRefListExpr(p.trim(), childSchemaName, schemaMap, args);
+                    if (!r) return null;
+                    out.push(r.where); params.push(...r.params);
+                }
+                const joined = out.join(` ${op} `);
+                return {where: op === "OR" ? `(${joined})` : joined, params};
+            }
+        }
+        return this._translateRefListLeaf(trimmed, childSchemaName, schemaMap, args);
+    }
+
+    /**
+     * Translate a single leaf condition (no top-level AND/OR) against the child schema.
+     * Leaf kinds: nested SUBQUERY (embedded → json_each; else referenced-list recurse),
+     * FK dot-ref (refProp.field OP quoted|number|$N), or a scalar child column.
+     */
+    static _translateRefListLeaf(trimmed, childSchemaName, schemaMap, args) {
+        const childSchema = schemaMap.get(childSchemaName);
+
+        if (/^SUBQUERY\s*\(/i.test(trimmed)) {
+            const emb = this._tryTranslateChildEmbeddedSubquery(trimmed, childSchemaName, schemaMap);
+            if (emb) return emb;
+            const nested = this._tryTranslateSubqueryToIn(trimmed, childSchemaName, schemaMap, args);
+            if (!nested) return null;
+            return {where: nested.where.replace(/t0\."uuid"/g, '"uuid"'), params: nested.params};
+        }
+
+        // FK dot-ref: refProp.field OP (quoted | $N | number)
+        const dotMatch = trimmed.match(/^([\w]+)\.([\w]+)\s*(==|=|!=|<>)\s*(?:(['"])(.*?)\4|(\$\d+)|(-?\d+(?:\.\d+)?))$/);
+        if (dotMatch) {
+            const refProp = dotMatch[1], field = dotMatch[2], op = dotMatch[3];
+            const refPropDef = childSchema && childSchema.properties[refProp];
+            if (refPropDef && typeof refPropDef === "object" && refPropDef.type === "object") {
+                const refTable = schemaNameToTableName(refPropDef.objectType);
+                const fkCol = `${camelToSnake(refProp)}_uuid`;
+                const sqlOp = op === "==" ? "=" : op;
+                let val;
+                if (dotMatch[5] !== undefined) val = dotMatch[5];
+                else if (dotMatch[6] !== undefined) val = args[parseInt(dotMatch[6].slice(1), 10)];
+                else val = Number(dotMatch[7]);
+                const neg = sqlOp === "!=" || sqlOp === "<>" ? "NOT " : "";
+                return {
+                    where: `"${fkCol}" ${neg}IN (SELECT "uuid" FROM ${refTable} WHERE "${camelToSnake(field)}" = ?)`,
+                    params: [val],
+                };
+            }
+            // not an object ref — fall through to scalar handling
+        }
+
+        // Scalar condition on the child.
+        try {
+            const ast = new Parser(tokenize(trimmed)).parse();
+            // Child-scoping guard: a simple field must be a real property of the child.
+            if (ast.type === "COMPARISON" || ast.type === "STRING_OP" || ast.type === "IN") {
+                const root = String(ast.field).split(".")[0];
+                if (childSchema && !(root in childSchema.properties)) return null;
+            }
+            const gen = new SqlGenerator(schemaMap, childSchemaName, args);
+            const result = gen.generate(ast);
+            if (result.joins && result.joins.length > 0) return null; // JOIN can't live in a bare subquery
+            return {where: result.where.replace(/t0\./g, ""), params: result.params};
+        } catch (e) {
+            return null;
+        }
     }
 
     /**
@@ -1444,6 +1478,9 @@ class RealmQueryParser {
 
         return {sql, params: parseResult.params || []};
     }
+
+    // Temporary stub — replaced with a real embedded-list (json_each) translator in a follow-up task.
+    static _tryTranslateChildEmbeddedSubquery() { return null; }
 }
 
 export {RealmQueryParser, UnsupportedRealmQueryError, camelToSnake, schemaNameToTableName, normalizeRealmType};
