@@ -36,6 +36,13 @@
       "when": 1781520165648,
       "tag": "0004_json_array_list_columns",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1784088378718,
+      "tag": "0005_add_downloadable_content_and_1_33_71",
+      "breakpoints": true
     }
   ]
 }
