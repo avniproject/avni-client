@@ -35,7 +35,7 @@ class SubjectProgramEligibilityService extends BaseService {
     }
 
     findBySubject(subject) {
-        return this.getAllNonVoided().filtered('subject = $0', subject);
+        return this.getAllNonVoided().filtered('subject.uuid = $0', subject.uuid);
     }
 
 }
