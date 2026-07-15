@@ -851,13 +851,19 @@ class RealmQueryParser {
      * or null if no clauses could be parsed.
      */
     /**
-     * Attempt to translate a SUBQUERY on a referenced list to a SQL IN clause.
-     * Uses non-correlated subquery: t0.uuid IN (SELECT fk FROM child WHERE conditions)
+     * Translate a SUBQUERY on a referenced list to a SQL IN clause:
+     *   t0.uuid IN (SELECT fk FROM child WHERE <conditions>)
+     * Conditions translate via _translateRefListExpr (AND/OR/parens); a nested SUBQUERY on
+     * an embedded list becomes json_each EXISTS (family B); a dotted listProp becomes a
+     * hop-by-hop nested IN chain (family C, _translateSubqueryListPath).
      *
-     * For embedded lists (observations), returns null — use _extractObservationPreFilter instead.
-     * For nested SUBQUERYs, recurses to build nested IN clauses.
+     * Shapes that intentionally stay on JS fallback (return null → JsFallbackFilterEvaluator):
+     *   - a condition referencing an unqualified property not on the child schema (child-scoping guard);
+     *   - a dot-path condition that would need a SQL JOIN inside the bare subquery;
+     *   - a multi-hop (family C) SUBQUERY with an @count comparison other than >0 / ==0 (can't correlate to t0);
+     *   - an OR that mixes an outer-object predicate with a SUBQUERY (cross-scope; not a single IN).
      *
-     * @returns {{ where: string, params: Array }} | null
+     * @returns {{ where: string, params: Array, joins: Array }} | null
      */
     static _tryTranslateSubqueryToIn(clause, rootSchemaName, schemaMap, args, depth = 0) {
         if (depth > 3) return null;
