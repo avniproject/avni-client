@@ -669,5 +669,23 @@ describe("RealmQueryParser", () => {
                 expect(r.unsupported).toBe(true);
             }
         });
+
+        it("B: nested SUBQUERY on an embedded list → json_each EXISTS inside the IN-subquery", () => {
+            const sm = new Map(schemaMap);
+            sm.set("ProgramEnrolment", {name: "ProgramEnrolment", primaryKey: "uuid", properties: {
+                uuid: "string", voided: "bool",
+                individual: {type: "object", objectType: "Individual"},
+                program: {type: "object", objectType: "Program"},
+                programExitObservations: {type: "list", objectType: "Observation"},
+            }});
+            sm.set("Observation", {name: "Observation", primaryKey: undefined, properties: {}}); // embedded
+            const r = RealmQueryParser.parse(
+                "SUBQUERY(enrolments, $e, $e.program.name = 'Child' and SUBQUERY($e.programExitObservations, $o, $o.concept.uuid = 'c1').@count > 0).@count > 0",
+                [], "Individual", sm);
+            expect(r.unsupported).toBe(false);
+            expect(r.where).toContain('EXISTS (SELECT 1 FROM json_each("program_exit_observations") AS jobs');
+            expect(r.where).toContain("json_extract(jobs.value, '$.concept.uuid') = ?");
+            expect(r.where).not.toContain('t0."program_exit_observations"'); // bare, not t0-scoped
+        });
     });
 });

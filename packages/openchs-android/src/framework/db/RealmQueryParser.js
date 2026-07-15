@@ -1133,7 +1133,7 @@ class RealmQueryParser {
      *
      * @returns {{ where: string, params: Array }} | null
      */
-    static _tryTranslateObservationSubquery(clause, rootSchemaName, schemaMap) {
+    static _tryTranslateObservationSubquery(clause, rootSchemaName, schemaMap, tableRef = "t0") {
         const parsed = this._parseSubqueryClause(clause);
         if (!parsed) return null;
 
@@ -1148,6 +1148,7 @@ class RealmQueryParser {
         if (!objectType || !EMBEDDED_SCHEMA_NAMES.has(objectType)) return null;
 
         const colName = camelToSnake(listProp);
+        const colRef = tableRef ? `${tableRef}."${colName}"` : `"${colName}"`;
         const varPrefix = varName.replace('$', '\\$') + '\\.';
         const strippedConditions = conditions.replace(new RegExp(varPrefix, 'g'), '');
 
@@ -1160,12 +1161,12 @@ class RealmQueryParser {
 
         let where;
         if ((operator === '>' && count === 0) || (operator === '>=' && count === 1) || (operator === '!=' && count === 0)) {
-            where = `EXISTS (SELECT 1 FROM json_each(t0."${colName}") AS jobs WHERE ${innerWhere})`;
+            where = `EXISTS (SELECT 1 FROM json_each(${colRef}) AS jobs WHERE ${innerWhere})`;
         } else if ((operator === '=' && count === 0) || (operator === '<' && count === 1)) {
-            where = `NOT EXISTS (SELECT 1 FROM json_each(t0."${colName}") AS jobs WHERE ${innerWhere})`;
+            where = `NOT EXISTS (SELECT 1 FROM json_each(${colRef}) AS jobs WHERE ${innerWhere})`;
         } else {
             const op = operator === '==' ? '=' : operator;
-            where = `(SELECT COUNT(*) FROM json_each(t0."${colName}") AS jobs WHERE ${innerWhere}) ${op} ${count}`;
+            where = `(SELECT COUNT(*) FROM json_each(${colRef}) AS jobs WHERE ${innerWhere}) ${op} ${count}`;
         }
 
         return {where, params};
@@ -1497,8 +1498,20 @@ class RealmQueryParser {
         return {sql, params: parseResult.params || []};
     }
 
-    // Temporary stub — replaced with a real embedded-list (json_each) translator in a follow-up task.
-    static _tryTranslateChildEmbeddedSubquery() { return null; }
+    /**
+     * If `clause` is a SUBQUERY on an embedded list of `childSchemaName`, translate it via
+     * the json_each machinery scoped to the child's bare JSON column. Else null.
+     */
+    static _tryTranslateChildEmbeddedSubquery(clause, childSchemaName, schemaMap) {
+        const parsed = this._parseSubqueryClause(clause);
+        if (!parsed) return null;
+        const childSchema = schemaMap.get(childSchemaName);
+        if (!childSchema) return null;
+        const propDef = childSchema.properties[parsed.listProp];
+        const objectType = propDef && typeof propDef === "object" ? propDef.objectType : null;
+        if (!objectType || !EMBEDDED_SCHEMA_NAMES.has(objectType)) return null;
+        return this._tryTranslateObservationSubquery(clause, childSchemaName, schemaMap, "");
+    }
 }
 
 export {RealmQueryParser, UnsupportedRealmQueryError, camelToSnake, schemaNameToTableName, normalizeRealmType};
