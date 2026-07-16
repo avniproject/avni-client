@@ -38,10 +38,11 @@ class JsFallbackFilterEvaluator {
             return this._applyDistinct(entities, trimmed, args);
         }
 
-        // @links.@count — inverse relationships not evaluable without index
+        // @links.@count — inverse relationships aren't evaluable client-side. Fail loud like the
+        // terminal branch rather than silently returning [] (matching nobody is as wrong as matching
+        // everybody). No active caller relies on the empty degradation (#1981).
         if (/@links/i.test(trimmed)) {
-            console.warn(`JsFallbackFilterEvaluator: @links.@count not evaluable — returning empty for ${schemaName}`);
-            return [];
+            throw new UnsupportedRealmQueryError(trimmed, `@links (inverse relationship) not evaluable for ${schemaName}`);
         }
 
         // SUBQUERY(listProp, $var, conditions).@count OP N
@@ -66,6 +67,14 @@ class JsFallbackFilterEvaluator {
             return this._applyLimit(entities, trimmed, args, limitMatch, schemaName);
         }
 
+        // A bare TRUEPREDICATE means "match everything" — the full set IS the correct answer here,
+        // so return it rather than failing loud. (Decorated forms — DISTINCT/SORT — are handled
+        // above or translated to SQL; a TRUEPREDICATE limit(N) reaches here via _applyLimit's
+        // recursion with the limit already stripped.)
+        if (/^TRUEPREDICATE$/i.test(trimmed)) {
+            return entities;
+        }
+
         // Fail loud rather than silently returning the full, unfiltered set — a screening/
         // eligibility rule that returns everything is the worst failure mode (#1981).
         throw new UnsupportedRealmQueryError(trimmed, `unrecognized fallback query for ${schemaName}`);
@@ -77,8 +86,9 @@ class JsFallbackFilterEvaluator {
         // Extract DISTINCT(field) — field may contain dots
         const distinctMatch = query.match(/DISTINCT\s*\(\s*([\w.]+)\s*\)/i);
         if (!distinctMatch) {
-            console.warn(`JsFallbackFilterEvaluator: could not parse DISTINCT field from: "${query}"`);
-            return entities;
+            // Recognized as DISTINCT but the field didn't parse — fail loud rather than return the
+            // full unfiltered set (silent-wrong is the failure #1981 kills, in any branch).
+            throw new UnsupportedRealmQueryError(query, "could not parse DISTINCT field");
         }
         const field = distinctMatch[1];
 
@@ -132,13 +142,11 @@ class JsFallbackFilterEvaluator {
     static _applySubqueryCount(entities, query, args, schemaName) {
         // Parse: SUBQUERY(listProp, $var, conditions).@count OP N
         // Must handle nested parens in conditions
-        const subqueryStart = query.match(/SUBQUERY\s*\(/i);
-        if (!subqueryStart) return entities;
-
         const parsed = this._parseSubquery(query);
         if (!parsed) {
-            console.warn(`JsFallbackFilterEvaluator: could not parse SUBQUERY for ${schemaName}: "${query.substring(0, 120)}"`);
-            return entities;
+            // Recognized as SUBQUERY but couldn't parse it — fail loud rather than return the full
+            // unfiltered set (#1981).
+            throw new UnsupportedRealmQueryError(query, `could not parse SUBQUERY for ${schemaName}`);
         }
 
         const {listProp, varName, conditions, operator, count} = parsed;
@@ -308,8 +316,8 @@ class JsFallbackFilterEvaluator {
             });
         }
 
-        console.warn(`JsFallbackFilterEvaluator: could not parse ANY quantifier: "${query.substring(0, 120)}"`);
-        return entities;
+        // Recognized as ANY but couldn't parse it — fail loud rather than return the full set (#1981).
+        throw new UnsupportedRealmQueryError(query, "could not parse ANY quantifier");
     }
 
     // ──── limit(N) — inline result limit ────
@@ -325,10 +333,10 @@ class JsFallbackFilterEvaluator {
             return entities.slice(0, limitN);
         }
 
-        // There's a remaining filter clause — apply it first, then limit.
-        // This handles partial-parse scenarios where the SQL part was already applied
-        // and only the limit clause landed here. But if a compound clause came through
-        // as a single fallback (e.g. from a fully-unsupported query), evaluate remaining too.
+        // There's a remaining filter clause — apply it first, then limit. A recognized remaining
+        // (e.g. "listProp.@count > 0 limit(5)", or "TRUEPREDICATE limit(N)") is evaluated then
+        // sliced; an unrecognized remaining now fails loud through this recursion rather than
+        // silently slicing the full unfiltered set (#1981).
         const filteredFirst = this._applyOne(entities, {query: remaining, args}, schemaName);
         return filteredFirst.slice(0, limitN);
     }

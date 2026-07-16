@@ -672,28 +672,15 @@ describe("JsFallbackFilterEvaluator", () => {
     // ──── @links.@count ────
 
     describe("Pattern D: @links.@count", () => {
-        it("should return empty array for @links.@count", () => {
-            const entities = [
-                makeEntity({uuid: "1"}),
-                makeEntity({uuid: "2"}),
-            ];
-            const result = JsFallbackFilterEvaluator.apply(
+        it("fails loud (throws) rather than returning [] — @links isn't evaluable client-side (#1981)", () => {
+            const entities = [makeEntity({uuid: "1"}), makeEntity({uuid: "2"})];
+            const run = () => JsFallbackFilterEvaluator.apply(
                 entities,
                 [{query: "@links.@count == 0", args: []}],
                 "Individual"
             );
-            expect(result).toEqual([]);
-        });
-
-        it("should log console.warn with schema name", () => {
-            JsFallbackFilterEvaluator.apply(
-                [makeEntity({uuid: "1"})],
-                [{query: "@links.@count == 0", args: []}],
-                "Individual"
-            );
-            expect(console.warn).toHaveBeenCalledWith(
-                expect.stringContaining("@links.@count not evaluable")
-            );
+            expect(run).toThrow(UnsupportedRealmQueryError);
+            expect(run).toThrow(/@links .*not evaluable for Individual/);
         });
     });
 
@@ -1182,11 +1169,14 @@ describe("JsFallbackFilterEvaluator", () => {
         });
 
         it("should stop pipeline when a filter reduces to empty", () => {
-            const entities = [makeEntity({uuid: "1"}), makeEntity({uuid: "2"})];
+            const entities = [
+                makeEntity({uuid: "1", media: [{url: "http://s3/photo.jpg"}]}),
+                makeEntity({uuid: "2", media: [{url: "http://s3/doc.pdf"}]}),
+            ];
             const result = JsFallbackFilterEvaluator.apply(
                 entities,
                 [
-                    {query: "@links.@count == 0", args: []}, // returns empty
+                    {query: "ANY media.url CONTAINS[c] $0", args: ["nonexistent"]}, // matches nothing → empty
                     {query: "TRUEPREDICATE DISTINCT(uuid)", args: []}, // never reached
                 ],
                 "Individual"
@@ -1203,6 +1193,59 @@ describe("JsFallbackFilterEvaluator", () => {
             const run = () => JsFallbackFilterEvaluator.apply(
                 entities,
                 [{query: "SOME UNKNOWN QUERY PATTERN", args: []}],
+                "TestSchema"
+            );
+            expect(run).toThrow(UnsupportedRealmQueryError);
+            expect(run).toThrow(/unrecognized fallback query for TestSchema/);
+        });
+    });
+
+    // ──── Bare TRUEPREDICATE (match everything) ────
+
+    describe("bare TRUEPREDICATE", () => {
+        it("returns the full set — TRUEPREDICATE means match everything", () => {
+            const entities = [makeEntity({uuid: "1"}), makeEntity({uuid: "2"})];
+            const result = JsFallbackFilterEvaluator.apply(
+                entities,
+                [{query: "TRUEPREDICATE", args: []}],
+                "TestSchema"
+            );
+            expect(result).toBe(entities);
+        });
+
+        it("TRUEPREDICATE limit(N) returns the first N via _applyLimit recursion", () => {
+            const entities = [makeEntity({uuid: "1"}), makeEntity({uuid: "2"}), makeEntity({uuid: "3"})];
+            const result = JsFallbackFilterEvaluator.apply(
+                entities,
+                [{query: "TRUEPREDICATE limit(2)", args: []}],
+                "TestSchema"
+            );
+            expect(result.map(e => e.uuid)).toEqual(["1", "2"]);
+        });
+    });
+
+    // ──── Fail loud on parse failures (#1981) ────
+
+    describe("fail loud when a recognized pattern fails to parse", () => {
+        const cases = [
+            {name: "DISTINCT with unparseable field", query: "TRUEPREDICATE DISTINCT()", reason: /could not parse DISTINCT field/},
+            {name: "malformed SUBQUERY", query: "SUBQUERY(broken without proper structure", reason: /could not parse SUBQUERY for TestSchema/},
+            {name: "malformed ANY quantifier", query: "ANY badly formed quantifier here", reason: /could not parse ANY quantifier/},
+        ];
+        cases.forEach(({name, query, reason}) => {
+            it(`throws for ${name} rather than returning the full set`, () => {
+                const entities = [makeEntity({uuid: "1"}), makeEntity({uuid: "2"})];
+                const run = () => JsFallbackFilterEvaluator.apply(entities, [{query, args: []}], "TestSchema");
+                expect(run).toThrow(UnsupportedRealmQueryError);
+                expect(run).toThrow(reason);
+            });
+        });
+
+        it("an unrecognized remaining clause under limit(N) fails loud through the recursion", () => {
+            const entities = [makeEntity({uuid: "1"}), makeEntity({uuid: "2"})];
+            const run = () => JsFallbackFilterEvaluator.apply(
+                entities,
+                [{query: "SOME UNKNOWN CLAUSE limit(1)", args: []}],
                 "TestSchema"
             );
             expect(run).toThrow(UnsupportedRealmQueryError);
