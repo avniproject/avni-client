@@ -122,6 +122,10 @@ class DevSettingsView extends AbstractComponent {
             {this.renderP2PButton('Ping Hub', () => P2PSpike.ping(host, log))}
             {this.renderP2PButton('Send 2MB Payload', () => P2PSpike.sendTestPayload(host, 2, log))}
             {this.renderP2PButton('CR-SQLite Probe (Design B gate)', () => CrSqliteProbe.run(log))}
+            {this.renderP2PButton('CR-SQLite Phase 3 (real DDL + FKs)', () => CrSqliteProbe.runPhase3(log))}
+            {this.renderP2PButton('P4: Init CRR DB', () => CrSqliteProbe.p4Init(log))}
+            {this.renderP2PButton('P4: Register Patient', () => CrSqliteProbe.p4Register(log))}
+            {this.renderP2PButton('P4: Sync with Hub', () => P2PSpike.crsqlSync(host, log))}
             <View style={{marginTop: 8, backgroundColor: '#f0f0f0', padding: 8}}>
                 {(this.state.p2pLogs || []).map((line, index) =>
                     <Text key={index} style={{fontSize: Fonts.Small, fontFamily: 'monospace'}}>{line}</Text>)}

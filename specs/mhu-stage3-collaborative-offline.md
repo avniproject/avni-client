@@ -430,3 +430,27 @@ decade; integrity is app-enforced already) while owning a distributed merge
 engine is a permanent correctness burden. B stays recommended; B-minus is the
 documented fallback if cr-sqlite fails in phase 4 or production. A sync-time
 referential validator on the hub is cheap and worth adding in either design.
+
+### Phase 4 results (2026-07-16) — PASSED. Architecture proven end to end.
+
+Two phones (F41 hub / S24 spoke), no internet: patients registered on either
+device converged on both via crsql_changes exchanged over the T1 TCP transport
+(both sides at identical counts/changes, 78 changes). Full-set exchange each
+sync also demonstrated LWW idempotency. Every Stage 3 architectural risk is now
+retired: transport, CRDT engine, encryption, real DDL, device convergence.
+
+### Design direction for central-sync interplay (proposed by Maha, 2026-07-16)
+
+Make the entity queue itself a CRR: pending-upstream bookkeeping then replicates
+with the data, and the hub can drain the whole clinic to the server. Refinements:
+- **Mark, don't delete**: CRR deletes propagate — a spoke hard-deleting queue rows
+  after handoff would wipe the hub's pending queue before it pushes (race). Use a
+  `status` column (pending → pushed) set by the pusher after server accept; the
+  mark replicates back; compaction removes old pushed rows later.
+- **Hub is the default pusher, not the only one**: any device with connectivity
+  may push `pending` rows and mark them; concurrent-push window still needs
+  avni-server upsert-by-UUID idempotency as backstop (verify on test server).
+- **Media excepted**: files live on the authoring device; media queue entries
+  can't transfer ownership unless the file transfers P2P too.
+- **Privileges**: the pushing user must hold create/edit rights for all entity
+  types spokes author.

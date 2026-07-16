@@ -1,5 +1,6 @@
 import TcpSocket from 'react-native-tcp-socket';
 import NetInfo from '@react-native-community/netinfo';
+import CrSqliteProbe from './CrSqliteProbe';
 
 const PORT = 7373;
 const CHUNK_SIZE = 64 * 1024;
@@ -64,9 +65,52 @@ class P2PSpike {
                 socket.write(JSON.stringify({type: 'blobAck', receivedBytes: session.blobBytes, ms: ms}) + '\n');
                 break;
             }
+            case 'crsqlPull':
+                CrSqliteProbe.p4GetChanges()
+                    .then(async (changes) => {
+                        const counts = await CrSqliteProbe.p4Counts();
+                        socket.write(JSON.stringify({type: 'crsqlChanges', changes: changes, counts: counts}) + '\n');
+                        log(`Sent ${changes.length} changes to peer`);
+                    })
+                    .catch((e) => socket.write(JSON.stringify({type: 'crsqlError', message: e.message}) + '\n'));
+                break;
+            case 'crsqlPush':
+                CrSqliteProbe.p4ApplyChanges(message.changes)
+                    .then(async (applied) => {
+                        const counts = await CrSqliteProbe.p4Counts();
+                        socket.write(JSON.stringify({type: 'crsqlPushAck', applied: applied, counts: counts}) + '\n');
+                        log(`Applied ${applied} changes from peer; now ${counts.individuals}i/${counts.encounters}e`);
+                    })
+                    .catch((e) => socket.write(JSON.stringify({type: 'crsqlError', message: e.message}) + '\n'));
+                break;
             default:
                 log(`Unknown message: ${message.type}`);
         }
+    }
+
+    // Phase 4: full bidirectional exchange, spoke-initiated (pull hub's changes, apply, push mine)
+    crsqlSync(host, log) {
+        const socket = this._connect(host, log, async (message) => {
+            try {
+                if (message.type === 'crsqlChanges') {
+                    await CrSqliteProbe.p4ApplyChanges(message.changes);
+                    log(`Pulled ${message.changes.length} changes (hub: ${message.counts.individuals}i/${message.counts.encounters}e)`);
+                    const mine = await CrSqliteProbe.p4GetChanges();
+                    socket.write(JSON.stringify({type: 'crsqlPush', changes: mine}) + '\n');
+                } else if (message.type === 'crsqlPushAck') {
+                    const counts = await CrSqliteProbe.p4Counts();
+                    log(`Synced. hub: ${message.counts.individuals}i/${message.counts.encounters}e, local: ${counts.individuals}i/${counts.encounters}e`);
+                    socket.destroy();
+                } else if (message.type === 'crsqlError') {
+                    log(`Hub error: ${message.message}`);
+                    socket.destroy();
+                }
+            } catch (error) {
+                log(`Sync error: ${error.message}`);
+                socket.destroy();
+            }
+        });
+        socket.on('connect', () => socket.write(JSON.stringify({type: 'crsqlPull'}) + '\n'));
     }
 
     scanForHub(log) {
