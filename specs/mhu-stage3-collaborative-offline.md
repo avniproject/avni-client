@@ -370,3 +370,63 @@ package.json block, verified available in op-sqlite 11.3.0's gradle).
 - Phase 3 pending: real Avni DDL (individual, encounter) with FK constraints —
   does `crsql_as_crr` accept FK-bearing tables; drizzle ALTER on a CRR
   (crsql_begin_alter/commit_alter).
+
+### Phase 3 results (2026-07-16, Galaxy F41) — PASSED, Design B gate CLOSED
+
+All five gates green on real Avni DDL (individual, encounter) under SQLCipher,
+`PRAGMA foreign_keys = ON`:
+- G3a/G3b: `crsql_as_crr` on both tables (incl. CRR→CRR reference)
+- G3c: cross-DB merge of individual + encounter
+- G3d: child-before-parent apply using the `db_version > ?` watermark pattern
+  (same query shape the real sync layer will use)
+- G3e: `crsql_begin_alter` → ALTER TABLE ADD COLUMN → `crsql_commit_alter`,
+  post-migration changes still captured
+
+Findings that shape the implementation:
+1. **cr-sqlite refuses tables with *declared* FK clauses** (checks
+   `pragma_foreign_key_list`, independent of the foreign_keys PRAGMA). Fix: the
+   14 transactional tables keep their `*_uuid` reference columns but drop the
+   FOREIGN KEY clauses (one-time table-rebuild migration + SchemaGenerator stops
+   emitting REFERENCES for transactional tables). Reference tables keep FKs;
+   `PRAGMA foreign_keys = ON` can stay globally. This is Realm-era integrity
+   semantics — app-enforced UUID references — which Avni ran on for a decade.
+2. **Never DROP+recreate a CRR table**: shadow (__crsql_clock) state survives
+   and corrupts the successor ("sql logic error"). Table-rebuild migrations must
+   use the crsql alter protocol or clean shadow state explicitly.
+3. Merge-order hazards disappear entirely once CRR tables carry no FK clauses —
+   no defer_foreign_keys machinery needed.
+
+**Verdict: Design B (cr-sqlite) is the recommended sync engine for the P2P path.**
+Remaining implementation work (not gate items): FK-strip migration for the 14
+transactional tables; CRR conversion at DB init; sync layer = exchange
+`crsql_changes` since per-peer watermark over the T1 transport; voiding-only
+deletes; two-device convergence test (phase 4).
+- Mechanically, SQLite has no DROP CONSTRAINT, so each table needs the standard rebuild: create the new FK-free table, copy rows,
+drop old, rename. This happens as a normal drizzle migration before any CRR conversion, so the shadow-state hazard from finding 2
+doesn't apply — the order is: strip FKs (plain tables) → then crsql_as_crr.
+- Integrity of those references becomes the app's job — which is not a new burden but a return: Realm had no FK enforcement, ever, so
+  every integrity guarantee the app actually relied on for ten years already lives in application logic. The declared FKs only arrived
+  with the 18.0 SQLite migration, months ago.
+
+### Alternative kept on file: hand-rolled CRR ("Design B-minus") — keeps FK constraints
+
+cr-sqlite's FK refusal is that library's policy, not a law of CRDTs. If we
+hand-roll the machinery (triggers appending per-column changes to our own log
+table + JS apply with column-LWW on logical clocks), we control the merge path
+and can wrap each merge in `PRAGMA defer_foreign_keys = ON` — declared FK
+constraints stay, ordering hazards resolve at COMMIT. The irreducible
+delete-vs-create violation remains, but Avni deletes by voiding (a column
+update), so it's near-nonexistent.
+
+| | cr-sqlite (Design B) | Hand-rolled LWW (B-minus) |
+|---|---|---|
+| FK clauses | strip from 14 transactional tables | keep, with deferred checks |
+| Merge correctness | theirs, production-proven | ours to get right forever |
+| Engineering | conversion + one migration | ~2–4k lines triggers + JS bookkeeping |
+| Prior art | Expo-ecosystem apps | Actual Budget (JS, years in production) |
+
+Decision: FK removal costs Avni little (Realm ran without FK enforcement for a
+decade; integrity is app-enforced already) while owning a distributed merge
+engine is a permanent correctness burden. B stays recommended; B-minus is the
+documented fallback if cr-sqlite fails in phase 4 or production. A sync-time
+referential validator on the hub is cheap and worth adding in either design.
