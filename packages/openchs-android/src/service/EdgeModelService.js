@@ -163,6 +163,16 @@ class EdgeModelService extends BaseService {
 
         const t0 = Date.now();
         const results = await Promise.all(modelKeys.map(k => this.runInferenceOnImage(k, imagePath)));
+        // Fail loud on a fold with a non-finite logit rather than letting it silently count as a
+        // negative vote — sigmoid(NaN) > threshold is false below, so a malformed fold would
+        // masquerade as a confident negative, the worst outcome for a screening verdict. Throwing
+        // here follows the same contract as a fold that throws: no verdict is written, the target
+        // obs stays absent.
+        results.forEach((r, i) => {
+            if (!Number.isFinite(r.logit)) {
+                throw new Error(`EdgeModelService.runEnsembleInferenceOnImage: fold ${modelKeys[i]} returned a non-finite logit (${r.logit}); models=[${modelKeys.join(',')}]`);
+            }
+        });
         const sigmoid = (x) => 1 / (1 + Math.exp(-x));
         // Per-model positive is sigmoid(logit) > threshold — unambiguous, independent of how each
         // fold result defines `confidence`. Unanimous AND: suspicious iff ALL folds are positive.

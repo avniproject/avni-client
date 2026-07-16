@@ -207,6 +207,28 @@ describe('EdgeModelService', () => {
             expect(r.label).toBe('Negative');
         });
 
+        it('fails loud on a fold with a non-finite logit — no silent negative (#1985 code-review)', async () => {
+            // A fold whose model output is NaN: sigmoid(NaN) > threshold is false, so it would silently
+            // vote Negative and the ensemble would resolve "nothing suspicious" on a malformed fold — a
+            // clinical false-negative, the worst outcome for a screen. It must fail loud instead.
+            mockFolds({'mvit2_fold1_6': 2.0, 'mvit2_fold1_8': NaN, 'mvit2_fold2_8': 0.85});
+
+            await expect(service.runEnsembleInferenceOnImage(FOLDS, '/tmp/x.jpg'))
+                .rejects.toThrow('non-finite logit');
+        });
+
+        it('a non-finite-logit fold via scheduleImageInference writes no verdict (fail-loud contract)', async () => {
+            service.dispatchAction = jest.fn();
+            mockFolds({'mvit2_fold1_6': 2.0, 'mvit2_fold1_8': NaN, 'mvit2_fold2_8': 0.85});
+            const entity = {uuid: 'e1', getObservationValue: jest.fn(() => undefined)};
+
+            service.scheduleImageInference(FOLDS, '/tmp/x.jpg', entity, 'AI Suspicion Result');
+            await new Promise(res => setImmediate(res));
+
+            service._flushPendingResults();
+            expect(service.dispatchAction).not.toHaveBeenCalled();  // verdict absent, not a defaulted negative
+        });
+
         it('rejects a non-array or empty modelKeys', async () => {
             await expect(service.runEnsembleInferenceOnImage('mvit2_fold1_6', '/tmp/x.jpg'))
                 .rejects.toThrow('non-empty array');
@@ -352,7 +374,7 @@ describe('EdgeModelService', () => {
         });
 
         it('dedups a fold-array ensemble as a single in-flight unit', async () => {
-            NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation(() => Promise.resolve({label: 'Positive', confidence: 0.9}));
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation(() => Promise.resolve({label: 'Positive', confidence: 0.9, logit: 2.0}));
             const folds = ['mvit2_fold1_6', 'mvit2_fold1_8', 'mvit2_fold2_8'];
             const entity = fakeEntity('e1');
 
