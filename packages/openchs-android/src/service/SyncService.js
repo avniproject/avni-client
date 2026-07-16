@@ -253,10 +253,13 @@ class SyncService extends BaseService {
         const entitiesWithoutSubjectMigrationAndResetSync = _.filter(allEntitiesMetaData, ({entityName}) => !_.includes(['ResetSync', 'SubjectMigration'], entityName));
         const filteredMetadata = _.filter(entitiesWithoutSubjectMigrationAndResetSync, ({entityName}) => _.find(syncDetails, sd => sd.entityName === entityName));
         const referenceEntityMetadata = this.getMetadataByType(filteredMetadata, "reference");
-        const filteredTxData = this.getMetadataByType(filteredMetadata, "tx");
+        // let (not const): after a mid-sync backend switch these are recomputed from the
+        // post-switch syncDetails so the transactional pull uses the fresh REALLY_OLD_DATE
+        // checkpoints on the new backend rather than the pre-switch (Realm) ones. See #2006.
+        let filteredTxData = this.getMetadataByType(filteredMetadata, "tx");
         const userInfoData = _.filter(filteredMetadata, ({entityName}) => entityName === "UserInfo");
         const subjectMigrationMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "SubjectMigration");
-        const currentVersionEntitySyncDetails = this.retainEntitiesPresentInCurrentVersion(syncDetails, allEntitiesMetaData);
+        let currentVersionEntitySyncDetails = this.retainEntitiesPresentInCurrentVersion(syncDetails, allEntitiesMetaData);
         General.logDebug("SyncService", `Entities to sync ${_.map(currentVersionEntitySyncDetails, ({entityName, entityTypeUuid}) => [entityName, entityTypeUuid])}`);
         this.entitySyncStatusService.updateAsPerSyncDetails(currentVersionEntitySyncDetails);
 
@@ -280,6 +283,16 @@ class SyncService extends BaseService {
                     syncDetails = result.syncDetails;
                     endDateTime = result.endDateTime;
                     migrationSwitched = true;
+                    // Rebuild the transactional entity list + sync details from the POST-switch
+                    // syncDetails. _switchBackendAndResyncRefDataIfNeeded re-seeded the new backend's
+                    // entity_sync_status to REALLY_OLD_DATE, so these carry "never synced" checkpoints;
+                    // the pre-switch values were computed against the already-synced Realm backend and
+                    // would make the tx pull fetch only rows changed since the Realm sync — leaving the
+                    // new SQLite DB near-empty (#2006).
+                    const postSwitchFilteredMetadata = _.filter(entitiesWithoutSubjectMigrationAndResetSync,
+                        ({entityName}) => _.find(syncDetails, sd => sd.entityName === entityName));
+                    filteredTxData = this.getMetadataByType(postSwitchFilteredMetadata, "tx");
+                    currentVersionEntitySyncDetails = this.retainEntitiesPresentInCurrentVersion(syncDetails, allEntitiesMetaData);
                 }
             })
             .then(() => this.getService(EncryptionService).encryptOrDecryptDbIfRequired())
