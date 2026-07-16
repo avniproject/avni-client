@@ -627,3 +627,106 @@ Timing: 18.0 has not shipped — landing FK-free transactional DDL within 18.0
 means Realm→SQLite migrators arrive directly into the target schema and no field
 device ever runs the 14-table rebuild. If P2P lands post-release, the rebuild
 migration runs on real data volumes — measure on F41-class hardware.
+-----------
+Yes — I still recommend cr-sqlite, but the margin has narrowed enough through this discussion that I want to state the recommendation
+precisely, with the one condition that would flip it.
+
+Why B still wins for me:
+
+1. It matches the reason this exploration exists. Your day-one motivation was "scalable at field level without additional setup" —
+   two health workers syncing phone-to-phone in a village, camps, ad-hoc teams. A-star structurally cannot do that; its hub isn't a
+   convenience, it's the system. Choosing A-star quietly redefines the product from "P2P capability for Avni" down to "MHU van feature."
+   That might be the right business call — but it should be made consciously, not fall out of an engine preference.
+2. The hard part is already proven. B's risky pieces passed on your devices this week. A-star's unproven pieces (ledger, apply
+   protocol) are admittedly low-risk — but "low-risk and unbuilt" still loses to "proven and running" when the effort is otherwise
+   comparable.
+3. Resilience. Hub phone dies mid-clinic: under B any device takes over and nothing is lost; under A-star the ledger dies with it and
+   sync halts until re-seeded. In a van in rural Bihar, that difference is not theoretical.
+4. Correctness ownership. A-star looks simple today; distributed bookkeeping has a way of growing edge cases (cursor resets, partial
+   pulls, hub re-seeds, echo bugs) that end up as exactly the subtle, unreproducible field bugs a small team least wants to own. B's
+   equivalent machinery has years of other people's production mileage.
+
+------------------------
+
+#### FK discussion — consolidated summary
+
+**Realm vs SQL constraints**: Realm had relationships (object links) without
+constraints — dangling links were impossible at creation (you link an actual
+object), but parent deletes silently nulled links; no declared, checkable
+integrity. 18.0 added FK constraints on top of the uuid columns; Design B
+removes the constraints, keeps the relationships. Net: one notch below
+Realm-era safety on creation (a typo'd uuid becomes writable), covered below.
+
+**Retrieval**: FKs contribute nothing to reads — joins execute identically
+without them, SQLite's planner ignores them, and SQLite FKs create no indexes
+(unlike MySQL). Retrieval speed = indexes (0002 stays; non-unique indexes can
+be added to CRRs anytime). Only losses are DDL self-documentation (drizzle
+schema JS remains the source of truth) and FK-based introspection tooling
+(unused — repositories join explicitly).
+
+**Integrity without FKs — layered design**:
+1. **Write-time validation in the repository save path** (the actual FK
+   replacement — parent-exists check, indexed lookup, mostly already implicit
+   since services load parent objects; make explicit to close bypasses).
+2. **Post-sync orphan checker** — NOT optional in the P2P world: CRDT merge is
+   a second writer that bypasses the repository and tolerates out-of-order
+   arrival by design, so replication can assemble persistent orphans (parent
+   never arrives) that no device's write-time check ever saw. Orphan queries
+   generated from drizzle relations, run after each sync cycle, flag only
+   orphans persisting past a completed sync, report via telemetry (~a day;
+   doubles as sync-bug monitoring during pilot).
+3. Hub-side quarantine of invalid incoming batches — skip until evidence
+   demands it.
+4. avni-server Postgres constraints — existing free backstop; a dangling
+   reference fails at upload and never corrupts the canonical record.
+
+Verdict: layer 1 alone replaces the FK; layers 1+2 are the honest minimum for
+the replicated system the FK-removal enables.
+
+## DECISION (2026-07-16, Maha): Design A-star selected
+
+App-layer star sync (hub ledger + seq cursor) is the chosen direction. Rationale:
+1. **No maintained alternative to cr-sqlite** — dormant upstream, dead forks,
+   only competitor is commercial/cloud-bound; the fallback to B failing is
+   building our own engine anyway.
+2. **Blast radius**: the FK-strip is a platform-wide schema change — every Avni
+   deployment loses write-time FK integrity on 14 tables to serve a capability
+   few deployments use. A-star is additive and isolated: one ledger table + one
+   service; zero impact on non-P2P deployments.
+
+Accepted trade-offs: star topology is structural (no spoke↔spoke without a hub;
+field-level no-van vision deferred); hub-death/ledger re-seed procedure must be
+designed; sync bookkeeping correctness is owned in-house (mitigated: the team
+designed the ledger mechanics and understands them).
+
+Design B (cr-sqlite) is demoted to validated fallback — gate results (phases
+1–4) remain on record; if the ledger design hits trouble, B is proven and
+pre-integrated rather than a research question. Revert `"crsqlite": true` in
+op-sqlite config before production (spike branch keeps it for the probes).
+
+Vertical slice under A-star: ledger table + save-path hook on hub; pull/push
+endpoints on the T1 transport; spoke cursor; apply via repositories (reuse
+server-sync apply path); entity queue push→hub with status marks; media channel
+as decided (default sync to hub). No schema migration required.
+
+#### Engine option S: SQLite session extension (sqlite3session_*)
+
+Core-SQLite changeset machinery (public domain, maintained forever): sessions
+record row-level diffs on a connection; `sqlite3changeset_apply` applies them
+with a user conflict handler (OMIT/REPLACE/ABORT per conflict, row-level,
+before-image based). Uniquely among engine options it **works with checked
+FKs** (FK violations delivered to the handler at end of apply) — would never
+have raised the platform-wide FK-strip issue.
+
+Costs: not compiled in op-sqlite (enable via `sqliteFlags`:
+-DSQLITE_ENABLE_SESSION -DSQLITE_ENABLE_PREUPDATE_HOOK) and **no JS bindings
+exist** — a week of JSI/Kotlin bridge work before first spike. Capture is
+connection-scoped and non-persistent (blobs must be persisted at write time —
+queue machinery still needed); no versioning/idempotency built in (hub
+ledger/cursor still needed); applies raw rows, bypassing repositories (same
+integration tax as cr-sqlite).
+
+Placement after the A-star decision: **first-choice engine fallback**, ahead of
+cr-sqlite in maintenance/FK terms, behind it in proven-ness (B passed phases
+1–4 on device; S is unproven on our stack). Relevant only if entity-level state
+sync proves too coarse or mesh topology returns.
