@@ -283,7 +283,7 @@ describe('EdgeModelService', () => {
 
         it('loads each fold from its own cached path and key', async () => {
             mockPerFold({
-                fold1: {confidence: 0.8}, fold2: {confidence: 0.6}, fold3: {confidence: 0.7},
+                fold1: {confidence: 0.8, logit: 1.0}, fold2: {confidence: 0.6, logit: 0.4}, fold3: {confidence: 0.7, logit: 0.8},
             });
 
             await service.runInferenceOnImage('/tmp/x.jpg');
@@ -299,9 +299,9 @@ describe('EdgeModelService', () => {
 
         it('unanimous-and (default): Positive only when all folds decode positive', async () => {
             mockPerFold({
-                fold1: {label: 'Positive', confidence: 0.8},
-                fold2: {label: 'Positive', confidence: 0.6},
-                fold3: {label: 'Positive', confidence: 0.9},
+                fold1: {label: 'Positive', confidence: 0.8, logit: 1.2},
+                fold2: {label: 'Positive', confidence: 0.6, logit: 0.4},
+                fold3: {label: 'Positive', confidence: 0.9, logit: 2.0},
             });
 
             const r = await service.runInferenceOnImage('/tmp/x.jpg');
@@ -315,12 +315,12 @@ describe('EdgeModelService', () => {
 
         it('any single fold Negative ⇒ Negative (AND truth table)', async () => {
             const positives = {
-                fold1: {label: 'Positive', confidence: 0.8},
-                fold2: {label: 'Positive', confidence: 0.6},
-                fold3: {label: 'Positive', confidence: 0.9},
+                fold1: {label: 'Positive', confidence: 0.8, logit: 1.2},
+                fold2: {label: 'Positive', confidence: 0.6, logit: 0.4},
+                fold3: {label: 'Positive', confidence: 0.9, logit: 2.0},
             };
             for (const neg of ['fold1', 'fold2', 'fold3']) {
-                mockPerFold({...positives, [neg]: {label: 'Negative', confidence: 0.2}});
+                mockPerFold({...positives, [neg]: {label: 'Negative', confidence: 0.2, logit: -1.2}});
 
                 const r = await service.runInferenceOnImage('/tmp/x.jpg');
 
@@ -331,15 +331,45 @@ describe('EdgeModelService', () => {
 
         it('all folds Negative ⇒ Negative', async () => {
             mockPerFold({
-                fold1: {label: 'Negative', confidence: 0.1},
-                fold2: {label: 'Negative', confidence: 0.2},
-                fold3: {label: 'Negative', confidence: 0.3},
+                fold1: {label: 'Negative', confidence: 0.1, logit: -2.2},
+                fold2: {label: 'Negative', confidence: 0.2, logit: -1.4},
+                fold3: {label: 'Negative', confidence: 0.3, logit: -0.8},
             });
 
             const r = await service.runInferenceOnImage('/tmp/x.jpg');
 
             expect(r.positive).toBe(false);
             expect(r.label).toBe('Negative');
+        });
+
+        it('fails loud on a fold with a non-finite logit — no silent negative (#1985 code-review)', async () => {
+            // A fold whose model output is NaN: the native decoder yields sigmoid(NaN)>threshold = false
+            // → label 'Negative'. Without the guard the ensemble would resolve NEGATIVE ("nothing
+            // suspicious") on a malformed fold — a clinical false-negative. It must fail loud instead.
+            mockPerFold({
+                fold1: {label: 'Positive', confidence: 0.8, logit: 1.2},
+                fold2: {label: 'Positive', confidence: 0.6, logit: 0.4},
+                fold3: {label: 'Negative', confidence: NaN, logit: NaN},
+            });
+
+            await expect(service.runInferenceOnImage('/tmp/x.jpg'))
+                .rejects.toThrow('non-finite logit');
+        });
+
+        it('a non-finite-logit fold via scheduleImageInference writes no verdict (fail-loud contract)', async () => {
+            service.dispatchAction = jest.fn();
+            mockPerFold({
+                fold1: {label: 'Positive', confidence: 0.8, logit: 1.2},
+                fold2: {label: 'Negative', confidence: NaN, logit: NaN},
+                fold3: {label: 'Positive', confidence: 0.9, logit: 2.0},
+            });
+            const entity = {uuid: 'e1', getObservationValue: jest.fn(() => undefined)};
+
+            service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
+            await new Promise(res => setImmediate(res));
+
+            flushInference();
+            expect(service.dispatchAction).not.toHaveBeenCalled();  // verdict absent, not a defaulted negative
         });
 
         it('keeps the per-model breakdown (sha256/logit/confidence/label)', async () => {

@@ -194,6 +194,16 @@ class EdgeModelService extends BaseService {
 
         const t0 = Date.now();
         const results = await Promise.all(rows.map(row => this._runInferenceOnImageForRow(row, imagePath)));
+        // Fail loud on a fold with a non-finite logit rather than letting it silently count as a
+        // negative vote — sigmoid(NaN) > threshold is false, so the native decoder hands back
+        // label="Negative" and the fold would masquerade as a confident negative, the worst outcome
+        // for a screening verdict. Throwing here follows the same contract as a fold that throws
+        // natively: no verdict is written, the target obs stays absent.
+        results.forEach((r, i) => {
+            if (!Number.isFinite(r.logit)) {
+                throw new Error(`EdgeModelService.runEnsembleInferenceOnImage: fold ${rows[i].sha256} returned a non-finite logit (${r.logit}); rows=[${rows.map(row => row.sha256).join(',')}]`);
+            }
+        });
         // Each fold binarises against its own threshold natively; the ensemble is positive only if
         // all folds decoded positive (labels[1]). confidence is the weakest fold's — informational.
         const positive = results.every(r => r.label === labels[1]);
