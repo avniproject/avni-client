@@ -1,4 +1,5 @@
 import JsFallbackFilterEvaluator from "../../../src/framework/db/JsFallbackFilterEvaluator";
+import {UnsupportedRealmQueryError} from "../../../src/framework/db/RealmQueryParser";
 
 // ──── Fixture helpers ────
 
@@ -1197,17 +1198,15 @@ describe("JsFallbackFilterEvaluator", () => {
     // ──── Unrecognized query ────
 
     describe("unrecognized fallback query", () => {
-        it("should pass through entities and log warning", () => {
+        it("fails loud (throws) instead of returning the full unfiltered set (#1981)", () => {
             const entities = [makeEntity({uuid: "1"})];
-            const result = JsFallbackFilterEvaluator.apply(
+            const run = () => JsFallbackFilterEvaluator.apply(
                 entities,
                 [{query: "SOME UNKNOWN QUERY PATTERN", args: []}],
                 "TestSchema"
             );
-            expect(result).toEqual(entities);
-            expect(console.warn).toHaveBeenCalledWith(
-                expect.stringContaining("unrecognized fallback query for TestSchema")
-            );
+            expect(run).toThrow(UnsupportedRealmQueryError);
+            expect(run).toThrow(/unrecognized fallback query for TestSchema/);
         });
     });
 });

@@ -10,6 +10,7 @@
  *   - limit(N) — inline result limit (applied as slice after other filters)
  *   - @links.@count — inverse relationships (not evaluable, returns empty)
  */
+import {UnsupportedRealmQueryError} from "./RealmQueryParser";
 
 class JsFallbackFilterEvaluator {
     /**
@@ -65,8 +66,9 @@ class JsFallbackFilterEvaluator {
             return this._applyLimit(entities, trimmed, args, limitMatch, schemaName);
         }
 
-        console.warn(`JsFallbackFilterEvaluator: unrecognized fallback query for ${schemaName}: "${trimmed.substring(0, 120)}"`);
-        return entities;
+        // Fail loud rather than silently returning the full, unfiltered set — a screening/
+        // eligibility rule that returns everything is the worst failure mode (#1981).
+        throw new UnsupportedRealmQueryError(trimmed, `unrecognized fallback query for ${schemaName}`);
     }
 
     // ──── TRUEPREDICATE DISTINCT(field) ────
