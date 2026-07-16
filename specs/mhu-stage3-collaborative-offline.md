@@ -605,3 +605,25 @@ cr-sqlite      ← loadable extension registering crsql_* functions/tables
 - cr-sqlite upgrades only for its own bugs/features, never as a side effect.
   Pinned version ships for years; probe buttons (phases 2–4) are the regression
   check after any layer moves.
+
+#### Removing FKs from transactional tables — side effects
+
+Real costs:
+1. Write-time integrity checks lost on the 14 tables — a bug writing a dangling
+   parent uuid lands silently. Context: Realm had zero DB-level enforcement for
+   ten years; FKs have existed only during 18.0 development. Compensating
+   control: periodic app-level consistency check + sync-time referential
+   validator on the hub.
+2. Parent deletes no longer blocked. Avni voids rather than deletes; the one
+   mass-delete path (logout wipe) was *broken by* FKs (#1955 fix) — removal
+   simplifies it.
+
+Non-issues: query performance unchanged (SQLite FKs create no indexes; 0002
+high-value indexes stay); no cascades exist to lose (all ON DELETE no action);
+joins/drizzle/app queries untouched (uuid columns remain); reference tables keep
+FKs; server-side Postgres constraints unaffected.
+
+Timing: 18.0 has not shipped — landing FK-free transactional DDL within 18.0
+means Realm→SQLite migrators arrive directly into the target schema and no field
+device ever runs the 14-table rebuild. If P2P lands post-release, the rebuild
+migration runs on real data volumes — measure on F41-class hardware.
