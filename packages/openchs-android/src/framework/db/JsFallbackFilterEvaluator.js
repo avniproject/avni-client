@@ -8,7 +8,11 @@
  *   - listProp.@count OP N / listProp.@size OP N — collection size check
  *   - ANY listProp.field OP value — quantifier over list elements
  *   - limit(N) — inline result limit (applied as slice after other filters)
- *   - @links.@count — inverse relationships (not evaluable, returns empty)
+ *   - bare TRUEPREDICATE — matches everything
+ *
+ * Anything else — including @links, and recognized patterns whose innards fail to
+ * parse — throws UnsupportedRealmQueryError rather than silently returning the
+ * full or empty set (#1981).
  */
 import {UnsupportedRealmQueryError} from "./RealmQueryParser";
 
@@ -157,7 +161,7 @@ class JsFallbackFilterEvaluator {
 
             let matchCount = 0;
             for (const item of list) {
-                if (this._evaluateConditionString(item, conditions, varName, args)) {
+                if (this._evaluateConditionString(item, conditions, varName, args, schemaName)) {
                     matchCount++;
                 }
             }
@@ -347,7 +351,7 @@ class JsFallbackFilterEvaluator {
      * Evaluate a Realm-style condition string against a single list item.
      * Handles AND/OR, comparisons, string ops, null checks, $N params, nested SUBQUERY.
      */
-    static _evaluateConditionString(item, conditions, varName, args) {
+    static _evaluateConditionString(item, conditions, varName, args, schemaName) {
         // Check for nested SUBQUERY — evaluate it recursively
         if (/SUBQUERY\s*\(/i.test(conditions)) {
             const parts = this._splitTopLevel(conditions, "AND");
@@ -362,8 +366,9 @@ class JsFallbackFilterEvaluator {
                     // Parse and evaluate the nested SUBQUERY against the current item
                     const nestedParsed = this._parseSubquery(trimmed);
                     if (!nestedParsed) {
-                        // Can't parse — permissive fallback
-                        continue;
+                        // Skipping an unparseable nested SUBQUERY would silently count every
+                        // element as matching — fail loud like the outer branches (#1981).
+                        throw new UnsupportedRealmQueryError(trimmed, `could not parse nested SUBQUERY for ${schemaName}`);
                     }
                     const {listProp, varName: nestedVarName, conditions: nestedConditions, operator, count} = nestedParsed;
                     // Resolve the list property on the current item (e.g., $enrolment.programExitObservations)
@@ -375,13 +380,13 @@ class JsFallbackFilterEvaluator {
                     }
                     let matchCount = 0;
                     for (const nestedItem of list) {
-                        if (this._evaluateConditionString(nestedItem, nestedConditions, nestedVarName, args)) {
+                        if (this._evaluateConditionString(nestedItem, nestedConditions, nestedVarName, args, schemaName)) {
                             matchCount++;
                         }
                     }
                     if (!this._compareCount(matchCount, operator, count)) return false;
                 } else {
-                    if (!this._evaluateConditionString(item, trimmed, varName, args)) {
+                    if (!this._evaluateConditionString(item, trimmed, varName, args, schemaName)) {
                         return false;
                     }
                 }
@@ -392,23 +397,23 @@ class JsFallbackFilterEvaluator {
         // Split on top-level OR first (lower precedence)
         const orParts = this._splitTopLevel(conditions, "OR");
         if (orParts.length > 1) {
-            return orParts.some(part => this._evaluateConditionString(item, part.trim(), varName, args));
+            return orParts.some(part => this._evaluateConditionString(item, part.trim(), varName, args, schemaName));
         }
 
         // Split on top-level AND
         const andParts = this._splitTopLevel(conditions, "AND");
         if (andParts.length > 1) {
-            return andParts.every(part => this._evaluateConditionString(item, part.trim(), varName, args));
+            return andParts.every(part => this._evaluateConditionString(item, part.trim(), varName, args, schemaName));
         }
 
         // Strip outer parens
         const stripped = this._stripParens(conditions.trim());
         if (stripped !== conditions.trim()) {
-            return this._evaluateConditionString(item, stripped, varName, args);
+            return this._evaluateConditionString(item, stripped, varName, args, schemaName);
         }
 
         // Single atomic condition
-        return this._evaluateAtomicCondition(item, conditions.trim(), varName, args);
+        return this._evaluateAtomicCondition(item, conditions.trim(), varName, args, schemaName);
     }
 
     /**
@@ -417,7 +422,7 @@ class JsFallbackFilterEvaluator {
      *   $enrolment.voided = false
      *   $observation.valueJSON contains '"phoneNumber":"xyz"'
      */
-    static _evaluateAtomicCondition(item, condition, varName, args) {
+    static _evaluateAtomicCondition(item, condition, varName, args, schemaName) {
         // Try string ops first: CONTAINS, BEGINSWITH, ENDSWITH (with optional [c])
         const stringOpMatch = condition.match(
             /^([\w$.]+(?:\.[\w]+)*)\s+(CONTAINS|BEGINSWITH|ENDSWITH)\s*(?:\[c\])?\s+(.+)$/i
@@ -457,8 +462,9 @@ class JsFallbackFilterEvaluator {
             return this._compare(fieldValue, op, rawValue);
         }
 
-        console.warn(`JsFallbackFilterEvaluator: could not parse atomic condition: "${condition}"`);
-        return true; // permissive on parse failure
+        // Treating an unparseable condition as matching would silently inflate .@count and
+        // include rows that don't qualify — fail loud like every other branch (#1981).
+        throw new UnsupportedRealmQueryError(condition, `could not parse atomic condition for ${schemaName}`);
     }
 
     /**

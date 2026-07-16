@@ -54,7 +54,7 @@ describe("SqliteResultsProxy fallback filter integration", () => {
     // ──── Fully unsupported → JS fallback ────
 
     describe("fully unsupported query → entire filter goes to JS fallback", () => {
-        it("@links.@count returns empty", () => {
+        it("@links.@count fails loud through the proxy (#1981)", () => {
             const rows = [{uuid: "1"}, {uuid: "2"}, {uuid: "3"}];
             const executeQuery = jest.fn(() => rows);
             const hydrator = createMockHydrator();
@@ -68,7 +68,7 @@ describe("SqliteResultsProxy fallback filter integration", () => {
             });
 
             const filtered = proxy.filtered("@links.@count == 0");
-            expect(filtered.length).toBe(0);
+            expect(() => filtered.length).toThrow(/@links .*not evaluable for Individual/);
         });
 
         it("SUBQUERY filters by list property after hydration", () => {
@@ -398,7 +398,7 @@ describe("SqliteResultsProxy fallback filter integration", () => {
         it("isEmpty() returns true when fallback eliminates all", () => {
             const rows = [{uuid: "1"}, {uuid: "2"}];
             const executeQuery = jest.fn(() => rows);
-            const hydrator = createMockHydrator();
+            const hydrator = createMockHydrator(row => ({uuid: row.uuid, media: []}));
 
             const proxy = SqliteResultsProxy.create({
                 schemaName: "Individual",
@@ -406,7 +406,7 @@ describe("SqliteResultsProxy fallback filter integration", () => {
                 entityClass: MockEntity,
                 executeQuery,
                 hydrator,
-            }).filtered("@links.@count == 0");
+            }).filtered('ANY media.url CONTAINS[c] "nonexistent"');
 
             expect(proxy.isEmpty()).toBe(true);
         });

@@ -905,9 +905,7 @@ describe("JsFallbackFilterEvaluator", () => {
             expect(result).toHaveLength(0);
         });
 
-        it("should handle nested SUBQUERY permissively", () => {
-            // Nested SUBQUERY: outer conditions (voided=false) should still be enforced,
-            // but the inner SUBQUERY condition is skipped (permissive)
+        it("should evaluate nested SUBQUERY alongside non-SUBQUERY conditions", () => {
             const entities = [
                 makeEntity({
                     uuid: "1",
@@ -942,7 +940,7 @@ describe("JsFallbackFilterEvaluator", () => {
             expect(result[0].uuid).toBe("1");
         });
 
-        it("should evaluate nested SUBQUERY on embedded list (not permissive)", () => {
+        it("should evaluate nested SUBQUERY on embedded list", () => {
             // Simulates maternal deaths rule: nested SUBQUERY on programExitObservations
             const entities = [
                 makeEntity({
@@ -1054,9 +1052,8 @@ describe("JsFallbackFilterEvaluator", () => {
             )).toBe(false);
         });
 
-        it("should handle nested SUBQUERY in conditions permissively", () => {
+        it("should evaluate nested SUBQUERY in conditions", () => {
             const item = {voided: false, encounters: [{voided: false}]};
-            // Only the non-SUBQUERY condition should be evaluated
             const result = JsFallbackFilterEvaluator._evaluateConditionString(
                 item,
                 "$x.voided = false and (SUBQUERY($x.encounters, $e, $e.voided = false).@count > 0)",
@@ -1250,6 +1247,36 @@ describe("JsFallbackFilterEvaluator", () => {
             );
             expect(run).toThrow(UnsupportedRealmQueryError);
             expect(run).toThrow(/unrecognized fallback query for TestSchema/);
+        });
+
+        it("throws for an unparseable atomic condition inside SUBQUERY instead of counting every element", () => {
+            const entities = [
+                makeEntity({uuid: "1", observations: [makeObservation({conceptUuid: "c1", valueJSON: "{}"})]}),
+            ];
+            const run = () => JsFallbackFilterEvaluator.apply(
+                entities,
+                [{query: 'SUBQUERY(observations, $obs, $obs.concept.uuid IN {"c1", "c2"}).@count > 0', args: []}],
+                "TestSchema"
+            );
+            expect(run).toThrow(UnsupportedRealmQueryError);
+            expect(run).toThrow(/could not parse atomic condition for TestSchema/);
+        });
+
+        it("throws for an unparseable nested SUBQUERY instead of skipping it", () => {
+            const entities = [
+                makeEntity({
+                    uuid: "1",
+                    enrolments: [makeEnrolment({voided: false, encounters: [makeEncounter({voided: false})]})],
+                }),
+            ];
+            const run = () => JsFallbackFilterEvaluator.apply(
+                entities,
+                // Inner SUBQUERY has only two args — _parseSubquery returns null
+                [{query: "SUBQUERY(enrolments, $e, $e.voided = false and (SUBQUERY($e.encounters, $x).@count > 0)).@count > 0", args: []}],
+                "TestSchema"
+            );
+            expect(run).toThrow(UnsupportedRealmQueryError);
+            expect(run).toThrow(/could not parse nested SUBQUERY for TestSchema/);
         });
     });
 });

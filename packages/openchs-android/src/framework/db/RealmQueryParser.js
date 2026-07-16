@@ -20,7 +20,7 @@
  * - listProp.@count / @size OP N — collection size check
  * - ANY listProp.field OP value — quantifier over list elements
  * - limit(N) — inline result limit
- * - @links.@count — inverse relationships (not evaluable, returns empty)
+ * - @links.@count — inverse relationships (not evaluable, fails loud)
  * - ALL, NONE quantifiers, @sum/@avg/@min/@max aggregates (unused in codebase)
  */
 
