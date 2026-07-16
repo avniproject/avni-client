@@ -454,3 +454,154 @@ with the data, and the hub can drain the whole clinic to the server. Refinements
   can't transfer ownership unless the file transfers P2P too.
 - **Privileges**: the pushing user must hold create/edit rights for all entity
   types spokes author.
+
+### Media over P2P (decision, 2026-07-16)
+
+Media bytes never enter cr-sqlite — DB rows carry only references (Avni's existing
+model: filename/UUID inside observations JSON), which replicate via CRDT like any
+data. Files move on a **separate app-layer channel over the same TCP transport**.
+
+**Default: media syncs to the hub during every P2P sync** (Maha's decision) —
+file transfers to the hub and upstream-upload ownership moves with it (media
+queue row status: pending-on-spoke → transferred-to-hub → pushed; single-owner
+rule prevents duplicate S3 uploads). Peers other than the hub fetch on demand
+(`mediaRequest {uuid}` → owner streams file; ~1–8s per photo at measured LAN
+throughput).
+
+App-layer control this buys: per-media-type policy (e.g., video excluded),
+size caps/compression before transfer, transfer during idle, hub cache
+eviction after successful S3 upload, progress UI. Watch items: hub storage
+headroom and sync duration on photo-heavy clinic days — measure in the
+vertical-slice phase.
+
+### Design A-star: app-layer sync with hub sequencing (third option, 2026-07-16)
+
+Origin: push (spoke→hub) is nearly free — EntityQueueService already tracks what a
+spoke authored. The missing primitive is pull: Avni client tables carry **no
+modification timestamps** (server assigns audit times in server sync; local rows
+are versionless), so a hub cannot answer "what changed since X".
+
+Fix is a sequence, not timestamps (clock skew makes time-watermarks unsafe):
+- Hub keeps a ledger `(seq, entity_type, entity_uuid)`; `seq` increments for every
+  entity ingested from any spoke or authored on the hub.
+- Spokes pull "everything after seq N", remember highest N received.
+- Entities apply through the repository layer — rules-adjacent behavior, derived
+  state, UI refresh all follow the existing server-sync path for free.
+- Conflicts: last-arrival-at-hub wins, whole entity (coarser than cr-sqlite's
+  column LWW — though observations-as-JSON makes that gap smaller in practice).
+
+Trade vs Design B (cr-sqlite):
+| | A-star | B (cr-sqlite) |
+|---|---|---|
+| Bookkeeping | build hub ledger (small) | free, proven in gate |
+| Apply path | repository layer (app-consistent) | bypasses app layer (own UI refresh) |
+| FK-strip migration | not needed | needed |
+| Dependency | none | dormant cr-sqlite (pinned) |
+| Topology | **star only — hub structurally required** | any-to-any; hub is convenience |
+| Hub dies mid-clinic | sync halts (ledger lost → re-seed) | any device can take over |
+
+**Deciding criterion: is the star topology forever?** If a hub device is a
+permanent fixture of every deployment, A-star is defensible and simple. If
+spoke↔spoke sync (two workers, no van) or multi-hub merge is ever wanted —
+the original field-level-scalability motivation — only B serves it.
+
+Status: Design B remains recommended; A-star is now the documented alternative
+ahead of B-minus (hand-rolled column-LWW) since it is simpler than both when the
+star assumption holds.
+
+#### A-star pull mechanics (how "give me after N" works)
+
+No per-spoke pull queue. One append-only **ledger on the hub** `(seq, entity_type,
+entity_uuid, origin_device)`; `seq` increments for every entity the hub ingests or
+authors (appended in the same transaction as the entity save, hooked where
+EntityQueue is already written). Each spoke stores a single integer: highest seq
+received.
+
+- Pull: `{type:'pull', since: N}` → hub returns current state of entities with
+  seq > N (in seq order); spoke applies via repositories, stores new N.
+- Hub keeps nothing per spoke; new device joins with since=0; lost cursor re-pulls
+  idempotently (UUID upserts).
+- Compaction: keep only the latest seq per entity uuid — pulls return current
+  state once (state sync, not history).
+- Echo filter: exclude rows where origin_device = requester (or accept no-op
+  re-apply).
+- EntityQueue = per-device producer state ("what have I authored"); ledger =
+  hub-central consumer log ("what does the clinic know, in what order") — the
+  same shape as server sync, with the ledger as the server's audit timeline.
+- Note: this hand-designs what cr-sqlite provides internally (seq ≈ db_version,
+  pull ≈ `crsql_changes where db_version > ?`, echo filter ≈ site_id filter).
+
+#### B vs A-star: consolidated comparison
+
+| Axis | B: cr-sqlite | A-star: app-layer |
+|---|---|---|
+| Change tracking | free, proven | build hub ledger + seq |
+| Merge granularity | column LWW (≈entity for observations JSON) | entity, last-arrival wins |
+| Convergence | CRDT-guaranteed, any order | via hub's single ordering |
+| Apply path | bypasses app layer (own UI refresh) | repositories — app-consistent free |
+| Topology | any-to-any | star only, hub required |
+| Hub dies mid-clinic | any device takes over | ledger lost, re-seed |
+| Schema impact | FK-strip + CRR conversion | one ledger table |
+| Later migrations | wrap in crsql alter protocol (proven) | plain |
+| Later unique constraints | forbidden on CRRs (app-enforce) | allowed |
+| Dependency | dormant cr-sqlite, pinned | none |
+| Spike status | phases 1–4 proven on devices | transport proven; ledger unproven |
+| Field-level (no-van) vision | served | not served |
+
+Decision rests on topology (hub forever?) and apply path (B's integration tax vs
+A-star's structural hub dependence).
+
+#### Indexes on CRR tables (cr-sqlite)
+
+- Non-unique indexes: fine, anytime; wrap CRR-touching DDL in
+  crsql_begin_alter/commit_alter as practice (proven G3e). Confirm existing
+  0002 high-value indexes survive conversion in the vertical slice.
+- UNIQUE indexes: forbidden on CRRs permanently (two offline devices can
+  jointly violate uniqueness; CRDT merges can't be rejected). Avni has zero
+  unique indexes today; future uniqueness rules on transactional tables must be
+  app-/server-enforced. FK analysis: see "removing FKs — side effects" above
+  (write-time integrity loss on 14 tables is the only real cost; query
+  performance unaffected — FKs create no indexes in SQLite).
+
+#### cr-sqlite / op-sqlite coupling and upgrade path
+
+cr-sqlite is a standard SQLite loadable extension (triggers, functions, virtual
+tables) — host-agnostic; op-sqlite merely bundles and auto-loads a prebuilt .so.
+Consequences:
+- DB file stays plain SQLite/SQLCipher (shadow tables are ordinary tables);
+  readable anywhere, CRR *writes* need the extension loaded.
+- Any host (Node, box, laptop bridge) can speak the same crsql_changes format.
+- op-sqlite upgrade: rebuild + re-run probe buttons (phases 2–4 = regression
+  suite). If a future op-sqlite drops the crsqlite flag: bundle libcrsqlite.so
+  in our jniLibs and load via the public db.loadExtension() API (~a day; also
+  decouples our cr-sqlite version from op-sqlite's bundle).
+- The real compatibility surface is cr-sqlite version **across peers**: P2P
+  handshake must check app version and refuse mismatched sync.
+- Action item: pin op-sqlite exactly (currently "^11.3.0") once P2P ships, so
+  the bundled cr-sqlite only changes deliberately.
+
+#### Layering: SQLite vs op-sqlite vs cr-sqlite
+
+```
+Avni JS code
+    │  db.execute(...)
+op-sqlite      ← RN binding: C++/JSI glue exposing SQLite to JS; ships no DB logic
+    │  embeds and compiles...
+SQLite engine  ← the actual database (our build: SQLCipher fork + encryption)
+    │  loads at open...
+cr-sqlite      ← loadable extension registering crsql_* functions/tables
+    │
+.db file
+```
+
+- op-sqlite bundles its own engine; the Android system SQLite is never used —
+  every device runs exactly the engine we compiled. "Upgrading SQLite" only
+  happens through an op-sqlite upgrade we choose.
+- Engine newer + extension old = safe (SQLite extension ABI is
+  stability-guaranteed; compatibility promised through 2050). op-sqlite bumps do
+  not require cr-sqlite changes.
+- The only floor runs the other way: cr-sqlite needs some minimum engine
+  version; upgrades only move forward, so it can't be violated by upgrading.
+- cr-sqlite upgrades only for its own bugs/features, never as a side effect.
+  Pinned version ships for years; probe buttons (phases 2–4) are the regression
+  check after any layer moves.
