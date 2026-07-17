@@ -244,7 +244,12 @@ class P2PStarSyncService extends BaseService {
 
     // --- spoke side ---
 
+    async getSavedHubIp() {
+        return this._getMeta('hubIp');
+    }
+
     async syncWithHub(host, log) {
+        if (host) await this._setMeta('hubIp', host);
         const deviceId = await this.deviceId();
         const since = parseInt((await this._getMeta('cursor')) || '0', 10);
         const outbox = this.collectOutbox();

@@ -908,3 +908,55 @@ media decision, mapped to the implementation):
   behavior for undownloaded server media).
 - Effort: ≈ a spike-day (handlers ≈ phase-4 size + MediaQueue insert +
   watermark); slots into P2PStarSyncService beside the entity flow.
+
+## FINAL PRODUCTION APPROACH — SUMMARY (as of 2026-07-17)
+
+**Hub and spokes via P2P — every device runs the full avni-client (no bespoke frontend).**
+
+1. A phone/tablet acts as hub: hotspot on → Start Hub → hub advertises itself by
+   name (NSD). Hub keeps a ledger `(seq, entity_type, entity_uuid, origin)` of
+   every entity received/authored. Hub has a persistent device UUID (identity —
+   the key spokes file their cursors under) + a ledger epoch UUID (changes only
+   on ledger rebuild).
+2. Spoke devices auto-join the hub's network and discover it by name.
+3. Spokes do normal data entry in the full Avni app. Entities travel as the
+   existing `toResource` JSON and apply through the repository layer — same
+   path as server sync.
+4. Spokes sync with the hub: push new EntityQueue items (push watermark), pull
+   ledger entries after their cursor — both tracked per hub. The EntityQueue is
+   NEVER consumed by P2P sync.
+5. Conflicts: entity-level, last-arrival-at-hub wins; voiding is the only
+   delete. Server sync untouched — P2P carries only the clinic-day delta.
+6. **No single point of failure for data delivery**: since spoke queues stay
+   intact, every device can still upload its own data to the server directly if
+   the hub is lost. The hub is a convenience for in-clinic sharing, not a
+   custodian. (Deleting queue entries on hub-sync was considered and rejected —
+   it would strand spoke data if the hub dies before its server sync.)
+7. Hub lost → any device becomes hub; spokes see a new uuid/epoch on handshake
+   and reset cursors (worst case: idempotent re-exchange). Simpler v1 option:
+   drop cursors entirely, full re-exchange each sync (idempotent, bounded by
+   ledger retention).
+8. Media rides the same channel (transport verified with a 2MB byte-exact
+   blob): files transfer to the hub with upload-ownership handoff; peers fetch
+   lazily; thumbnail tiering if volume demands.
+
+**Status**: vertical slice PASSED on-device 2026-07-17 (registration spoke→hub,
+enrolment hub→spoke, real forms/screens, offline; demo videos on card #2002).
+**Remaining build list**: NSD discovery + Mapeo-style sync screen; foreground
+service; per-hub cursor/watermark/epoch (designed, not yet coded); hub apply
+mutex; ledger retention; media channel; remaining whitelist entity types +
+per-type adapter verification; consistency checker (layers 1+2); pairing/TLS;
+revert crsqlite flag; server idempotency check. Fallback engines in reserve:
+cr-sqlite (proven, needs FK-strip), session extension, hand-rolled LWW.
+
+#### Hub/spoke membership fluidity + catchment boundary
+
+The hub is stateless about spokes: new spoke → no cursor for this hub → pulls
+from 0 (bounded by ledger retention); departing spoke → nothing to clean up;
+mixed teams → each spoke syncs against its own cursor. Same hub with different
+spokes over time is the normal case, not an edge case.
+
+Boundary condition: **P2P pull has no catchment filter** (server sync scopes by
+user catchment; the ledger serves its window to any paired spoke). Assumption:
+one hub = one team = one catchment. If cross-catchment hub sharing is ever
+needed, add a ledger-side scope filter — future work, not in v1.

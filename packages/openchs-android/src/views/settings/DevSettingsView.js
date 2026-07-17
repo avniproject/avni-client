@@ -23,8 +23,6 @@ import DashboardCacheService from "../../service/DashboardCacheService";
 import {MyDashboardActionNames} from "../../action/mydashboard/MyDashboardActions";
 import CustomDashboardCacheService from "../../service/CustomDashboardCacheService";
 import PerformanceBenchmarkService from "../../service/PerformanceBenchmarkService";
-import P2PSpike from "../../framework/p2p/P2PSpike";
-import CrSqliteProbe from "../../framework/p2p/CrSqliteProbe";
 import P2PStarSyncService from "../../service/P2PStarSyncService";
 
 @Path('/devSettingsView')
@@ -48,6 +46,9 @@ class DevSettingsView extends AbstractComponent {
 
     UNSAFE_componentWillMount() {
         super.UNSAFE_componentWillMount();
+        this.context.getService(P2PStarSyncService).getSavedHubIp().then((hubIp) => {
+            if (hubIp && !this.state.p2pHost) this.setState({p2pHost: hubIp});
+        });
     }
 
     renderLogLevels() {
@@ -89,12 +90,6 @@ class DevSettingsView extends AbstractComponent {
         this.setState((prev) => ({p2pLogs: [...(prev.p2pLogs || []), `${moment().format('HH:mm:ss')} ${message}`].slice(-15)}));
     }
 
-    p2pFindHub() {
-        P2PSpike.scanForHub((m) => this.p2pLog(m)).then((hubIp) => {
-            if (hubIp) this.setState({p2pHost: hubIp});
-        });
-    }
-
     renderP2PButton(label, onPress) {
         return <TouchableNativeFeedback onPress={onPress}>
             <View style={[Styles.basicPrimaryButtonView, {marginTop: 8}]}>
@@ -107,28 +102,14 @@ class DevSettingsView extends AbstractComponent {
         const log = (m) => this.p2pLog(m);
         const host = this.state.p2pHost || '';
         return <View style={{marginTop: 24, marginBottom: 16}}>
-            <Text style={{fontSize: Fonts.Large}}>P2P Transport Spike (T1)</Text>
-            <Text>Hub: enable phone hotspot, then Start Hub. Spoke: join hotspot, Detect, Ping.</Text>
-            {this.renderP2PButton(P2PSpike.isHubRunning() ? 'Stop Hub' : 'Start Hub',
-                () => {
-                    P2PSpike.isHubRunning() ? P2PSpike.stopHub(log) : P2PSpike.startHub(log);
-                    this.setState({});
-                })}
+            <Text style={{fontSize: Fonts.Large}}>MMU Offline Sync (P2P)</Text>
+            {this.renderP2PButton('Start Hub', () => this.context.getService(P2PStarSyncService).startHub(log))}
             <View style={{marginTop: 8}}>
                 <Text>Hub IP:</Text>
-                <TextInput value={host} placeholder='192.168.x.1' keyboardType='numeric'
+                <TextInput value={host} placeholder='192.168.x.x' keyboardType='numeric'
                            onChangeText={(text) => this.setState({p2pHost: text})}/>
             </View>
-            {this.renderP2PButton('Find Hub (scan subnet)', () => this.p2pFindHub())}
-            {this.renderP2PButton('Ping Hub', () => P2PSpike.ping(host, log))}
-            {this.renderP2PButton('Send 2MB Payload', () => P2PSpike.sendTestPayload(host, 2, log))}
-            {this.renderP2PButton('CR-SQLite Probe (Design B gate)', () => CrSqliteProbe.run(log))}
-            {this.renderP2PButton('CR-SQLite Phase 3 (real DDL + FKs)', () => CrSqliteProbe.runPhase3(log))}
-            {this.renderP2PButton('P4: Init CRR DB', () => CrSqliteProbe.p4Init(log))}
-            {this.renderP2PButton('P4: Register Patient', () => CrSqliteProbe.p4Register(log))}
-            {this.renderP2PButton('P4: Sync with Hub', () => P2PSpike.crsqlSync(host, log))}
-            {this.renderP2PButton('A★ Start Hub (real tables)', () => this.context.getService(P2PStarSyncService).startHub(log))}
-            {this.renderP2PButton('A★ Sync with Hub (real tables)', () => this.context.getService(P2PStarSyncService).syncWithHub(host, log))}
+            {this.renderP2PButton('Sync with Hub', () => this.context.getService(P2PStarSyncService).syncWithHub(host, log))}
             <View style={{marginTop: 8, backgroundColor: '#f0f0f0', padding: 8}}>
                 {(this.state.p2pLogs || []).map((line, index) =>
                     <Text key={index} style={{fontSize: Fonts.Small, fontFamily: 'monospace'}}>{line}</Text>)}
