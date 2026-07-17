@@ -11,6 +11,11 @@ const errStr = (error) => (error && error.message) || JSON.stringify(error);
 class P2PSpike {
     constructor() {
         this.server = null;
+        this.starHandlers = null;
+    }
+
+    setStarHandlers(handlers) {
+        this.starHandlers = handlers;
     }
 
     isHubRunning() {
@@ -65,6 +70,18 @@ class P2PSpike {
                 socket.write(JSON.stringify({type: 'blobAck', receivedBytes: session.blobBytes, ms: ms}) + '\n');
                 break;
             }
+            case 'astarPush':
+                if (!this.starHandlers) return log('A★ push received but no handlers registered');
+                this.starHandlers.onPush(message)
+                    .then((result) => socket.write(JSON.stringify({type: 'astarPushAck', applied: result.applied}) + '\n'))
+                    .catch((e) => socket.write(JSON.stringify({type: 'astarError', message: errStr(e)}) + '\n'));
+                break;
+            case 'astarPull':
+                if (!this.starHandlers) return log('A★ pull received but no handlers registered');
+                this.starHandlers.onPull(message)
+                    .then((result) => socket.write(JSON.stringify({type: 'astarChanges', batches: result.batches, maxSeq: result.maxSeq}) + '\n'))
+                    .catch((e) => socket.write(JSON.stringify({type: 'astarError', message: errStr(e)}) + '\n'));
+                break;
             case 'crsqlPull':
                 CrSqliteProbe.p4GetChanges()
                     .then(async (changes) => {
@@ -86,6 +103,23 @@ class P2PSpike {
             default:
                 log(`Unknown message: ${message.type}`);
         }
+    }
+
+    // A-star: spoke pushes its entity-queue resources, then pulls ledger changes since its cursor
+    starSync(host, {deviceId, since, batches}, log, onChanges) {
+        const socket = this._connect(host, log, (message) => {
+            if (message.type === 'astarPushAck') {
+                log(`Hub applied ${message.applied} pushed entities`);
+                socket.write(JSON.stringify({type: 'astarPull', deviceId: deviceId, since: since}) + '\n');
+            } else if (message.type === 'astarChanges') {
+                socket.destroy();
+                onChanges({batches: message.batches, maxSeq: message.maxSeq});
+            } else if (message.type === 'astarError') {
+                log(`Hub error: ${message.message}`);
+                socket.destroy();
+            }
+        });
+        socket.on('connect', () => socket.write(JSON.stringify({type: 'astarPush', deviceId: deviceId, batches: batches}) + '\n'));
     }
 
     // Phase 4: full bidirectional exchange, spoke-initiated (pull hub's changes, apply, push mine)

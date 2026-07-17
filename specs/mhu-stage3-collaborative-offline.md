@@ -730,3 +730,106 @@ Placement after the A-star decision: **first-choice engine fallback**, ahead of
 cr-sqlite in maintenance/FK terms, behind it in proven-ness (B passed phases
 1–4 on device; S is unproven on our stack). Relevant only if entity-level state
 sync proves too coarse or mesh topology returns.
+
+#### Prior art: Mapeo and Actyx (reviewed 2026-07-17)
+
+**Mapeo** (Digital Democracy — RN/Android offline field mapping, P2P over shared
+Wi-Fi, years in production with Amazon indigenous teams) — the closest cousin;
+borrow directly:
+- **Sync screen UX**: nearby devices listed by name, per-device Sync button,
+  visible progress, "keep screen open", user-initiated on both ends —
+  field-proven with no-IT-support users; template for the MHU sync screen.
+- **Discovery**: mDNS/DNS-SD in an RN Android app in production — validates our
+  NSD plan. Shared Wi-Fi framing: hotspot is one way to make the LAN, not the
+  architecture (offline router works too).
+- **Pairing**: project-key scoping ≈ our clinic session key via QR.
+- **Media tiering**: sync thumbnails always, originals lazily/hub-only —
+  adopt for photo-heavy clinic days.
+- **Caution**: Mapeo full-exchanges ALL data both ways (it has no server of
+  record, so peers are the only source of history) and embeds nodejs-mobile +
+  hypercore logs. Not our model.
+
+**Why full-exchange can't work for Avni and A-star avoids it**: every device
+already holds the catchment via normal server sync; P2P moves only the offline
+gap (spoke's EntityQueue out; ledger-since-cursor in) — KBs/day, never the
+corpus. **Ledger retention policy (new design element)**: prune entries older
+than N days — a fresh spoke's since=0 pull then covers only recent clinic days;
+older data arrives via ordinary server sync. Server = bulk + truth, P2P = the
+offline gap.
+
+**Actyx** (industrial local-first platform) — the other design family: every
+device appends facts to its own event log, devices gossip logs peer-to-peer
+(no leader), state is derived by replaying merged logs ordered by Lamport
+clocks. Relevant as: production proof of leaderless local-first; vocabulary for
+proposals ("local-first cooperation", partition tolerance); reference if the
+no-hub mesh vision returns (then: cr-sqlite table-CRDTs vs Actyx-style event
+logs). A-star is deliberately the opposite family — ship state (Avni entities),
+hub orders it — because Avni's data model and server-of-record are state-shaped.
+One-liner: Mapeo shows how our sync screen should look; Actyx shows a different
+sync philosophy; A-star borrows the first and deliberately isn't the second.
+
+#### Database-level sync: complete taxonomy (closing word on alternatives)
+
+| Family | Examples | Verdict |
+|---|---|---|
+| CRDT extension in SQLite | cr-sqlite | evaluated fully; proven fallback |
+| Changeset machinery in SQLite | session extension | evaluated; first engine fallback |
+| Hand-rolled triggers + clocks | B-minus (Actual Budget style) | evaluated; documented fallback |
+| Client↔cloud engines | PowerSync, ElectricSQL, Turso replicas | wrong hop — need a reachable central service; also duplicate Avni's existing (mature) server sync |
+| File/WAL-level replication | Litestream, VFS shims, file copy | **structurally single-writer**: replicates one writer's pages/WAL perfectly, cannot merge two; whole-file copy = LWW on the entire database. Backup/hub-reseed tooling only, never sync |
+| Consensus clusters | rqlite, dqlite (Raft) | wrong availability model: needs a reachable quorum to accept writes; devices leaving the van block or get ejected. Offline field work requires availability under partition |
+| Switch database | CouchDB/PouchDB (CHT's proven model), Couchbase Lite (has LAN P2P), Ditto, ObjectBox | sync is built-in, the price is a platform rewrite (document store; abandons relational schema, openchs-models, the 18.0 migration) |
+
+Conclusion: for a relational SQLite app merging multi-writer offline edits, the
+only database-level mechanisms in existence are the three evaluated. A-star was
+chosen from a complete survey, not a partial one.
+
+#### A-star multi-writer semantics (conflict walkthrough)
+
+Multi-writer = several devices editing local copies offline, merged later. Two
+levels:
+- **Different entities** (≈all clinic traffic): union via hub ledger. Trivial.
+- **Same entity edited on two devices between syncs**: entity-level,
+  **last-arrival-at-hub wins** — the later-arriving version upserts the whole
+  entity; the earlier edit is silently discarded. Accepted because MHU roles
+  author their own forms (rare overlap) and observations-as-JSON blunts even
+  column-level merging. Loss surface comparison: file copy loses the whole DB;
+  A-star loses at most one entity on a true concurrent edit; a CRDT loses at
+  most one field.
+
+Correctness rule found by walkthrough (bug fixed 2026-07-17 in
+P2PStarSyncService): on pull, dedupe ledger rows to the winning (latest) row per
+entity **before** excluding the requester's own rows. Filtering first serves a
+peer's older, defeated edit over the requester's newer one → permanent
+divergence (requester's cursor passes the winning seq it never received).
+
+## A-star vertical slice — TEST RESULTS (2026-07-17, F41 hub / S24 spoke, staging)
+
+**PASSED both directions on real tables, real forms, real screens, no internet:**
+- Registration (Individual + observations) on S24 → A★ sync → visible in F41's
+  normal search.
+- Program enrolment on F41 → A★ sync → visible on S24.
+
+Integration bugs found and fixed during the run (all "skip + retry", never
+corruption — the sync loop is self-healing by design since the spoke queue is
+never consumed):
+1. Service registration: new services MUST be imported in AllServices.js (Metro
+   inlineRequires defers module load past BeanRegistry.init).
+2. toResource/fromResource asymmetry #1: flat reference keys vs _links.<key>.href
+   (+ server renames, e.g. addressLevelUUID→addressUUID) — adapter wraps/aliases.
+3. Asymmetry #2: observations emitted as [{conceptUUID, value}] array but parsed
+   as {conceptUUID: value} map — adapter converts any obs-shaped array.
+4. Pull correctness: dedupe ledger rows to latest-per-entity BEFORE excluding
+   requester's own rows (else a defeated older peer edit overwrites the
+   requester's newer one → permanent divergence).
+
+Implementation: src/service/P2PStarSyncService.js (ledger in own sqlite side-DB,
+no app schema change; outbox = EntityQueue resources; apply mirrors server-sync
+persistAll minus EntitySyncStatus/telemetry; whitelist Individual/Encounter/
+ProgramEnrolment/ProgramEncounter), astarPush/astarPull messages on the T1
+transport, Dev Settings buttons.
+
+Remaining for production: discovery + sync-screen UX (Mapeo-style), foreground
+service on hub, ledger retention, verify remaining whitelist types + Encounter
+direction, media channel, hub re-seed, server upsert-idempotency check (gates
+the upstream queue design).

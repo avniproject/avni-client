@@ -25,6 +25,7 @@ import CustomDashboardCacheService from "../../service/CustomDashboardCacheServi
 import PerformanceBenchmarkService from "../../service/PerformanceBenchmarkService";
 import P2PSpike from "../../framework/p2p/P2PSpike";
 import CrSqliteProbe from "../../framework/p2p/CrSqliteProbe";
+import P2PStarSyncService from "../../service/P2PStarSyncService";
 
 @Path('/devSettingsView')
 class DevSettingsView extends AbstractComponent {
@@ -126,6 +127,8 @@ class DevSettingsView extends AbstractComponent {
             {this.renderP2PButton('P4: Init CRR DB', () => CrSqliteProbe.p4Init(log))}
             {this.renderP2PButton('P4: Register Patient', () => CrSqliteProbe.p4Register(log))}
             {this.renderP2PButton('P4: Sync with Hub', () => P2PSpike.crsqlSync(host, log))}
+            {this.renderP2PButton('A★ Start Hub (real tables)', () => this.context.getService(P2PStarSyncService).startHub(log))}
+            {this.renderP2PButton('A★ Sync with Hub (real tables)', () => this.context.getService(P2PStarSyncService).syncWithHub(host, log))}
             <View style={{marginTop: 8, backgroundColor: '#f0f0f0', padding: 8}}>
                 {(this.state.p2pLogs || []).map((line, index) =>
                     <Text key={index} style={{fontSize: Fonts.Small, fontFamily: 'monospace'}}>{line}</Text>)}
