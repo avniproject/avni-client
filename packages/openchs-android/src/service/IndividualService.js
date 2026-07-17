@@ -782,6 +782,7 @@ class IndividualService extends BaseService {
     }
 
     getAllBySubjectType(subjectType) {
+        // getAll(), not getAllNonVoided() — restore/delete flows must also remove voided subjects
         return this.getAll().filtered('subjectType.uuid = $0', subjectType.uuid);
     }
 }

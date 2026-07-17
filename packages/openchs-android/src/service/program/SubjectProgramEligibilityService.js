@@ -34,7 +34,11 @@ class SubjectProgramEligibilityService extends BaseService {
         });
     }
 
+    // No in-repo callers, but reachable from org-authored rules via getService("SubjectProgramEligibilityService")
     findBySubject(subject) {
+        if (_.isNil(subject)) {
+            return [];
+        }
         return this.getAllNonVoided().filtered('subject.uuid = $0', subject.uuid);
     }
 
