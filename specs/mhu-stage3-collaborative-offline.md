@@ -833,3 +833,78 @@ Remaining for production: discovery + sync-screen UX (Mapeo-style), foreground
 service on hub, ledger retention, verify remaining whitelist types + Encounter
 direction, media channel, hub re-seed, server upsert-idempotency check (gates
 the upstream queue design).
+
+#### Cursor scoping (production requirement, from 2026-07-17 review)
+
+The spoke cursor is passive state — touched only during an A★ sync, invisible
+to normal server sync, no operator interaction ever (one Sync button, Mapeo
+style). But it must be scoped, not global:
+- **Per-hub**: store cursor[hubDeviceId] (handshake returns hub id). A global
+  cursor from Van 3 (seq 40) against Van 7's younger ledger (seq 10) silently
+  skips everything until 41. New hub → cursor starts at 0 automatically.
+- **Ledger epoch**: ledger carries a UUID regenerated on creation; pull response
+  includes it; mismatch → spoke resets that hub's cursor to 0. Handles hub
+  re-seed/replacement; safe because apply is idempotent (UUID upserts).
+This also completes the hub-death story: promote any device to hub → fresh
+epoch → spokes auto-reset and re-pull; worst case is redundant no-op re-applies.
+
+#### Push watermark (production requirement — the cursor's twin)
+
+Slice behavior (observed in test logs): the spoke re-pushes its entire
+EntityQueue every A★ sync, since the queue is only drained by server sync.
+Fine at day scale; wasteful over a week-long offline camp.
+
+Fix: `pushedUpTo[hubId]` — one savedAt timestamp per hub in the spoke side-DB.
+Outbox = queue items with savedAt >= watermark; advance on hub ack; never touch
+the queue itself (server sync still owns popping). Properties:
+- Re-saved entity gets a newer savedAt → re-pushed. ✓
+- New/replacement hub → no watermark → full re-push (exactly the hub-death
+  recovery needed), automatic. ✓
+- Lost watermark → redundant idempotent re-pushes; bandwidth, never data — the
+  same safety asymmetry as the pull cursor.
+
+Complete per-spoke sync state: two values per hub — cursor[hubId] (pull) and
+pushedUpTo[hubId] (push) — both optimizations over a stateless full re-exchange
+floor ("cursor = optimization; correctness never depends on bookkeeping").
+
+#### Concurrent spokes syncing (two peers at the same instant)
+
+Normal case is interleaved syncs: hub is a relay with one-sync latency — data
+reaches the hub when its author syncs, reaches every other spoke on their next
+pull (origin filter passes cross-peer data). Propagation speed = sync frequency
+(near-real-time with an auto-sync timer on clinic Wi-Fi).
+
+Truly simultaneous connections are safe by three layers:
+- transport: TCP server handles multiple sockets (proven with 3 clients in T1);
+- interleaving: JS event loop interleaves handlers only at await points; each
+  entity-type batch applies in one atomic native call; **ledger rows are
+  appended only after a push's apply completes**, so a concurrent pull can never
+  serve a half-applied push;
+- ledger: autoincrement seq is safe under concurrent inserts.
+
+Production hardening: add an async mutex on the hub's apply path (serialize
+whole pushes; ~5 lines) — turns "safe by reasoning" into "safe by construction";
+clinic-scale throughput never notices. Same-entity from two peers remains
+last-arrival-wins with the dedupe-before-echo-filter rule.
+
+#### Media over the A-star sync (spoke→hub images)
+
+Transport already proven (T1 2MB blob = photo-sized). Design (per 2026-07-16
+media decision, mapped to the implementation):
+- Outbox driven by **MediaQueue** (as entities are by EntityQueue), gated by a
+  per-hub push watermark (same twin-cursor pattern).
+- `mediaPush` message family on the NDJSON socket: header {fileName, size,
+  entityUUID} + base64 chunks + end marker (reuses the proven chunking).
+  1–5MB photo ≈ 1–8s at measured LAN throughput.
+- Hub writes the file into its own media directory (same name): its UI renders
+  it for the synced entity, and it inserts into its own MediaQueue —
+  **upload-ownership transfer** (pending-on-spoke → transferred-to-hub →
+  pushed; single-owner rule prevents duplicate S3 uploads).
+- File idempotency: hub skips files it already has (name+size/hash).
+- Reverse direction stays lazy: `mediaRequest {uuid}` on demand; Mapeo-style
+  thumbnail tiering if volume demands.
+- Ordering falls out naturally: entity arrives via astarPush first; until the
+  file lands the hub shows Avni's standard media placeholder (existing app
+  behavior for undownloaded server media).
+- Effort: ≈ a spike-day (handlers ≈ phase-4 size + MediaQueue insert +
+  watermark); slots into P2PStarSyncService beside the entity flow.
