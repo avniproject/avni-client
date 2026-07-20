@@ -500,6 +500,36 @@ describe('EdgeModelService', () => {
             );
         });
 
+        it('invalidates the stale verdict immediately when the row image is replaced in-session (#2010)', async () => {
+            // Edit flow: row holds "Suspicious" from image A; user replaces the photo with image B.
+            // Until B's inference lands, the old verdict must NOT keep unblocking the mandatory
+            // gate — the CHANGED branch queues an immediate clear for that row, so the field goes
+            // empty (mandatory re-engages) and the new verdict fills it on resolve.
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockResolvedValue({label: 'Positive', confidence: 0.9});
+            const entity = fakeRqgEntity('e1', [{'AI Verdict': 'Suspicious'}]);
+
+            // Phase 1 — cold start on image A: recompute, seed lastImage. NO clear here (a synced-in
+            // encounter with missing media must keep its persisted verdict).
+            service.scheduleImageInferenceIntoGroup(
+                'oral-cancer-v1', '/tmp/A.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
+            await new Promise(r => setImmediate(r));
+            flushInference();
+            const phase1Clears = service.dispatchAction.mock.calls
+                .flatMap(c => (c[1] && c[1].results) || []).filter(r => r.clear);
+            expect(phase1Clears).toEqual([]);
+            service.dispatchAction.mockClear();
+
+            // Phase 2 — replace with image B; keep inference pending so the clear is observable alone.
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation(() => new Promise(() => {}));
+            service.scheduleImageInferenceIntoGroup(
+                'oral-cancer-v1', '/tmp/B.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
+            flushInference();
+            expect(service.dispatchAction).toHaveBeenCalledWith(
+                'EDGE_MODEL.INFERENCE_RESULTS_BATCH',
+                {results: [{questionGroupConceptName: 'Image-wise AI Assessment', conceptName: 'AI Verdict', questionGroupIndex: 0, value: null, clear: true}]}
+            );
+        });
+
         it('caps cold-start recompute to one attempt per image per session when the media file is missing', async () => {
             NativeModules.EdgeModelModule.runInferenceOnImage.mockRejectedValue(new Error('IMAGE_NOT_FOUND'));
             const entity = fakeRqgEntity('e1', [{'AI Verdict': 'Suspicious'}]);

@@ -291,8 +291,17 @@ class EdgeModelService extends BaseService {
                     `scheduleImageInference cold-start recompute for '${targetConceptName}' (persisted verdict, imagePath=${imagePath})`);
             } else {
                 // existing populated but lastImage defined and != imagePath → the photo was retaken.
+                // Invalidate the stale verdict IMMEDIATELY (#2010): until the new image's inference
+                // lands, the old verdict would keep rendering against the new photo and keep the
+                // mandatory gate satisfied — a wrong answer the user could save. Clearing the obs
+                // re-engages the gate; the new verdict fills it on resolve. Deliberately NOT done
+                // for the cold-start recompute above: there the image may be unchanged, and a
+                // synced-in encounter with missing media must keep its persisted verdict.
                 General.logDebug('EdgeModelSvc',
-                    `scheduleImageInference image CHANGED for '${targetConceptName}' (was ${lastImage}, now ${imagePath}) — re-running`);
+                    `scheduleImageInference image CHANGED for '${targetConceptName}' (was ${lastImage}, now ${imagePath}) — invalidating stale verdict, re-running`);
+                this._queueInferenceResult(isRqg
+                    ? {questionGroupConceptName, conceptName: targetConceptName, questionGroupIndex: rqgIdx, value: null, clear: true}
+                    : {conceptName: targetConceptName, value: null, clear: true});
             }
         }
 

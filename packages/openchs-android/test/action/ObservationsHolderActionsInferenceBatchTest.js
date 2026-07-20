@@ -103,6 +103,28 @@ describe('_applyInferenceWrite return contract (#2009)', () => {
         expect(target).toEqual({uuid: 'fe-child', questionGroupIndex: 1});
     });
 
+    it('a clear write removes the row child obs without writing and returns the target (#2010)', () => {
+        const removeSpy = jest.fn();
+        const parentFE = {concept: {name: 'G'}, isRepeatableQuestionGroup: () => true};
+        const childFE = {
+            uuid: 'fe-child', concept: {name: 'V', isCodedConcept: () => true, isMediaConcept: () => false},
+            isQuestionGroup: () => true, getParentFormElement: () => parentFE,
+        };
+        const rqg = {size: () => 2, getGroupObservationAtIndex: () => ({removeExistingObs: removeSpy})};
+        const newState = {
+            formElementGroup: {getFormElements: () => [childFE]},
+            observationsHolder: {
+                getObservation: () => ({getValueWrapper: () => rqg}),
+                updateRepeatableGroupQuestion: jest.fn(),
+            },
+        };
+        const target = ObservationsHolderActions._applyInferenceWrite(newState,
+            {questionGroupConceptName: 'G', conceptName: 'V', questionGroupIndex: 1, value: null, clear: true});
+        expect(removeSpy).toHaveBeenCalledWith(childFE.concept);
+        expect(newState.observationsHolder.updateRepeatableGroupQuestion).not.toHaveBeenCalled();
+        expect(target).toEqual({uuid: 'fe-child', questionGroupIndex: 1});
+    });
+
     it('RQG write returns null when the row does not exist', () => {
         const parentFE = {concept: {name: 'G'}, isRepeatableQuestionGroup: () => true};
         const childFE = {
