@@ -136,8 +136,10 @@ class ObservationsHolderActions {
     static onInferenceResultAvailable(state, action, context) {
         if (!state || !state.formElementGroup || !state.observationsHolder) return state;
         const newState = state.clone();
-        if (!ObservationsHolderActions._applyInferenceWrite(newState, action)) return state;
-        ObservationsHolderActions._getFormElementStatuses(newState, context);
+        const target = ObservationsHolderActions._applyInferenceWrite(newState, action);
+        if (!target) return state;
+        const formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
+        ObservationsHolderActions._resyncWrittenTargetsValidation(newState, [target], formElementStatuses);
         return newState;
     }
 
@@ -153,13 +155,36 @@ class ObservationsHolderActions {
         if (!state || !state.formElementGroup || !state.observationsHolder) return state;
         if (_.isEmpty(action.results)) return state;
         const newState = state.clone();
-        let appliedAny = false;
+        const written = [];
         for (const result of action.results) {
-            if (ObservationsHolderActions._applyInferenceWrite(newState, result)) appliedAny = true;
+            const target = ObservationsHolderActions._applyInferenceWrite(newState, result);
+            if (target) written.push(target);
         }
-        if (!appliedAny) return state;
-        ObservationsHolderActions._getFormElementStatuses(newState, context);
+        if (_.isEmpty(written)) return state;
+        const formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
+        ObservationsHolderActions._resyncWrittenTargetsValidation(newState, written, formElementStatuses);
         return newState;
+    }
+
+    /**
+     * #2009 — after an async write lands, re-sync ONLY the written targets' Rule-type validation
+     * results from the fresh statuses. The gate case: a rule-emitted blocking error (e.g. the
+     * oral-screening AI-verdict "pending" error) must clear the moment its verdict observation
+     * arrives — without the user touching the page, which on a read-only page they can't.
+     * Targeted by design: it cannot clear mandatory/other-element errors (different
+     * formIdentifier) or other rows (both sides carry a concrete questionGroupIndex), and it
+     * re-syncs rather than blindly removes — a still-failing rule keeps its error. Null-safe for
+     * registered flows whose state doesn't extend AbstractDataEntryState.
+     */
+    static _resyncWrittenTargetsValidation(newState, writtenTargets, formElementStatuses) {
+        if (!_.isFunction(newState.handleValidationResult) || _.isEmpty(formElementStatuses)) return;
+        writtenTargets.forEach(({uuid, questionGroupIndex}) => {
+            const fresh = _.find(formElementStatuses, s => s.uuid === uuid &&
+                (_.isNil(s.questionGroupIndex) ? _.isNil(questionGroupIndex) : s.questionGroupIndex === questionGroupIndex));
+            if (!fresh) return;
+            const [validationResult] = ObservationsHolderActions.getRuleValidationErrors([fresh]);
+            newState.handleValidationResult(validationResult);
+        });
     }
 
     /**
