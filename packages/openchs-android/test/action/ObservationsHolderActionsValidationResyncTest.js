@@ -8,6 +8,7 @@
 import ObservationsHolderActions from "../../src/action/common/ObservationsHolderActions";
 import AbstractDataEntryState from "../../src/state/AbstractDataEntryState";
 import {ValidationResult} from "avni-models";
+import General from "../../src/utility/General";
 
 const ruleVR = (uuid, qgIdx, message) =>
     new ValidationResult(false, uuid, message, null, qgIdx, ValidationResult.ValidationTypes.Rule);
@@ -84,6 +85,26 @@ describe('ObservationsHolderActions targeted validation re-sync (#2009)', () => 
         expect(() => ObservationsHolderActions.onObservationWriteBatch(state,
             {results: [{questionGroupConceptName: 'G', conceptName: 'V', questionGroupIndex: 1, value: 'X'}]}, {}))
             .not.toThrow();
+    });
+
+    it('logs the gate state per written row (cleared vs kept) for later log analysis', () => {
+        const logSpy = jest.spyOn(General, 'logDebug').mockImplementation(() => {});
+        const state = makeState([ruleVR('fe-verdict', 0, 'aiVerdictPending'), ruleVR('fe-verdict', 1, 'aiVerdictPending')]);
+        jest.spyOn(ObservationsHolderActions, '_applyInferenceWrite')
+            .mockReturnValueOnce({uuid: 'fe-verdict', questionGroupIndex: 0})
+            .mockReturnValueOnce({uuid: 'fe-verdict', questionGroupIndex: 1});
+        jest.spyOn(ObservationsHolderActions, '_getFormElementStatuses')
+            .mockReturnValue([freshStatus('fe-verdict', 0, []), freshStatus('fe-verdict', 1, ['aiVerdictPending'])]);
+        ObservationsHolderActions.onObservationWriteBatch(state,
+            {results: [
+                {questionGroupConceptName: 'G', conceptName: 'V', questionGroupIndex: 0, value: 'X'},
+                {questionGroupConceptName: 'G', conceptName: 'V', questionGroupIndex: 1, value: 'Y'},
+            ]}, {});
+        const gateLogs = logSpy.mock.calls.map(c => String(c[1])).filter(m => m.startsWith('resync gate'));
+        expect(gateLogs).toEqual([
+            'resync gate CLEARED: fe-verdict[0]',
+            'resync gate KEPT: fe-verdict[1] error=aiVerdictPending',
+        ]);
     });
 
     it('onInferenceResultAvailable (single result) re-syncs the same way', () => {
