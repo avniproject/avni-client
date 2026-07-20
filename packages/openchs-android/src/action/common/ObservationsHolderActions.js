@@ -204,9 +204,11 @@ class ObservationsHolderActions {
     /**
      * Writes a single inference result into `newState.observationsHolder` WITHOUT re-running
      * the form-element rules — the caller does that once (so a batch re-evals once, not N
-     * times). Returns true if a write was applied, false if the result's target concept/row
-     * isn't on the current page (so the caller can leave the state untouched). Routing mirrors
-     * onInferenceResultAvailable:
+     * times). Returns the written target `{uuid, questionGroupIndex}` (the form element the
+     * value landed on — `questionGroupIndex` null for top-level writes), or null if the
+     * result's target concept/row isn't on the current page (so the caller can leave the
+     * state untouched). The target feeds the caller's Rule-validation re-sync (#2009).
+     * Routing mirrors onInferenceResultAvailable:
      *   • Coded concept: value is the answer NAME, resolved to the answer UUID.
      *   • Primitive (text/numeric/date): value stored verbatim.
      *   • questionGroupConceptName present: written into row `questionGroupIndex` of that RQG.
@@ -219,7 +221,7 @@ class ObservationsHolderActions {
             newState.formElementGroup.getFormElements(),
             fe => fe && fe.concept && fe.concept.name === result.conceptName
         );
-        if (!formElement) return false;
+        if (!formElement) return null;
         if (formElement.concept.isCodedConcept()) {
             newState.observationsHolder.addOrUpdateCodedObs(
                 formElement.concept, result.value, formElement.isSingleSelect()
@@ -228,7 +230,7 @@ class ObservationsHolderActions {
             newState.observationsHolder.addOrUpdatePrimitiveObs(formElement.concept, result.value);
         }
         ObservationsHolderActions._clearInferenceValidation(newState, formElement.uuid, result.questionGroupIndex);
-        return true;
+        return {uuid: formElement.uuid, questionGroupIndex: null};
     }
 
     /**
@@ -249,16 +251,16 @@ class ObservationsHolderActions {
             fe => fe && fe.concept && fe.concept.name === result.conceptName && fe.isQuestionGroup()
                 && _.get(fe.getParentFormElement(), 'concept.name') === result.questionGroupConceptName
         );
-        if (!childFormElement) return false;
+        if (!childFormElement) return null;
         const parentFormElement = childFormElement.getParentFormElement();
-        if (!parentFormElement || !parentFormElement.isRepeatableQuestionGroup()) return false;
+        if (!parentFormElement || !parentFormElement.isRepeatableQuestionGroup()) return null;
 
         const parentObs = newState.observationsHolder.getObservation(parentFormElement.concept);
         const rqg = parentObs && parentObs.getValueWrapper();
         if (!rqg || rqg.size() <= result.questionGroupIndex) {
             General.logDebug('ObservationsHolderActions',
                 `onInferenceResult SKIP: RQG '${result.questionGroupConceptName}' has no row ${result.questionGroupIndex}`);
-            return false;
+            return null;
         }
 
         const childConcept = childFormElement.concept;
@@ -271,10 +273,10 @@ class ObservationsHolderActions {
             if (value == null) {
                 General.logError('ObservationsHolderActions',
                     `onWrite SKIP: no coded answer '${result.value}' on concept '${childConcept.name}'`);
-                return false;
+                return null;
             }
         } else if (childConcept.isMediaConcept() && value == null) {
-            return false;
+            return null;
         }
         // Coded answers and media URIs are both stored single-select, so updateRepeatableGroupQuestion
         // TOGGLES — re-writing the same answer/URI (e.g. a retake re-confirming a verdict, or a rule
@@ -287,7 +289,7 @@ class ObservationsHolderActions {
             result.questionGroupIndex, parentFormElement, childFormElement, value
         );
         ObservationsHolderActions._clearInferenceValidation(newState, childFormElement.uuid, result.questionGroupIndex);
-        return true;
+        return {uuid: childFormElement.uuid, questionGroupIndex: result.questionGroupIndex};
     }
 
     static toggleSingleSelectAnswer(state, action, context) {
