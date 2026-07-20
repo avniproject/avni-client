@@ -274,51 +274,49 @@ class EdgeModelService extends BaseService {
             // duplicate inference for an image we just inferred. No log: this is the hot path.
             return;
         }
-        // #2010 — stale-verdict invalidation. A populated target whose image binding is unknown
-        // (cold start: an edit may have swapped the image in a previous page/session) or known-
-        // different (in-session retake) must not keep satisfying a mandatory gate against the
-        // wrong photo. The clear is queued BEFORE inference starts so it can never wipe the
-        // fresh verdict — and flushed on the NEXT TICK, not through the shared result debounce:
-        // every queued result resets that trailing 120ms timer, so on fast devices the fresh
-        // verdict coalesces into the same batch and the blanking never renders (observed on
-        // device, 20 Jul). A 0ms timer stays outside the rule/reducer call stack while landing
-        // ahead of any inference resolution.
+        // Invalidation: a populated target whose image binding is unknown (cold start) or
+        // known-different (in-session retake) must not keep satisfying a mandatory gate against
+        // the wrong photo. The clear rides the shared flush timer at 0ms — outside the
+        // rule/reducer call stack, ahead of inference, never coalesced behind the 120ms debounce.
         const queueClear = () => {
+            General.logDebug('EdgeModelSvc',
+                `scheduleImageInference INVALIDATING stale verdict for '${targetConceptName}'${isRqg ? `[${rqgIdx}]` : ''}`);
             this._queueInferenceResult(isRqg
                 ? {questionGroupConceptName, conceptName: targetConceptName, questionGroupIndex: rqgIdx, value: null, clear: true}
                 : {conceptName: targetConceptName, value: null, clear: true});
-            setTimeout(() => this._flushPendingResults(), 0);
+            if (this._flushTimer) clearTimeout(this._flushTimer);
+            this._flushTimer = setTimeout(() => this._flushPendingResults(), 0);
         };
+        const attemptKey = `${targetKey}|${imagePath}`;
+        if (existing == null && this._coldStartRecomputeAttempted.has(attemptKey)) {
+            // An invalidation already blanked this target and the recompute for this exact image
+            // failed once — don't churn on every re-eval; a retake (new path) re-enables.
+            General.logDebug('EdgeModelSvc',
+                `scheduleImageInference SKIP recompute already attempted for '${targetConceptName}' (${imagePath})`);
+            return;
+        }
         let invalidateIfMediaPresent = false;
         let invalidateStaleNow = false;
         if (existing != null) {
             if (lastImage === undefined) {
-                // First time we're seeing this target in-session and it's already populated →
-                // persisted verdict from a previous session. We can't tell whether it still matches
-                // the current image (an edit may have swapped the image under it), so recompute
-                // instead of trusting it: same image → idempotent, swapped image → stale verdict
-                // superseded. Cap it to one attempt per image so a missing media file doesn't retry.
-                const coldStartKey = `${targetKey}|${imagePath}`;
-                if (this._coldStartRecomputeAttempted.has(coldStartKey)) {
+                // Persisted verdict, cold session cache: an edit may have swapped the image under
+                // it, so recompute instead of trusting it — capped to one attempt per image.
+                if (this._coldStartRecomputeAttempted.has(attemptKey)) {
                     General.logDebug('EdgeModelSvc',
                         `scheduleImageInference SKIP cold-start recompute already attempted for '${targetConceptName}' (${imagePath})`);
                     return;
                 }
-                this._coldStartRecomputeAttempted.add(coldStartKey);
+                this._coldStartRecomputeAttempted.add(attemptKey);
                 General.logDebug('EdgeModelSvc',
                     `scheduleImageInference cold-start recompute for '${targetConceptName}' (persisted verdict, imagePath=${imagePath})`);
-                // Blank the possibly-stale verdict only when the media file is present locally —
-                // the recompute will then definitively resolve this row. When the file is missing
-                // (synced-in encounter, media not downloaded) keep the persisted verdict: the
-                // recompute will fail and blanking would destroy a valid verdict for nothing.
+                // Blank only when the media file is present (recompute will definitively resolve);
+                // a missing file must keep the persisted verdict.
                 invalidateIfMediaPresent = true;
             } else {
-                // existing populated but lastImage defined and != imagePath → the photo was retaken
-                // in-session. Invalidate (below, after the in-flight dedup — rule re-fires for the
-                // same replacement must not queue duplicate clears); the new verdict fills the obs
-                // on resolve.
+                // Photo retaken in-session; the clear runs below, after the in-flight dedup.
                 General.logDebug('EdgeModelSvc',
-                    `scheduleImageInference image CHANGED for '${targetConceptName}' (was ${lastImage}, now ${imagePath}) — invalidating stale verdict, re-running`);
+                    `scheduleImageInference image CHANGED for '${targetConceptName}' (was ${lastImage}, now ${imagePath})`);
+                this._coldStartRecomputeAttempted.add(attemptKey);
                 invalidateStaleNow = true;
             }
         }
@@ -339,14 +337,11 @@ class EdgeModelService extends BaseService {
             : this.runInferenceOnImage(modelKey, imagePath);
         const inference = invalidateIfMediaPresent
             ? (async () => {
+                // Fail CLOSED: when fs is unavailable, media presence is unknown — keep the verdict.
                 const mediaPresent = await (fs && fs.exists
                     ? fs.exists(imagePath).catch(() => false)
-                    : Promise.resolve(true));
-                if (mediaPresent) {
-                    General.logDebug('EdgeModelSvc',
-                        `scheduleImageInference cold-start INVALIDATING stale verdict for '${targetConceptName}' (media present, recomputing)`);
-                    queueClear();
-                }
+                    : Promise.resolve(false));
+                if (mediaPresent) queueClear();
                 return runInference();
             })()
             : runInference();

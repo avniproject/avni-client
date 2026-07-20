@@ -134,13 +134,7 @@ class ObservationsHolderActions {
      * the state unchanged.
      */
     static onInferenceResultAvailable(state, action, context) {
-        if (!state || !state.formElementGroup || !state.observationsHolder) return state;
-        const newState = state.clone();
-        const target = ObservationsHolderActions._applyInferenceWrite(newState, action);
-        if (!target) return state;
-        const formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
-        ObservationsHolderActions._resyncWrittenTargetsValidation(newState, [target], formElementStatuses);
-        return newState;
+        return ObservationsHolderActions.onObservationWriteBatch(state, {results: [action]}, context);
     }
 
     /**
@@ -162,35 +156,34 @@ class ObservationsHolderActions {
         }
         if (_.isEmpty(written)) return state;
         const formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
-        ObservationsHolderActions._resyncWrittenTargetsValidation(newState, written, formElementStatuses);
+        ObservationsHolderActions._resyncWrittenTargetsValidation(newState, written, formElementStatuses, context);
         return newState;
     }
 
-    /**
-     * #2009 — after an async write lands, re-sync ONLY the written targets' Rule-type validation
-     * results from the fresh statuses. The gate case: a rule-emitted blocking error (e.g. the
-     * oral-screening AI-verdict "pending" error) must clear the moment its verdict observation
-     * arrives — without the user touching the page, which on a read-only page they can't.
-     * Targeted by design: it cannot clear mandatory/other-element errors (different
-     * formIdentifier) or other rows (both sides carry a concrete questionGroupIndex), and it
-     * re-syncs rather than blindly removes — a still-failing rule keeps its error. Null-safe for
-     * registered flows whose state doesn't extend AbstractDataEntryState.
-     */
-    static _resyncWrittenTargetsValidation(newState, writtenTargets, formElementStatuses) {
-        if (!_.isFunction(newState.handleValidationResult) || _.isEmpty(formElementStatuses)) return;
+    // Re-syncs ONLY the written targets' Rule validation from the fresh statuses, so a blocking
+    // gate error clears the moment its async value lands on an otherwise read-only page. For the
+    // written element+row the fresh result replaces whatever error type sat there; other
+    // elements/rows are untouched. Routed through handleValidationResults so devSkipValidation
+    // is honoured; targets deduped so a same-row clear+verdict batch re-syncs (and logs) once.
+    static _resyncWrittenTargetsValidation(newState, writtenTargets, formElementStatuses, context) {
+        if (!_.isFunction(newState.handleValidationResults) || _.isEmpty(formElementStatuses)) return;
+        const seen = new Set();
+        const validationResults = [];
         writtenTargets.forEach(({uuid, questionGroupIndex}) => {
+            const targetKey = `${uuid}|${questionGroupIndex}`;
+            if (seen.has(targetKey)) return;
+            seen.add(targetKey);
             const fresh = _.find(formElementStatuses, s => s.uuid === uuid &&
                 (_.isNil(s.questionGroupIndex) ? _.isNil(questionGroupIndex) : s.questionGroupIndex === questionGroupIndex));
             if (!fresh) return;
             const [validationResult] = ObservationsHolderActions.getRuleValidationErrors([fresh]);
-            // Gate-state audit trail for the on-device file log (#2009): one line per written row
-            // saying whether its blocking rule error cleared on verdict-land or is still in force.
             General.logDebug('ObservationsHolderActions',
                 validationResult.success
                     ? `resync gate CLEARED: ${uuid}[${_.isNil(questionGroupIndex) ? '-' : questionGroupIndex}]`
                     : `resync gate KEPT: ${uuid}[${_.isNil(questionGroupIndex) ? '-' : questionGroupIndex}] error=${validationResult.messageKey}`);
-            newState.handleValidationResult(validationResult);
+            validationResults.push(validationResult);
         });
+        if (validationResults.length > 0) newState.handleValidationResults(validationResults, context);
     }
 
     /**
@@ -199,7 +192,7 @@ class ObservationsHolderActions {
      * times). Returns the written target `{uuid, questionGroupIndex}` (the form element the
      * value landed on — `questionGroupIndex` null for top-level writes), or null if the
      * result's target concept/row isn't on the current page (so the caller can leave the
-     * state untouched). The target feeds the caller's Rule-validation re-sync (#2009).
+     * state untouched). The target feeds the caller's Rule-validation re-sync.
      * Routing mirrors onInferenceResultAvailable:
      *   • Coded concept: value is the answer NAME, resolved to the answer UUID.
      *   • Primitive (text/numeric/date): value stored verbatim.
@@ -215,9 +208,7 @@ class ObservationsHolderActions {
         );
         if (!formElement) return null;
         if (result.clear === true) {
-            // #2010 — stale-verdict invalidation on image replacement: remove the obs so the
-            // dependent element renders empty (and a mandatory flag re-blocks) until the fresh
-            // result arrives.
+            // Invalidation write: blank the obs so the dependent element re-gates until the fresh result arrives.
             newState.observationsHolder._removeExistingObs(formElement.concept);
             return {uuid: formElement.uuid, questionGroupIndex: null};
         }
@@ -251,7 +242,7 @@ class ObservationsHolderActions {
 
         const childConcept = childFormElement.concept;
         if (result.clear === true) {
-            // #2010 — stale-verdict invalidation on image replacement (see _applyInferenceWrite).
+            // Invalidation write (see _applyInferenceWrite).
             rqg.getGroupObservationAtIndex(result.questionGroupIndex).removeExistingObs(childConcept);
             return {uuid: childFormElement.uuid, questionGroupIndex: result.questionGroupIndex};
         }
