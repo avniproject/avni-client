@@ -278,11 +278,19 @@ class EdgeModelService extends BaseService {
         // (cold start: an edit may have swapped the image in a previous page/session) or known-
         // different (in-session retake) must not keep satisfying a mandatory gate against the
         // wrong photo. The clear is queued BEFORE inference starts so it can never wipe the
-        // fresh verdict.
-        const queueClear = () => this._queueInferenceResult(isRqg
-            ? {questionGroupConceptName, conceptName: targetConceptName, questionGroupIndex: rqgIdx, value: null, clear: true}
-            : {conceptName: targetConceptName, value: null, clear: true});
+        // fresh verdict — and flushed on the NEXT TICK, not through the shared result debounce:
+        // every queued result resets that trailing 120ms timer, so on fast devices the fresh
+        // verdict coalesces into the same batch and the blanking never renders (observed on
+        // device, 20 Jul). A 0ms timer stays outside the rule/reducer call stack while landing
+        // ahead of any inference resolution.
+        const queueClear = () => {
+            this._queueInferenceResult(isRqg
+                ? {questionGroupConceptName, conceptName: targetConceptName, questionGroupIndex: rqgIdx, value: null, clear: true}
+                : {conceptName: targetConceptName, value: null, clear: true});
+            setTimeout(() => this._flushPendingResults(), 0);
+        };
         let invalidateIfMediaPresent = false;
+        let invalidateStaleNow = false;
         if (existing != null) {
             if (lastImage === undefined) {
                 // First time we're seeing this target in-session and it's already populated →
@@ -306,10 +314,12 @@ class EdgeModelService extends BaseService {
                 invalidateIfMediaPresent = true;
             } else {
                 // existing populated but lastImage defined and != imagePath → the photo was retaken
-                // in-session. Invalidate immediately; the new verdict fills the obs on resolve.
+                // in-session. Invalidate (below, after the in-flight dedup — rule re-fires for the
+                // same replacement must not queue duplicate clears); the new verdict fills the obs
+                // on resolve.
                 General.logDebug('EdgeModelSvc',
                     `scheduleImageInference image CHANGED for '${targetConceptName}' (was ${lastImage}, now ${imagePath}) — invalidating stale verdict, re-running`);
-                queueClear();
+                invalidateStaleNow = true;
             }
         }
 
@@ -322,6 +332,7 @@ class EdgeModelService extends BaseService {
         }
         this._scheduled.add(inflightKey);
         General.logDebug('EdgeModelSvc', `scheduleImageInference QUEUED: ${inflightKey}`);
+        if (invalidateStaleNow) queueClear();
 
         const runInference = () => Array.isArray(modelKey)
             ? this.runEnsembleInferenceOnImage(modelKey, imagePath)

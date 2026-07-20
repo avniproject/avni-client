@@ -544,6 +544,48 @@ describe('EdgeModelService', () => {
             );
         });
 
+        it('dispatches the invalidation on its own, without waiting for the result debounce (#2010)', async () => {
+            // Field finding (20 Jul, Genymotion): fast inference resolves inside the 120ms
+            // trailing-debounce window, so the clear coalesced into the SAME batch as the fresh
+            // verdict — the blanking was never visible. The invalidation must flush on the next
+            // tick, ahead of any inference resolution.
+            const entity = fakeRqgEntity('e1', [{'AI Verdict': 'Suspicious'}]);
+            // Seed lastImage via a resolved run on image A.
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockResolvedValue({label: 'Positive', confidence: 0.9});
+            service.scheduleImageInferenceIntoGroup('oral-cancer-v1', '/tmp/A.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
+            await new Promise(r => setImmediate(r));
+            flushInference();
+            service.dispatchAction.mockClear();
+
+            // Replace with B; inference never resolves. NO manual flush — the clear must arrive by itself.
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation(() => new Promise(() => {}));
+            service.scheduleImageInferenceIntoGroup('oral-cancer-v1', '/tmp/B.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
+            await new Promise(r => setTimeout(r, 5));
+            expect(service.dispatchAction).toHaveBeenCalledWith(
+                'EDGE_MODEL.INFERENCE_RESULTS_BATCH',
+                {results: [{questionGroupConceptName: 'Image-wise AI Assessment', conceptName: 'AI Verdict', questionGroupIndex: 0, value: null, clear: true}]}
+            );
+        });
+
+        it('queues exactly ONE clear per replacement even when the rule re-fires while in flight (#2010)', async () => {
+            const entity = fakeRqgEntity('e1', [{'AI Verdict': 'Suspicious'}]);
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockResolvedValue({label: 'Positive', confidence: 0.9});
+            service.scheduleImageInferenceIntoGroup('oral-cancer-v1', '/tmp/A.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
+            await new Promise(r => setImmediate(r));
+            flushInference();
+            service.dispatchAction.mockClear();
+
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation(() => new Promise(() => {}));
+            // Three rule re-fires for the same replacement — typical page re-eval churn.
+            service.scheduleImageInferenceIntoGroup('oral-cancer-v1', '/tmp/B.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
+            service.scheduleImageInferenceIntoGroup('oral-cancer-v1', '/tmp/B.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
+            service.scheduleImageInferenceIntoGroup('oral-cancer-v1', '/tmp/B.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
+            await new Promise(r => setTimeout(r, 5));
+            const clears = service.dispatchAction.mock.calls
+                .flatMap(c => (c[1] && c[1].results) || []).filter(r => r.clear);
+            expect(clears).toHaveLength(1);
+        });
+
         it('caps cold-start recompute to one attempt per image per session when the media file is missing', async () => {
             fs.exists.mockResolvedValue(false);   // synced-in encounter, media not downloaded → NO blanking (#2010)
             NativeModules.EdgeModelModule.runInferenceOnImage.mockRejectedValue(new Error('IMAGE_NOT_FOUND'));
