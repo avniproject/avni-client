@@ -59,7 +59,10 @@ jest.mock('react-native', () => ({
 // The @Service decorator needs a no-op so the module loads outside the app container.
 jest.mock('../../src/framework/bean/Service', () => () => (target) => target);
 
+jest.mock('react-native-fs', () => ({__esModule: true, default: {exists: jest.fn()}}));
+
 import {NativeModules} from 'react-native';
+import fs from 'react-native-fs';
 import EdgeModelService from '../../src/service/EdgeModelService';
 
 describe('EdgeModelService', () => {
@@ -67,6 +70,7 @@ describe('EdgeModelService', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        fs.exists.mockResolvedValue(true);   // media present by default; missing-media tests flip it
         NativeModules.EdgeModelModule.getRegistry.mockResolvedValue(buildRegistry());
         service = new EdgeModelService(null, null);
         service.init();
@@ -322,7 +326,7 @@ describe('EdgeModelService', () => {
             expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(1);
         });
 
-        it('recomputes on cold start when the entity already has the target obs — edit heal (#1988)', async () => {
+        it('recomputes on cold start when the entity already has the target obs — edit heal (#1988), blanking the stale verdict first when media is present (#2010)', async () => {
             const entity = fakeEntity('e1', 'Suspicious');  // persisted verdict, cold session cache
 
             service.scheduleImageInference('oral-cancer-v1', '/tmp/x.jpg', entity, 'AI Suspicion Result');
@@ -332,7 +336,10 @@ describe('EdgeModelService', () => {
             flushInference();
             expect(service.dispatchAction).toHaveBeenCalledWith(
                 'EDGE_MODEL.INFERENCE_RESULTS_BATCH',
-                {results: [{conceptName: 'AI Suspicion Result', value: 'Positive'}]}
+                {results: [
+                    {conceptName: 'AI Suspicion Result', value: null, clear: true},
+                    {conceptName: 'AI Suspicion Result', value: 'Positive'},
+                ]}
             );
         });
 
@@ -470,10 +477,14 @@ describe('EdgeModelService', () => {
 
             expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(1);
             flushInference();
-            // Positive → 'Suspicious', identical to the persisted verdict — the rewrite is invisible.
+            // #2010: media present → the possibly-stale verdict is blanked first; Positive →
+            // 'Suspicious' then rewrites the same value, so the net render is unchanged.
             expect(service.dispatchAction).toHaveBeenCalledWith(
                 'EDGE_MODEL.INFERENCE_RESULTS_BATCH',
-                {results: [{questionGroupConceptName: 'Lesion Group', conceptName: 'AI Suspicion Result', questionGroupIndex: 0, value: 'Suspicious'}]}
+                {results: [
+                    {questionGroupConceptName: 'Lesion Group', conceptName: 'AI Suspicion Result', questionGroupIndex: 0, value: null, clear: true},
+                    {questionGroupConceptName: 'Lesion Group', conceptName: 'AI Suspicion Result', questionGroupIndex: 0, value: 'Suspicious'},
+                ]}
             );
         });
 
@@ -496,7 +507,10 @@ describe('EdgeModelService', () => {
             flushInference();
             expect(service.dispatchAction).toHaveBeenCalledWith(
                 'EDGE_MODEL.INFERENCE_RESULTS_BATCH',
-                {results: [{questionGroupConceptName: 'Image-wise AI Assessment', conceptName: 'AI Verdict', questionGroupIndex: 0, value: 'Non Suspicious'}]}
+                {results: [
+                    {questionGroupConceptName: 'Image-wise AI Assessment', conceptName: 'AI Verdict', questionGroupIndex: 0, value: null, clear: true},
+                    {questionGroupConceptName: 'Image-wise AI Assessment', conceptName: 'AI Verdict', questionGroupIndex: 0, value: 'Non Suspicious'},
+                ]}
             );
         });
 
@@ -508,15 +522,15 @@ describe('EdgeModelService', () => {
             NativeModules.EdgeModelModule.runInferenceOnImage.mockResolvedValue({label: 'Positive', confidence: 0.9});
             const entity = fakeRqgEntity('e1', [{'AI Verdict': 'Suspicious'}]);
 
-            // Phase 1 — cold start on image A: recompute, seed lastImage. NO clear here (a synced-in
-            // encounter with missing media must keep its persisted verdict).
+            // Phase 1 — cold start on image A with media present: blanks the stale verdict (#2010)
+            // and recomputes, seeding lastImage.
             service.scheduleImageInferenceIntoGroup(
                 'oral-cancer-v1', '/tmp/A.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
             await new Promise(r => setImmediate(r));
             flushInference();
             const phase1Clears = service.dispatchAction.mock.calls
                 .flatMap(c => (c[1] && c[1].results) || []).filter(r => r.clear);
-            expect(phase1Clears).toEqual([]);
+            expect(phase1Clears).toHaveLength(1);
             service.dispatchAction.mockClear();
 
             // Phase 2 — replace with image B; keep inference pending so the clear is observable alone.
@@ -531,6 +545,7 @@ describe('EdgeModelService', () => {
         });
 
         it('caps cold-start recompute to one attempt per image per session when the media file is missing', async () => {
+            fs.exists.mockResolvedValue(false);   // synced-in encounter, media not downloaded → NO blanking (#2010)
             NativeModules.EdgeModelModule.runInferenceOnImage.mockRejectedValue(new Error('IMAGE_NOT_FOUND'));
             const entity = fakeRqgEntity('e1', [{'AI Verdict': 'Suspicious'}]);
 

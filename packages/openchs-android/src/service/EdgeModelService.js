@@ -1,6 +1,7 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
 import {NativeModules} from "react-native";
+import fs from "react-native-fs";
 import General from "../utility/General";
 
 /**
@@ -273,6 +274,15 @@ class EdgeModelService extends BaseService {
             // duplicate inference for an image we just inferred. No log: this is the hot path.
             return;
         }
+        // #2010 — stale-verdict invalidation. A populated target whose image binding is unknown
+        // (cold start: an edit may have swapped the image in a previous page/session) or known-
+        // different (in-session retake) must not keep satisfying a mandatory gate against the
+        // wrong photo. The clear is queued BEFORE inference starts so it can never wipe the
+        // fresh verdict.
+        const queueClear = () => this._queueInferenceResult(isRqg
+            ? {questionGroupConceptName, conceptName: targetConceptName, questionGroupIndex: rqgIdx, value: null, clear: true}
+            : {conceptName: targetConceptName, value: null, clear: true});
+        let invalidateIfMediaPresent = false;
         if (existing != null) {
             if (lastImage === undefined) {
                 // First time we're seeing this target in-session and it's already populated →
@@ -289,19 +299,17 @@ class EdgeModelService extends BaseService {
                 this._coldStartRecomputeAttempted.add(coldStartKey);
                 General.logDebug('EdgeModelSvc',
                     `scheduleImageInference cold-start recompute for '${targetConceptName}' (persisted verdict, imagePath=${imagePath})`);
+                // Blank the possibly-stale verdict only when the media file is present locally —
+                // the recompute will then definitively resolve this row. When the file is missing
+                // (synced-in encounter, media not downloaded) keep the persisted verdict: the
+                // recompute will fail and blanking would destroy a valid verdict for nothing.
+                invalidateIfMediaPresent = true;
             } else {
-                // existing populated but lastImage defined and != imagePath → the photo was retaken.
-                // Invalidate the stale verdict IMMEDIATELY (#2010): until the new image's inference
-                // lands, the old verdict would keep rendering against the new photo and keep the
-                // mandatory gate satisfied — a wrong answer the user could save. Clearing the obs
-                // re-engages the gate; the new verdict fills it on resolve. Deliberately NOT done
-                // for the cold-start recompute above: there the image may be unchanged, and a
-                // synced-in encounter with missing media must keep its persisted verdict.
+                // existing populated but lastImage defined and != imagePath → the photo was retaken
+                // in-session. Invalidate immediately; the new verdict fills the obs on resolve.
                 General.logDebug('EdgeModelSvc',
                     `scheduleImageInference image CHANGED for '${targetConceptName}' (was ${lastImage}, now ${imagePath}) — invalidating stale verdict, re-running`);
-                this._queueInferenceResult(isRqg
-                    ? {questionGroupConceptName, conceptName: targetConceptName, questionGroupIndex: rqgIdx, value: null, clear: true}
-                    : {conceptName: targetConceptName, value: null, clear: true});
+                queueClear();
             }
         }
 
@@ -315,9 +323,22 @@ class EdgeModelService extends BaseService {
         this._scheduled.add(inflightKey);
         General.logDebug('EdgeModelSvc', `scheduleImageInference QUEUED: ${inflightKey}`);
 
-        const inference = Array.isArray(modelKey)
+        const runInference = () => Array.isArray(modelKey)
             ? this.runEnsembleInferenceOnImage(modelKey, imagePath)
             : this.runInferenceOnImage(modelKey, imagePath);
+        const inference = invalidateIfMediaPresent
+            ? (async () => {
+                const mediaPresent = await (fs && fs.exists
+                    ? fs.exists(imagePath).catch(() => false)
+                    : Promise.resolve(true));
+                if (mediaPresent) {
+                    General.logDebug('EdgeModelSvc',
+                        `scheduleImageInference cold-start INVALIDATING stale verdict for '${targetConceptName}' (media present, recomputing)`);
+                    queueClear();
+                }
+                return runInference();
+            })()
+            : runInference();
         inference
             .then(result => {
                 const rawLabel = result && result.label != null ? result.label : result;
