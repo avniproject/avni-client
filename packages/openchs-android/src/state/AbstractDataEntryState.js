@@ -130,6 +130,7 @@ class AbstractDataEntryState {
 
         if (this.hasNoFormElements() && !this.wizard.isFirstPage()) {
             General.logDebug("AbstractDataEntryState", "handlePrevious - No form elements here. Moving to previous screen");
+            this.removeResultsForEmptyFormElementGroup();
             return this.handlePrevious(action, context);
         }
         const formElementRuleValidationErrors = ObservationsHolderActions.getRuleValidationErrors(formElementStatuses);
@@ -198,6 +199,7 @@ class AbstractDataEntryState {
         }
         if (this.hasNoFormElements()) {
             General.logDebug("AbstractDataEntryState", "handleNext - No form elements here. Moving to next screen");
+            this.removeResultsForEmptyFormElementGroup();
             return this.handleNext(action, context);
         }
         const formElementRuleValidationErrors = ObservationsHolderActions.getRuleValidationErrors(formElementStatuses);
@@ -218,6 +220,7 @@ class AbstractDataEntryState {
         }
         if (this.hasNoFormElements()) {
             General.logDebug("AbstractDataEntryState", "handleNext - No form elements here. Moving to next screen");
+            this.removeResultsForEmptyFormElementGroup();
             return this.handleNextAsync(action, context);
         }
         const formElementRuleValidationErrors = ObservationsHolderActions.getRuleValidationErrors(formElementStatuses);
@@ -405,6 +408,7 @@ class AbstractDataEntryState {
     moveToLastPageWithFormElements(action, context) {
         General.logDebug("AbstractDataEntryState", "moveToLastPageWithFormElements");
         while (this.hasNoFormElements() && !this.wizard.isFirstPage()) {
+            this.removeResultsForEmptyFormElementGroup();
             this.handlePrevious(action, context);
         }
     }
@@ -470,6 +474,14 @@ class AbstractDataEntryState {
 
     hasNoFormElements() {
         return _.isEmpty(this.filteredFormElements);
+    }
+
+    // A page with no visible elements cannot carry a valid error; purge results stored while it
+    // was visible earlier in the session (e.g. a row-count rule) so they cannot strand the wizard
+    // on a page it is skipping.
+    removeResultsForEmptyFormElementGroup() {
+        const formElementIds = this.formElementGroup.formElementIds;
+        _.remove(this.validationResults, (validationResult) => formElementIds.indexOf(validationResult.formIdentifier) !== -1);
     }
 
 
