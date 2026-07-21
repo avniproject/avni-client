@@ -440,9 +440,15 @@ class AbstractDataEntryState {
 
     anyFailedResultForCurrentFEG() {
         const formUUIDs = _.union(this.formElementGroup.formElementIds, this.staticFormElementIds);
-        return _.some(this.validationResults, (validationResult) => {
-            return validationResult.success === false && formUUIDs.indexOf(validationResult.formIdentifier) !== -1;
-        });
+        const failed = _.filter(this.validationResults, (validationResult) =>
+            validationResult.success === false && formUUIDs.indexOf(validationResult.formIdentifier) !== -1);
+        if (failed.length > 0) {
+            // Triage line: names exactly which stored error is refusing page navigation.
+            General.logDebug('AbstractDataEntryState',
+                `navigation BLOCKED on FEG '${this.formElementGroup.name}' by: ` + failed.map(vr =>
+                    `${vr.formIdentifier}[${vr.questionGroupIndex}] type=${vr.validationType} msg=${vr.messageKey}`).join('; '));
+        }
+        return failed.length > 0;
     }
 
     get staticFormElementIds() {
