@@ -16,6 +16,21 @@ describe('AbstractDataEntryStateTest', () => {
         testContext = new TestContext();
     });
 
+    it('purges stored results for an element-less (hidden) group so they cannot strand the wizard', () => {
+        const concept = EntityFactory.createConcept('c1', Concept.dataType.Boolean);
+        const formElement = EntityFactory.createFormElement('bar', true, concept);
+        formElementGroup.addFormElement(formElement);
+        const staleHiddenPageError = new ValidationResult(false, formElement.uuid, 'Please add at least 8 images (currently 0).');
+        const unrelatedError = ValidationResult.failureForEmpty('some-other-element');
+        const dataEntryState = new StubbedDataEntryState([staleHiddenPageError, unrelatedError], formElementGroup, new Wizard(2, 1), [], null);
+        dataEntryState.filteredFormElements = [];   // the group is hidden on this pass
+
+        dataEntryState.removeResultsForEmptyFormElementGroup();
+
+        expect(dataEntryState.validationResults.length).to.equal(1);
+        expect(dataEntryState.validationResults[0].formIdentifier).to.equal('some-other-element');
+    });
+
     it('next when there are validation errors', () => {
         const concept = EntityFactory.createConcept('c1', Concept.dataType.Boolean);
         const formElement = EntityFactory.createFormElement('bar', true, concept);
