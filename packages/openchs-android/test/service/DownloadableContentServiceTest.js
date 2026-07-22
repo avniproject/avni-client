@@ -79,7 +79,7 @@ describe('DownloadableContentService', () => {
         service = new DownloadableContentService(null, null);
         service.getAllNonVoided = () => items;
         service.getServerUrl = () => 'https://server';
-        service.getService = jest.fn(() => ({}));
+        service.getService = jest.fn(() => ({onModelContentSynced: jest.fn()}));
 
         mockDownloadWithoutAuth.mockImplementation(writesBlob(100));
         mockGet.mockResolvedValue('https://signed-url');

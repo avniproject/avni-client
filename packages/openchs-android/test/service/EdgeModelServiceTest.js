@@ -356,7 +356,7 @@ describe('EdgeModelService', () => {
                 .rejects.toThrow('non-finite logit');
         });
 
-        it('a non-finite-logit fold via scheduleImageInference writes no verdict (fail-loud contract)', async () => {
+        it('a non-finite-logit fold via scheduleImageInference writes no verdict and flags it unavailable (fail-loud contract)', async () => {
             service.dispatchAction = jest.fn();
             mockPerFold({
                 fold1: {label: 'Positive', confidence: 0.8, logit: 1.2},
@@ -369,7 +369,11 @@ describe('EdgeModelService', () => {
             await new Promise(res => setImmediate(res));
 
             flushInference();
-            expect(service.dispatchAction).not.toHaveBeenCalled();  // verdict absent, not a defaulted negative
+            // No verdict is written (not a defaulted negative); a runtime failure surfaces as unavailable.
+            expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                conceptName: 'AI Suspicion Result', questionGroupConceptName: null,
+                questionGroupIndex: null, messageKey: 'aiInferenceFailed',
+            });
         });
 
         it('keeps the per-model breakdown (sha256/logit/confidence/label)', async () => {
@@ -436,7 +440,7 @@ describe('EdgeModelService', () => {
                     .rejects.toThrow('AES key not cached');
             });
 
-            it('via scheduleImageInference: a degraded ensemble yields no dispatch and no throw (verdict absent)', async () => {
+            it('via scheduleImageInference: a degraded ensemble flags model-unavailable without throwing (verdict absent)', async () => {
                 // fold2 not cached at all ⇒ ensemble cannot be scored.
                 service.dispatchAction = jest.fn();
                 const entity = {uuid: 'e1', getObservationValue: jest.fn(() => undefined)};
@@ -448,7 +452,11 @@ describe('EdgeModelService', () => {
                 await new Promise(res => setImmediate(res));
                 flushInference();
 
-                expect(service.dispatchAction).not.toHaveBeenCalled();
+                // Every failing fold is merely uncached ⇒ the sync-and-retry message.
+                expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                    conceptName: 'AI Suspicion Result', questionGroupConceptName: null,
+                    questionGroupIndex: null, messageKey: 'aiModelUnavailable',
+                });
             });
         });
     });
@@ -476,7 +484,7 @@ describe('EdgeModelService', () => {
             expect(NativeModules.EdgeModelModule.loadEncryptedModelFromFile).not.toHaveBeenCalled();
         });
 
-        it('via scheduleImageInference: missing cache yields no native load, no throw, no dispatch (verdict absent)', async () => {
+        it('via scheduleImageInference: missing cache yields no native load, no throw, and flags model-unavailable (verdict absent)', async () => {
             const r = row();
             rows = [r];  // nothing cached
             service.dispatchAction = jest.fn();
@@ -487,7 +495,10 @@ describe('EdgeModelService', () => {
             flushInference();
 
             expect(NativeModules.EdgeModelModule.loadEncryptedModelFromFile).not.toHaveBeenCalled();
-            expect(service.dispatchAction).not.toHaveBeenCalled();
+            expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                conceptName: 'AI Suspicion Result', questionGroupConceptName: null,
+                questionGroupIndex: null, messageKey: 'aiModelUnavailable',
+            });
         });
     });
 
@@ -561,19 +572,49 @@ describe('EdgeModelService', () => {
             );
         });
 
-        it('swallows native errors without dispatching and releases the dedup slot', async () => {
-            NativeModules.EdgeModelModule.runInferenceOnImage.mockRejectedValueOnce(new Error('inference error'));
+        it('flags a native inference error as unavailable and does not retry the same image', async () => {
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockRejectedValue(new Error('inference error'));
             const entity = fakeEntity('e1');
 
             service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
             await new Promise(res => setImmediate(res));
 
             flushInference();
+            expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                conceptName: 'AI Suspicion Result', questionGroupConceptName: null,
+                questionGroupIndex: null, messageKey: 'aiInferenceFailed',
+            });
+
+            // Same image re-scheduled (e.g. the failure dispatch re-ran the rule): no retry, no re-dispatch.
+            service.dispatchAction.mockClear();
+            service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
+            await new Promise(res => setImmediate(res));
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(1);
             expect(service.dispatchAction).not.toHaveBeenCalled();
+        });
+
+        it('re-attempts a previously-failed image after a model-content sync clears the retry cap', async () => {
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockRejectedValueOnce(new Error('inference error'));
+            const entity = fakeEntity('e1');
 
             service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
             await new Promise(res => setImmediate(res));
-            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(2);
+            flushInference();
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(1);
+
+            // Sync brought the model on device — the give-up cap must reset so the same image retries.
+            service.onModelContentSynced();
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockResolvedValue({label: 'Positive', confidence: 0.9});
+            service.dispatchAction.mockClear();
+
+            service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
+            await new Promise(res => setImmediate(res));
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(2);  // retried
+            flushInference();
+            expect(service.dispatchAction).toHaveBeenCalledWith(
+                'EDGE_MODEL.INFERENCE_RESULTS_BATCH',
+                {results: [{conceptName: 'AI Suspicion Result', value: 'Positive'}]}
+            );
         });
     });
 
@@ -657,7 +698,11 @@ describe('EdgeModelService', () => {
             await new Promise(res => setImmediate(res));
             expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(1);
             flushInference();
-            expect(service.dispatchAction).not.toHaveBeenCalled();  // failure → persisted verdict stays
+            // The persisted verdict isn't overwritten, and the failed recompute surfaces as unavailable.
+            expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                conceptName: 'AI Verdict', questionGroupConceptName: 'Image-wise AI Assessment',
+                questionGroupIndex: 0, messageKey: 'aiInferenceFailed',
+            });
 
             service.scheduleImageInferenceIntoGroup('/tmp/missing.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
             await new Promise(res => setImmediate(res));
