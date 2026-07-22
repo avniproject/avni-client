@@ -87,6 +87,21 @@ describe('ObservationsHolderActions targeted validation re-sync (#2009)', () => 
             .not.toThrow();
     });
 
+    it('clears a stale mandatory (Form-type) failure for the written row when its value lands', () => {
+        // Field scenario (20 Jul): AI Verdict is a MANDATORY element; worker taps Next while the
+        // verdict is pending → "There is no value specified" stored (Form-type). The verdict then
+        // lands via the async write — the stale text must clear without any navigation.
+        const mandatoryFailure = new ValidationResult(false, 'fe-verdict', 'emptyValidationMessage', null, 1);
+        const state = makeState([mandatoryFailure]);
+        jest.spyOn(ObservationsHolderActions, '_applyInferenceWrite')
+            .mockReturnValue({uuid: 'fe-verdict', questionGroupIndex: 1});
+        jest.spyOn(ObservationsHolderActions, '_getFormElementStatuses')
+            .mockReturnValue([freshStatus('fe-verdict', 1, [])]);
+        ObservationsHolderActions.onObservationWriteBatch(state,
+            {results: [{questionGroupConceptName: 'G', conceptName: 'V', questionGroupIndex: 1, value: 'Non-Suspicious'}]}, {});
+        expect(state._newState.validationResults).toHaveLength(0);
+    });
+
     it('logs the gate state per written row (cleared vs kept) for later log analysis', () => {
         const logSpy = jest.spyOn(General, 'logDebug').mockImplementation(() => {});
         const state = makeState([ruleVR('fe-verdict', 0, 'aiVerdictPending'), ruleVR('fe-verdict', 1, 'aiVerdictPending')]);
