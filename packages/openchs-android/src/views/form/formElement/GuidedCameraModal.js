@@ -16,58 +16,64 @@ const styles = StyleSheet.create({
     btnText: {color: "black", fontWeight: "700"},
 });
 
-export default function GuidedCameraModal({visible, onClose, onCapture, captureError}) {
+// `onCapture` is awaited — the caller resizes and saves, and throws to report failure. Holding
+// `busy` across it keeps the shutter disabled and the form behind the modal unreachable for that
+// whole window, so one session can never start two captures. Strings are supplied by the caller;
+// this component has no I18n of its own.
+export default function GuidedCameraModal({visible, onClose, onCapture, labels}) {
     const cameraRef = useRef(null);
     const device = useCameraDevice("back");
     const {hasPermission, requestPermission} = useCameraPermission();
     const [error, setError] = useState(null);
     const [busy, setBusy] = useState(false);
 
+    // The modal stays mounted while the element renders, so per-session state is reset on open.
     useEffect(() => {
         if (visible && !hasPermission) requestPermission();
-        if (visible) setError(null);
+        if (visible) {
+            setError(null);
+            setBusy(false);
+        }
     }, [visible, hasPermission]);
 
-    const flashReady = !!device && device.hasFlash === true;
-
     const capture = async () => {
-        if (!flashReady || busy) return;
+        if (busy) return;
         setBusy(true);
         setError(null);
         try {
             const photo = await cameraRef.current.takePhoto({flash: "on"});
-            setBusy(false);
-            onCapture(photo.path);
+            await onCapture(photo.path);
         } catch (e) {
+            setError(labels.captureFailed);
+        } finally {
             setBusy(false);
-            setError(`Capture failed: ${e && e.message ? e.message : e}. Please retake.`);
         }
     };
 
     const renderBlocking = (message) => (
         <View style={styles.center}>
             <Text style={styles.err}>{message}</Text>
-            <TouchableOpacity style={styles.btn} onPress={onClose}><Text style={styles.btnText}>Close</Text></TouchableOpacity>
+            <TouchableOpacity style={styles.btn} onPress={onClose}><Text style={styles.btnText}>{labels.close}</Text></TouchableOpacity>
         </View>
     );
 
     let body;
-    if (!device) body = renderBlocking("No back camera available on this device.");
-    else if (!hasPermission) body = renderBlocking("Camera permission is required.");
-    else if (!device.hasFlash) body = renderBlocking("This device has no flash. Guided capture requires a flash and is blocked.");
+    if (!device) body = renderBlocking(labels.noBackCamera);
+    else if (!hasPermission) body = renderBlocking(labels.permissionRequired);
+    else if (!device.hasFlash) body = renderBlocking(labels.flashRequired);
     else {
         body = (
             <View style={styles.fill}>
                 <Camera ref={cameraRef} style={StyleSheet.absoluteFill} device={device} isActive={visible} photo={true} />
                 <TouchableOpacity style={styles.close} onPress={onClose}><Text style={styles.closeText}>✕</Text></TouchableOpacity>
-                {(error || captureError) && (
-                    <View style={styles.errorBanner}><Text style={styles.err}>{error || captureError}</Text></View>
+                {error && (
+                    <View style={styles.errorBanner}><Text style={styles.err}>{error}</Text></View>
                 )}
                 <View style={styles.controls}>
                     <TouchableOpacity
                         onPress={capture}
                         disabled={busy}
-                        style={[styles.shutter, (!flashReady || busy) && styles.shutterDisabled]}>
+                        style={[styles.shutter, busy && styles.shutterDisabled]}>
                         {busy && <ActivityIndicator color="#000" style={StyleSheet.absoluteFill} />}
                     </TouchableOpacity>
                 </View>
