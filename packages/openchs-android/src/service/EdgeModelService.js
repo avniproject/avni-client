@@ -325,6 +325,11 @@ class EdgeModelService extends BaseService {
      * async work without changing the rule contract; the result lands as a sibling observation
      * the dependent form element's synchronous rule reads via `entity.getObservationValue`.
      *
+     * A persisted verdict whose image binding is unknown (cold start) or known-different (retake) is
+     * invalidated — blanked — before the recompute, so an absent-verdict rule re-gates against the
+     * missing verdict instead of trusting one that may belong to the old photo (#2010). The cold-start
+     * blank waits on a media-present check; a missing file keeps the verdict.
+     *
      * On failure (including a not-yet-cached model) no verdict is written — an absent verdict must
      * never read as a negative one. Instead of silently swallowing it, the failure is dispatched as
      * INFERENCE_UNAVAILABLE so the form raises a validation error on the target element and blocks
@@ -362,14 +367,41 @@ class EdgeModelService extends BaseService {
             // `existing != null` guard covers the resolved-but-not-yet-written window.
             return;
         }
+
+        // #2010 — a persisted verdict whose image binding is unknown (cold start) or known-different
+        // (in-session retake) must not keep satisfying a mandatory gate against the wrong photo.
+        // Blank it (rather than keep the old value until the new one lands) so an absent-verdict rule
+        // re-gates while inference re-runs. The clear rides the shared flush timer at 0ms — off the
+        // reducer call stack, ahead of the fresh verdict, never coalesced behind the 120ms debounce.
+        const coldStartKey = `${targetKey}|${imagePath}`;
+        const queueClear = () => {
+            General.logDebug('EdgeModelSvc',
+                `scheduleImageInference INVALIDATING stale verdict for '${targetConceptName}'${isRqg ? `[${rqgIdx}]` : ''}`);
+            this._queueInferenceResult(isRqg
+                ? {questionGroupConceptName, conceptName: targetConceptName, questionGroupIndex: rqgIdx, value: null, clear: true}
+                : {conceptName: targetConceptName, value: null, clear: true});
+            if (this._flushTimer) clearTimeout(this._flushTimer);
+            this._flushTimer = setTimeout(() => this._flushPendingResults(), 0);
+        };
+
+        // Once a verdict has been blanked (existing == null), a recompute that already failed for
+        // this exact image must not re-fire on every re-eval; a retake (new path) re-enables it.
+        if (existing == null && this._coldStartRecomputeAttempted.has(coldStartKey)) {
+            General.logDebug('EdgeModelSvc',
+                `scheduleImageInference SKIP recompute already attempted for '${targetConceptName}' (${imagePath})`);
+            return;
+        }
+
+        let invalidateIfMediaPresent = false;
+        let invalidateStaleNow = false;
         if (existing != null) {
             if (lastImage === undefined) {
                 // First time we're seeing this target in-session and it's already populated →
                 // persisted verdict from a previous session. We can't tell whether it still matches
                 // the current image (an edit may have swapped the image under it), so recompute
-                // instead of trusting it: same image → idempotent, swapped image → stale verdict
-                // superseded. Cap it to one attempt per image so a missing media file doesn't retry.
-                const coldStartKey = `${targetKey}|${imagePath}`;
+                // instead of trusting it. Cap it to one attempt per image so a missing media file
+                // doesn't retry. Blank only when the media is present (recompute will definitively
+                // resolve); a missing file must keep the persisted verdict rather than blank it blindly.
                 if (this._coldStartRecomputeAttempted.has(coldStartKey)) {
                     General.logDebug('EdgeModelSvc',
                         `scheduleImageInference SKIP cold-start recompute already attempted for '${targetConceptName}' (${imagePath})`);
@@ -378,10 +410,15 @@ class EdgeModelService extends BaseService {
                 this._coldStartRecomputeAttempted.add(coldStartKey);
                 General.logDebug('EdgeModelSvc',
                     `scheduleImageInference cold-start recompute for '${targetConceptName}' (persisted verdict, imagePath=${imagePath})`);
+                invalidateIfMediaPresent = true;
             } else {
                 // existing populated but lastImage defined and != imagePath → the photo was retaken.
+                // The image is known-different, so blank the stale verdict now (the clear runs below,
+                // after the in-flight dedup so a re-eval mid-flight doesn't double-queue it).
                 General.logDebug('EdgeModelSvc',
                     `scheduleImageInference image CHANGED for '${targetConceptName}' (was ${lastImage}, now ${imagePath}) — re-running`);
+                this._coldStartRecomputeAttempted.add(coldStartKey);
+                invalidateStaleNow = true;
             }
         }
 
@@ -394,8 +431,19 @@ class EdgeModelService extends BaseService {
         }
         this._scheduled.add(inflightKey);
         General.logDebug('EdgeModelSvc', `scheduleImageInference QUEUED: ${inflightKey}`);
+        if (invalidateStaleNow) queueClear();
 
-        this.runInferenceOnImage(imagePath)
+        const inference = invalidateIfMediaPresent
+            ? (async () => {
+                // Fail CLOSED: when fs is unavailable, media presence is unknown — keep the verdict.
+                const mediaPresent = await (fs && fs.exists
+                    ? fs.exists(imagePath).catch(() => false)
+                    : Promise.resolve(false));
+                if (mediaPresent) queueClear();
+                return this.runInferenceOnImage(imagePath);
+            })()
+            : this.runInferenceOnImage(imagePath);
+        inference
             .then(result => {
                 const rawLabel = result && result.label != null ? result.label : result;
                 // Apply the optional label map so the obs holds the user-facing string

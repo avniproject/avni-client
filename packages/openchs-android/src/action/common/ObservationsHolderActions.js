@@ -253,6 +253,12 @@ class ObservationsHolderActions {
             fe => fe && fe.concept && fe.concept.name === result.conceptName
         );
         if (!formElement) return null;
+        if (result.clear === true) {
+            // #2010 invalidation write: blank the obs so the dependent element re-gates against the
+            // absent verdict until the fresh one lands, rather than satisfying a gate on the old photo.
+            newState.observationsHolder._removeExistingObs(formElement.concept);
+            return {uuid: formElement.uuid, questionGroupIndex: null};
+        }
         if (formElement.concept.isCodedConcept()) {
             newState.observationsHolder.addOrUpdateCodedObs(
                 formElement.concept, result.value, formElement.isSingleSelect()
@@ -295,6 +301,11 @@ class ObservationsHolderActions {
         }
 
         const childConcept = childFormElement.concept;
+        if (result.clear === true) {
+            // #2010 invalidation write (see _applyInferenceWrite).
+            rqg.getGroupObservationAtIndex(result.questionGroupIndex).removeExistingObs(childConcept);
+            return {uuid: childFormElement.uuid, questionGroupIndex: result.questionGroupIndex};
+        }
         let value = result.value;
         if (childConcept.isCodedConcept()) {
             // updateChildObservations expects the answer concept UUID for coded; resolve the

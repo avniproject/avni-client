@@ -690,6 +690,91 @@ describe('EdgeModelService', () => {
             );
         });
 
+        it('cold-start blanks the possibly-stale verdict first when the media file is present (#2010)', async () => {
+            mockFsState.existing.add('/tmp/x.jpg');   // media on device ⇒ recompute will resolve ⇒ safe to blank
+            const entity = fakeRqgEntity('e1', [{'AI Verdict': 'Suspicious'}]);
+
+            service.scheduleImageInferenceIntoGroup('/tmp/x.jpg', entity,
+                'Image-wise AI Assessment', 'AI Verdict', 0, {Positive: 'Suspicious', Negative: 'Non Suspicious'});
+            await new Promise(res => setImmediate(res));
+            flushInference();
+
+            const dispatched = service.dispatchAction.mock.calls
+                .flatMap(c => (c[1] && c[1].results) || []);
+            expect(dispatched).toContainEqual(
+                {questionGroupConceptName: 'Image-wise AI Assessment', conceptName: 'AI Verdict', questionGroupIndex: 0, value: null, clear: true});
+            expect(dispatched).toContainEqual(
+                {questionGroupConceptName: 'Image-wise AI Assessment', conceptName: 'AI Verdict', questionGroupIndex: 0, value: 'Suspicious'});
+        });
+
+        it('cold-start does NOT blank the verdict when the media file is missing — fail closed (#2010)', async () => {
+            // Synced-in encounter whose media never downloaded: presence unknown ⇒ keep the verdict.
+            const entity = fakeRqgEntity('e1', [{'AI Verdict': 'Suspicious'}]);
+
+            service.scheduleImageInferenceIntoGroup('/tmp/missing.jpg', entity,
+                'Image-wise AI Assessment', 'AI Verdict', 0, {Positive: 'Suspicious', Negative: 'Non Suspicious'});
+            await new Promise(res => setImmediate(res));
+            flushInference();
+
+            const clears = service.dispatchAction.mock.calls
+                .flatMap(c => (c[1] && c[1].results) || []).filter(r => r.clear);
+            expect(clears).toHaveLength(0);
+        });
+
+        it('invalidates the stale verdict immediately when the row image is replaced in-session (#2010)', async () => {
+            mockFsState.existing.add('/tmp/A.jpg');
+            const entity = fakeRqgEntity('e1', [{'AI Verdict': 'Suspicious'}]);
+            // Phase 1 — cold start on image A: seed lastImage via a resolved run.
+            service.scheduleImageInferenceIntoGroup('/tmp/A.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
+            flushInference();
+            service.dispatchAction.mockClear();
+
+            // Phase 2 — replace with image B; keep inference pending so the clear is observable alone.
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation(() => new Promise(() => {}));
+            service.scheduleImageInferenceIntoGroup('/tmp/B.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
+            flushInference();
+            expect(service.dispatchAction).toHaveBeenCalledWith(
+                'EDGE_MODEL.INFERENCE_RESULTS_BATCH',
+                {results: [{questionGroupConceptName: 'Image-wise AI Assessment', conceptName: 'AI Verdict', questionGroupIndex: 0, value: null, clear: true}]}
+            );
+        });
+
+        it('dispatches the in-session invalidation on its own 0ms tick, without a manual flush (#2010)', async () => {
+            mockFsState.existing.add('/tmp/A.jpg');
+            const entity = fakeRqgEntity('e1', [{'AI Verdict': 'Suspicious'}]);
+            service.scheduleImageInferenceIntoGroup('/tmp/A.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
+            flushInference();
+            service.dispatchAction.mockClear();
+
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation(() => new Promise(() => {}));
+            service.scheduleImageInferenceIntoGroup('/tmp/B.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
+            await new Promise(res => setTimeout(res, 0));   // NO manual flush — the 0ms timer must fire it
+            expect(service.dispatchAction).toHaveBeenCalledWith(
+                'EDGE_MODEL.INFERENCE_RESULTS_BATCH',
+                {results: [{questionGroupConceptName: 'Image-wise AI Assessment', conceptName: 'AI Verdict', questionGroupIndex: 0, value: null, clear: true}]}
+            );
+        });
+
+        it('queues exactly ONE clear per replacement even when the rule re-fires while in flight (#2010)', async () => {
+            mockFsState.existing.add('/tmp/A.jpg');
+            const entity = fakeRqgEntity('e1', [{'AI Verdict': 'Suspicious'}]);
+            service.scheduleImageInferenceIntoGroup('/tmp/A.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
+            flushInference();
+            service.dispatchAction.mockClear();
+
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation(() => new Promise(() => {}));
+            service.scheduleImageInferenceIntoGroup('/tmp/B.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
+            service.scheduleImageInferenceIntoGroup('/tmp/B.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
+            service.scheduleImageInferenceIntoGroup('/tmp/B.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
+            await new Promise(res => setTimeout(res, 0));
+            const clears = service.dispatchAction.mock.calls
+                .flatMap(c => (c[1] && c[1].results) || []).filter(r => r.clear);
+            expect(clears).toHaveLength(1);
+        });
+
         it('caps cold-start recompute to one attempt per image per session when the media file is missing', async () => {
             NativeModules.EdgeModelModule.runInferenceOnImage.mockRejectedValue(new Error('IMAGE_NOT_FOUND'));
             const entity = fakeRqgEntity('e1', [{'AI Verdict': 'Suspicious'}]);

@@ -66,6 +66,41 @@ describe('ObservationsHolderActions.onObservationWriteBatch', () => {
     });
 });
 
+describe('_applyInferenceWrite clear/invalidation path (#2010)', () => {
+    it('a top-level clear write blanks the obs without writing a value and returns the target', () => {
+        const removeSpy = jest.fn();
+        const formElement = {uuid: 'fe-verdict', concept: {name: 'V', isCodedConcept: () => true}};
+        const newState = {
+            formElementGroup: {getFormElements: () => [formElement]},
+            observationsHolder: {_removeExistingObs: removeSpy, addOrUpdateCodedObs: jest.fn(), addOrUpdatePrimitiveObs: jest.fn()},
+        };
+        const target = ObservationsHolderActions._applyInferenceWrite(newState, {conceptName: 'V', value: null, clear: true});
+        expect(removeSpy).toHaveBeenCalledWith(formElement.concept);
+        expect(newState.observationsHolder.addOrUpdateCodedObs).not.toHaveBeenCalled();
+        expect(newState.observationsHolder.addOrUpdatePrimitiveObs).not.toHaveBeenCalled();
+        expect(target).toEqual({uuid: 'fe-verdict', questionGroupIndex: null});
+    });
+
+    it('an RQG clear write removes the row child obs without writing and returns the target', () => {
+        const removeSpy = jest.fn();
+        const parentFE = {concept: {name: 'G'}, isRepeatableQuestionGroup: () => true};
+        const childFE = {
+            uuid: 'fe-child', concept: {name: 'V', isCodedConcept: () => true, isMediaConcept: () => false},
+            isQuestionGroup: () => true, getParentFormElement: () => parentFE,
+        };
+        const rqg = {size: () => 2, getGroupObservationAtIndex: () => ({removeExistingObs: removeSpy})};
+        const newState = {
+            formElementGroup: {getFormElements: () => [childFE]},
+            observationsHolder: {getObservation: () => ({getValueWrapper: () => rqg}), updateRepeatableGroupQuestion: jest.fn()},
+        };
+        const target = ObservationsHolderActions._applyInferenceWrite(newState,
+            {questionGroupConceptName: 'G', conceptName: 'V', questionGroupIndex: 1, value: null, clear: true});
+        expect(removeSpy).toHaveBeenCalledWith(childFE.concept);
+        expect(newState.observationsHolder.updateRepeatableGroupQuestion).not.toHaveBeenCalled();
+        expect(target).toEqual({uuid: 'fe-child', questionGroupIndex: 1});
+    });
+});
+
 describe('_applyInferenceWrite return contract (#2009)', () => {
     afterEach(() => jest.restoreAllMocks());
 
