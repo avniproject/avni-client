@@ -49,7 +49,9 @@ const DEFAULT_DURATION_LIMIT = 60;
 export default class MediaFormElement extends AbstractFormElement {
     constructor(props, context) {
         super(props, context);
-        this.state = {};
+        // showGuidedCamera must be an explicit false — RN Modal's `visible` defaults to true, so an
+        // undefined value would pop the camera open on first render.
+        this.state = {showGuidedCamera: false};
     }
 
     get isVideo() {
@@ -71,18 +73,21 @@ export default class MediaFormElement extends AbstractFormElement {
         return label;
     }
 
+    // Returns a promise so callers can await the file move — a move that fails must not be
+    // mistaken for a saved photo.
     addMediaFromPicker(response, onUpdateObservations) {
-        if (!response.didCancel && !response.errorCode) {
-            const directory = this.isVideo ? FileSystem.getVideosDir() :
-                (this.props.element.name === "profilePicture" ? FileSystem.getProfilePicsDir() : FileSystem.getImagesDir());
-            const fileSystemAction = this.state.mode === Mode.Camera ? fs.moveFile : fs.copyFile;
-            _.get(response, 'assets').map(asset => {
-                const ext = asset.uri.split('.').pop();
-                const fileName = `${General.randomUUID()}.${ext}`;
-                fileSystemAction(asset.uri, `${directory}/${fileName}`)
-                    .then(() => onUpdateObservations(fileName));
-            });
+        if (response.didCancel || response.errorCode) {
+            return Promise.resolve();
         }
+        const directory = this.isVideo ? FileSystem.getVideosDir() :
+            (this.props.element.name === "profilePicture" ? FileSystem.getProfilePicsDir() : FileSystem.getImagesDir());
+        const fileSystemAction = this.state.mode === Mode.Camera ? fs.moveFile : fs.copyFile;
+        return Promise.all(_.get(response, 'assets').map(asset => {
+            const ext = asset.uri.split('.').pop();
+            const fileName = `${General.randomUUID()}.${ext}`;
+            return fileSystemAction(asset.uri, `${directory}/${fileName}`)
+                .then(() => onUpdateObservations(fileName));
+        }));
     }
 
 
@@ -125,23 +130,35 @@ export default class MediaFormElement extends AbstractFormElement {
         return isGuidedCameraEnabled(this.isImage, this.getFromKeyValue('guidedCamera', false));
     }
 
-    openGuidedCamera(onUpdateObservations) {
-        this._guidedOnUpdate = onUpdateObservations;
-        this.setState({mode: Mode.Camera, showGuidedCamera: true, guidedCaptureError: null});
+    get guidedCameraLabels() {
+        return {
+            noBackCamera: this.I18n.t('guidedCameraNoBackCamera'),
+            permissionRequired: this.I18n.t('guidedCameraPermissionRequired'),
+            flashRequired: this.I18n.t('guidedCameraFlashRequired'),
+            captureFailed: this.I18n.t('guidedCameraCaptureFailed'),
+            close: this.I18n.t('closeModal')
+        };
     }
 
+    openGuidedCamera(onUpdateObservations) {
+        this._guidedOnUpdate = onUpdateObservations;
+        // Resolved at open, like launchCamera does: an invalid keyValue is a form misconfiguration,
+        // and surfacing it here stops it being reported as a retryable capture failure.
+        this._guidedOptions = this.getDefaultOptions();
+        this.setState({mode: Mode.Camera, showGuidedCamera: true});
+    }
+
+    // Throws on failure so the camera keeps itself open and shows the error for a retake. The
+    // observation is only recorded once the resize and the file move have both succeeded.
     async onGuidedCapture(photoPath) {
-        // Close on capture so the shutter can't fire a second time during the async resize.
-        this.setState({showGuidedCamera: false, guidedCaptureError: null});
         try {
-            const options = this.getDefaultOptions();
-            const resizedUri = await resizeCapturedImage(ImageResizer, photoPath, options);
-            this.addMediaFromPicker(toPickerResponse(resizedUri), this._guidedOnUpdate);
+            const resizedUri = await resizeCapturedImage(ImageResizer, photoPath, this._guidedOptions);
+            await this.addMediaFromPicker(toPickerResponse(resizedUri), this._guidedOnUpdate);
         } catch (e) {
-            // Reopen with an error so the user can retake; no asset is saved.
             General.logError('MediaFormElement', `guided capture failed: ${e && e.message}`);
-            this.setState({showGuidedCamera: true, guidedCaptureError: 'Could not process the photo. Please retake.'});
+            throw e;
         }
+        this.setState({showGuidedCamera: false});
     }
 
     async launchCamera(onUpdateObservations) {
@@ -214,8 +231,8 @@ export default class MediaFormElement extends AbstractFormElement {
                           style={styles.icon}/>
                 </TouchableNativeFeedback>
                 {guided && <GuidedCameraModal
-                    visible={!!this.state.showGuidedCamera}
-                    captureError={this.state.guidedCaptureError}
+                    visible={this.state.showGuidedCamera}
+                    labels={this.guidedCameraLabels}
                     onClose={() => this.setState({showGuidedCamera: false})}
                     onCapture={(photoPath) => this.onGuidedCapture(photoPath)}
                 />}
