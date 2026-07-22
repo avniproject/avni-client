@@ -46,7 +46,17 @@ export const EDGE_MODEL_ACTION = {
     INFERENCE_RESULT_AVAILABLE: 'EDGE_MODEL.INFERENCE_RESULT_AVAILABLE',
     // Coalesced variant: several inference results from one burst applied together so the
     // form re-evaluates once instead of once-per-result. See _queueInferenceResult below.
-    INFERENCE_RESULTS_BATCH: 'EDGE_MODEL.INFERENCE_RESULTS_BATCH'
+    INFERENCE_RESULTS_BATCH: 'EDGE_MODEL.INFERENCE_RESULTS_BATCH',
+    // No verdict could be produced for an image. Surfaces as a validation error on the image
+    // form element, which blocks Next. See _scheduleImageInference's catch.
+    INFERENCE_UNAVAILABLE: 'EDGE_MODEL.INFERENCE_UNAVAILABLE'
+};
+
+// messageKey resolved by the form element view via I18n. Models are bundled in the APK here, so a
+// missing model can't happen at point of use (unlike the remote-fetch line); any failure is a
+// runtime one — retaking the photo is the recovery.
+export const INFERENCE_UNAVAILABLE_REASON = {
+    INFERENCE_FAILED: 'aiInferenceFailed'
 };
 
 @Service("edgeModelService")
@@ -365,6 +375,19 @@ class EdgeModelService extends BaseService {
             .catch(err => {
                 General.logError('EdgeModelSvc',
                     `scheduleImageInference FAILED ${modelKeyStr} ${imagePath}: ${err && err.message}\n${err && err.stack}`);
+                // No verdict was produced. Cap this image so we don't re-run and re-dispatch on every
+                // rule cycle — the failure is a runtime one (the model is bundled, so it's present),
+                // and a retake yields a new path that gets a fresh attempt. Then tell the form so it
+                // blocks Next rather than let the worker reach referral on an absent verdict.
+                // Dispatched (not returned): the scheduling rule is synchronous and returned long ago;
+                // the Inference-typed error is cleared by the #2009 re-sync when a verdict later lands.
+                this._coldStartRecomputeAttempted.add(attemptKey);
+                this.dispatchAction(EDGE_MODEL_ACTION.INFERENCE_UNAVAILABLE, {
+                    conceptName: targetConceptName,
+                    questionGroupConceptName,
+                    questionGroupIndex: rqgIdx,
+                    messageKey: INFERENCE_UNAVAILABLE_REASON.INFERENCE_FAILED
+                });
             })
             .finally(() => {
                 this._scheduled.delete(inflightKey);

@@ -221,7 +221,7 @@ describe('EdgeModelService', () => {
                 .rejects.toThrow('non-finite logit');
         });
 
-        it('a non-finite-logit fold via scheduleImageInference writes no verdict (fail-loud contract)', async () => {
+        it('a non-finite-logit fold via scheduleImageInference writes no verdict and flags it unavailable (fail-loud contract)', async () => {
             service.dispatchAction = jest.fn();
             mockFolds({'mvit2_fold1_6': 2.0, 'mvit2_fold1_8': NaN, 'mvit2_fold2_8': 0.85});
             const entity = {uuid: 'e1', getObservationValue: jest.fn(() => undefined)};
@@ -230,7 +230,11 @@ describe('EdgeModelService', () => {
             await new Promise(res => setImmediate(res));
 
             service._flushPendingResults();
-            expect(service.dispatchAction).not.toHaveBeenCalled();  // verdict absent, not a defaulted negative
+            // No verdict is written (not a defaulted negative); the failure surfaces as unavailable so Next blocks.
+            expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                conceptName: 'AI Suspicion Result', questionGroupConceptName: null,
+                questionGroupIndex: null, messageKey: 'aiInferenceFailed',
+            });
         });
 
         it('rejects a non-array or empty modelKeys', async () => {
@@ -313,6 +317,25 @@ describe('EdgeModelService', () => {
             expect(service.dispatchAction).toHaveBeenCalledTimes(1);
         });
 
+        it('flags an inference failure as unavailable (blocks Next) and does not retry the same image (#2008)', async () => {
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockRejectedValue(new Error('DECODE_ERROR'));
+            const entity = fakeEntity('e1');
+
+            service.scheduleImageInference('oral-cancer-v1', '/tmp/x.jpg', entity, 'AI Suspicion Result');
+            await new Promise(r => setImmediate(r));
+            expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                conceptName: 'AI Suspicion Result', questionGroupConceptName: null,
+                questionGroupIndex: null, messageKey: 'aiInferenceFailed',
+            });
+
+            // Same image re-scheduled (the failure dispatch re-ran the rule): no retry, no re-dispatch.
+            service.dispatchAction.mockClear();
+            service.scheduleImageInference('oral-cancer-v1', '/tmp/x.jpg', entity, 'AI Suspicion Result');
+            await new Promise(r => setImmediate(r));
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(1);
+            expect(service.dispatchAction).not.toHaveBeenCalled();
+        });
+
         it('does not re-infer a resolved-but-unflushed result for the same image (covered-until-flushed window)', async () => {
             const entity = fakeEntity('e1');  // getObservationValue returns undefined → target obs stays unwritten until flush
             service.scheduleImageInference('oral-cancer-v1', '/tmp/x.jpg', entity, 'AI Suspicion Result');
@@ -343,20 +366,25 @@ describe('EdgeModelService', () => {
             );
         });
 
-        it('swallows native errors without dispatching and releases the dedup slot', async () => {
-            NativeModules.EdgeModelModule.runInferenceOnImage.mockRejectedValueOnce(new Error('TFLITE_INFERENCE_ERROR'));
+        it('flags a native inference error as unavailable and does not retry the same image (#2008)', async () => {
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockRejectedValue(new Error('TFLITE_INFERENCE_ERROR'));
             const entity = fakeEntity('e1');
 
             service.scheduleImageInference('oral-cancer-v1', '/tmp/x.jpg', entity, 'AI Suspicion Result');
             await new Promise(r => setImmediate(r));
 
             flushInference();
-            expect(service.dispatchAction).not.toHaveBeenCalled();
+            expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                conceptName: 'AI Suspicion Result', questionGroupConceptName: null,
+                questionGroupIndex: null, messageKey: 'aiInferenceFailed',
+            });
 
-            // After the failure, the slot is free — a retry should fire a new inference call.
+            // The image is capped after the failure — a re-eval must not re-run inference or re-dispatch.
+            service.dispatchAction.mockClear();
             service.scheduleImageInference('oral-cancer-v1', '/tmp/x.jpg', entity, 'AI Suspicion Result');
             await new Promise(r => setImmediate(r));
-            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(2);
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(1);
+            expect(service.dispatchAction).not.toHaveBeenCalled();
         });
 
         it('AND-combines a fold-array modelKey and queues the combined verdict (post-labelMap)', async () => {
@@ -629,11 +657,15 @@ describe('EdgeModelService', () => {
             const entity = fakeRqgEntity('e1', [{'AI Verdict': 'Suspicious'}]);
 
             // First cold-start re-eval: attempts once, inference fails (synced-in media not downloaded).
+            // The persisted verdict is NOT blanked (media missing), but the failure is surfaced as unavailable.
             service.scheduleImageInferenceIntoGroup('oral-cancer-v1', '/tmp/missing.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
             await new Promise(r => setImmediate(r));
             expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(1);
             flushInference();
-            expect(service.dispatchAction).not.toHaveBeenCalled();  // failure → persisted verdict stays
+            expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                conceptName: 'AI Verdict', questionGroupConceptName: 'Image-wise AI Assessment',
+                questionGroupIndex: 0, messageKey: 'aiInferenceFailed',
+            });
 
             // Subsequent page re-evals must NOT retry — the attempted-set caps it at one try per image.
             service.scheduleImageInferenceIntoGroup('oral-cancer-v1', '/tmp/missing.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);

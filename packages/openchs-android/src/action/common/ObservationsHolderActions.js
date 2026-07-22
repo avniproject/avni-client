@@ -187,6 +187,44 @@ class ObservationsHolderActions {
     }
 
     /**
+     * Handler for EDGE_MODEL.INFERENCE_UNAVAILABLE, dispatched by EdgeModelService when an image
+     * yields no verdict (inference failed at runtime). Raises a validation error on the form element
+     * that scheduled the inference, which blocks Next via
+     * AbstractDataEntryState.anyFailedResultForCurrentFEG() and renders red like any other one.
+     *
+     * Typed Inference rather than Form: a Form-typed result is dropped by
+     * _updateOldFormElementGroupValidations before the Next check reads it, and a Rule-typed one is
+     * overwritten by the next rule cycle. Only a type outside both lifecycles survives to do its job.
+     * Cleared by the #2009 re-sync (_resyncWrittenTargetsValidation) when a verdict later lands.
+     */
+    static onInferenceUnavailable(state, action, context) {
+        if (!state || !state.formElementGroup || !state.validationResults) return state;
+        const formElement = ObservationsHolderActions._findInferenceTargetFormElement(state, action);
+        if (!formElement) return state;
+        const newState = state.clone();
+        newState.handleValidationResult(new ValidationResult(
+            false, formElement.uuid, action.messageKey, null,
+            action.questionGroupIndex, ValidationResult.ValidationTypes.Inference
+        ));
+        return newState;
+    }
+
+    /**
+     * The scheduling rule lives on the target element itself (it passes its own
+     * `formElement.concept.name` as the target), so the concept name resolves back to the element
+     * that should carry the error. Matches the lookup _applyInferenceWrite* use.
+     */
+    static _findInferenceTargetFormElement(state, action) {
+        const formElements = state.formElementGroup.getFormElements();
+        if (action.questionGroupConceptName != null) {
+            return _.find(formElements, fe => fe && fe.concept && fe.concept.name === action.conceptName
+                && fe.isQuestionGroup()
+                && _.get(fe.getParentFormElement(), 'concept.name') === action.questionGroupConceptName);
+        }
+        return _.find(formElements, fe => fe && fe.concept && fe.concept.name === action.conceptName);
+    }
+
+    /**
      * Writes a single inference result into `newState.observationsHolder` WITHOUT re-running
      * the form-element rules — the caller does that once (so a batch re-evals once, not N
      * times). Returns the written target `{uuid, questionGroupIndex}` (the form element the
