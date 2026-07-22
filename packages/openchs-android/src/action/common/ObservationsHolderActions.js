@@ -222,6 +222,12 @@ class ObservationsHolderActions {
                 (_.isNil(s.questionGroupIndex) ? _.isNil(questionGroupIndex) : s.questionGroupIndex === questionGroupIndex));
             if (!fresh) return;
             const [validationResult] = ObservationsHolderActions.getRuleValidationErrors([fresh]);
+            // Gate-state audit trail for the on-device file log (#2009): one line per written row
+            // saying whether its blocking rule error cleared on verdict-land or is still in force.
+            General.logDebug('ObservationsHolderActions',
+                validationResult.success
+                    ? `resync gate CLEARED: ${uuid}[${_.isNil(questionGroupIndex) ? '-' : questionGroupIndex}]`
+                    : `resync gate KEPT: ${uuid}[${_.isNil(questionGroupIndex) ? '-' : questionGroupIndex}] error=${validationResult.messageKey}`);
             newState.handleValidationResult(validationResult);
         });
     }
