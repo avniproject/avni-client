@@ -22,7 +22,6 @@ export default class SingleSelectMediaFormElement extends MediaFormElement {
 
     constructor(props, context) {
         super(props, context);
-        this.state = {};
     }
 
     get mediaUri() {
@@ -49,15 +48,27 @@ export default class SingleSelectMediaFormElement extends MediaFormElement {
     }
 
     render() {
+        // Rows inside a repeatable group (e.g. AI Oral Screening Results) already carry a numbered badge
+        // on the image itself, so the per-row concept label ("Oral Image") is redundant and isn't shown
+        // in Figma, whether or not the row is still editable. Non-repeated usages (e.g. profile picture
+        // capture, which never gets a questionGroupIndex) are unaffected.
+        const isRepeatableRow = !_.isNil(this.props.questionGroupIndex);
+        // Every image under the "Suspicious Images Display" field is, by definition, one the AI
+        // already flagged - show the "AI Flagged" marker instead of a plain row number. Checked on
+        // both the element itself (standalone field) and its parent (repeatable-group row) since
+        // either can carry that name depending on how the form is structured.
+        const isSuspiciousImagesGroup = this.props.element.name === 'Suspicious Images Display'
+            || _.get(this.props, 'parentElement.name') === 'Suspicious Images Display';
         return (
             this.props.isShown &&
             <View style={{marginVertical: 16}}>
-                <FormElementLabelWithDocumentation element={this.props.element}/>
-                {this.mediaUri ? this.showMedia(this.mediaUri, this.clearAnswer.bind(this)) :
+                {!isRepeatableRow && <FormElementLabelWithDocumentation element={this.props.element}/>}
+                {this.mediaUri ? this.showMedia(this.mediaUri, this.clearAnswer.bind(this), this.props.questionGroupIndex, isSuspiciousImagesGroup) :
                     (this.isReadOnly ? this.showEmptyReadOnly() : this.showInputOptions(this.onUpdateObservations.bind(this)))}
                 <View
                     style={{flex: 1, borderColor: 'black', borderBottomWidth: StyleSheet.hairlineWidth, opacity: 0.1}}/>
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
+                {this.renderRemoveConfirmDialog()}
             </View>
         );
     }

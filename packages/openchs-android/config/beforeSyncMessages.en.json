@@ -1,4 +1,7 @@
 {
+  "next": "Next",
+  "previous": "Back",
+  "save": "Finish",
   "syncError": "Sync Failed",
   "tryAgain": "Try Again/पुनः प्रयास करें",
   "cancel": "Cancel",
@@ -52,5 +55,14 @@
   "NoCatchmentFoundErrorMessage": "Catchment not assigned to you/आपको कोई क्षेत्र निर्दिष्ट नहीं किया गया है",
   "FetchingChangedResource": "Fetching changed resources from the server",
   "goToSummary": "SUMMARY",
-  "enterNewPasswordFor" : "Enter new password for {{userName}}"
+  "enterNewPasswordFor" : "Enter new password for {{userName}}",
+  "removeImageConfirmTitle": "Remove Image",
+  "removeImageConfirmBody": "Are you sure you want to remove the image?",
+  "closeImagePreview": "Close",
+  "aiFlaggedLabel": "AI Flagged",
+  "patient": "Patient",
+  "patients": "Patients",
+  "uploadImageButtonLabel": "Upload Image",
+  "addImageButtonLabel": "Add Image",
+  "pleaseAddAtLeastNImages": "Please add at least {{count}} images"
 }

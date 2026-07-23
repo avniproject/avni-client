@@ -5,13 +5,14 @@ import {Alert, View} from "react-native";
 import Path from "../../framework/routing/Path";
 import IndividualProfile from "../common/IndividualProfile";
 import FamilyProfile from "../familyfolder/FamilyProfile";
-import {Button, ScrollView, Text} from "native-base";
+import {ScrollView, Text} from "native-base";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import WizardButtons from "../common/WizardButtons";
 import AppHeader from "../common/AppHeader";
 import Colors from "../primitives/Colors";
 import Fonts from "../primitives/Fonts";
 import Distances from "../primitives/Distances";
+import Styles from "../primitives/Styles";
 import Observations from "../common/Observations";
 import General from "../../utility/General";
 import ConceptService from "../../service/ConceptService";
@@ -36,7 +37,6 @@ import {ApprovalDialog} from "../approval/ApprovalDialog";
 import {RejectionMessage} from "../approval/RejectionMessage";
 import GroupAffiliationInformation from "../common/GroupAffiliationInformation";
 import _ from 'lodash'
-import AvniIcon from "../common/AvniIcon";
 import {Actions as IGHActions} from "../../action/individual/IndividualGeneralHistoryActions";
 import {ProgramEnrolmentDashboardActionsNames as PEDActions} from "../../action/program/ProgramEnrolmentDashboardActions";
 
@@ -69,7 +69,28 @@ class SystemRecommendationView extends AbstractComponent {
     };
 
     static styles = {
-        rulesRowView: {backgroundColor: Colors.GreyContentBackground, paddingBottom: 19, paddingLeft: 10}
+        rulesRowView: {backgroundColor: Colors.GreyContentBackground, paddingBottom: 19, paddingLeft: 10},
+        summaryCard: {
+            backgroundColor: '#ffffff',
+            borderRadius: 4,
+            paddingHorizontal: 16,
+            paddingVertical: 16,
+            marginTop: 12
+        },
+        groupSummaryOuterBorder: {
+            borderRadius: 12,
+            borderWidth: 1,
+            borderColor: 'rgba(0, 0, 0, 0.12)',
+            backgroundColor: '#ffffff',
+            padding: 6,
+            marginTop: 12,
+            marginBottom: 12
+        },
+        groupSummaryCard: {
+            backgroundColor: '#ffffff',
+            borderRadius: 8,
+            overflow: 'hidden'
+        }
     };
 
     viewName() {
@@ -78,7 +99,7 @@ class SystemRecommendationView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-        this.state = {showApprovalDialog: false, viewHeight: -1, bottom: -1};
+        this.state = {showApprovalDialog: false};
         this.scrollRef = React.createRef();
     }
 
@@ -149,6 +170,17 @@ class SystemRecommendationView extends AbstractComponent {
         TypedTransition.from(this).goBack();
     }
 
+    // headerMessage arrives pre-composed as "{form/encounter name} - {Summary & Recommendations}"
+    // from every caller - split on the last " - " so the header can show the generic part as the
+    // bold title and the specific form name as a subtitle, matching the two-line header design.
+    // Falls back to the untouched single-line string if a caller ever uses a different format.
+    get headerTitleParts() {
+        const full = this.props.headerMessage || '';
+        const separatorIndex = full.lastIndexOf(' - ');
+        if (separatorIndex === -1) return {title: full, subtitle: undefined};
+        return {title: full.substring(separatorIndex + 3), subtitle: full.substring(0, separatorIndex)};
+    }
+
     profile() {
         return (this.props.individual instanceof Individual) ?
             <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard}
@@ -190,56 +222,60 @@ class SystemRecommendationView extends AbstractComponent {
         isSaveDraftOn ? onYesPress() : AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
     }
 
-    doDisplayScrollButton() {
-        const {viewHeight, bottom} = this.state;
-        if (viewHeight === -1 || bottom === -1) return false;
-        return bottom > viewHeight;
-    }
-
     render() {
         General.logDebug(this.viewName(), `render`);
-        const displayScrollButton = this.doDisplayScrollButton();
+        const ownScheduledVisits = this.props.nextScheduledVisits.filter(nsv => _.isNil(nsv.subject));
+        const systemRecommendationObservations = this.context.getService(ConceptService).getObservationsFromDecisions(this.props.decisions);
+        const showSystemRecommendationsCard = this.props.validationErrors.length > 0 || systemRecommendationObservations.length > 0;
         return (
-            <CHSContainer onLayout={(e) => this.setState({viewHeight: e.nativeEvent.layout.height})}>
+            <CHSContainer>
                 <CHSContent>
-                    <AppHeader title={this.props.headerMessage}
+                    <AppHeader title={this.headerTitleParts.title}
+                               subtitle={this.headerTitleParts.subtitle}
                                func={() => this.onAppHeaderBack(this.props.isSaveDraftOn)}
                                displayHomePressWarning={!this.props.isSaveDraftOn}/>
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.props.entityApprovalStatus}/>
                     <ScrollView ref={this.scrollRef}>
-                        <View style={{flexDirection: 'column'}}>
+                        <View style={{flexDirection: 'column', backgroundColor: Styles.greyBackground}}>
                             {!_.isNil(this.props.individual) && this.profile()}
                             <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>
-                                {displayScrollButton &&
-                                    <Button style={{alignSelf: "flex-end", backgroundColor: Colors.AccentColor}}
-                                            leftIcon={<AvniIcon type="MaterialIcons" name="arrow-circle-down" color={Colors.TextOnPrimaryColor} style={{fontSize: 20}}/>}
-                                            onPress={() => this.scrollToBottom()}>{this.I18n.t("scrollToBottomToSave")}</Button>}
-                                <View style={this.scaleStyle({paddingVertical: 12, flexDirection: 'column'})}>
-                                    {
-                                        this.props.validationErrors.map((validationResult, index) => {
-                                            return (
-                                                <View style={this.scaleStyle(SystemRecommendationView.styles.rulesRowView)}
-                                                      key={`error${index}`}>
-                                                    <Text style={{
-                                                        fontSize: Fonts.Medium,
-                                                        color: Colors.ValidationError
-                                                    }}>{this.I18n.t(validationResult.messageKey)}</Text>
-                                                </View>
-                                            );
-                                        })
-                                    }
-                                    <Observations highlight
-                                                  observations={this.context.getService(ConceptService).getObservationsFromDecisions(this.props.decisions)}
-                                                  title={this.I18n.t('systemRecommendations')}/>
-                                </View>
-                                <NextScheduledVisits nextScheduledVisits={this.props.nextScheduledVisits.filter(nsv => _.isNil(nsv.subject))}
-                                                     title={this.I18n.t('visitsBeingScheduled')}/>
+                                {showSystemRecommendationsCard &&
+                                    <View style={this.scaleStyle(SystemRecommendationView.styles.summaryCard)}>
+                                        {
+                                            this.props.validationErrors.map((validationResult, index) => {
+                                                return (
+                                                    <View style={this.scaleStyle(SystemRecommendationView.styles.rulesRowView)}
+                                                          key={`error${index}`}>
+                                                        <Text style={{
+                                                            fontSize: Fonts.Medium,
+                                                            color: Colors.ValidationError
+                                                        }}>{this.I18n.t(validationResult.messageKey)}</Text>
+                                                    </View>
+                                                );
+                                            })
+                                        }
+                                        <Observations highlight
+                                                      observations={systemRecommendationObservations}
+                                                      title={this.I18n.t('systemRecommendations')}/>
+                                    </View>}
+                                {ownScheduledVisits.length > 0 &&
+                                    <View style={this.scaleStyle(SystemRecommendationView.styles.summaryCard)}>
+                                        <NextScheduledVisits nextScheduledVisits={ownScheduledVisits}
+                                                             title={this.I18n.t('visitsBeingScheduled')}/>
+                                    </View>}
                                 <NextScheduledVisitsForOtherSubjects nextScheduledVisits={this.props.nextScheduledVisits.filter(nsv => !_.isNil(nsv.subject))}
                                                                      title={this.I18n.t('visitsBeingScheduledForOthers')}/>
                                 {!_.isNil(this.props.individual) &&
                                     <GroupAffiliationInformation individual={this.props.individual} affiliatedGroups={this.props.affiliatedGroups} I18n={this.I18n}/>}
-                                <Observations observations={this.props.observations} form={this.props.form}
-                                              title={this.I18n.t('observationSummary')}/>
+                                {this.props.observations.length > 0 &&
+                                    <React.Fragment>
+                                        <Text style={[Fonts.Title, {marginTop: 12}]}>{this.I18n.t('observationSummary')}</Text>
+                                        <View style={this.scaleStyle(SystemRecommendationView.styles.groupSummaryOuterBorder)}>
+                                            <View style={this.scaleStyle(SystemRecommendationView.styles.groupSummaryCard)}>
+                                                <Observations observations={this.props.observations} form={this.props.form}/>
+                                            </View>
+                                        </View>
+                                    </React.Fragment>}
                                 <WizardButtons previous={{
                                     func: () => !_.isUndefined(this.props.onPreviousCallback) ? this.props.onPreviousCallback(this.context) : this.previous(),
                                     label: this.I18n.t('previous')
@@ -261,7 +297,6 @@ class SystemRecommendationView extends AbstractComponent {
                                                style={{marginHorizontal: 24}}/>
 
                             </View>
-                            <View onLayout={(e) => this.setState({bottom: e.nativeEvent.layout.y})}/>
                             <ApprovalDialog
                                 primaryButton={this.I18n.t('yes')}
                                 secondaryButton={this.I18n.t('no')}

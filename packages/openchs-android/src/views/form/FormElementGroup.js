@@ -131,10 +131,17 @@ class FormElementGroup extends AbstractComponent {
         const unsupportedFormElements = formElements.filter(fe => !_.includes(_.values(Concept.dataType), fe.concept.datatype));
         return (<View>
                 {formElements.length < 1 ? <View/> :
-                    <Text
-                        style={[Styles.formGroupLabel, this.props.group.styles, {paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge}]}>
-                        {this.I18n.t(this.props.group.name)}
-                    </Text>
+                    <View style={{backgroundColor: Colors.SectionHeaderBackground, paddingVertical: 10}}>
+                        <Text
+                            style={[
+                                Styles.formGroupLabel,
+                                // this.props.group.styles, // temporarily disabled: forcing the new design's grey/dark-teal look for every form's group header, overriding any per-group backgroundColour/textColour set in the Form Builder. Re-enable (and drop the two lines below) to restore per-form custom group colors.
+                                {paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge},
+                                {color: Colors.BrandPrimaryDark, fontWeight: '500'}
+                            ]}>
+                            {this.I18n.t(this.props.group.name)}
+                        </Text>
+                    </View>
                 }
                 {
                     unsupportedFormElements.length > 0 ?

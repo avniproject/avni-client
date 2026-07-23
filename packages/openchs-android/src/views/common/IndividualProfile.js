@@ -7,7 +7,6 @@ import {Actions} from "../../action/individual/IndividualProfileActions";
 import Reducers from "../../reducer";
 import Colors from "../primitives/Colors";
 import Distances from "../primitives/Distances";
-import Fonts from "../primitives/Fonts";
 import CHSNavigator from "../../utility/CHSNavigator";
 import General from "../../utility/General";
 import DGS from "../primitives/DynamicGlobalStyles";
@@ -487,10 +486,33 @@ class IndividualProfile extends AbstractComponent {
                         paddingHorizontal: Distances.ContentDistanceFromEdge,
                         paddingVertical: Distances.ContentDistanceFromEdge
                     })}>
-                        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <Text style={[Fonts.LargeBold, {color: Styles.blackColor}]}>{this.props.individual.nameString}</Text>
+                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                            <SubjectProfilePicture size={56}
+                                                   subjectType={this.props.individual.subjectType}
+                                                   round={true}
+                                                   individual={this.props.individual}
+                                                   containerStyle={{marginRight: 24}}/>
+                            <View style={{flex: 1}}>
+                                <Text style={{fontSize: Styles.normalTextSize, fontWeight: '500', color: Colors.TextPrimaryDark}}>{this.props.individual.nameString}</Text>
+                                {isPerson &&
+                                    <Text style={{fontSize: Styles.smallTextSize, color: Colors.TextPrimaryDark, marginTop: 2}}>
+                                        {this.props.individual.userProfileSubtext1(this.I18n)} • {this.props.individual.userProfileSubtext2(this.I18n)}
+                                    </Text>}
+                            </View>
                         </View>
-                        <Text style={Styles.subjectProfileSubheading}>{headingSuffix}</Text>
+                        <View style={{
+                            backgroundColor: Styles.whiteColor,
+                            borderRadius: 4,
+                            paddingVertical: 8,
+                            paddingHorizontal: 16,
+                            marginTop: 12
+                        }}>
+                            <Text style={{fontSize: Styles.smallerTextSize, color: Colors.TextPrimaryDark, opacity: 0.7}}>{this.I18n.t('location')}</Text>
+                            <Text numberOfLines={1} ellipsizeMode={'tail'}
+                                  style={{fontSize: Styles.smallTextSize, color: Colors.BrandPrimary, opacity: 0.7, marginTop: 2}}>
+                                {this.props.individual.fullAddress(this.I18n)}
+                            </Text>
+                        </View>
                     </View>
                 )}
         </View>;

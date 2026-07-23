@@ -26,7 +26,8 @@ class AppHeader extends AbstractComponent {
         renderSync: PropTypes.bool,
         title: PropTypes.string.isRequired,
         renderSearch: PropTypes.bool,
-        onSearch: PropTypes.func
+        onSearch: PropTypes.func,
+        subtitle: PropTypes.string
     };
 
     static defaultProps = {
@@ -92,7 +93,7 @@ class AppHeader extends AbstractComponent {
     }
 
     render() {
-        const {renderSync, renderExitBeneficiaryMode, renderCommentResolve, hideBackButton, title, renderSearch, iconFunc, onSearch} = this.props;
+        const {renderSync, renderExitBeneficiaryMode, renderCommentResolve, hideBackButton, title, subtitle, renderSearch, iconFunc, onSearch} = this.props;
 
         return (
             <View style={{
@@ -116,11 +117,19 @@ class AppHeader extends AbstractComponent {
                         </View>
                     </TouchableNativeFeedback>}
 
-                <View style={{flex: 1, flexDirection: 'row', alignSelf: 'center'}}>
+                <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', paddingVertical: subtitle ? 8 : 0}}>
                     <Text style={[{
                         color: Colors.headerTextColor,
-                        fontSize: 18
+                        fontSize: 18,
+                        fontWeight: subtitle ? 'bold' : 'normal'
                     }, hideBackButton && {marginLeft: 20}]}>{title}</Text>
+                    {!_.isNil(subtitle) &&
+                        <Text style={[{
+                            color: Colors.headerTextColor,
+                            fontSize: 13,
+                            opacity: 0.85,
+                            marginTop: 2
+                        }, hideBackButton && {marginLeft: 20}]}>{subtitle}</Text>}
                 </View>
                 {renderSearch && <TouchableNativeFeedback onPress={() => onSearch()} background={this.background()}>
                     <View style={{

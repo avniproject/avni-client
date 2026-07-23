@@ -1,24 +1,26 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import {Image, Modal, TouchableNativeFeedback, View, Text} from "react-native";
+import {Image, Modal, StyleSheet, TouchableNativeFeedback, TouchableOpacity, View, Text} from "react-native";
 import {ImageViewer} from "react-native-image-zoom-viewer";
 import _ from 'lodash';
-import {Button, Icon} from "native-base";
+import I18n from "i18n-js";
 import Colors from "../primitives/Colors";
-import AvniIcon from "./AvniIcon";
+import Styles from "../primitives/Styles";
 
 export default class ExpandableImage extends React.Component {
     static propTypes = {
         source: PropTypes.string,
-        allMediaAbsolutePath: PropTypes.array
+        allMediaAbsolutePath: PropTypes.array,
+        fullWidth: PropTypes.bool,
     };
     static defaultProps = {
         allMediaAbsolutePath: [],
+        fullWidth: false,
     };
 
     constructor(props) {
         super(props);
-        this.state = {showModal: false};
+        this.state = {showModal: false, imageAspectRatio: 1};
     }
 
     showModal() {
@@ -32,21 +34,45 @@ export default class ExpandableImage extends React.Component {
     render() {
         const mediaPath = !_.isEmpty(this.props.allMediaAbsolutePath) ? this.props.allMediaAbsolutePath : [this.props.source];
         const sourceFile = `file://${this.props.source}`;
+        const dimensionStyle = this.props.fullWidth
+            ? {width: '100%', aspectRatio: this.state.imageAspectRatio || 1, height: undefined}
+            : {height: 36, width: 36};
         return <View>
             <TouchableNativeFeedback onPress={() => this.showModal()}>
-                <Image source={{uri: sourceFile}} style={{height: 36, width: 36}}/>
+                <Image source={{uri: sourceFile}} style={dimensionStyle} resizeMode={this.props.fullWidth ? 'cover' : 'contain'}
+                       onLoad={(event) => {
+                           if (!this.props.fullWidth) return;
+                           const {width, height} = event.nativeEvent.source;
+                           if (width && height) {
+                               this.setState({imageAspectRatio: width / height});
+                           }
+                       }}/>
             </TouchableNativeFeedback>
             {this.state.showModal && (
                 <Modal onRequestClose={() => this.hideModal()}>
-                    <View style={{backgroundColor: "black", padding: 5}}>
-                        <Button onPress={() => this.hideModal()}
-                                style={{height: 35, alignSelf: 'flex-end',backgroundColor: Colors.ActionButtonColor}}
-                                leftIcon={<AvniIcon type="MaterialIcons" name="close" style={{color: Colors.headerIconColor, fontSize: 15}}/>}>
-                        </Button>
+                    <View style={styles.previewContainer}>
+                        <ImageViewer imageUrls={_.map(mediaPath, path => ({url: `file://${path}`}))}
+                                     renderIndicator={() => null}/>
+                        <TouchableOpacity onPress={() => this.hideModal()} style={styles.closeButton}>
+                            <Text style={styles.closeButtonText}>{I18n.t('closeImagePreview')}</Text>
+                        </TouchableOpacity>
                     </View>
-                    <ImageViewer imageUrls={_.map(mediaPath, path => ({url: `file://${path}`}))}/>
                 </Modal>
             )}
         </View>
     }
 }
+
+const styles = StyleSheet.create({
+    previewContainer: {flex: 1, backgroundColor: 'black'},
+    closeButton: {
+        position: 'absolute',
+        top: 40,
+        right: 16,
+        backgroundColor: '#ffffff',
+        borderRadius: 100,
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+    },
+    closeButtonText: {color: Colors.TextHint, fontSize: Styles.normalTextSize},
+});

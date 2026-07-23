@@ -7,6 +7,7 @@ import DatePicker from "../../primitives/DatePicker";
 import Distances from "../../primitives/Distances";
 import _ from "lodash";
 import Styles from "../../primitives/Styles";
+import Colors from "../../primitives/Colors";
 import {Concept} from "avni-models";
 import UserInfoService from "../../../service/UserInfoService";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
@@ -29,24 +30,36 @@ class DateFormElement extends AbstractFormElement {
         const concept = this.props.element.concept;
         return (
             <View style={this.appendedStyle({paddingVertical: Distances.VerticalSpacingBetweenFormElements})}>
-                <FormElementLabelWithDocumentation element={this.props.element}/>
-                {
-                    this.props.element.editable === false ?
-                         <Text  style={[{
-                             flex: 1,
-                             marginVertical: 0,
-                             paddingVertical: 5
-                         }, Styles.formBodyText]}>{_.isNil(this.props.dateValue.getValue()) ? this.I18n.t('Not Known Yet') :this.props.dateValue.asDisplayDate()}</Text>:
-                        <DatePicker dateValue={this.props.dateValue.getValue()}
-                                    validationResult={this.props.validationResult}
-                                    datePickerMode={_.isNil(this.props.element.datePickerMode)
-                                        ? this.userSettings.datePickerMode
-                                        : this.props.element.datePickerMode
-                                    }
-                                    timePickerMode={this.userSettings.timePickerMode}
-                                    pickTime={concept && concept.datatype === Concept.dataType.DateTime}
-                                    actionObject={{formElement: this.props.element, parentFormElement: this.props.parentElement, questionGroupIndex: this.props.questionGroupIndex}} actionName={this.props.actionName}/>
-}
+                <View style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    backgroundColor: Colors.BrandLight,
+                    borderRadius: 8,
+                    paddingHorizontal: 14,
+                    paddingVertical: 10
+                }}>
+                    <View style={{flex: 1, marginRight: 12}}>
+                        <FormElementLabelWithDocumentation element={this.props.element}/>
+                    </View>
+                    {
+                        this.props.element.editable === false ?
+                             <Text  style={[{
+                                 marginVertical: 0,
+                                 paddingVertical: 5
+                             }, Styles.formBodyText]}>{_.isNil(this.props.dateValue.getValue()) ? this.I18n.t('Not Known Yet') :this.props.dateValue.asDisplayDate()}</Text>:
+                            <DatePicker dateValue={this.props.dateValue.getValue()}
+                                        validationResult={this.props.validationResult}
+                                        transparent={true}
+                                        datePickerMode={_.isNil(this.props.element.datePickerMode)
+                                            ? this.userSettings.datePickerMode
+                                            : this.props.element.datePickerMode
+                                        }
+                                        timePickerMode={this.userSettings.timePickerMode}
+                                        pickTime={concept && concept.datatype === Concept.dataType.DateTime}
+                                        actionObject={{formElement: this.props.element, parentFormElement: this.props.parentElement, questionGroupIndex: this.props.questionGroupIndex}} actionName={this.props.actionName}/>
+                    }
+                </View>
             </View>);
     }
 }

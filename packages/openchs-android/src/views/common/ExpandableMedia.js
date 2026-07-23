@@ -16,7 +16,8 @@ export default class ExpandableMedia extends AbstractFormElement {
     static propTypes = {
         source: PropTypes.string,
         type: PropTypes.string,
-        relatedMediaURIs: PropTypes.array
+        relatedMediaURIs: PropTypes.array,
+        fullWidth: PropTypes.bool
     };
 
     constructor(props, context) {
@@ -139,7 +140,9 @@ export default class ExpandableMedia extends AbstractFormElement {
         // genuinely-absent file the probe resolves false and showDownloadIcon takes over.
         if (this.props.source && this.state.exists !== false) {
             const MediaComponent = this.getMediaComponentByType(this.props.type);
-            return <MediaComponent source={this.mediaUriInDevice} fileName={this.fileName} allMediaAbsolutePath={this.state.allMediaAbsolutePath}/>;
+            return <MediaComponent source={this.mediaUriInDevice} fileName={this.fileName}
+                                    allMediaAbsolutePath={this.state.allMediaAbsolutePath}
+                                    fullWidth={this.props.fullWidth}/>;
         }
     }
 

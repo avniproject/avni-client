@@ -19,6 +19,8 @@ import General from "../../utility/General";
 import Distances from "../primitives/Distances";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
+import EncounterSubjectHeader from "../common/EncounterSubjectHeader";
+import Colors from "../primitives/Colors";
 import FormMappingService from "../../service/FormMappingService";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 import ProgramEncounterService from "../../service/program/ProgramEncounterService";
@@ -183,7 +185,7 @@ class ProgramEncounterView extends AbstractComponent {
             this.onGoToSummary(true)
         }
         const programEncounterName = !_.isEmpty(this.state.programEncounter.name) ? this.I18n.t(this.state.programEncounter.name) : this.I18n.t(this.state.programEncounter.encounterType.operationalEncounterTypeName);
-        const title = `${this.state.programEncounter.programEnrolment.individual.nameString} - ${programEncounterName}`;
+        const title = programEncounterName;
         this.displayMessage(this.props.params.message);
         const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);
         return (
@@ -199,6 +201,14 @@ class ProgramEncounterView extends AbstractComponent {
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstFormPage() ?
                             <View>
+                                <View style={{
+                                    backgroundColor: '#ffffff',
+                                    borderRadius: 12,
+                                    marginBottom: Distances.VerticalSpacingBetweenFormElements,
+                                    overflow: 'hidden'
+                                }}>
+                                    <EncounterSubjectHeader individual={this.state.programEncounter.programEnrolment.individual}/>
+                                </View>
                                 <SummaryButton onPress={() => this.onGoToSummary()}/>
                                 <GeolocationFormElement
                                     location={this.state.programEncounter.encounterLocation}
@@ -208,7 +218,7 @@ class ProgramEncounterView extends AbstractComponent {
                                     validationResult={AbstractDataEntryState.getValidationError(this.state, ProgramEncounter.validationKeys.ENCOUNTER_LOCATION)}
                                 />
                                 <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGED}
-                                                 element={new StaticFormElement('encounterDate')}
+                                                 element={Object.assign(new StaticFormElement('encounterDate'), {styles: {color: Colors.BrandPrimary}})}
                                                  dateValue={new PrimitiveValue(this.state.programEncounter.encounterDateTime)}
                                                  validationResult={AbstractDataEntryState.getValidationError(this.state, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}/>
                             </View>

@@ -73,8 +73,10 @@ class IndividualDetails extends AbstractComponent {
 
     render() {
         const isScheduledOrOverdueView = _.includes(['scheduled', 'overdue', 'Scheduled visits', 'Overdue visits'], this.props.cardType);
-        const cardSpacing = isScheduledOrOverdueView ? 20 : 1;
-        const backgroundColor = isScheduledOrOverdueView ? Colors.GreyContentBackground : Colors.InputBorderNormal;
+        // Figma's list rows (e.g. Total Patients) aren't divided by a visible line - just whitespace,
+        // so this spacer is kept transparent here and only used for its height between rows.
+        const cardSpacing = isScheduledOrOverdueView ? 20 : 16;
+        const backgroundColor = isScheduledOrOverdueView ? Colors.GreyContentBackground : 'transparent';
         const hideEnrolments = isScheduledOrOverdueView;
         const sameDateVisits = _.map(
             this.props.individualWithMetadata.visitInfo.visitName.filter(info =>
