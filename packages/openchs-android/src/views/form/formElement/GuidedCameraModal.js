@@ -1,6 +1,7 @@
 import React, {useRef, useState, useEffect} from "react";
 import {Modal, View, Text, TouchableOpacity, StyleSheet, ActivityIndicator} from "react-native";
 import {Camera, useCameraDevice, useCameraPermission} from "react-native-vision-camera";
+import General from "../../../utility/General";
 
 const styles = StyleSheet.create({
     fill: {...StyleSheet.absoluteFillObject, backgroundColor: "black"},
@@ -16,10 +17,7 @@ const styles = StyleSheet.create({
     btnText: {color: "black", fontWeight: "700"},
 });
 
-// `onCapture` is awaited — the caller resizes and saves, and throws to report failure. Holding
-// `busy` across it keeps the shutter disabled and the form behind the modal unreachable for that
-// whole window, so one session can never start two captures. Strings are supplied by the caller;
-// this component has no I18n of its own.
+// onCapture is awaited under `busy` (and close is blocked then), so one session can't start a second capture.
 export default function GuidedCameraModal({visible, onClose, onCapture, labels}) {
     const cameraRef = useRef(null);
     const device = useCameraDevice("back");
@@ -44,6 +42,7 @@ export default function GuidedCameraModal({visible, onClose, onCapture, labels})
             const photo = await cameraRef.current.takePhoto({flash: "on"});
             await onCapture(photo.path);
         } catch (e) {
+            General.logError('GuidedCameraModal', `capture failed: ${e && e.message}`);
             setError(labels.captureFailed);
         } finally {
             setBusy(false);
@@ -65,7 +64,7 @@ export default function GuidedCameraModal({visible, onClose, onCapture, labels})
         body = (
             <View style={styles.fill}>
                 <Camera ref={cameraRef} style={StyleSheet.absoluteFill} device={device} isActive={visible} photo={true} />
-                <TouchableOpacity style={styles.close} onPress={onClose}><Text style={styles.closeText}>✕</Text></TouchableOpacity>
+                <TouchableOpacity style={styles.close} onPress={onClose} disabled={busy}><Text style={styles.closeText}>✕</Text></TouchableOpacity>
                 {error && (
                     <View style={styles.errorBanner}><Text style={styles.err}>{error}</Text></View>
                 )}
@@ -82,7 +81,7 @@ export default function GuidedCameraModal({visible, onClose, onCapture, labels})
     }
 
     return (
-        <Modal visible={visible} animationType="slide" onRequestClose={onClose} statusBarTranslucent>
+        <Modal visible={visible} animationType="slide" onRequestClose={() => { if (!busy) onClose(); }} statusBarTranslucent>
             {body}
         </Modal>
     );

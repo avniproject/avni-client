@@ -49,8 +49,7 @@ const DEFAULT_DURATION_LIMIT = 60;
 export default class MediaFormElement extends AbstractFormElement {
     constructor(props, context) {
         super(props, context);
-        // showGuidedCamera must be an explicit false — RN Modal's `visible` defaults to true, so an
-        // undefined value would pop the camera open on first render.
+        // Explicit false: RN Modal's `visible` defaults to true, so undefined would flash the camera open.
         this.state = {showGuidedCamera: false};
     }
 
@@ -73,8 +72,7 @@ export default class MediaFormElement extends AbstractFormElement {
         return label;
     }
 
-    // Returns a promise so callers can await the file move — a move that fails must not be
-    // mistaken for a saved photo.
+    // Returns a promise so the guided path can await the move; a failed move must not look saved.
     addMediaFromPicker(response, onUpdateObservations) {
         if (response.didCancel || response.errorCode) {
             return Promise.resolve();
@@ -142,22 +140,19 @@ export default class MediaFormElement extends AbstractFormElement {
 
     openGuidedCamera(onUpdateObservations) {
         this._guidedOnUpdate = onUpdateObservations;
-        // Resolved at open, like launchCamera does: an invalid keyValue is a form misconfiguration,
-        // and surfacing it here stops it being reported as a retryable capture failure.
-        this._guidedOptions = this.getDefaultOptions();
+        // Resize params only — avoids getDefaultOptions' videoQuality check throwing out of this sync handler.
+        this._guidedOptions = {
+            maxWidth: this.getFromKeyValue('maxWidth', DEFAULT_IMG_WIDTH),
+            maxHeight: this.getFromKeyValue('maxHeight', DEFAULT_IMG_HEIGHT),
+            quality: this.getFromKeyValue('imageQuality', DEFAULT_IMG_QUALITY)
+        };
         this.setState({mode: Mode.Camera, showGuidedCamera: true});
     }
 
-    // Throws on failure so the camera keeps itself open and shows the error for a retake. The
-    // observation is only recorded once the resize and the file move have both succeeded.
+    // Records the observation only after resize + move succeed; on failure it rejects (modal logs + shows retake).
     async onGuidedCapture(photoPath) {
-        try {
-            const resizedUri = await resizeCapturedImage(ImageResizer, photoPath, this._guidedOptions);
-            await this.addMediaFromPicker(toPickerResponse(resizedUri), this._guidedOnUpdate);
-        } catch (e) {
-            General.logError('MediaFormElement', `guided capture failed: ${e && e.message}`);
-            throw e;
-        }
+        const resizedUri = await resizeCapturedImage(ImageResizer, photoPath, this._guidedOptions);
+        await this.addMediaFromPicker(toPickerResponse(resizedUri), this._guidedOnUpdate);
         this.setState({showGuidedCamera: false});
     }
 
