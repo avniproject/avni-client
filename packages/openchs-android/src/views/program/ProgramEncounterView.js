@@ -22,6 +22,7 @@ import CHSContent from "../common/CHSContent";
 import FormMappingService from "../../service/FormMappingService";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 import ProgramEncounterService from "../../service/program/ProgramEncounterService";
+import OrganisationConfigService from "../../service/OrganisationConfigService";
 import moment from "moment";
 import NewVisitPageView from "./NewVisitPageView";
 import {AvniAlert} from "../common/AvniAlert";
@@ -184,6 +185,7 @@ class ProgramEncounterView extends AbstractComponent {
         const title = `${this.state.programEncounter.programEnrolment.individual.nameString} - ${programEncounterName}`;
         this.displayMessage(this.props.params.message);
         const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);
+        const hideVisitDate = this.context.getService(OrganisationConfigService).isVisitDateHidden();
         return (
             <CHSContainer>
                 <CHSContent>
@@ -205,10 +207,11 @@ class ProgramEncounterView extends AbstractComponent {
                                     errorActionName={Actions.SET_LOCATION_ERROR}
                                     validationResult={AbstractDataEntryState.getValidationError(this.state, ProgramEncounter.validationKeys.ENCOUNTER_LOCATION)}
                                 />
+                                {!hideVisitDate &&
                                 <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGED}
                                                  element={new StaticFormElement('encounterDate')}
                                                  dateValue={new PrimitiveValue(this.state.programEncounter.encounterDateTime)}
-                                                 validationResult={AbstractDataEntryState.getValidationError(this.state, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}/>
+                                                 validationResult={AbstractDataEntryState.getValidationError(this.state, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}/>}
                             </View>
                             :
                             <View/>

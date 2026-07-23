@@ -23,6 +23,7 @@ import FormMappingService from "../../service/FormMappingService";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import EncounterService from "../../service/EncounterService";
+import OrganisationConfigService from "../../service/OrganisationConfigService";
 import {AvniAlert} from "../common/AvniAlert";
 import {RejectionMessage} from "../approval/RejectionMessage";
 import SummaryButton from "../common/SummaryButton";
@@ -159,6 +160,7 @@ class IndividualEncounterView extends AbstractComponent {
             this.onGoToSummary(true);
         }
         const title = `${this.I18n.t(this.state.encounter.encounterType.displayName)} - ${this.I18n.t('enterData')}`;
+        const hideVisitDate = this.context.getService(OrganisationConfigService).isVisitDateHidden();
         return (
             <CHSContainer>
                 <CHSContent>
@@ -184,10 +186,11 @@ class IndividualEncounterView extends AbstractComponent {
                                     errorActionName={Actions.SET_LOCATION_ERROR}
                                     validationResult={AbstractDataEntryState.getValidationError(this.state, Encounter.validationKeys.ENCOUNTER_LOCATION)}
                                 />
+                                {!hideVisitDate &&
                                 <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGE}
                                                  element={new StaticFormElement(AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}
                                                  dateValue={new PrimitiveValue(this.state.encounter.encounterDateTime)}
-                                                 validationResult={ValidationResult.findByFormIdentifier(this.state.validationResults, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}/>
+                                                 validationResult={ValidationResult.findByFormIdentifier(this.state.validationResults, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}/>}
                             </View>
                         </View> : <View/>}
                     <View style={styles.container}>

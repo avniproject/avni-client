@@ -80,6 +80,10 @@ class OrganisationConfigService extends BaseService {
     isGuideUserToRegisterButtonOn() {
         return !!this.getSettings().guideUserToRegisterButton;
     }
+
+    isVisitDateHidden() {
+        return !!this.getSettings().hideVisitDate;
+    }
 }
 
 export default OrganisationConfigService;
