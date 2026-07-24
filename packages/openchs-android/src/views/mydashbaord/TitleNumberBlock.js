@@ -5,8 +5,9 @@ import Fonts from '../primitives/Fonts';
 import _ from 'lodash';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import MCIcon from "react-native-vector-icons/MaterialCommunityIcons";
+import Colors from "../primitives/Colors";
 
-const cardGap = 10;
+const cardGap = 14;
 
 class TitleNumberBlock extends AbstractComponent {
     static propTypes = {
@@ -15,15 +16,24 @@ class TitleNumberBlock extends AbstractComponent {
         highlight: PropTypes.bool,
     };
 
+    // Callers that don't supply their own cardColor/textColor/numberColor (e.g. the family
+    // folder screen) previously fell back to undefined, leaving a plain white square that only
+    // had its elevation shadow to show for itself. Defaulting to the brand tile colours keeps
+    // that look consistent with the rest of the tiles in the app.
+    static defaultProps = {
+        cardColor: Colors.BrandLight,
+        textColor: Colors.BrandPrimaryDark,
+        numberColor: Colors.BrandPrimaryDark,
+    };
+
     static styles = StyleSheet.create({
         container: {
-            borderRadius: 6,
-            elevation: 2,
+            borderRadius: 10,
+            borderWidth: 1,
             justifyContent: 'center',
             paddingLeft: 15,
             flexWrap: 'wrap',
             minHeight: 80,
-            backgroundColor: 'white',
             marginTop: cardGap,
             width: (Dimensions.get('window').width - (cardGap * 4)) / 3,
         },
@@ -42,7 +52,8 @@ class TitleNumberBlock extends AbstractComponent {
                 <View
                     style={[TitleNumberBlock.styles.container, {
                         marginLeft: _.includes([1, 2], index) ? cardGap : 0,
-                        backgroundColor: cardColor
+                        backgroundColor: cardColor,
+                        borderColor: cardColor
                     }]}>
                     <View style={{flexDirection: 'column', width: '100%'}}>
                         <Text style={[Fonts.typography("paperFontBody2"), numberColorStyle, {fontSize: 20, marginTop: 20}]}>

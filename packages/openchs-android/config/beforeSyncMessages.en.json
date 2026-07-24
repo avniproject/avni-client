@@ -10,6 +10,8 @@
   "syncRequired": "Sync Required",
   "syncingData": "Syncing Data",
   "changePassword": "Change Password",
+  "changeLocation": "Change",
+  "addLocation": "Change",
   "search": "Search",
   "register": "Register",
   "scheduled": "Scheduled",

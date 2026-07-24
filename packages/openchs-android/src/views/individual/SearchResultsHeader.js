@@ -13,6 +13,7 @@ class SearchResultsHeader extends AbstractComponent {
         totalCount: PropTypes.number.isRequired,
         displayedCount: PropTypes.number.isRequired,
         displayResultCounts: PropTypes.bool,
+        style: PropTypes.object,
     };
 
     static SearchResultsLimit = 50;
@@ -35,7 +36,7 @@ class SearchResultsHeader extends AbstractComponent {
         const {totalCount, displayedCount} = this.props;
         const displayResultCounts = (totalCount > SearchResultsHeader.SearchResultsLimit) || this.props.displayResultCounts;
         return (
-            <View style={SearchResultsHeader.styles.container}>
+            <View style={[SearchResultsHeader.styles.container, this.props.style]}>
                 <Text>
                     <Text style={{fontSize: 12, color: Styles.lightgrey}}>{totalCount}</Text>
                     <Text style={{fontSize: 12, color: Styles.lightgrey}}>{` ${this.I18n.t("matchingResults")}`}</Text>

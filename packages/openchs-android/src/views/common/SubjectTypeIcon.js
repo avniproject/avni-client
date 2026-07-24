@@ -4,6 +4,8 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import PropTypes from "prop-types";
 import MediaService from "../../service/MediaService";
 import _ from 'lodash';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Colors from "../primitives/Colors";
 
 class SubjectTypeIcon extends AbstractComponent {
     static propTypes = {
@@ -11,11 +13,13 @@ class SubjectTypeIcon extends AbstractComponent {
         subjectType: PropTypes.object.isRequired,
         round: PropTypes.bool,
         style: PropTypes.object,
+        containerStyle: PropTypes.object,
         individual: PropTypes.object
     };
 
     static defaultProps = {
-        round: false
+        round: false,
+        containerStyle: {}
     };
 
     constructor(props, context) {
@@ -23,6 +27,9 @@ class SubjectTypeIcon extends AbstractComponent {
     }
 
     renderDefaultIcon({subjectType, size, style}) {
+        if (subjectType.isPerson()) {
+            return <Icon name='account' size={size} color={Colors.BrandPrimaryDark} style={style}/>;
+        }
         const defaultIconFileName = `${_.toLower(subjectType.type)}.png`;
         return <Image source={{uri: `asset:/icons/${defaultIconFileName}`}}
                       style={{height: size, width: size, ...style}}/>
@@ -34,17 +41,17 @@ class SubjectTypeIcon extends AbstractComponent {
     }
 
     render() {
-        const {subjectType, round, size} = this.props;
+        const {subjectType, round, size, containerStyle} = this.props;
         const containerSize = (Math.pow(2, 0.5) * size);
         return (
-            <View style={{
+            <View style={[{
                 height: containerSize,
                 width: containerSize,
                 borderRadius: round ? containerSize / 2 : 0,
                 backgroundColor: '#FFF',
                 alignItems: 'center',
                 justifyContent: 'center'
-            }}>
+            }, containerStyle]}>
                 {subjectType.isIconSetup() ? this.renderIcon(this.props) : this.renderDefaultIcon(this.props)}
             </View>
         )

@@ -334,7 +334,9 @@ Styles.dashboardSubsectionTitleText = {
     textTransform: 'uppercase',
     fontSize: 11,
     fontWeight: 'bold',
-    letterSpacing: 0.1
+    letterSpacing: 0.1,
+    marginTop: 20,
+    marginBottom: 8
 }
 
 Styles.iconLabel = {

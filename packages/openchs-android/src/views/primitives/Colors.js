@@ -42,6 +42,7 @@ class Colors {
     static BorderDefault = '#E5E7EB'; // color/border/border-default from Figma design tokens
     static TextHint = '#9CA3AF'; // color/text/text-color-hint from Figma design tokens
     static TextPrimaryDark = '#111827'; // color/text/text-color-primary from Figma design tokens
+    static TextSecondary = '#6B7280'; // color/text/text-color-secondary from Figma design tokens
     static WarningTextDark = '#A16207'; // color/states/warning/dark from Figma design tokens
 
     static getCode(colorName) {

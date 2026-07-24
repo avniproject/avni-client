@@ -29,14 +29,15 @@ export default class CustomDashboardTab extends AbstractComponent {
             borderColor: Colors.InputBorderNormal,
             borderRadius: 15
         }, isSelected && {
-            backgroundColor: Colors.SelectedTabColor
+            backgroundColor: Colors.BrandPrimaryDark,
+            borderColor: Colors.BrandPrimaryDark
         }];
         return <View key={uuid}>
             <TouchableOpacity style={tabStyle}
                               onPress={() => this.props.onDashboardNamePress(uuid)}>
                 <Text style={{
                     fontSize: Styles.titleSize,
-                    color: isSelected ? Colors.headerTextColor : Colors.bottomBarIconColor
+                    color: isSelected ? Colors.headerTextColor : Colors.TextPrimaryDark
                 }}>{this.I18n.t(name)}</Text>
             </TouchableOpacity>
         </View>

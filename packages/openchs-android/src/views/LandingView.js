@@ -165,24 +165,26 @@ class LandingView extends AbstractComponent {
             justifyContent: 'center',
             flexDirection: 'column',
             paddingVertical: 5,
-            borderBottomWidth: isSelected ? 2 : 0,
-            borderColor: isSelected ? Colors.iconSelectedColor : 'transparent',
             width: itemWidth,
             height: layoutConstants.itemHeight,
         };
     }
 
+    // Figma shows the active tab as a pill-shaped highlight behind the icon
+    // (color/brand/light, fully rounded) instead of the old underline indicator.
+    static activeIconPillStyle = {width: 56, height: 26, borderRadius: 13, backgroundColor: Colors.BrandLight};
+
     bottomBarItemContent(icon, menuMessageKey, isSelected, itemWidth) {
         const { layoutConstants } = LandingView;
         return (
             <>
-                <View style={{
+                <View style={[{
                     height: layoutConstants.iconSize,
                     width: layoutConstants.iconSize,
                     alignItems: 'center',
                     justifyContent: 'center',
                     marginBottom: layoutConstants.iconMarginBottom,
-                }}>
+                }, isSelected && LandingView.activeIconPillStyle]}>
                     {icon}
                 </View>
                 <View style={{
@@ -194,7 +196,7 @@ class LandingView extends AbstractComponent {
                         fontSize: Styles.smallerTextSize - 1,
                         paddingTop: 2,
                         fontStyle: 'normal',
-                        color: isSelected ? Colors.iconSelectedColor : Colors.bottomBarIconColor,
+                        color: isSelected ? Colors.BrandPrimaryDark : Colors.TextPrimaryDark,
                         textAlign: 'center',
                         lineHeight: 12,
                     }}>
@@ -245,13 +247,13 @@ class LandingView extends AbstractComponent {
                 activeOpacity={0.6}
             >
                 <CopilotStep text={guideMessage} order={1} name="register-button">
-                    <WalkthroughableView style={{
+                    <WalkthroughableView style={[{
                         height: layoutConstants.iconSize,
                         width: layoutConstants.iconSize,
                         alignItems: 'center',
                         justifyContent: 'center',
                         marginBottom: layoutConstants.iconMarginBottom,
-                    }}>
+                    }, isSelected && LandingView.activeIconPillStyle]}>
                         {icon}
                     </WalkthroughableView>
                 </CopilotStep>
@@ -264,7 +266,7 @@ class LandingView extends AbstractComponent {
                         fontSize: Styles.smallerTextSize - 1,
                         paddingTop: 2,
                         fontStyle: 'normal',
-                        color: isSelected ? Colors.iconSelectedColor : Colors.bottomBarIconColor,
+                        color: isSelected ? Colors.BrandPrimaryDark : Colors.TextPrimaryDark,
                         textAlign: 'center',
                         lineHeight: 12,
                     }}>
@@ -278,23 +280,23 @@ class LandingView extends AbstractComponent {
     Icon(iconName, iconStyle, isSelected, renderDot = false, iconType = 'MaterialCommunityIcons') {
         const style = iconStyle ? (isSelected ? {
             ...iconStyle,
-            color: Colors.iconSelectedColor
+            color: Colors.BrandPrimaryDark
         } : iconStyle) : MenuView.iconStyle;
         return renderDot ? this.IconWithDot(iconName, style) : <AvniIcon name={iconName} style={style} type={iconType} />;
     }
 
     IconWithDot(iconName, iconStyle) {
         return (<View style={{flexDirection: 'row', flex: 1}}>
-                <MCIIcon name={iconName} style={[iconStyle, {fontSize: 30}]} />
+                <MCIIcon name={iconName} style={iconStyle} />
                 <EntypoIcon
                     name={'dot-single'}
-                    style={{fontSize: 25, color: Colors.BadgeColor, position: 'absolute', top: -6, right: -6}}
+                    style={{fontSize: 18, color: Colors.BadgeColor, position: 'absolute', top: -4, right: -6}}
                 />
             </View>
         );
     }
 
-    static barIconStyle = {color: Colors.bottomBarIconColor, opacity: 0.8, alignSelf: 'center', fontSize: 33};
+    static barIconStyle = {color: Colors.TextPrimaryDark, opacity: 0.8, alignSelf: 'center', fontSize: 22};
 
     renderCustomDashboard(startSync) {
         return (

@@ -36,7 +36,6 @@ import {AvniAlert} from "../common/AvniAlert";
 import _ from "lodash";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
 import SubjectDashboardGeneralTab from "./SubjectDashboardGeneralTab";
-import NewFormButton from "../common/NewFormButton";
 import SubjectProgramEligibilityWidget from "./SubjectProgramEligibilityWidget";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import GroupSubjectService from "../../service/GroupSubjectService";
@@ -325,9 +324,9 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         const form = this.formMappingService.findRegistrationForm(this.state.individual.subjectType);
         const requiredActions = [];
         if (hasVoidPrivilege)
-            requiredActions.push(new ContextAction('void', () => this.voidIndividual(), Colors.CancelledVisitColor));
+            requiredActions.push(new ContextAction('void', () => this.voidIndividual(), Colors.ValidationError));
         if (hasEditPrivilege)
-            requiredActions.push(new ContextAction('edit', () => this.editProfile()));
+            requiredActions.push(new ContextAction('edit', () => this.editProfile(), Colors.BrandPrimary));
         if (hasSharePrivilege)
             requiredActions.push(new ContextAction('share', () => this._shareSheet && this._shareSheet.open()));
         return _.isEmpty(form) ? <View/> :
@@ -351,10 +350,21 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         const hasSharePrivilege = this.privilegeService.hasActionPrivilegeForCriteria(shareSubjectCriteria, 'subjectTypeUuid');
         return registrationForm ? (<View>
             <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_TOGGLE, {keyName: 'expand'})}>
-                <View style={{flexDirection: 'column'}}>
-                    <Text style={{fontSize: Fonts.Medium, color: Colors.DefaultPrimaryColor}}>
-                        {`${this.I18n.t("registeredOn")} ${General.toDisplayDate(this.state.individual.registrationDate)} ${createdByMessage}`}
-                    </Text>
+                <View style={{flexDirection: 'column', paddingRight: 20}}>
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <Text style={{fontSize: Styles.smallerTextSize, color: Colors.TextSecondary}}>
+                            {this.I18n.t("registration")}
+                        </Text>
+                        <View style={{flex: 1, alignItems: 'flex-end'}}>
+                            <Text style={{fontSize: Styles.smallerTextSize, color: Colors.BrandPrimary}}>
+                                {General.toDisplayDate(this.state.individual.registrationDate)}
+                            </Text>
+                        </View>
+                    </View>
+                    {!_.isEmpty(createdByMessage) &&
+                    <Text style={{fontSize: Styles.smallTextSize, color: Colors.TextPrimaryDark, marginTop: 4}}>
+                        {createdByMessage}
+                    </Text>}
                 </View>
                 <View style={{right: 2, position: 'absolute', alignSelf: 'center'}}>
                     {this.state.expand === false ? <Icon name={'arrow-down'} size={12}/> :
@@ -373,9 +383,20 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                 {this.renderSelectionOptions(hasEditPrivilege, hasVoidPrivilege, hasSharePrivilege)}
             </View>
         </View>) : (<View style={{flexDirection: 'column'}}>
-            <Text style={{fontSize: Fonts.Medium, color: Colors.DefaultPrimaryColor}}>
-                {`${this.I18n.t("registeredOn")} ${General.toDisplayDate(this.state.individual.registrationDate)}. ${createdByMessage}`}
-            </Text>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <Text style={{fontSize: Styles.smallerTextSize, color: Colors.TextSecondary}}>
+                    {this.I18n.t("registration")}
+                </Text>
+                <View style={{flex: 1, alignItems: 'flex-end'}}>
+                    <Text style={{fontSize: Styles.smallerTextSize, color: Colors.BrandPrimary}}>
+                        {General.toDisplayDate(this.state.individual.registrationDate)}
+                    </Text>
+                </View>
+            </View>
+            {!_.isEmpty(createdByMessage) &&
+            <Text style={{fontSize: Styles.smallTextSize, color: Colors.TextPrimaryDark, marginTop: 4}}>
+                {createdByMessage}
+            </Text>}
         </View>);
     }
 
@@ -385,7 +406,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                 <Text style={[Styles.dashboardSubsectionTitleText, {paddingLeft: 10}]}>
                     {this.I18n.t("registrationInformation")}
                 </Text>
-                <View style={styles.container}>
+                <View style={[styles.container, this.state.expand && {backgroundColor: Colors.BrandLight}]}>
                     {individual.voided ? this.renderVoided() : this.renderProfile()}
                 </View>
             </View>
@@ -420,9 +441,8 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         const relativesFeatureToggle = individual.isPerson() && isRelationshipTypePresent;
         const groupSubjectToggle = individual.subjectType.isGroup();
         return (
-            <View style={{backgroundColor: Colors.WhiteContentBackground, marginTop: 10}}>
+            <View style={{backgroundColor: Colors.GreyContentBackground, marginTop: 10}}>
                 <View style={{marginHorizontal: 10}}>
-                    <NewFormButton display={displayGeneralEncounterInfo} style={{marginBottom: 50}}/>
                     <CustomActivityIndicator loading={displayIndicator}/>
                     <SubjectProgramEligibilityWidget
                         subject={individual}
@@ -438,7 +458,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                     {groupSubjectToggle ? this.renderMembers() : <View/>}
                 </View>
                 {displayGeneralEncounterInfo && <SubjectDashboardGeneralTab {...this.props}/>}
-                <Separator height={110} backgroundColor={Colors.WhiteContentBackground}/>
+                <Separator height={110} backgroundColor={Colors.GreyContentBackground}/>
                 {editFormRuleResponse.isDisallowed() &&
                     <AvniToast message={this.I18n.t(editFormRuleResponse.getMessage())} onAutoClose={() => this.dispatchAction(Actions.ON_EDIT_ERROR_SHOWN)}/>}
                 <FormShareActionSheetController
@@ -457,10 +477,12 @@ export default SubjectDashboardProfileTab;
 const styles = StyleSheet.create({
     container: {
         padding: Distances.ScaledContentDistanceFromEdge,
-        margin: 4,
-        backgroundColor: Styles.greyBackground,
-        marginVertical: 3,
-        borderRadius: 10,
+        marginHorizontal: 4,
+        backgroundColor: Colors.WhiteContentBackground,
+        marginVertical: 8,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: Colors.BorderDefault,
     },
     memberCard: {
         marginTop: 5,

@@ -15,7 +15,8 @@ class FormElementLabelWithDocumentation extends AbstractComponent {
     static propTypes = {
         element: PropTypes.object.isRequired,
         moreTextForLabel: PropTypes.object,
-        isTableView: PropTypes.bool
+        isTableView: PropTypes.bool,
+        labelColor: PropTypes.string
     };
 
     constructor(props, context) {
@@ -37,7 +38,8 @@ class FormElementLabelWithDocumentation extends AbstractComponent {
                 // doesn't match the new design. Forcing the Figma brand color instead, but only where a custom style
                 // was actually configured (plain labels with no configured style keep the default look untouched).
                 // Re-enable configuredStyles above (and drop the line below) to restore per-element custom label colors.
-                hasConfiguredStyles && {color: Colors.BrandPrimaryDark}
+                hasConfiguredStyles && {color: Colors.BrandPrimaryDark},
+                this.props.labelColor && {color: this.props.labelColor}
             ]}>{this.I18n.t(this.props.element.name)}{mandatoryText}{moreTextForLabel}</Text>;
     }
 

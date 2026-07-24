@@ -46,24 +46,29 @@ class CompletedEncountersView extends AbstractComponent {
                 <View style={{
                     borderWidth: 1,
                     borderStyle: 'solid',
-                    borderColor: Colors.InputBorderNormal,
-                    backgroundColor: Colors.cardBackgroundColor
+                    borderColor: Colors.BorderDefault,
+                    backgroundColor: Colors.WhiteContentBackground,
+                    borderRadius: 8,
+                    marginHorizontal: Distances.ScaledContentDistanceFromEdge,
+                    marginTop: 12,
+                    marginBottom: 4
                 }}>
                     <Text style={{
                         fontSize: 18,
-                        color: Colors.DefaultPrimaryColor,
+                        color: Colors.TextPrimaryDark,
                         paddingVertical: DGS.resizeHeight(5),
                         paddingLeft: Distances.ScaledContainerHorizontalDistanceFromEdge,
                         paddingRight: DGS.resizeWidth(3)
                     }}>{this.props.params.subjectInfo}</Text>
                     <SearchResultsHeader totalCount={chronologicalEncounters.length}
-                                         displayedCount={chronologicalEncounters.length}/>
+                                         displayedCount={chronologicalEncounters.length}
+                                         style={{borderWidth: 0, marginBottom: 0}}/>
                 </View>
                 <FlatList
                   keyExtractor={(item, index) => item.encounter.uuid}
                   data={chronologicalEncounters}
                   renderItem={({item: encounter}) =>
-                    <View style={styles.container}>
+                    <View style={[styles.container, encounter.expand && {backgroundColor: Colors.BrandLight}]}>
                         <CollapsibleEncounter encountersInfo={encounter}
                                               onToggleAction={Actions.ON_EXPAND_TOGGLE}
                                               renderTitleAndDetails={this.props.params.renderTitleAndDetails.bind(this, encounter.encounter)}
@@ -104,9 +109,11 @@ const styles = StyleSheet.create({
     container: {
         marginRight: Distances.ScaledContentDistanceFromEdge,
         marginLeft: Distances.ScaledContentDistanceFromEdge,
-        elevation: 2,
-        marginVertical: 3,
-        backgroundColor: Colors.cardBackgroundColor,
+        marginVertical: 8,
+        backgroundColor: Colors.WhiteContentBackground,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: Colors.BorderDefault,
     },
     textContainer: {
         flex: 1,

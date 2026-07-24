@@ -246,26 +246,30 @@ class CustomDashboardView extends AbstractComponent {
 
         const nonVoidedSectionWiseData = sectionWiseData.filter(item => !item.section.voided);
 
+        const lastSectionIndex = nonVoidedSectionWiseData.length - 1;
         return (
             <View style={styles.container}>
-                {_.map(nonVoidedSectionWiseData, ({section, cards}) => (
-                        <View key={section.uuid} style={styles.sectionContainer}>
-                            {section.viewType !== DashboardSection.viewTypeName.Default &&
-                                this.renderSectionName(section.name, section.description, section.viewType, cards)}
-                            <View style={section.viewType === 'Tile' ? styles.cardContainer : styles.listContainer}>
-                                {_.map(cards, (card, index) => {
-                                    return section.viewType === 'Tile' ?
-                                        <CardTileView key={card.itemKey} reportCard={card} I18n={this.I18n}
-                                                      onCardPress={onCardPressOp}
-                                                      index={index}
-                                                      countResult={this.state.cardToCountResultMap[card.itemKey]}/> :
-                                        <CardListView key={card.itemKey} reportCard={card} I18n={this.I18n}
-                                                      onCardPress={onCardPressOp}
-                                                      countResult={this.state.cardToCountResultMap[card.itemKey]}
-                                                      index={index} isLastCard={index === cards.length - 1}/>;
+                {_.map(nonVoidedSectionWiseData, ({section, cards}, sectionIndex) => (
+                        <View key={section.uuid}>
+                            <View style={styles.sectionContainer}>
+                                {section.viewType !== DashboardSection.viewTypeName.Default &&
+                                    this.renderSectionName(section.name, section.description, section.viewType, cards)}
+                                <View style={section.viewType === 'Tile' ? styles.cardContainer : styles.listContainer}>
+                                    {_.map(cards, (card, index) => {
+                                        return section.viewType === 'Tile' ?
+                                            <CardTileView key={card.itemKey} reportCard={card} I18n={this.I18n}
+                                                          onCardPress={onCardPressOp}
+                                                          index={index}
+                                                          countResult={this.state.cardToCountResultMap[card.itemKey]}/> :
+                                            <CardListView key={card.itemKey} reportCard={card} I18n={this.I18n}
+                                                          onCardPress={onCardPressOp}
+                                                          countResult={this.state.cardToCountResultMap[card.itemKey]}
+                                                          index={index} isLastCard={index === cards.length - 1}/>;
 
-                                })}
+                                    })}
+                                </View>
                             </View>
+                            {sectionIndex !== lastSectionIndex && <View style={styles.sectionDivider}/>}
                         </View>
                     )
                 )}
@@ -489,12 +493,15 @@ const styles = StyleSheet.create({
         marginVertical: Styles.ContentDistanceWithinContainer,
         flexDirection: 'column'
     },
+    sectionDivider: {
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: Colors.BorderDefault
+    },
     sectionNameTextStyle: {
-        fontSize: Styles.normalTextSize,
+        fontSize: Styles.smallTextSize,
         fontStyle: 'normal',
-        fontWeight: 'bold',
-        color: Styles.blackColor,
-        opacity: 0.8
+        fontWeight: '400',
+        color: Colors.TextPrimaryDark
     },
     cardContainer: {
         flexDirection: 'row',

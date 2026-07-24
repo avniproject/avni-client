@@ -8,7 +8,7 @@ import ValidationErrorMessage from '../form/ValidationErrorMessage';
 import Colors from './Colors';
 import General from '../../utility/General';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import Fonts from '../primitives/Fonts';
+import Styles from './Styles';
 
 class DatePicker extends AbstractComponent {
     static propTypes = {
@@ -170,9 +170,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#fdecea',
     },
     chipText: {
-        fontSize: Fonts.Large,
-        color: Colors.BrandPrimary,
-        fontWeight: '600',
+        fontSize: Styles.smallerTextSize,
+        color: Colors.BrandPrimaryDark,
+        fontWeight: '400',
         marginRight: 10,
     },
     chipTextError: {
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     },
     calendarIcon: {
         fontSize: 18,
-        color: Colors.BrandPrimary,
+        color: Colors.BrandPrimaryDark,
     },
 });
 

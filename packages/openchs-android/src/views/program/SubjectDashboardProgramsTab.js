@@ -311,7 +311,12 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
 
                     <View style={{flexDirection: 'column'}}>
                         <Text style={{fontSize: Fonts.Normal}}>{`${this.I18n.t(_.get(enrolment, 'program.displayName'))}`}</Text>
-                        <Text style={{fontSize: Fonts.Small, color: Colors.SecondaryText}}>{`${this.I18n.t("enrolledOn")} ${General.toDisplayDate(enrolment.enrolmentDateTime)} ${createdByMessage}`}</Text>
+                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                            <Text style={{fontSize: Fonts.Small, color: Colors.SecondaryText}}>{this.I18n.t("enrolledOn")}</Text>
+                            <Text style={{fontSize: Fonts.Small, color: Colors.BrandPrimary, marginLeft: 4}}>{General.toDisplayDate(enrolment.enrolmentDateTime)}</Text>
+                        </View>
+                        {!_.isEmpty(createdByMessage) &&
+                        <Text style={{fontSize: Fonts.Small, color: Colors.SecondaryText}}>{createdByMessage}</Text>}
                     </View>
                     <View style={{right: 2, position: 'absolute', alignSelf: 'center'}}>
                         {this.state.expandEnrolmentInfo === false ?
@@ -348,14 +353,14 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
         const performVisitCriteria = this.state.enrolment.program && `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND subjectTypeUuid = '${this.state.enrolment.individual.subjectType.uuid}' AND programUuid = '${this.state.enrolment.program.uuid}'` || '';
         const allowedEncounterTypeUuids = this.privilegeService.allowedEntityTypeUUIDListForCriteria(performVisitCriteria, 'programEncounterTypeUuid');
         return (
-            <View style={{backgroundColor: Colors.WhiteContentBackground}}>
+            <View style={{backgroundColor: Colors.GreyContentBackground}}>
                 <View style={{backgroundColor: Styles.WhiteContentBackground}}>
                 </View>
                 <ScrollView style={{
                     flexDirection: 'column',
                     borderRadius: 5,
                     marginHorizontal: 16,
-                    backgroundColor: Colors.WhiteContentBackground
+                    backgroundColor: Colors.GreyContentBackground
                 }}>
                     <View style={{backgroundColor: Styles.whiteColor, borderRadius: 10}}>
                         {this.state.enrolment.individual.voided &&

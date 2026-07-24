@@ -40,7 +40,7 @@ class DateFormElement extends AbstractFormElement {
                     paddingVertical: 10
                 }}>
                     <View style={{flex: 1, marginRight: 12}}>
-                        <FormElementLabelWithDocumentation element={this.props.element}/>
+                        <FormElementLabelWithDocumentation element={this.props.element} labelColor={Colors.BrandPrimaryDark}/>
                     </View>
                     {
                         this.props.element.editable === false ?

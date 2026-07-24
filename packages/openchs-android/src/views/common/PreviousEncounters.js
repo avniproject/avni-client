@@ -189,7 +189,7 @@ class PreviousEncounters extends AbstractComponent {
         if (containsDrafts) {
             this.addDeleteDraftAction(encounter, this.I18n.t('delete'), Colors.ValidationError, actions);
         }
-        this.addScheduledEncounterActions(encounter, this.I18n.t('do'), Colors.ScheduledVisitColor, actions, containsDrafts);
+        this.addScheduledEncounterActions(encounter, this.I18n.t('do'), Colors.BrandPrimary, actions, containsDrafts);
         const canEditEncounter = this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid);
         return <View>
             <TouchableOpacity
@@ -220,15 +220,23 @@ class PreviousEncounters extends AbstractComponent {
         })}`;
         const secondaryDate = !encounter.isScheduled() ? <Text style={{
                 fontSize: Fonts.Small,
-                color: Colors.SecondaryText
+                color: Colors.BrandPrimary
             }}>{encounter.earliestVisitDateTime && `${this.I18n.t('scheduled')}: ${General.toDisplayDate(encounter.earliestVisitDateTime)}` || this.I18n.t('unplannedVisit')}</Text> :
             <View/>;
+        const isPlainScheduledLabel = _.isNil(filledBy);
         return <View>
             <View
                 style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap'}}>
                 <View style={{flexDirection: 'column'}}>
-                    <Text style={{fontSize: Fonts.Normal}}>{visitName}</Text>
-                    <Text style={{fontSize: Fonts.Small, color: Colors.SecondaryText}}>{filledByMessageLabel}: {filledByMessage}</Text>
+                    <Text style={{fontSize: Styles.smallTextSize, color: Colors.TextPrimaryDark}}>{visitName}</Text>
+                    {isPlainScheduledLabel ? (
+                        <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 2}}>
+                            <Text style={{fontSize: Styles.smallerTextSize, color: Colors.TextSecondary}}>{filledByMessageLabel}</Text>
+                            <Text style={{fontSize: Styles.smallerTextSize, color: Colors.BrandPrimary, marginLeft: 6}}>{filledByMessage}</Text>
+                        </View>
+                    ) : (
+                        <Text style={{fontSize: Fonts.Small, color: Colors.BrandPrimary}}>{filledByMessageLabel}: {filledByMessage}</Text>
+                    )}
                     {secondaryDate}
                 </View>
                 {this.renderStatus(encounter)}
@@ -269,7 +277,7 @@ class PreviousEncounters extends AbstractComponent {
         }
         const dataSource = ListViewHelper.getDataSource(toDisplayEncounters);
         const renderable = (<View>
-            <View style={{flexDirection: 'row', alignItems: 'center', backgroundColor: Styles.whiteColor}}>
+            <View style={{flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.GreyContentBackground}}>
                 {this.props.title && (
                     <Text style={[Styles.dashboardSubsectionTitleText, {paddingLeft: 10}]}>
                         {this.props.title}
@@ -291,7 +299,7 @@ class PreviousEncounters extends AbstractComponent {
                 pageSize={1}
                 initialListSize={1}
                 removeClippedSubviews={true}
-                renderRow={(encounter) => <View style={styles.container}>
+                renderRow={(encounter) => <View style={[styles.container, encounter.expand && {backgroundColor: Colors.BrandLight}]}>
                     {this.props.expandCollapseView ?
                         <CollapsibleEncounter encountersInfo={encounter}
                                               onToggleAction={this.props.onToggleAction}
@@ -328,12 +336,12 @@ export default PreviousEncounters;
 const styles = StyleSheet.create({
     container: {
         padding: Distances.ScaledContentDistanceFromEdge,
-        margin: 4,
-        backgroundColor: Styles.greyBackground,
-        marginVertical: 3,
-        borderWidth: 2,
-        borderColor: Styles.greyBackground,
-        borderRadius: 10
+        marginHorizontal: 4,
+        backgroundColor: Colors.WhiteContentBackground,
+        marginVertical: 8,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: Colors.BorderDefault
     },
     viewAllContainer: {
         right: Distances.ScaledContentDistanceFromEdge,
