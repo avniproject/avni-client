@@ -43,7 +43,7 @@ export const CardTileView = ({index, reportCard, I18n, onCardPress, countResult}
     const textColor = Colors.BrandPrimaryDark;
     const descriptionColor = Colors.BrandPrimaryDark;
     const clickable = get(countResult, 'clickable');
-    const cardBorderColor = cardColor;
+    const cardBorderColor = Colors.BorderDefault;
 
     return (
         <TouchableNativeFeedback onPress={() => onCardPress(itemKey)} disabled={!clickable}>
