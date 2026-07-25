@@ -72,9 +72,9 @@ class RepeatableFormElement extends AbstractFormElement {
         return _.filter(this.props.filteredFormElements, fe => fe.groupUuid === this.props.element.uuid);
     }
 
-    // Repeatable groups whose rows capture an image/video already offer a per-row delete via the
-    // "x" on the image itself - the generic minus-circle here would just be a redundant second
-    // way to remove the same row, so it's skipped for those groups only.
+    // True for repeatable groups whose rows capture an image/video. The "x" on the image itself
+    // only clears that one image, not the whole row - the minus-circle is still needed to remove
+    // the row/section itself, so this flag is only used for the min-count hint below.
     get hasOwnRowRemoveControl() {
         return _.some(this.childFormElements, fe => _.includes(['Image', 'Video'], _.get(fe, 'concept.datatype')));
     }
@@ -114,8 +114,7 @@ class RepeatableFormElement extends AbstractFormElement {
         }
         return (
             <Fragment key={this.rowKeys[questionGroupIndex]}>
-                {!this.hasOwnRowRemoveControl &&
-                    this.actionButton('minus-circle', () => this.onRemove(questionGroupIndex), isRemoveDisabled, Colors.NegativeActionButtonColor)}
+                {this.actionButton('minus-circle', () => this.onRemove(questionGroupIndex), isRemoveDisabled, Colors.NegativeActionButtonColor)}
                 <QuestionGroup
                     questionGroupIndex={questionGroupIndex}
                     element={this.props.element}
