@@ -7,8 +7,9 @@ import {
     Text,
     TouchableNativeFeedback,
     View,
-    BackHandler, Image, Dimensions, ToastAndroid
+    BackHandler, Image, Dimensions, ToastAndroid, StyleSheet
 } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Clipboard from "@react-native-clipboard/clipboard";
 import TextFormElement from './form/formElement/TextFormElement';
 import StaticFormElement from './viewmodel/StaticFormElement';
@@ -43,6 +44,7 @@ import IssueUploadUtil from "../utility/IssueUploadUtil";
 import RNRestart from 'react-native-restart';
 import ProgressBarView from "./ProgressBarView";
 import LocalCacheService from "../service/LocalCacheService";
+import {SecureTextInput} from "./common/SecureTextInput";
 
 @Path('/loginView')
 class LoginView extends AbstractComponent {
@@ -209,11 +211,20 @@ class LoginView extends AbstractComponent {
         }
     }
 
+    // Whether the "Forget Password" link is applicable at all - unrelated to visual layout,
+    // this mirrors the original condition so the link keeps showing up only for the IDPs that
+    // actually support a self-service reset.
+    get canResetPassword() {
+        return this.state.idpType === IDP_PROVIDERS.COGNITO ||
+            (this.state.idpType === IDP_PROVIDERS.BOTH && this.state.userSelectedIdp === IDP_PROVIDERS.COGNITO);
+    }
+
     render() {
         General.logDebug('LoginView', 'render');
-        const {width, height} = Dimensions.get('window');
+        const {height} = Dimensions.get('window');
+        const errorMessage = this.errorMessage();
         return (
-            <CHSContainer>
+            <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
                 {this.state.uploading && (
                     <ProgressBarView
                         progress={this.state.uploadProgress / 100}
@@ -223,26 +234,25 @@ class LoginView extends AbstractComponent {
                         notifyUserOnCompletion={false}
                     />
                 )}
-                <ScrollView keyboardShouldPersistTaps="handled">
+                <ScrollView keyboardShouldPersistTaps="handled" style={{backgroundColor: Colors.GreyContentBackground}}>
                     <DBRestoreProgress/>
                     <CHSContent>
                         <View style={{
                             minHeight: height,
+                            backgroundColor: Colors.GreyContentBackground
                         }}>
                             <View style={{
                                 flexDirection: 'column',
                                 justifyContent: 'center',
                                 minHeight: height * 0.8,
-                                paddingHorizontal: 48
+                                paddingHorizontal: 16
                             }}>
                                 <Image source={{uri: `asset:/logo.png`}}
-                                       style={{height: 120, width: 120, alignSelf: 'center',}} resizeMode={'center'}/>
+                                       style={{height: 72, width: 200, alignSelf: 'center', marginBottom: 24}} resizeMode={'contain'}/>
                                 {this.renderMultiUserLoginFailure()}
-                                <Text style={{
-                                    color: Colors.ValidationError,
-                                    justifyContent: 'center'
-                                }}>{this.errorMessage()}</Text>
-                                <View>
+                                <View style={styles.card}>
+                                    <Text style={styles.cardTitle}>{this.I18n.t('Login')}</Text>
+                                    {!!errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
                                     <TextFormElement element={new StaticFormElement('userId')}
                                                      actionName={Actions.ON_USER_ID_CHANGE}
                                                      validationResult={this.state.validationResult}
@@ -251,54 +261,48 @@ class LoginView extends AbstractComponent {
                                                      autoCapitalize={'none'}
                                                      autoCompleteType={'username'}
                                                      keyboardType={'email-address'}
+                                                     containerStyle={styles.fieldContainer}
+                                                     labelStyle={styles.fieldLabel}
+                                                     inputStyle={styles.fieldInput}
+                                                     labelColor={Colors.TextSecondary}
+                                                     underlineColorAndroid={'transparent'}
                                     />
-                                    {this.state.idpType !== IDP_PROVIDERS.NONE ?
+                                    {this.state.idpType !== IDP_PROVIDERS.NONE &&
                                         <View>
-                                            <TextFormElement element={new StaticFormElement('password')}
-                                                             secureTextEntry={!this.state.showPassword}
-                                                             actionName={Actions.ON_PASSWORD_CHANGE} validationResult={null}
-                                                             value={new PrimitiveValue(this.state.password)}
-                                                             multiline={false}
-                                                             isSecureInput={true}
-                                            />
-                                            <View style={{
-                                                flexDirection: 'column',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'flex-start',
-                                            }}>
-                                                <TouchableNativeFeedback
-                                                    onPress={() => this.dispatchAction(Actions.ON_TOGGLE_SHOW_PASSWORD)}>
-                                                    <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 5}}>
-                                                        <CheckBox
-                                                            accessible={true}
-                                                            accessibilityLabel={this.I18n.t("Show password")}
-                                                            onChange={() => this.dispatchAction(Actions.ON_TOGGLE_SHOW_PASSWORD)}
-                                                            isChecked={this.state.showPassword}/>
-                                                        <Text
-                                                            style={[Styles.formLabel, {paddingLeft: 12}]}>{this.I18n.t('Show password')}</Text>
-                                                    </View>
-                                                </TouchableNativeFeedback>
-                                                {(this.state.idpType === IDP_PROVIDERS.COGNITO ||
-                                                        (this.state.idpType === IDP_PROVIDERS.BOTH && this.state.userSelectedIdp === IDP_PROVIDERS.COGNITO))
-                                                    && <TouchableNativeFeedback onPress={() => {
-                                                        this.forgotPassword();
-                                                    }} background={TouchableNativeFeedback.SelectableBackground()}>
-                                                        <View style={{paddingTop: 7}}>
-                                                            <Text style={{
-                                                                color: Styles.accentColor,
-                                                                fontSize: 16
-                                                            }}>{this.I18n.t('Forgot Password')}</Text>
+                                            <View style={styles.fieldContainer}>
+                                                <View style={styles.fieldLabel}>
+                                                    <Text style={[Styles.formLabel, {color: Colors.TextSecondary}]}>{this.I18n.t('password')}</Text>
+                                                </View>
+                                                {/* Built directly (instead of TextFormElement) so the eye icon can sit
+                                                    inline in the same flex row as the input and center via alignItems,
+                                                    rather than guessing an absolute offset against the label's height. */}
+                                                <View style={styles.passwordInputRow}>
+                                                    <SecureTextInput
+                                                        style={styles.passwordTextInput}
+                                                        underlineColorAndroid={'transparent'}
+                                                        secureTextEntry={!this.state.showPassword}
+                                                        value={this.state.password}
+                                                        onChangeText={(text) => this.dispatchAction(Actions.ON_PASSWORD_CHANGE, {value: text})}
+                                                    />
+                                                    <TouchableNativeFeedback
+                                                        accessible={true}
+                                                        accessibilityLabel={this.I18n.t('Show password')}
+                                                        onPress={() => this.dispatchAction(Actions.ON_TOGGLE_SHOW_PASSWORD)}
+                                                        background={TouchableNativeFeedback.SelectableBackgroundBorderless()}>
+                                                        <View style={styles.eyeIconButton}>
+                                                            <Icon name={this.state.showPassword ? 'eye-off-outline' : 'eye-outline'}
+                                                                  size={20} color={Colors.TextHint}/>
                                                         </View>
                                                     </TouchableNativeFeedback>
-                                                }
+                                                </View>
                                             </View>
                                             {this.spinner()}
                                         </View>
-                                        : null}
+                                    }
                                     {this.state.idpType === IDP_PROVIDERS.BOTH &&
                                         <TouchableNativeFeedback
                                             onPress={() => this.dispatchAction(Actions.ON_USER_TOGGLE_IDP)}>
-                                            <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 5}}>
+                                            <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 12}}>
                                                 <CheckBox
                                                     accessible={true}
                                                     accessibilityLabel={"Use Keycloak"}
@@ -308,27 +312,34 @@ class LoginView extends AbstractComponent {
                                                     style={[Styles.formLabel, {paddingLeft: 12}]}>{this.I18n.t('Use Keycloak')}</Text>
                                             </View>
                                         </TouchableNativeFeedback>}
-                                </View>
-                                <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16}}>
-                                    {_.get(this, 'props.params.allowSkipLogin') &&
-                                        <TouchableNativeFeedback onPress={() => {
-                                            this.cancelLogin();
-                                        }} background={TouchableNativeFeedback.SelectableBackground()}>
-                                            <View style={[Styles.basicSecondaryButtonView, {minWidth: 144}]}>
-                                                <Text style={{color: Styles.blackColor, fontSize: 16}}>SKIP</Text>
-                                            </View>
-                                        </TouchableNativeFeedback>
-                                    }
-                                    <TouchableNativeFeedback onPress={this.safeLogin}
-                                                             background={TouchableNativeFeedback.SelectableBackground()}>
-                                        <View style={[Styles.basicPrimaryButtonView,
-                                            {minWidth: 144, width: '100%', flex: 1, flexDirection: "row", justifyContent: "center"}]}>
-                                            <Text style={{
-                                                color: Styles.whiteColor,
-                                                fontSize: 16
-                                            }}>{this.I18n.t('LOGIN')}</Text>
+                                    <View style={styles.actionRow}>
+                                        {this.canResetPassword ?
+                                            <TouchableNativeFeedback onPress={() => {
+                                                this.forgotPassword();
+                                            }} background={TouchableNativeFeedback.SelectableBackground()}>
+                                                <View>
+                                                    <Text style={styles.forgetPasswordText}>{this.I18n.t('Forgot Password')}</Text>
+                                                </View>
+                                            </TouchableNativeFeedback>
+                                            : <View/>}
+                                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                            {_.get(this, 'props.params.allowSkipLogin') &&
+                                                <TouchableNativeFeedback onPress={() => {
+                                                    this.cancelLogin();
+                                                }} background={TouchableNativeFeedback.SelectableBackground()}>
+                                                    <View style={[styles.skipButton, {marginRight: 12}]}>
+                                                        <Text style={styles.skipButtonText}>SKIP</Text>
+                                                    </View>
+                                                </TouchableNativeFeedback>
+                                            }
+                                            <TouchableNativeFeedback onPress={this.safeLogin}
+                                                                     background={TouchableNativeFeedback.SelectableBackground()}>
+                                                <View style={styles.loginButton}>
+                                                    <Text style={styles.loginButtonText}>{this.I18n.t('LOGIN')}</Text>
+                                                </View>
+                                            </TouchableNativeFeedback>
                                         </View>
-                                    </TouchableNativeFeedback>
+                                    </View>
                                 </View>
                             </View>
                             <View style={{
@@ -338,7 +349,7 @@ class LoginView extends AbstractComponent {
                                 minHeight: height * 0.15,
                                 paddingLeft: 16
                             }}>
-                                <Text>Powered by Avni (Version {DeviceInfo.getVersion()}-{Config.COMMIT_ID})</Text>
+                                <Text style={styles.footerText}>Powered by Avni (Version {DeviceInfo.getVersion()}-{Config.COMMIT_ID})</Text>
                                 {!EnvironmentConfig.isProd() &&
                                     <>
                                         <Text style={{
@@ -421,5 +432,101 @@ class LoginView extends AbstractComponent {
         };
     }
 }
+
+const styles = StyleSheet.create({
+    card: {
+        backgroundColor: Colors.WhiteContentBackground,
+        borderRadius: 8,
+        padding: 16
+    },
+    cardTitle: {
+        color: Colors.TextSecondary,
+        fontSize: 18,
+        fontWeight: '500',
+        marginBottom: 16
+    },
+    errorText: {
+        color: Colors.ValidationError,
+        marginBottom: 12
+    },
+    fieldContainer: {
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        marginBottom: 16
+    },
+    fieldLabel: {
+        marginBottom: 4
+    },
+    fieldInput: {
+        borderWidth: 1,
+        borderColor: Colors.TextHint,
+        borderRadius: 4,
+        paddingHorizontal: 12,
+        height: 56,
+        justifyContent: 'center'
+    },
+    // Input box + icon in one flex row, so the icon centers vertically via alignItems instead of
+    // an absolute offset guessed against the label's height (which was drifting off-center).
+    passwordInputRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: Colors.TextHint,
+        borderRadius: 4,
+        height: 56,
+        paddingLeft: 12
+    },
+    passwordTextInput: {
+        flex: 1,
+        fontSize: Styles.normalTextSize,
+        paddingVertical: 0
+    },
+    eyeIconButton: {
+        width: 44,
+        height: 44,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    actionRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 8
+    },
+    forgetPasswordText: {
+        color: Colors.BrandSecondary,
+        fontSize: Styles.smallTextSize
+    },
+    skipButton: {
+        minHeight: 48,
+        minWidth: 90,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: Colors.BorderDefault,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 16
+    },
+    skipButtonText: {
+        color: Colors.TextPrimaryDark,
+        fontSize: 16
+    },
+    loginButton: {
+        minHeight: 48,
+        minWidth: 120,
+        borderRadius: 8,
+        backgroundColor: Colors.BrandPrimaryDark,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 16
+    },
+    loginButtonText: {
+        color: Styles.whiteColor,
+        fontSize: 16
+    },
+    footerText: {
+        color: Colors.TextHint
+    }
+});
 
 export default LoginView;

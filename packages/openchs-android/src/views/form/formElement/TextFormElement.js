@@ -27,7 +27,8 @@ class TextFormElement extends AbstractFormElement {
         allowedValues: PropTypes.array,
         helpText: PropTypes.string,
         isTableView: PropTypes.bool,
-        isSecureInput: PropTypes.bool
+        isSecureInput: PropTypes.bool,
+        labelColor: PropTypes.string
     };
     static defaultProps = {
         style: {},
@@ -61,7 +62,8 @@ class TextFormElement extends AbstractFormElement {
             <View>
                 <View style={containerStyle}>
                     <View style={labelStyle}>
-                        <FormElementLabelWithDocumentation element={this.props.element} isTableView={this.props.isTableView}/>
+                        <FormElementLabelWithDocumentation element={this.props.element} isTableView={this.props.isTableView}
+                                                            labelColor={this.props.labelColor}/>
                         <HelpText t={this.I18n.t} text={this.props.helpText}/>
                     </View>
                     <View style={inputStyle}>

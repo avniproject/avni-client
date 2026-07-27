@@ -38,6 +38,7 @@ class Colors {
     static BrandPrimary = '#14868C'; // color/brand/primary from Figma design tokens
     static BrandPrimaryDark = '#00767D'; // color/brand/primary dark from Figma design tokens
     static BrandLight = '#DAF3F4'; // color/brand/light from Figma design tokens
+    static BrandSecondary = '#144A8C'; // color/brand/secondary from Figma design tokens
     static SectionHeaderBackground = '#F2F2F2'; // color/states/error/light, reused as form-group section header background
     static BorderDefault = '#E5E7EB'; // color/border/border-default from Figma design tokens
     static TextHint = '#9CA3AF'; // color/text/text-color-hint from Figma design tokens
