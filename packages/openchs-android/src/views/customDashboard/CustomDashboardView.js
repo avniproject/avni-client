@@ -9,7 +9,6 @@ import {
     performCustomDashboardActionAndRefresh
 } from "../../action/customDashboard/CustomDashboardActions";
 import {
-    SafeAreaView,
     ScrollView,
     StyleSheet,
     Text,
@@ -18,11 +17,12 @@ import {
     View
 } from "react-native";
 import _ from "lodash";
-import CustomDashboardTab from "./CustomDashboardTab";
+import DropDownPicker from "react-native-dropdown-picker";
 import {DashboardSection, Privilege, ReportCard} from "openchs-models";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import CHSNavigator from "../../utility/CHSNavigator";
 import Colors from "../primitives/Colors";
+import Fonts from "../primitives/Fonts";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import GlobalStyles from "../primitives/GlobalStyles";
 import ApprovalListingView from "../../views/approval/ApprovalListingView";
@@ -42,7 +42,6 @@ import AppliedFiltersV2 from '../filter/AppliedFiltersV2';
 import General from "../../utility/General";
 import {CustomDashboardType} from "../../service/customDashboard/CustomDashboardService";
 import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import Line from '../common/Line';
 import {CardTileView} from './CardTileView';
 import {CardListView} from './CardListView';
 import UserInfoService from "../../service/UserInfoService";
@@ -92,14 +91,14 @@ function FilterSection({dispatcher, asOnDateValue, asOnDateFilter, I18n, onFilte
     }
 
     const renderQuickDateOptions = (label, value, isFilled) => {
-        const backgroundColor = {backgroundColor: isFilled ? Colors.ActionButtonColor : Colors.FilterButtonColor};
-        const textColor = {color: isFilled ? Colors.TextOnPrimaryColor : Styles.accentColor};
+        const selectionStyle = isFilled ? CustomDashboardView.styles.quickDateButtonSelected : CustomDashboardView.styles.quickDateButtonUnselected;
+        const textColor = {color: isFilled ? Colors.TextOnPrimaryColor : Colors.BrandPrimaryDark};
         return (
             <TouchableOpacity
-                style={[CustomDashboardView.styles.filterButton, backgroundColor]}
+                style={[CustomDashboardView.styles.quickDateButton, selectionStyle]}
                 onPress={() => isFilled ? _.noop() : onAsOnDateChange(value)}
             >
-                <Text style={[CustomDashboardView.styles.buttonText, textColor]}>{I18n.t(label)}</Text>
+                <Text style={[CustomDashboardView.styles.quickDateButtonText, textColor]}>{I18n.t(label)}</Text>
             </TouchableOpacity>
         )
     }
@@ -110,30 +109,22 @@ function FilterSection({dispatcher, asOnDateValue, asOnDateFilter, I18n, onFilte
     return (<Fragment>
         <View>
             <View style={CustomDashboardView.styles.itemContent}>
+                {asOnDateFilter && <Text style={CustomDashboardView.styles.labelText}>{I18n.t('asOnDate')}: </Text>}
                 <View style={CustomDashboardView.styles.buttons}>
                     <TouchableNativeFeedback onPress={() => onFilterPressed()}>
-                        <View style={{
-                            ...CustomDashboardView.styles.filterButton,
-                        }}>
+                        <View style={CustomDashboardView.styles.filterButton}>
+                            <MCIIcon name={'filter-variant'} style={CustomDashboardView.styles.filterIcon}/>
                             <Text style={CustomDashboardView.styles.filterText}>{I18n.t('filter')}</Text>
                         </View>
                     </TouchableNativeFeedback>
-                    {asOnDateFilter && <View style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'flex-start',
-                        flexWrap: 'wrap',
-                        gap: 5,
-                        flex: 0.6
-                    }}>
-                        <Text style={{...CustomDashboardView.styles.labelText}}>{I18n.t('asOnDate')}: </Text>
-                        <DatePicker overridingStyle={CustomDashboardView.styles.buttonText} nonRemovable={true}
-                                    pickTime={false} dateValue={asOnDateValue}
-                                    onChange={onAsOnDateChange.bind(this)}/>
-                        {renderQuickDateOptions('Today', new Date(), isToday)}
-                        {renderQuickDateOptions('Tomorrow', moment().add(1, "day").toDate(), isTomorrow)}
-                    </View>}
+                    {asOnDateFilter && <DatePicker overridingStyle={CustomDashboardView.styles.buttonText}
+                                                    nonRemovable={true} pickTime={false} dateValue={asOnDateValue}
+                                                    onChange={onAsOnDateChange.bind(this)}/>}
                 </View>
+                {asOnDateFilter && <View style={CustomDashboardView.styles.quickDateRow}>
+                    {renderQuickDateOptions('Today', new Date(), isToday)}
+                    {renderQuickDateOptions('Tomorrow', moment().add(1, "day").toDate(), isTomorrow)}
+                </View>}
             </View>
         </View>
 
@@ -146,7 +137,8 @@ class CustomDashboardView extends AbstractComponent {
         itemContent: {
             flexDirection: 'column',
             paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
-            paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
+            paddingTop: 14,
+            paddingBottom: 18,
             elevation: 2,
             marginHorizontal: 5
         },
@@ -156,17 +148,25 @@ class CustomDashboardView extends AbstractComponent {
             justifyContent: "space-between",
         },
         filterButton: {
-            zIndex: 1,
-            elevation: 2,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: Colors.BrandLight,
+            borderWidth: 1,
+            borderColor: Colors.BrandPrimaryDark,
+            borderRadius: 8,
+            paddingHorizontal: 12,
+            paddingVertical: 7
+        },
+        filterIcon: {
             fontSize: 16,
-            backgroundColor: Colors.FilterButtonColor,
-            borderRadius: 3,
-            padding: 5
+            color: Colors.BrandPrimaryDark,
+            marginRight: 4
         },
         filterText: {
-            color: Styles.accentColor,
+            color: Colors.BrandPrimaryDark,
             fontSize: Styles.smallTextSize,
-            fontWeight: 'bold',
+            fontWeight: '600',
             textTransform: 'uppercase',
         },
         buttonText: {
@@ -178,6 +178,34 @@ class CustomDashboardView extends AbstractComponent {
             color: Styles.grey,
             fontSize: Styles.smallerTextSize,
             fontWeight: 'bold',
+            marginBottom: 10
+        },
+        quickDateRow: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 8,
+            marginTop: 14
+        },
+        quickDateButton: {
+            borderRadius: 8,
+            borderWidth: 1,
+            paddingHorizontal: 14,
+            paddingVertical: 7,
+            minWidth: 78,
+            alignItems: 'center',
+            justifyContent: 'center'
+        },
+        quickDateButtonSelected: {
+            backgroundColor: Colors.BrandPrimaryDark,
+            borderColor: Colors.BrandPrimaryDark
+        },
+        quickDateButtonUnselected: {
+            backgroundColor: Colors.BrandLight,
+            borderColor: Colors.BrandLight
+        },
+        quickDateButtonText: {
+            fontSize: Styles.smallerTextSize,
+            fontWeight: '600'
         }
     });
 
@@ -187,6 +215,10 @@ class CustomDashboardView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.customDashboard);
+        // Local-only UI state (open/closed) for the dashboard picker below - separate from the
+        // reducer-driven fields (dashboards, activeDashboardUUID etc.) refreshState() merges in,
+        // since React's setState shallow-merges rather than replaces.
+        this.state = {isDashboardPickerOpen: false};
     }
 
     viewName() {
@@ -208,13 +240,36 @@ class CustomDashboardView extends AbstractComponent {
         performCustomDashboardActionAndRefresh(this, Actions.ON_DASHBOARD_CHANGE, {dashboardUUID: uuid});
     }
 
-    renderDashboards() {
-        return _.map(this.state.dashboards, dashboard =>
-            <CustomDashboardTab
-                key={dashboard.uuid}
-                dashboard={dashboard}
-                activeDashboardUUID={this.state.activeDashboardUUID}
-                onDashboardNamePress={this.onDashboardNamePress.bind(this)}/>
+    // In-page overlay (not MODAL) - the list drops down anchored right below the field instead of
+    // taking over the whole screen. Rendered outside the ScrollView so the overlay isn't clipped.
+    renderDashboardPicker() {
+        if (_.isEmpty(this.state.dashboards)) {
+            return this.renderZeroResultsMessageIfNeeded();
+        }
+        const items = _.map(this.state.dashboards, dashboard => ({label: this.I18n.t(dashboard.name), value: dashboard.uuid}));
+        return (
+            <View style={styles.dashboardPickerContainer}>
+                <DropDownPicker
+                    items={items}
+                    open={this.state.isDashboardPickerOpen}
+                    setOpen={(open) => this.setState({isDashboardPickerOpen: open})}
+                    value={this.state.activeDashboardUUID}
+                    setValue={(callback) => this.onDashboardNamePress(callback(this.state.activeDashboardUUID))}
+                    listMode={'SCROLLVIEW'}
+                    scrollViewProps={{nestedScrollEnabled: true}}
+                    maxHeight={280}
+                    zIndex={1000}
+                    zIndexInverse={1000}
+                    placeholder={this.I18n.t('dashboards')}
+                    style={styles.dashboardPickerStyle}
+                    textStyle={styles.dashboardPickerText}
+                    dropDownContainerStyle={styles.dashboardPickerDropdown}
+                    listItemLabelStyle={styles.dashboardPickerText}
+                    selectedItemLabelStyle={{color: Colors.BrandPrimaryDark, fontWeight: '600'}}
+                    arrowIconStyle={{tintColor: Colors.BrandPrimaryDark}}
+                    tickIconStyle={{tintColor: Colors.BrandPrimaryDark}}
+                />
+            </View>
         );
     }
 
@@ -443,15 +498,9 @@ class CustomDashboardView extends AbstractComponent {
                            renderSearch={showSearch}
                            onSearch={onSearch}
                 />
+                {(_.isNil(customDashboardType) || customDashboardType === CustomDashboardType.None) &&
+                    this.renderDashboardPicker()}
                 <ScrollView>
-                    <Line/>
-                    {(_.isNil(customDashboardType) || customDashboardType === CustomDashboardType.None) &&
-                        <SafeAreaView style={{height: 50}}>
-                            <ScrollView horizontal style={{backgroundColor: Colors.cardBackgroundColor}}>
-                                {this.renderDashboards()}
-                                {this.renderZeroResultsMessageIfNeeded()}
-                            </ScrollView>
-                        </SafeAreaView>}
                     {hasDashboards && <>
                         <View style={{display: "flex", flexDirection: "row", flex: 1, justifyContent: "space-between"}}>
                             <View style={{flex: 0.65}}>
@@ -485,6 +534,27 @@ class CustomDashboardView extends AbstractComponent {
 }
 
 const styles = StyleSheet.create({
+    dashboardPickerContainer: {
+        paddingHorizontal: 8,
+        paddingTop: 24,
+        paddingBottom: 16,
+        zIndex: 10
+    },
+    dashboardPickerStyle: {
+        minHeight: 48,
+        borderColor: Colors.BorderDefault,
+        borderRadius: 8,
+        backgroundColor: Colors.WhiteContentBackground
+    },
+    dashboardPickerDropdown: {
+        borderColor: Colors.BorderDefault,
+        borderRadius: 8,
+        backgroundColor: Colors.WhiteContentBackground
+    },
+    dashboardPickerText: {
+        fontSize: Fonts.Normal,
+        color: Colors.TextPrimaryDark
+    },
     container: {
         marginHorizontal: Styles.ContainerHorizontalDistanceFromEdge,
         marginBottom: Styles.ContentDistanceFromEdge
