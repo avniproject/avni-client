@@ -69,13 +69,8 @@ export class IndividualGeneralHistoryActions {
     }
 
     static clone(state) {
-        return {
-            individual: state.individual,
-            programsAvailable: state.programsAvailable,
-            showCount: state.showCount,
-            encounterTypes: state.encounterTypes.slice(),
-            editFormRuleResponse: state.editFormRuleResponse
-        };
+        // Spread the full state — a key whitelist here silently drops encounters
+        return {...state, encounterTypes: state.encounterTypes.slice()};
     }
 
     static onShowMore(state) {

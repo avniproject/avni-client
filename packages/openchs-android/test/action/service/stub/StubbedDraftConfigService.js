@@ -16,7 +16,7 @@ class StubbedDraftConfigService {
     }
 
     shouldDisplayDrafts() {
-        return false;
+        return !!(this.serviceData && this.serviceData.displayDrafts);
     }
 }
 
