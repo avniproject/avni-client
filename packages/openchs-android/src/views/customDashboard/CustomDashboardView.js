@@ -542,12 +542,14 @@ const styles = StyleSheet.create({
     },
     dashboardPickerStyle: {
         minHeight: 48,
-        borderColor: Colors.BorderDefault,
+        borderWidth: 1,
+        borderColor: Colors.BrandPrimary,
         borderRadius: 8,
         backgroundColor: Colors.WhiteContentBackground
     },
     dashboardPickerDropdown: {
-        borderColor: Colors.BorderDefault,
+        borderWidth: 1,
+        borderColor: Colors.BrandPrimary,
         borderRadius: 8,
         backgroundColor: Colors.WhiteContentBackground
     },
