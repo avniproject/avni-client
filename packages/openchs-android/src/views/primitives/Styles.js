@@ -8,7 +8,7 @@ class Styles {
 Styles.accentColor = '#009688';
 Styles.whiteColor = '#ffffff';
 Styles.blackColor = '#000000';
-Styles.redColor = '#ff0000';
+Styles.redColor = '#B91C1C';
 Styles.defaultBackground = '#212121';
 Styles.groupSubjectBackground = '#871f74';
 Styles.greyBackground = '#f6f6f6';

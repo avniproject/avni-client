@@ -1,4 +1,5 @@
 import {Alert, BackHandler, Image, NativeModules, Text, View, FlatList} from "react-native";
+import WebView from "react-native-webview";
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import PathRegistry from './framework/routing/PathRegistry';
@@ -109,31 +110,42 @@ class App extends Component {
         if (!_.isNil(GlobalContext.getInstance().routes) && this.state.isInitialisationDone) {
             return GlobalContext.getInstance().routes
         }
-        const message = `Upgrading Database. May take upto 15 minutes on slow devices with a lot of Avni data.`;
+        // First splash screen (DB upgrade/migration message) - disabled so only the second splash
+        // screen (HomeScreenView's branded WebView, shown next by RootView) is visible on first
+        // load, instead of showing this technical message screen before it. KeepAwake is kept
+        // active below since the underlying long-running migration this screen used to describe
+        // still happens here and the device still needs to stay awake for it.
+        // const message = `Upgrading Database. May take upto 15 minutes on slow devices with a lot of Avni data.`;
+        // return (
+        //     <View style={{flex: 1, flexDirection: "column", alignItems: 'center', justifyContent: 'center', marginTop: 50}}>
+        //         <Image source={{uri: `asset:/splash_logo.png`}}
+        //                style={{height: 120, width: 320, alignSelf: 'center'}} resizeMode={'contain'}/>
+        //
+        //         <KeepAwake/>
+        //         <Text style={{fontSize: 17, paddingHorizontal: 10, marginBottom: 20}}>{message}</Text>
+        //         <FlatList
+        //             data={[
+        //                 {key: '- Please do not close the App'},
+        //                 {key: '- Please do not power-off screen'},
+        //                 {key: '- App will keep screen ON by itself'},
+        //                 {key: `- Start Time: ${moment().format("hh:mm")}`},
+        //                 {key: `- REPORT ERROR IF NOT COMPLETE BEFORE: ${moment().add(15, "minutes").format("hh:mm")}`}
+        //             ]}
+        //             renderItem={({item}) => {
+        //                 return (
+        //                     <View>
+        //                         <Text style={{fontSize: 15}}>{item.key}</Text>
+        //                     </View>
+        //                 );
+        //             }}
+        //         />
+        //     </View>);
         return (
-            <View style={{flex: 1, flexDirection: "column", alignItems: 'center', justifyContent: 'center', marginTop: 50}}>
-                <Image source={{uri: `asset:/splash_logo.png`}}
-                       style={{height: 120, width: 320, alignSelf: 'center'}} resizeMode={'contain'}/>
-
+            <View style={{flex: 1}}>
                 <KeepAwake/>
-                <Text style={{fontSize: 17, paddingHorizontal: 10, marginBottom: 20}}>{message}</Text>
-                <FlatList
-                    data={[
-                        {key: '- Please do not close the App'},
-                        {key: '- Please do not power-off screen'},
-                        {key: '- App will keep screen ON by itself'},
-                        {key: `- Start Time: ${moment().format("hh:mm")}`},
-                        {key: `- REPORT ERROR IF NOT COMPLETE BEFORE: ${moment().add(15, "minutes").format("hh:mm")}`}
-                    ]}
-                    renderItem={({item}) => {
-                        return (
-                            <View>
-                                <Text style={{fontSize: 15}}>{item.key}</Text>
-                            </View>
-                        );
-                    }}
-                />
-            </View>);
+                <WebView source={{uri: 'file:///android_asset/homePage.html'}}/>
+            </View>
+        );
     }
 
     render() {

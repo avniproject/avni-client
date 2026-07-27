@@ -85,16 +85,29 @@ class RepeatableFormElement extends AbstractFormElement {
         return this.props.element.recordValueByKey('minNumberOfMedia') || 8;
     }
 
+    // Same group-level result QuestionGroup itself looks up (formIdentifier === the repeatable
+    // group's own uuid) - this is what used to drive the red "please add at least N" error text.
+    get groupValidationResult() {
+        return _.find(this.props.validationResults, ({formIdentifier}) => formIdentifier === this.props.element.uuid);
+    }
+
     // Review-only groups (e.g. AI-results screens showing previously captured images) already
     // disable add/remove via "disableManualActions" - the "please add at least N" hint only makes
     // sense while actively capturing photos, i.e. wherever manual add/remove is actually possible.
+    // It also only makes sense while the same condition that used to show the red error text is
+    // true - once that requirement is satisfied, the hint should disappear just like the error did.
     get shouldShowMinimumCountHint() {
-        return this.hasOwnRowRemoveControl && !this.props.element.recordValueByKey('disableManualActions');
+        const validationResult = this.groupValidationResult;
+        return this.hasOwnRowRemoveControl && !this.props.element.recordValueByKey('disableManualActions')
+            && !_.isNil(validationResult) && validationResult.success === false;
     }
 
     renderMinimumCountHint() {
         const required = this.minRequiredRowCount;
-        const capturedCount = this.props.value.size();
+        // .size() counts rows regardless of whether they've been filled in - the group always
+        // starts with one empty row, so it would misleadingly read "1/8" before anything is
+        // actually captured. nonEmptySize() only counts rows with data, so this starts at 0.
+        const capturedCount = this.props.value.nonEmptySize();
         return (
             <View style={styles.minCountRow}>
                 <Text style={styles.minCountText}>
@@ -127,6 +140,7 @@ class RepeatableFormElement extends AbstractFormElement {
                     filteredFormElements={this.props.filteredFormElements}
                     extraContainerStyle={{marginVertical: 0}}
                     subjectUUID={this.props.subjectUUID}
+                    suppressGroupValidationMessage={this.shouldShowMinimumCountHint}
                 />
             </Fragment>
         )

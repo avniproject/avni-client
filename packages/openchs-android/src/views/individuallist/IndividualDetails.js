@@ -49,7 +49,7 @@ class IndividualDetails extends AbstractComponent {
                     key={i}
                     background={TouchableNativeFeedback.SelectableBackground()}
                 >
-                    <View key={i}>
+                    <View key={i} style={styles.rowSpacing}>
                         <View style={styles.container}>
                             <View style={[styles.strip, {backgroundColor: info.color}]}/>
                             <Text style={styles.textContainer}>{row}</Text>
@@ -124,17 +124,22 @@ class IndividualDetails extends AbstractComponent {
 export default IndividualDetails;
 
 const styles = StyleSheet.create({
+    rowSpacing: {
+        marginTop: 8
+    },
     container: {
-        backgroundColor: "#fefefe",
+        backgroundColor: Colors.WhiteContentBackground,
         flexDirection: "row",
         alignItems: "center",
         alignSelf: "center",
         borderWidth: 1,
-        borderColor: "#00000012"
+        borderColor: Colors.BorderDefault,
+        borderRadius: 8,
+        overflow: "hidden"
     },
     textContainer: {
         flex: 1,
-        paddingVertical: 8,
+        paddingVertical: 10,
         padding: Distances.ScaledContentDistanceFromEdge,
         flexDirection: "row",
         flexWrap: "wrap"
@@ -163,10 +168,11 @@ const styles = StyleSheet.create({
     iconStyle: {
         opacity: 0.8,
         alignSelf: "center",
-        fontSize: 40
+        fontSize: 22,
+        marginRight: Distances.ScaledContentDistanceFromEdge
     },
     strip: {
-        width: 8,
+        width: 4,
         height: "100%"
     }
 });
