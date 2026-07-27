@@ -38,6 +38,7 @@ import EnvironmentConfig from "../framework/EnvironmentConfig";
 import { getAvniError } from "../service/ServerError";
 import { AlertMessage } from "./common/AlertMessage";
 import MessageService from "../service/MessageService";
+import CustomConfirmDialog from "./common/CustomConfirmDialog";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -110,15 +111,14 @@ class MenuView extends AbstractComponent {
     };
 
     logout() {
-        Alert.alert(
-            this.I18n.t("logoutConfirmationTitle"),
-            this.I18n.t("logoutConfirmationMessage"),
-            [{
-                text: this.I18n.t('logoutConfirmed'),
-                onPress: this._logout,
-            }, {text: this.I18n.t('logoutCancelled'), onPress: _.noop, style: 'cancel'},
-            ]
-        );
+        CustomConfirmDialog.show({
+            title: this.I18n.t("logoutConfirmationTitle"),
+            message: this.I18n.t("logoutConfirmationMessage"),
+            yesLabel: this.I18n.t('logoutConfirmed'),
+            noLabel: this.I18n.t('logoutCancelled'),
+            onYes: this._logout,
+            onNo: _.noop
+        });
     }
 
     userSettingsView() {
@@ -133,17 +133,14 @@ class MenuView extends AbstractComponent {
     }
 
     onDelete() {
-        Alert.alert(
-            this.I18n.t('deleteSchemaNoticeTitle'),
-            this.I18n.t('deleteSchemaConfirmationMessage'),
-            [
-                {text: this.I18n.t('yes'), onPress: () => this.deleteData()},
-                {
-                    text: this.I18n.t('no'), onPress: () => {
-                    }, style: 'cancel'
-                }
-            ]
-        )
+        CustomConfirmDialog.show({
+            title: this.I18n.t('deleteSchemaNoticeTitle'),
+            message: this.I18n.t('deleteSchemaConfirmationMessage'),
+            yesLabel: this.I18n.t('yes'),
+            noLabel: this.I18n.t('no'),
+            onYes: () => this.deleteData(),
+            onNo: _.noop
+        });
     };
 
     uploadCatchmentDatabase() {

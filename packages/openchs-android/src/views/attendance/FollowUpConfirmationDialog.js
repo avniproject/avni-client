@@ -6,6 +6,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import IndividualService from "../../service/IndividualService";
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
+import AvniIcon from "../common/AvniIcon";
 
 class FollowUpConfirmationDialog extends AbstractComponent {
     static propTypes = {
@@ -37,7 +38,12 @@ class FollowUpConfirmationDialog extends AbstractComponent {
             <Modal visible={visible} transparent animationType="fade" onRequestClose={onDismiss}>
                 <View style={styles.backdrop}>
                     <View style={styles.dialog}>
-                        <Text style={styles.title}>{this.I18n.t("followUpsCreatedTitle")}</Text>
+                        <View style={styles.titleRow}>
+                            <Text style={styles.title}>{this.I18n.t("followUpsCreatedTitle")}</Text>
+                            <TouchableOpacity onPress={onDismiss} hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
+                                <AvniIcon type="MaterialIcons" name="close" style={styles.closeIcon}/>
+                            </TouchableOpacity>
+                        </View>
                         <Text style={styles.subtitle}>
                             {this.I18n.t("followUpsCreatedSubtitle", {count: created.length})}
                         </Text>
@@ -86,25 +92,31 @@ const styles = StyleSheet.create({
     },
     dialog: {
         width: '100%',
+        maxWidth: 340,
         maxHeight: '80%',
         backgroundColor: Colors.WhiteContentBackground,
-        borderRadius: 8,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: Colors.BrandPrimary,
         padding: 20,
+        overflow: 'hidden',
     },
-    title: {fontSize: Styles.titleSize || 18, fontWeight: 'bold', color: Colors.InputNormal, marginBottom: 8},
-    subtitle: {fontSize: Styles.smallTextSize, color: Colors.SubheaderColor || '#666', marginBottom: 12},
+    titleRow: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'},
+    title: {fontSize: (Styles.titleSize || 18) + 2, fontWeight: '500', color: Colors.BrandPrimary},
+    closeIcon: {fontSize: 20, color: Colors.TextSecondary},
+    subtitle: {fontSize: Styles.smallTextSize, color: Colors.TextSecondary, marginTop: 16, marginBottom: 12},
     list: {maxHeight: 280},
     listRow: {
         paddingVertical: 8,
         borderBottomWidth: 1,
-        borderBottomColor: Colors.InputBorderNormal,
+        borderBottomColor: Colors.BorderDefault,
     },
-    studentName: {fontSize: Styles.normalTextSize, fontWeight: 'bold', color: Colors.InputNormal},
-    rollLine: {fontSize: Styles.smallTextSize, color: Colors.SubheaderColor || '#666', marginTop: 2},
-    maxLine: {fontSize: Styles.smallTextSize, color: Colors.SubheaderColor || '#666', marginTop: 2},
+    studentName: {fontSize: Styles.normalTextSize, fontWeight: '600', color: Colors.TextPrimaryDark},
+    rollLine: {fontSize: Styles.smallTextSize, color: Colors.TextSecondary, marginTop: 2},
+    maxLine: {fontSize: Styles.smallTextSize, color: Colors.TextSecondary, marginTop: 2},
     skippedLine: {fontSize: Styles.smallTextSize, color: '#E65100', marginTop: 12, fontStyle: 'italic'},
-    okBtn: {marginTop: 16, paddingVertical: 10, alignItems: 'center'},
-    okText: {color: Colors.ActionButtonColor, fontWeight: 'bold', fontSize: Styles.normalTextSize},
+    okBtn: {marginTop: 20, height: 48, borderRadius: 16, backgroundColor: Colors.BrandPrimaryDark, alignItems: 'center', justifyContent: 'center'},
+    okText: {color: Colors.TextOnPrimaryColor, fontWeight: '600', fontSize: Styles.normalTextSize},
 });
 
 export default FollowUpConfirmationDialog;

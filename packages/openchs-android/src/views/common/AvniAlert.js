@@ -1,21 +1,18 @@
-import {Alert} from "react-native";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
+import CustomConfirmDialog from "./CustomConfirmDialog";
 
 export const AvniAlert = (title, message, onYesPress, I18n, skipEvent) => {
-    Alert.alert(title, message, [
-        {
-            text: I18n.t('yes'), onPress: () => {
-                if (!skipEvent) {
-                    logEvent(firebaseEvents.ABORT_FORM);
-                }
-                onYesPress();
+    CustomConfirmDialog.show({
+        title,
+        message,
+        yesLabel: I18n.t('yes'),
+        noLabel: I18n.t('no'),
+        onYes: () => {
+            if (!skipEvent) {
+                logEvent(firebaseEvents.ABORT_FORM);
             }
-        },
-        {
-            text: I18n.t('no'), onPress: () => {
-            },
-            style: 'cancel'
+            onYesPress();
         }
-    ])
+    });
 };
 

@@ -24,6 +24,7 @@ import AvniErrorBoundary from "./framework/errorHandling/AvniErrorBoundary";
 import UnhandledErrorView from "./framework/errorHandling/UnhandledErrorView";
 import ErrorUtil from "./framework/errorHandling/ErrorUtil";
 import ServiceContext from "./framework/context/ServiceContext";
+import CustomConfirmDialog from "./views/common/CustomConfirmDialog";
 
 const {TamperCheckModule} = NativeModules;
 
@@ -154,6 +155,7 @@ class App extends Component {
                 <AvniErrorBoundary>
                     {this.renderApp()}
                 </AvniErrorBoundary>
+                <CustomConfirmDialog/>
             </ServiceContext.Provider>
         );
     }

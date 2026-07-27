@@ -5,6 +5,7 @@ import moment from "moment";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
+import AvniIcon from "../common/AvniIcon";
 
 class MarkAnywayConfirmDialog extends AbstractComponent {
     static propTypes = {
@@ -26,16 +27,23 @@ class MarkAnywayConfirmDialog extends AbstractComponent {
             <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
                 <View style={styles.backdrop}>
                     <View style={styles.dialog}>
-                        <Text style={styles.title}>{this.I18n.t("markAnywayConfirmTitle")}</Text>
+                        <View style={styles.titleRow}>
+                            <Text style={styles.title}>{this.I18n.t("markAnywayConfirmTitle")}</Text>
+                            <TouchableOpacity onPress={onCancel} hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
+                                <AvniIcon type="MaterialIcons" name="close" style={styles.closeIcon}/>
+                            </TouchableOpacity>
+                        </View>
                         <Text style={styles.body}>
                             {this.I18n.t("markAnywayConfirmBody", {date: dateLabel})}
                         </Text>
                         <View style={styles.actions}>
-                            <TouchableOpacity onPress={onCancel} style={styles.btn}>
-                                <Text style={styles.cancelText}>{this.I18n.t("confirmCancel")}</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={onContinue} style={styles.btn}>
+                            {/* Continuing skips a warning, so it's the de-emphasized outlined option; Cancel
+                                (the cautious default) gets the filled/prominent button. */}
+                            <TouchableOpacity onPress={onContinue} style={[styles.btn, styles.secondaryBtn]}>
                                 <Text style={styles.continueText}>{this.I18n.t("confirmContinue")}</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={onCancel} style={[styles.btn, styles.primaryBtn]}>
+                                <Text style={styles.cancelText}>{this.I18n.t("confirmCancel")}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -47,13 +55,17 @@ class MarkAnywayConfirmDialog extends AbstractComponent {
 
 const styles = StyleSheet.create({
     backdrop: {flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 24},
-    dialog: {width: '100%', backgroundColor: Colors.WhiteContentBackground, borderRadius: 8, padding: 20},
-    title: {fontSize: Styles.titleSize || 18, fontWeight: 'bold', color: Colors.InputNormal, marginBottom: 12},
-    body: {fontSize: Styles.normalTextSize, color: Colors.InputNormal, marginBottom: 20},
-    actions: {flexDirection: 'row', justifyContent: 'flex-end'},
-    btn: {paddingVertical: 8, paddingHorizontal: 16},
-    cancelText: {color: Colors.SubheaderColor || '#666', fontWeight: 'bold'},
-    continueText: {color: Colors.ActionButtonColor, fontWeight: 'bold'},
+    dialog: {width: '100%', maxWidth: 320, backgroundColor: Colors.WhiteContentBackground, borderRadius: 16, borderWidth: 1, borderColor: Colors.BrandPrimary, padding: 20, overflow: 'hidden'},
+    titleRow: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'},
+    title: {fontSize: (Styles.titleSize || 18) + 2, fontWeight: '500', color: Colors.BrandPrimary},
+    closeIcon: {fontSize: 20, color: Colors.TextSecondary},
+    body: {fontSize: Styles.normalTextSize, color: Colors.TextSecondary, marginTop: 16, marginBottom: 24},
+    actions: {flexDirection: 'row', justifyContent: 'space-between'},
+    btn: {flex: 1, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center'},
+    secondaryBtn: {backgroundColor: Colors.WhiteContentBackground, borderWidth: 1, borderColor: Colors.BrandPrimary, marginRight: 8},
+    primaryBtn: {backgroundColor: Colors.BrandPrimaryDark, marginLeft: 8},
+    continueText: {color: Colors.BrandPrimary, fontWeight: '600'},
+    cancelText: {color: Colors.TextOnPrimaryColor, fontWeight: '600'},
 });
 
 export default MarkAnywayConfirmDialog;

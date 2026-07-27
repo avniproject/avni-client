@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
+import AvniIcon from "../common/AvniIcon";
 
 class VoidConfirmDialog extends AbstractComponent {
     static propTypes = {
@@ -23,16 +24,23 @@ class VoidConfirmDialog extends AbstractComponent {
             <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
                 <View style={styles.backdrop}>
                     <View style={styles.dialog}>
-                        <Text style={styles.title}>{this.I18n.t("voidConfirmTitle")}</Text>
+                        <View style={styles.titleRow}>
+                            <Text style={styles.title}>{this.I18n.t("voidConfirmTitle")}</Text>
+                            <TouchableOpacity onPress={onCancel} hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
+                                <AvniIcon type="MaterialIcons" name="close" style={styles.closeIcon}/>
+                            </TouchableOpacity>
+                        </View>
                         <Text style={styles.body}>
                             {this.I18n.t("voidConfirmBody", {type: attendanceTypeName || ""})}
                         </Text>
                         <View style={styles.actions}>
-                            <TouchableOpacity onPress={onCancel} style={styles.btn}>
-                                <Text style={styles.cancelText}>{this.I18n.t("confirmCancel")}</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={onConfirm} style={styles.btn}>
+                            {/* Void is destructive, so it's the de-emphasized outlined option; Cancel (the
+                                safer default) gets the filled/prominent button - matches RemoveMediaConfirmDialog. */}
+                            <TouchableOpacity onPress={onConfirm} style={[styles.btn, styles.secondaryBtn]}>
                                 <Text style={styles.voidText}>{this.I18n.t("voidConfirmAction")}</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={onCancel} style={[styles.btn, styles.primaryBtn]}>
+                                <Text style={styles.cancelText}>{this.I18n.t("confirmCancel")}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -44,13 +52,17 @@ class VoidConfirmDialog extends AbstractComponent {
 
 const styles = StyleSheet.create({
     backdrop: {flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 24},
-    dialog: {width: '100%', backgroundColor: Colors.WhiteContentBackground, borderRadius: 8, padding: 20},
-    title: {fontSize: Styles.titleSize || 18, fontWeight: 'bold', color: Colors.InputNormal, marginBottom: 12},
-    body: {fontSize: Styles.normalTextSize, color: Colors.InputNormal, marginBottom: 20},
-    actions: {flexDirection: 'row', justifyContent: 'flex-end'},
-    btn: {paddingVertical: 8, paddingHorizontal: 16},
-    cancelText: {color: Colors.SubheaderColor || '#666', fontWeight: 'bold'},
-    voidText: {color: Colors.ValidationError, fontWeight: 'bold'},
+    dialog: {width: '100%', maxWidth: 320, backgroundColor: Colors.WhiteContentBackground, borderRadius: 16, borderWidth: 1, borderColor: Colors.BrandPrimary, padding: 20, overflow: 'hidden'},
+    titleRow: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'},
+    title: {fontSize: (Styles.titleSize || 18) + 2, fontWeight: '500', color: Colors.BrandPrimary},
+    closeIcon: {fontSize: 20, color: Colors.TextSecondary},
+    body: {fontSize: Styles.normalTextSize, color: Colors.TextSecondary, marginTop: 16, marginBottom: 24},
+    actions: {flexDirection: 'row', justifyContent: 'space-between'},
+    btn: {flex: 1, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center'},
+    secondaryBtn: {backgroundColor: Colors.WhiteContentBackground, borderWidth: 1, borderColor: Colors.BrandPrimary, marginRight: 8},
+    primaryBtn: {backgroundColor: Colors.BrandPrimaryDark, marginLeft: 8},
+    voidText: {color: Colors.ValidationError, fontWeight: '600'},
+    cancelText: {color: Colors.TextOnPrimaryColor, fontWeight: '600'},
 });
 
 export default VoidConfirmDialog;
