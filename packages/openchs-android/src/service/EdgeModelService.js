@@ -433,18 +433,29 @@ class EdgeModelService extends BaseService {
         General.logDebug('EdgeModelSvc', `scheduleImageInference QUEUED: ${inflightKey}`);
         if (invalidateStaleNow) queueClear();
 
+        const SKIP_INFERENCE = {__skipInference: true};
         const inference = invalidateIfMediaPresent
             ? (async () => {
-                // Fail CLOSED: when fs is unavailable, media presence is unknown — keep the verdict.
+                // Cold-start recompute of a persisted verdict. If the media file isn't on the device
+                // (synced-in encounter whose image never downloaded), there's nothing to recompute
+                // against — running inference on a missing file only fails and would raise a blocking
+                // error over a valid verdict. Keep the persisted verdict and skip. Fail CLOSED when fs
+                // is unavailable too: presence unknown ⇒ don't risk blanking/erroring a good verdict.
                 const mediaPresent = await (fs && fs.exists
                     ? fs.exists(imagePath).catch(() => false)
                     : Promise.resolve(false));
-                if (mediaPresent) queueClear();
+                if (!mediaPresent) {
+                    General.logDebug('EdgeModelSvc',
+                        `scheduleImageInference SKIP cold-start: media absent, keeping persisted verdict for '${targetConceptName}' (${imagePath})`);
+                    return SKIP_INFERENCE;
+                }
+                queueClear();
                 return this.runInferenceOnImage(imagePath);
             })()
             : this.runInferenceOnImage(imagePath);
         inference
             .then(result => {
+                if (result === SKIP_INFERENCE) return;   // cold-start, media absent → verdict kept, no dispatch
                 const rawLabel = result && result.label != null ? result.label : result;
                 // Apply the optional label map so the obs holds the user-facing string
                 // (TextFormElement renders the obs verbatim).
