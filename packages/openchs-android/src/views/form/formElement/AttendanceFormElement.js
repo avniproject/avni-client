@@ -15,23 +15,15 @@ class AttendanceFormElement extends AbstractFormElement {
     getGroupsSubjects() {
         const subjectTypeUUID = _.get(this.props, 'element.concept').recordValueByKey(Concept.keys.subjectTypeUUID);
         const members = this.getService(GroupSubjectService).getAllByGroupSubjectUUID(this.props.subjectUUID, subjectTypeUUID).map(_.identity);
-        // Obey the form element rule: same allow/exclude semantics the value pruning
-        // (ObservationsHolder.removeNonApplicableSubjectAnswers) applies, so display and
-        // saved selections stay in sync.
-        const applicableUUIDs = this.props.element.getApplicableSubjectUUIDs();
-        const excludedUUIDs = this.props.element.getExcludedSubjectUUIDs();
-        return members.filter(({memberSubject}) => {
-            if (applicableUUIDs && !_.includes(applicableUUIDs, memberSubject.uuid)) return false;
-            return !_.includes(excludedUUIDs, memberSubject.uuid);
-        });
+        return members.filter(({memberSubject}) => this.props.element.isApplicableSubjectUUID(memberSubject.uuid));
     }
 
     renderSubject({memberSubject}, subjectUUIDs) {
         const onPress = () => {
             this.dispatchAction(this.props.actionName, {
-                formElement: this.props.element, 
+                formElement: this.props.element,
                 answerUUID: memberSubject.uuid,
-                parentFormElement: this.props.parentElement, 
+                parentFormElement: this.props.parentElement,
                 questionGroupIndex: this.props.questionGroupIndex
             });
         };
