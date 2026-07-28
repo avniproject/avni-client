@@ -247,8 +247,11 @@ class LoginView extends AbstractComponent {
                                 minHeight: height * 0.8,
                                 paddingHorizontal: 16
                             }}>
+                                {/* width matches the logo asset's true 2.5:1 aspect ratio so 'contain' doesn't
+                                    letterbox empty space on the sides - that gap was throwing off left alignment
+                                    with the card below. */}
                                 <Image source={{uri: `asset:/logo.png`}}
-                                       style={{height: 72, width: 200, alignSelf: 'center', marginBottom: 24}} resizeMode={'contain'}/>
+                                       style={{height: 72, width: 180, alignSelf: 'flex-start', marginBottom: 24}} resizeMode={'contain'}/>
                                 {this.renderMultiUserLoginFailure()}
                                 <View style={styles.card}>
                                     <Text style={styles.cardTitle}>{this.I18n.t('Login')}</Text>

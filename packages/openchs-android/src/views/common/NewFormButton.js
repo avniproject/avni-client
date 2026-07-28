@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: Colors.BrandPrimaryDark,
-        borderRadius: 24,
+        borderRadius: 8,
         paddingVertical: 10,
         paddingHorizontal: 18,
         elevation: 4,

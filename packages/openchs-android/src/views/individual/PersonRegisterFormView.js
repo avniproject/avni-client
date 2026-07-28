@@ -1,4 +1,4 @@
-import {ScrollView, Vibration, View} from "react-native";
+import {ScrollView, StyleSheet, Vibration, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -128,7 +128,7 @@ class PersonRegisterFormView extends AbstractComponent {
         return (
             <CHSContainer>
                 <CHSContent>
-                    <ScrollView ref={this.scrollRef} keyboardShouldPersistTaps="handled">
+                    <ScrollView ref={this.scrollRef} style={{flex: 1}} keyboardShouldPersistTaps="handled">
                         <AppHeader title={title}
                                    func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
                         {displayTimer ?
@@ -153,23 +153,40 @@ class PersonRegisterFormView extends AbstractComponent {
                                               allowedSyncConcept1Values={userInfoService.getSyncConcept1Values(subjectType)}
                                               allowedSyncConcept2Values={userInfoService.getSyncConcept2Values(subjectType)}
                             />}
-                            {!displayTimer &&
-                            <WizardButtons
-                                previous={{
-                                    func: () => this.previous(),
-                                    label: this.I18n.t('previous')
-                                }}
-                                next={{
-                                    func: () => PersonRegisterViewsMixin.next(this),
-                                    label: this.I18n.t('next')
-                                }}
-                            />}
                         </View>
                     </ScrollView>
+                    {!displayTimer &&
+                    <View style={styles.fixedButtonBar}>
+                        <WizardButtons
+                            containerStyle={{paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}
+                            buttonHeight={56}
+                            previous={{
+                                func: () => this.previous(),
+                                label: this.I18n.t('previous')
+                            }}
+                            next={{
+                                func: () => PersonRegisterViewsMixin.next(this),
+                                label: this.I18n.t('next')
+                            }}
+                        />
+                    </View>}
                 </CHSContent>
             </CHSContainer>
         );
     }
 }
+
+const styles = StyleSheet.create({
+    fixedButtonBar: {
+        height: 84,
+        justifyContent: 'center',
+        backgroundColor: '#ffffff',
+        shadowColor: '#000',
+        shadowOffset: {width: 0, height: -3},
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 8
+    }
+});
 
 export default PersonRegisterFormView;

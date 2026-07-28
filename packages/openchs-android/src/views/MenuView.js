@@ -254,7 +254,7 @@ class MenuView extends AbstractComponent {
                                          background={this.background()}>
                     <View style={styles.userCard}>
                         <View style={styles.userCardIconContainer}>
-                            <AvniIcon name='account' type='MaterialCommunityIcons' style={styles.userCardIcon}/>
+                            <AvniIcon name='account-outline' type='MaterialCommunityIcons' style={styles.userCardIcon}/>
                         </View>
                         <View style={styles.userCardTextContainer}>
                             <Text style={styles.userCardHeading} numberOfLines={1}>{heading}</Text>

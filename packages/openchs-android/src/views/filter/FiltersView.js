@@ -51,7 +51,8 @@ class FilterView extends AbstractComponent {
             alignItems: 'center',
             justifyContent: 'center',
             bottom: 0,
-            backgroundColor: Colors.AccentColor
+            backgroundColor: Colors.AccentColor,
+            borderRadius: 8
         },
 
         floatingButtonIcon: {

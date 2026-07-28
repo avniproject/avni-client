@@ -34,7 +34,7 @@ export default class DashboardFilters extends AbstractComponent {
             paddingHorizontal: 8,
             paddingVertical: 4,
             backgroundColor: Colors.ActionButtonColor,
-            borderRadius: 3
+            borderRadius: 8
         },
         buttonText: {
             color: Colors.TextOnPrimaryColor,
@@ -42,7 +42,7 @@ export default class DashboardFilters extends AbstractComponent {
         },
         todayButton: {
             paddingVertical: 2,
-            borderRadius: 3,
+            borderRadius: 8,
             paddingHorizontal: 8,
             marginLeft: 4
         }
@@ -98,7 +98,7 @@ export default class DashboardFilters extends AbstractComponent {
                                     mode: 'calendar',
                                     onChange: this.onAsOnDateChange.bind(this)
                                 })}>
-                                <MCIIcon name={'calendar'} style={iconStyle}/>
+                                <MCIIcon name={'calendar-outline'} style={iconStyle}/>
                             </TouchableOpacity>
                             {this.renderQuickDateOptions('Today', new Date(), isToday)}
                             {this.renderQuickDateOptions('Tomorrow', moment().add(1, "day").toDate(), isTomorrow)}

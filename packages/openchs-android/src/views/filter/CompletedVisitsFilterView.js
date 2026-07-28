@@ -65,7 +65,8 @@ class CompletedVisitsFilterView extends AbstractComponent {
                                       alignItems: 'center',
                                       justifyContent: 'center',
                                       bottom: 0,
-                                      backgroundColor: Colors.AccentColor
+                                      backgroundColor: Colors.AccentColor,
+                                      borderRadius: 8
                                   }}>
                     <Text style={{
                         fontSize: Styles.normalTextSize,

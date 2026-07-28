@@ -121,8 +121,9 @@ class DatePicker extends AbstractComponent {
                 <TouchableNativeFeedback onPress={() => this.removeDate()}
                                          background={TouchableNativeFeedback.SelectableBackgroundBorderless()}
                                          useForeground>
-                    <Icon name="backspace"
-                          style={{marginLeft: 8, fontSize: 20, color: Colors.AccentColor}}/>
+                    <View style={styles.clearButton}>
+                        <Icon name="close" style={styles.clearIcon}/>
+                    </View>
                 </TouchableNativeFeedback>
             );
         }
@@ -140,7 +141,7 @@ class DatePicker extends AbstractComponent {
                             <Text style={[styles.chipText, hasError && styles.chipTextError, this.props.overridingStyle]}>
                                 {this.dateDisplay(this.props.dateValue)}
                             </Text>
-                            <Icon name="calendar" style={[styles.calendarIcon, hasError && styles.chipTextError]}/>
+                            <Icon name="calendar-outline" style={[styles.calendarIcon, hasError && styles.chipTextError]}/>
                         </View>
                     </TouchableNativeFeedback>
                     {!transparent && this.renderRemoveButton()}
@@ -181,6 +182,19 @@ const styles = StyleSheet.create({
     calendarIcon: {
         fontSize: 18,
         color: Colors.BrandPrimaryDark,
+    },
+    clearButton: {
+        marginLeft: 10,
+        width: 32,
+        height: 32,
+        borderRadius: 8,
+        backgroundColor: Colors.BrandPrimaryDark,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    clearIcon: {
+        fontSize: 16,
+        color: Colors.TextOnPrimaryColor,
     },
 });
 

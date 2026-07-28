@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     rollLine: {fontSize: Styles.smallTextSize, color: Colors.TextSecondary, marginTop: 2},
     maxLine: {fontSize: Styles.smallTextSize, color: Colors.TextSecondary, marginTop: 2},
     skippedLine: {fontSize: Styles.smallTextSize, color: '#E65100', marginTop: 12, fontStyle: 'italic'},
-    okBtn: {marginTop: 20, height: 48, borderRadius: 16, backgroundColor: Colors.BrandPrimaryDark, alignItems: 'center', justifyContent: 'center'},
+    okBtn: {marginTop: 20, height: 48, borderRadius: 8, backgroundColor: Colors.BrandPrimaryDark, alignItems: 'center', justifyContent: 'center'},
     okText: {color: Colors.TextOnPrimaryColor, fontWeight: '600', fontSize: Styles.normalTextSize},
 });
 

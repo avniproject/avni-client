@@ -101,7 +101,7 @@ class ProgressBarView extends AbstractComponent {
                                                 style={[Fonts.typography("paperFontSubhead"), {color: Colors.TextPrimaryDark}]}>
                                                 {this.I18n.t("syncComplete")}
                                             </Text>
-                                            <Icon name='check-circle' size={21} style={[{color: Colors.BrandPrimaryDark, marginLeft: 8}]}/>
+                                            <Icon name='check-circle-outline' size={21} style={[{color: Colors.BrandPrimaryDark, marginLeft: 8}]}/>
                                         </View>
                                         <View style={{paddingTop: 20}}>
                                             <Button

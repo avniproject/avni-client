@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
     saveBtn: {
         backgroundColor: Colors.ActionButtonColor,
         paddingVertical: 12,
-        borderRadius: 4,
+        borderRadius: 8,
         alignItems: 'center',
     },
     saveBtnDisabled: {backgroundColor: Colors.DisabledButtonColor || '#c2c5c6'},

@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         alignItems: 'center',
         justifyContent: 'center',
-        borderRadius: 5,
+        borderRadius: 8,
     },
     viewAllText: {
         paddingHorizontal: 7,

@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.ActionButtonColor,
         paddingVertical: 10,
         paddingHorizontal: 24,
-        borderRadius: 4,
+        borderRadius: 8,
     },
     saveBtnDisabled: {backgroundColor: Colors.DisabledButtonColor || '#c2c5c6'},
     saveText: {color: Colors.TextOnPrimaryColor, fontWeight: 'bold', fontSize: Styles.normalTextSize},

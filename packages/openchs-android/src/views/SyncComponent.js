@@ -235,12 +235,12 @@ class SyncComponent extends AbstractComponent {
         const icon = this.props.icon("sync", {
             color: Colors.headerIconColor,
             alignSelf: 'center',
-            fontSize: 30
+            fontSize: 24
         });
         const syncDisabledIcon = this.props.icon("sync-off", {
             color: Colors.DisabledButtonColor,
             alignSelf: 'center',
-            fontSize: 30
+            fontSize: 24
         });
         const entitySyncStatusService = this.context.getService(EntitySyncStatusService);
         const totalPending = entitySyncStatusService.getTotalEntitiesPending();

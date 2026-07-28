@@ -1,4 +1,4 @@
-import {ScrollView, Text, TextInput, ToastAndroid, View} from "react-native";
+import {ScrollView, StyleSheet, Text, TextInput, ToastAndroid, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -137,6 +137,7 @@ class SubjectRegisterView extends AbstractComponent {
                 <CHSContent>
                     <ScrollView keyboardShouldPersistTaps="handled"
                                 ref={this.scrollRef} style={{
+                        flex: 1,
                         marginTop: Distances.ScaledVerticalSpacingDisplaySections,
                         flexDirection: 'column',
                         paddingHorizontal: Distances.ScaledContentDistanceFromEdge
@@ -197,12 +198,30 @@ class SubjectRegisterView extends AbstractComponent {
                             }
                             minLevelTypeUUIDs={this.state.minLevelTypeUUIDs}
                         />
-                        <WizardButtons next={{func: () => SubjectRegisterViewsMixin.next(this), label: this.I18n.t('next')}}/>
                     </ScrollView>
+                    <View style={styles.fixedButtonBar}>
+                        <WizardButtons
+                            containerStyle={{paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}
+                            buttonHeight={56}
+                            next={{func: () => SubjectRegisterViewsMixin.next(this), label: this.I18n.t('next')}}/>
+                    </View>
                 </CHSContent>
             </CHSContainer>
         );
     }
 }
+
+const styles = StyleSheet.create({
+    fixedButtonBar: {
+        height: 84,
+        justifyContent: 'center',
+        backgroundColor: '#ffffff',
+        shadowColor: '#000',
+        shadowOffset: {width: 0, height: -3},
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 8
+    }
+});
 
 export default SubjectRegisterView;

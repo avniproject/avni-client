@@ -4,7 +4,6 @@ import {Concept, CustomFilter} from "avni-models";
 import React from "react";
 import Styles from "../primitives/Styles";
 import {TextInput, View} from 'react-native';
-import Distances from "../primitives/Distances";
 import Colors from '../primitives/Colors';
 import {Text} from "native-base";
 import DatePicker from "../primitives/DatePicker";
@@ -17,7 +16,7 @@ import DateRangeFilter from "./DateRangeFilter";
 import LocationHierarchyInput from "../form/inputComponents/LocationHierarchyInput";
 
 export function FilterContainer({children}) {
-    return <View style={{marginTop: Distances.ScaledVerticalSpacingBetweenFormElements, marginBottom: Distances.ScaledVerticalSpacingBetweenFormElements}}>
+    return <View style={{marginTop: 12, marginBottom: 24}}>
         {children}
     </View>;
 }
@@ -34,7 +33,7 @@ export class FilterContainerWithLabel extends AbstractComponent {
     render() {
         return <FilterContainer>
             <View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
-                <Text style={Styles.formLabel}>{this.I18n.t(this.props.filter.name)}</Text>
+                <Text style={[Styles.formLabel, {marginBottom: 10}]}>{this.I18n.t(this.props.filter.name)}</Text>
                 {this.props.children}
             </View>
         </FilterContainer>;

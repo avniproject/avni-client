@@ -7,7 +7,7 @@ import _ from 'lodash';
 import Colors from '../primitives/Colors';
 import Distances from "../primitives/Distances";
 
-const BUTTON_RADIUS = 16;
+const BUTTON_RADIUS = 8;
 
 class WizardButtons extends AbstractComponent {
     constructor(props, context) {
@@ -19,6 +19,8 @@ class WizardButtons extends AbstractComponent {
         next: PropTypes.object,
         style: PropTypes.object,
         nextAndMore: PropTypes.object,
+        containerStyle: PropTypes.object,
+        buttonHeight: PropTypes.number,
     };
 
     getButtonProps(buttonProps) {
@@ -34,19 +36,20 @@ class WizardButtons extends AbstractComponent {
         const previousButton = this.getButtonProps(this.props.previous);
         const nextButton = this.getButtonProps(this.props.next);
         const nextAndMore = this.getButtonProps(this.props.nextAndMore);
-        return (<View style={{marginVertical: 30, paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
+        const containerStyle = this.props.containerStyle || {marginVertical: 30, paddingHorizontal: Distances.ScaledContentDistanceFromEdge};
+        const buttonHeightStyle = _.isNil(this.props.buttonHeight) ? {} : {height: this.props.buttonHeight};
+        return (<View style={containerStyle}>
+            {nextAndMore.visible &&
             <View
                 style={this.appendedStyle({justifyContent: 'space-between', flexDirection: 'row', marginBottom: 12})}>
-                {nextAndMore.visible ?
-                    <Button primary
-                            style={{flex: 1, justifyContent: "center", backgroundColor: Colors.BrandPrimaryDark, borderRadius: BUTTON_RADIUS}}
-                            onPress={() => nextAndMore.func()}>
-                        {nextAndMore.label}</Button>
-                    : null
-                }
+                <Button primary
+                        style={{flex: 1, justifyContent: "center", backgroundColor: Colors.BrandPrimaryDark, borderRadius: BUTTON_RADIUS, ...buttonHeightStyle}}
+                        onPress={() => nextAndMore.func()}>
+                    {nextAndMore.label}</Button>
             </View>
+            }
             <View
-                style={this.appendedStyle({justifyContent: 'space-between', flexDirection: 'row'})}>
+                style={this.appendedStyle({justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center'})}>
                 {previousButton.visible ?
                     <Button primary
                             style={{
@@ -55,7 +58,8 @@ class WizardButtons extends AbstractComponent {
                                 backgroundColor: '#ffffff',
                                 borderRadius: BUTTON_RADIUS,
                                 borderWidth: 1,
-                                borderColor: Colors.BorderDefault
+                                borderColor: Colors.BorderDefault,
+                                ...buttonHeightStyle
                             }}
                             _text={{color: Colors.BrandPrimary}}
                             onPress={() => previousButton.func()}>
@@ -63,7 +67,7 @@ class WizardButtons extends AbstractComponent {
                     <View style={{flex: 0.5}}/>}
                 {nextButton.visible ?
                     <Button primary
-                            style={{flex: 0.5, marginLeft: 8, justifyContent: "center", backgroundColor: Colors.BrandPrimaryDark, borderRadius: BUTTON_RADIUS}}
+                            style={{flex: 0.5, marginLeft: 8, justifyContent: "center", backgroundColor: Colors.BrandPrimaryDark, borderRadius: BUTTON_RADIUS, ...buttonHeightStyle}}
                             onPress={() => nextButton.func()}>{nextButton.label}
                     </Button> : <View style={{flex: 0.5}}/>}
             </View>

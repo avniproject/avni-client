@@ -7,6 +7,10 @@ import I18n from "i18n-js";
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 
+// Shared with ExpandableMedia's download placeholder so the "not yet downloaded" box
+// reserves the same space as the image it will become, instead of collapsing around the icon.
+export const FULL_WIDTH_IMAGE_HEIGHT = 180;
+
 export default class ExpandableImage extends React.Component {
     static propTypes = {
         source: PropTypes.string,
@@ -20,7 +24,7 @@ export default class ExpandableImage extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {showModal: false, imageAspectRatio: 1};
+        this.state = {showModal: false};
     }
 
     showModal() {
@@ -34,19 +38,17 @@ export default class ExpandableImage extends React.Component {
     render() {
         const mediaPath = !_.isEmpty(this.props.allMediaAbsolutePath) ? this.props.allMediaAbsolutePath : [this.props.source];
         const sourceFile = `file://${this.props.source}`;
+        // Fixed (not aspect-ratio-driven) height for the full-width case - a portrait phone photo
+        // stretched to its native aspect ratio at full screen width became a huge scroll-heavy
+        // block when several images were captured; cropping to a compact height with 'cover' keeps
+        // every thumbnail a predictable, scan-friendly size. Full-resolution/uncropped view is
+        // still one tap away via the zoomable modal below.
         const dimensionStyle = this.props.fullWidth
-            ? {width: '100%', aspectRatio: this.state.imageAspectRatio || 1, height: undefined}
+            ? {width: '100%', height: FULL_WIDTH_IMAGE_HEIGHT}
             : {height: 36, width: 36};
         return <View>
             <TouchableNativeFeedback onPress={() => this.showModal()}>
-                <Image source={{uri: sourceFile}} style={dimensionStyle} resizeMode={this.props.fullWidth ? 'cover' : 'contain'}
-                       onLoad={(event) => {
-                           if (!this.props.fullWidth) return;
-                           const {width, height} = event.nativeEvent.source;
-                           if (width && height) {
-                               this.setState({imageAspectRatio: width / height});
-                           }
-                       }}/>
+                <Image source={{uri: sourceFile}} style={dimensionStyle} resizeMode={this.props.fullWidth ? 'cover' : 'contain'}/>
             </TouchableNativeFeedback>
             {this.state.showModal && (
                 <Modal onRequestClose={() => this.hideModal()}>

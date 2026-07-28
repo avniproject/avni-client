@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     closeIcon: {fontSize: 20, color: Colors.TextSecondary},
     body: {fontSize: Styles.normalTextSize, color: Colors.TextSecondary, marginTop: 16, marginBottom: 24},
     actions: {flexDirection: 'row', justifyContent: 'space-between'},
-    btn: {flex: 1, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center'},
+    btn: {flex: 1, height: 48, borderRadius: 8, alignItems: 'center', justifyContent: 'center'},
     secondaryBtn: {backgroundColor: Colors.WhiteContentBackground, borderWidth: 1, borderColor: Colors.BrandPrimary, marginRight: 8},
     primaryBtn: {backgroundColor: Colors.BrandPrimaryDark, marginLeft: 8},
     continueText: {color: Colors.BrandPrimary, fontWeight: '600'},

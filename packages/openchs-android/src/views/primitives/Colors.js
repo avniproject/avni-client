@@ -13,6 +13,8 @@ class Colors {
     static ValidationError = '#B91C1C';
     static AbnormalValueHighlight = '#B91C1C';
     static NegativeActionButtonColor = '#B91C1C';
+    static AbnormalSelectedBackground = '#F4DCDC';
+    static AbnormalSelectedText = '#B91C1C';
     static InputNormal = 'rgba(0, 0, 0, 0.87)';
     static InputBorderNormal = 'rgba(0, 0, 0, 0.12)';
     static GreyBackground = 'rgba(97, 97, 97, 0.20)';

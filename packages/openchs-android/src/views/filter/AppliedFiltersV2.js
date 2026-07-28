@@ -1,4 +1,4 @@
-import {SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import React from 'react';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import General from "../../utility/General";
@@ -6,22 +6,21 @@ import {Concept, CustomFilter, DashboardFilterConfig, Range} from 'openchs-model
 import AvniIcon from '../common/AvniIcon';
 import {FilterActionNames} from '../../action/mydashboard/FiltersActionsV2';
 import _ from 'lodash';
-import Styles from "../primitives/Styles";
 import Colors from '../primitives/Colors';
 import AddressFilterValue from "../../model/AddressFilterValue";
 
 function MultiValueFilterDisplay({labelTexts, filter}) {
     return <View key={filter.name} style={{display: "flex", flexDirection: "row", flexWrap: "wrap"}}>
         {labelTexts.map((labelText, index) => {
-            return <View style={{display: "flex", flexDirection: "row", flexWrap: "wrap", width: 320}}>
+            return <View key={index} style={{display: "flex", flexDirection: "row", flexWrap: "wrap", width: 280}}>
                 <Text style={{
                     fontSize: 14,
-                    color: Styles.greyText,
-                    fontWeight: 'bold',
+                    color: Colors.TextPrimaryDark,
+                    fontWeight: '600',
                 }}>{labelText.label} - </Text>
                 <Text style={{
                     fontSize: 14,
-                    color: Styles.greyText
+                    color: Colors.TextSecondary
                 }}>{labelText.text}</Text>
             </View>;
         })}
@@ -32,12 +31,12 @@ function FilterDisplay({filter, content}) {
     return <View key={filter.name} style={{display: "flex", flexDirection: "row", flexWrap: "wrap"}}>
         <Text style={{
             fontSize: 14,
-            color: Styles.greyText,
-            fontWeight: 'bold',
+            color: Colors.TextPrimaryDark,
+            fontWeight: '600',
         }}>{filter.name} - </Text>
         <Text style={{
             fontSize: 14,
-            color: Styles.greyText
+            color: Colors.TextSecondary
         }}>{content}</Text>
     </View>;
 }
@@ -105,16 +104,31 @@ function getFiltersToDisplay(selectedFilterValues, filterUUIDsToIgnore, dashboar
 
 export default class AppliedFiltersV2 extends AbstractComponent {
     static styles = StyleSheet.create({
+        wrapper: {
+            backgroundColor: Colors.BrandLight,
+            borderWidth: 1,
+            borderColor: Colors.BrandPrimaryDark,
+            borderRadius: 8,
+            paddingVertical: 12,
+            paddingHorizontal: 14,
+            marginHorizontal: 15,
+            marginTop: 16,
+            marginBottom: 16
+        },
+        row: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+        },
         container: {
+            flex: 1,
             flexDirection: 'column',
             justifyContent: 'flex-start',
         },
         filterIcon: {
-            zIndex: 1,
-            elevation: 2,
             fontSize: 20,
-            color: Styles.accentColor,
-            alignSelf: 'flex-end'
+            color: Colors.BrandPrimaryDark,
+            marginLeft: 12
         },
     });
 
@@ -132,27 +146,19 @@ export default class AppliedFiltersV2 extends AbstractComponent {
         const {hasFiltersSet, dashboard, selectedFilterValues, filterConfigs, filterUUIDsToIgnore} = this.props;
         const filtersToDisplay = hasFiltersSet && getFiltersToDisplay(selectedFilterValues, filterUUIDsToIgnore, dashboard, filterConfigs);
         const showAppliedFilters = filtersToDisplay && filtersToDisplay.length > 0 && _.some(filtersToDisplay, f => f);
-        return showAppliedFilters && (<View style={{
-                display: "flex",
-                padding: 5,
-                backgroundColor: Colors.GreyBackground,
-                borderRadius: 5,
-                marginHorizontal: 15
-            }}>
-                <SafeAreaView>
-                    <View>
-                        <TouchableOpacity style={{flex: 1, alignSelf: 'flex-end'}} onPress={() => this.onClearFilter(this.props.postClearAction)}>
-                            <View>
-                                <AvniIcon name={'filter-remove-outline'}
-                                          style={AppliedFiltersV2.styles.filterIcon}
-                                          type='MaterialCommunityIcons'/>
-                            </View>
-                        </TouchableOpacity>
-                    </View>
+        return showAppliedFilters && (
+            <View style={AppliedFiltersV2.styles.wrapper}>
+                <View style={AppliedFiltersV2.styles.row}>
                     <View style={AppliedFiltersV2.styles.container}>
                         {filtersToDisplay}
                     </View>
-                </SafeAreaView>
+                    <TouchableOpacity onPress={() => this.onClearFilter(this.props.postClearAction)}
+                                      hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}>
+                        <AvniIcon name={'filter-remove-outline'}
+                                  style={AppliedFiltersV2.styles.filterIcon}
+                                  type='MaterialCommunityIcons'/>
+                    </TouchableOpacity>
+                </View>
             </View>
         );
     }

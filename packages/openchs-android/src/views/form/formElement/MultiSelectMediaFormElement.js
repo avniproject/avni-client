@@ -129,11 +129,11 @@ export default class MultiSelectMediaFormElement extends MediaFormElement {
                             backgroundColor: isDisabled ? Colors.DisabledButtonColor : Colors.BrandPrimaryDark,
                             justifyContent: 'center',
                             alignSelf: 'stretch',
-                            borderRadius: 16,
+                            borderRadius: 8,
                             marginTop: 16,
                         }}
                         onPress={() => this.onAdd()}>
-                    <Icon name="camera-plus" style={{color: Styles.whiteColor, fontSize: 18, marginRight: 8}}/>
+                    <Icon name="camera-plus-outline" style={{color: Styles.whiteColor, fontSize: 18, marginRight: 8}}/>
                     <Text style={{fontSize: Fonts.Normal, color: Styles.whiteColor, fontWeight: '600'}}>{this.I18n.t('addMore')}</Text>
                 </Button>
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>

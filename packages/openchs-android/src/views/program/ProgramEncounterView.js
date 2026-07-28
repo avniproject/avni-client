@@ -1,4 +1,4 @@
-import {ScrollView, ToastAndroid, Vibration, View} from "react-native";
+import {ScrollView, StyleSheet, ToastAndroid, Vibration, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -191,7 +191,7 @@ class ProgramEncounterView extends AbstractComponent {
         return (
             <CHSContainer>
                 <CHSContent>
-                    <ScrollView ref={this.scrollRef} keyboardShouldPersistTaps="handled">
+                    <ScrollView ref={this.scrollRef} style={{flex: 1}} keyboardShouldPersistTaps="handled">
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack(this.state.saveDrafts)}
                                displayHomePressWarning={!this.state.saveDrafts}/>
@@ -241,8 +241,13 @@ class ProgramEncounterView extends AbstractComponent {
                             onValidationError={(x, y) => this.scrollToPosition(x, y)}
                             subjectUUID={this.state.programEncounter.programEnrolment.individual.uuid}
                         />}
-                        {!displayTimer &&
+                    </View>
+                    </ScrollView>
+                    {!displayTimer &&
+                    <View style={styles.fixedButtonBar}>
                         <WizardButtons
+                            containerStyle={{paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}
+                            buttonHeight={56}
                             previous={{
                                 func: () => this.previous(),
                                 visible: !this.state.wizard.isFirstPage(),
@@ -252,14 +257,26 @@ class ProgramEncounterView extends AbstractComponent {
                                 func: () => this.next(),
                                 label: this.I18n.t('next')
                             }}
-                        />}
-                    </View>
-                    </ScrollView>
+                        />
+                    </View>}
                 </CHSContent>
                 <CustomActivityIndicator loading={!!this.state.wizardCompletionInProgress}/>
             </CHSContainer>
         );
     }
 }
+
+const styles = StyleSheet.create({
+    fixedButtonBar: {
+        height: 84,
+        justifyContent: 'center',
+        backgroundColor: '#ffffff',
+        shadowColor: '#000',
+        shadowOffset: {width: 0, height: -3},
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 8
+    }
+});
 
 export default ProgramEncounterView;

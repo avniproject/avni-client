@@ -335,7 +335,7 @@ class LandingView extends AbstractComponent {
         const startSync = _.isNil(this.props.menuProps) ? false : this.props.menuProps.startSync;
         const subjectTypes = this.context.getService(EntityService).findAll(SubjectType.schema.name);
         const previouslySelectedSubjectType = LocalCacheService.getPreviouslySelectedSubjectType(subjectTypes, previouslySelectedSubjectTypeUUID);
-        const registerIcon = _.isEmpty(subjectTypes) ? 'plus-box' : previouslySelectedSubjectType.registerIcon();
+        const registerIcon = (_.isEmpty(subjectTypes) ? 'plus-box' : previouslySelectedSubjectType.registerIcon()) + '-outline';
         const renderDot = this.getService(NewsService).isUnreadMoreThanZero();
         const hasRegisterHandler = previouslySelectedSubjectType && (() => this.dispatchAction(Actions.ON_REGISTER_CLICK));
         const registerMenuItem = displayRegister ? [
@@ -351,7 +351,7 @@ class LandingView extends AbstractComponent {
             menu
         ];
         const bottomBarIcons = [
-            [this.Icon("home", LandingView.barIconStyle, home), this.I18n.t("home"), () => this.dispatchAction(Actions.ON_HOME_CLICK), home]
+            [this.Icon("home-outline", LandingView.barIconStyle, home), this.I18n.t("home"), () => this.dispatchAction(Actions.ON_HOME_CLICK), home]
         ];
         if (!_.isNil(secondaryDashboard)) {
             bottomBarIcons.push([this.Icon("dashboard", LandingView.barIconStyle, secondaryDashboardSelected, false, "MaterialIcons"),

@@ -321,7 +321,7 @@ export default class MediaFormElement extends AbstractFormElement {
                 {!this.isReadOnly && <TouchableNativeFeedback onPress={() => this.confirmRemove(onClearAnswer)}
                                                                background={TouchableNativeFeedback.SelectableBackgroundBorderless()}>
                     <View style={styles.iconButtonBox}>
-                        <Icon name={"backspace"} style={styles.icon}/>
+                        <Icon name={"backspace-outline"} style={styles.icon}/>
                     </View>
                 </TouchableNativeFeedback>}
             </View>

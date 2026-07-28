@@ -71,7 +71,7 @@ class SelectableItem extends React.Component {
         const backgroundColor = disabled
             ? Colors.DisabledButtonColor
             : checked
-                ? (isAbnormalChecked ? Colors.AbnormalValueHighlight : Colors.ActionButtonColor)
+                ? (isAbnormalChecked ? Colors.AbnormalSelectedBackground : Colors.ActionButtonColor)
                 : Colors.BrandLight;
         const borderWidth = hasError ? 1.5 : 0;
         const borderColor = hasError ? Colors.ValidationError : 'transparent';
@@ -80,7 +80,7 @@ class SelectableItem extends React.Component {
             : disabled
                 ? Colors.InputNormal
                 : checked
-                    ? Colors.TextOnPrimaryColor
+                    ? (isAbnormalChecked ? Colors.AbnormalSelectedText : Colors.TextOnPrimaryColor)
                     : Colors.BrandPrimary;
 
         const additionalDetailsContainerStyle = hasError ? {borderColor: textColor, borderWidth: 1} : {};

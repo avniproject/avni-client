@@ -166,7 +166,7 @@ class IndividualEncounterView extends AbstractComponent {
         return (
             <CHSContainer>
                 <CHSContent>
-                    <ScrollView ref={this.scrollRef} keyboardShouldPersistTaps="handled">
+                    <ScrollView ref={this.scrollRef} style={{flex: 1}} keyboardShouldPersistTaps="handled">
                     <AppHeader title={title} func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
                     {displayTimer ?
                         <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.state.formElementGroup}/> : null}
@@ -221,8 +221,13 @@ class IndividualEncounterView extends AbstractComponent {
                                           onValidationError={(x, y) => this.scrollToPosition(x, y)}
                                           subjectUUID={this.state.encounter.individual.uuid}
                         />}
-                        {!displayTimer &&
+                    </View>
+                    </ScrollView>
+                    {!displayTimer &&
+                    <View style={styles.fixedButtonBar}>
                         <WizardButtons
+                            containerStyle={{paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}
+                            buttonHeight={56}
                             previous={{
                                 visible: !this.state.wizard.isFirstPage(),
                                 func: () => this.previous(),
@@ -232,9 +237,8 @@ class IndividualEncounterView extends AbstractComponent {
                                 func: () => this.next(),
                                 label: this.I18n.t('next')
                             }}
-                        />}
-                    </View>
-                    </ScrollView>
+                        />
+                    </View>}
                 </CHSContent>
                 <CustomActivityIndicator loading={!!this.state.wizardCompletionInProgress}/>
             </CHSContainer>
@@ -247,6 +251,16 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
         paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge,
         flexDirection: 'column'
+    },
+    fixedButtonBar: {
+        height: 84,
+        justifyContent: 'center',
+        backgroundColor: '#ffffff',
+        shadowColor: '#000',
+        shadowOffset: {width: 0, height: -3},
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 8
     }
 });
 

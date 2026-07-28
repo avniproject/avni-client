@@ -26,9 +26,10 @@ import CustomActivityIndicator from "../CustomActivityIndicator";
 import PrivilegeService from "../../service/PrivilegeService";
 import _ from "lodash";
 import SingleSelectFilterModel from "../../model/SingleSelectFilterModel";
-import {Checkbox} from "native-base";
 import UserInfoService from "../../service/UserInfoService";
 import DatePicker from "../primitives/DatePicker";
+import {StyleSheet} from "react-native";
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
@@ -111,15 +112,21 @@ class IndividualSearchView extends AbstractComponent {
                             {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Name, subjectTypeUUID) ?
                                 <TextFormElement actionName={Actions.ENTER_NAME_CRITERIA}
                                                  element={new StaticFormElement('name')}
-                                                 style={Styles.simpleTextFormElement}
+                                                 style={{paddingTop: 0}}
+                                                 containerStyle={styles.fieldContainer}
+                                                 inputStyle={styles.textInputBox}
                                                  value={new PrimitiveValue(this.state.searchCriteria.name)}
+                                                 underlineColorAndroid={'transparent'}
                                                  multiline={false}/> : null}
                             {ageFilterPresent ?
                                 <View>
                                     <TextFormElement actionName={Actions.ENTER_AGE_CRITERIA}
                                                      element={new StaticFormElement('age')}
-                                                     style={Styles.simpleTextFormElement}
+                                                     style={{paddingTop: 0}}
+                                                     containerStyle={styles.fieldContainer}
+                                                     inputStyle={styles.textInputBox}
                                                      value={new PrimitiveValue(this.state.searchCriteria.age)}
+                                                     underlineColorAndroid={'transparent'}
                                                      multiline={false}/>
                                     {ageAndDobBothEntered ?
                                         <Text style={{
@@ -140,8 +147,11 @@ class IndividualSearchView extends AbstractComponent {
                             {(_.isEmpty(this.customFilterService.getSearchFilterBySubjectType(subjectTypeUUID)) || this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.SearchAll, this.state.searchCriteria.subjectType.uuid)) ?
                                 <TextFormElement actionName={Actions.ENTER_OBS_CRITERIA}
                                                  element={new StaticFormElement('searchAll')}
-                                                 style={Styles.simpleTextFormElement}
+                                                 style={{paddingTop: 0}}
+                                                 containerStyle={styles.fieldContainer}
+                                                 inputStyle={styles.textInputBox}
                                                  value={new PrimitiveValue(this.state.searchCriteria.obsKeyword)}
+                                                 underlineColorAndroid={'transparent'}
                                                  multiline={false}/> : null}
                             {!_.isEmpty(topLevelFilters) ?
                                 <CustomFilters filters={topLevelFilters}
@@ -161,16 +171,18 @@ class IndividualSearchView extends AbstractComponent {
                                 }
                                 multiSelect={true}
                                 userHintText={this.I18n.t('addressFilterImplicitBehaviorHint')}/>}
-                            <>
+                            <View style={{marginTop: 8}}>
                                 <Text style={Styles.formLabel}>{this.I18n.t("includeVoided")}</Text>
-                                <Checkbox.Group accessibilityLabel={this.I18n.t("includeVoided")}
-                                                onChange={() => this.dispatchAction(Actions.ENTER_VOIDED_CRITERIA,
-                                                    {value: !this.state.searchCriteria.includeVoided})}>
-                                    <Checkbox value={"yes"} color={Colors.AccentColor}>
-                                        {this.I18n.t("yes")}
-                                    </Checkbox>
-                                </Checkbox.Group>
-                            </>
+                                <TouchableOpacity activeOpacity={0.7} style={styles.checkboxRow}
+                                                  onPress={() => this.dispatchAction(Actions.ENTER_VOIDED_CRITERIA,
+                                                      {value: !this.state.searchCriteria.includeVoided})}>
+                                    <View style={[styles.checkboxBox, this.state.searchCriteria.includeVoided && styles.checkboxBoxChecked]}>
+                                        {this.state.searchCriteria.includeVoided &&
+                                            <Icon name={'check-bold'} style={styles.checkIcon}/>}
+                                    </View>
+                                    <Text style={styles.checkboxLabel}>{this.I18n.t("yes")}</Text>
+                                </TouchableOpacity>
+                            </View>
                             {!_.isEmpty(bottomLevelFilters) &&
                             <CustomFilters filters={bottomLevelFilters}
                                            selectedCustomFilters={this.state.selectedCustomFilters}
@@ -179,31 +191,84 @@ class IndividualSearchView extends AbstractComponent {
                                            addressLevelState={this.state.addressLevelState}
                             />}
                         </View>
-                        <Separator height={400} backgroundColor={Styles.whiteColor}/>
+                        <Separator height={100} backgroundColor={Styles.whiteColor}/>
                     </ScrollView>
                 </CHSContent>
 
-                <View style={{height: buttonHeight, position: 'absolute', bottom: 20, right: 35}}>
-                    <TouchableOpacity activeOpacity={0.5}
+                <View style={{height: buttonHeight, position: 'absolute', bottom: 36, right: 20}}>
+                    <TouchableOpacity activeOpacity={0.8}
                                       onPress={() => this.searchIndividual()}
-                                      style={{
-                                          height: 40,
-                                          width: 80,
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                          backgroundColor: Colors.AccentColor,
-                                          elevation: 2,
-                                      }}>
-                        <Text style={{
-                            color: 'white',
-                            alignSelf: 'center',
-                            fontSize: Styles.normalTextSize
-                        }}>{this.I18n.t('submit')}</Text>
+                                      style={styles.submitButton}>
+                        <Text style={styles.submitButtonText}>{this.I18n.t('submit')}</Text>
                     </TouchableOpacity>
                 </View>
             </CHSContainer>
         );
     }
 }
+
+const styles = StyleSheet.create({
+    fieldContainer: {
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        marginTop: 8,
+        marginBottom: 16
+    },
+    textInputBox: {
+        marginTop: 6,
+        height: 48,
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: Colors.BorderDefault,
+        borderRadius: 4,
+        paddingHorizontal: 12
+    },
+    checkboxRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 8
+    },
+    checkboxBox: {
+        width: 22,
+        height: 22,
+        borderRadius: 4,
+        borderWidth: 1.5,
+        borderColor: Colors.BrandPrimary,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 10
+    },
+    checkboxBoxChecked: {
+        backgroundColor: Colors.BrandPrimaryDark,
+        borderColor: Colors.BrandPrimaryDark
+    },
+    checkIcon: {
+        color: Colors.TextOnPrimaryColor,
+        fontSize: 15
+    },
+    checkboxLabel: {
+        fontSize: Styles.normalTextSize,
+        color: Colors.TextPrimaryDark
+    },
+    submitButton: {
+        height: 48,
+        minWidth: 120,
+        paddingHorizontal: 24,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: Colors.BrandPrimaryDark,
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: {width: 0, height: 2},
+        shadowOpacity: 0.15,
+        shadowRadius: 4
+    },
+    submitButtonText: {
+        color: Colors.TextOnPrimaryColor,
+        fontSize: Styles.normalTextSize,
+        fontWeight: '600'
+    }
+});
 
 export default IndividualSearchView;

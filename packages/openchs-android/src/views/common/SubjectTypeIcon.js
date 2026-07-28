@@ -28,7 +28,7 @@ class SubjectTypeIcon extends AbstractComponent {
 
     renderDefaultIcon({subjectType, size, style}) {
         if (subjectType.isPerson()) {
-            return <Icon name='account' size={size} color={Colors.BrandPrimaryDark} style={style}/>;
+            return <Icon name='account-outline' size={size} color={Colors.BrandPrimaryDark} style={style}/>;
         }
         const defaultIconFileName = `${_.toLower(subjectType.type)}.png`;
         return <Image source={{uri: `asset:/icons/${defaultIconFileName}`}}

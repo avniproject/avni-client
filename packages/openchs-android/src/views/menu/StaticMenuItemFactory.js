@@ -9,23 +9,23 @@ import OrganisationConfigService from "../../service/OrganisationConfigService";
 import _ from "lodash";
 
 const FunctionalityMenus = [
-    new StaticMenuItem("dashboard", "view-dashboard", "dashboards", StaticMenuItem.InternalNavigationMenuType, CustomDashboardView),
-    new StaticMenuItem("videoList", "video", "VideoList", StaticMenuItem.InternalNavigationMenuType, VideoListView),
-    new StaticMenuItem("beneficiaryMode", "account-supervisor", "beneficiaryMode", StaticMenuItem.InternalNavigationMenuType, BeneficiaryModeStartView)];
+    new StaticMenuItem("dashboard", "view-dashboard-outline", "dashboards", StaticMenuItem.InternalNavigationMenuType, CustomDashboardView),
+    new StaticMenuItem("videoList", "play-circle-outline", "VideoList", StaticMenuItem.InternalNavigationMenuType, VideoListView),
+    new StaticMenuItem("beneficiaryMode", "account-supervisor-outline", "beneficiaryMode", StaticMenuItem.InternalNavigationMenuType, BeneficiaryModeStartView)];
 const SyncMenus = [
-    new StaticMenuItem("entitySyncStatus", "sync", "entitySyncStatus", StaticMenuItem.InternalNavigationMenuType, EntitySyncStatusView),
+    new StaticMenuItem("entitySyncStatus", "sync-circle", "entitySyncStatus", StaticMenuItem.InternalNavigationMenuType, EntitySyncStatusView),
     new StaticMenuItem("uploadCatchmentDatabase", "backup-restore", "uploadCatchmentDatabase", StaticMenuItem.CustomActionMenuType)
 ];
 const UserMenus = [
-    new StaticMenuItem("changePassword", "account-key", "changePassword", StaticMenuItem.CustomActionMenuType),
+    new StaticMenuItem("changePassword", "form-textbox-password", "changePassword", StaticMenuItem.CustomActionMenuType),
     new StaticMenuItem("logout", "logout", "logout", StaticMenuItem.CustomActionMenuType)
 ];
 const SupportMenus = [
-    new StaticMenuItem("uploadAppInfo", "backup-restore", "uploadAppInfo", StaticMenuItem.CustomActionMenuType)
+    new StaticMenuItem("uploadAppInfo", "arrow-up-circle-outline", "uploadAppInfo", StaticMenuItem.CustomActionMenuType)
 ];
 const DevMenus = [
-    new StaticMenuItem("deleteData", "delete", "Delete Data", StaticMenuItem.CustomActionMenuType),
-    new StaticMenuItem("familyFolder", "account-multiple", "Family Folder", StaticMenuItem.InternalNavigationMenuType, FamilyFolderView),
+    new StaticMenuItem("deleteData", "delete-outline", "Delete Data", StaticMenuItem.CustomActionMenuType),
+    new StaticMenuItem("familyFolder", "account-multiple-outline", "Family Folder", StaticMenuItem.InternalNavigationMenuType, FamilyFolderView),
     new StaticMenuItem("devSettings", "cog-outline", "Dev Settings", StaticMenuItem.InternalNavigationMenuType, DevSettingsView),
     new StaticMenuItem("createAnonymizedDatabase", "incognito", "Anonymize Database", StaticMenuItem.CustomActionMenuType)
 ];

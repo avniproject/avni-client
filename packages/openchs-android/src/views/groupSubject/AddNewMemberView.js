@@ -96,7 +96,7 @@ class AddNewMemberView extends AbstractComponent {
                     marginTop: 20,
                     paddingVertical: 10,
                     backgroundColor: Colors.ActionButtonColor,
-                    borderRadius: 15
+                    borderRadius: 8
                 }}
                 activeOpacity={.5}
                 onPress={() => this.proceedToRegistration(memberSubjectType)}>

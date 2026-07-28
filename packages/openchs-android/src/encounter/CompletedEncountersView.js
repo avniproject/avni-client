@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
         padding: Distances.ScaledContentDistanceFromEdge,
         position: 'absolute',
         alignItems: 'center',
-        borderRadius: 200,
+        borderRadius: 8,
         backgroundColor: Colors.ActionButtonColor,
         elevation: 2
     }

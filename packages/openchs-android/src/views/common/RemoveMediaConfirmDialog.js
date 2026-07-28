@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     closeIcon: {fontSize: 20, color: Colors.SecondaryText},
     body: {fontSize: Styles.normalTextSize, color: Colors.TextHint, marginTop: 16, marginBottom: 24},
     actions: {flexDirection: 'row', justifyContent: 'space-between'},
-    btn: {flex: 1, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center'},
+    btn: {flex: 1, height: 48, borderRadius: 8, alignItems: 'center', justifyContent: 'center'},
     secondaryBtn: {backgroundColor: '#ffffff', borderWidth: 1, borderColor: Colors.BrandPrimary, marginRight: 8},
     secondaryText: {color: Colors.BrandPrimary, fontWeight: '600'},
     primaryBtn: {backgroundColor: Colors.BrandPrimaryDark, marginLeft: 8},

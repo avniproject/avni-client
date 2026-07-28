@@ -52,7 +52,7 @@ class IndividualFormElement extends AbstractFormElement {
                 marginTop: 20,
                 paddingVertical: 10,
                 backgroundColor: Colors.ActionButtonColor,
-                borderRadius: 15,
+                borderRadius: 8,
                 alignSelf: 'center'
             }}
             activeOpacity={.5}

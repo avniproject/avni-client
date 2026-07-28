@@ -280,7 +280,7 @@ Styles.basicPrimaryButtonView = {
     minHeight: 36,
     marginBottom: 8,
     elevation: 2,
-    borderRadius: 4,
+    borderRadius: 8,
     flexWrap: 'wrap',
     backgroundColor: Styles.accentColor,
     alignItems: 'center',
@@ -293,7 +293,7 @@ Styles.basicSecondaryButtonView = {
     minHeight: 36,
     marginBottom: 8,
     elevation: 2,
-    borderRadius: 4,
+    borderRadius: 8,
     flexWrap: 'wrap',
     backgroundColor: '#e0e0e0', //Colors.SecondaryActionButtonColor
     alignItems: 'center',
