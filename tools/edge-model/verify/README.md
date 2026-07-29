@@ -50,15 +50,25 @@ make tanuh-ensemble TANUH_ENSEMBLE_SRC_DIR="$TANUH_FIXTURES/tanuh_models/ensembl
 #     Per fold: upload models/<sha256>.bin, register the item with category=edgeModel +
 #     needsKey=true + payload from manifest.json, and set the matching key under the same sha256.
 
-# 2. Build + install the tanuh integration-test build (renders IntegrationTestApp) on an
-#    API <= 36 emulator (API 37 crashes the app — Hermes SIGSEGV). See tools/edge-model/README.md.
-#    Launch it and run the "EdgeModelParityIntegrationTest" from the rendered list.
+# 2. Install the NORMAL tanuh build first, log in, and sync until the folds are cached.
+#    IntegrationTestApp renders only a test list — it has no login or sync UI — so the model
+#    must already be on device before you swap to it.
+#    Confirm: adb shell ls /sdcard/Android/data/<pkg>/files/Avni/models  → 3 <sha256>.bin files.
 
-# 3. Sync the device, THEN push the images and run the sweep. Sync is what delivers the folds;
-#    without it every fold fails with "model blob not cached yet" and the sweep tests nothing:
+# 3. Swap the RN entry point (there is no integration build variant — it is a manual edit):
+#      packages/openchs-android/index.android.js
+#        - comment out:  import App from "./src/Avni";
+#        - uncomment:    import App from "./integrationTest/IntegrationTestApp";
+#    Rebuild and install OVER the existing app — do NOT uninstall, that wipes the cached
+#    models (external files dir) and the AES keys, and the test build cannot re-sync them.
+#    Use an API <= 36 emulator (API 37 crashes the app — Hermes SIGSEGV).
+#    Launch it and run "EdgeModelParityIntegrationTest" from the rendered list.
+#    Revert index.android.js when finished.
+
+# 4. Push the 90 images, wait for the on-device run, pull the results:
 bash tools/edge-model/verify/run-parity.sh
 
-# 4. Diff device scores vs the xlsx → out/summary.md + PASS/FAIL (exit 0 = PASS):
+# 5. Diff device scores vs the xlsx → out/summary.md + PASS/FAIL (exit 0 = PASS):
 python3 -m venv tools/edge-model/verify/.venv && tools/edge-model/verify/.venv/bin/pip install openpyxl
 tools/edge-model/verify/.venv/bin/python tools/edge-model/verify/report.py
 ```
