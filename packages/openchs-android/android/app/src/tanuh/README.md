@@ -10,11 +10,14 @@ for the server URL and Bugsnag config.
 
 ## Edge-model assets
 
-`assets/models/` is *empty by default* and intentionally so. The encrypted model blob
-and the per-build `registry.json` (which carries the AES key) are produced at build time
-by the encryption CLI on the TANUH developer's machine — both are listed in `.gitignore`.
+`assets/models/` is empty and stays that way — the build ships **no model bytes**.
+`make tanuh-verify-no-model` fails the build if a blob is left there, and it is a hard
+prerequisite of both the APK and AAB targets.
 
-The cold-start build flow is documented in `tools/edge-model/README.md`. In short:
+The 3 fold models are encrypted into a staging dir as *provisioning artefacts* (blobs,
+reference-data manifest, and `keys.json`) and delivered to devices as synced
+`DownloadableContent` — never bundled. The flow is documented in
+`tools/edge-model/README.md`. In short:
 
 ```
 # one-time
@@ -25,7 +28,8 @@ nvm use
 make deps
 export tanuh_KEYSTORE_PASSWORD='<the keystore password you chose>'
 export tanuh_KEY_ALIAS='tanuh'
-make tanuh-ensemble-apk    # → encrypts the 3 fold .pt models, writes assets, signs APK
+make tanuh-ensemble-apk    # → encrypts the 3 fold models to staging, signs a model-free APK
 ```
 
-When the build finishes, `app-tanuh-release.apk` is the artefact to distribute.
+When the build finishes, `app-tanuh-release.apk` is the artefact to distribute; the staged
+provisioning artefacts are uploaded separately so devices pick the models up at sync.
