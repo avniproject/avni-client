@@ -16,7 +16,7 @@ import IndividualService from "../../service/IndividualService";
 import {ObservationsHolder} from "openchs-models";
 import DraftProgramEncounterService from "../../service/draft/DraftProgramEncounterService";
 import DraftConfigService from "../../service/DraftConfigService";
-import {dispatchHandleNext} from "../common/DispatchHelpers";
+import {dispatchHandleNext, runWizardCompletion} from "../common/DispatchHelpers";
 import {EDGE_MODEL_ACTION} from "../../service/EdgeModelService";
 import {RULE_SERVICE_ACTION} from "../../service/RuleService";
 
@@ -127,7 +127,13 @@ class ProgramEncounterActions {
     }
 
     static onSummaryPage(state, action, context) {
-        return state.clone().handleSummaryPage(action, context);
+        if (state.wizardCompletionInProgress) return state;
+        const newState = state.clone();
+        return runWizardCompletion(newState, action, () => newState.handleSummaryPageAsync(action, context), 'ProgramEncounterActions.onSummaryPage');
+    }
+
+    static onUseThisState(state, action, context) {
+        return action.state;
     }
 
     static onPrevious(state, action, context) {
@@ -233,6 +239,7 @@ const ProgramEncounterActionsNames = {
     ON_SKIP_VERIFICATION: "PEncA.ON_SKIP_VERIFICATION",
     ON_TIMED_FORM: "PEncA.ON_TIMED_FORM",
     ON_START_TIMER: "PEncA.ON_START_TIMER",
+    USE_THIS_STATE: "PEncA.USE_THIS_STATE",
 };
 
 const ProgramEncounterActionsMap = new Map([
@@ -259,8 +266,10 @@ const ProgramEncounterActionsMap = new Map([
     [ProgramEncounterActionsNames.ON_SKIP_VERIFICATION, PhoneNumberVerificationActions.onSkipVerification],
     [ProgramEncounterActionsNames.ON_TIMED_FORM, TimerActions.onTimedForm],
     [ProgramEncounterActionsNames.ON_START_TIMER, TimerActions.onStartTimer],
+    [ProgramEncounterActionsNames.USE_THIS_STATE, ProgramEncounterActions.onUseThisState],
     [EDGE_MODEL_ACTION.INFERENCE_RESULT_AVAILABLE, ObservationsHolderActions.onInferenceResultAvailable],
     [EDGE_MODEL_ACTION.INFERENCE_RESULTS_BATCH, ObservationsHolderActions.onObservationWriteBatch],
+    [EDGE_MODEL_ACTION.INFERENCE_UNAVAILABLE, ObservationsHolderActions.onInferenceUnavailable],
     [RULE_SERVICE_ACTION.OBSERVATION_WRITE_BATCH, ObservationsHolderActions.onObservationWriteBatch],
 ]);
 

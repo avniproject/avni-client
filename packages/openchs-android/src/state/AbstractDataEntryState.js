@@ -37,6 +37,7 @@ class AbstractDataEntryState {
         newState.timerState = _.isNil(this.timerState) ? this.timerState : this.timerState.clone();
         newState.isFirstFlow = this.isFirstFlow;
         newState.isDraft = this.isDraft;
+        newState.wizardCompletionInProgress = this.wizardCompletionInProgress;
         return newState;
     }
 
@@ -129,6 +130,7 @@ class AbstractDataEntryState {
 
         if (this.hasNoFormElements() && !this.wizard.isFirstPage()) {
             General.logDebug("AbstractDataEntryState", "handlePrevious - No form elements here. Moving to previous screen");
+            this.removeResultsForEmptyFormElementGroup();
             return this.handlePrevious(action, context);
         }
         const formElementRuleValidationErrors = ObservationsHolderActions.getRuleValidationErrors(formElementStatuses);
@@ -197,6 +199,7 @@ class AbstractDataEntryState {
         }
         if (this.hasNoFormElements()) {
             General.logDebug("AbstractDataEntryState", "handleNext - No form elements here. Moving to next screen");
+            this.removeResultsForEmptyFormElementGroup();
             return this.handleNext(action, context);
         }
         const formElementRuleValidationErrors = ObservationsHolderActions.getRuleValidationErrors(formElementStatuses);
@@ -217,6 +220,7 @@ class AbstractDataEntryState {
         }
         if (this.hasNoFormElements()) {
             General.logDebug("AbstractDataEntryState", "handleNext - No form elements here. Moving to next screen");
+            this.removeResultsForEmptyFormElementGroup();
             return this.handleNextAsync(action, context);
         }
         const formElementRuleValidationErrors = ObservationsHolderActions.getRuleValidationErrors(formElementStatuses);
@@ -404,6 +408,7 @@ class AbstractDataEntryState {
     moveToLastPageWithFormElements(action, context) {
         General.logDebug("AbstractDataEntryState", "moveToLastPageWithFormElements");
         while (this.hasNoFormElements() && !this.wizard.isFirstPage()) {
+            this.removeResultsForEmptyFormElementGroup();
             this.handlePrevious(action, context);
         }
     }
@@ -439,9 +444,15 @@ class AbstractDataEntryState {
 
     anyFailedResultForCurrentFEG() {
         const formUUIDs = _.union(this.formElementGroup.formElementIds, this.staticFormElementIds);
-        return _.some(this.validationResults, (validationResult) => {
-            return validationResult.success === false && formUUIDs.indexOf(validationResult.formIdentifier) !== -1;
-        });
+        const failed = _.filter(this.validationResults, (validationResult) =>
+            validationResult.success === false && formUUIDs.indexOf(validationResult.formIdentifier) !== -1);
+        if (failed.length > 0) {
+            // Triage line: names exactly which stored error is refusing page navigation.
+            General.logDebug('AbstractDataEntryState',
+                `navigation BLOCKED on FEG '${this.formElementGroup.name}' by: ` + failed.map(vr =>
+                    `${vr.formIdentifier}[${vr.questionGroupIndex}] type=${vr.validationType} msg=${vr.messageKey}`).join('; '));
+        }
+        return failed.length > 0;
     }
 
     get staticFormElementIds() {
@@ -463,6 +474,14 @@ class AbstractDataEntryState {
 
     hasNoFormElements() {
         return _.isEmpty(this.filteredFormElements);
+    }
+
+    // A page with no visible elements cannot carry a valid error; purge results stored while it
+    // was visible earlier in the session (e.g. a row-count rule) so they cannot strand the wizard
+    // on a page it is skipping.
+    removeResultsForEmptyFormElementGroup() {
+        const formElementIds = this.formElementGroup.formElementIds;
+        _.remove(this.validationResults, (validationResult) => formElementIds.indexOf(validationResult.formIdentifier) !== -1);
     }
 
 

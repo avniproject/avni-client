@@ -283,7 +283,7 @@ describe('EdgeModelService', () => {
 
         it('loads each fold from its own cached path and key', async () => {
             mockPerFold({
-                fold1: {confidence: 0.8}, fold2: {confidence: 0.6}, fold3: {confidence: 0.7},
+                fold1: {confidence: 0.8, logit: 1.0}, fold2: {confidence: 0.6, logit: 0.4}, fold3: {confidence: 0.7, logit: 0.8},
             });
 
             await service.runInferenceOnImage('/tmp/x.jpg');
@@ -299,9 +299,9 @@ describe('EdgeModelService', () => {
 
         it('unanimous-and (default): Positive only when all folds decode positive', async () => {
             mockPerFold({
-                fold1: {label: 'Positive', confidence: 0.8},
-                fold2: {label: 'Positive', confidence: 0.6},
-                fold3: {label: 'Positive', confidence: 0.9},
+                fold1: {label: 'Positive', confidence: 0.8, logit: 1.2},
+                fold2: {label: 'Positive', confidence: 0.6, logit: 0.4},
+                fold3: {label: 'Positive', confidence: 0.9, logit: 2.0},
             });
 
             const r = await service.runInferenceOnImage('/tmp/x.jpg');
@@ -315,12 +315,12 @@ describe('EdgeModelService', () => {
 
         it('any single fold Negative ⇒ Negative (AND truth table)', async () => {
             const positives = {
-                fold1: {label: 'Positive', confidence: 0.8},
-                fold2: {label: 'Positive', confidence: 0.6},
-                fold3: {label: 'Positive', confidence: 0.9},
+                fold1: {label: 'Positive', confidence: 0.8, logit: 1.2},
+                fold2: {label: 'Positive', confidence: 0.6, logit: 0.4},
+                fold3: {label: 'Positive', confidence: 0.9, logit: 2.0},
             };
             for (const neg of ['fold1', 'fold2', 'fold3']) {
-                mockPerFold({...positives, [neg]: {label: 'Negative', confidence: 0.2}});
+                mockPerFold({...positives, [neg]: {label: 'Negative', confidence: 0.2, logit: -1.2}});
 
                 const r = await service.runInferenceOnImage('/tmp/x.jpg');
 
@@ -331,15 +331,49 @@ describe('EdgeModelService', () => {
 
         it('all folds Negative ⇒ Negative', async () => {
             mockPerFold({
-                fold1: {label: 'Negative', confidence: 0.1},
-                fold2: {label: 'Negative', confidence: 0.2},
-                fold3: {label: 'Negative', confidence: 0.3},
+                fold1: {label: 'Negative', confidence: 0.1, logit: -2.2},
+                fold2: {label: 'Negative', confidence: 0.2, logit: -1.4},
+                fold3: {label: 'Negative', confidence: 0.3, logit: -0.8},
             });
 
             const r = await service.runInferenceOnImage('/tmp/x.jpg');
 
             expect(r.positive).toBe(false);
             expect(r.label).toBe('Negative');
+        });
+
+        it('fails loud on a fold with a non-finite logit — no silent negative (#1985 code-review)', async () => {
+            // A fold whose model output is NaN: the native decoder yields sigmoid(NaN)>threshold = false
+            // → label 'Negative'. Without the guard the ensemble would resolve NEGATIVE ("nothing
+            // suspicious") on a malformed fold — a clinical false-negative. It must fail loud instead.
+            mockPerFold({
+                fold1: {label: 'Positive', confidence: 0.8, logit: 1.2},
+                fold2: {label: 'Positive', confidence: 0.6, logit: 0.4},
+                fold3: {label: 'Negative', confidence: NaN, logit: NaN},
+            });
+
+            await expect(service.runInferenceOnImage('/tmp/x.jpg'))
+                .rejects.toThrow('non-finite logit');
+        });
+
+        it('a non-finite-logit fold via scheduleImageInference writes no verdict and flags it unavailable (fail-loud contract)', async () => {
+            service.dispatchAction = jest.fn();
+            mockPerFold({
+                fold1: {label: 'Positive', confidence: 0.8, logit: 1.2},
+                fold2: {label: 'Negative', confidence: NaN, logit: NaN},
+                fold3: {label: 'Positive', confidence: 0.9, logit: 2.0},
+            });
+            const entity = {uuid: 'e1', getObservationValue: jest.fn(() => undefined)};
+
+            service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
+            await new Promise(res => setImmediate(res));
+
+            flushInference();
+            // No verdict is written (not a defaulted negative); a runtime failure surfaces as unavailable.
+            expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                conceptName: 'AI Suspicion Result', questionGroupConceptName: null,
+                questionGroupIndex: null, messageKey: 'aiInferenceFailed',
+            });
         });
 
         it('keeps the per-model breakdown (sha256/logit/confidence/label)', async () => {
@@ -406,7 +440,7 @@ describe('EdgeModelService', () => {
                     .rejects.toThrow('AES key not cached');
             });
 
-            it('via scheduleImageInference: a degraded ensemble yields no dispatch and no throw (verdict absent)', async () => {
+            it('via scheduleImageInference: a degraded ensemble flags model-unavailable without throwing (verdict absent)', async () => {
                 // fold2 not cached at all ⇒ ensemble cannot be scored.
                 service.dispatchAction = jest.fn();
                 const entity = {uuid: 'e1', getObservationValue: jest.fn(() => undefined)};
@@ -418,7 +452,11 @@ describe('EdgeModelService', () => {
                 await new Promise(res => setImmediate(res));
                 flushInference();
 
-                expect(service.dispatchAction).not.toHaveBeenCalled();
+                // Every failing fold is merely uncached ⇒ the sync-and-retry message.
+                expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                    conceptName: 'AI Suspicion Result', questionGroupConceptName: null,
+                    questionGroupIndex: null, messageKey: 'aiModelUnavailable',
+                });
             });
         });
     });
@@ -446,7 +484,7 @@ describe('EdgeModelService', () => {
             expect(NativeModules.EdgeModelModule.loadEncryptedModelFromFile).not.toHaveBeenCalled();
         });
 
-        it('via scheduleImageInference: missing cache yields no native load, no throw, no dispatch (verdict absent)', async () => {
+        it('via scheduleImageInference: missing cache yields no native load, no throw, and flags model-unavailable (verdict absent)', async () => {
             const r = row();
             rows = [r];  // nothing cached
             service.dispatchAction = jest.fn();
@@ -457,7 +495,10 @@ describe('EdgeModelService', () => {
             flushInference();
 
             expect(NativeModules.EdgeModelModule.loadEncryptedModelFromFile).not.toHaveBeenCalled();
-            expect(service.dispatchAction).not.toHaveBeenCalled();
+            expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                conceptName: 'AI Suspicion Result', questionGroupConceptName: null,
+                questionGroupIndex: null, messageKey: 'aiModelUnavailable',
+            });
         });
     });
 
@@ -517,28 +558,63 @@ describe('EdgeModelService', () => {
             expect(service.dispatchAction).toHaveBeenCalledTimes(1);
         });
 
-        it('skips scheduling when the entity already has the target observation', () => {
-            const entity = fakeEntity('e1', 'Suspicious');
+        it('recomputes on cold start when the entity already has the target obs — edit heal (#1988)', async () => {
+            mockFsState.existing.add('/tmp/x.jpg');   // media on device ⇒ cold-start recompute runs (not skipped)
+            const entity = fakeEntity('e1', 'Suspicious');  // persisted verdict, cold session cache
 
             service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
+            await new Promise(res => setImmediate(res));
 
-            expect(NativeModules.EdgeModelModule.runInferenceOnImage).not.toHaveBeenCalled();
-            expect(service.dispatchAction).not.toHaveBeenCalled();
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(1);
+            flushInference();
+            // Media present ⇒ the recompute lands the verdict (the #2010 blank-first has its own tests).
+            const dispatched = service.dispatchAction.mock.calls.flatMap(c => (c[1] && c[1].results) || []);
+            expect(dispatched).toContainEqual({conceptName: 'AI Suspicion Result', value: 'Positive'});
         });
 
-        it('swallows native errors without dispatching and releases the dedup slot', async () => {
-            NativeModules.EdgeModelModule.runInferenceOnImage.mockRejectedValueOnce(new Error('inference error'));
+        it('flags a native inference error as unavailable and does not retry the same image', async () => {
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockRejectedValue(new Error('inference error'));
             const entity = fakeEntity('e1');
 
             service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
             await new Promise(res => setImmediate(res));
 
             flushInference();
+            expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                conceptName: 'AI Suspicion Result', questionGroupConceptName: null,
+                questionGroupIndex: null, messageKey: 'aiInferenceFailed',
+            });
+
+            // Same image re-scheduled (e.g. the failure dispatch re-ran the rule): no retry, no re-dispatch.
+            service.dispatchAction.mockClear();
+            service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
+            await new Promise(res => setImmediate(res));
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(1);
             expect(service.dispatchAction).not.toHaveBeenCalled();
+        });
+
+        it('re-attempts a previously-failed image after a model-content sync clears the retry cap', async () => {
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockRejectedValueOnce(new Error('inference error'));
+            const entity = fakeEntity('e1');
 
             service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
             await new Promise(res => setImmediate(res));
-            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(2);
+            flushInference();
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(1);
+
+            // Sync brought the model on device — the give-up cap must reset so the same image retries.
+            service.onModelContentSynced();
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockResolvedValue({label: 'Positive', confidence: 0.9});
+            service.dispatchAction.mockClear();
+
+            service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
+            await new Promise(res => setImmediate(res));
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(2);  // retried
+            flushInference();
+            expect(service.dispatchAction).toHaveBeenCalledWith(
+                'EDGE_MODEL.INFERENCE_RESULTS_BATCH',
+                {results: [{conceptName: 'AI Suspicion Result', value: 'Positive'}]}
+            );
         });
     });
 
@@ -581,13 +657,139 @@ describe('EdgeModelService', () => {
             );
         });
 
-        it('skips scheduling when that RQG row already has the target observation', () => {
-            const entity = fakeRqgEntity('e1', [{'AI Suspicion Result': 'Suspicious'}]);
+        it('recomputes on cold start when the RQG row already has the target obs — same image is idempotent (#1988)', async () => {
+            mockFsState.existing.add('/tmp/x.jpg');   // media on device ⇒ cold-start recompute runs (not skipped)
+            const entity = fakeRqgEntity('e1', [{'AI Suspicion Result': 'Suspicious'}]);  // persisted verdict, cold cache
 
-            service.scheduleImageInferenceIntoGroup('/tmp/x.jpg', entity, 'Lesion Group', 'AI Suspicion Result', 0);
+            service.scheduleImageInferenceIntoGroup('/tmp/x.jpg', entity, 'Lesion Group', 'AI Suspicion Result', 0,
+                {Positive: 'Suspicious', Negative: 'Non Suspicious'});
+            await new Promise(res => setImmediate(res));
 
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(1);
+            flushInference();
+            // Positive → 'Suspicious', matching the persisted verdict — the recompute lands it.
+            const dispatched = service.dispatchAction.mock.calls.flatMap(c => (c[1] && c[1].results) || []);
+            expect(dispatched).toContainEqual({questionGroupConceptName: 'Lesion Group', conceptName: 'AI Suspicion Result', questionGroupIndex: 0, value: 'Suspicious'});
+        });
+
+        it('recomputes for the new image when an existing RQG row already carries a (stale) verdict — edit swap (#1988)', async () => {
+            mockFsState.existing.add('/tmp/new-image-B.jpg');   // media on device ⇒ cold-start recompute runs (not skipped)
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockResolvedValue({label: 'Negative', confidence: 0.2});
+            const entity = fakeRqgEntity('e1', [{'AI Verdict': 'Suspicious'}]);  // stale verdict from image A
+
+            service.scheduleImageInferenceIntoGroup('/tmp/new-image-B.jpg', entity,
+                'Image-wise AI Assessment', 'AI Verdict', 0,
+                {Positive: 'Suspicious', Negative: 'Non Suspicious'});
+            await new Promise(res => setImmediate(res));
+
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(1);
+            flushInference();
+            const dispatched = service.dispatchAction.mock.calls.flatMap(c => (c[1] && c[1].results) || []);
+            expect(dispatched).toContainEqual({questionGroupConceptName: 'Image-wise AI Assessment', conceptName: 'AI Verdict', questionGroupIndex: 0, value: 'Non Suspicious'});
+        });
+
+        it('cold-start blanks the possibly-stale verdict first when the media file is present (#2010)', async () => {
+            mockFsState.existing.add('/tmp/x.jpg');   // media on device ⇒ recompute will resolve ⇒ safe to blank
+            const entity = fakeRqgEntity('e1', [{'AI Verdict': 'Suspicious'}]);
+
+            service.scheduleImageInferenceIntoGroup('/tmp/x.jpg', entity,
+                'Image-wise AI Assessment', 'AI Verdict', 0, {Positive: 'Suspicious', Negative: 'Non Suspicious'});
+            await new Promise(res => setImmediate(res));
+            flushInference();
+
+            const dispatched = service.dispatchAction.mock.calls
+                .flatMap(c => (c[1] && c[1].results) || []);
+            expect(dispatched).toContainEqual(
+                {questionGroupConceptName: 'Image-wise AI Assessment', conceptName: 'AI Verdict', questionGroupIndex: 0, value: null, clear: true});
+            expect(dispatched).toContainEqual(
+                {questionGroupConceptName: 'Image-wise AI Assessment', conceptName: 'AI Verdict', questionGroupIndex: 0, value: 'Suspicious'});
+        });
+
+        it('cold-start does NOT blank the verdict when the media file is missing — fail closed (#2010)', async () => {
+            // Synced-in encounter whose media never downloaded: presence unknown ⇒ keep the verdict.
+            const entity = fakeRqgEntity('e1', [{'AI Verdict': 'Suspicious'}]);
+
+            service.scheduleImageInferenceIntoGroup('/tmp/missing.jpg', entity,
+                'Image-wise AI Assessment', 'AI Verdict', 0, {Positive: 'Suspicious', Negative: 'Non Suspicious'});
+            await new Promise(res => setImmediate(res));
+            flushInference();
+
+            const clears = service.dispatchAction.mock.calls
+                .flatMap(c => (c[1] && c[1].results) || []).filter(r => r.clear);
+            expect(clears).toHaveLength(0);
+        });
+
+        it('invalidates the stale verdict immediately when the row image is replaced in-session (#2010)', async () => {
+            mockFsState.existing.add('/tmp/A.jpg');
+            const entity = fakeRqgEntity('e1', [{'AI Verdict': 'Suspicious'}]);
+            // Phase 1 — cold start on image A: seed lastImage via a resolved run.
+            service.scheduleImageInferenceIntoGroup('/tmp/A.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
+            flushInference();
+            service.dispatchAction.mockClear();
+
+            // Phase 2 — replace with image B; keep inference pending so the clear is observable alone.
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation(() => new Promise(() => {}));
+            service.scheduleImageInferenceIntoGroup('/tmp/B.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
+            flushInference();
+            expect(service.dispatchAction).toHaveBeenCalledWith(
+                'EDGE_MODEL.INFERENCE_RESULTS_BATCH',
+                {results: [{questionGroupConceptName: 'Image-wise AI Assessment', conceptName: 'AI Verdict', questionGroupIndex: 0, value: null, clear: true}]}
+            );
+        });
+
+        it('dispatches the in-session invalidation on its own 0ms tick, without a manual flush (#2010)', async () => {
+            mockFsState.existing.add('/tmp/A.jpg');
+            const entity = fakeRqgEntity('e1', [{'AI Verdict': 'Suspicious'}]);
+            service.scheduleImageInferenceIntoGroup('/tmp/A.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
+            flushInference();
+            service.dispatchAction.mockClear();
+
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation(() => new Promise(() => {}));
+            service.scheduleImageInferenceIntoGroup('/tmp/B.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
+            await new Promise(res => setTimeout(res, 0));   // NO manual flush — the 0ms timer must fire it
+            expect(service.dispatchAction).toHaveBeenCalledWith(
+                'EDGE_MODEL.INFERENCE_RESULTS_BATCH',
+                {results: [{questionGroupConceptName: 'Image-wise AI Assessment', conceptName: 'AI Verdict', questionGroupIndex: 0, value: null, clear: true}]}
+            );
+        });
+
+        it('queues exactly ONE clear per replacement even when the rule re-fires while in flight (#2010)', async () => {
+            mockFsState.existing.add('/tmp/A.jpg');
+            const entity = fakeRqgEntity('e1', [{'AI Verdict': 'Suspicious'}]);
+            service.scheduleImageInferenceIntoGroup('/tmp/A.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
+            flushInference();
+            service.dispatchAction.mockClear();
+
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation(() => new Promise(() => {}));
+            service.scheduleImageInferenceIntoGroup('/tmp/B.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
+            service.scheduleImageInferenceIntoGroup('/tmp/B.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
+            service.scheduleImageInferenceIntoGroup('/tmp/B.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
+            await new Promise(res => setTimeout(res, 0));
+            const clears = service.dispatchAction.mock.calls
+                .flatMap(c => (c[1] && c[1].results) || []).filter(r => r.clear);
+            expect(clears).toHaveLength(1);
+        });
+
+        it('cold-start keeps the persisted verdict and does NOT run inference or block when the media file is missing', async () => {
+            // Synced-in encounter with a valid persisted verdict but its image never downloaded.
+            // There's nothing to recompute against — running inference on the missing file would only
+            // fail and raise a blocking error over a good verdict. Keep the verdict, no inference, no error.
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockRejectedValue(new Error('IMAGE_NOT_FOUND'));
+            const entity = fakeRqgEntity('e1', [{'AI Verdict': 'Suspicious'}]);  // /tmp/missing.jpg not in mockFsState → absent
+
+            service.scheduleImageInferenceIntoGroup('/tmp/missing.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
+            flushInference();
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).not.toHaveBeenCalled();  // skipped, not run-then-fail
+            expect(service.dispatchAction).not.toHaveBeenCalled();                              // no spurious block
+
+            // Re-eval doesn't retry either (cold-start attempt is capped).
+            service.scheduleImageInferenceIntoGroup('/tmp/missing.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
             expect(NativeModules.EdgeModelModule.runInferenceOnImage).not.toHaveBeenCalled();
-            expect(service.dispatchAction).not.toHaveBeenCalled();
         });
 
         it('coalesces a burst of N RQG results into a single batched dispatch', async () => {

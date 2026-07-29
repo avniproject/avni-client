@@ -19,6 +19,7 @@ import DateFormElement from "../form/formElement/DateFormElement";
 import Distances from "../primitives/Distances";
 import CHSContent from "../common/CHSContent";
 import CHSContainer from "../common/CHSContainer";
+import CustomActivityIndicator from "../CustomActivityIndicator";
 import FormMappingService from "../../service/FormMappingService";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
@@ -105,6 +106,7 @@ class IndividualEncounterView extends AbstractComponent {
                 skipVerification: true
             })),
             movedNext: this.scrollToTop,
+            settleCompletion: (newState) => this.dispatchAction(Actions.USE_THIS_STATE, {state: newState}),
             fromSDV
         }
     }
@@ -156,7 +158,7 @@ class IndividualEncounterView extends AbstractComponent {
     render() {
         const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);
         General.logDebug(this.viewName(), `render with IndividualUUID=${this.props.individualUUID} and EncounterTypeUUID=${this.props.encounter.encounterType.uuid}`);
-        if (this.state.allElementsFilledForImmutableEncounter) {
+        if (this.state.allElementsFilledForImmutableEncounter && !this.state.wizardCompletionInProgress) {
             this.onGoToSummary(true);
         }
         const title = `${this.I18n.t(this.state.encounter.encounterType.displayName)} - ${this.I18n.t('enterData')}`;
@@ -224,6 +226,7 @@ class IndividualEncounterView extends AbstractComponent {
                     </View>
                     </ScrollView>
                 </CHSContent>
+                <CustomActivityIndicator loading={!!this.state.wizardCompletionInProgress}/>
             </CHSContainer>
         );
     }
