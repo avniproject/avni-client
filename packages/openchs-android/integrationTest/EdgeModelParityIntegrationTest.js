@@ -32,6 +32,13 @@ class EdgeModelParityIntegrationTest extends BaseIntegrationTest {
                     + `[${perModel.map(m => m.sha256).join(",")}] — check provisioning before trusting a sweep.`);
             }
             const shas = perModel.map(m => m.sha256);
+            // The #1985 incident was a duplicated blob in the org's DownloadableContent: three rows,
+            // two sharing a sha, so unanimous-AND ran over 2 distinct models while looking like 3.
+            // Row count alone doesn't catch that — the shas must be distinct.
+            if (new Set(shas).size !== shas.length) {
+                throw new Error(`EdgeModelParity: duplicate fold sha256 [${shas.join(",")}] — `
+                    + `the ensemble is running the same model more than once. Fix provisioning before sweeping.`);
+            }
             if (foldOrder === null) {
                 foldOrder = shas;
             } else if (shas.join(",") !== foldOrder.join(",")) {
