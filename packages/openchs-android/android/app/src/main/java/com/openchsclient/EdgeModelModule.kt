@@ -26,8 +26,7 @@ import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
 /**
- * Generic on-device inference bridge for the Avni client
- * (~/.claude/plans/composed-tumbling-bachman.md).
+ * Generic on-device inference bridge for the Avni client.
  *
  * ── Design ─────────────────────────────────────────────────────────────────────────
  * The bridge is **engine-agnostic** and **model-agnostic**:
