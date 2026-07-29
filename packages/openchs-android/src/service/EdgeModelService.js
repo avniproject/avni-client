@@ -342,7 +342,8 @@ class EdgeModelService extends BaseService {
     _queueInferenceResult(result) {
         this._pendingResults.push(result);
         if (this._flushTimer) clearTimeout(this._flushTimer);
-        this._flushTimer = setTimeout(() => this._flushPendingResults(), this._flushDelayMs);
+        // Hold the batch dispatch until the slide completes — same reason as RuleService._queueWrite.
+        this._flushTimer = setTimeout(() => this._deferPastInteractions(() => this._flushPendingResults()), this._flushDelayMs);
     }
 
     _flushPendingResults() {

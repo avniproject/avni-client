@@ -1,4 +1,5 @@
 import {ScrollView, StyleSheet, Vibration, View} from "react-native";
+import moment from "moment";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -30,6 +31,7 @@ import SummaryButton from "../common/SummaryButton";
 import Timer from "../common/Timer";
 import BackgroundTimer from "react-native-background-timer";
 import {Actions as IGHActions} from "../../action/individual/IndividualGeneralHistoryActions";
+import FullScreenLoader from "../common/FullScreenLoader";
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -48,23 +50,27 @@ class IndividualEncounterView extends AbstractComponent {
         return 'IndividualEncounterView';
     }
 
-    UNSAFE_componentWillMount() {
+    loadData() {
         const {encounterType, individualUUID, encounter, workLists, pageNumber, editing} = this.props;
         if (encounter) {
             this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter, workLists, pageNumber, editing});
-            return super.UNSAFE_componentWillMount();
+        } else {
+            const encounterByType = this.context.getService(EncounterService)
+                .findDueEncounter({encounterTypeName: encounterType, individualUUID})
+                .cloneForEdit();
+            encounterByType.encounterDateTime = moment().toDate();
+            this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter: encounterByType, editing});
         }
-        const encounterByType = this.context.getService(EncounterService)
-            .findDueEncounter({encounterTypeName: encounterType, individualUUID})
-            .cloneForEdit();
-        encounterByType.encounterDateTime = moment().toDate();
-        this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter: encounterByType, editing});
-        return super.UNSAFE_componentWillMount();
+        this.dispatchAction(Actions.ON_FOCUS); // loadPullDownView
+    }
+
+    isDataLoaded() {
+        return super.isDataLoaded() && !_.isNil(this.state.encounter) && !_.isNil(this.state.wizard);
     }
 
     didFocus() {
         super.didFocus();
-        this.dispatchAction(Actions.ON_FOCUS);
+        if (this.isDataLoaded()) this.dispatchAction(Actions.ON_FOCUS);
     }
 
     shouldComponentUpdate(nextProps, state) {
@@ -118,7 +124,19 @@ class IndividualEncounterView extends AbstractComponent {
         this.dispatchAction(Actions.SUMMARY_PAGE, params)
     }
 
+    // An immutable, fully-filled encounter always shows the summary. In componentDidUpdate, not
+    // render, so the summary-page push doesn't land mid-slide (the stuck-half-transition bug).
+    componentDidUpdate() {
+        if (this.state.allElementsFilledForImmutableEncounter) {
+            this.onGoToSummary(true);
+        }
+    }
+
     onHardwareBackPress() {
+        if (!this.isDataLoaded()) {
+            TypedTransition.from(this).goBack();
+            return true;
+        }
         this.previous();
         return true;
     }
@@ -153,12 +171,13 @@ class IndividualEncounterView extends AbstractComponent {
             })
     }
 
-    render() {
+    renderLoading() {
+        return <FullScreenLoader title={this.I18n.t('enterData')}/>;
+    }
+
+    renderLoaded() {
         const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);
-        General.logDebug(this.viewName(), `render with IndividualUUID=${this.props.individualUUID} and EncounterTypeUUID=${this.props.encounter.encounterType.uuid}`);
-        if (this.state.allElementsFilledForImmutableEncounter) {
-            this.onGoToSummary(true);
-        }
+        General.logDebug(this.viewName(), `render with IndividualUUID=${this.props.individualUUID} and EncounterTypeUUID=${this.state.encounter.encounterType.uuid}`);
         const title = `${this.I18n.t(this.state.encounter.encounterType.displayName)} - ${this.I18n.t('enterData')}`;
         const hideVisitDate = this.context.getService(OrganisationConfigService).isVisitDateHidden();
         return (

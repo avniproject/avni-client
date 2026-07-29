@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
-import React, {Component, Text, View} from "react";
-import {Alert, StyleSheet, Keyboard, InteractionManager} from "react-native";
+import React, {Component} from "react";
+import {ActivityIndicator, Alert, InteractionManager, Keyboard, StyleSheet, View} from "react-native";
 import _ from "lodash";
 import MessageService from "../../service/MessageService";
 import General from "../../utility/General";
@@ -116,17 +116,57 @@ class AbstractComponent extends Component {
                 logScreenEvent(this.viewName(), this.screenRenderStartTime);
             });
         }
-        
+
+        // Deferred load: a loadData() screen dispatches its heavy load after the slide, not in
+        // willMount where it would freeze the transition. _loadStarted is set before loadData() so the
+        // synchronous re-render its dispatch triggers already sees the flag.
+        if (_.isFunction(this.loadData)) {
+            InteractionManager.runAfterInteractions(() => {
+                if (this._isUnmounted) return;
+                this._loadStarted = true;
+                this.loadData();
+            });
+        }
+
         // Call subclass hook if defined (Template Method Pattern)
         if (this.onViewDidMount) {
             this.onViewDidMount();
         }
     }
-    
+
     // Subclasses should override this instead of componentDidMount
     onViewDidMount() {
         // Default: do nothing
         // Subclasses can override without calling super
+    }
+
+    // Override to also require loaded state (e.g. `super.isDataLoaded() && !_.isNil(this.state.x)`)
+    // when renderLoaded() dereferences it.
+    isDataLoaded() {
+        return this._loadStarted === true;
+    }
+
+    // Bare primitives: this base class must not import a view component (FullScreenLoader → AppHeader
+    // → AbstractComponent would be a circular import).
+    renderLoading() {
+        return (
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#ffffff'}}>
+                <ActivityIndicator size="large"/>
+            </View>
+        );
+    }
+
+    // A loadData() screen defines renderLoaded() instead of render(); the base gates on the loader
+    // so the guard can't be forgotten. Other screens override render() and never reach this.
+    render() {
+        if (_.isFunction(this.loadData) && !this.isDataLoaded()) {
+            return this.renderLoading();
+        }
+        return this.renderLoaded();
+    }
+
+    renderLoaded() {
+        return null;
     }
 
     refreshState() {
@@ -158,6 +198,7 @@ class AbstractComponent extends Component {
     }
 
     componentWillUnmount() {
+        this._isUnmounted = true;
         if (_.isNil(this.topLevelStateVariable)) return;
         this.unsubscribe();
     }

@@ -1,5 +1,6 @@
 // @flow
 import _ from "lodash";
+import {InteractionManager} from "react-native";
 import General from "../utility/General";
 import RealmQueryService from "./query/RealmQueryService";
 
@@ -29,6 +30,23 @@ class BaseService {
 
     updateDatabase(db) {
         this.db = db;
+    }
+
+    // Defer a debounced flush past the current slide/interactions, with a 1s cap so a persistent
+    // interaction can't starve it. Whichever timer wins cancels its sibling, so no orphaned fallback
+    // fires late against a later batch.
+    _deferPastInteractions(flush) {
+        let done = false;
+        let handle, fallbackId;
+        const runOnce = () => {
+            if (done) return;
+            done = true;
+            if (handle) handle.cancel();
+            clearTimeout(fallbackId);
+            flush();
+        };
+        handle = InteractionManager.runAfterInteractions(runOnce);
+        fallbackId = setTimeout(runOnce, 1000);
     }
 
     init() {

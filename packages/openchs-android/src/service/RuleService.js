@@ -140,7 +140,8 @@ class RuleService extends BaseService {
     _queueWrite(result) {
         this._pendingWrites.push(result);
         if (this._flushTimer) clearTimeout(this._flushTimer);
-        this._flushTimer = setTimeout(() => this._flushPendingWrites(), this._flushDelayMs);
+        // Hold the batch dispatch (re-runs rules, re-renders the form) until the slide completes.
+        this._flushTimer = setTimeout(() => this._deferPastInteractions(() => this._flushPendingWrites()), this._flushDelayMs);
     }
 
     _flushPendingWrites() {

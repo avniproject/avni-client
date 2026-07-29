@@ -32,6 +32,7 @@ import BackgroundTimer from "react-native-background-timer";
 import Timer from "../common/Timer";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import SystemRecommendationView from "../conclusion/SystemRecommendationView";
+import FullScreenLoader from "../common/FullScreenLoader";
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
@@ -48,21 +49,28 @@ class ProgramEncounterView extends AbstractComponent {
         this.scrollRef = React.createRef();
     }
 
-    UNSAFE_componentWillMount() {
+    loadData() {
         const {encounterType, enrolmentUUID, programEncounter, workLists, pageNumber, editing} = this.props.params;
         if (programEncounter) {
             this.dispatchAction(Actions.ON_LOAD, {programEncounter, workLists, pageNumber, editing});
-            return super.UNSAFE_componentWillMount();
+            return;
         }
         const programEncounterByType = this.context.getService(ProgramEncounterService)
             .findDueEncounter({encounterTypeName: encounterType, enrolmentUUID})
             .cloneForEdit();
         programEncounterByType.encounterDateTime = moment().toDate();
         this.dispatchAction(Actions.ON_LOAD, {programEncounter: programEncounterByType, editing});
-        return super.UNSAFE_componentWillMount();
+    }
+
+    isDataLoaded() {
+        return super.isDataLoaded() && !_.isNil(this.state.programEncounter) && !_.isNil(this.state.wizard);
     }
 
     onHardwareBackPress() {
+        if (!this.isDataLoaded()) {
+            TypedTransition.from(this).goBack();
+            return true;
+        }
         this.previous();
         return true;
     }
@@ -139,6 +147,14 @@ class ProgramEncounterView extends AbstractComponent {
         this.dispatchAction(Actions.SUMMARY_PAGE, this.getNextParams(false, fromSDV))
     }
 
+    // An immutable, fully-filled encounter always shows the summary. In componentDidUpdate, not
+    // render, so the summary-page push doesn't land mid-slide (the stuck-half-transition bug).
+    componentDidUpdate() {
+        if (this.state.allElementsFilledForImmutableEncounter) {
+            this.onGoToSummary(true);
+        }
+    }
+
     shouldComponentUpdate(nextProps, nextState) {
         return !_.isNil(nextState.programEncounter);
     }
@@ -176,11 +192,12 @@ class ProgramEncounterView extends AbstractComponent {
     }
 
 
-    render() {
+    renderLoading() {
+        return <FullScreenLoader title={this.I18n.t('enterData')}/>;
+    }
+
+    renderLoaded() {
         General.logDebug('ProgramEncounterView', 'render');
-        if (this.state.allElementsFilledForImmutableEncounter) {
-            this.onGoToSummary(true)
-        }
         const programEncounterName = !_.isEmpty(this.state.programEncounter.name) ? this.I18n.t(this.state.programEncounter.name) : this.I18n.t(this.state.programEncounter.encounterType.operationalEncounterTypeName);
         const title = `${this.state.programEncounter.programEnrolment.individual.nameString} - ${programEncounterName}`;
         this.displayMessage(this.props.params.message);
