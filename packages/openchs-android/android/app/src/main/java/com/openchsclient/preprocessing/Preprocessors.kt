@@ -7,7 +7,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /**
- * Named registry of image preprocessors (~/.claude/plans/composed-tumbling-bachman.md).
+ * Named registry of image preprocessors.
  *
  * Lookup is by string identifier in the registry override JSON:
  *

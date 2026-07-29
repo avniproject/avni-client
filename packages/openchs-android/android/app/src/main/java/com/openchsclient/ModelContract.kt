@@ -3,7 +3,7 @@ package com.openchsclient
 import org.json.JSONObject
 
 /**
- * Resolved per-model contract (~/.claude/plans/composed-tumbling-bachman.md).
+ * Resolved per-model contract.
  *
  * Why this class exists
  * ─────────────────────
