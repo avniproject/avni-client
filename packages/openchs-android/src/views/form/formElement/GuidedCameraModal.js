@@ -17,42 +17,53 @@ const styles = StyleSheet.create({
     btnText: {color: "black", fontWeight: "700"},
 });
 
-// onCapture is awaited under `busy` (and close is blocked then), so one session can't start a second capture.
 export default function GuidedCameraModal({visible, onClose, onCapture, labels}) {
     const cameraRef = useRef(null);
     const device = useCameraDevice("back");
     const {hasPermission, requestPermission} = useCameraPermission();
     const [error, setError] = useState(null);
     const [busy, setBusy] = useState(false);
+    // Bumped on every open and every close; a capture that outlives its session (e.g. a hung
+    // takePhoto the user closed out of) is discarded instead of writing or touching state.
+    const sessionRef = useRef(0);
 
     // The modal stays mounted while the element renders, so per-session state is reset on open.
     useEffect(() => {
         if (visible && !hasPermission) requestPermission();
         if (visible) {
+            sessionRef.current++;
             setError(null);
             setBusy(false);
         }
     }, [visible, hasPermission]);
 
+    const handleClose = () => {
+        sessionRef.current++;
+        onClose();
+    };
+
     const capture = async () => {
         if (busy) return;
+        const session = sessionRef.current;
         setBusy(true);
         setError(null);
         try {
             const photo = await cameraRef.current.takePhoto({flash: "on"});
+            if (sessionRef.current !== session) return;
             await onCapture(photo.path);
         } catch (e) {
+            if (sessionRef.current !== session) return;
             General.logError('GuidedCameraModal', `capture failed: ${e && e.message}`);
             setError(labels.captureFailed);
         } finally {
-            setBusy(false);
+            if (sessionRef.current === session) setBusy(false);
         }
     };
 
     const renderBlocking = (message) => (
         <View style={styles.center}>
             <Text style={styles.err}>{message}</Text>
-            <TouchableOpacity style={styles.btn} onPress={onClose}><Text style={styles.btnText}>{labels.close}</Text></TouchableOpacity>
+            <TouchableOpacity style={styles.btn} onPress={handleClose}><Text style={styles.btnText}>{labels.close}</Text></TouchableOpacity>
         </View>
     );
 
@@ -64,7 +75,7 @@ export default function GuidedCameraModal({visible, onClose, onCapture, labels})
         body = (
             <View style={styles.fill}>
                 <Camera ref={cameraRef} style={StyleSheet.absoluteFill} device={device} isActive={visible} photo={true} />
-                <TouchableOpacity style={styles.close} onPress={onClose} disabled={busy}><Text style={styles.closeText}>✕</Text></TouchableOpacity>
+                <TouchableOpacity style={styles.close} onPress={handleClose}><Text style={styles.closeText}>✕</Text></TouchableOpacity>
                 {error && (
                     <View style={styles.errorBanner}><Text style={styles.err}>{error}</Text></View>
                 )}
@@ -81,7 +92,7 @@ export default function GuidedCameraModal({visible, onClose, onCapture, labels})
     }
 
     return (
-        <Modal visible={visible} animationType="slide" onRequestClose={() => { if (!busy) onClose(); }} statusBarTranslucent>
+        <Modal visible={visible} animationType="slide" onRequestClose={handleClose} statusBarTranslucent>
             {body}
         </Modal>
     );
