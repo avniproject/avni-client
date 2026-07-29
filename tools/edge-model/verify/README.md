@@ -39,16 +39,23 @@ bash tools/edge-model/verify/install-guards.sh
 export TANUH_FIXTURES=/Users/himeshr/Avni/Tanuh
 bash tools/edge-model/verify/install-guards.sh            # once per clone
 
-# 1. Encrypt the 3 folds into the staging dir as provisioning artefacts (blobs + manifest + keys):
+# 1a. Encrypt the 3 folds into the staging dir — blobs (models/<sha256>.bin), manifest.json
+#     (reference-data items, no key) and keys.json (key-store input, never committed/uploaded):
 make tanuh-ensemble TANUH_ENSEMBLE_SRC_DIR="$TANUH_FIXTURES/tanuh_models/ensemble_src"
+
+# 1b. Provision those artefacts as DownloadableContent. Nothing is bundled into the app on 17.x,
+#     so this is what puts the model on the device. Full procedure (GCS storage target, blob
+#     upload, reference-data record, AES key into the server key store):
+#         avni-product-ops/sops/runbook-edge-model-provisioning.md
+#     Per fold: upload models/<sha256>.bin, register the item with category=edgeModel +
+#     needsKey=true + payload from manifest.json, and set the matching key under the same sha256.
 
 # 2. Build + install the tanuh integration-test build (renders IntegrationTestApp) on an
 #    API <= 36 emulator (API 37 crashes the app — Hermes SIGSEGV). See tools/edge-model/README.md.
 #    Launch it and run the "EdgeModelParityIntegrationTest" from the rendered list.
-#    The build ships NO model bytes — sync the device so the folds land from DownloadableContent
-#    before running the sweep, or every fold fails with "model blob not cached yet".
 
-# 3. Push the 90 images, run the sweep, pull results (device only):
+# 3. Sync the device, THEN push the images and run the sweep. Sync is what delivers the folds;
+#    without it every fold fails with "model blob not cached yet" and the sweep tests nothing:
 bash tools/edge-model/verify/run-parity.sh
 
 # 4. Diff device scores vs the xlsx → out/summary.md + PASS/FAIL (exit 0 = PASS):
@@ -72,6 +79,11 @@ tools/edge-model/verify/.venv/bin/python tools/edge-model/verify/report.py
   lacks `model6`); that image is skipped and reported, so expect **89** joined.
 - Models are **not** pushed by this harness — the build is model-free and the folds arrive via synced
   `DownloadableContent`. The harness is delivery-agnostic; it only needs the folds cached on device.
+- The sweep necessarily reads the **on-device cache**, never app assets: it calls
+  `EdgeModelService.runEnsembleInferenceOnImage`, which resolves folds from synced content rows and
+  loads each from `FileSystem.getModelsDir()/<sha256>.bin`. No asset-loading path exists on 17.x
+  (#1947 removed the native loaders), so a sweep cannot silently pass by testing a bundled model —
+  an unsynced device fails loudly with "model blob not cached yet" instead.
 - Folds are addressed by sha256, which carries no fold identity, so `model6`/`model8`/`model8-2` are
   assigned by sha-sorted position. Check `out/fold-mapping.csv` against what was provisioned before
   trusting a per-model diff — a mis-provisioned fold otherwise shows up as a plausible wrong column.
