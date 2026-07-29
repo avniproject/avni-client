@@ -25,6 +25,7 @@ import Icon from "react-native-vector-icons/Entypo";
 import _ from 'lodash';
 import {JSONStringify} from "../src/utility/JsonStringify";
 import PruneMediaIntegrationTest from "./PruneMediaIntegrationTest";
+import EdgeModelParityIntegrationTest from "./EdgeModelParityIntegrationTest";
 
 const itemCommonStyle = {
     padding: 10,
@@ -90,7 +91,7 @@ class IntegrationTestApp extends Component {
         LogBox.ignoreAllLogs();
         FileSystem.init();
         this.getBean = this.getBean.bind(this);
-        this.integrationTestRunner = new IntegrationTestRunner(DatabaseTest, IndividualIntegrationTest, EntityApprovalServiceTest, ReportCardServiceIntegrationTest, UserInfoServiceTest, PersonRegisterActionsIntegrationTest, UtilTest, RealmProxyTest, PruneMediaIntegrationTest, RealmDBOperationsCascadeTest);
+        this.integrationTestRunner = new IntegrationTestRunner(DatabaseTest, IndividualIntegrationTest, EntityApprovalServiceTest, ReportCardServiceIntegrationTest, UserInfoServiceTest, PersonRegisterActionsIntegrationTest, UtilTest, RealmProxyTest, PruneMediaIntegrationTest, RealmDBOperationsCascadeTest, EdgeModelParityIntegrationTest);
         this.state = {isInitialisationDone: false, testSuite: this.integrationTestRunner.testSuite, expandedTestClasses: []};
     }
 
