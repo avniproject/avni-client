@@ -1,8 +1,9 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import PropTypes from 'prop-types';
 import React from "react";
-import {Alert, View} from "react-native";
+import {View} from "react-native";
 import Path from "../../framework/routing/Path";
+import CustomConfirmDialog from "../common/CustomConfirmDialog";
 import IndividualProfile from "../common/IndividualProfile";
 import FamilyProfile from "../familyfolder/FamilyProfile";
 import {ScrollView, Text} from "native-base";
@@ -125,8 +126,10 @@ class SystemRecommendationView extends AbstractComponent {
 
     save(cb) {
         if (_.get(this.props, 'individual.voided')) {
-            Alert.alert(this.I18n.t("voidedIndividualAlertTitle"),
-                this.I18n.t("voidedIndividualAlertMessage"));
+            CustomConfirmDialog.showAlert({
+                title: this.I18n.t("voidedIndividualAlertTitle"),
+                message: this.I18n.t("voidedIndividualAlertMessage")
+            });
         } else if (this.props.isRejectedEntity) {
             this.setState({showApprovalDialog: true});
         } else {

@@ -1,4 +1,4 @@
-import {Alert, InteractionManager, ScrollView, TouchableOpacity, View} from "react-native";
+import {InteractionManager, ScrollView, TouchableOpacity, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -23,6 +23,7 @@ import {Form, Privilege} from 'avni-models';
 import _ from "lodash";
 import Distances from "../primitives/Distances";
 import ObservationsSectionOptions from "../common/ObservationsSectionOptions";
+import CustomConfirmDialog from "../common/CustomConfirmDialog";
 import Icon from 'react-native-vector-icons/SimpleLineIcons'
 import Separator from "../primitives/Separator";
 import UserInfoService from "../../service/UserInfoService";
@@ -160,31 +161,24 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
         const isAlreadyEnrolledInSameProgram = _.includes(this.context.getService(ProgramEnrolmentService).getAllNonExitedEnrolmentsForSubject(this.state.enrolment.individual.uuid).map(enr => enr.program.uuid), this.state.enrolment.program.uuid);
         const areMultipleEnrolmentsAllowedForProgram = this.state.enrolment.program.allowMultipleEnrolments;
         if (isAlreadyEnrolledInSameProgram && !areMultipleEnrolmentsAllowedForProgram) {
-            Alert.alert(
-              this.I18n.t('undoExitProgramTitle'),
-              this.I18n.t('alreadyEnrolledInProgram', {programName: this.I18n.t(this.state.enrolment.program.displayName)}),
-              [
-                  {
-                      text: this.I18n.t('ok'), onPress: _.noop, style: 'cancel'
-                  }
-              ]
-            )
+            CustomConfirmDialog.showAlert({
+                title: this.I18n.t('undoExitProgramTitle'),
+                message: this.I18n.t('alreadyEnrolledInProgram', {programName: this.I18n.t(this.state.enrolment.program.displayName)}),
+                okLabel: this.I18n.t('ok'),
+                onOk: _.noop
+            });
         } else {
-            Alert.alert(
-              this.I18n.t('undoExitProgramTitle'),
-              this.I18n.t('undoExitProgramConfirmationMessage'),
-              [
-                  {
-                      text: this.I18n.t('yes'), onPress: () => {
-                          this.dispatchAction(Actions.ON_PROGRAM_REJOIN);
-                          CHSNavigator.navigateToBeneficiaryDashboard(this, this.props);
-                      }
-                  },
-                  {
-                      text: this.I18n.t('no'), onPress: _.noop, style: 'cancel'
-                  }
-              ]
-            )
+            CustomConfirmDialog.show({
+                title: this.I18n.t('undoExitProgramTitle'),
+                message: this.I18n.t('undoExitProgramConfirmationMessage'),
+                yesLabel: this.I18n.t('yes'),
+                noLabel: this.I18n.t('no'),
+                onYes: () => {
+                    this.dispatchAction(Actions.ON_PROGRAM_REJOIN);
+                    CHSNavigator.navigateToBeneficiaryDashboard(this, this.props);
+                },
+                onNo: _.noop
+            });
         }
     }
 

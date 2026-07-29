@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import {TouchableNativeFeedback, TouchableOpacity, View, Alert, Linking} from "react-native";
+import {TouchableNativeFeedback, TouchableOpacity, View, Linking} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Text} from "native-base";
@@ -27,6 +27,7 @@ import PhoneCall from "../../model/PhoneCall";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import AvniIcon from "../common/AvniIcon";
 import GlificScheduledAndSentMsgsView from '../glific/GlificScheduledAndSentMsgsView';
+import CustomConfirmDialog from "./CustomConfirmDialog";
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
@@ -131,9 +132,9 @@ class IndividualProfile extends AbstractComponent {
                             subjectLocation: subjectLocation
                         });
                         
-                        Alert.alert('Success', this.I18n.t('subjectLocationSaved'));
+                        CustomConfirmDialog.showAlert({title: 'Success', message: this.I18n.t('subjectLocationSaved')});
                     } catch (error) {
-                        Alert.alert('Error', this.I18n.t('locationSaveError'));
+                        CustomConfirmDialog.showAlert({title: 'Error', message: this.I18n.t('locationSaveError')});
                     }
                 },
                 false,
@@ -359,7 +360,7 @@ class IndividualProfile extends AbstractComponent {
                     return Linking.openURL(url);
             })
             .catch(err => {
-                Alert.alert('Error', `Unable to open map application`);
+                CustomConfirmDialog.showAlert({title: 'Error', message: `Unable to open map application`});
             });
 
     }

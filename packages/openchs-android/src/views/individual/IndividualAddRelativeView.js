@@ -1,4 +1,4 @@
-import {Alert, ScrollView} from "react-native";
+import {ScrollView} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -20,6 +20,7 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import SelectableItemGroup from "../primitives/SelectableItemGroup";
 import UserInfoService from "../../service/UserInfoService";
+import CustomConfirmDialog from "../common/CustomConfirmDialog";
 
 @Path('/individualAddRelative')
 class IndividualAddRelativeView extends AbstractComponent {
@@ -46,8 +47,10 @@ class IndividualAddRelativeView extends AbstractComponent {
 
     save() {
         if (this.props.individual.voided) {
-            Alert.alert(this.I18n.t("voidedIndividualAlertTitle"),
-                this.I18n.t("voidedIndividualAlertMessage"));
+            CustomConfirmDialog.showAlert({
+                title: this.I18n.t("voidedIndividualAlertTitle"),
+                message: this.I18n.t("voidedIndividualAlertMessage")
+            });
         } else {
             this.dispatchAction(Actions.SAVE, {
                 cb: () => this.props.onSaveCallback(this),

@@ -1,4 +1,4 @@
-import {Alert, Linking, Platform, SafeAreaView, SectionList, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
+import {Linking, Platform, SafeAreaView, SectionList, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
@@ -145,12 +145,11 @@ class MenuView extends AbstractComponent {
 
     uploadCatchmentDatabase() {
         if (!this.state.oneSyncCompleted || this.state.unsyncedTxData) {
-            Alert.alert(this.I18n.t('uploadCatchmentDatabaseErrorTitle'),
-                this.getCatchmentUploadErrorMessage(),
-                [{
-                    text: this.I18n.t('ok'), onPress: () => {
-                    }, style: 'cancel'
-                }]);
+            CustomConfirmDialog.showAlert({
+                title: this.I18n.t('uploadCatchmentDatabaseErrorTitle'),
+                message: this.getCatchmentUploadErrorMessage(),
+                okLabel: this.I18n.t('ok')
+            });
         } else {
             this.startUploadDatabase('uploadCatchmentDatabase', 'uploadCatchmentDatabaseConfirmationMessage', MediaQueueService.DumpType.Catchment);
         }
@@ -161,36 +160,32 @@ class MenuView extends AbstractComponent {
     }
 
     startUploadDatabase(titleKey, messageKey, dumpType) {
-        Alert.alert(
-            this.I18n.t(titleKey),
-            this.I18n.t(messageKey),
-            [
-                {
-                    text: this.I18n.t('yes'), onPress: () => {
-                        this.dispatchAction(MenuActionNames.ON_BACKUP_DUMP, {
-                            dumpType: dumpType,
-                            onBackupDumpCb: (percentDone, message) => {
-                                this.dispatchAction(MenuActionNames.ON_BACKUP_PROGRESS, {
-                                    percentDone: percentDone,
-                                    message: message
-                                });
-                                if (percentDone === 100) {
-                                    if (message === "backupCompleted") {
-                                        Alert.alert(this.I18n.t('uploadSuccessful'));
-                                    } else if (message === "backupFailed") {
-                                        Alert.alert(this.I18n.t('uploadFailed'));
-                                    }
-                                }
-                            }
+        CustomConfirmDialog.show({
+            title: this.I18n.t(titleKey),
+            message: this.I18n.t(messageKey),
+            yesLabel: this.I18n.t('yes'),
+            noLabel: this.I18n.t('no'),
+            onYes: () => {
+                this.dispatchAction(MenuActionNames.ON_BACKUP_DUMP, {
+                    dumpType: dumpType,
+                    onBackupDumpCb: (percentDone, message) => {
+                        this.dispatchAction(MenuActionNames.ON_BACKUP_PROGRESS, {
+                            percentDone: percentDone,
+                            message: message
                         });
+                        if (percentDone === 100) {
+                            if (message === "backupCompleted") {
+                                CustomConfirmDialog.showAlert({title: this.I18n.t('uploadSuccessful')});
+                            } else if (message === "backupFailed") {
+                                CustomConfirmDialog.showAlert({title: this.I18n.t('uploadFailed')});
+                            }
+                        }
                     }
-                },
-                {
-                    text: this.I18n.t('no'), onPress: () => {
-                    }, style: 'cancel'
-                }
-            ]
-        );
+                });
+            },
+            onNo: () => {
+            }
+        });
     }
 
     getCatchmentUploadErrorMessage() {

@@ -53,6 +53,7 @@ class App extends Component {
     renderRootedDeviceErrorMessageAndExitApplication() {
         const clipboardString = `This is a Rooted Device. Exiting Avni application due to security considerations.`;
         General.logError("App", `renderError: ${clipboardString}`);
+        // Not converted: fires synchronously during the initial render(), before CustomConfirmDialog's singleton has mounted via componentDidMount, so showAlert() would silently no-op here - kept as native Alert for this security-critical exit path.
         Alert.alert("App will exit now", clipboardString,
             [
                 {

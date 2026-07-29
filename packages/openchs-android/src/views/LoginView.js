@@ -25,9 +25,8 @@ import _ from 'lodash';
 import {Checkbox as CheckBox, ScrollView, Spinner} from "native-base";
 import General from '../utility/General';
 import AuthService from '../service/AuthService';
-import {ConfirmDialog} from 'react-native-simple-dialogs';
-import Fonts from './primitives/Fonts';
 import Config from '../framework/Config';
+import CustomConfirmDialog from './common/CustomConfirmDialog';
 import DBRestoreProgress from './DBRestoreProgress';
 import SyncService from '../service/SyncService';
 import TypedTransition from '../framework/routing/TypedTransition';
@@ -137,36 +136,17 @@ class LoginView extends AbstractComponent {
         ) : <View/>;
     }
 
-    renderMultiUserLoginFailure() {
-        return (<ConfirmDialog
-            title={this.I18n.t('cannotChangeUserTitle', {newUser: this.state.userId})}
-            visible={this.state.showMultiUserLoginWarning}
-            onTouchOutside={() => this.setState({showMultiUserLoginWarning: false})}
-            negativeButton={{
-                style: {backgroundColor: Colors.NegativeActionButtonColor},
-                titleStyle: {color: Colors.TextOnPrimaryColor},
-                title: 'Delete data and login',
-                onPress: () => this.setState({showMultiUserLoginWarning: false}, this.clearDataAndLogin)
-            }}
-            positiveButton={{
-                style: {backgroundColor: Colors.ActionButtonColor},
-                titleStyle: {color: Colors.TextOnPrimaryColor},
-                title: 'Cancel',
-                onPress: () => this.setState({showMultiUserLoginWarning: false})
-            }}
-        >
-            <View>
-                <Text style={{
-                    fontSize: Fonts.Large,
-                    color: Colors.InputNormal,
-                }}>
-                    {this.I18n.t('cannotChangeUserDesc', {
-                        oldUser: this.state.loggedInUser,
-                        newUser: this.state.userId
-                    })}
-                </Text>
-            </View>
-        </ConfirmDialog>);
+    showMultiUserLoginFailure() {
+        CustomConfirmDialog.show({
+            title: this.I18n.t('cannotChangeUserTitle', {newUser: this.state.userId}),
+            message: this.I18n.t('cannotChangeUserDesc', {
+                oldUser: this.state.loggedInUser,
+                newUser: this.state.userId
+            }),
+            yesLabel: this.I18n.t('clearDataAndLogin'),
+            noLabel: this.I18n.t('cancel'),
+            onYes: this.clearDataAndLogin
+        });
     }
 
     displayFailureAlert(avniError, source) {
@@ -174,29 +154,29 @@ class LoginView extends AbstractComponent {
         // 1. Upload & Restart - uploads logs and restarts
         // 2. Perform Slow Sync - proceeds with slow sync using original realm
         // (Original realm is restored on failure, so slow sync will work)
-        const buttons = [
-            IssueUploadUtil.createUploadIssueInfoButton(
-                this.context,
-                this.I18n,
-                avniError,
-                "LoginView",
-                () => this.setState({uploading: true}),
-                () => {
-                    this.setState({uploading: false});
-                    const RESTART_DELAY_MS = 2000;
-                    setTimeout(() => RNRestart.Restart(), RESTART_DELAY_MS);
-                },
-                (percentDone, message) => this.setState({uploadProgress: percentDone, uploadMessage: message}),
-                this.state.userId
-            ),
-            {
-                text: this.I18n.t('performNormalSync'),
-                onPress: () => this.loginComplete(source),
-                style: 'cancel'
-            }
-        ];
-        
-        Alert.alert(this.I18n.t('restoreFailedTitle'), avniError.getDisplayMessage(), buttons);
+        const uploadIssueInfoButton = IssueUploadUtil.createUploadIssueInfoButton(
+            this.context,
+            this.I18n,
+            avniError,
+            "LoginView",
+            () => this.setState({uploading: true}),
+            () => {
+                this.setState({uploading: false});
+                const RESTART_DELAY_MS = 2000;
+                setTimeout(() => RNRestart.Restart(), RESTART_DELAY_MS);
+            },
+            (percentDone, message) => this.setState({uploadProgress: percentDone, uploadMessage: message}),
+            this.state.userId
+        );
+
+        CustomConfirmDialog.show({
+            title: this.I18n.t('restoreFailedTitle'),
+            message: avniError.getDisplayMessage(),
+            yesLabel: uploadIssueInfoButton.text,
+            noLabel: this.I18n.t('performNormalSync'),
+            onYes: uploadIssueInfoButton.onPress,
+            onNo: () => this.loginComplete(source)
+        });
     }
 
     restoreFailureAlert(error, source) {
@@ -252,7 +232,6 @@ class LoginView extends AbstractComponent {
                                     with the card below. */}
                                 <Image source={{uri: `asset:/logo.png`}}
                                        style={{height: 72, width: 180, alignSelf: 'flex-start', marginBottom: 24}} resizeMode={'contain'}/>
-                                {this.renderMultiUserLoginFailure()}
                                 <View style={styles.card}>
                                     <Text style={styles.cardTitle}>{this.I18n.t('Login')}</Text>
                                     {!!errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
@@ -400,7 +379,7 @@ class LoginView extends AbstractComponent {
             return;
         }
         if (this.state.loggedInUser && this.state.loggedInUser !== this.state.userId) {
-            this.setState({showMultiUserLoginWarning: true});
+            this.showMultiUserLoginFailure();
             return;
         }
         this.justLogin();

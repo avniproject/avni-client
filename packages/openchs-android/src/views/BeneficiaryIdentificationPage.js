@@ -1,5 +1,5 @@
 import React from "react";
-import {Alert, ScrollView, StyleSheet, Text, TouchableNativeFeedback, View} from 'react-native';
+import {ScrollView, StyleSheet, Text, TouchableNativeFeedback, View} from 'react-native';
 import AbstractComponent from "../../src/framework/view/AbstractComponent";
 import Path from "../../src/framework/routing/Path";
 import Reducers from '../../src/reducer';
@@ -14,6 +14,7 @@ import WizardButtons from "./common/WizardButtons";
 import CHSContainer from "./common/CHSContainer";
 import {ObservationsHolder, Point, ProgramEnrolment, StaticFormElementGroup} from "avni-models";
 import _ from "lodash";
+import CustomConfirmDialog from "./common/CustomConfirmDialog";
 
 @Path('/BeneficiaryIdentificationPage')
 class BeneficiaryIdentificationPage extends AbstractComponent {
@@ -53,7 +54,7 @@ class BeneficiaryIdentificationPage extends AbstractComponent {
     }
 
     displayAlertMessage(title, message) {
-        return Alert.alert(this.I18n.t(title), this.I18n.t(message));
+        return CustomConfirmDialog.showAlert({title: this.I18n.t(title), message: this.I18n.t(message)});
     }
 
     render() {

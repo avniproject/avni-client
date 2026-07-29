@@ -9,7 +9,7 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import General from "../../utility/General";
 import Reducers from "../../reducer";
 import {AddNewMemberActions as Actions} from "../../action/groupSubject/MemberAction";
-import {Alert, Text, ToastAndroid, TouchableOpacity, View, ScrollView} from "react-native";
+import {Text, ToastAndroid, TouchableOpacity, View, ScrollView} from "react-native";
 import Styles from "../primitives/Styles";
 import IndividualFormElement from "../form/formElement/IndividualFormElement";
 import _ from "lodash";
@@ -18,6 +18,7 @@ import WizardButtons from "../common/WizardButtons";
 import Colors from "../primitives/Colors";
 import AddMemberDetails from "./AddMemberDetails";
 import {IndividualRelative, WorkItem, WorkList, WorkLists} from "avni-models";
+import CustomConfirmDialog from "../common/CustomConfirmDialog";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import GenericDashboardView from "../program/GenericDashboardView";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
@@ -78,11 +79,15 @@ class AddNewMemberView extends AbstractComponent {
 
     save(cb) {
         if (this.state.member.memberSubject.voided) {
-            Alert.alert(this.I18n.t("voidedIndividualAlertTitle"),
-              this.I18n.t("voidedIndividualAlertMessage"));
+            CustomConfirmDialog.showAlert({
+                title: this.I18n.t("voidedIndividualAlertTitle"),
+                message: this.I18n.t("voidedIndividualAlertMessage")
+            });
         } else if (!_.isEmpty(this.state.validationResults)) {
-            Alert.alert(this.I18n.t("validationResult"),
-              this.I18n.t(this.state.validationResults[0].messageKey));
+            CustomConfirmDialog.showAlert({
+                title: this.I18n.t("validationResult"),
+                message: this.I18n.t(this.state.validationResults[0].messageKey)
+            });
         } else {
             this.dispatchAction(Actions.ON_SAVE, {cb});
         }
@@ -121,11 +126,15 @@ class AddNewMemberView extends AbstractComponent {
         } else {
             const memberSubject = this.state.member.memberSubject;
             if (this.state.member.memberSubject.voided) {
-                Alert.alert(this.I18n.t("voidedIndividualAlertTitle"),
-                  this.I18n.t("voidedIndividualAlertMessage"));
+                CustomConfirmDialog.showAlert({
+                    title: this.I18n.t("voidedIndividualAlertTitle"),
+                    message: this.I18n.t("voidedIndividualAlertMessage")
+                });
             } else if (!_.isEmpty(this.state.validationResults)) {
-                Alert.alert(this.I18n.t("validationResult"),
-                  this.I18n.t(this.state.validationResults[0].messageKey));
+                CustomConfirmDialog.showAlert({
+                    title: this.I18n.t("validationResult"),
+                    message: this.I18n.t(this.state.validationResults[0].messageKey)
+                });
             } else {
                 CHSNavigator.navigateToRegisterView(this, {workLists: WorklistsFactory.createForAddMemberWizardLastPage(memberSubject, this.state.member, this.state.individualRelative, this.isHeadOfHousehold(), this.state.relativeGender)});
             }

@@ -44,7 +44,12 @@ export default class DashboardFilters extends AbstractComponent {
             paddingVertical: 2,
             borderRadius: 8,
             paddingHorizontal: 8,
-            marginLeft: 4
+            marginRight: 8,
+            marginTop: 8
+        },
+        quickDateRow: {
+            flexDirection: 'row',
+            flexWrap: 'wrap',
         }
     });
 
@@ -89,8 +94,8 @@ export default class DashboardFilters extends AbstractComponent {
             <View>
                 <View style={DashboardFilters.styles.itemContent}>
                     <View style={DashboardFilters.styles.buttons}>
-                        <View style={{flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', flex: 0.8}}>
-                            <Text style={{fontSize: 15, color: Colors.TextOnPrimaryColor}}>{this.I18n.t("asOnDate")}
+                        <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
+                            <Text style={{fontSize: 15, color: Colors.TextOnPrimaryColor}} numberOfLines={1}>{this.I18n.t("asOnDate")}
                                 : {this.dateDisplay(this.props.date.value)}</Text>
                             <TouchableOpacity
                                 onPress={this.showPicker.bind(this, 'simple', {
@@ -100,16 +105,16 @@ export default class DashboardFilters extends AbstractComponent {
                                 })}>
                                 <MCIIcon name={'calendar-outline'} style={iconStyle}/>
                             </TouchableOpacity>
-                            {this.renderQuickDateOptions('Today', new Date(), isToday)}
-                            {this.renderQuickDateOptions('Tomorrow', moment().add(1, "day").toDate(), isTomorrow)}
                         </View>
-                        <View style={{flex: 0.2, alignItems: 'center'}}>
-                            <TouchableOpacity
-                                style={DashboardFilters.styles.filterButton}
-                                onPress={this.props.onPress}>
-                                <Text style={DashboardFilters.styles.buttonText}>{this.I18n.t("filter")}</Text>
-                            </TouchableOpacity>
-                        </View>
+                        <TouchableOpacity
+                            style={DashboardFilters.styles.filterButton}
+                            onPress={this.props.onPress}>
+                            <Text style={DashboardFilters.styles.buttonText}>{this.I18n.t("filter")}</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={DashboardFilters.styles.quickDateRow}>
+                        {this.renderQuickDateOptions('Today', new Date(), isToday)}
+                        {this.renderQuickDateOptions('Tomorrow', moment().add(1, "day").toDate(), isTomorrow)}
                     </View>
                     <AppliedFilters filters={this.props.filters}
                                     selectedLocations={this.props.selectedLocations}

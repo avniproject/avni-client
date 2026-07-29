@@ -1,4 +1,4 @@
-import {Alert, StyleSheet, Text, ToastAndroid, TouchableOpacity, View} from "react-native";
+import {StyleSheet, Text, ToastAndroid, TouchableOpacity, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -23,6 +23,7 @@ import {Privilege, WorkItem, WorkList, WorkLists} from "avni-models";
 import ObservationsSectionOptions from "../common/ObservationsSectionOptions";
 import Separator from "../primitives/Separator";
 import Distances from "../primitives/Distances";
+import CustomConfirmDialog from "../common/CustomConfirmDialog";
 import Icon from 'react-native-vector-icons/SimpleLineIcons';
 import GenericDashboardView from "../program/GenericDashboardView";
 import FormMappingService from "../../service/FormMappingService";
@@ -93,9 +94,12 @@ class SubjectDashboardProfileTab extends AbstractComponent {
             return [new ContextAction(this.I18n.t('addMember'), () => {
                 const groupRoles = this.context.getService(GroupSubjectService).getGroupRoles(this.state.individual.subjectType)
                 if (_.isEmpty(groupRoles))
-                    Alert.alert(this.I18n.t("rolesNotConfigured"), this.I18n.t("rolesNotConfiguredDescription"), [
-                        {text: this.I18n.t('okay'), onPress: _.noop}
-                    ]);
+                    CustomConfirmDialog.showAlert({
+                        title: this.I18n.t("rolesNotConfigured"),
+                        message: this.I18n.t("rolesNotConfiguredDescription"),
+                        okLabel: this.I18n.t('okay'),
+                        onOk: _.noop
+                    });
                 else
                     CHSNavigator.navigateToAddMemberView(this, this.state.individual)
             })];
@@ -111,16 +115,15 @@ class SubjectDashboardProfileTab extends AbstractComponent {
     }
 
     alert(title, message, onYesPress) {
-        Alert.alert(title, message, [
-            {
-                text: this.I18n.t('yes'), onPress: onYesPress
-            },
-            {
-                text: this.I18n.t('no'), onPress: () => {
-                },
-                style: 'cancel'
+        CustomConfirmDialog.show({
+            title,
+            message,
+            yesLabel: this.I18n.t('yes'),
+            noLabel: this.I18n.t('no'),
+            onYes: onYesPress,
+            onNo: () => {
             }
-        ])
+        });
     }
 
     onRelativeDeletePress(individualRelative) {
@@ -287,29 +290,24 @@ class SubjectDashboardProfileTab extends AbstractComponent {
     }
 
     voidUnVoidAlert(title, message, setVoided) {
-        Alert.alert(
-            this.I18n.t(title),
-            this.I18n.t(message),
-            [
-                {
-                    text: this.I18n.t('yes'), onPress: () => {
-                        this.dispatchAction(Actions.VOID_UN_VOID_INDIVIDUAL,
-                            {
-                                individualUUID: this.props.params.individualUUID,
-                                setVoided: setVoided,
-                                cb: () => {
-                                }
-                            },
-                        );
-                    }
-                },
-                {
-                    text: this.I18n.t('no'), onPress: () => {
+        CustomConfirmDialog.show({
+            title: this.I18n.t(title),
+            message: this.I18n.t(message),
+            yesLabel: this.I18n.t('yes'),
+            noLabel: this.I18n.t('no'),
+            onYes: () => {
+                this.dispatchAction(Actions.VOID_UN_VOID_INDIVIDUAL,
+                    {
+                        individualUUID: this.props.params.individualUUID,
+                        setVoided: setVoided,
+                        cb: () => {
+                        }
                     },
-                    style: 'cancel'
-                }
-            ]
-        )
+                );
+            },
+            onNo: () => {
+            }
+        });
     }
 
     voidIndividual() {
