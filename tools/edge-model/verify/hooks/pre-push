@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Second gate — catches `git commit --no-verify`. Guards the whole push range.
+set -euo pipefail
+root="$(git rev-parse --show-toplevel)"
+while read -r _local_ref _local_sha remote_ref remote_sha; do
+  base="$remote_sha"
+  [[ "$remote_sha" =~ ^0+$ ]] && base="$(git rev-list --max-parents=0 HEAD | tail -1)"
+  "$root/tools/edge-model/verify/guard-no-proprietary.sh" "range:${base}..${_local_sha}"
+done

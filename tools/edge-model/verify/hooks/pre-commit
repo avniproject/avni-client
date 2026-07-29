@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+exec "$(git rev-parse --show-toplevel)/tools/edge-model/verify/guard-no-proprietary.sh" staged
