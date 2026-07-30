@@ -23,19 +23,24 @@ export default function GuidedCameraModal({visible, onClose, onCapture, labels})
     const {hasPermission, requestPermission} = useCameraPermission();
     const [error, setError] = useState(null);
     const [busy, setBusy] = useState(false);
-    // Bumped on every open and every close; a capture that outlives its session (e.g. a hung
+    // Bumped on every open, close, and unmount; a capture that outlives its session (e.g. a hung
     // takePhoto the user closed out of) is discarded instead of writing or touching state.
     const sessionRef = useRef(0);
+    // Synchronous double-tap guard; `busy` state lags a render behind and won't stop a second tap in the same tick.
+    const busyRef = useRef(false);
 
     // The modal stays mounted while the element renders, so per-session state is reset on open.
     useEffect(() => {
         if (visible && !hasPermission) requestPermission();
         if (visible) {
             sessionRef.current++;
+            busyRef.current = false;
             setError(null);
             setBusy(false);
         }
     }, [visible, hasPermission]);
+
+    useEffect(() => () => { sessionRef.current++; }, []);
 
     const handleClose = () => {
         sessionRef.current++;
@@ -43,7 +48,8 @@ export default function GuidedCameraModal({visible, onClose, onCapture, labels})
     };
 
     const capture = async () => {
-        if (busy) return;
+        if (busyRef.current) return;
+        busyRef.current = true;
         const session = sessionRef.current;
         setBusy(true);
         setError(null);
@@ -52,10 +58,11 @@ export default function GuidedCameraModal({visible, onClose, onCapture, labels})
             if (sessionRef.current !== session) return;
             await onCapture(photo.path);
         } catch (e) {
+            General.logError('GuidedCameraModal', e);
             if (sessionRef.current !== session) return;
-            General.logError('GuidedCameraModal', `capture failed: ${e && e.message}`);
             setError(labels.captureFailed);
         } finally {
+            busyRef.current = false;
             if (sessionRef.current === session) setBusy(false);
         }
     };
@@ -77,7 +84,7 @@ export default function GuidedCameraModal({visible, onClose, onCapture, labels})
                 <Camera ref={cameraRef} style={StyleSheet.absoluteFill} device={device} isActive={visible} photo={true} />
                 <TouchableOpacity style={styles.close} onPress={handleClose}><Text style={styles.closeText}>✕</Text></TouchableOpacity>
                 {error && (
-                    <View style={styles.errorBanner}><Text style={styles.err}>{error}</Text></View>
+                    <View style={styles.errorBanner} pointerEvents="none"><Text style={styles.err}>{error}</Text></View>
                 )}
                 <View style={styles.controls}>
                     <TouchableOpacity
