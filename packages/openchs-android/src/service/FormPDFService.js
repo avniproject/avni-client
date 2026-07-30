@@ -1,6 +1,5 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import moment from "moment";
 import _ from "lodash";
 import {Observation} from "avni-models";
 import ConceptService from "./ConceptService";
@@ -9,7 +8,7 @@ import IndividualService from "./IndividualService";
 import EncounterService from "./EncounterService";
 import FormMappingService from "./FormMappingService";
 import MessageService from "./MessageService";
-import PDFGenerationService, {PAGE} from "./PDFGenerationService";
+import PDFGenerationService, {PAGE, buildPdfFileName} from "./PDFGenerationService";
 import General from "../utility/General";
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 
@@ -21,11 +20,6 @@ function escapeHtml(value) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#39;");
-}
-
-function snakeCase(str) {
-    const out = _.snakeCase(_.deburr(String(str || "")));
-    return _.isEmpty(out) ? "form" : out;
 }
 
 const CONTENT_AREA_HEIGHT_MM = PAGE.heightMm - PAGE.marginBottomMm;
@@ -229,13 +223,14 @@ class FormPDFService extends BaseService {
                     </html>`;
     }
 
-    _buildFileName(formTitle) {
-        return `${snakeCase(formTitle)}_${moment().format("DD_MM_YYYY")}`;
+    _buildFileName(individual, formTitle) {
+        const name = _.get(individual, "getTranslatedNameString") ? individual.getTranslatedNameString(this.I18n) : _.get(individual, "nameString");
+        return buildPdfFileName(name, formTitle);
     }
 
     _shareForm({individual, formTitle, formMeta, observations, form}) {
         const html = this._buildHtml({individual, formTitle, formMeta, observations, form});
-        const fileName = this._buildFileName(formTitle);
+        const fileName = this._buildFileName(individual, formTitle);
         return this.getService(PDFGenerationService).shareHtmlAsPdf(html, fileName);
     }
 
