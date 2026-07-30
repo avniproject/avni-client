@@ -7,6 +7,14 @@ const COLUMNS = ["model6", "model8", "model8-2"];
 const sigmoid = (logit) => 1 / (1 + Math.exp(-logit));
 
 class EdgeModelParityIntegrationTest extends BaseIntegrationTest {
+    // MUST override: the base setup calls realmDb.deleteAll(). On 17.x the folds resolve from synced
+    // DownloadableContent rows in Realm, so a wipe destroys the device's synced state AND leaves the
+    // sweep with no model ("no edgeModel content row is synced"). Harmless on newmodel, where models
+    // came from APK assets. This test only reads image files and runs inference — nothing to set up.
+    setup() {
+        return this;
+    }
+
     // Auto-discovered test method (IntegrationTestRunner runs every method except constructor/setup/teardown).
     // Bulk-runs every staged image through the real EdgeModelService and writes one file per run.
     async runParitySweep() {
