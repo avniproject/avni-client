@@ -152,6 +152,8 @@ export default class MediaFormElement extends AbstractFormElement {
     // Records the observation only after resize + move succeed; on failure it rejects (modal logs + shows retake).
     async onGuidedCapture(photoPath) {
         const resizedUri = await resizeCapturedImage(ImageResizer, photoPath, this._guidedOptions);
+        fs.unlink(photoPath).catch(() => {});
+        if (!this.state.showGuidedCamera) return; // closed mid-resize: cancel the capture rather than commit it
         await this.addMediaFromPicker(toPickerResponse(resizedUri), this._guidedOnUpdate);
         this.setState({showGuidedCamera: false});
     }
@@ -226,7 +228,7 @@ export default class MediaFormElement extends AbstractFormElement {
                           style={styles.icon}/>
                 </TouchableNativeFeedback>
                 {guided && <GuidedCameraModal
-                    visible={this.state.showGuidedCamera}
+                    visible={!!this.state.showGuidedCamera}
                     labels={this.guidedCameraLabels}
                     onClose={() => this.setState({showGuidedCamera: false})}
                     onCapture={(photoPath) => this.onGuidedCapture(photoPath)}
