@@ -81,6 +81,60 @@ describe('AbstractDataEntryStateTest', () => {
         action.assert();   // block held: validationFailed, not movedNext
     });
 
+    it('an Inference unavailable error survives page re-entry and still blocks (#2008, finding 3)', () => {
+        // QA repro: raise the error, press PREVIOUS then NEXT, and the block is gone. Re-entering a
+        // page runs updateFormElements -> getRuleValidationErrors, which emits a SUCCESS for every
+        // element on it. handleValidationResult removed the Inference failure on that success, and
+        // the per-image no-retry guard then suppressed re-raising it — so the worker reached
+        // Referral Decision and was told "no suspicious lesions" for an unassessed image.
+        const concept = EntityFactory.createConcept('AI Verdict', Concept.dataType.Text);
+        const formElement = EntityFactory.createFormElement('AI Verdict', false, concept);
+        formElementGroup.addFormElement(formElement);
+        const workLists = new WorkLists(new WorkList('Test', [new WorkItem('100', WorkItem.type.ENCOUNTER, {
+            subjectUUID: '100100100', encounterType: 'Foo',
+        })]));
+
+        let state = new StubbedDataEntryState([], formElementGroup, new Wizard(2, 1), [], workLists);
+        state = ObservationsHolderActions.onInferenceUnavailable(state, {
+            conceptName: 'AI Verdict', questionGroupConceptName: null, questionGroupIndex: null,
+            messageKey: 'aiModelUnavailable',
+        }, testContext);
+        expect(state.validationResults.length).to.equal(1);
+
+        // Exactly what page re-entry does — a rule-cycle success for the same element.
+        const statuses = [{uuid: formElement.uuid, validationErrors: [], questionGroupIndex: undefined}];
+        state.handleValidationResults(ObservationsHolderActions.getRuleValidationErrors(statuses), testContext);
+
+        expect(state.validationResults.length, 'a rule-cycle success must not wipe the Inference error').to.equal(1);
+        expect(state.validationResults[0].validationType).to.equal(ValidationResult.ValidationTypes.Inference);
+
+        const action = WizardNextActionStub.forValidationFailed();
+        state.handleNext(action, testContext);
+        action.assert();   // still blocked after re-entry
+    });
+
+    it('a later verdict still clears the Inference error (#2008)', () => {
+        // The counterpart to the above: the error must not become unclearable. _clearInferenceValidation
+        // is how a landed verdict removes it, and it must keep working.
+        const concept = EntityFactory.createConcept('AI Verdict', Concept.dataType.Text);
+        const formElement = EntityFactory.createFormElement('AI Verdict', false, concept);
+        formElementGroup.addFormElement(formElement);
+        const workLists = new WorkLists(new WorkList('Test', [new WorkItem('100', WorkItem.type.ENCOUNTER, {
+            subjectUUID: '100100100', encounterType: 'Foo',
+        })]));
+
+        let state = new StubbedDataEntryState([], formElementGroup, new Wizard(2, 1), [], workLists);
+        state = ObservationsHolderActions.onInferenceUnavailable(state, {
+            conceptName: 'AI Verdict', questionGroupConceptName: null, questionGroupIndex: null,
+            messageKey: 'aiModelUnavailable',
+        }, testContext);
+        expect(state.validationResults.length).to.equal(1);
+
+        ObservationsHolderActions._clearInferenceValidation(state, formElement.uuid, undefined);
+
+        expect(state.validationResults.length, 'a landed verdict must clear the error').to.equal(0);
+    });
+
     it('single select form element data entry', () => {
         const concept = EntityFactory.createConcept('c1', Concept.dataType.Coded);
         EntityFactory.addCodedAnswers(concept, ['a1', 'a2', 'a3']);
