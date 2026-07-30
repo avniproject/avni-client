@@ -52,7 +52,14 @@ class ProgramEncounterView extends AbstractComponent {
     UNSAFE_componentWillMount() {
         const {encounterType, enrolmentUUID, programEncounter, workLists, pageNumber, editing} = this.props.params;
         if (programEncounter) {
-            this.dispatchAction(Actions.ON_LOAD, {programEncounter, workLists, pageNumber, editing});
+            // When the visit date is hidden org-wide the user can't set it, so auto-capture today
+            // for encounters that arrive without one (e.g. scheduled/planned encounters).
+            let encounterToLoad = programEncounter;
+            if (_.isNil(programEncounter.encounterDateTime) && this.context.getService(OrganisationConfigService).isVisitDateHidden()) {
+                encounterToLoad = programEncounter.cloneForEdit();
+                encounterToLoad.encounterDateTime = new Date();
+            }
+            this.dispatchAction(Actions.ON_LOAD, {programEncounter: encounterToLoad, workLists, pageNumber, editing});
             return super.UNSAFE_componentWillMount();
         }
         const programEncounterByType = this.context.getService(ProgramEncounterService)
@@ -187,7 +194,7 @@ class ProgramEncounterView extends AbstractComponent {
         const title = `${this.state.programEncounter.programEnrolment.individual.nameString} - ${programEncounterName}`;
         this.displayMessage(this.props.params.message);
         const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);
-        const hideVisitDate = this.context.getService(OrganisationConfigService).isVisitDateHidden();
+        const hideVisitDate = this.context.getService(OrganisationConfigService).isVisitDateHidden() && !_.isNil(this.state.programEncounter.encounterDateTime);
         return (
             <CHSContainer>
                 <CHSContent>

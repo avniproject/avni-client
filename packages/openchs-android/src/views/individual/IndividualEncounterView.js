@@ -52,7 +52,14 @@ class IndividualEncounterView extends AbstractComponent {
     UNSAFE_componentWillMount() {
         const {encounterType, individualUUID, encounter, workLists, pageNumber, editing} = this.props;
         if (encounter) {
-            this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter, workLists, pageNumber, editing});
+            // When the visit date is hidden org-wide the user can't set it, so auto-capture today
+            // for encounters that arrive without one (e.g. scheduled/planned encounters).
+            let encounterToLoad = encounter;
+            if (_.isNil(encounter.encounterDateTime) && this.context.getService(OrganisationConfigService).isVisitDateHidden()) {
+                encounterToLoad = encounter.cloneForEdit();
+                encounterToLoad.encounterDateTime = new Date();
+            }
+            this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter: encounterToLoad, workLists, pageNumber, editing});
             return super.UNSAFE_componentWillMount();
         }
         const encounterByType = this.context.getService(EncounterService)
@@ -162,7 +169,7 @@ class IndividualEncounterView extends AbstractComponent {
             this.onGoToSummary(true);
         }
         const title = `${this.I18n.t(this.state.encounter.encounterType.displayName)} - ${this.I18n.t('enterData')}`;
-        const hideVisitDate = this.context.getService(OrganisationConfigService).isVisitDateHidden();
+        const hideVisitDate = this.context.getService(OrganisationConfigService).isVisitDateHidden() && !_.isNil(this.state.encounter.encounterDateTime);
         return (
             <CHSContainer>
                 <CHSContent>
