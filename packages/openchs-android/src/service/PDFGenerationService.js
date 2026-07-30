@@ -32,6 +32,18 @@ function escapeHtml(value) {
         .replace(/'/g, "&#39;");
 }
 
+function fileNamePart(value) {
+    return _.snakeCase(_.deburr(String(value || "")));
+}
+
+// Subject name leads so that a day's shared PDFs stay distinguishable: without it
+// every share of the same form on the same day produces an identical name and the
+// receiving app disambiguates them as "(1)", "(2)".
+export function buildPdfFileName(subjectName, formTitle) {
+    const stem = [fileNamePart(subjectName), fileNamePart(formTitle)].filter(part => !_.isEmpty(part)).join("_");
+    return `${_.isEmpty(stem) ? "form" : stem}_${moment().format("DD_MM_YYYY")}`;
+}
+
 // Generic HTML → PDF → share-sheet pipeline. Knows nothing about Avni domain entities.
 // Domain-specific HTML composition (e.g. subject header, observation rows for forms;
 // custom card content for dashboards) lives in callers like FormPDFService.

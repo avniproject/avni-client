@@ -14,14 +14,9 @@ import UserInfoService from "./UserInfoService";
 import RuleEvaluationService from "./RuleEvaluationService";
 import FormPDFService from "./FormPDFService";
 import FormShareTemplateService from "./FormShareTemplateService";
-import PDFGenerationService from "./PDFGenerationService";
+import PDFGenerationService, {buildPdfFileName} from "./PDFGenerationService";
 import General from "../utility/General";
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
-
-function snakeCase(str) {
-    const out = _.snakeCase(_.deburr(String(str || "")));
-    return _.isEmpty(out) ? "form" : out;
-}
 
 function renderMustache(template, data) {
     if (_.isEmpty(template)) return "";
@@ -110,7 +105,7 @@ class FormShareService extends BaseService {
     // ---------- PDF branch ----------
 
     async _sharePdf(ctx) {
-        const {form, ruleOut, formTitle} = ctx;
+        const {form, ruleOut, formTitle, individual} = ctx;
         const hasCustomPdf = _.isPlainObject(ruleOut?.data) && form && form.hasShareTemplate && form.hasShareTemplate();
         if (hasCustomPdf) {
             try {
@@ -118,8 +113,8 @@ class FormShareService extends BaseService {
                 if (!_.isEmpty(templateHtml)) {
                     // Consistent with custom cards: the template owns the full HTML output.
                     const html = renderMustache(templateHtml, ruleOut.data);
-                    const fileName = `${snakeCase(formTitle)}_${moment().format("DD_MM_YYYY")}`;
-                    return await this.getService(PDFGenerationService).shareHtmlAsPdf(html, fileName);
+                    const subjectName = _.get(individual, "getTranslatedNameString") ? individual.getTranslatedNameString(this.I18n) : _.get(individual, "nameString");
+                    return await this.getService(PDFGenerationService).shareHtmlAsPdf(html, buildPdfFileName(subjectName, formTitle));
                 }
                 General.logDebug("FormShareService", `Share template ${form.shareTemplateS3Key} fetched but empty; falling back to default PDF`);
             } catch (e) {
