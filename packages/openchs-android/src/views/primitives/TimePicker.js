@@ -53,7 +53,7 @@ class TimePicker extends AbstractComponent {
                         <View/>
                         :
                         <TouchableNativeFeedback transparent onPress={() => this.removeTime()} style={{height: 20, alignSelf: 'center'}}>
-                            <Icon name='backspace' style={{marginLeft: 8, alignSelf: 'center', fontSize: 20, color: Colors.AccentColor}}/>
+                            <Icon name='backspace-outline' style={{marginLeft: 8, alignSelf: 'center', fontSize: 20, color: Colors.AccentColor}}/>
                         </TouchableNativeFeedback>
                     }
                 </View>

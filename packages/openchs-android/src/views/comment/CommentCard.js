@@ -75,7 +75,7 @@ class CommentCard extends AbstractComponent {
         return (
             <View style={styles.cardContainer}>
                 <View style={{minWidth: 30 , marginRight: 1}}>
-                    <MCIcon name={'account-circle'} size={30}/>
+                    <MCIcon name={'account-circle-outline'} size={30}/>
                 </View>
                 <View style={{flex: 1}}>
                     <View style={{flex: 1, flexDirection: 'column'}}>

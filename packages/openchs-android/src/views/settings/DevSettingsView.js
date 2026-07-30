@@ -1,4 +1,4 @@
-import {Text, TouchableNativeFeedback, View, TextInput, ScrollView} from "react-native";
+import {Text, TouchableNativeFeedback, View, TextInput, ScrollView, StyleSheet} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -11,7 +11,6 @@ import AppHeader from "../common/AppHeader";
 import Distances from '../primitives/Distances';
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
-import Styles from "../primitives/Styles";
 import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
@@ -49,7 +48,8 @@ class DevSettingsView extends AbstractComponent {
     renderLogLevels() {
         const logLevelLabelValuePairs = _.keys(General.LogLevel).map((logLevelName) => new RadioLabelValue(logLevelName, General.LogLevel[logLevelName]));
         const currentLocale = this.getService(UserInfoService).getUserSettings().locale;
-        return <View>
+        return <View style={styles.card}>
+            <Text style={styles.cardTitle}>Log Level</Text>
             <SelectableItemGroup
                 locale={currentLocale}
                 I18n={this.I18n}
@@ -58,7 +58,7 @@ class DevSettingsView extends AbstractComponent {
                 validationError={null}
                 labelValuePairs={logLevelLabelValuePairs}
                 labelKey='logLevel'
-                style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
+                style={{marginTop: 4}}
             />
         </View>;
     }
@@ -80,52 +80,60 @@ class DevSettingsView extends AbstractComponent {
                 .map(([displayName, value]) => new RadioLabelValue(displayName, value));
             const currentLocale = this.getService(UserInfoService).getUserSettings().locale;
             return (<View>
-                <SelectableItemGroup
-                    locale={currentLocale}
-                    I18n={this.I18n}
-                    onPress={(value) => this.dispatchAction(Actions.ON_RULE_CHANGE, {value: value})}
-                    labelValuePairs={labelValues}
-                    labelKey='Rules to run'
-                    selectionFn={(ruleToRun) => rulesToRun.indexOf(ruleToRun) > -1}
-                    validationError={null}
-                    multiSelect={true}
-                    style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
-                />
-                <TouchableNativeFeedback onPress={() => this.runRules(rulesToRun)}>
-                    <View style={Styles.basicPrimaryButtonView}>
-                        <Text style={{
-                            fontSize: Fonts.Medium,
-                            color: Colors.TextOnPrimaryColor
-                        }}>Run {rulesToRun.length === 0 ? 'All' : 'Selected'} Rules</Text>
-                    </View>
-                </TouchableNativeFeedback>
-                <View style={{marginTop: 20}}>
-                    <Text>Server URL:</Text>
-                    <TextInput value={settings.serverURL} onChangeText={(text) => this.dispatchAction(Actions.ON_SERVER_URL_CHANGE, {value: text})}/>
-                </View>
-                <View style={{marginBottom: 20}}>
-                    <Text>Current App Time:</Text>
-                    <Text>{moment().format("DD MMM YYYY hh:mm a")}</Text>
+                <View style={styles.card}>
+                    <Text style={styles.cardTitle}>Rules to run</Text>
+                    <SelectableItemGroup
+                        locale={currentLocale}
+                        I18n={this.I18n}
+                        onPress={(value) => this.dispatchAction(Actions.ON_RULE_CHANGE, {value: value})}
+                        labelValuePairs={labelValues}
+                        labelKey='Rules to run'
+                        selectionFn={(ruleToRun) => rulesToRun.indexOf(ruleToRun) > -1}
+                        validationError={null}
+                        multiSelect={true}
+                        style={{marginTop: 4}}
+                    />
+                    <TouchableNativeFeedback onPress={() => this.runRules(rulesToRun)}>
+                        <View style={[styles.primaryButton, {marginTop: 16}]}>
+                            <Text style={styles.primaryButtonText}>Run {rulesToRun.length === 0 ? 'All' : 'Selected'} Rules</Text>
+                        </View>
+                    </TouchableNativeFeedback>
                 </View>
 
-                <TouchableNativeFeedback onPress={() => this.clearDashboardCache()}>
-                    <View style={Styles.basicPrimaryButtonView}>
-                        <Text style={{
-                            fontSize: Fonts.Medium,
-                            color: Colors.TextOnPrimaryColor
-                        }}>Clear Dashboard Cache (make restart-app after)</Text>
-                    </View>
-                </TouchableNativeFeedback>
+                <View style={styles.card}>
+                    <Text style={styles.cardTitle}>Server URL</Text>
+                    <TextInput style={styles.textInput}
+                               value={settings.serverURL}
+                               underlineColorAndroid={'transparent'}
+                               placeholderTextColor={Colors.TextHint}
+                               onChangeText={(text) => this.dispatchAction(Actions.ON_SERVER_URL_CHANGE, {value: text})}/>
+                </View>
+
+                <View style={styles.card}>
+                    <Text style={styles.cardTitle}>Current App Time</Text>
+                    <Text style={styles.cardValue}>{moment().format("DD MMM YYYY hh:mm a")}</Text>
+                </View>
+
+                <View style={styles.card}>
+                    <Text style={styles.cardTitle}>Dashboard Cache</Text>
+                    <Text style={styles.cardHint}>App restart required after clearing.</Text>
+                    <TouchableNativeFeedback onPress={() => this.clearDashboardCache()}>
+                        <View style={[styles.primaryButton, {marginTop: 12}]}>
+                            <Text style={styles.primaryButtonText}>Clear Dashboard Cache</Text>
+                        </View>
+                    </TouchableNativeFeedback>
+                </View>
             </View>);
         }
     }
 
     render() {
         return (
-            <CHSContainer>
+            <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
                 <CHSContent>
                     <AppHeader title={'Dev Settings'}/>
-                    <ScrollView style={{paddingHorizontal: Distances.ContentDistanceFromEdge}}>
+                    <ScrollView style={{backgroundColor: Colors.GreyContentBackground}}
+                                contentContainerStyle={styles.scrollContent}>
                         {this.renderDevOptions()}
                         {this.renderLogLevels()}
                     </ScrollView>
@@ -134,5 +142,59 @@ class DevSettingsView extends AbstractComponent {
         );
     }
 }
+
+const styles = StyleSheet.create({
+    scrollContent: {
+        paddingHorizontal: Distances.ContentDistanceFromEdge,
+        paddingTop: 16,
+        paddingBottom: 32
+    },
+    card: {
+        backgroundColor: Colors.WhiteContentBackground,
+        borderWidth: 1,
+        borderColor: Colors.BorderDefault,
+        borderRadius: 8,
+        padding: 16,
+        marginBottom: 16
+    },
+    cardTitle: {
+        fontSize: Fonts.Medium,
+        fontWeight: '600',
+        color: Colors.TextPrimaryDark,
+        marginBottom: 4
+    },
+    cardValue: {
+        fontSize: Fonts.Normal,
+        color: Colors.TextPrimaryDark,
+        marginTop: 8
+    },
+    cardHint: {
+        fontSize: Fonts.Small,
+        color: Colors.TextSecondary,
+        marginTop: 4
+    },
+    textInput: {
+        marginTop: 12,
+        height: 48,
+        borderWidth: 1,
+        borderColor: Colors.TextHint,
+        borderRadius: 4,
+        paddingHorizontal: 12,
+        color: Colors.TextPrimaryDark
+    },
+    primaryButton: {
+        minHeight: 48,
+        borderRadius: 8,
+        backgroundColor: Colors.BrandPrimaryDark,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 16
+    },
+    primaryButtonText: {
+        fontSize: Fonts.Medium,
+        color: Colors.TextOnPrimaryColor,
+        fontWeight: '600'
+    }
+});
 
 export default DevSettingsView;

@@ -26,7 +26,8 @@ class AppHeader extends AbstractComponent {
         renderSync: PropTypes.bool,
         title: PropTypes.string.isRequired,
         renderSearch: PropTypes.bool,
-        onSearch: PropTypes.func
+        onSearch: PropTypes.func,
+        subtitle: PropTypes.string
     };
 
     static defaultProps = {
@@ -77,8 +78,8 @@ class AppHeader extends AbstractComponent {
                 paddingHorizontal: 16,
             }}>
                 {_.isNil(this.props.icon) ? (this.props.hideIcon ? <View/> :
-                        <MCIIcon style={{fontSize: 30, color: Colors.headerIconColor}} name='home'/>) :
-                    <MCIIcon style={{fontSize: 30, color: Colors.headerIconColor}} name={this.props.icon}/>}
+                        <MCIIcon style={{fontSize: 24, color: Colors.headerIconColor}} name='home-outline'/>) :
+                    <MCIIcon style={{fontSize: 24, color: Colors.headerIconColor}} name={this.props.icon}/>}
             </View>
         </TouchableNativeFeedback>;
     }
@@ -92,7 +93,7 @@ class AppHeader extends AbstractComponent {
     }
 
     render() {
-        const {renderSync, renderExitBeneficiaryMode, renderCommentResolve, hideBackButton, title, renderSearch, iconFunc, onSearch} = this.props;
+        const {renderSync, renderExitBeneficiaryMode, renderCommentResolve, hideBackButton, title, subtitle, renderSearch, iconFunc, onSearch} = this.props;
 
         return (
             <View style={{
@@ -112,15 +113,23 @@ class AppHeader extends AbstractComponent {
                             width: 72,
                             paddingHorizontal: 16
                         }}>
-                            <MCIIcon style={{fontSize: 35, color: Colors.headerIconColor}} name='arrow-left'/>
+                            <MCIIcon style={{fontSize: 24, color: Colors.headerIconColor}} name='arrow-left'/>
                         </View>
                     </TouchableNativeFeedback>}
 
-                <View style={{flex: 1, flexDirection: 'row', alignSelf: 'center'}}>
+                <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', paddingVertical: subtitle ? 8 : 0}}>
                     <Text style={[{
                         color: Colors.headerTextColor,
-                        fontSize: 18
+                        fontSize: 18,
+                        fontWeight: subtitle ? 'bold' : 'normal'
                     }, hideBackButton && {marginLeft: 20}]}>{title}</Text>
+                    {!_.isNil(subtitle) &&
+                        <Text style={[{
+                            color: Colors.headerTextColor,
+                            fontSize: 13,
+                            opacity: 0.85,
+                            marginTop: 2
+                        }, hideBackButton && {marginLeft: 20}]}>{subtitle}</Text>}
                 </View>
                 {renderSearch && <TouchableNativeFeedback onPress={() => onSearch()} background={this.background()}>
                     <View style={{
@@ -130,7 +139,7 @@ class AppHeader extends AbstractComponent {
                         height: 56,
                         width: 72
                     }}>
-                        <MCIIcon style={{fontSize: 30, color: Colors.headerIconColor}} name='magnify'/>
+                        <MCIIcon style={{fontSize: 24, color: Colors.headerIconColor}} name='magnify'/>
                     </View></TouchableNativeFeedback>}
                 {renderSync && this.renderSyncIcon()}
                 {renderExitBeneficiaryMode && this.renderExitBeneficiaryMode()}

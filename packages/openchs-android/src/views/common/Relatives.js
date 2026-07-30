@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     },
     buttonStyle: {
         backgroundColor: Styles.greyBackground,
-        borderRadius: 5,
+        borderRadius: 8,
         marginHorizontal: 5
     }
 });

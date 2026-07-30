@@ -4,7 +4,6 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Text} from "native-base";
 import Colors from "../primitives/Colors";
 import Fonts from "../primitives/Fonts";
-import Styles from "./Styles";
 import Pressable from "react-native/Libraries/Components/Pressable/Pressable";
 
 class ContextActionButton extends AbstractComponent {
@@ -27,9 +26,7 @@ class ContextActionButton extends AbstractComponent {
                 <Text style={{
                     fontSize: Fonts.Medium,
                     color: color,
-                    paddingHorizontal: 5,
-                    backgroundColor: Styles.greyBackground,
-                    borderRadius: 5
+                    paddingHorizontal: 5
                 }}>{`${this.I18n.t(this.props.labelKey)}`}</Text></Pressable>
         );
     }

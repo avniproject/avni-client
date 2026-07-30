@@ -39,11 +39,15 @@ class EntitySyncStatusView extends AbstractComponent {
 
     render() {
         return (
-            <CHSContainer>
+            <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
+                <AppHeader title={this.I18n.t('entitySyncStatus')}/>
                 <CHSContent>
-                    <AppHeader title={this.I18n.t('entitySyncStatus')}/>
-                    <ScrollView>
-                        <View style={{paddingHorizontal: Distances.ContentDistanceFromEdge}}>
+                    <ScrollView style={{backgroundColor: Colors.GreyContentBackground}}>
+                        <View style={{
+                            paddingHorizontal: Distances.ContentDistanceFromEdge,
+                            paddingBottom: 16,
+                            backgroundColor: Colors.GreyContentBackground
+                        }}>
                             <EntitySyncStatusSummary totalQueueCount={this.state.totalQueueCount}
                                                      lastLoaded={this.state.lastLoaded}/>
                             <EntitySyncStatusTable data={this.state.entitySyncStatusList}/>

@@ -1,9 +1,10 @@
 import Geolocation from "react-native-geolocation-service";
-import {PermissionsAndroid, Platform, Alert, Linking} from "react-native";
+import {PermissionsAndroid, Platform, Linking} from "react-native";
 import I18n from 'i18n-js';
 import General from "./General";
 import _ from "lodash";
 import IssueUploadUtil from "./IssueUploadUtil";
+import CustomConfirmDialog from "../views/common/CustomConfirmDialog";
 
 export default class DeviceLocation {
     static async askLocationPermission() {
@@ -43,19 +44,17 @@ export default class DeviceLocation {
             successCallbackFn(position);
             return;
         }
-        const suggestions = [
-            {text: I18n.t('cancel'), style: 'cancel', onPress: () => {
-                errorCallbackFn && errorCallbackFn();
-            }},
-            {text: I18n.t('save'), onPress: () => successCallbackFn(position)}
-        ];
-
         const accuracy = position.coords.accuracy;
-        Alert.alert(
-            I18n.t('saveLocation'),
-            I18n.t('locationFoundWithAccuracy', {accuracy: accuracy?.toFixed(2)}),
-            suggestions
-        );
+        CustomConfirmDialog.show({
+            title: I18n.t('saveLocation'),
+            message: I18n.t('locationFoundWithAccuracy', {accuracy: accuracy?.toFixed(2)}),
+            yesLabel: I18n.t('save'),
+            noLabel: I18n.t('cancel'),
+            onYes: () => successCallbackFn(position),
+            onNo: () => {
+                errorCallbackFn && errorCallbackFn();
+            }
+        });
     }
 
     static handleLocationError(error, silent, successCallbackFn, errorCallbackFn, context) {
@@ -65,33 +64,40 @@ export default class DeviceLocation {
                 DeviceLocation.handlePermissionDenied(errorCallbackFn, error);
             } else {
                 const errorMessage = `Location error: ${error.message}`;
-                const suggestions = [
-                    { text: I18n.t('cancel'), style: 'cancel', onPress: () => errorCallbackFn && errorCallbackFn(error) }
-                ];
-                
-                suggestions.push(IssueUploadUtil.createUploadIssueInfoButton(
+                const uploadIssueInfoButton = IssueUploadUtil.createUploadIssueInfoButton(
                     context,
                     I18n,
                     error,
                     "DeviceLocation"
-                ));
-                
-                Alert.alert(I18n.t('locationPermissionRequired'), errorMessage, suggestions);
+                );
+
+                CustomConfirmDialog.show({
+                    title: I18n.t('locationPermissionRequired'),
+                    message: errorMessage,
+                    yesLabel: uploadIssueInfoButton.text,
+                    noLabel: I18n.t('cancel'),
+                    onYes: uploadIssueInfoButton.onPress,
+                    onNo: () => errorCallbackFn && errorCallbackFn(error)
+                });
             }
         }
     }
 
     static handlePermissionDenied(errorCallbackFn, error = null) {
         const permissionError = error || {code: 1, message: "Location permission denied"};
-        Alert.alert(I18n.t('locationPermissionRequired'), I18n.t('giveLocationPermissionFromSettings'), [
-            { text: I18n.t('cancel'), style: 'cancel', onPress: () => {
-                    errorCallbackFn && errorCallbackFn(permissionError);
-                }},
-            { text: I18n.t('openSettings'), onPress: () => {
-                    Linking.openSettings();
-                    errorCallbackFn && errorCallbackFn(permissionError);
-                }}
-        ]);
+        CustomConfirmDialog.show({
+            title: I18n.t('locationPermissionRequired'),
+            message: I18n.t('giveLocationPermissionFromSettings'),
+            yesLabel: I18n.t('openSettings'),
+            noLabel: I18n.t('cancel'),
+            onYes: () => {
+                Linking.openSettings();
+                errorCallbackFn && errorCallbackFn(permissionError);
+            },
+            onNo: () => {
+                errorCallbackFn && errorCallbackFn(permissionError);
+            }
+        });
     }
 
     static getPosition = async function(successCallbackFn, silent = true, errorCallbackFn = null, context = null) {

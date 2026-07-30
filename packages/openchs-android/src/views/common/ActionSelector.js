@@ -1,5 +1,4 @@
 import {
-    Dimensions,
     Modal,
     Text,
     TouchableNativeFeedback,
@@ -16,36 +15,45 @@ import _ from "lodash";
 import Colors from "../primitives/Colors";
 import AvniIcon from "./AvniIcon";
 
-const {width} = Dimensions.get('window');
-
+// Bottom-sheet style instead of a small centered card - the old layout capped the card at 55%
+// height and top-aligned it, leaving most of the screen below as dead, unused overlay space.
 const styles = {
-    modalBackground: {
-        width: width * .7,
-        backgroundColor: 'white',
-        flexWrap: 'nowrap',
-        justifyContent: 'flex-start',
-        padding: 20,
-        alignSelf: 'center',
-        borderRadius: 8
-    },
-    spacer: {
-        opacity: 0.5,
-        width: width * 0.15
-    },
-    modal: {
-        paddingTop: 50,
+    overlay: {
         flex: 1,
-        flexWrap: 'nowrap',
         backgroundColor: "rgba(0, 0, 0, 0.5)",
-        flexDirection: 'row',
+        justifyContent: 'flex-end'
+    },
+    sheet: {
+        width: '100%',
+        maxHeight: '85%',
+        backgroundColor: Colors.WhiteContentBackground,
+        borderTopLeftRadius: 16,
+        borderTopRightRadius: 16,
+        paddingHorizontal: 20,
+        paddingTop: 12,
+        paddingBottom: 28
+    },
+    dragHandle: {
+        alignSelf: 'center',
+        width: 40,
+        height: 4,
+        borderRadius: 2,
+        backgroundColor: Colors.BorderDefault,
+        marginBottom: 12
     },
     closeIcon: {
-        justifyContent: 'flex-end',
-        flexDirection: 'row'
+        position: 'absolute',
+        top: 12,
+        right: 16,
+        zIndex: 1,
+        padding: 4
     },
     heading: {
-        fontSize: 20,
-        color: Styles.blackColor
+        fontSize: 18,
+        fontWeight: '600',
+        color: Colors.TextPrimaryDark,
+        paddingRight: 32,
+        marginBottom: 16
     }
 };
 
@@ -70,37 +78,34 @@ class ActionSelector extends AbstractComponent {
     render() {
         return (
             <Modal
-                animationType={"fade"}
+                animationType={"slide"}
                 transparent={true}
                 visible={this.props.visible}
                 onRequestClose={() => this.props.hide()}
             >
-                <View style={styles.modal}>
-                    {this.spacer()}
-                    {this.contentContainer()}
-                    {this.spacer()}
-                </View>
+                <TouchableWithoutFeedback onPress={() => this.props.hide()}>
+                    <View style={styles.overlay}>
+                        {this.contentContainer()}
+                    </View>
+                </TouchableWithoutFeedback>
             </Modal>
         );
     }
 
-    spacer() {
-        return (
-            <TouchableWithoutFeedback onPress={() => this.props.hide()}>
-                <View style={styles.spacer}/>
-            </TouchableWithoutFeedback>
-        );
-    }
-
     contentContainer() {
+        // Swallows the tap so touches inside the sheet don't bubble up to the overlay's
+        // dismiss-on-press-outside handler.
         return (
-          <View style={{ maxHeight: '55%', width: width * 0.7 }}>
-              <ScrollView contentContainerStyle={[styles.modalBackground]}>
-                  {this.closeButton()}
-                  {this.heading()}
-                  {this.actionButtons()}
-              </ScrollView>
-          </View>
+            <TouchableWithoutFeedback onPress={() => {}}>
+                <View style={styles.sheet}>
+                    <View style={styles.dragHandle}/>
+                    {this.closeButton()}
+                    <ScrollView showsVerticalScrollIndicator={false}>
+                        {this.heading()}
+                        {this.actionButtons()}
+                    </ScrollView>
+                </View>
+            </TouchableWithoutFeedback>
         );
     }
 
@@ -108,7 +113,7 @@ class ActionSelector extends AbstractComponent {
         return (
             <TouchableWithoutFeedback onPress={() => this.props.hide()}>
                 <View style={styles.closeIcon}>
-                    <MCIIcon name={'close'} style={{fontSize: 24}}/>
+                    <MCIIcon name={'close'} style={{fontSize: 24, color: Colors.TextSecondary}}/>
                 </View>
             </TouchableWithoutFeedback>
         );
@@ -119,7 +124,7 @@ class ActionSelector extends AbstractComponent {
             return null;
         }
         return (
-            <View style={{margin: 8}}>
+            <View>
                 <Text style={styles.heading}>{this.props.title}</Text>
             </View>
         );
@@ -149,12 +154,23 @@ class ActionSelector extends AbstractComponent {
                     this.props.hide();
                     onPress();
                 }}>
-                    <View style={[Styles.basicPrimaryButtonView, {flexDirection: 'row', backgroundColor: buttonColor, minHeight: 50, maxWidth: width * 0.7, alignItems: 'center', justifyContent: hasIcon ? 'flex-start' : 'center', paddingLeft: hasIcon ? 15 : 0}]}>
+                    <View style={[Styles.basicPrimaryButtonView, {
+                        flexDirection: 'row',
+                        backgroundColor: buttonColor,
+                        minHeight: 48,
+                        width: '100%',
+                        borderRadius: 8,
+                        elevation: 0,
+                        marginBottom: 0,
+                        alignItems: 'center',
+                        justifyContent: hasIcon ? 'flex-start' : 'center',
+                        paddingLeft: hasIcon ? 15 : 0
+                    }]}>
                         {hasIcon && <View style={{width: 50, alignItems: 'center'}}>
                             <AvniIcon name={icon} color={textColor} style={{fontSize: 50}} />
                         </View>}
                         <Text style={{
-                            fontSize: 18,
+                            fontSize: 16,
                             color: textColor,
                             textAlign: 'center',
                             paddingVertical: 8,

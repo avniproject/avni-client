@@ -78,7 +78,7 @@ class CommentDiscussionView extends AbstractComponent {
                         </View>
                         <TouchableOpacity style={styles.btnSend}
                                           onPress={() => this.dispatchAction(Actions.ON_SEND, {threadUUID: this.props.threadUUID})}>
-                            <MCIcon name={'send'} size={25} style={styles.iconSend}/>
+                            <MCIcon name={'send-outline'} size={25} style={styles.iconSend}/>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.ActionButtonColor,
         width: 40,
         height: 40,
-        borderRadius: 360,
+        borderRadius: 8,
         alignItems: 'center',
         justifyContent: 'center',
     },

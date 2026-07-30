@@ -17,25 +17,31 @@ const styles = {
     subjectName: {
         fontSize: Styles.normalTextSize,
         fontStyle: 'normal',
-        fontWeight: 'bold',
-        color: Styles.blackColor,
+        fontWeight: '500',
+        color: Colors.TextPrimaryDark,
         lineHeight: Styles.smallTextSizeLineHeight
     },
     subjectSubtext1: {
-        fontSize: Styles.smallerTextSize,
+        fontSize: Styles.smallTextSize,
         fontStyle: 'normal',
-        color: Styles.blackish,
-        paddingRight: 8
+        color: Colors.TextPrimaryDark,
+        paddingRight: 6
+    },
+    subjectSubtextSeparator: {
+        fontSize: Styles.smallTextSize,
+        fontStyle: 'normal',
+        color: Colors.TextPrimaryDark,
+        paddingRight: 6
     },
     subjectSubtext2: {
-        fontSize: Styles.smallerTextSize,
+        fontSize: Styles.smallTextSize,
         fontStyle: 'normal',
-        color: Styles.blackish,
+        color: Colors.TextPrimaryDark,
     },
     subjectAddress: {
-        fontSize: Styles.smallerTextSize,
+        fontSize: Styles.smallTextSize,
         fontStyle: 'normal',
-        color: Styles.lightgrey,
+        color: Colors.TextHint,
     },
     enrolledProgram: {
         fontSize: Styles.smallerTextSize,
@@ -49,8 +55,8 @@ const styles = {
         paddingRight: 8
     },
     iconContainer: {
-        marginLeft: 5,
-        minHeight: 72,
+        marginLeft: 0,
+        minHeight: 65,
         alignItems: 'center',
         justifyContent: 'center',
         alignSelf: 'flex-start'
@@ -60,12 +66,12 @@ const styles = {
         flexWrap: 'nowrap',
         alignItems: 'center',
         alignSelf: 'center',
-        minHeight: 72,
-        paddingHorizontal: 8,
-        paddingVertical: 2
+        minHeight: 65,
+        paddingHorizontal: 0,
+        paddingVertical: 4
     },
     cardContent: {
-        marginLeft: 20,
+        marginLeft: 24,
         flexDirection: 'column',
         alignItems: 'flex-start',
         flex: 1
@@ -125,6 +131,7 @@ class SubjectInfoCard extends AbstractComponent {
         }}>
             <Text
                 style={styles.subjectSubtext1}>{this.props.individual.userProfileSubtext1(i18n)}</Text>
+            <Text style={styles.subjectSubtextSeparator}>{'•'}</Text>
             <Text
                 style={styles.subjectSubtext2}>{this.props.individual.userProfileSubtext2(i18n)}</Text>
         </View>
@@ -151,8 +158,10 @@ class SubjectInfoCard extends AbstractComponent {
         const subjectAddressText = individual.lowestTwoLevelAddress(i18n);
         const cardView = (
             <View style={[styles.cardContainer, {backgroundColor: Styles.greyBackground}]}>
+                {/* SubjectProfilePicture inflates whatever size it's given by sqrt(2) internally
+                    (see its constructor) - passing 46 here renders a ~65px circle. */}
                 <SubjectProfilePicture
-                    size={32}
+                    size={46}
                     subjectType={individual.subjectType}
                     round={true}
                     individual={individual}

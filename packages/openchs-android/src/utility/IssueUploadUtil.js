@@ -1,7 +1,7 @@
-import {Alert} from 'react-native';
 import BackupRestoreRealmService from '../service/BackupRestoreRealmService';
 import MediaQueueService from '../service/MediaQueueService';
 import General from './General';
+import CustomConfirmDialog from '../views/common/CustomConfirmDialog';
 
 // IssueUploadUtil is used after login (sync failure, login failure) - translations available
 class IssueUploadUtil {
@@ -21,9 +21,9 @@ class IssueUploadUtil {
             }
             if (percentDone === 100) {
                 if (message === "backupFailed") {
-                    Alert.alert(I18n.t('uploadFailed'), "");
+                    CustomConfirmDialog.showAlert({title: I18n.t('uploadFailed'), message: ""});
                 } else {
-                    Alert.alert(I18n.t('uploadSuccessful'), "");
+                    CustomConfirmDialog.showAlert({title: I18n.t('uploadSuccessful'), message: ""});
                 }
                 if (onEndUpload) onEndUpload();
             }

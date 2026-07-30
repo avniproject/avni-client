@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, {Fragment} from 'react';
 import ExpandableVideo from "./ExpandableVideo";
-import ExpandableImage from "./ExpandableImage";
+import ExpandableImage, {FULL_WIDTH_IMAGE_HEIGHT} from "./ExpandableImage";
 import AbstractFormElement from "../form/formElement/AbstractFormElement";
 import MediaService from "../../service/MediaService";
 import General from "../../utility/General";
@@ -16,7 +16,8 @@ export default class ExpandableMedia extends AbstractFormElement {
     static propTypes = {
         source: PropTypes.string,
         type: PropTypes.string,
-        relatedMediaURIs: PropTypes.array
+        relatedMediaURIs: PropTypes.array,
+        fullWidth: PropTypes.bool
     };
 
     constructor(props, context) {
@@ -106,9 +107,15 @@ export default class ExpandableMedia extends AbstractFormElement {
         // is absent (state.exists === false). While the probe is unresolved (undefined) we render
         // the media optimistically instead — see showExpandableMedia.
         if (this.state.exists === false) {
-            return <View>
-                <TouchableNativeFeedback onPress={() => this.download()}>
-                    <View>
+            // Reserves the same footprint the image will occupy once downloaded (see
+            // ExpandableImage's fullWidth sizing), so the surrounding layout (badges, row
+            // height) doesn't jump when the download completes.
+            const placeholderStyle = this.props.fullWidth
+                ? styles.fullWidthPlaceholder
+                : styles.placeholder;
+            return <View style={placeholderStyle}>
+                <TouchableNativeFeedback onPress={() => this.download()} disabled={this.state.downloading}>
+                    <View style={styles.placeholderTouchable}>
                         <AvniIcon name={this.state.downloading ? 'loading' : 'download'} style={styles.icon} type='MaterialCommunityIcons'/>
                     </View>
                 </TouchableNativeFeedback>
@@ -139,7 +146,9 @@ export default class ExpandableMedia extends AbstractFormElement {
         // genuinely-absent file the probe resolves false and showDownloadIcon takes over.
         if (this.props.source && this.state.exists !== false) {
             const MediaComponent = this.getMediaComponentByType(this.props.type);
-            return <MediaComponent source={this.mediaUriInDevice} fileName={this.fileName} allMediaAbsolutePath={this.state.allMediaAbsolutePath}/>;
+            return <MediaComponent source={this.mediaUriInDevice} fileName={this.fileName}
+                                    allMediaAbsolutePath={this.state.allMediaAbsolutePath}
+                                    fullWidth={this.props.fullWidth}/>;
         }
     }
 
@@ -160,5 +169,19 @@ const styles = StyleSheet.create({
         color: Colors.ActionButtonColor,
         opacity: 0.8,
         fontSize: 36,
+    },
+    fullWidthPlaceholder: {
+        width: '100%',
+        height: FULL_WIDTH_IMAGE_HEIGHT,
+        backgroundColor: '#f5f5f5',
+    },
+    placeholder: {
+        height: 36,
+        width: 36,
+    },
+    placeholderTouchable: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
     }
 });

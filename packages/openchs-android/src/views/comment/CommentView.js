@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     btnAdd: {
         height: 50,
         width: 50,
-        borderRadius: 50,
+        borderRadius: 8,
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: Colors.AccentColor

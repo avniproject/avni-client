@@ -86,7 +86,7 @@ class AudioFormElement extends AbstractFormElement {
                 <View style={[styles.contentRow, styles.imageRow, {height: 60}]}>
                     <ExpandableMedia source={this.mediaUri} type={this.props.element.concept.datatype}/>
                     {!this.isReadOnly && <TouchableNativeFeedback onPress={() => this.clearAnswer()}>
-                        <Icon name={"backspace"} style={[styles.icon]}/>
+                        <Icon name={"backspace-outline"} style={[styles.icon]}/>
                     </TouchableNativeFeedback>}
                 </View>
             );
@@ -155,16 +155,16 @@ class AudioFormElement extends AbstractFormElement {
         return !this.mediaUri && (
             <View style={[styles.contentRow, {justifyContent: 'flex-end', alignItems: 'flex-end'}]}>
                 {!this.props.element.restrictGalleryUpload && <TouchableOpacity disabled={stop} onPress={() => this.uploadFromFileSystem()}>
-                    <Icon name={'folder-open'} style={[styles.icon, stop ? disabledColor : {}, {marginRight: 3}]}/>
+                    <Icon name={'folder-open-outline'} style={[styles.icon, stop ? disabledColor : {}, {marginRight: 3}]}/>
                 </TouchableOpacity>}
                 <View style={styles.audioContainer}>
                     <Text style={styles.txtRecordCounter}>{this.state.recordTime}</Text>
                     <View style={[styles.contentRow, {justifyContent: 'flex-end', marginTop: -5}]}>
                         <TouchableOpacity disabled={stop} onPress={() => this.onStart()}>
-                            <IonIcons name={'mic-circle'} style={[styles.icon, stop ? disabledColor : {}]}/>
+                            <IonIcons name={'mic-circle-outline'} style={[styles.icon, stop ? disabledColor : {}]}/>
                         </TouchableOpacity>
                         <TouchableOpacity disabled={start} onPress={() => this.onStop()}>
-                            <Icon name={'stop-circle'} style={[styles.icon, start ? disabledColor : {}]}/>
+                            <Icon name={'stop-circle-outline'} style={[styles.icon, start ? disabledColor : {}]}/>
                         </TouchableOpacity>
                     </View>
                 </View>

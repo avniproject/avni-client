@@ -45,7 +45,8 @@ class QuestionGroup extends AbstractFormElement {
         filteredFormElements: PropTypes.array,
         questionGroupIndex: PropTypes.number,
         actions: PropTypes.object,
-        subjectUUID: PropTypes.string
+        subjectUUID: PropTypes.string,
+        suppressGroupValidationMessage: PropTypes.bool
     };
 
     static defaultProps = {
@@ -276,8 +277,12 @@ class QuestionGroup extends AbstractFormElement {
         const hasOtherTypesThanTextNumericAndNotes = _.some(allGroupQuestions, ({concept}) => !_.includes([Concept.dataType.Text, Concept.dataType.Numeric, Concept.dataType.Notes], concept.datatype));
         return (
             <View>
+                {// The repeatable group's own min-image-count hint (RepeatableFormElement's teal
+                // "Please add at least N images" pill) already surfaces this same requirement, so
+                // showing the generic group-level error here too is a redundant duplicate.
+                !this.props.suppressGroupValidationMessage &&
                 <ValidationErrorMessage
-                    validationResult={this.getValidationResultForQuestionGroup(this.props.element)}/>
+                    validationResult={this.getValidationResultForQuestionGroup(this.props.element)}/>}
                 {hasOtherTypesThanTextNumericAndNotes ?
                     this.renderNormalView(allGroupQuestions) : this.renderGridView(allGroupQuestions)}
             </View>

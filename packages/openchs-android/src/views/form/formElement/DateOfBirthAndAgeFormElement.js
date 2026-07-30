@@ -1,19 +1,18 @@
-import {Text, TextInput, View} from 'react-native';
-import {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
+import {StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import PropTypes from 'prop-types';
 import React from 'react';
 import AbstractComponent from '../../../framework/view/AbstractComponent';
-import ValidationErrorMessage from '../ValidationErrorMessage';
 import AbstractDataEntryState from '../../../state/AbstractDataEntryState';
 import DGS from '../../primitives/DynamicGlobalStyles';
 import {Individual} from 'avni-models';
 import Colors from '../../primitives/Colors';
 import Fonts from '../../primitives/Fonts';
-import {Checkbox as CheckBox, Radio} from 'native-base';
+import Styles from '../../primitives/Styles';
+import {Checkbox as CheckBox} from 'native-base';
 import _ from 'lodash';
-import General from '../../../utility/General';
 import {Actions} from '../../../action/individual/PersonRegisterActions';
 import UserInfoService from '../../../service/UserInfoService';
+import DatePicker from '../../primitives/DatePicker';
 
 class DateOfBirthAndAgeFormElement extends AbstractComponent {
     static propTypes = {
@@ -25,82 +24,75 @@ class DateOfBirthAndAgeFormElement extends AbstractComponent {
         this.userSettings = context.getService(UserInfoService).getUserSettingsObject();
     }
 
-    dateDisplay(date) {
-        return _.isNil(date) ? this.I18n.t('chooseADate') : General.formatDate(date);
-    }
-
-    onDateOfBirthChanged(event, date) {
-        if (event.type === 'dismissed') {
-            return;
-        }
-        this.dispatchAction(Actions.REGISTRATION_ENTER_DOB, {value: date});
-    }
-
-    showPicker() {
-        const datePickerMode = _.isNil(this.userSettings.datePickerMode) ? 'calendar' : this.userSettings.datePickerMode;
-        const dateOfBirth = this.props.state.individual.dateOfBirth || new Date();
-        const options = {value: dateOfBirth, mode: datePickerMode, onChange: this.onDateOfBirthChanged.bind(this)};
-
-        DateTimePickerAndroid.open(options);
-    }
-
     render() {
+        const dobValidationResult = AbstractDataEntryState.getValidationError(this.props.state, Individual.validationKeys.DOB);
+        const datePickerMode = _.isNil(this.userSettings.datePickerMode) ? 'calendar' : this.userSettings.datePickerMode;
+        const ageHasError = AbstractDataEntryState.hasValidationError(this.props.state, Individual.validationKeys.DOB);
         return (
-            <View style={[this.formRow, {flexDirection: 'column'}]}>
+            <View style={[this.formRow, {flexDirection: 'column', marginTop: 20}]}>
                 <View>
                     <Text style={DGS.formElementLabel}>{this.I18n.t('dateOfBirth')}<Text
                         style={{color: Colors.ValidationError}}> * </Text></Text>
                 </View>
-                <View style={{flexDirection: 'row'}}>
-                    <Text
-                        onPress={this.showPicker.bind(this)}
-                        style={[DGS.formElementTextInput,
-                            {
-                                marginRight: DGS.resizeWidth(50), fontSize: Fonts.Large,
-                                color: AbstractDataEntryState.hasValidationError(this.props.state, Individual.validationKeys.DOB) ? Colors.ValidationError : Colors.DarkPrimaryColor
-                            }]}>{this.dateDisplay(this.props.state.individual.dateOfBirth)}</Text>
-                    <View style={{flexDirection: 'column-reverse', justifyContent: 'center', marginRight: 4}}>
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4}}>
+                    <View style={{backgroundColor: Colors.BrandLight, borderRadius: 8, paddingHorizontal: 14, paddingVertical: 10}}>
+                        <DatePicker dateValue={this.props.state.individual.dateOfBirth}
+                                    validationResult={dobValidationResult}
+                                    datePickerMode={datePickerMode}
+                                    actionName={Actions.REGISTRATION_ENTER_DOB}
+                                    actionObject={{}}
+                                    nonRemovable={true}
+                                    transparent={true}
+                        />
+                    </View>
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
                         <CheckBox isChecked={this.props.state.individual.dateOfBirthVerified}
                                   accessible={true}
                                   accessibilityLabel={"Is date of birth verified?"}
                                   onPress={() => this.dispatchAction(Actions.REGISTRATION_ENTER_DOB_VERIFIED, {value: !this.props.state.individual.dateOfBirthVerified})}/>
+                        <View style={{marginRight: DGS.resizeWidth(8)}}/>
+                        <Text style={DGS.formElementLabel}>{this.I18n.t('dateOfBirthVerified')}</Text>
                     </View>
-                    <View style={{marginRight: DGS.resizeWidth(15)}}/>
-                    <Text style={DGS.formElementLabel}>{this.I18n.t('dateOfBirthVerified')}</Text>
                 </View>
-                <ValidationErrorMessage
-                    validationResult={AbstractDataEntryState.getValidationError(this.props.state, Individual.validationKeys.DOB)}/>
 
-                <View>
+                <View style={{marginTop: 28}}>
                     <Text style={DGS.formElementLabel}>{this.I18n.t('age')}<Text
                         style={{color: Colors.ValidationError}}> * </Text></Text>
                 </View>
-                <View style={{flexDirection: 'row'}}>
-                    <TextInput
-                        style={{flex: 1, borderBottomWidth: 0, marginVertical: 0, paddingVertical: 5}}
-                        keyboardType="numeric"
-                        maxLength={4}
-                        underlineColorAndroid={AbstractDataEntryState.hasValidationError(this.props.state, Individual.validationKeys.DOB) ? Colors.ValidationError : Colors.InputBorderNormal}
-                        value={_.isNil(this.props.state.age) ? '' : this.props.state.age}
-                        onChangeText={(text) => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE, {value: text})}/>
-                    <Radio.Group style={{flexDirection: 'row'}}
-                                 accessible={true}
-                                 accessibilityLabel={"Choose type of age"}
-                                 value={this.props.state.ageProvidedInYears ? 'years' : 'months'}
-                                 onChange={(value) => {
-                                     this.dispatchAction(Actions.REGISTRATION_ENTER_AGE_PROVIDED_IN_YEARS, {value: value === 'years'});
-                                 }}>
-                        <Radio style={{marginLeft: DGS.resizeWidth(20)}} color={Colors.AccentColor} value={'years'}
-                               accessible={true}
-                               accessibilityLabel={"Choose years"}
-                        />
-                        <Text style={DGS.formRadioText}>{this.I18n.t('years')}</Text>
-                        <Radio style={{marginLeft: DGS.resizeWidth(20)}} color={Colors.AccentColor} value={'months'}
-                               accessible={true}
-                               accessibilityLabel={"Choose months"}
-                               onPress={() => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE_PROVIDED_IN_YEARS, {value: false})}/>
-                        <Text style={DGS.formRadioText}>{this.I18n.t('months')}</Text>
-                    </Radio.Group>
+                <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 4}}>
+                    <View style={{
+                        flex: 1,
+                        borderWidth: 1,
+                        borderColor: ageHasError ? Colors.ValidationError : Colors.InputBorderNormal,
+                        borderRadius: 8,
+                        paddingHorizontal: 12,
+                        paddingVertical: 4
+                    }}>
+                        <TextInput
+                            style={{fontSize: Fonts.Large, marginVertical: 0, paddingVertical: 5}}
+                            keyboardType="numeric"
+                            maxLength={4}
+                            underlineColorAndroid={'transparent'}
+                            value={_.isNil(this.props.state.age) ? '' : this.props.state.age}
+                            onChangeText={(text) => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE, {value: text})}/>
+                    </View>
+                    <View style={[styles.segmentedControl, {marginLeft: 16}]}
+                          accessible={true}
+                          accessibilityLabel={"Choose type of age"}>
+                        {[{key: 'years', isYears: true}, {key: 'months', isYears: false}].map(({key, isYears}) => {
+                            const selected = this.props.state.ageProvidedInYears === isYears;
+                            return (
+                                <TouchableOpacity key={key}
+                                                  activeOpacity={0.7}
+                                                  accessible={true}
+                                                  accessibilityLabel={`Choose ${key}`}
+                                                  style={[styles.segment, selected && styles.segmentSelected]}
+                                                  onPress={() => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE_PROVIDED_IN_YEARS, {value: isYears})}>
+                                    <Text style={[styles.segmentText, selected && styles.segmentTextSelected]}>{this.I18n.t(key)}</Text>
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </View>
                 </View>
             </View>
         );
@@ -108,3 +100,32 @@ class DateOfBirthAndAgeFormElement extends AbstractComponent {
 }
 
 export default DateOfBirthAndAgeFormElement;
+
+const styles = StyleSheet.create({
+    segmentedControl: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: Colors.TextHint,
+        borderRadius: 4,
+        padding: 8,
+        backgroundColor: Colors.WhiteContentBackground
+    },
+    segment: {
+        paddingHorizontal: 16,
+        paddingVertical: 9,
+        borderRadius: 4,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    segmentSelected: {
+        backgroundColor: Colors.BrandPrimary
+    },
+    segmentText: {
+        fontSize: Styles.normalTextSize,
+        color: Colors.TextPrimaryDark
+    },
+    segmentTextSelected: {
+        color: Colors.TextOnPrimaryColor
+    }
+});

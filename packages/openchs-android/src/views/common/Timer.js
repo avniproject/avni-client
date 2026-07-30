@@ -32,7 +32,7 @@ class Timer extends AbstractComponent {
             <View style={[styles.buttonContainer, {marginTop: height / 2.5}]}>
                 <View style={{alignItems: 'center', justifyContent: 'center'}}>
                     <Button onPress={() => this.props.onStartTimer()}
-                            style={{padding: 35, borderRadius: 20, backgroundColor: Colors.ActionButtonColor}}>
+                            style={{padding: 35, borderRadius: 8, backgroundColor: Colors.ActionButtonColor}}>
                         <Text style={styles.buttonText}>{this.I18n.t('start')}</Text>
                     </Button>
                 </View>

@@ -39,9 +39,11 @@ class AbstractFormElement extends AbstractComponent {
     // Relies on the subclass's showMedia(uri) (clear button suppressed when isReadOnly).
     renderReadOnlyMediaList(uris) {
         if (_.isEmpty(uris)) return this.showEmptyReadOnly();
+        const isSuspiciousImagesGroup = this.props.element.name === 'Suspicious Images Display'
+            || _.get(this.props, 'parentElement.name') === 'Suspicious Images Display';
         return _.map(uris, (uri, index) => (
             <View key={`${uri}-${index}`} style={{marginBottom: 3}}>
-                {this.showMedia(uri)}
+                {this.showMedia(uri, undefined, index, isSuspiciousImagesGroup)}
                 <View style={{flex: 1, borderColor: Colors.BlackBackground, borderBottomWidth: StyleSheet.hairlineWidth, opacity: 0.1}}/>
             </View>
         ));

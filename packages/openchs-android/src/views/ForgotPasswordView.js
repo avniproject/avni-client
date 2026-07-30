@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
-import {Image, Text, View, Dimensions, TextInput, TouchableNativeFeedback} from "react-native";
+import {Image, Text, View, Dimensions, TextInput, TouchableNativeFeedback, StyleSheet} from "react-native";
 import AuthService from "../service/AuthService";
 import Styles from "./primitives/Styles";
 import Distances from "./primitives/Distances";
@@ -79,11 +79,12 @@ class ForgotPasswordView extends AbstractComponent {
 
     get containerStyle() {
         return {
-            padding: 72,
-            paddingTop: 72,
+            paddingHorizontal: 16,
+            paddingTop: 40,
             flexDirection: 'column',
-            height: Distances.DeviceHeight,
-            justifyContent: 'flex-start'
+            minHeight: Distances.DeviceHeight,
+            justifyContent: 'flex-start',
+            backgroundColor: Colors.GreyContentBackground
         }
     }
 
@@ -93,35 +94,74 @@ class ForgotPasswordView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        return <CHSContainer>
+        const errorMessage = this.errorMessage();
+        return <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
             <CHSContent>
                 <View style={this.containerStyle}>
-            <Text
-                style={Styles.formLabel}>{this.I18n.t(`forgot_password_first_page_note`)}</Text>
-            <Text style={{
-                color: Colors.ValidationError,
-                justifyContent: 'center'
-            }}>{this.errorMessage()}</Text>
-
-               <TextInput style={{borderBottomColor:'#cccccc',borderBottomWidth: 1 }}
-                          placeholder={this.I18n.t('forgot_password_userId_placeholder')}
-                          value={this.state.userId}
-                          onChangeText={(userId) => this.setState({userId})}
-                          autoCapitalize={"none"}
-                          keyboardType={'email-address'}
-               />
-            <TouchableNativeFeedback onPress={() => {
-                this.sendOTP()
-            }} background={TouchableNativeFeedback.SelectableBackground()}>
-                <View style={[Styles.basicPrimaryButtonView, {minWidth: 120, flexDirection: "row", justifyContent: "center", alignSelf: 'flex-end', marginTop: 10}]}>
-                    <Text style={{color: Styles.whiteColor, fontSize: 16}}>{this.I18n.t('Send OTP')}</Text>
+                    <View style={styles.card}>
+                        <Text style={[Styles.formLabel, {color: Colors.TextSecondary, marginBottom: 16}]}>
+                            {this.I18n.t(`forgot_password_first_page_note`)}
+                        </Text>
+                        {!!errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
+                        <View style={styles.fieldInput}>
+                            <TextInput style={{fontSize: Styles.normalTextSize, paddingVertical: 0}}
+                                       underlineColorAndroid={'transparent'}
+                                       placeholder={this.I18n.t('forgot_password_userId_placeholder')}
+                                       placeholderTextColor={Colors.TextHint}
+                                       value={this.state.userId}
+                                       onChangeText={(userId) => this.setState({userId})}
+                                       autoCapitalize={"none"}
+                                       keyboardType={'email-address'}
+                            />
+                        </View>
+                        <TouchableNativeFeedback onPress={() => {
+                            this.sendOTP()
+                        }} background={TouchableNativeFeedback.SelectableBackground()}>
+                            <View style={styles.sendOtpButton}>
+                                <Text style={styles.sendOtpButtonText}>{this.I18n.t('Send OTP')}</Text>
+                            </View>
+                        </TouchableNativeFeedback>
+                    </View>
+                    {this.spinner()}
                 </View>
-            </TouchableNativeFeedback>
-            {this.spinner()}
-        </View>
-        </CHSContent>
-    </CHSContainer>
+            </CHSContent>
+        </CHSContainer>
     }
 }
+
+const styles = StyleSheet.create({
+    card: {
+        backgroundColor: Colors.WhiteContentBackground,
+        borderRadius: 8,
+        padding: 16
+    },
+    errorText: {
+        color: Colors.ValidationError,
+        marginBottom: 12
+    },
+    fieldInput: {
+        borderWidth: 1,
+        borderColor: Colors.TextHint,
+        borderRadius: 4,
+        paddingHorizontal: 12,
+        height: 56,
+        justifyContent: 'center',
+        marginBottom: 16
+    },
+    sendOtpButton: {
+        minHeight: 48,
+        minWidth: 120,
+        borderRadius: 8,
+        backgroundColor: Colors.BrandPrimaryDark,
+        alignItems: 'center',
+        justifyContent: 'center',
+        alignSelf: 'flex-end',
+        paddingHorizontal: 16
+    },
+    sendOtpButtonText: {
+        color: Styles.whiteColor,
+        fontSize: 16
+    }
+});
 
 export default ForgotPasswordView;

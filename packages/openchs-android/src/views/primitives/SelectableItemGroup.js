@@ -57,7 +57,9 @@ class SelectableItemGroup extends React.Component {
             <View style={{flexDirection: "row", display: "flex"}} key={idx}>
                 {rlvPair.map((radioLabelValue, index) => {
                         const checked = selectionFn(radioLabelValue.value) || false;
-                        return <View style={{flex: 0.5, display: "flex", paddingHorizontal: 2}}
+                        // A trailing odd item (no pairing partner) should take the full row width
+                        // instead of only half, so its background isn't left looking too narrow.
+                        return <View style={{flex: rlvPair.length === 1 ? 1 : 0.5, display: "flex", paddingHorizontal: 2}}
                                      key={radioLabelValue.label + index}>
                             <SelectableItem displayText={I18n.t(radioLabelValue.label)}
                                             checked={checked}
@@ -92,7 +94,6 @@ class SelectableItemGroup extends React.Component {
                                    key={radioLabelValue.label}
                                    currentLocale={locale}
                                    style={{
-                                       paddingHorizontal: Distances.HorizontalSmallSpacingBetweenOptionItems,
                                        paddingVertical: Distances.VerticalSmallSpacingBetweenOptionItems,
                                        justifyContent: "center"
                                    }}
@@ -152,10 +153,6 @@ class SelectableItemGroup extends React.Component {
 export default SelectableItemGroup;
 const style = StyleSheet.create({
     radioStyle: {
-        borderWidth: 1,
-        borderRadius: 1,
-        borderStyle: 'dashed',
-        borderColor: Colors.InputBorderNormal,
         paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
     }
 })

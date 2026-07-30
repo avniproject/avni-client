@@ -43,7 +43,7 @@ class AddressLevel extends AbstractComponent {
                 borderStyle={{
                     borderWidth: 0
                 }}
-                inPairs={true}
+                inPairs={false}
                 onPress={(selectedLevelValue) => this.props.onToggle(selectedLevelValue)}
                 selectionFn={(selectedUUID) => this.props.levels.some(l => l.uuid === selectedUUID && l.isSelected)}
                 labelKey={this.props.levelType}

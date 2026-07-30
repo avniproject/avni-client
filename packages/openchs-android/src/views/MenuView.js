@@ -1,4 +1,4 @@
-import {Alert, Linking, Platform, SafeAreaView, SectionList, StyleSheet, Text, TouchableNativeFeedback, View, ScrollView} from "react-native";
+import {Linking, Platform, SafeAreaView, SectionList, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
@@ -7,19 +7,17 @@ import Path from "../framework/routing/Path";
 import TypedTransition from "../framework/routing/TypedTransition";
 import CHSNavigator from "../utility/CHSNavigator";
 import General from "../utility/General";
-import CHSContent from "./common/CHSContent";
+import AppHeader from "./common/AppHeader";
 import Colors from "./primitives/Colors";
 import AuthService from "../service/AuthService";
 import RuleEvaluationService from "../service/RuleEvaluationService";
 import Distances from "./primitives/Distances";
 import Fonts from "./primitives/Fonts";
 import CHSContainer from "./common/CHSContainer";
-import Separator from "./primitives/Separator";
 import SettingsView from "./settings/SettingsView";
 import Styles from "./primitives/Styles";
 import DeviceInfo from "react-native-device-info";
 import {EntityMappingConfig} from 'openchs-models';
-import MCIIcon from "react-native-vector-icons/FontAwesome";
 import Config from "../framework/Config";
 import {firebaseEvents, logEvent} from "../utility/Analytics";
 import NewsService from "../service/news/NewsService";
@@ -40,13 +38,14 @@ import EnvironmentConfig from "../framework/EnvironmentConfig";
 import { getAvniError } from "../service/ServerError";
 import { AlertMessage } from "./common/AlertMessage";
 import MessageService from "../service/MessageService";
+import CustomConfirmDialog from "./common/CustomConfirmDialog";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
     static propType = {
         menuIcon: PropTypes.func
     };
-    static iconStyle = {color: Colors.DefaultPrimaryColor, opacity: 0.8, alignSelf: 'center', fontSize: 20, padding: 8};
+    static iconStyle = {color: Colors.TextHint, alignSelf: 'center', fontSize: 24, padding: 8};
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.menuView);
@@ -112,15 +111,14 @@ class MenuView extends AbstractComponent {
     };
 
     logout() {
-        Alert.alert(
-            this.I18n.t("logoutConfirmationTitle"),
-            this.I18n.t("logoutConfirmationMessage"),
-            [{
-                text: this.I18n.t('logoutConfirmed'),
-                onPress: this._logout,
-            }, {text: this.I18n.t('logoutCancelled'), onPress: _.noop, style: 'cancel'},
-            ]
-        );
+        CustomConfirmDialog.show({
+            title: this.I18n.t("logoutConfirmationTitle"),
+            message: this.I18n.t("logoutConfirmationMessage"),
+            yesLabel: this.I18n.t('logoutConfirmed'),
+            noLabel: this.I18n.t('logoutCancelled'),
+            onYes: this._logout,
+            onNo: _.noop
+        });
     }
 
     userSettingsView() {
@@ -135,27 +133,23 @@ class MenuView extends AbstractComponent {
     }
 
     onDelete() {
-        Alert.alert(
-            this.I18n.t('deleteSchemaNoticeTitle'),
-            this.I18n.t('deleteSchemaConfirmationMessage'),
-            [
-                {text: this.I18n.t('yes'), onPress: () => this.deleteData()},
-                {
-                    text: this.I18n.t('no'), onPress: () => {
-                    }, style: 'cancel'
-                }
-            ]
-        )
+        CustomConfirmDialog.show({
+            title: this.I18n.t('deleteSchemaNoticeTitle'),
+            message: this.I18n.t('deleteSchemaConfirmationMessage'),
+            yesLabel: this.I18n.t('yes'),
+            noLabel: this.I18n.t('no'),
+            onYes: () => this.deleteData(),
+            onNo: _.noop
+        });
     };
 
     uploadCatchmentDatabase() {
         if (!this.state.oneSyncCompleted || this.state.unsyncedTxData) {
-            Alert.alert(this.I18n.t('uploadCatchmentDatabaseErrorTitle'),
-                this.getCatchmentUploadErrorMessage(),
-                [{
-                    text: this.I18n.t('ok'), onPress: () => {
-                    }, style: 'cancel'
-                }]);
+            CustomConfirmDialog.showAlert({
+                title: this.I18n.t('uploadCatchmentDatabaseErrorTitle'),
+                message: this.getCatchmentUploadErrorMessage(),
+                okLabel: this.I18n.t('ok')
+            });
         } else {
             this.startUploadDatabase('uploadCatchmentDatabase', 'uploadCatchmentDatabaseConfirmationMessage', MediaQueueService.DumpType.Catchment);
         }
@@ -166,36 +160,32 @@ class MenuView extends AbstractComponent {
     }
 
     startUploadDatabase(titleKey, messageKey, dumpType) {
-        Alert.alert(
-            this.I18n.t(titleKey),
-            this.I18n.t(messageKey),
-            [
-                {
-                    text: this.I18n.t('yes'), onPress: () => {
-                        this.dispatchAction(MenuActionNames.ON_BACKUP_DUMP, {
-                            dumpType: dumpType,
-                            onBackupDumpCb: (percentDone, message) => {
-                                this.dispatchAction(MenuActionNames.ON_BACKUP_PROGRESS, {
-                                    percentDone: percentDone,
-                                    message: message
-                                });
-                                if (percentDone === 100) {
-                                    if (message === "backupCompleted") {
-                                        Alert.alert(this.I18n.t('uploadSuccessful'));
-                                    } else if (message === "backupFailed") {
-                                        Alert.alert(this.I18n.t('uploadFailed'));
-                                    }
-                                }
-                            }
+        CustomConfirmDialog.show({
+            title: this.I18n.t(titleKey),
+            message: this.I18n.t(messageKey),
+            yesLabel: this.I18n.t('yes'),
+            noLabel: this.I18n.t('no'),
+            onYes: () => {
+                this.dispatchAction(MenuActionNames.ON_BACKUP_DUMP, {
+                    dumpType: dumpType,
+                    onBackupDumpCb: (percentDone, message) => {
+                        this.dispatchAction(MenuActionNames.ON_BACKUP_PROGRESS, {
+                            percentDone: percentDone,
+                            message: message
                         });
+                        if (percentDone === 100) {
+                            if (message === "backupCompleted") {
+                                CustomConfirmDialog.showAlert({title: this.I18n.t('uploadSuccessful')});
+                            } else if (message === "backupFailed") {
+                                CustomConfirmDialog.showAlert({title: this.I18n.t('uploadFailed')});
+                            }
+                        }
                     }
-                },
-                {
-                    text: this.I18n.t('no'), onPress: () => {
-                    }, style: 'cancel'
-                }
-            ]
-        );
+                });
+            },
+            onNo: () => {
+            }
+        });
     }
 
     getCatchmentUploadErrorMessage() {
@@ -241,40 +231,44 @@ class MenuView extends AbstractComponent {
         </TouchableNativeFeedback>
     }
 
-    renderTitle() {
+    renderHeader() {
+        return <AppHeader title={this.I18n.t('More')} hideBackButton={true} hideIcon={true}/>;
+    }
+
+    // Same organisationName/username/name fallback rules as before, just split across
+    // heading + chip + subtext instead of one concatenated header string.
+    renderUserCard() {
+        const {organisationName, username, name} = this.state.userInfo;
+        const heading = organisationName ? (username ? (name || username) : organisationName) : this.I18n.t('syncRequired');
+        const showChip = !!organisationName && !!username;
+        const showOrgSubtext = !!organisationName && !!username;
+
         return (
-            <TouchableNativeFeedback onPress={() => this.userSettingsView()}
-                                     background={this.background()}>
-                <View style={{
-                    backgroundColor: Colors.headerBackgroundColor,
-                    flexDirection: 'row',
-                    minHeight: 70,
-                    elevation: 3,
-                    paddingHorizontal: 16,
-                    paddingVertical: 8
-                }}>
-                    <MCIIcon style={{fontSize: 35, color: Colors.headerIconColor, alignSelf: 'center'}}
-                             name={'user-circle'}/>
-                    <View style={{flexDirection: 'column', alignSelf: 'center', marginLeft: 20, flex: 1}}>
-                        <View style={{flexDirection: 'row'}}>
-                            <Text style={[{
-                                color: Colors.headerTextColor,
-                                fontSize: Fonts.Large,
-                                flexWrap: 'wrap',
-                            }]}>{this.state.userInfo.organisationName ?
-                                this.state.userInfo.username ?
-                                    `${this.state.userInfo.username} - ${this.state.userInfo.name} (${this.state.userInfo.organisationName})`
-                                    : this.state.userInfo.organisationName
-                                : this.I18n.t('syncRequired')
-                            }</Text>
+            <View style={styles.userCardWrapper}>
+                <TouchableNativeFeedback onPress={() => this.userSettingsView()}
+                                         background={this.background()}>
+                    <View style={styles.userCard}>
+                        <View style={styles.userCardIconContainer}>
+                            <AvniIcon name='account-outline' type='MaterialCommunityIcons' style={styles.userCardIcon}/>
                         </View>
-                        <Text style={[{
-                            color: Colors.headerTextColor,
-                            fontSize: 12,
-                        }]}>{this.I18n.t('editSettings')}</Text>
+                        <View style={styles.userCardTextContainer}>
+                            <Text style={styles.userCardHeading} numberOfLines={1}>{heading}</Text>
+                            {showChip && <View style={styles.userCardChip}>
+                                <Text style={styles.userCardChipText} numberOfLines={1}>{username}</Text>
+                            </View>}
+                            {showOrgSubtext && <Text style={styles.userCardSubtext} numberOfLines={1}>{organisationName}</Text>}
+                            <Text style={styles.userCardEditText}>{this.I18n.t('editSettings')}</Text>
+                        </View>
                     </View>
-                </View>
-            </TouchableNativeFeedback>);
+                </TouchableNativeFeedback>
+            </View>);
+    }
+
+    renderInfoRow(label, value, isFirst = false) {
+        return <View style={[styles.infoRow, !isFirst && styles.infoRowDivider]}>
+            <Text style={styles.infoLabel}>{label}</Text>
+            <Text style={styles.infoValue}>{value}</Text>
+        </View>;
     }
 
     onMetabaseReportClick() {
@@ -353,57 +347,36 @@ class MenuView extends AbstractComponent {
 
         return (
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
-                {this.renderTitle()}
+                {this.renderHeader()}
                 <ProgressBarView onPress={_.noop} progress={this.state.percentDone / 100}
                                  message={this.I18n.t(this.state.backupProgressUserMessage)}
                                  syncing={this.state.backupInProgress} notifyUserOnCompletion={false}/>
-                <ScrollView>
-                    <CHSContent>
-                        <SafeAreaView>
-                            <SectionList
-                                contentContainerStyle={{
-                                    marginRight: Distances.ScaledContentDistanceFromEdge,
-                                    marginLeft: Distances.ScaledContentDistanceFromEdge,
-                                    marginTop: Distances.ScaledContentDistanceFromEdge
-                                }}
-                                sections={dataGroup}
-                                renderSectionHeader={() =>
-                                    <Separator height={30} backgroundColor={Colors.GreyContentBackground}/>}
-                                renderItem={({item}) => item}
-                                keyExtractor={(item, index) => index}
-                            />
-                            <View style={[{
-                                marginRight: Distances.ScaledContentDistanceFromEdge,
-                                marginLeft: Distances.ScaledContentDistanceFromEdge,
-                            }]}>
-                                <View style={styles.infoContainer}>
-                                    <Text style={Styles.textList}>Server: <Text
-                                        style={{
-                                            color: 'black',
-                                            fontSize: Styles.normalTextSize
-                                        }}>{this.state.serverURL}</Text></Text>
-                                    <Text style={Styles.textList}>Database Schema : <Text
-                                        style={{
-                                            color: 'black',
-                                            fontSize: Styles.normalTextSize
-                                        }}>{this.getService(EntityService).getActualSchemaVersion()}</Text></Text>
-                                    {!EnvironmentConfig.isProd() && <Text style={Styles.textList}>Code Schema Version: <Text
-                                        style={{
-                                            color: 'black',
-                                            fontSize: Styles.normalTextSize
-                                        }}>{EntityMappingConfig.getInstance().getSchemaVersion()}</Text></Text>}
-                                    <Text style={Styles.textList}>BuildVersion: <Text
-                                        style={{
-                                            color: 'black',
-                                            fontSize: Styles.normalTextSize
-                                        }}>{DeviceInfo.getVersion()}-{Config.COMMIT_ID}</Text></Text>
-                                </View>
+                <SafeAreaView style={{flex: 1}}>
+                    {/* The user card used to sit fixed above a ScrollView wrapping this SectionList - nesting a
+                        VirtualizedList inside a ScrollView caused the list content to scroll independently and
+                        visually pass behind the fixed card. Rendering the card as ListHeaderComponent (and the
+                        info block as ListFooterComponent) makes the whole screen one scrollable surface. */}
+                    <SectionList
+                        contentContainerStyle={{
+                            marginRight: Distances.ScaledContentDistanceFromEdge,
+                            marginLeft: Distances.ScaledContentDistanceFromEdge,
+                            marginTop: Distances.ScaledContentDistanceFromEdge,
+                            paddingBottom: 100
+                        }}
+                        ListHeaderComponent={() => this.renderUserCard()}
+                        sections={dataGroup}
+                        renderItem={({item}) => item}
+                        keyExtractor={(item, index) => index}
+                        ListFooterComponent={() => (
+                            <View style={styles.infoContainer}>
+                                {this.renderInfoRow('Server', this.state.serverURL, true)}
+                                {this.renderInfoRow('Database Schema', this.getService(EntityService).getActualSchemaVersion())}
+                                {!EnvironmentConfig.isProd() && this.renderInfoRow('Code Schema Version', EntityMappingConfig.getInstance().getSchemaVersion())}
+                                {this.renderInfoRow('Build Version', `${DeviceInfo.getVersion()}-${Config.COMMIT_ID}`)}
                             </View>
-                        </SafeAreaView>
-                        <Separator height={100} backgroundColor={Colors.GreyContentBackground}/>
-                    </CHSContent>
-                </ScrollView>
-
+                        )}
+                    />
+                </SafeAreaView>
             </CHSContainer>
         );
     }
@@ -412,10 +385,10 @@ class MenuView extends AbstractComponent {
 export default MenuView;
 const styles = StyleSheet.create({
         container: {
-            margin: 4,
-            elevation: 2,
-            minHeight: 48,
-            marginVertical: StyleSheet.hairlineWidth,
+            marginHorizontal: 4,
+            marginVertical: 6,
+            minHeight: 56,
+            borderRadius: 16,
             backgroundColor: Colors.cardBackgroundColor,
             flexDirection: 'row',
             alignItems: 'center',
@@ -429,24 +402,98 @@ const styles = StyleSheet.create({
             flexWrap: 'wrap',
         },
         optionStyle: {
-            color: Colors.DefaultPrimaryColor,
+            color: Colors.TextPrimaryDark,
             fontWeight: 'normal',
-            fontSize: 13,
+            fontSize: Styles.normalTextSize,
             alignSelf: 'flex-start',
             textAlignVertical: 'center',
         },
         iconStyle: {
-            color: Colors.AccentColor,
-            opacity: 0.8,
+            color: Colors.TextHint,
             alignSelf: 'center',
-            fontSize: 40
+            fontSize: 24
         },
         infoContainer: {
-            padding: Distances.ScaledContentDistanceFromEdge,
-            margin: 4,
-            elevation: 2,
-            backgroundColor: Colors.cardBackgroundColor,
+            padding: 16,
+            backgroundColor: Colors.WhiteContentBackground,
+            borderRadius: 12,
+            borderWidth: 1,
+            borderColor: Colors.BorderDefault,
             marginVertical: 16,
+        },
+        infoRow: {
+            paddingVertical: 10,
+        },
+        infoRowDivider: {
+            borderTopWidth: 1,
+            borderTopColor: Colors.BorderDefault,
+        },
+        infoLabel: {
+            fontSize: Styles.smallerTextSize,
+            color: Colors.SecondaryText,
+            marginBottom: 2,
+        },
+        infoValue: {
+            fontSize: Styles.normalTextSize,
+            color: Colors.TextPrimaryDark,
+            fontWeight: '500',
+        },
+        userCardWrapper: {
+            backgroundColor: Colors.GreyContentBackground
+        },
+        userCard: {
+            flexDirection: 'row',
+            alignItems: 'flex-start',
+            backgroundColor: Colors.WhiteContentBackground,
+            borderRadius: 12,
+            borderWidth: 1,
+            borderColor: Colors.BorderDefault,
+            marginBottom: Distances.ScaledContentDistanceFromEdge,
+            padding: 16
+        },
+        userCardIconContainer: {
+            height: 56,
+            width: 56,
+            borderRadius: 28,
+            backgroundColor: Colors.BrandLight,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: 16
+        },
+        userCardIcon: {
+            fontSize: 32,
+            color: Colors.BrandPrimaryDark
+        },
+        userCardTextContainer: {
+            flex: 1,
+            flexDirection: 'column'
+        },
+        userCardHeading: {
+            fontSize: Styles.normalTextSize,
+            fontWeight: '600',
+            color: Colors.TextPrimaryDark
+        },
+        userCardChip: {
+            alignSelf: 'flex-start',
+            backgroundColor: Colors.BrandLight,
+            borderRadius: 100,
+            paddingHorizontal: 10,
+            paddingVertical: 3,
+            marginTop: 6
+        },
+        userCardChipText: {
+            fontSize: Styles.smallerTextSize,
+            color: Colors.BrandPrimaryDark
+        },
+        userCardSubtext: {
+            fontSize: Styles.smallerTextSize,
+            color: Colors.SecondaryText,
+            marginTop: 6
+        },
+        userCardEditText: {
+            fontSize: Styles.smallerTextSize,
+            color: Colors.BrandPrimaryDark,
+            marginTop: 6
         }
     }
 );

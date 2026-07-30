@@ -200,7 +200,7 @@ export default class MediaV2FormElement extends AbstractFormElement {
                 <View style={[styles.contentRow, styles.imageRow]}>
                     <ExpandableMedia source={mediaObject.uri} type={this.props.element.concept.datatype}/>
                     <TouchableNativeFeedback onPress={() => onClearAnswer()}>
-                        <Icon name={"backspace"} style={[styles.icon]}/>
+                        <Icon name={"backspace-outline"} style={[styles.icon]}/>
                     </TouchableNativeFeedback>
                 </View>
                 {this.includeLocationInfo() && !_.isNil(warningMessage) && <View>
@@ -217,7 +217,7 @@ export default class MediaV2FormElement extends AbstractFormElement {
                 this.launchMediaLibrary(onUpdateObservations)
             }}
                                      background={TouchableNativeFeedback.SelectableBackground()}>
-                <Icon name={'folder-open'} style={styles.icon}/>
+                <Icon name={'folder-open-outline'} style={styles.icon}/>
             </TouchableNativeFeedback>}
             <TouchableNativeFeedback onPress={() => {
                 this.launchCamera(onUpdateObservations)

@@ -90,18 +90,24 @@ class FiltersViewV2 extends AbstractComponent {
         container: {
             marginRight: Distances.ScaledContentDistanceFromEdge,
             marginLeft: Distances.ScaledContentDistanceFromEdge,
-            padding: 10,
+            paddingVertical: 20,
             backgroundColor: Styles.whiteColor
         },
         floatingButton: {
             position: 'absolute',
-            width: '100%',
-            height: 50,
-            alignSelf: 'stretch',
+            left: 16,
+            right: 16,
+            bottom: 20,
+            height: 52,
             alignItems: 'center',
             justifyContent: 'center',
-            bottom: 0,
-            backgroundColor: Colors.AccentColor
+            backgroundColor: Colors.BrandPrimaryDark,
+            borderRadius: 8,
+            elevation: 4,
+            shadowColor: '#000',
+            shadowOffset: {width: 0, height: 2},
+            shadowOpacity: 0.15,
+            shadowRadius: 4
         },
         floatingButtonIcon: {
             color: Colors.TextOnPrimaryColor
@@ -160,7 +166,7 @@ class FiltersViewV2 extends AbstractComponent {
         const addressLevelService = this.getService(AddressLevelService);
 
         return (
-            <CHSContainer style={{backgroundColor: Styles.whiteColor, display: "flex", flexDirection: "column", paddingBottom: 50}}>
+            <CHSContainer style={{backgroundColor: Styles.whiteColor, display: "flex", flexDirection: "column", paddingBottom: 90}}>
                 <AppHeader title={this.I18n.t('filter')} func={this.props.onBack}/>
                 <ScrollView keyboardShouldPersistTaps="handled">
                     <View style={{backgroundColor: Styles.whiteColor}}>
@@ -236,8 +242,9 @@ class FiltersViewV2 extends AbstractComponent {
                     <Text style={{
                         fontSize: Styles.normalTextSize,
                         color: Colors.TextOnPrimaryColor,
+                        fontWeight: '600',
                         alignSelf: "center"
-                    }}>Apply</Text>
+                    }}>{this.I18n.t('apply')}</Text>
                 </TouchableOpacity>
             </CHSContainer>
         );

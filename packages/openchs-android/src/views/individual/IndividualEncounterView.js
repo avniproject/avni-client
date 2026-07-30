@@ -13,12 +13,13 @@ import _ from "lodash";
 import General from "../../utility/General";
 import {AbstractEncounter, Encounter, Form, ObservationsHolder, PrimitiveValue, ValidationResult} from 'openchs-models';
 import CHSNavigator from "../../utility/CHSNavigator";
-import PreviousEncounterPullDownView from "./PreviousEncounterPullDownView";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import DateFormElement from "../form/formElement/DateFormElement";
 import Distances from "../primitives/Distances";
 import CHSContent from "../common/CHSContent";
 import CHSContainer from "../common/CHSContainer";
+import EncounterSubjectHeader from "../common/EncounterSubjectHeader";
+import Colors from "../primitives/Colors";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import FormMappingService from "../../service/FormMappingService";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
@@ -30,6 +31,7 @@ import SummaryButton from "../common/SummaryButton";
 import Timer from "../common/Timer";
 import BackgroundTimer from "react-native-background-timer";
 import {Actions as IGHActions} from "../../action/individual/IndividualGeneralHistoryActions";
+import PreviousEncounters from "../common/PreviousEncounters";
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -160,11 +162,11 @@ class IndividualEncounterView extends AbstractComponent {
         if (this.state.allElementsFilledForImmutableEncounter && !this.state.wizardCompletionInProgress) {
             this.onGoToSummary(true);
         }
-        const title = `${this.I18n.t(this.state.encounter.encounterType.displayName)} - ${this.I18n.t('enterData')}`;
+        const title = this.I18n.t(this.state.encounter.encounterType.displayName);
         return (
             <CHSContainer>
                 <CHSContent>
-                    <ScrollView ref={this.scrollRef} keyboardShouldPersistTaps="handled">
+                    <ScrollView ref={this.scrollRef} style={{flex: 1}} keyboardShouldPersistTaps="handled">
                     <AppHeader title={title} func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
                     {displayTimer ?
                         <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.state.formElementGroup}/> : null}
@@ -172,11 +174,22 @@ class IndividualEncounterView extends AbstractComponent {
                         <View>
                             <RejectionMessage I18n={this.I18n}
                                               entityApprovalStatus={this.state.encounter.latestEntityApprovalStatus}/>
-                            {this.state.loadPullDownView &&
-                            <PreviousEncounterPullDownView showExpanded={this.state.previousEncountersDisplayed}
-                                                           individual={this.state.encounter.individual}
-                                                           actionName={Actions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER}
-                                                           encounters={this.state.previousEncounters}/>}
+                            <View style={{
+                                backgroundColor: '#ffffff',
+                                borderRadius: 12,
+                                marginHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge,
+                                marginBottom: Distances.VerticalSpacingBetweenFormElements,
+                                overflow: 'hidden'
+                            }}>
+                                <EncounterSubjectHeader individual={this.state.encounter.individual}
+                                                         expanded={this.state.previousEncountersDisplayed}
+                                                         onToggleExpand={() => this.dispatchAction(Actions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER)}/>
+                                {this.state.loadPullDownView && this.state.previousEncountersDisplayed &&
+                                <PreviousEncounters encounters={this.state.previousEncounters}
+                                                     formType={Form.formTypes.Encounter}
+                                                     style={{paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}
+                                                     showPartial={false}/>}
+                            </View>
                             <View style={styles.container}>
                                 <SummaryButton onPress={() => this.onGoToSummary()}/>
                                 <GeolocationFormElement
@@ -187,7 +200,7 @@ class IndividualEncounterView extends AbstractComponent {
                                     validationResult={AbstractDataEntryState.getValidationError(this.state, Encounter.validationKeys.ENCOUNTER_LOCATION)}
                                 />
                                 <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGE}
-                                                 element={new StaticFormElement(AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}
+                                                 element={Object.assign(new StaticFormElement(AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME), {styles: {color: Colors.BrandPrimary}})}
                                                  dateValue={new PrimitiveValue(this.state.encounter.encounterDateTime)}
                                                  validationResult={ValidationResult.findByFormIdentifier(this.state.validationResults, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}/>
                             </View>
@@ -208,8 +221,13 @@ class IndividualEncounterView extends AbstractComponent {
                                           onValidationError={(x, y) => this.scrollToPosition(x, y)}
                                           subjectUUID={this.state.encounter.individual.uuid}
                         />}
-                        {!displayTimer &&
+                    </View>
+                    </ScrollView>
+                    {!displayTimer &&
+                    <View style={styles.fixedButtonBar}>
                         <WizardButtons
+                            containerStyle={{paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}
+                            buttonHeight={56}
                             previous={{
                                 visible: !this.state.wizard.isFirstPage(),
                                 func: () => this.previous(),
@@ -219,9 +237,8 @@ class IndividualEncounterView extends AbstractComponent {
                                 func: () => this.next(),
                                 label: this.I18n.t('next')
                             }}
-                        />}
-                    </View>
-                    </ScrollView>
+                        />
+                    </View>}
                 </CHSContent>
                 <CustomActivityIndicator loading={!!this.state.wizardCompletionInProgress}/>
             </CHSContainer>
@@ -234,6 +251,16 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
         paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge,
         flexDirection: 'column'
+    },
+    fixedButtonBar: {
+        height: 84,
+        justifyContent: 'center',
+        backgroundColor: '#ffffff',
+        shadowColor: '#000',
+        shadowOffset: {width: 0, height: -3},
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 8
     }
 });
 

@@ -1,0 +1,8 @@
+diff --git a/node_modules/react-native-vector-icons/android/src/main/AndroidManifest.xml b/node_modules/react-native-vector-icons/android/src/main/AndroidManifest.xml
+index 3bd661a..a2f47b6 100755
+--- a/node_modules/react-native-vector-icons/android/src/main/AndroidManifest.xml
++++ b/node_modules/react-native-vector-icons/android/src/main/AndroidManifest.xml
+@@ -1,2 +1,2 @@
+-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.oblador.vectoricons">
++<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+ </manifest>

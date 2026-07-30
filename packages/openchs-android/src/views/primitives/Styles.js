@@ -8,7 +8,7 @@ class Styles {
 Styles.accentColor = '#009688';
 Styles.whiteColor = '#ffffff';
 Styles.blackColor = '#000000';
-Styles.redColor = '#ff0000';
+Styles.redColor = '#B91C1C';
 Styles.defaultBackground = '#212121';
 Styles.groupSubjectBackground = '#871f74';
 Styles.greyBackground = '#f6f6f6';
@@ -280,7 +280,7 @@ Styles.basicPrimaryButtonView = {
     minHeight: 36,
     marginBottom: 8,
     elevation: 2,
-    borderRadius: 4,
+    borderRadius: 8,
     flexWrap: 'wrap',
     backgroundColor: Styles.accentColor,
     alignItems: 'center',
@@ -293,7 +293,7 @@ Styles.basicSecondaryButtonView = {
     minHeight: 36,
     marginBottom: 8,
     elevation: 2,
-    borderRadius: 4,
+    borderRadius: 8,
     flexWrap: 'wrap',
     backgroundColor: '#e0e0e0', //Colors.SecondaryActionButtonColor
     alignItems: 'center',
@@ -334,7 +334,9 @@ Styles.dashboardSubsectionTitleText = {
     textTransform: 'uppercase',
     fontSize: 11,
     fontWeight: 'bold',
-    letterSpacing: 0.1
+    letterSpacing: 0.1,
+    marginTop: 20,
+    marginBottom: 8
 }
 
 Styles.iconLabel = {

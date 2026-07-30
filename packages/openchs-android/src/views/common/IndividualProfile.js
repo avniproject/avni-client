@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import {TouchableNativeFeedback, TouchableOpacity, View, Alert, Linking} from "react-native";
+import {TouchableNativeFeedback, TouchableOpacity, View, Linking} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Text} from "native-base";
@@ -7,7 +7,6 @@ import {Actions} from "../../action/individual/IndividualProfileActions";
 import Reducers from "../../reducer";
 import Colors from "../primitives/Colors";
 import Distances from "../primitives/Distances";
-import Fonts from "../primitives/Fonts";
 import CHSNavigator from "../../utility/CHSNavigator";
 import General from "../../utility/General";
 import DGS from "../primitives/DynamicGlobalStyles";
@@ -28,6 +27,7 @@ import PhoneCall from "../../model/PhoneCall";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import AvniIcon from "../common/AvniIcon";
 import GlificScheduledAndSentMsgsView from '../glific/GlificScheduledAndSentMsgsView';
+import CustomConfirmDialog from "./CustomConfirmDialog";
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
@@ -132,9 +132,9 @@ class IndividualProfile extends AbstractComponent {
                             subjectLocation: subjectLocation
                         });
                         
-                        Alert.alert('Success', this.I18n.t('subjectLocationSaved'));
+                        CustomConfirmDialog.showAlert({title: 'Success', message: this.I18n.t('subjectLocationSaved')});
                     } catch (error) {
-                        Alert.alert('Error', this.I18n.t('locationSaveError'));
+                        CustomConfirmDialog.showAlert({title: 'Error', message: this.I18n.t('locationSaveError')});
                     }
                 },
                 false,
@@ -164,28 +164,13 @@ class IndividualProfile extends AbstractComponent {
     }
 
 
-    programProfileHeading() {
-        const fullAddress = this.props.individual.fullAddress(this.I18n);
-        const individualInfo = this.props.individual.subjectType.isPerson() ?
-            `${this.I18n.t(this.props.individual.gender.name)}, ${this.props.individual.getAgeAndDateOfBirthDisplay(this.I18n)}, ${fullAddress}` :
-            fullAddress;
-
-        return (
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Text style={Styles.programProfileSubheading}>
-                    {individualInfo}
-                </Text>
-            </View>
-        );
-    }
-
     renderProfileActionButton(iconMode, displayTextMessageKey, onPress) {
         return (<TouchableNativeFeedback onPress={onPress}>
             <View style={{
                 flexDirection: 'row',
                 paddingHorizontal: DGS.resizeWidth(6),
                 alignItems: 'center', justifyContent: 'flex-start', marginLeft: 16, backgroundColor: Styles.greyBackground,
-                borderRadius: 5
+                borderRadius: 8
             }}>
                 <AvniIcon name={iconMode} style={{
                     fontSize: DGS.resizeWidth(Styles.programProfileButtonText.fontSize),
@@ -236,7 +221,7 @@ class IndividualProfile extends AbstractComponent {
             marginEnd: 16,
             alignItems: 'center',
             backgroundColor: Styles.greyBackground,
-            borderRadius: 5
+            borderRadius: 8
         }}>
             <Text style={{color: Styles.accentColor}}>{`${groupAction.label} ${this.I18n.t(label)}`}</Text>
         </TouchableOpacity>
@@ -253,7 +238,7 @@ class IndividualProfile extends AbstractComponent {
                         marginEnd: 10,
                         alignItems: 'center',
                         backgroundColor: Styles.greyBackground,
-                        borderRadius: 5,
+                        borderRadius: 8,
                         marginBottom: 5
                     }}>
                         <Text style={{color: Styles.accentColor}}>{`${groupAction.label} ${this.I18n.t(label)}`}</Text>
@@ -279,121 +264,89 @@ class IndividualProfile extends AbstractComponent {
             </TouchableOpacity> : null;
     }
 
-    renderSubjectLocationIcon() {
-        const hasLocation = this.props.individual.subjectLocation != null;
-
-        return (
-            <TouchableOpacity 
-                style={Styles.iconContainer}
-                onPress={hasLocation ? () => this.showLocationOptions() : () => this.captureLocation()}
-            >
-                <View style={Styles.iconCircle}>
-                    <MaterialIcon
-                        name={hasLocation ? "location-on" : "add-location-alt"}
-                        style={{color: Styles.accentColor, fontSize: 36}}
-                    />
-                </View>
-                <Text style={Styles.iconLabel}>
-                    {this.I18n.t("location")}
-                </Text>
-            </TouchableOpacity>
-        )
-    }
-    
     showLocationOptions() {
         this.dispatchAction(Actions.SHOW_LOCATION_OPTIONS);
     }
 
-    renderProfileSection() {
-        const allIcons = [
-            this.renderSubjectLocationIcon(),
+    // Matches the avatar + name + gender/age header pattern already used on the encounter
+    // screens (see EncounterSubjectHeader) - full address moved out into its own Location row
+    // below instead of being crammed into this subtitle line.
+    renderProfileHeader() {
+        const isPerson = this.props.individual.subjectType.isPerson();
+        return (
+            <View style={{flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12}}>
+                <SubjectProfilePicture
+                    size={56}
+                    subjectType={this.props.individual.subjectType}
+                    round={true}
+                    allowEnlargementOnClick={true}
+                    individual={this.props.individual}
+                    containerStyle={{marginRight: 16}}
+                />
+                <View style={{flex: 1}}>
+                    <Text style={{fontSize: Styles.titleSize, fontWeight: 'bold', color: Colors.TextPrimaryDark}}
+                          numberOfLines={1} ellipsizeMode='tail'>
+                        {this.props.individual.getTranslatedNameString(this.I18n)} {this.props.individual.id}
+                    </Text>
+                    {isPerson &&
+                    <Text style={{fontSize: Styles.normalTextSize, color: Colors.TextPrimaryDark, marginTop: 2}}>
+                        {this.props.individual.userProfileSubtext1(this.I18n)} • {this.props.individual.userProfileSubtext2(this.I18n)}
+                    </Text>}
+                </View>
+            </View>
+        );
+    }
+
+    renderOtherIcons() {
+        const icons = [
             this.renderCommentIcon(),
             this.renderCallButton(),
             this.renderWhatsappButton(this.props.individual.uuid)
-        ];
-        
-        const icons = allIcons.filter(icon => icon !== null);
-
-        const renderSubjectProfile = (size, style) => (
-            <SubjectProfilePicture
-                size={size}
-                subjectType={this.props.individual.subjectType}
-                style={style}
-                round={true}
-                allowEnlargementOnClick={true}
-                individual={this.props.individual}
-            />
+        ].filter(icon => icon !== null);
+        if (icons.length === 0) return null;
+        return (
+            <View style={{flexDirection: 'row', justifyContent: 'flex-start', paddingHorizontal: 16, paddingBottom: 8}}>
+                {icons}
+            </View>
         );
+    }
 
-        const renderProfileText = (headingStyle) => (
-            <>
-                <Text style={headingStyle}>
-                    {this.props.individual.getTranslatedNameString(this.I18n)} {this.props.individual.id}
-                </Text>
-                {this.programProfileHeading()}
-            </>
-        );
-
-        if (icons.length <= 1) {
-            return (
-                <View style={{flexDirection: 'row', alignItems: 'center', paddingTop: 10, paddingBottom: 10, backgroundColor: Styles.greyBackground}}>
-                    <View style={{paddingHorizontal: 20, justifyContent: 'center'}}>
-                        {renderSubjectProfile(DGS.resizeWidth(75), {alignSelf: 'center'})}
-                    </View>
-                    <View style={{flex: 1, paddingHorizontal: 2}}>
-                        {renderProfileText(Styles.programProfileHeading)}
-                    </View>
-                    <View style={{flexDirection: 'column', paddingRight: 15}}>
-                        {icons}
-                    </View>
-                </View>
-            );
-        } else {
-            return (
-                <View style={{
-                    flexDirection: 'column',
+    // Same GPS subjectLocation capture/view dialog that used to be launched from the small
+    // corner "Location" icon - only the entry point moved to this full-width Figma-style chip.
+    renderLocationChip() {
+        const hasLocation = this.props.individual.subjectLocation != null;
+        const addressText = this.props.individual.fullAddress(this.I18n);
+        return (
+            <TouchableOpacity
+                onPress={hasLocation ? () => this.showLocationOptions() : () => this.captureLocation()}
+                style={{
+                    flexDirection: 'row',
                     alignItems: 'center',
-                    paddingTop: 5,
-                    paddingBottom: 2,
+                    backgroundColor: Colors.BrandLight,
+                    borderRadius: 8,
+                    marginHorizontal: 16,
+                    marginBottom: 12,
                     paddingHorizontal: 12,
-                    backgroundColor: Styles.whiteColor,
-                    borderRadius: 16,
-                    borderWidth: 2,
-                    borderColor: Styles.greyBackground,
-                    marginTop: 12,
-                    marginRight: 12,
-                    marginLeft: 12,
-                    marginBottom: 2,
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.1,
-                    shadowRadius: 8,
+                    paddingVertical: 10
                 }}>
-                    <View style={{flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', width: '100%', paddingVertical: 8}}>
-                        <View style={{paddingRight: 16}}>
-                            {renderSubjectProfile(DGS.resizeWidth(75), {alignSelf: 'center'})}
-                        </View>
-                        <View style={{flex: 1, justifyContent: 'center'}}>
-                            {renderProfileText(Styles.programProfileHeading)}
-                        </View>
-                    </View>
-                    <View style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'space-around',
-                        width: '105%',
-                        backgroundColor: Styles.greyBackground,
-                        paddingVertical: 6,
-                        paddingHorizontal: 2,
-                        borderRadius: 12,
-                        marginHorizontal: 2,
-                        marginBottom: 2
-                    }}>
-                        {icons}
-                    </View>
+                <MaterialIcon
+                    name={hasLocation ? 'location-on' : 'add-location-alt'}
+                    style={{fontSize: 22, color: Colors.BrandPrimaryDark, marginRight: 10}}
+                />
+                <View style={{flex: 1}}>
+                    <Text style={{fontSize: Styles.smallerTextSize, color: Colors.TextPrimaryDark, opacity: 0.7}}>
+                        {this.I18n.t('location')}
+                    </Text>
+                    <Text numberOfLines={1} ellipsizeMode='tail'
+                          style={{fontSize: Styles.smallTextSize, color: Colors.BrandPrimary, opacity: 0.7, marginTop: 2}}>
+                        {addressText}
+                    </Text>
                 </View>
-            );
-        }
+                <Text style={{fontSize: Styles.smallTextSize, color: Colors.BrandPrimaryDark, fontWeight: '500', marginLeft: 8}}>
+                    {this.I18n.t(hasLocation ? 'changeLocation' : 'addLocation')}
+                </Text>
+            </TouchableOpacity>
+        );
     }
     
     navigateToLocation() {
@@ -407,7 +360,7 @@ class IndividualProfile extends AbstractComponent {
                     return Linking.openURL(url);
             })
             .catch(err => {
-                Alert.alert('Error', `Unable to open map application`);
+                CustomConfirmDialog.showAlert({title: 'Error', message: `Unable to open map application`});
             });
 
     }
@@ -433,7 +386,7 @@ class IndividualProfile extends AbstractComponent {
             headingSuffixesList.unshift(this.props.individual.userProfileSubtext1(this.I18n)); //localized Gender
         }
         let headingSuffix = _.join(headingSuffixesList, ", ")
-        return <View style={{backgroundColor: Styles.whiteColor}}>
+        return <View style={{backgroundColor: Colors.GreyContentBackground}}>
             {(this.props.viewContext !== IndividualProfile.viewContext.Wizard) ?
                 (
                     <>
@@ -464,7 +417,9 @@ class IndividualProfile extends AbstractComponent {
                                     }
                                 ]}
                             />
-                            {this.renderProfileSection()}
+                            {this.renderProfileHeader()}
+                            {this.renderOtherIcons()}
+                            {this.renderLocationChip()}
                             <View
                                 style={{
                                     flexDirection: 'row',
@@ -472,7 +427,7 @@ class IndividualProfile extends AbstractComponent {
                                     flexWrap: 'wrap',
                                     paddingVertical: 8,
                                     alignItems: 'center',
-                                    backgroundColor: Styles.whiteColor
+                                    backgroundColor: Colors.GreyContentBackground
                                 }}>
                                 {(!this.props.hideEnrol && !_.isEmpty(this.state.eligiblePrograms)) ? this.renderBasedOnProgramActions() :
                                     <View/>}
@@ -487,10 +442,33 @@ class IndividualProfile extends AbstractComponent {
                         paddingHorizontal: Distances.ContentDistanceFromEdge,
                         paddingVertical: Distances.ContentDistanceFromEdge
                     })}>
-                        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <Text style={[Fonts.LargeBold, {color: Styles.blackColor}]}>{this.props.individual.nameString}</Text>
+                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                            <SubjectProfilePicture size={56}
+                                                   subjectType={this.props.individual.subjectType}
+                                                   round={true}
+                                                   individual={this.props.individual}
+                                                   containerStyle={{marginRight: 24}}/>
+                            <View style={{flex: 1}}>
+                                <Text style={{fontSize: Styles.normalTextSize, fontWeight: '500', color: Colors.TextPrimaryDark}}>{this.props.individual.nameString}</Text>
+                                {isPerson &&
+                                    <Text style={{fontSize: Styles.smallTextSize, color: Colors.TextPrimaryDark, marginTop: 2}}>
+                                        {this.props.individual.userProfileSubtext1(this.I18n)} • {this.props.individual.userProfileSubtext2(this.I18n)}
+                                    </Text>}
+                            </View>
                         </View>
-                        <Text style={Styles.subjectProfileSubheading}>{headingSuffix}</Text>
+                        <View style={{
+                            backgroundColor: Styles.whiteColor,
+                            borderRadius: 4,
+                            paddingVertical: 8,
+                            paddingHorizontal: 16,
+                            marginTop: 12
+                        }}>
+                            <Text style={{fontSize: Styles.smallerTextSize, color: Colors.TextPrimaryDark, opacity: 0.7}}>{this.I18n.t('location')}</Text>
+                            <Text numberOfLines={1} ellipsizeMode={'tail'}
+                                  style={{fontSize: Styles.smallTextSize, color: Colors.BrandPrimary, opacity: 0.7, marginTop: 2}}>
+                                {this.props.individual.fullAddress(this.I18n)}
+                            </Text>
+                        </View>
                     </View>
                 )}
         </View>;

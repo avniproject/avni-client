@@ -1,12 +1,13 @@
 import {View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
-import {Button, Icon, Text} from "native-base";
+import {Button} from "native-base";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import _ from 'lodash';
 import Colors from '../primitives/Colors';
 import Distances from "../primitives/Distances";
-import AvniIcon from "./AvniIcon";
+
+const BUTTON_RADIUS = 8;
 
 class WizardButtons extends AbstractComponent {
     constructor(props, context) {
@@ -18,6 +19,8 @@ class WizardButtons extends AbstractComponent {
         next: PropTypes.object,
         style: PropTypes.object,
         nextAndMore: PropTypes.object,
+        containerStyle: PropTypes.object,
+        buttonHeight: PropTypes.number,
     };
 
     getButtonProps(buttonProps) {
@@ -33,38 +36,39 @@ class WizardButtons extends AbstractComponent {
         const previousButton = this.getButtonProps(this.props.previous);
         const nextButton = this.getButtonProps(this.props.next);
         const nextAndMore = this.getButtonProps(this.props.nextAndMore);
-        return (<View style={{marginVertical: 30, paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
+        const containerStyle = this.props.containerStyle || {marginVertical: 30, paddingHorizontal: Distances.ScaledContentDistanceFromEdge};
+        const buttonHeightStyle = _.isNil(this.props.buttonHeight) ? {} : {height: this.props.buttonHeight};
+        return (<View style={containerStyle}>
+            {nextAndMore.visible &&
             <View
                 style={this.appendedStyle({justifyContent: 'space-between', flexDirection: 'row', marginBottom: 12})}>
-                {nextAndMore.visible ?
-                    <Button primary
-                            style={{flex: 1, justifyContent: "center",backgroundColor: Colors.ActionButtonColor}}
-                            onPress={() => nextAndMore.func()}>
-                        {nextAndMore.label}</Button>
-                    : null
-                }
+                <Button primary
+                        style={{flex: 1, justifyContent: "center", backgroundColor: Colors.BrandPrimaryDark, borderRadius: BUTTON_RADIUS, ...buttonHeightStyle}}
+                        onPress={() => nextAndMore.func()}>
+                    {nextAndMore.label}</Button>
             </View>
+            }
             <View
-                style={this.appendedStyle({justifyContent: 'space-between', flexDirection: 'row'})}>
+                style={this.appendedStyle({justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center'})}>
                 {previousButton.visible ?
                     <Button primary
                             style={{
                                 flex: 0.5,
-                                flexDirection: "row",
-                                backgroundColor: Colors.SecondaryActionButtonColor,
                                 justifyContent: "center",
-                                color: "#000"
+                                backgroundColor: '#ffffff',
+                                borderRadius: BUTTON_RADIUS,
+                                borderWidth: 1,
+                                borderColor: Colors.BorderDefault,
+                                ...buttonHeightStyle
                             }}
-                            _text={{color: "#212121"}}
-                            leftIcon={<AvniIcon color={'#212121'} name='stepbackward' type='AntDesign' />}
+                            _text={{color: Colors.BrandPrimary}}
                             onPress={() => previousButton.func()}>
                         {previousButton.label}</Button> :
                     <View style={{flex: 0.5}}/>}
                 {nextButton.visible ?
                     <Button primary
-                            style={{flex: 0.5, flexDirection: "row", marginLeft: 8, justifyContent: "center",backgroundColor: Colors.ActionButtonColor}}
-                            onPress={() => nextButton.func()}
-                            rightIcon={<AvniIcon color={Colors.buttonIconColor} name='stepforward' type='AntDesign'/>}>{nextButton.label}
+                            style={{flex: 0.5, marginLeft: 8, justifyContent: "center", backgroundColor: Colors.BrandPrimaryDark, borderRadius: BUTTON_RADIUS, ...buttonHeightStyle}}
+                            onPress={() => nextButton.func()}>{nextButton.label}
                     </Button> : <View style={{flex: 0.5}}/>}
             </View>
         </View>);

@@ -103,25 +103,21 @@ class RegisterView extends AbstractComponent {
 
     renderButton(onPress, buttonColor, text, textColor, index, subjectType, totalActions) {
         return (
-            <View key={index}>
+            <View key={index} style={{
+                marginHorizontal: Distances.ScaledContentDistanceFromEdge,
+                marginTop: index === 0 ? 16 : 8,
+                marginBottom: index + 1 === totalActions ? 16 : 0
+            }}>
                 <TouchableNativeFeedback onPress={() => {
                     onPress()
                 }}>
-                    <View style={{
-                        marginRight: Distances.ScaledContentDistanceFromEdge,
-                        marginLeft: Distances.ScaledContentDistanceFromEdge
-                    }}>
-                        <View style={[styles.container]}>
-                            <SubjectTypeIcon style={{marginLeft: 8}} size={24} subjectType={subjectType}/>
-                            <View style={[styles.textContainer]}>
-                                <Text
-                                    style={[Fonts.typography("paperFontSubhead"), styles.programNameStyle, {color: textColor}]}>{text}</Text>
-                            </View>
-                            <Icon style={styles.iconStyle} name='chevron-right'/>
+                    <View style={[styles.container]}>
+                        <SubjectTypeIcon round size={22} subjectType={subjectType}
+                                         containerStyle={styles.iconCircle}/>
+                        <View style={[styles.textContainer]}>
+                            <Text style={[styles.programNameStyle]}>{text}</Text>
                         </View>
-                        {index + 1 !== totalActions &&
-                            <Separator backgroundColor={Colors.InputBorderNormal} style={{marginHorizontal: 32}}/>
-                        }
+                        <Icon style={styles.iconStyle} name='chevron-right'/>
                     </View>
                 </TouchableNativeFeedback>
             </View>
@@ -244,7 +240,17 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.cardBackgroundColor,
         flexDirection: 'row',
         alignItems: 'center',
-        alignSelf: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderRadius: 12,
+        elevation: 2,
+        shadowColor: '#000000',
+        shadowOffset: {width: 0, height: 1},
+        shadowOpacity: 0.08,
+        shadowRadius: 3
+    },
+    iconCircle: {
+        backgroundColor: '#DCEEF0'
     },
     strip: {
         width: 8,
@@ -254,22 +260,22 @@ const styles = StyleSheet.create({
     textContainer: {
         flex: 1,
         paddingVertical: 4,
-        padding: Distances.ScaledContentDistanceFromEdge,
+        paddingHorizontal: 12,
         flexDirection: 'row',
         flexWrap: 'wrap',
     },
     programNameStyle: {
-        color: Colors.DefaultPrimaryColor,
-        fontWeight: 'normal',
-        fontSize: 20,
+        color: Colors.TextPrimaryDark,
+        fontWeight: '600',
+        fontSize: Styles.normalTextSize + 2,
         alignSelf: 'flex-start',
         textAlignVertical: 'center',
     },
     iconStyle: {
-        color: Colors.AccentColor,
-        opacity: 0.8,
+        color: Colors.TextPrimaryDark,
+        opacity: 0.4,
         alignSelf: 'center',
-        fontSize: 40
+        fontSize: 24
     },
     draftContainerStyle: {
         marginTop: 16,

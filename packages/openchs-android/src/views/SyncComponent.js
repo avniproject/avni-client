@@ -6,7 +6,7 @@ import {SyncTelemetryActionNames as SyncTelemetryActions} from "../action/SyncTe
 import AuthenticationError from "../service/AuthenticationError";
 import CHSNavigator from "../utility/CHSNavigator";
 import ServerError, {getAvniError} from "../service/ServerError";
-import {Alert, Text, ToastAndroid, TouchableNativeFeedback, View} from "react-native";
+import {Text, ToastAndroid, TouchableNativeFeedback, View} from "react-native";
 import Clipboard from "@react-native-clipboard/clipboard";
 import NetInfo from "@react-native-community/netinfo";
 import _ from "lodash";
@@ -22,6 +22,7 @@ import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 import {IgnorableSyncError} from "openchs-models";
 import IssueUploadUtil from "../utility/IssueUploadUtil";
 import {getConnectionInfo} from "../utility/ConnectionInfo";
+import CustomConfirmDialog from "./common/CustomConfirmDialog";
 
 class SyncComponent extends AbstractComponent {
     unsubscribe;
@@ -101,27 +102,24 @@ class SyncComponent extends AbstractComponent {
 
     ErrorAlert(avniError) {
         const userMessage = avniError.userMessage || this.I18n.t("unknownError");
-        Alert.alert(this.I18n.t("syncError"), userMessage, [
-                {
-                    text: this.I18n.t('tryAgain'),
-                    onPress: () => this.sync()
-                },
-                {
-                    text: this.I18n.t('cancel'),
-                    onPress: _.noop,
-                    style: 'cancel'
-                },
-                IssueUploadUtil.createUploadIssueInfoButton(
-                    this.context,
-                    this.I18n,
-                    avniError,
-                    "SyncComponent",
-                    () => this.setState({uploading: true}),
-                    () => this.setState({uploading: false}),
-                    (percentDone, message) => this.setState({uploadProgress: percentDone, uploadMessage: message})
-                )
-            ]
+        const uploadIssueInfoButton = IssueUploadUtil.createUploadIssueInfoButton(
+            this.context,
+            this.I18n,
+            avniError,
+            "SyncComponent",
+            () => this.setState({uploading: true}),
+            () => this.setState({uploading: false}),
+            (percentDone, message) => this.setState({uploadProgress: percentDone, uploadMessage: message})
         );
+        CustomConfirmDialog.showActions({
+            title: this.I18n.t("syncError"),
+            message: userMessage,
+            actions: [
+                {label: this.I18n.t('tryAgain'), primary: true, onPress: () => this.sync()},
+                {label: this.I18n.t('cancel'), onPress: _.noop},
+                {label: uploadIssueInfoButton.text, onPress: uploadIssueInfoButton.onPress}
+            ]
+        });
     }
 
     UNSAFE_componentWillMount() {
@@ -235,12 +233,12 @@ class SyncComponent extends AbstractComponent {
         const icon = this.props.icon("sync", {
             color: Colors.headerIconColor,
             alignSelf: 'center',
-            fontSize: 30
+            fontSize: 24
         });
         const syncDisabledIcon = this.props.icon("sync-off", {
             color: Colors.DisabledButtonColor,
             alignSelf: 'center',
-            fontSize: 30
+            fontSize: 24
         });
         const entitySyncStatusService = this.context.getService(EntitySyncStatusService);
         const totalPending = entitySyncStatusService.getTotalEntitiesPending();
