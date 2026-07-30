@@ -71,7 +71,9 @@ class SelectableItem extends React.Component {
         const backgroundColor = disabled
             ? Colors.DisabledButtonColor
             : checked
-                ? (isAbnormalChecked ? Colors.AbnormalSelectedBackground : Colors.ActionButtonColor)
+                // BrandPrimaryDark matches the Next/primary button colour (WizardButtons) - was
+                // ActionButtonColor, a leftover pre-rebrand teal that reads as a different shade.
+                ? (isAbnormalChecked ? Colors.AbnormalSelectedBackground : Colors.BrandPrimaryDark)
                 : Colors.BrandLight;
         const borderWidth = hasError ? 1.5 : 0;
         const borderColor = hasError ? Colors.ValidationError : 'transparent';
