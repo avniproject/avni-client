@@ -7,12 +7,26 @@ evidence for **avni-client#1985** (design: `avni-product-ops/analysis/tanuh-ense
 
 ## Acceptance bar
 
-**Probability-score parity** — per-model **sigmoid** matched against the xlsx, not just the
-refer/no-refer verdict (TANUH-confirmed, doc §4g, 9 Jul):
+**Verdict-level parity** — the run passes when every image's refer / no-refer call matches the
+reference sheet. That is the gate in `report.py` and its exit code.
 
-- band: absolute diff **avg 1e-7–1e-5, max 1e-4–1e-2, min 0**
-- concrete gate (`report.py`): **max |per-model sigmoid diff| < 1e-2 AND 0 images ≥ 1e-2**, with
-  per-image AND-verdict parity vs the reference.
+### Settled 2026-07-17 — do not reopen
+
+The bar was originally per-model **sigmoid** parity within TANUH's §4g band (avg 1e-7–1e-5,
+max 1e-4–1e-2, confirmed 9 Jul). **That band cannot hold on a device**, and the reason is not the
+Avni pipeline: Android's Skia JPEG decoder rounds ±1 grey level differently from desktop
+libjpeg/OpenCV, and MobileViT-v2 amplifies a single grey-level change into a logit swing of up to
+~1.0 (sigmoid ~0.4) on a borderline image. The 13 Jul emulator run measured a worst per-model gap of
+**6.9e-2** — ~7× the band — while every one of the 89 comparable verdicts matched.
+
+TANUH accepted this on **2026-07-17** ("TANUH AI on Avni" §6, *Resolved*): verdict-level parity is
+the bar, because unanimous-AND is itself the protection for borderline cases, and ±1-LSB input
+robustness is TANUH's to close in model development.
+
+The per-model sigmoid table is still computed and printed as evidence, with the 1e-2 band shown for
+reference — **it is informational and must not gate the run**. Gating on it would fail every good
+build. If you are here because a run reported a large per-model diff: that is expected; check the
+verdict line.
 
 ## Data governance — non-negotiable
 
@@ -24,6 +38,17 @@ a runtime guard that refuses fixtures located inside the repo tree.
 
 - **`$TANUH_FIXTURES` MUST be external to the repo** (e.g. `/Users/himeshr/Avni/Tanuh`). `run-parity.sh`
   aborts otherwise.
+- Both scripts hardcode the layout below, so `$TANUH_FIXTURES` is the directory *containing*
+  `tanuh_test_data/`. TANUH's zip unpacks as `Data_models_protocol_for_testing_AI_model_integrations/`
+  with no `tanuh_test_data/` parent — create that level (or symlink into it) or the xlsx lookup and
+  the image push both miss:
+
+  ```
+  $TANUH_FIXTURES/tanuh_test_data/Data_models_protocol_for_testing_AI_model_integrations/Test data/
+      ├── true_label_model_output_probabilities.xlsx
+      ├── test_images_suspicious/        45 images
+      └── test_images_nonsuspicious/     45 images
+  ```
 - `out/`, `.venv/`, and `fixtures/` under this dir are gitignored. Derived scores go back to TANUH,
   never to the repo.
 
