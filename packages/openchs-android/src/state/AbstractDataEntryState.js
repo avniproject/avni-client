@@ -59,6 +59,17 @@ class AbstractDataEntryState {
 
     handleValidationResult(validationResult) {
         _.remove(this.validationResults, (existingValidationResult) => {
+            // An Inference-typed failure is raised and cleared by the service that owns it, and by
+            // contract must not be regenerated — or removed — by a rule cycle. Every page entry
+            // re-emits a success for each element on it; letting that erase the failure is what made
+            // PREVIOUS -> NEXT a universal unblock, with the no-retry guard then suppressing the
+            // re-raise. The service's own clearers (_clearInferenceValidation,
+            // removeHiddenFormValidationResults, removeResultsForEmptyFormElementGroup) mutate
+            // validationResults directly, so they still clear it.
+            if (existingValidationResult.validationType === ValidationResult.ValidationTypes.Inference
+                && validationResult.success) {
+                return false;
+            }
             const formIdentifierMatch = existingValidationResult.formIdentifier === validationResult.formIdentifier;
             const questionGroupIndexMatch = 
                 _.isNil(existingValidationResult.questionGroupIndex) || 
