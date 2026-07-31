@@ -25,6 +25,7 @@ class AddressLevels extends AbstractComponent {
         mandatory: PropTypes.bool,
         addressLevelState: PropTypes.object,
         skipLabel: PropTypes.bool,
+        skipAnyChip: PropTypes.bool,
         minLevelTypeUUIDs: PropTypes.array,
         maxLevelTypeUUID: PropTypes.string,
         isOutsideCatchment: PropTypes.bool,
@@ -154,7 +155,9 @@ class AddressLevels extends AbstractComponent {
         let addressLevels = renderedLevels.map(([levelType, levels], idx) => {
             const isLeaf = idx === lastIdx;
             const isLowestInHierarchy = this.addressLevelService.isOnLowestLevel(levels, this.props.minLevelTypeUUIDs);
-            const showAny = !isLowestInHierarchy;
+            // Registration must end on a concrete lowest-level address, so a chip that only widens the
+            // list below reads as "this level is optional" there. Callers that need it opt out.
+            const showAny = !isLowestInHierarchy && !this.props.skipAnyChip;
             const anyActive = this.state.data.isAnyActive(levelType);
             const onHeaderChipPress = showAny ? () => this.onToggleAny(levelType) : undefined;
             const headerChipLabel = showAny ? anyLabel : undefined;

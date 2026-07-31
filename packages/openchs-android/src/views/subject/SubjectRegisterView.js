@@ -192,6 +192,7 @@ class SubjectRegisterView extends AbstractComponent {
                             multiSelect={false}
                             validationError={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.LOWEST_ADDRESS_LEVEL)}
                             mandatory={true}
+                            skipAnyChip={true}
                             onLowestLevel={(lowestSelectedAddresses) => {
                                 this.dispatchAction(Actions.REGISTRATION_ENTER_ADDRESS_LEVEL, {value: _.head(lowestSelectedAddresses)})
                             }
