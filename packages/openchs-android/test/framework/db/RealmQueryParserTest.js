@@ -83,6 +83,12 @@ describe("RealmQueryParser", () => {
             expect(result.where).toBe('t0."registration_date" > ?');
             expect(result.params).toEqual([date.getTime()]);
         });
+
+        it("should bind a boolean parameter as 1/0 like a boolean literal", () => {
+            // SQLite has no boolean type; a raw JS boolean is rejected at bind time.
+            expect(RealmQueryParser.parse("voided = $0", [false]).params).toEqual([0]);
+            expect(RealmQueryParser.parse("voided = $0", [true]).params).toEqual([1]);
+        });
     });
 
     describe("logical operators", () => {
@@ -108,6 +114,18 @@ describe("RealmQueryParser", () => {
             const result = RealmQueryParser.parse('(name = "a" OR name = "b") AND voided = false');
             expect(result.where).toBe('((t0."name" = ? OR t0."name" = ?) AND t0."voided" = ?)');
             expect(result.params).toEqual(["a", "b", 0]);
+        });
+
+        it("should parse bare ! as NOT rather than dropping it", () => {
+            const result = RealmQueryParser.parse("!(voided = true)");
+            expect(result.where).toBe('NOT (t0."voided" = ?)');
+            expect(result.params).toEqual([1]);
+        });
+
+        it("should parse ! applied to a compound group", () => {
+            const result = RealmQueryParser.parse('!(name = "a" OR name = "b")');
+            expect(result.where).toBe('NOT ((t0."name" = ? OR t0."name" = ?))');
+            expect(result.params).toEqual(["a", "b"]);
         });
     });
 
@@ -279,7 +297,7 @@ describe("RealmQueryParser", () => {
                 "TRUEPREDICATE sort(encounterDateTime desc)", [], "Encounter", schemaMap);
             expect(r.unsupported).toBe(false);
             expect(r.distinct).toBeFalsy();
-            expect(r.orderBy).toBe('t0."encounter_date_time" DESC');
+            expect(r.orderByTerms).toEqual([{expr: 't0."encounter_date_time"', dir: "DESC"}]);
             expect(r.joins.length).toBe(0);
         });
 
@@ -290,9 +308,13 @@ describe("RealmQueryParser", () => {
             expect(r.unsupported).toBe(false);
             // two JOINs: Encounter→ProgramEnrolment (t1), ProgramEnrolment→Individual (t2)
             expect(r.joins.length).toBe(2);
-            expect(r.orderBy).toBe('t2."uuid" ASC, t0."encounter_date_time" DESC');
+            const expectedTerms = [
+                {expr: 't2."uuid"', dir: "ASC"},
+                {expr: 't0."encounter_date_time"', dir: "DESC"},
+            ];
+            expect(r.orderByTerms).toEqual(expectedTerms);
             expect(r.distinct.columns).toEqual(['t2."uuid"']);
-            expect(r.distinct.orderBy).toBe('t2."uuid" ASC, t0."encounter_date_time" DESC');
+            expect(r.distinct.orderByTerms).toEqual(expectedTerms);
         });
 
         it("bare Distinct (no sort) → distinct descriptor, orderBy null", () => {
@@ -300,8 +322,8 @@ describe("RealmQueryParser", () => {
                 "TRUEPREDICATE DISTINCT(entityName)", [], "EntitySyncStatus", new Map());
             expect(r.unsupported).toBe(false);
             expect(r.distinct.columns).toEqual(['t0."entity_name"']);
-            expect(r.distinct.orderBy).toBeNull();
-            expect(r.orderBy).toBeNull();
+            expect(r.distinct.orderByTerms).toBeNull();
+            expect(r.orderByTerms).toBeNull();
         });
 
         it("inline sort + distinct on different keys (CommentService shape)", () => {
@@ -317,7 +339,7 @@ describe("RealmQueryParser", () => {
             const r = RealmQueryParser.parse(
                 "TRUEPREDICATE sort(createdDateTime asc) Distinct(commentThread.uuid)", [], "Comment", cm);
             expect(r.unsupported).toBe(false);
-            expect(r.distinct.orderBy).toBe('t0."created_date_time" ASC');
+            expect(r.distinct.orderByTerms).toEqual([{expr: 't0."created_date_time"', dir: "ASC"}]);
             expect(r.distinct.columns).toEqual(['t1."uuid"']);
         });
 
@@ -340,7 +362,7 @@ describe("RealmQueryParser", () => {
         it("reversed Distinct(...) sort(...) is not translated (stays on fallback)", () => {
             const r = RealmQueryParser.parse("TRUEPREDICATE Distinct(entityName) sort(createdDateTime asc)", [], "X", new Map());
             expect(r.distinct).toBeFalsy();
-            expect(r.orderBy).toBeFalsy();
+            expect(r.orderByTerms).toBeFalsy();
         });
     });
 
@@ -670,6 +692,51 @@ describe("RealmQueryParser", () => {
             }
         });
 
+        const obsSchemaMap = () => {
+            const sm = new Map(schemaMap);
+            sm.set("Individual", {name: "Individual", primaryKey: "uuid", properties: {
+                uuid: "string", voided: "bool",
+                observations: {type: "list", objectType: "Observation"},
+            }});
+            sm.set("Observation", {name: "Observation", primaryKey: undefined, properties: {}});
+            return sm;
+        };
+
+        it("a comma inside a quoted value does not truncate the SUBQUERY conditions", () => {
+            const r = RealmQueryParser.parse(
+                "SUBQUERY(observations, $o, $o.valueJSON contains 'Fever, cough').@count > 0",
+                [], "Individual", obsSchemaMap());
+            expect(r.unsupported).toBe(false);
+            expect(r.params).toEqual(["%Fever, cough%"]);
+        });
+
+        it("an ' and ' inside a quoted value does not split the condition", () => {
+            const r = RealmQueryParser.parse(
+                "SUBQUERY(observations, $o, $o.valueJSON contains 'Diarrhoea and Vomiting' and $o.concept.uuid = 'c1').@count > 0",
+                [], "Individual", obsSchemaMap());
+            expect(r.unsupported).toBe(false);
+            expect(r.params).toEqual(["%Diarrhoea and Vomiting%", "c1"]);
+        });
+
+        it("binds a boolean $N on an FK dot-ref as 1/0", () => {
+            const sm = new Map(schemaMap);
+            sm.set("Program", {name: "Program", primaryKey: "uuid", properties: {
+                uuid: "string", name: "string", active: "bool"}});
+            const r = RealmQueryParser.parse(
+                "SUBQUERY(enrolments, $e, $e.program.active = $0).@count > 0",
+                [true], "Individual", sm);
+            expect(r.unsupported).toBe(false);
+            expect(r.params).toEqual([1]);
+        });
+
+        it("an ' or ' inside a quoted value does not split the condition", () => {
+            const r = RealmQueryParser.parse(
+                "SUBQUERY(observations, $o, $o.valueJSON contains 'Fever or Chills').@count > 0",
+                [], "Individual", obsSchemaMap());
+            expect(r.unsupported).toBe(false);
+            expect(r.params).toEqual(["%Fever or Chills%"]);
+        });
+
         it("B: nested SUBQUERY on an embedded list → json_each EXISTS inside the IN-subquery", () => {
             const sm = new Map(schemaMap);
             sm.set("ProgramEnrolment", {name: "ProgramEnrolment", primaryKey: "uuid", properties: {
@@ -723,7 +790,7 @@ describe("RealmQueryParser", () => {
             expect(r.unsupported).toBe(true); // falls back, not miscorrelated SQL
         });
 
-        it("C: object→list path (programEnrolment.encounters) with @count == 0 → NOT IN", () => {
+        it("C: object→list path (programEnrolment.encounters) with @count == 0 → correlated NOT EXISTS", () => {
             const sm = new Map();
             sm.set("ProgramEncounter", {name: "ProgramEncounter", primaryKey: "uuid", properties: {
                 uuid: "string", encounterDateTime: "date",
@@ -736,7 +803,8 @@ describe("RealmQueryParser", () => {
                 "SUBQUERY(programEnrolment.encounters, $enc, $enc.encounterDateTime != null).@count == 0",
                 [], "ProgramEncounter", sm);
             expect(r.unsupported).toBe(false);
-            expect(r.where).toContain('t0."program_enrolment_uuid" NOT IN (SELECT "uuid" FROM program_enrolment WHERE "uuid" IN (SELECT "program_enrolment_uuid" FROM program_encounter WHERE "encounter_date_time" IS NOT NULL))');
+            expect(r.where).toContain('NOT EXISTS (SELECT 1 FROM program_enrolment WHERE "uuid" = t0."program_enrolment_uuid" AND "uuid" IN (SELECT "program_enrolment_uuid" FROM program_encounter WHERE "encounter_date_time" IS NOT NULL))');
+            expect(r.where).not.toContain("NOT IN"); // NOT IN is UNKNOWN against a NULL FK
         });
 
         it("splits AND/OR across newlines (real rule formatting) — nested embedded still translates", () => {
@@ -769,6 +837,38 @@ describe("RealmQueryParser", () => {
             // The nested subquery's inner condition must reference the bare child FK, not t0.
             const innerIn = r.where.slice(r.where.indexOf("IN (") + 4);
             expect(innerIn).not.toContain("t0.");
+        });
+
+        describe("nesting depth cap", () => {
+            // Chain of referenced lists deep enough to exceed the cap: A→B→C→D→E→F.
+            const deepSchemaMap = () => {
+                const sm = new Map();
+                const link = (name, childProp, childType, parentProp, parentType) => {
+                    const props = {uuid: "string", name: "string"};
+                    if (childProp) props[childProp] = {type: "list", objectType: childType};
+                    if (parentProp) props[parentProp] = {type: "object", objectType: parentType};
+                    sm.set(name, {name, primaryKey: "uuid", properties: props});
+                };
+                link("A", "bs", "B", null, null);
+                link("B", "cs", "C", "a", "A");
+                link("C", "ds", "D", "b", "B");
+                link("D", "es", "E", "c", "C");
+                link("E", "fs", "F", "d", "D");
+                link("F", null, null, "e", "E");
+                return sm;
+            };
+
+            it("translates a nest within the depth cap", () => {
+                const q = "SUBQUERY(bs, $b, SUBQUERY($b.cs, $c, SUBQUERY($c.ds, $d, $d.name = 'x').@count > 0).@count > 0).@count > 0";
+                const r = RealmQueryParser.parse(q, [], "A", deepSchemaMap());
+                expect(r.unsupported).toBe(false);
+            });
+
+            it("stays on JS fallback once nesting exceeds the depth cap", () => {
+                const q = "SUBQUERY(bs, $b, SUBQUERY($b.cs, $c, SUBQUERY($c.ds, $d, SUBQUERY($d.es, $e, SUBQUERY($e.fs, $f, $f.name = 'x').@count > 0).@count > 0).@count > 0).@count > 0).@count > 0";
+                const r = RealmQueryParser.parse(q, [], "A", deepSchemaMap());
+                expect(r.unsupported).toBe(true);
+            });
         });
     });
 });

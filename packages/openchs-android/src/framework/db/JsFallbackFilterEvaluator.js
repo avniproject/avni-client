@@ -4,9 +4,12 @@
  *
  * Supported patterns:
  *   - TRUEPREDICATE DISTINCT(field) — deduplication by field value
- *   - SUBQUERY(listProp, $var, conds).@count OP N — sub-filtering on list properties
+ *   - SUBQUERY(listProp, $var, conds).@count OP N — sub-filtering on list properties,
+ *     including dotted list paths (enrolments.encounters), which resolve to the union
  *   - listProp.@count OP N / listProp.@size OP N — collection size check
  *   - ANY listProp.field OP value — quantifier over list elements
+ *   - compound clauses: AND / OR / NOT (and &&, ||, !) over any of the above
+ *   - trailing SORT(field dir, …) — orders the result set
  *   - limit(N) — inline result limit (applied as slice after other filters)
  *   - bare TRUEPREDICATE — matches everything
  *
@@ -35,7 +38,7 @@ class JsFallbackFilterEvaluator {
 
     static _applyOne(entities, filter, schemaName) {
         const {query, args} = filter;
-        const trimmed = query.trim();
+        let trimmed = query.trim();
 
         // TRUEPREDICATE DISTINCT(field)
         if (/TRUEPREDICATE/i.test(trimmed) && /DISTINCT\s*\(/i.test(trimmed)) {
@@ -47,6 +50,30 @@ class JsFallbackFilterEvaluator {
         // everybody). No active caller relies on the empty degradation (#1981).
         if (/@links/i.test(trimmed)) {
             throw new UnsupportedRealmQueryError(trimmed, `@links (inverse relationship) not evaluable for ${schemaName}`);
+        }
+
+        // A trailing SORT(...) orders the result set; it isn't part of the predicate.
+        let sortBody = null;
+        const sortMatch = trimmed.match(/\bSORT\s*\(([^)]*)\)\s*$/i);
+        if (sortMatch) {
+            sortBody = sortMatch[1];
+            trimmed = trimmed.slice(0, sortMatch.index).trim();
+            if (trimmed.length === 0) return this._applySort(entities, sortBody);
+        }
+
+        const filtered = this._applyPredicate(entities, trimmed, args, schemaName);
+        return sortBody ? this._applySort(filtered, sortBody) : filtered;
+    }
+
+    static _applyPredicate(entities, trimmed, args, schemaName) {
+        // A compound clause (top-level AND/OR/NOT) can't be reduced to one of the single-shape
+        // branches below — evaluating only the shape it recognises silently drops the rest of
+        // the expression, so route the whole thing through the per-entity evaluator (#1978).
+        if (this._isCompound(trimmed)) {
+            // Validate up front: OR short-circuits, so an unevaluable branch behind a matching
+            // one would otherwise never be reached and never fail loud.
+            this._assertEvaluable(trimmed, null, schemaName);
+            return entities.filter(entity => this._evaluateConditionString(entity, trimmed, null, args, schemaName));
         }
 
         // SUBQUERY(listProp, $var, conditions).@count OP N
@@ -82,6 +109,77 @@ class JsFallbackFilterEvaluator {
         // Fail loud rather than silently returning the full, unfiltered set — a screening/
         // eligibility rule that returns everything is the worst failure mode (#1981).
         throw new UnsupportedRealmQueryError(trimmed, `unrecognized fallback query for ${schemaName}`);
+    }
+
+    /**
+     * Walk an expression and throw on anything the evaluator can't evaluate. Runs once,
+     * before filtering, so the outcome doesn't depend on which branches short-circuit or
+     * on whether a given entity's lists happen to be empty.
+     */
+    static _assertEvaluable(expr, varName, schemaName) {
+        const trimmed = expr.trim();
+
+        const stripped = this._stripParens(trimmed);
+        if (stripped !== trimmed) return this._assertEvaluable(stripped, varName, schemaName);
+
+        for (const op of ["OR", "AND"]) {
+            const parts = this._splitTopLevel(trimmed, op);
+            if (parts.length > 1) {
+                parts.forEach(part => this._assertEvaluable(part, varName, schemaName));
+                return;
+            }
+        }
+
+        const notMatch = trimmed.match(/^(?:NOT\b|!)\s*([\s\S]+)$/i);
+        if (notMatch) return this._assertEvaluable(notMatch[1], varName, schemaName);
+
+        if (/^SUBQUERY\s*\(/i.test(trimmed)) {
+            const parsed = this._parseSubquery(trimmed);
+            if (!parsed) {
+                throw new UnsupportedRealmQueryError(trimmed, `could not parse SUBQUERY for ${schemaName}`);
+            }
+            return this._assertEvaluable(parsed.conditions, parsed.varName, schemaName);
+        }
+
+        if (/^([\w$]+(?:\.[\w]+)*)\.@(?:count|size)\s*(==|!=|<>|<=|>=|<|>|=)\s*(\d+)$/i.test(trimmed)) return;
+        if (/^TRUEPREDICATE$/i.test(trimmed)) return;
+        if (this._atomicConditionShape(trimmed)) return;
+
+        throw new UnsupportedRealmQueryError(trimmed, `could not parse atomic condition for ${schemaName}`);
+    }
+
+    static _isCompound(expr) {
+        const stripped = this._stripParens(expr.trim());
+        return this._splitTopLevel(stripped, "OR").length > 1
+            || this._splitTopLevel(stripped, "AND").length > 1
+            || /^(?:NOT\b|!)/i.test(stripped);
+    }
+
+    // ──── SORT(field dir, …) ────
+
+    static _applySort(entities, sortBody) {
+        const keys = sortBody.split(",")
+            .map(k => k.trim())
+            .filter(Boolean)
+            .map(k => {
+                const m = k.match(/^([\w.]+)(?:\s+(asc|desc))?$/i);
+                return m ? {field: m[1], desc: (m[2] || "").toUpperCase() === "DESC"} : null;
+            });
+        if (keys.length === 0 || keys.some(k => k === null)) {
+            throw new UnsupportedRealmQueryError(sortBody, "could not parse SORT keys");
+        }
+        return [...entities].sort((a, b) => {
+            for (const {field, desc} of keys) {
+                const va = this._resolveFieldValue(a, field);
+                const vb = this._resolveFieldValue(b, field);
+                if (va == null && vb == null) continue;
+                if (va == null) return desc ? 1 : -1;
+                if (vb == null) return desc ? -1 : 1;
+                if (va < vb) return desc ? 1 : -1;
+                if (va > vb) return desc ? -1 : 1;
+            }
+            return 0;
+        });
     }
 
     // ──── TRUEPREDICATE DISTINCT(field) ────
@@ -144,29 +242,10 @@ class JsFallbackFilterEvaluator {
     // ──── SUBQUERY(listProp, $var, conditions).@count OP N ────
 
     static _applySubqueryCount(entities, query, args, schemaName) {
-        // Parse: SUBQUERY(listProp, $var, conditions).@count OP N
-        // Must handle nested parens in conditions
-        const parsed = this._parseSubquery(query);
-        if (!parsed) {
-            // Recognized as SUBQUERY but couldn't parse it — fail loud rather than return the full
-            // unfiltered set (#1981).
-            throw new UnsupportedRealmQueryError(query, `could not parse SUBQUERY for ${schemaName}`);
-        }
-
-        const {listProp, varName, conditions, operator, count} = parsed;
-
-        return entities.filter(entity => {
-            const list = this._resolveFieldValue(entity, listProp);
-            if (!Array.isArray(list)) return this._compareCount(0, operator, count);
-
-            let matchCount = 0;
-            for (const item of list) {
-                if (this._evaluateConditionString(item, conditions, varName, args, schemaName)) {
-                    matchCount++;
-                }
-            }
-            return this._compareCount(matchCount, operator, count);
-        });
+        // Validate before filtering: conditions are only reached for entities with a non-empty
+        // list, so a lazy check would throw or not depending on the data in front of it.
+        this._assertEvaluable(query, null, schemaName);
+        return entities.filter(entity => this._evaluateSubquery(entity, query, null, args, schemaName));
     }
 
     /**
@@ -181,31 +260,15 @@ class JsFallbackFilterEvaluator {
         const openIdx = startMatch.index + startMatch[0].length;
 
         // Extract three comma-separated arguments respecting nested parens
-        const argStrs = this._splitSubqueryArgs(query, openIdx);
-        if (!argStrs || argStrs.length < 3) return null;
+        const {args: argStrs, closeIdx} = this._splitSubqueryArgs(query, openIdx);
+        if (!argStrs || argStrs.length < 3 || closeIdx < 0) return null;
 
         const listProp = argStrs[0].trim();
         const varName = argStrs[1].trim(); // e.g. "$observation"
         const conditions = argStrs[2].trim();
 
         // After the closing paren, expect .@count OP N
-        // Find the position after the SUBQUERY closing paren
-        const afterClose = query.substring(openIdx);
-        // Re-find the closing paren position
-        let depth = 1;
-        let closePos = 0;
-        for (let i = 0; i < afterClose.length; i++) {
-            if (afterClose[i] === '(') depth++;
-            else if (afterClose[i] === ')') {
-                depth--;
-                if (depth === 0) {
-                    closePos = openIdx + i + 1;
-                    break;
-                }
-            }
-        }
-
-        const tail = query.substring(closePos).trim();
+        const tail = query.substring(closeIdx + 1).trim();
         const countMatch = tail.match(/^\.@count\s*(==|!=|<>|<=|>=|<|>|=)\s*(\d+)/i);
         if (!countMatch) return null;
 
@@ -219,15 +282,25 @@ class JsFallbackFilterEvaluator {
     }
 
     /**
-     * Split SUBQUERY arguments (listProp, $var, conditions) respecting nested parens.
+     * Split SUBQUERY arguments (listProp, $var, conditions) respecting nested parens
+     * and quoted values. Returns the args plus the index of the SUBQUERY's closing
+     * paren (-1 if unterminated) so the caller doesn't have to rescan for it.
      */
     static _splitSubqueryArgs(query, startIdx) {
         const args = [];
         let depth = 0;
         let current = "";
+        let quote = null;
 
         for (let i = startIdx; i < query.length; i++) {
             const ch = query[i];
+            // Commas and parens inside a quoted value are data, not structure.
+            if (quote) {
+                current += ch;
+                if (ch === quote && query[i - 1] !== "\\") quote = null;
+                continue;
+            }
+            if (ch === "'" || ch === '"') { quote = ch; current += ch; continue; }
             if (ch === '(') {
                 depth++;
                 current += ch;
@@ -235,7 +308,7 @@ class JsFallbackFilterEvaluator {
                 if (depth === 0) {
                     // End of SUBQUERY args
                     if (current.trim()) args.push(current);
-                    return args;
+                    return {args, closeIdx: i};
                 }
                 depth--;
                 current += ch;
@@ -248,7 +321,7 @@ class JsFallbackFilterEvaluator {
         }
 
         if (current.trim()) args.push(current);
-        return args;
+        return {args, closeIdx: -1};
     }
 
     // ──── listProp.@count / @size OP N ────
@@ -352,68 +425,67 @@ class JsFallbackFilterEvaluator {
      * Handles AND/OR, comparisons, string ops, null checks, $N params, nested SUBQUERY.
      */
     static _evaluateConditionString(item, conditions, varName, args, schemaName) {
-        // Check for nested SUBQUERY — evaluate it recursively
-        if (/SUBQUERY\s*\(/i.test(conditions)) {
-            const parts = this._splitTopLevel(conditions, "AND");
-            for (const part of parts) {
-                let trimmed = part.trim();
-                // Strip outer parens that may wrap a SUBQUERY: (SUBQUERY(...)) → SUBQUERY(...)
-                const unwrapped = this._stripParens(trimmed);
-                if (unwrapped !== trimmed && /^SUBQUERY\s*\(/i.test(unwrapped)) {
-                    trimmed = unwrapped;
-                }
-                if (/^SUBQUERY\s*\(/i.test(trimmed)) {
-                    // Parse and evaluate the nested SUBQUERY against the current item
-                    const nestedParsed = this._parseSubquery(trimmed);
-                    if (!nestedParsed) {
-                        // Skipping an unparseable nested SUBQUERY would silently count every
-                        // element as matching — fail loud like the outer branches (#1981).
-                        throw new UnsupportedRealmQueryError(trimmed, `could not parse nested SUBQUERY for ${schemaName}`);
-                    }
-                    const {listProp, varName: nestedVarName, conditions: nestedConditions, operator, count} = nestedParsed;
-                    // Resolve the list property on the current item (e.g., $enrolment.programExitObservations)
-                    const listPath = listProp.startsWith(varName + '.') ? listProp.substring(varName.length + 1) : listProp;
-                    const list = this._resolveFieldValue(item, listPath);
-                    if (!Array.isArray(list)) {
-                        if (!this._compareCount(0, operator, count)) return false;
-                        continue;
-                    }
-                    let matchCount = 0;
-                    for (const nestedItem of list) {
-                        if (this._evaluateConditionString(nestedItem, nestedConditions, nestedVarName, args, schemaName)) {
-                            matchCount++;
-                        }
-                    }
-                    if (!this._compareCount(matchCount, operator, count)) return false;
-                } else {
-                    if (!this._evaluateConditionString(item, trimmed, varName, args, schemaName)) {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
+        const trimmed = conditions.trim();
 
-        // Split on top-level OR first (lower precedence)
-        const orParts = this._splitTopLevel(conditions, "OR");
-        if (orParts.length > 1) {
-            return orParts.some(part => this._evaluateConditionString(item, part.trim(), varName, args, schemaName));
-        }
-
-        // Split on top-level AND
-        const andParts = this._splitTopLevel(conditions, "AND");
-        if (andParts.length > 1) {
-            return andParts.every(part => this._evaluateConditionString(item, part.trim(), varName, args, schemaName));
-        }
-
-        // Strip outer parens
-        const stripped = this._stripParens(conditions.trim());
-        if (stripped !== conditions.trim()) {
+        const stripped = this._stripParens(trimmed);
+        if (stripped !== trimmed) {
             return this._evaluateConditionString(item, stripped, varName, args, schemaName);
         }
 
-        // Single atomic condition
-        return this._evaluateAtomicCondition(item, conditions.trim(), varName, args, schemaName);
+        // OR binds loosest, then AND, then NOT — split in that order.
+        const orParts = this._splitTopLevel(trimmed, "OR");
+        if (orParts.length > 1) {
+            return orParts.some(part => this._evaluateConditionString(item, part, varName, args, schemaName));
+        }
+
+        const andParts = this._splitTopLevel(trimmed, "AND");
+        if (andParts.length > 1) {
+            return andParts.every(part => this._evaluateConditionString(item, part, varName, args, schemaName));
+        }
+
+        const notMatch = trimmed.match(/^(?:NOT\b|!)\s*([\s\S]+)$/i);
+        if (notMatch) {
+            return !this._evaluateConditionString(item, notMatch[1], varName, args, schemaName);
+        }
+
+        if (/^SUBQUERY\s*\(/i.test(trimmed)) {
+            return this._evaluateSubquery(item, trimmed, varName, args, schemaName);
+        }
+
+        const listCountMatch = trimmed.match(/^([\w$]+(?:\.[\w]+)*)\.@(?:count|size)\s*(==|!=|<>|<=|>=|<|>|=)\s*(\d+)$/i);
+        if (listCountMatch) {
+            const list = this._resolveItemFieldValue(item, listCountMatch[1], varName);
+            const len = Array.isArray(list) ? list.length : 0;
+            return this._compareCount(len, listCountMatch[2], parseInt(listCountMatch[3], 10));
+        }
+
+        if (/^TRUEPREDICATE$/i.test(trimmed)) return true;
+
+        return this._evaluateAtomicCondition(item, trimmed, varName, args, schemaName);
+    }
+
+    /**
+     * Evaluate `SUBQUERY(listProp, $var, conds).@count OP N` against one object — an entity
+     * at the top level, or a list element when nested inside another SUBQUERY's conditions.
+     */
+    static _evaluateSubquery(item, expr, outerVarName, args, schemaName) {
+        const parsed = this._parseSubquery(expr);
+        if (!parsed) {
+            // Skipping an unparseable SUBQUERY would silently count every element as
+            // matching — fail loud like the other branches (#1981).
+            throw new UnsupportedRealmQueryError(expr, `could not parse SUBQUERY for ${schemaName}`);
+        }
+        const {listProp, varName, conditions, operator, count} = parsed;
+        const list = this._resolveItemFieldValue(item, listProp, outerVarName);
+        if (!Array.isArray(list)) return this._compareCount(0, operator, count);
+
+        let matchCount = 0;
+        for (const element of list) {
+            if (this._evaluateConditionString(element, conditions, varName, args, schemaName)) {
+                matchCount++;
+            }
+        }
+        return this._compareCount(matchCount, operator, count);
     }
 
     /**
@@ -423,15 +495,11 @@ class JsFallbackFilterEvaluator {
      *   $observation.valueJSON contains '"phoneNumber":"xyz"'
      */
     static _evaluateAtomicCondition(item, condition, varName, args, schemaName) {
-        // Try string ops first: CONTAINS, BEGINSWITH, ENDSWITH (with optional [c])
-        const stringOpMatch = condition.match(
-            /^([\w$.]+(?:\.[\w]+)*)\s+(CONTAINS|BEGINSWITH|ENDSWITH)\s*(?:\[c\])?\s+(.+)$/i
-        );
-        if (stringOpMatch) {
-            const fieldPath = stringOpMatch[1];
-            const op = stringOpMatch[2].toUpperCase();
+        const shape = this._atomicConditionShape(condition);
+        if (shape && shape.kind === "stringOp") {
+            const {fieldPath, op} = shape;
             const caseInsensitive = /\[c\]/i.test(condition);
-            const rawValue = this._resolveConditionValue(stringOpMatch[3].trim(), args);
+            const rawValue = this._resolveConditionValue(shape.rhs, args);
             const fieldValue = this._resolveItemFieldValue(item, fieldPath, varName);
 
             if (fieldValue == null) return false;
@@ -450,21 +518,35 @@ class JsFallbackFilterEvaluator {
             }
         }
 
-        // Comparison ops: =, ==, !=, <>, <, >, <=, >=
-        const compMatch = condition.match(
-            /^([\w$.]+(?:\.[\w]+)*)\s*(==|!=|<>|<=|>=|<|>|=)\s*(.+)$/
-        );
-        if (compMatch) {
-            const fieldPath = compMatch[1];
-            const op = compMatch[2];
-            const rawValue = this._resolveConditionValue(compMatch[3].trim(), args);
-            const fieldValue = this._resolveItemFieldValue(item, fieldPath, varName);
-            return this._compare(fieldValue, op, rawValue);
+        if (shape && shape.kind === "comparison") {
+            const rawValue = this._resolveConditionValue(shape.rhs, args);
+            const fieldValue = this._resolveItemFieldValue(item, shape.fieldPath, varName);
+            return this._compare(fieldValue, shape.op, rawValue);
         }
 
         // Treating an unparseable condition as matching would silently inflate .@count and
         // include rows that don't qualify — fail loud like every other branch (#1981).
         throw new UnsupportedRealmQueryError(condition, `could not parse atomic condition for ${schemaName}`);
+    }
+
+    /**
+     * Recognise a single atomic condition — a string op or a comparison. Shared by the
+     * evaluator and the up-front evaluability check so the two can't drift apart.
+     */
+    static _atomicConditionShape(condition) {
+        const stringOp = condition.match(
+            /^([\w$.]+(?:\.[\w]+)*)\s+(CONTAINS|BEGINSWITH|ENDSWITH)\s*(?:\[c\])?\s+(.+)$/i
+        );
+        if (stringOp) {
+            return {kind: "stringOp", fieldPath: stringOp[1], op: stringOp[2].toUpperCase(), rhs: stringOp[3].trim()};
+        }
+        const comparison = condition.match(
+            /^([\w$.]+(?:\.[\w]+)*)\s*(==|!=|<>|<=|>=|<|>|=)\s*(.+)$/
+        );
+        if (comparison) {
+            return {kind: "comparison", fieldPath: comparison[1], op: comparison[2], rhs: comparison[3].trim()};
+        }
+        return null;
     }
 
     /**
@@ -526,16 +608,31 @@ class JsFallbackFilterEvaluator {
         if (!entity || !dotPath) return undefined;
         const parts = dotPath.split(".");
         let current = entity;
-        for (const part of parts) {
+        for (let i = 0; i < parts.length; i++) {
             if (current == null) return undefined;
-            current = current[part];
+            // A list hop mid-path (enrolments.encounters) means "the union over the list",
+            // which is what Realm does — resolve the remainder against each element.
+            if (Array.isArray(current)) {
+                const rest = parts.slice(i).join(".");
+                return current.flatMap(item => {
+                    const v = this._resolveFieldValue(item, rest);
+                    if (v === undefined || v === null) return [];
+                    return Array.isArray(v) ? v : [v];
+                });
+            }
+            current = current[parts[i]];
         }
         return current;
     }
 
+    // Realm accepts && and || as synonyms for AND / OR.
+    static _symbolFor(keyword) {
+        return keyword === "AND" ? "&&" : keyword === "OR" ? "||" : null;
+    }
+
     /**
-     * Split a condition string on a top-level keyword (AND or OR),
-     * respecting parentheses and quoted strings.
+     * Split a condition string on a top-level keyword (AND or OR) or its symbol form
+     * (&& / ||), respecting parentheses and quoted strings.
      */
     static _splitTopLevel(str, keyword) {
         const parts = [];
@@ -545,6 +642,7 @@ class JsFallbackFilterEvaluator {
         let start = 0;
         const upper = str.toUpperCase();
         const kwLen = keyword.length;
+        const symbol = this._symbolFor(keyword);
 
         for (let i = 0; i < str.length; i++) {
             const ch = str[i];
@@ -574,6 +672,11 @@ class JsFallbackFilterEvaluator {
                     const part = str.substring(start, i).trim();
                     if (part.length > 0) parts.push(part);
                     start = i + kwLen;
+                } else if (symbol && str.startsWith(symbol, i)) {
+                    const part = str.substring(start, i).trim();
+                    if (part.length > 0) parts.push(part);
+                    start = i + symbol.length;
+                    i += symbol.length - 1;
                 }
             }
         }

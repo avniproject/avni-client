@@ -10,6 +10,7 @@
 import {EntityMappingConfig} from 'openchs-models';
 import SchemaGenerator from '../../../src/framework/db/SchemaGenerator';
 import SqliteProxy from '../../../src/framework/db/SqliteProxy';
+import {RealmQueryParser} from '../../../src/framework/db/RealmQueryParser';
 import {open} from '@op-engineering/op-sqlite';
 
 function uuid() {
@@ -97,6 +98,8 @@ describe('SUBQUERY B/C/D parity on SQLite', () => {
         ids.enr4 = uuid();
         ids.enr5 = uuid();
         ids.enr6 = uuid();
+        ids.enrOrphan = uuid();
+        ids.peOrphan = uuid();
 
         ids.pe0a = uuid();
         ids.pe0b = uuid();
@@ -213,6 +216,18 @@ describe('SUBQUERY B/C/D parity on SQLite', () => {
                 programExitObservations: [],
             }, true, {skipHydration: true});
 
+            // enrolmentOrphan: individual key omitted, so individual_uuid lands NULL — the DDL
+            // declares no NOT NULL on any FK. Belongs to no individual, so it changes no
+            // expected count, but it poisons any `NOT IN (SELECT individual_uuid …)`.
+            proxy.create('ProgramEnrolment', {
+                uuid: ids.enrOrphan,
+                program: {uuid: ids.programChild},
+                enrolmentDateTime: new Date(2024, 3, 1),
+                voided: false,
+                observations: [],
+                programExitObservations: [],
+            }, true, {skipHydration: true});
+
             // pe0a: enrolment0, encounterDateTime = null
             proxy.create('ProgramEncounter', {
                 uuid: ids.pe0a,
@@ -244,6 +259,19 @@ describe('SUBQUERY B/C/D parity on SQLite', () => {
                 voided: false,
                 observations: [],
                 name: 'pe1a',
+            }, true, {skipHydration: true});
+
+            // peOrphan: a null-dated encounter under enrolmentOrphan, which itself has a NULL
+            // individual FK. It reaches no individual, but it puts a NULL into the outer
+            // SELECT of a two-hop negative SUBQUERY.
+            proxy.create('ProgramEncounter', {
+                uuid: ids.peOrphan,
+                programEnrolment: {uuid: ids.enrOrphan},
+                encounterType: {uuid: ids.encType},
+                encounterDateTime: null,
+                voided: false,
+                observations: [],
+                name: 'peOrphan',
             }, true, {skipHydration: true});
 
             // pe3a: enrolment3, encounterDateTime = null (only encounter for enrolment3)
@@ -300,8 +328,8 @@ describe('SUBQUERY B/C/D parity on SQLite', () => {
         // enrolment0's encounters (pe0a, pe0b) include one non-null (pe0b) -> count != 0 for both.
         // enrolment1's encounter (pe1a) is non-null -> count != 0.
         // enrolment3's only encounter (pe3a) is null -> non-null count == 0 -> pe3a matches.
-        expect(res.length).toBe(1);
-        expect(res[0].uuid).toBe(ids.pe3a);
+        // enrolmentOrphan's only encounter (peOrphan) is null -> peOrphan matches too.
+        expect(res.map(e => e.uuid).sort()).toEqual([ids.pe3a, ids.peOrphan].sort());
     });
 
     // ── Family D: OR combinator across SUBQUERY predicate ──
@@ -316,6 +344,78 @@ describe('SUBQUERY B/C/D parity on SQLite', () => {
         const uuids = res.map(i => i.uuid);
         expect(uuids).not.toContain(ids.ind6);
         expect(uuids.sort()).toEqual([ids.ind0, ids.ind1, ids.ind2, ids.ind3, ids.ind4, ids.ind5].sort());
+    });
+
+    // ── NULL back-FK must not empty a negative SUBQUERY (SQL NOT IN is UNKNOWN against NULL) ──
+    it('single-hop @count == 0 is unaffected by an enrolment with a NULL individual FK', () => {
+        const res = proxy.objects('Individual').filtered(
+            'SUBQUERY(enrolments, $e, $e.voided = false).@count == 0'
+        );
+        // ind0..ind4 each have a non-voided enrolment; ind5 and ind6 have only voided ones.
+        // enrolmentOrphan is non-voided but belongs to nobody, so it must not change this.
+        expect(res.map(i => i.uuid).sort()).toEqual([ids.ind5, ids.ind6].sort());
+    });
+
+    it('two-hop @count == 0 is unaffected by an enrolment with a NULL individual FK', () => {
+        const res = proxy.objects('Individual').filtered(
+            'SUBQUERY(enrolments.encounters, $enc, $enc.encounterDateTime = null).@count == 0'
+        );
+        // ind0 and ind3 have a null-dated encounter; everyone else has none.
+        expect(res.map(i => i.uuid).sort())
+            .toEqual([ids.ind1, ids.ind2, ids.ind4, ids.ind5, ids.ind6].sort());
+    });
+
+    // ── Shapes that intentionally stay on the JS fallback, exercised through proxy → evaluator.
+    //    Each asserts (a) the parser really does decline it, and (b) the evaluator's answer. ──
+    describe('documented stay-fallback classes', () => {
+        const realmSchemaMap = () => SchemaGenerator.buildRealmSchemaMap(EntityMappingConfig.getInstance());
+
+        function assertStaysOnFallback(query, rootSchema, args = []) {
+            const parsed = RealmQueryParser.parse(query, args, rootSchema, realmSchemaMap());
+            expect(parsed.unsupported || parsed.partialParse).toBeTruthy();
+        }
+
+        it('multi-hop @count comparison other than >0 / ==0', () => {
+            const query = 'SUBQUERY(enrolments.encounters, $enc, $enc.voided = false).@count >= 2';
+            assertStaysOnFallback(query, 'Individual');
+            const res = proxy.objects('Individual').filtered(query);
+            // ind0 alone has two encounters (pe0a, pe0b) across its enrolments; ind1 and ind3
+            // have one each, and the rest have none.
+            expect(res.map(i => i.uuid)).toEqual([ids.ind0]);
+        });
+
+        it('multi-hop @count == 1 counts across the list hop', () => {
+            const query = 'SUBQUERY(enrolments.encounters, $enc, $enc.voided = false).@count == 1';
+            assertStaysOnFallback(query, 'Individual');
+            const res = proxy.objects('Individual').filtered(query);
+            expect(res.map(i => i.uuid).sort()).toEqual([ids.ind1, ids.ind3].sort());
+        });
+
+        it('dot-path condition that would need a JOIN inside the bare subquery', () => {
+            const query = `SUBQUERY(enrolments, $e, $e.individual.subjectType.uuid = $0).@count > 0`;
+            assertStaysOnFallback(query, 'Individual', [ids.subjectType]);
+            const res = proxy.objects('Individual').filtered(query, ids.subjectType);
+            // Every seeded individual carries the same subject type and has at least one enrolment,
+            // except ind4..ind6 which also do — so all seven qualify via their own enrolment.
+            expect(res.length).toBe(7);
+        });
+
+        it('OR mixing an outer predicate with a SUBQUERY returns the union of both branches', () => {
+            const query = 'voided = true OR SUBQUERY(encounters, $enc, $enc.voided = false).@count > 0';
+            assertStaysOnFallback(query, 'Individual');
+            const res = proxy.objects('Individual').filtered(query);
+            // ind2 is the only voided individual; no individual has a general encounter, so the
+            // SUBQUERY branch adds nobody. Dropping the first branch would return nothing.
+            expect(res.map(i => i.uuid)).toEqual([ids.ind2]);
+        });
+
+        it('unqualified property not on the child schema stays on fallback and still filters', () => {
+            const query = "SUBQUERY(enrolments, $e, firstName = 'nobody').@count > 0";
+            assertStaysOnFallback(query, 'Individual');
+            const res = proxy.objects('Individual').filtered(query);
+            // firstName isn't on ProgramEnrolment, so no enrolment matches under Realm semantics.
+            expect(res.length).toBe(0);
+        });
     });
 
     // ── Child-scoping: unqualified property inside SUBQUERY binds to the child alias ──

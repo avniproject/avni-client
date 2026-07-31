@@ -60,6 +60,24 @@ describe("JsFallbackFilterEvaluator", () => {
         it("should return undefined for missing property", () => {
             expect(JsFallbackFilterEvaluator._resolveFieldValue({a: 1}, "b")).toBeUndefined();
         });
+
+        it("should flat-map a list hop so a dotted list path resolves to the union", () => {
+            const entity = {enrolments: [{encounters: [{id: 1}, {id: 2}]}, {encounters: [{id: 3}]}]};
+            expect(JsFallbackFilterEvaluator._resolveFieldValue(entity, "enrolments.encounters"))
+                .toEqual([{id: 1}, {id: 2}, {id: 3}]);
+        });
+
+        it("should resolve a scalar field beyond a list hop as a flat list of values", () => {
+            const entity = {enrolments: [{program: {name: "Child"}}, {program: {name: "Other"}}]};
+            expect(JsFallbackFilterEvaluator._resolveFieldValue(entity, "enrolments.program.name"))
+                .toEqual(["Child", "Other"]);
+        });
+
+        it("should skip null links when flat-mapping a list hop", () => {
+            const entity = {enrolments: [{encounters: null}, {encounters: [{id: 1}]}]};
+            expect(JsFallbackFilterEvaluator._resolveFieldValue(entity, "enrolments.encounters"))
+                .toEqual([{id: 1}]);
+        });
     });
 
     describe("_resolveConditionValue", () => {
@@ -206,6 +224,36 @@ describe("JsFallbackFilterEvaluator", () => {
 
         it("should return null for malformed SUBQUERY", () => {
             expect(JsFallbackFilterEvaluator._parseSubquery("not a subquery")).toBeNull();
+        });
+
+        it("should not truncate conditions at a comma inside a quoted value", () => {
+            const result = JsFallbackFilterEvaluator._parseSubquery(
+                "SUBQUERY(observations, $o, $o.valueJSON contains 'Fever, cough').@count > 0"
+            );
+            expect(result).not.toBeNull();
+            expect(result.conditions).toBe("$o.valueJSON contains 'Fever, cough'");
+        });
+
+        it("should not end the SUBQUERY at an unbalanced paren inside a quoted value", () => {
+            const result = JsFallbackFilterEvaluator._parseSubquery(
+                "SUBQUERY(observations, $o, $o.valueJSON contains 'Fever (acute').@count > 0"
+            );
+            expect(result).not.toBeNull();
+            expect(result.conditions).toBe("$o.valueJSON contains 'Fever (acute'");
+            expect(result.count).toBe(0);
+        });
+
+        it("should evaluate a condition whose quoted value contains a comma", () => {
+            const entities = [
+                makeEntity({uuid: "1", observations: [makeObservation({conceptUuid: "c1", valueJSON: '{"value":"Fever, cough"}'})]}),
+                makeEntity({uuid: "2", observations: [makeObservation({conceptUuid: "c1", valueJSON: '{"value":"Fever"}'})]}),
+            ];
+            const result = JsFallbackFilterEvaluator.apply(
+                entities,
+                [{query: "SUBQUERY(observations, $o, $o.valueJSON contains 'Fever, cough').@count > 0", args: []}],
+                "Individual"
+            );
+            expect(result.map(e => e.uuid)).toEqual(["1"]);
         });
     });
 
@@ -1011,6 +1059,52 @@ describe("JsFallbackFilterEvaluator", () => {
 
     // ──── Condition evaluation ────
 
+    describe("SUBQUERY over a dotted list path", () => {
+        const twoEncounters = () => makeEntity({
+            uuid: "1",
+            enrolments: [makeEnrolment({encounters: [makeEncounter({voided: false}), makeEncounter({voided: false})]})],
+        });
+        const oneEncounter = () => makeEntity({
+            uuid: "2",
+            enrolments: [makeEnrolment({encounters: [makeEncounter({voided: false})]})],
+        });
+
+        it("counts across the list hop for @count >= N", () => {
+            const result = JsFallbackFilterEvaluator.apply(
+                [twoEncounters(), oneEncounter()],
+                [{query: "SUBQUERY(enrolments.encounters, $x, $x.voided = false).@count >= 2", args: []}],
+                "Individual"
+            );
+            expect(result.map(e => e.uuid)).toEqual(["1"]);
+        });
+
+        it("counts across the list hop for @count == 0", () => {
+            const noEncounters = makeEntity({uuid: "3", enrolments: [makeEnrolment({encounters: []})]});
+            const result = JsFallbackFilterEvaluator.apply(
+                [twoEncounters(), noEncounters],
+                [{query: "SUBQUERY(enrolments.encounters, $x, $x.voided = false).@count == 0", args: []}],
+                "Individual"
+            );
+            expect(result.map(e => e.uuid)).toEqual(["3"]);
+        });
+
+        it("unions encounters across multiple enrolments", () => {
+            const split = makeEntity({
+                uuid: "4",
+                enrolments: [
+                    makeEnrolment({encounters: [makeEncounter({voided: false})]}),
+                    makeEnrolment({encounters: [makeEncounter({voided: false})]}),
+                ],
+            });
+            const result = JsFallbackFilterEvaluator.apply(
+                [split],
+                [{query: "SUBQUERY(enrolments.encounters, $x, $x.voided = false).@count >= 2", args: []}],
+                "Individual"
+            );
+            expect(result.map(e => e.uuid)).toEqual(["4"]);
+        });
+    });
+
     describe("_evaluateConditionString", () => {
         it("should evaluate AND with both conditions true", () => {
             const item = {voided: false, name: "Alice"};
@@ -1221,6 +1315,95 @@ describe("JsFallbackFilterEvaluator", () => {
         });
     });
 
+    // ──── Compound top-level clauses (AND / OR / NOT) ────
+
+    describe("compound clauses", () => {
+        const approvalLike = () => [
+            makeEntity({uuid: "subject", voided: false, latestEntityApprovalStatus: {approvalStatus: {status: "Pending"}}, enrolments: [], encounters: []}),
+            makeEntity({uuid: "enrolment", voided: false, latestEntityApprovalStatus: {approvalStatus: {status: "Approved"}},
+                enrolments: [makeEnrolment({voided: false})], encounters: []}),
+            makeEntity({uuid: "encounter", voided: false, latestEntityApprovalStatus: {approvalStatus: {status: "Approved"}},
+                enrolments: [], encounters: [makeEncounter({voided: false})]}),
+            makeEntity({uuid: "none", voided: false, latestEntityApprovalStatus: {approvalStatus: {status: "Approved"}},
+                enrolments: [makeEnrolment({voided: true})], encounters: []}),
+        ];
+
+        it("returns the union of all OR branches, not just the branch carrying the SUBQUERY", () => {
+            const query = "(latestEntityApprovalStatus.approvalStatus.status = $0 and voided = false)"
+                + " or (voided = false and SUBQUERY(enrolments, $e, $e.voided = false).@count > 0)"
+                + " or (voided = false and SUBQUERY(encounters, $c, $c.voided = false).@count > 0)";
+            const result = JsFallbackFilterEvaluator.apply(
+                approvalLike(), [{query, args: ["Pending"]}], "Individual"
+            );
+            expect(result.map(e => e.uuid)).toEqual(["subject", "enrolment", "encounter"]);
+        });
+
+        it("intersects top-level AND branches", () => {
+            const entities = approvalLike().concat([
+                makeEntity({uuid: "voidedButEnrolled", voided: true, enrolments: [makeEnrolment({voided: false})], encounters: []}),
+            ]);
+            const query = "voided = false and SUBQUERY(enrolments, $e, $e.voided = false).@count > 0";
+            const result = JsFallbackFilterEvaluator.apply(entities, [{query, args: []}], "Individual");
+            // voidedButEnrolled satisfies the SUBQUERY but fails the voided check — the AND
+            // branch outside the SUBQUERY has to be enforced.
+            expect(result.map(e => e.uuid)).toEqual(["enrolment"]);
+        });
+
+        it("accepts && and || as AND/OR", () => {
+            const query = "(voided = false && SUBQUERY(enrolments, $e, $e.voided = false).@count > 0)"
+                + " || (voided = false && SUBQUERY(encounters, $c, $c.voided = false).@count > 0)";
+            const result = JsFallbackFilterEvaluator.apply(
+                approvalLike(), [{query, args: []}], "Individual"
+            );
+            expect(result.map(e => e.uuid)).toEqual(["enrolment", "encounter"]);
+        });
+
+        it("negates with NOT", () => {
+            const query = "voided = false and NOT (SUBQUERY(enrolments, $e, $e.voided = false).@count > 0)";
+            const result = JsFallbackFilterEvaluator.apply(
+                approvalLike(), [{query, args: []}], "Individual"
+            );
+            expect(result.map(e => e.uuid)).toEqual(["subject", "encounter", "none"]);
+        });
+
+        it("negates with bare !", () => {
+            const query = "voided = false and !(SUBQUERY(enrolments, $e, $e.voided = false).@count > 0)";
+            const result = JsFallbackFilterEvaluator.apply(
+                approvalLike(), [{query, args: []}], "Individual"
+            );
+            expect(result.map(e => e.uuid)).toEqual(["subject", "encounter", "none"]);
+        });
+
+        it("applies a trailing SORT to the compound result", () => {
+            const query = "(voided = false and SUBQUERY(enrolments, $e, $e.voided = false).@count > 0)"
+                + " or (voided = false and SUBQUERY(encounters, $c, $c.voided = false).@count > 0)"
+                + " SORT(uuid ASC)";
+            const result = JsFallbackFilterEvaluator.apply(
+                approvalLike(), [{query, args: []}], "Individual"
+            );
+            expect(result.map(e => e.uuid)).toEqual(["encounter", "enrolment"]);
+        });
+
+        it("counts a dotted list path inside an OR branch", () => {
+            const entities = [
+                makeEntity({uuid: "viaFirstBranch", voided: true, enrolments: [], encounters: []}),
+                makeEntity({uuid: "viaPath", voided: false, enrolments: [makeEnrolment({encounters: [makeEncounter({voided: false})]})], encounters: []}),
+                makeEntity({uuid: "neither", voided: false, enrolments: [], encounters: []}),
+            ];
+            const query = "(voided = true) or (SUBQUERY(enrolments.encounters, $enc, $enc.voided = false).@count > 0)";
+            const result = JsFallbackFilterEvaluator.apply(entities, [{query, args: []}], "Individual");
+            expect(result.map(e => e.uuid)).toEqual(["viaFirstBranch", "viaPath"]);
+        });
+
+        it("still fails loud when an OR branch is unevaluable", () => {
+            const query = "(voided = false) or (SOME UNKNOWN CLAUSE)";
+            const run = () => JsFallbackFilterEvaluator.apply(
+                approvalLike(), [{query, args: []}], "Individual"
+            );
+            expect(run).toThrow(UnsupportedRealmQueryError);
+        });
+    });
+
     // ──── Fail loud on parse failures (#1981) ────
 
     describe("fail loud when a recognized pattern fails to parse", () => {
@@ -1276,7 +1459,7 @@ describe("JsFallbackFilterEvaluator", () => {
                 "TestSchema"
             );
             expect(run).toThrow(UnsupportedRealmQueryError);
-            expect(run).toThrow(/could not parse nested SUBQUERY for TestSchema/);
+            expect(run).toThrow(/could not parse SUBQUERY for TestSchema/);
         });
     });
 });

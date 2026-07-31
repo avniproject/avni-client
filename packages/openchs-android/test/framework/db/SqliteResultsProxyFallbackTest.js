@@ -411,4 +411,54 @@ describe("SqliteResultsProxy fallback filter integration", () => {
             expect(proxy.isEmpty()).toBe(true);
         });
     });
+
+    // ──── Multi-branch OR (the approval-dashboard shape) through proxy → evaluator ────
+
+    describe("compound OR clause routed entirely to the JS fallback", () => {
+        // Mirrors EntityApprovalStatusService.getAllSubjects: outer predicate OR'd with
+        // SUBQUERYs over three different lists, plus a trailing SORT.
+        const query = "(latestEntityApprovalStatus.approvalStatus.status = $0 and voided = false)"
+            + " or (voided = false and subquery(enrolments, $enrolment, $enrolment.latestEntityApprovalStatus.approvalStatus.status = $1 and $enrolment.voided = false).@count > 0)"
+            + " or (voided = false and subquery(encounters, $encounter, $encounter.latestEntityApprovalStatus.approvalStatus.status = $2 and $encounter.voided = false).@count > 0)"
+            + " or (voided = false and subquery(enrolments.encounters, $pe, $pe.latestEntityApprovalStatus.approvalStatus.status = $3 and $pe.voided = false).@count > 0)"
+            + " SORT(firstName ASC)";
+
+        const pending = {approvalStatus: {status: "Pending"}};
+        const approved = {approvalStatus: {status: "Approved"}};
+        const hydrated = {
+            bySubject: {uuid: "bySubject", firstName: "D", voided: false, latestEntityApprovalStatus: pending, enrolments: [], encounters: []},
+            byEnrolment: {uuid: "byEnrolment", firstName: "C", voided: false, latestEntityApprovalStatus: approved,
+                enrolments: [{voided: false, latestEntityApprovalStatus: pending, encounters: []}], encounters: []},
+            byEncounter: {uuid: "byEncounter", firstName: "B", voided: false, latestEntityApprovalStatus: approved,
+                enrolments: [], encounters: [{voided: false, latestEntityApprovalStatus: pending}]},
+            byProgramEncounter: {uuid: "byProgramEncounter", firstName: "A", voided: false, latestEntityApprovalStatus: approved,
+                enrolments: [{voided: false, latestEntityApprovalStatus: approved,
+                    encounters: [{voided: false, latestEntityApprovalStatus: pending}]}], encounters: []},
+            none: {uuid: "none", firstName: "E", voided: false, latestEntityApprovalStatus: approved, enrolments: [], encounters: []},
+        };
+
+        function approvalProxy() {
+            const rows = Object.keys(hydrated).map(uuid => ({uuid}));
+            return SqliteResultsProxy.create({
+                schemaName: "Individual",
+                tableName: "individual",
+                entityClass: MockEntity,
+                executeQuery: jest.fn(() => rows),
+                hydrator: createMockHydrator(row => hydrated[row.uuid]),
+            }).filtered(query, "Pending", "Pending", "Pending", "Pending");
+        }
+
+        it("matches subjects via every OR branch, not only the first SUBQUERY", () => {
+            const uuids = approvalProxy().map(e => e.uuid);
+            expect(uuids.sort()).toEqual(["byEncounter", "byEnrolment", "byProgramEncounter", "bySubject"]);
+        });
+
+        it("excludes a subject that satisfies no branch", () => {
+            expect(approvalProxy().map(e => e.uuid)).not.toContain("none");
+        });
+
+        it("applies the trailing SORT to the result", () => {
+            expect(approvalProxy().map(e => e.firstName)).toEqual(["A", "B", "C", "D"]);
+        });
+    });
 });

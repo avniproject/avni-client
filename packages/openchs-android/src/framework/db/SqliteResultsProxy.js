@@ -49,7 +49,7 @@ class SqliteResultsProxy {
      * @param {Array} params.whereClauses - accumulated WHERE conditions
      * @param {Array} params.whereParams - accumulated parameters
      * @param {Array} params.joinClauses - accumulated JOINs
-     * @param {string|null} params.orderByClause - ORDER BY fragment
+     * @param {Array|null} params.orderByTerms - ORDER BY terms as [{expr, dir}]
      * @param {Array|null} params.jsFallbackFilters - Realm queries routed to JS fallback filtering
      * @param {number|null} params.limitClause - SQL LIMIT value extracted from limit(N)
      */
@@ -67,7 +67,7 @@ class SqliteResultsProxy {
                     whereClauses = [],
                     whereParams = [],
                     joinClauses = [],
-                    orderByClause = null,
+                    orderByTerms = null,
                     distinctColumns = null,
                     distinctOrderBy = null,
                     jsFallbackFilters = [],
@@ -86,7 +86,7 @@ class SqliteResultsProxy {
         this.whereClauses = [...whereClauses];
         this.whereParams = [...whereParams];
         this.joinClauses = [...joinClauses];
-        this.orderByClause = orderByClause;
+        this.orderByTerms = orderByTerms;
         this.distinctColumns = distinctColumns;
         this.distinctOrderBy = distinctOrderBy;
         this.jsFallbackFilters = [...jsFallbackFilters];
@@ -141,7 +141,7 @@ class SqliteResultsProxy {
             whereClauses: [...this.whereClauses],
             whereParams: [...this.whereParams],
             joinClauses: [...this.joinClauses],
-            orderByClause: this.orderByClause,
+            orderByTerms: this.orderByTerms,
             distinctColumns: this.distinctColumns,
             distinctOrderBy: this.distinctOrderBy,
             jsFallbackFilters: [...this.jsFallbackFilters],
@@ -168,7 +168,7 @@ class SqliteResultsProxy {
             whereClauses: [...this.whereClauses],
             whereParams: [...this.whereParams],
             joinClauses: [...this.joinClauses],
-            orderByClause: this.orderByClause,
+            orderByTerms: this.orderByTerms,
             distinctColumns: this.distinctColumns,
             distinctOrderBy: this.distinctOrderBy,
             jsFallbackFilters: [...this.jsFallbackFilters],
@@ -192,10 +192,10 @@ class SqliteResultsProxy {
             }
             if (parseResult.distinct) {
                 newParams.distinctColumns = parseResult.distinct.columns;
-                newParams.distinctOrderBy = parseResult.distinct.orderBy;
+                newParams.distinctOrderBy = parseResult.distinct.orderByTerms;
             }
-            if (parseResult.orderBy) {
-                newParams.orderByClause = parseResult.orderBy;
+            if (parseResult.orderByTerms) {
+                newParams.orderByTerms = parseResult.orderByTerms;
             }
             // Capture clauses that partial parse couldn't translate — route to JS fallback
             if (parseResult.partialParse && parseResult.skippedClauses?.length > 0) {
@@ -261,15 +261,11 @@ class SqliteResultsProxy {
 
         let orderBy;
         if (typeof descriptor === "string") {
-            const col = resolveOrderProp(descriptor);
-            const dir = reverse ? "DESC" : "ASC";
-            orderBy = `${col} ${dir}`;
+            orderBy = [{expr: resolveOrderProp(descriptor), dir: reverse ? "DESC" : "ASC"}];
         } else if (Array.isArray(descriptor)) {
-            orderBy = descriptor.map(([prop, rev]) => {
-                return `${resolveOrderProp(prop)} ${rev ? "DESC" : "ASC"}`;
-            }).join(", ");
+            orderBy = descriptor.map(([prop, rev]) => ({expr: resolveOrderProp(prop), dir: rev ? "DESC" : "ASC"}));
         } else {
-            orderBy = `${resolveOrderProp(String(descriptor))} ASC`;
+            orderBy = [{expr: resolveOrderProp(String(descriptor)), dir: "ASC"}];
         }
 
         return SqliteResultsProxy.create({
@@ -282,7 +278,7 @@ class SqliteResultsProxy {
             whereClauses: [...this.whereClauses],
             whereParams: [...this.whereParams],
             joinClauses: [...this.joinClauses, ...extraJoins],
-            orderByClause: orderBy,
+            orderByTerms: orderBy,
             distinctColumns: this.distinctColumns,
             distinctOrderBy: this.distinctOrderBy,
             jsFallbackFilters: [...this.jsFallbackFilters],
@@ -294,17 +290,8 @@ class SqliteResultsProxy {
 
     // ──── Query execution ────
 
-    // Split an ORDER BY fragment ("t0.\"a\" ASC, t2.\"b\" DESC") into [{expr, dir}].
-    // Order expressions here are simple alias."col" refs (no commas inside), so a
-    // top-level comma split is sufficient.
-    _splitOrderTerms(orderBy) {
-        return orderBy.split(",").map(s => s.trim()).filter(Boolean).map(term => {
-            const m = term.match(/\s+(ASC|DESC)$/i);
-            if (m) {
-                return {expr: term.slice(0, m.index).trim(), dir: m[1].toUpperCase()};
-            }
-            return {expr: term, dir: "ASC"};
-        });
+    static _renderOrderBy(terms) {
+        return terms.map(t => `${t.expr} ${t.dir}`).join(", ");
     }
 
     _buildSql() {
@@ -313,17 +300,18 @@ class SqliteResultsProxy {
         // prior JS fallback), so filters added after the distinct still narrow rows first.
         if (this.distinctColumns && this.distinctColumns.length > 0) {
             const partition = this.distinctColumns.join(", ");
-            const windowOrder = this.distinctOrderBy || "t0.rowid";
+            const windowOrder = this.distinctOrderBy && this.distinctOrderBy.length > 0
+                ? SqliteResultsProxy._renderOrderBy(this.distinctOrderBy)
+                : "t0.rowid";
 
             // The outer query sees only t0.* from the subquery, so an outer ORDER BY
             // that references t0 or a joined alias must be projected into the subquery
             // and referenced from the outer scope by a synthetic alias.
             let extraSelect = "";
             let outerOrderBy = null;
-            if (this.orderByClause) {
-                const terms = this._splitOrderTerms(this.orderByClause);
-                extraSelect = terms.map((t, i) => `, ${t.expr} AS __ob${i}`).join("");
-                outerOrderBy = terms.map((t, i) => `__ob${i} ${t.dir}`).join(", ");
+            if (this.orderByTerms && this.orderByTerms.length > 0) {
+                extraSelect = this.orderByTerms.map((t, i) => `, ${t.expr} AS __ob${i}`).join("");
+                outerOrderBy = this.orderByTerms.map((t, i) => `__ob${i} ${t.dir}`).join(", ");
             }
 
             let inner = `SELECT t0.*, ROW_NUMBER() OVER (PARTITION BY ${partition} ORDER BY ${windowOrder}) AS __rn${extraSelect} FROM ${this.tableName} AS t0`;
@@ -353,8 +341,8 @@ class SqliteResultsProxy {
         if (this.whereClauses.length > 0) {
             sql += ` WHERE ${this.whereClauses.join(" AND ")}`;
         }
-        if (this.orderByClause) {
-            sql += ` ORDER BY ${this.orderByClause}`;
+        if (this.orderByTerms && this.orderByTerms.length > 0) {
+            sql += ` ORDER BY ${SqliteResultsProxy._renderOrderBy(this.orderByTerms)}`;
         }
         if (this.limitClause != null && this.jsFallbackFilters.length === 0) {
             sql += ` LIMIT ${this.limitClause}`;

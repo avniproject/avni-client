@@ -67,6 +67,37 @@ class UnsupportedRealmQueryError extends Error {
 
 // ──────────────── Tokenizer ────────────────
 
+/**
+ * Coerce a JS value from the query's args into something SQLite can bind. Realm accepts
+ * Dates, entity instances and booleans as parameters; the driver accepts only numbers,
+ * strings, bigints, buffers and null. Single source for every binding site.
+ */
+function toBindValue(value) {
+    if (value instanceof Date) return value.getTime();
+    if (typeof value === "boolean") return value ? 1 : 0;
+    // Realm allows comparing a link property to an entity instance ("subjectType = $0" with a
+    // SubjectType object) — bind its PK, matching the _uuid FK column the field resolves to.
+    if (!_.isNil(value) && typeof value === "object" && !_.isNil(value.uuid)) return value.uuid;
+    return value;
+}
+
+/**
+ * FK column on the child table that points back at the parent — the child's object property
+ * whose objectType is the parent, else the naming convention. Single source for every place
+ * that needs to link a list back to its owner.
+ */
+function childFkColumn(parentSchemaName, childSchemaName, schemaMap) {
+    const childSchema = schemaMap.get(childSchemaName);
+    if (childSchema) {
+        for (const [propName, propDef] of Object.entries(childSchema.properties || {})) {
+            if (typeof propDef === "object" && propDef.type === "object" && propDef.objectType === parentSchemaName) {
+                return `${camelToSnake(propName)}_uuid`;
+            }
+        }
+    }
+    return `${camelToSnake(parentSchemaName)}_uuid`;
+}
+
 function tokenize(query) {
     const tokens = [];
     let i = 0;
@@ -157,6 +188,14 @@ function tokenize(query) {
                 i += 2;
                 continue;
             }
+        }
+
+        // Bare ! negation (Realm accepts it as NOT). Reached only after the two-char
+        // check above has claimed "!=", so this can't swallow an inequality.
+        if (query[i] === "!") {
+            tokens.push(new Token(TOKEN_TYPES.NOT, "NOT"));
+            i++;
+            continue;
         }
 
         // Single-character comparison operators
@@ -491,22 +530,8 @@ class SqlGenerator {
         return camelToSnake(propName);
     }
 
-    /**
-     * Find the FK column on a child table that references the parent schema.
-     * Looks at the child's schema for a property of type "object" whose objectType matches the parent.
-     * Falls back to convention: parent_schema_name_uuid.
-     */
     _findChildFkColumn(parentSchemaName, childSchemaName) {
-        const childSchema = this.schemaMap.get(childSchemaName);
-        if (childSchema) {
-            for (const [propName, propDef] of Object.entries(childSchema.properties || {})) {
-                if (typeof propDef === "object" && propDef.type === "object" && propDef.objectType === parentSchemaName) {
-                    return `${camelToSnake(propName)}_uuid`;
-                }
-            }
-        }
-        // Fallback convention
-        return `${camelToSnake(parentSchemaName)}_uuid`;
+        return childFkColumn(parentSchemaName, childSchemaName, this.schemaMap);
     }
 
     resolveValue(valueToken) {
@@ -515,18 +540,7 @@ class SqlGenerator {
             if (idx >= this.args.length) {
                 throw new Error(`Parameter $${idx} referenced but only ${this.args.length} args provided`);
             }
-            const val = this.args[idx];
-            // Convert Date to epoch ms for SQLite
-            if (val instanceof Date) {
-                this.params.push(val.getTime());
-            } else if (!_.isNil(val) && typeof val === "object" && !_.isNil(val.uuid)) {
-                // Realm allows comparing a link property to an entity instance
-                // ("subjectType = $0" with a SubjectType object) — bind its PK,
-                // matching the _uuid FK column the field resolves to
-                this.params.push(val.uuid);
-            } else {
-                this.params.push(val);
-            }
+            this.params.push(toBindValue(this.args[idx]));
             return "?";
         }
         if (valueToken.type === TOKEN_TYPES.NULL) {
@@ -851,8 +865,11 @@ class RealmQueryParser {
      * or null if no clauses could be parsed.
      */
     /**
-     * Translate a SUBQUERY on a referenced list to a SQL IN clause:
-     *   t0.uuid IN (SELECT fk FROM child WHERE <conditions>)
+     * Translate a SUBQUERY on a referenced list to SQL:
+     *   @count > 0  → t0.uuid IN (SELECT fk FROM child WHERE <conditions>)
+     *   @count == 0 → NOT EXISTS (SELECT 1 FROM child WHERE fk = t0.uuid AND <conditions>)
+     * The negative form correlates rather than using NOT IN — no FK column is NOT NULL, and
+     * NOT IN is UNKNOWN for every row once the subselect yields a single NULL.
      * Conditions translate via _translateRefListExpr (AND/OR/parens); a nested SUBQUERY on
      * an embedded list becomes json_each EXISTS (family B); a dotted listProp becomes a
      * hop-by-hop nested IN chain (family C, _translateSubqueryListPath).
@@ -877,7 +894,7 @@ class RealmQueryParser {
         if (!rootSchema) return null;
 
         if (listProp.includes(".")) {
-            return this._translateSubqueryListPath(rootSchemaName, listProp, conditions, varName, operator, count, schemaMap, args);
+            return this._translateSubqueryListPath(rootSchemaName, listProp, conditions, varName, operator, count, schemaMap, args, depth);
         }
 
         const propDef = rootSchema.properties[listProp];
@@ -887,25 +904,14 @@ class RealmQueryParser {
         if (!childSchemaName || EMBEDDED_SCHEMA_NAMES.has(childSchemaName)) return null;
 
         const childTableName = schemaNameToTableName(childSchemaName);
-
-        // Find FK column on child table that points back to parent
-        const childSchema = schemaMap.get(childSchemaName);
-        let fkColumn = `${camelToSnake(rootSchemaName)}_uuid`;
-        if (childSchema) {
-            for (const [propName, propDef2] of Object.entries(childSchema.properties || {})) {
-                if (typeof propDef2 === 'object' && propDef2.type === 'object' && propDef2.objectType === rootSchemaName) {
-                    fkColumn = `${camelToSnake(propName)}_uuid`;
-                    break;
-                }
-            }
-        }
+        const fkColumn = childFkColumn(rootSchemaName, childSchemaName, schemaMap);
 
         // Strip variable prefix from conditions
         const varPrefix = varName.replace('$', '\\$') + '\\.';
         const strippedConditions = conditions.replace(new RegExp(varPrefix, 'g'), '');
 
         // Translate the (prefix-stripped) conditions as an AND/OR/paren expression tree.
-        const translated = this._translateRefListExpr(strippedConditions, childSchemaName, schemaMap, args);
+        const translated = this._translateRefListExpr(strippedConditions, childSchemaName, schemaMap, args, depth);
         if (!translated) return null;
         const innerWhere = translated.where;
         const params = translated.params;
@@ -914,7 +920,9 @@ class RealmQueryParser {
         if ((operator === '>' && count === 0) || (operator === '>=' && count === 1) || (operator === '!=' && count === 0)) {
             where = `t0."uuid" IN (SELECT "${fkColumn}" FROM ${childTableName} WHERE ${innerWhere})`;
         } else if ((operator === '=' && count === 0) || (operator === '<' && count === 1)) {
-            where = `t0."uuid" NOT IN (SELECT "${fkColumn}" FROM ${childTableName} WHERE ${innerWhere})`;
+            // Correlated NOT EXISTS, not NOT IN: no FK column is declared NOT NULL, and a single
+            // NULL in a NOT IN subselect makes the predicate UNKNOWN for every row.
+            where = `NOT EXISTS (SELECT 1 FROM ${childTableName} WHERE "${fkColumn}" = t0."uuid" AND ${innerWhere})`;
         } else {
             const op = operator === '==' ? '=' : operator;
             where = `(SELECT COUNT(*) FROM ${childTableName} WHERE "${fkColumn}" = t0."uuid" AND ${innerWhere}) ${op} ${count}`;
@@ -923,25 +931,19 @@ class RealmQueryParser {
         return {where, params, joins: []};
     }
 
-    // FK column on childSchema's table that references parentSchema (list back-reference).
-    static _childFkColumn(parentSchemaName, childSchemaName, schemaMap) {
-        const childSchema = schemaMap.get(childSchemaName);
-        if (childSchema) {
-            for (const [propName, pd] of Object.entries(childSchema.properties || {})) {
-                if (typeof pd === "object" && pd.type === "object" && pd.objectType === parentSchemaName) {
-                    return `${camelToSnake(propName)}_uuid`;
-                }
-            }
-        }
-        return `${camelToSnake(parentSchemaName)}_uuid`;
-    }
-
     /**
      * Translate SUBQUERY(<a.b[.c]>, $v, conds).@count OP N — a dotted list/object path —
      * into a nested IN chain. Each hop is resolved by schema type: a list hop links via the
      * child's back-FK; an object hop links via the parent's <prop>_uuid.
      */
-    static _translateSubqueryListPath(rootSchemaName, pathStr, conditions, varName, operator, count, schemaMap, args) {
+    static _translateSubqueryListPath(rootSchemaName, pathStr, conditions, varName, operator, count, schemaMap, args, depth = 0) {
+        // Decide translatability before doing any work: a multi-hop @count comparison other
+        // than >0 / ==0 can't be correlated back to t0 through the chain, so it belongs on the
+        // JS evaluator and there's no point walking the schema or translating conditions first.
+        const positive = (operator === ">" && count === 0) || (operator === ">=" && count === 1) || (operator === "!=" && count === 0);
+        const negative = (operator === "=" && count === 0) || (operator === "<" && count === 1);
+        if (!positive && !negative) return null;
+
         const parts = pathStr.split(".");
         let cur = rootSchemaName;
         const hops = [];
@@ -959,38 +961,38 @@ class RealmQueryParser {
 
         const varPrefix = varName.replace("$", "\\$") + "\\.";
         const stripped = conditions.replace(new RegExp(varPrefix, "g"), "");
-        const translated = this._translateRefListExpr(stripped, leafSchema, schemaMap, args);
+        const translated = this._translateRefListExpr(stripped, leafSchema, schemaMap, args, depth);
         if (!translated) return null;
         const params = translated.params;
 
-        // Build inner-to-outer: at each hop produce a SELECT yielding the parent-identifying key.
-        // list hop:   SELECT <backFk> FROM <target> WHERE <inner|uuid IN childSelect>
-        // object hop: SELECT "uuid"   FROM <target> WHERE <inner|uuid IN childSelect>
+        // Build inner-to-outer for hops 1..n: each produces a SELECT yielding the key that
+        // identifies its parent (list hop → back-FK, object hop → uuid).
         let childSelect = null;
-        for (let i = hops.length - 1; i >= 0; i--) {
+        for (let i = hops.length - 1; i >= 1; i--) {
             const hop = hops[i];
             const table = schemaNameToTableName(hop.targetSchema);
             const cond = childSelect ? `"uuid" IN (${childSelect})` : translated.where;
-            if (hop.kind === "list") {
-                const backFk = this._childFkColumn(hop.fromSchema, hop.targetSchema, schemaMap);
-                childSelect = `SELECT "${backFk}" FROM ${table} WHERE ${cond}`;
-            } else {
-                childSelect = `SELECT "uuid" FROM ${table} WHERE ${cond}`;
-            }
+            const key = hop.kind === "list"
+                ? childFkColumn(hop.fromSchema, hop.targetSchema, schemaMap)
+                : "uuid";
+            childSelect = `SELECT "${key}" FROM ${table} WHERE ${cond}`;
         }
-        const outerCol = hops[0].kind === "list" ? 't0."uuid"' : `t0."${camelToSnake(hops[0].prop)}_uuid"`;
 
-        let where;
-        if ((operator === ">" && count === 0) || (operator === ">=" && count === 1) || (operator === "!=" && count === 0)) {
-            where = `${outerCol} IN (${childSelect})`;
-        } else if ((operator === "=" && count === 0) || (operator === "<" && count === 1)) {
-            where = `${outerCol} NOT IN (${childSelect})`;
-        } else {
-            // Multi-hop @count comparisons (>= 2, == 3, …) can't be correlated to t0 through the
-            // nested IN chain, so we can't emit correct SQL — fall back to the JS evaluator
-            // (JsFallbackFilterEvaluator._applySubqueryCount counts per entity). See #1978 review.
-            return null;
-        }
+        // The first hop links to t0, so keep its pieces separate — the negative form has to
+        // correlate rather than wrap the whole chain in a NOT IN.
+        const head = hops[0];
+        const headTable = schemaNameToTableName(head.targetSchema);
+        const headCond = childSelect ? `"uuid" IN (${childSelect})` : translated.where;
+        const headKey = head.kind === "list"
+            ? childFkColumn(head.fromSchema, head.targetSchema, schemaMap)
+            : "uuid";
+        const outerCol = head.kind === "list" ? 't0."uuid"' : `t0."${camelToSnake(head.prop)}_uuid"`;
+
+        // Correlated NOT EXISTS, not NOT IN: no FK column is declared NOT NULL, and a single
+        // NULL in a NOT IN subselect makes the predicate UNKNOWN for every row.
+        const where = positive
+            ? `${outerCol} IN (SELECT "${headKey}" FROM ${headTable} WHERE ${headCond})`
+            : `NOT EXISTS (SELECT 1 FROM ${headTable} WHERE "${headKey}" = ${outerCol} AND ${headCond})`;
         return {where, params, joins: []};
     }
 
@@ -999,10 +1001,20 @@ class RealmQueryParser {
      * bare-column SQL predicate usable inside `SELECT … FROM <child> WHERE …`.
      * Returns null if any leaf can't be safely translated (→ JS fallback).
      */
-    static _translateRefListExpr(expr, childSchemaName, schemaMap, args) {
+    static _translateRefListExpr(expr, childSchemaName, schemaMap, args, depth = 0) {
+        return this._translateLogicalExpr(expr, leaf =>
+            this._translateRefListLeaf(leaf, childSchemaName, schemaMap, args, depth));
+    }
+
+    /**
+     * Walk an AND/OR/paren expression, delegating each leaf to `translateLeaf`. Shared by the
+     * referenced-list and json_each translators so their grouping and precedence can't drift.
+     * `translateLeaf` returns {where, params} or null; null anywhere aborts the whole expression.
+     */
+    static _translateLogicalExpr(expr, translateLeaf) {
         const trimmed = expr.trim();
         if (trimmed.startsWith("(") && this._findMatchingParen(trimmed, 0) === trimmed.length - 1) {
-            const inner = this._translateRefListExpr(trimmed.slice(1, -1).trim(), childSchemaName, schemaMap, args);
+            const inner = this._translateLogicalExpr(trimmed.slice(1, -1).trim(), translateLeaf);
             return inner ? {where: `(${inner.where})`, params: inner.params} : null;
         }
         for (const op of ["OR", "AND"]) {
@@ -1010,7 +1022,7 @@ class RealmQueryParser {
             if (parts.length > 1) {
                 const out = [], params = [];
                 for (const p of parts) {
-                    const r = this._translateRefListExpr(p.trim(), childSchemaName, schemaMap, args);
+                    const r = this._translateLogicalExpr(p.trim(), translateLeaf);
                     if (!r) return null;
                     out.push(r.where); params.push(...r.params);
                 }
@@ -1018,7 +1030,7 @@ class RealmQueryParser {
                 return {where: op === "OR" ? `(${joined})` : joined, params};
             }
         }
-        return this._translateRefListLeaf(trimmed, childSchemaName, schemaMap, args);
+        return translateLeaf(trimmed);
     }
 
     /**
@@ -1026,13 +1038,13 @@ class RealmQueryParser {
      * Leaf kinds: nested SUBQUERY (embedded → json_each; else referenced-list recurse),
      * FK dot-ref (refProp.field OP quoted|number|$N), or a scalar child column.
      */
-    static _translateRefListLeaf(trimmed, childSchemaName, schemaMap, args) {
+    static _translateRefListLeaf(trimmed, childSchemaName, schemaMap, args, depth = 0) {
         const childSchema = schemaMap.get(childSchemaName);
 
         if (/^SUBQUERY\s*\(/i.test(trimmed)) {
             const emb = this._tryTranslateChildEmbeddedSubquery(trimmed, childSchemaName, schemaMap);
             if (emb) return emb;
-            const nested = this._tryTranslateSubqueryToIn(trimmed, childSchemaName, schemaMap, args, 1);
+            const nested = this._tryTranslateSubqueryToIn(trimmed, childSchemaName, schemaMap, args, depth + 1);
             if (!nested) return null;
             return {where: nested.where.replace(/t0\./g, ""), params: nested.params};
         }
@@ -1048,11 +1060,7 @@ class RealmQueryParser {
                 const sqlOp = op === "==" ? "=" : op;
                 let val;
                 if (dotMatch[5] !== undefined) val = dotMatch[5];
-                else if (dotMatch[6] !== undefined) {
-                    const raw = args[parseInt(dotMatch[6].slice(1), 10)];
-                    val = raw instanceof Date ? raw.getTime()
-                        : (raw && typeof raw === "object" && raw.uuid) ? raw.uuid : raw;
-                }
+                else if (dotMatch[6] !== undefined) val = toBindValue(args[parseInt(dotMatch[6].slice(1), 10)]);
                 else val = Number(dotMatch[7]);
                 const neg = sqlOp === "!=" || sqlOp === "<>" ? "NOT " : "";
                 return {
@@ -1136,18 +1144,19 @@ class RealmQueryParser {
         const gen = new SqlGenerator(schemaMap, rootSchemaName, args);
         gen.aliasCounter = aliasOffset;
 
-        let orderBy = null;
+        // Order is carried as structured terms, not a rendered fragment — the proxy needs to
+        // reverse and re-emit them for the windowed-DISTINCT path, and re-parsing its own
+        // SQL string to do that is how the two ends drift apart.
+        let orderByTerms = null;
         if (sortBody != null) {
             const keys = sortBody.split(",").map(s => s.trim()).filter(Boolean);
             if (keys.length === 0) return null;
-            const parts = keys.map(k => {
+            orderByTerms = keys.map(k => {
                 const mk = k.match(/^([\w.]+)(?:\s+(asc|desc))?$/i);
                 if (!mk) throw new Error(`Unparseable sort key: "${k}"`);
                 const {column} = gen.resolveField(mk[1]);
-                const dir = mk[2] ? mk[2].toUpperCase() : "ASC";
-                return `${column} ${dir}`;
+                return {expr: column, dir: mk[2] ? mk[2].toUpperCase() : "ASC"};
             });
-            orderBy = parts.join(", ");
         }
 
         let distinct = null;
@@ -1155,7 +1164,7 @@ class RealmQueryParser {
             const fields = distinctBody.split(",").map(s => s.trim()).filter(Boolean);
             if (fields.length === 0) return null;
             const columns = fields.map(f => gen.resolveField(f).column);
-            distinct = {columns, orderBy};
+            distinct = {columns, orderByTerms};
         }
 
         return {
@@ -1163,7 +1172,7 @@ class RealmQueryParser {
             params: gen.params,
             joins: gen.joins,
             distinct,
-            orderBy,
+            orderByTerms,
             unsupported: false,
         };
     }
@@ -1175,9 +1184,17 @@ class RealmQueryParser {
         const openIdx = match[0].length;
         const argStrs = [];
         let parenDepth = 0, current = "";
+        let quote = null;
 
         for (let i = openIdx; i < clause.length; i++) {
             const ch = clause[i];
+            // Commas and parens inside a quoted value are data, not structure.
+            if (quote) {
+                current += ch;
+                if (ch === quote && clause[i - 1] !== "\\") quote = null;
+                continue;
+            }
+            if (ch === "'" || ch === '"') { quote = ch; current += ch; continue; }
             if (ch === '(') { parenDepth++; current += ch; }
             else if (ch === ')') {
                 if (parenDepth === 0) {
@@ -1278,47 +1295,35 @@ class RealmQueryParser {
      * Handles: AND, OR, parenthesized groups, and leaf conditions.
      */
     static _translateObsExpr(expr, params) {
-        const trimmed = expr.trim();
-
-        // Handle parenthesized expression
-        if (trimmed.startsWith('(') && this._findMatchingParen(trimmed, 0) === trimmed.length - 1) {
-            const inner = this._translateObsExpr(trimmed.substring(1, trimmed.length - 1).trim(), params);
-            return inner ? `(${inner})` : null;
-        }
-
-        // Split on top-level OR first (lower precedence)
-        const orParts = this._splitTopLevelLogical(trimmed, 'OR');
-        if (orParts.length > 1) {
-            const translated = orParts.map(p => this._translateObsExpr(p.trim(), params));
-            if (translated.some(t => t === null)) return null;
-            return `(${translated.join(' OR ')})`;
-        }
-
-        // Split on top-level AND
-        const andParts = this._splitTopLevelLogical(trimmed, 'AND');
-        if (andParts.length > 1) {
-            const translated = andParts.map(p => this._translateObsExpr(p.trim(), params));
-            if (translated.some(t => t === null)) return null;
-            return translated.join(' AND ');
-        }
-
-        // Leaf condition — translate single observation condition
-        return this._translateSingleObsCondition(trimmed, params);
+        // Leaves push straight into the caller's params array, in left-to-right order.
+        const result = this._translateLogicalExpr(expr, leaf => {
+            const where = this._translateSingleObsCondition(leaf, params);
+            return where === null ? null : {where, params: []};
+        });
+        return result ? result.where : null;
     }
 
     /**
      * Split expression on top-level logical operator (AND or OR),
-     * respecting parentheses depth.
+     * respecting parentheses depth and quoted values.
      */
     static _splitTopLevelLogical(expr, op) {
         const parts = [];
         let depth = 0;
         let current = '';
+        let quote = null;
         const opUpper = op.toUpperCase();
         const opLen = opUpper.length;
 
         for (let i = 0; i < expr.length; i++) {
             const ch = expr[i];
+            // An " and "/" or " inside a quoted value is data — concept names contain both.
+            if (quote) {
+                current += ch;
+                if (ch === quote && expr[i - 1] !== "\\") quote = null;
+                continue;
+            }
+            if (ch === "'" || ch === '"') { quote = ch; current += ch; continue; }
             if (ch === '(') { depth++; current += ch; }
             else if (ch === ')') { depth--; current += ch; }
             else if (depth === 0) {
