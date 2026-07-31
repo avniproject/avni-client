@@ -42,7 +42,7 @@ class JsFallbackFilterEvaluator {
 
         // TRUEPREDICATE DISTINCT(field)
         if (/TRUEPREDICATE/i.test(trimmed) && /DISTINCT\s*\(/i.test(trimmed)) {
-            return this._applyDistinct(entities, trimmed, args);
+            return this._applyDistinct(entities, trimmed, args, schemaName);
         }
 
         // @links.@count — inverse relationships aren't evaluable client-side. Fail loud like the
@@ -58,11 +58,11 @@ class JsFallbackFilterEvaluator {
         if (sortMatch) {
             sortBody = sortMatch[1];
             trimmed = trimmed.slice(0, sortMatch.index).trim();
-            if (trimmed.length === 0) return this._applySort(entities, sortBody);
+            if (trimmed.length === 0) return this._applySort(entities, sortBody, schemaName);
         }
 
         const filtered = this._applyPredicate(entities, trimmed, args, schemaName);
-        return sortBody ? this._applySort(filtered, sortBody) : filtered;
+        return sortBody ? this._applySort(filtered, sortBody, schemaName) : filtered;
     }
 
     static _applyPredicate(entities, trimmed, args, schemaName) {
@@ -89,7 +89,7 @@ class JsFallbackFilterEvaluator {
 
         // ANY listProp.field OP value
         if (/^\s*ANY\b/i.test(trimmed)) {
-            return this._applyAnyQuantifier(entities, trimmed, args);
+            return this._applyAnyQuantifier(entities, trimmed, args, schemaName);
         }
 
         // limit(N) — inline result limit
@@ -157,7 +157,7 @@ class JsFallbackFilterEvaluator {
 
     // ──── SORT(field dir, …) ────
 
-    static _applySort(entities, sortBody) {
+    static _applySort(entities, sortBody, schemaName) {
         const keys = sortBody.split(",")
             .map(k => k.trim())
             .filter(Boolean)
@@ -166,7 +166,7 @@ class JsFallbackFilterEvaluator {
                 return m ? {field: m[1], desc: (m[2] || "").toUpperCase() === "DESC"} : null;
             });
         if (keys.length === 0 || keys.some(k => k === null)) {
-            throw new UnsupportedRealmQueryError(sortBody, "could not parse SORT keys");
+            throw new UnsupportedRealmQueryError(sortBody, `could not parse SORT keys for ${schemaName}`);
         }
         return [...entities].sort((a, b) => {
             for (const {field, desc} of keys) {
@@ -184,13 +184,13 @@ class JsFallbackFilterEvaluator {
 
     // ──── TRUEPREDICATE DISTINCT(field) ────
 
-    static _applyDistinct(entities, query, args) {
+    static _applyDistinct(entities, query, args, schemaName) {
         // Extract DISTINCT(field) — field may contain dots
         const distinctMatch = query.match(/DISTINCT\s*\(\s*([\w.]+)\s*\)/i);
         if (!distinctMatch) {
             // Recognized as DISTINCT but the field didn't parse — fail loud rather than return the
             // full unfiltered set (silent-wrong is the failure #1981 kills, in any branch).
-            throw new UnsupportedRealmQueryError(query, "could not parse DISTINCT field");
+            throw new UnsupportedRealmQueryError(query, `could not parse DISTINCT field for ${schemaName}`);
         }
         const field = distinctMatch[1];
 
@@ -301,8 +301,12 @@ class JsFallbackFilterEvaluator {
                 continue;
             }
             if (ch === "'" || ch === '"') { quote = ch; current += ch; continue; }
-            if (ch === '(') {
+            if (ch === '(' || ch === '{') {
+                // '{' groups an IN {…} value-list; its commas are data, not arg separators.
                 depth++;
+                current += ch;
+            } else if (ch === '}') {
+                if (depth > 0) depth--;
                 current += ch;
             } else if (ch === ')') {
                 if (depth === 0) {
@@ -336,7 +340,7 @@ class JsFallbackFilterEvaluator {
 
     // ──── ANY listProp.field OP value ────
 
-    static _applyAnyQuantifier(entities, query, args) {
+    static _applyAnyQuantifier(entities, query, args, schemaName) {
         // Parse: ANY listProp.field OP value
         // Also handles: ANY listProp.field CONTAINS[c] value
         const stringOpMatch = query.match(
@@ -347,7 +351,7 @@ class JsFallbackFilterEvaluator {
             const fieldPath = stringOpMatch[2];
             const op = stringOpMatch[3].toUpperCase();
             const caseInsensitive = /\[c\]/i.test(query);
-            const rawValue = this._resolveConditionValue(stringOpMatch[4].trim(), args);
+            const rawValue = this._resolveConditionValue(stringOpMatch[4].trim(), args, schemaName);
 
             return entities.filter(entity => {
                 const list = this._resolveFieldValue(entity, listProp);
@@ -380,7 +384,7 @@ class JsFallbackFilterEvaluator {
             const listProp = compMatch[1];
             const fieldPath = compMatch[2];
             const op = compMatch[3];
-            const rawValue = this._resolveConditionValue(compMatch[4].trim(), args);
+            const rawValue = this._resolveConditionValue(compMatch[4].trim(), args, schemaName);
 
             return entities.filter(entity => {
                 const list = this._resolveFieldValue(entity, listProp);
@@ -394,7 +398,7 @@ class JsFallbackFilterEvaluator {
         }
 
         // Recognized as ANY but couldn't parse it — fail loud rather than return the full set (#1981).
-        throw new UnsupportedRealmQueryError(query, "could not parse ANY quantifier");
+        throw new UnsupportedRealmQueryError(query, `could not parse ANY quantifier for ${schemaName}`);
     }
 
     // ──── limit(N) — inline result limit ────
@@ -499,7 +503,7 @@ class JsFallbackFilterEvaluator {
         if (shape && shape.kind === "stringOp") {
             const {fieldPath, op} = shape;
             const caseInsensitive = /\[c\]/i.test(condition);
-            const rawValue = this._resolveConditionValue(shape.rhs, args);
+            const rawValue = this._resolveConditionValue(shape.rhs, args, schemaName);
             const fieldValue = this._resolveItemFieldValue(item, fieldPath, varName);
 
             if (fieldValue == null) return false;
@@ -519,9 +523,15 @@ class JsFallbackFilterEvaluator {
         }
 
         if (shape && shape.kind === "comparison") {
-            const rawValue = this._resolveConditionValue(shape.rhs, args);
+            const rawValue = this._resolveConditionValue(shape.rhs, args, schemaName);
             const fieldValue = this._resolveItemFieldValue(item, shape.fieldPath, varName);
             return this._compare(fieldValue, shape.op, rawValue);
+        }
+
+        // field IN {v1, v2, …} — membership. Matches if the field equals any listed value.
+        if (shape && shape.kind === "in") {
+            const fieldValue = this._resolveItemFieldValue(item, shape.fieldPath, varName);
+            return shape.values.some(raw => this._compare(fieldValue, "==", this._resolveConditionValue(raw, args, schemaName)));
         }
 
         // Treating an unparseable condition as matching would silently inflate .@count and
@@ -537,16 +547,39 @@ class JsFallbackFilterEvaluator {
         const stringOp = condition.match(
             /^([\w$.]+(?:\.[\w]+)*)\s+(CONTAINS|BEGINSWITH|ENDSWITH)\s*(?:\[c\])?\s+(.+)$/i
         );
-        if (stringOp) {
+        if (stringOp && this._isValueShape(stringOp[3])) {
             return {kind: "stringOp", fieldPath: stringOp[1], op: stringOp[2].toUpperCase(), rhs: stringOp[3].trim()};
+        }
+        const inList = condition.match(
+            /^([\w$.]+(?:\.[\w]+)*)\s+IN\s+\{([^}]*)\}$/i
+        );
+        if (inList) {
+            const values = inList[2].split(",").map(v => v.trim()).filter(v => v.length > 0);
+            if (values.length > 0 && values.every(v => this._isValueShape(v))) {
+                return {kind: "in", fieldPath: inList[1], values};
+            }
         }
         const comparison = condition.match(
             /^([\w$.]+(?:\.[\w]+)*)\s*(==|!=|<>|<=|>=|<|>|=)\s*(.+)$/
         );
-        if (comparison) {
+        // Reject a garbage RHS at shape-detection time so a half-split compound (e.g.
+        // "concept.uuid == 'c1' AND") fails the up-front _assertEvaluable check rather than
+        // silently comparing a raw fragment inside the per-entity loop (#1981).
+        if (comparison && this._isValueShape(comparison[3])) {
             return {kind: "comparison", fieldPath: comparison[1], op: comparison[2], rhs: comparison[3].trim()};
         }
         return null;
+    }
+
+    // The RHS forms _resolveConditionValue can resolve — kept in step with it so shape-detection
+    // and evaluation agree. A bare identifier is whitelisted (may be an unquoted value in some inputs).
+    static _isValueShape(rhs) {
+        const t = rhs.trim();
+        return (t.startsWith('"') && t.endsWith('"')) || (t.startsWith("'") && t.endsWith("'"))
+            || /^\$\d+$/.test(t)
+            || /^(true|false|null|nil)$/i.test(t)
+            || (t !== "" && !isNaN(Number(t)))
+            || /^[\w$.]+$/.test(t);
     }
 
     /**
@@ -568,7 +601,7 @@ class JsFallbackFilterEvaluator {
      * Resolve a value from a condition's RHS.
      * Handles: quoted strings, $N parameters, true/false, null, numbers.
      */
-    static _resolveConditionValue(rawValue, args) {
+    static _resolveConditionValue(rawValue, args, schemaName) {
         const trimmed = rawValue.trim();
 
         // Quoted string (single or double)
@@ -595,7 +628,12 @@ class JsFallbackFilterEvaluator {
         const num = Number(trimmed);
         if (!isNaN(num) && trimmed !== "") return num;
 
-        return trimmed;
+        // A bare identifier (no quotes/spaces/operators) may be an unquoted value in some inputs —
+        // preserve the prior lenient behaviour. Anything else matched no literal form and is unparsed
+        // garbage (e.g. "'c1' AND", a half-split compound) — fail loud rather than compare a raw
+        // fragment and silently match nobody (#1981).
+        if (/^[\w$.]+$/.test(trimmed)) return trimmed;
+        throw new UnsupportedRealmQueryError(rawValue, `could not resolve condition value for ${schemaName}`);
     }
 
     // ──── Utility methods ────

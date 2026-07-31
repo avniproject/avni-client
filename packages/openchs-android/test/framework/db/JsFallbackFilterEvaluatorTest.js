@@ -120,6 +120,27 @@ describe("JsFallbackFilterEvaluator", () => {
         it("should parse float", () => {
             expect(JsFallbackFilterEvaluator._resolveConditionValue("3.14", [])).toBe(3.14);
         });
+
+        it("throws when the RHS matches no literal form (garbage) instead of returning it raw (#1981)", () => {
+            expect(() => JsFallbackFilterEvaluator._resolveConditionValue("'c1' AND", [], "TestSchema"))
+                .toThrow(/could not resolve condition value for TestSchema/);
+        });
+
+        it("returns a bare identifier unchanged (whitelisted lenient form)", () => {
+            expect(JsFallbackFilterEvaluator._resolveConditionValue("bareToken", [])).toBe("bareToken");
+        });
+    });
+
+    describe("_isValueShape", () => {
+        it("accepts recognized literal forms and bare identifiers", () => {
+            ["'x'", '"x"', "$0", "true", "FALSE", "null", "nil", "42", "-3.5", "bareToken", "a.b.c"]
+                .forEach(v => expect(JsFallbackFilterEvaluator._isValueShape(v)).toBe(true));
+        });
+
+        it("rejects unparsed garbage (spaces, partial quotes, operators)", () => {
+            ["'c1' AND", "a == b", "'unterminated", "foo bar", "", "in-progress"]
+                .forEach(v => expect(JsFallbackFilterEvaluator._isValueShape(v)).toBe(false));
+        });
     });
 
     describe("_compareCount", () => {
@@ -232,6 +253,14 @@ describe("JsFallbackFilterEvaluator", () => {
             );
             expect(result).not.toBeNull();
             expect(result.conditions).toBe("$o.valueJSON contains 'Fever, cough'");
+        });
+
+        it("should not truncate conditions at a comma inside an IN {…} value-list", () => {
+            const result = JsFallbackFilterEvaluator._parseSubquery(
+                'SUBQUERY(observations, $o, $o.concept.uuid IN {"c1", "c2"}).@count > 0'
+            );
+            expect(result).not.toBeNull();
+            expect(result.conditions).toBe('$o.concept.uuid IN {"c1", "c2"}');
         });
 
         it("should not end the SUBQUERY at an unbalanced paren inside a quoted value", () => {
@@ -1109,28 +1138,28 @@ describe("JsFallbackFilterEvaluator", () => {
         it("should evaluate AND with both conditions true", () => {
             const item = {voided: false, name: "Alice"};
             expect(JsFallbackFilterEvaluator._evaluateConditionString(
-                item, '$x.voided = false and $x.name = "Alice"', "$x", []
+                item, '$x.voided = false and $x.name = "Alice"', "$x", [], "TestSchema"
             )).toBe(true);
         });
 
         it("should evaluate AND with one condition false", () => {
             const item = {voided: true, name: "Alice"};
             expect(JsFallbackFilterEvaluator._evaluateConditionString(
-                item, '$x.voided = false and $x.name = "Alice"', "$x", []
+                item, '$x.voided = false and $x.name = "Alice"', "$x", [], "TestSchema"
             )).toBe(false);
         });
 
         it("should evaluate OR with one condition true", () => {
             const item = {status: "B"};
             expect(JsFallbackFilterEvaluator._evaluateConditionString(
-                item, '$x.status = "A" OR $x.status = "B"', "$x", []
+                item, '$x.status = "A" OR $x.status = "B"', "$x", [], "TestSchema"
             )).toBe(true);
         });
 
         it("should evaluate OR with all conditions false", () => {
             const item = {status: "C"};
             expect(JsFallbackFilterEvaluator._evaluateConditionString(
-                item, '$x.status = "A" OR $x.status = "B"', "$x", []
+                item, '$x.status = "A" OR $x.status = "B"', "$x", [], "TestSchema"
             )).toBe(false);
         });
 
@@ -1138,11 +1167,11 @@ describe("JsFallbackFilterEvaluator", () => {
             const item = {a: 1, b: 2, c: 3};
             // (a=1 OR b=99) AND c=3 → (true OR false) AND true → true
             expect(JsFallbackFilterEvaluator._evaluateConditionString(
-                item, "($x.a = 1 OR $x.b = 99) AND $x.c = 3", "$x", []
+                item, "($x.a = 1 OR $x.b = 99) AND $x.c = 3", "$x", [], "TestSchema"
             )).toBe(true);
             // (a=99 OR b=99) AND c=3 → (false OR false) AND true → false
             expect(JsFallbackFilterEvaluator._evaluateConditionString(
-                item, "($x.a = 99 OR $x.b = 99) AND $x.c = 3", "$x", []
+                item, "($x.a = 99 OR $x.b = 99) AND $x.c = 3", "$x", [], "TestSchema"
             )).toBe(false);
         });
 
@@ -1152,7 +1181,8 @@ describe("JsFallbackFilterEvaluator", () => {
                 item,
                 "$x.voided = false and (SUBQUERY($x.encounters, $e, $e.voided = false).@count > 0)",
                 "$x",
-                []
+                [],
+                "TestSchema"
             );
             expect(result).toBe(true);
         });
@@ -1163,7 +1193,8 @@ describe("JsFallbackFilterEvaluator", () => {
                 item,
                 "$x.voided = false and (SUBQUERY($x.encounters, $e, $e.voided = false).@count > 0)",
                 "$x",
-                []
+                [],
+                "TestSchema"
             );
             expect(result).toBe(false);
         });
@@ -1173,65 +1204,86 @@ describe("JsFallbackFilterEvaluator", () => {
         it("should evaluate CONTAINS string op", () => {
             const item = {valueJSON: '{"phoneNumber":"1234567890"}'};
             expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
-                item, '$obs.valueJSON contains \'"phoneNumber":"1234567890"\'', "$obs", []
+                item, '$obs.valueJSON contains \'"phoneNumber":"1234567890"\'', "$obs", [], "TestSchema"
             )).toBe(true);
         });
 
         it("should evaluate BEGINSWITH", () => {
             const item = {name: "Alice"};
             expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
-                item, '$x.name BEGINSWITH "Ali"', "$x", []
+                item, '$x.name BEGINSWITH "Ali"', "$x", [], "TestSchema"
             )).toBe(true);
             expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
-                item, '$x.name BEGINSWITH "Bob"', "$x", []
+                item, '$x.name BEGINSWITH "Bob"', "$x", [], "TestSchema"
             )).toBe(false);
         });
 
         it("should evaluate ENDSWITH", () => {
             const item = {name: "Alice"};
             expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
-                item, '$x.name ENDSWITH "ice"', "$x", []
+                item, '$x.name ENDSWITH "ice"', "$x", [], "TestSchema"
             )).toBe(true);
         });
 
         it("should evaluate equality with null", () => {
             const item = {programExitDateTime: null};
             expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
-                item, "$e.programExitDateTime = null", "$e", []
+                item, "$e.programExitDateTime = null", "$e", [], "TestSchema"
             )).toBe(true);
         });
 
         it("should evaluate inequality with null", () => {
             const item = {programExitDateTime: "2024-01-01"};
             expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
-                item, "$e.programExitDateTime != null", "$e", []
+                item, "$e.programExitDateTime != null", "$e", [], "TestSchema"
             )).toBe(true);
         });
 
         it("should evaluate boolean comparison", () => {
             const item = {voided: false};
             expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
-                item, "$e.voided = false", "$e", []
+                item, "$e.voided = false", "$e", [], "TestSchema"
             )).toBe(true);
             expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
-                item, "$e.voided = true", "$e", []
+                item, "$e.voided = true", "$e", [], "TestSchema"
             )).toBe(false);
         });
 
         it("should evaluate $N parameter substitution", () => {
             const item = {uuid: "abc"};
             expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
-                item, "$e.uuid = $0", "$e", ["abc"]
+                item, "$e.uuid = $0", "$e", ["abc"], "TestSchema"
             )).toBe(true);
             expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
-                item, "$e.uuid = $0", "$e", ["def"]
+                item, "$e.uuid = $0", "$e", ["def"], "TestSchema"
             )).toBe(false);
         });
 
         it("should return false when field is null and comparing to non-null", () => {
             const item = {name: null};
             expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
-                item, '$e.name = "Alice"', "$e", []
+                item, '$e.name = "Alice"', "$e", [], "TestSchema"
+            )).toBe(false);
+        });
+
+        it("should evaluate IN {…} membership with quoted values", () => {
+            expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
+                {concept: {uuid: "c2"}}, '$o.concept.uuid IN {"c1", "c2"}', "$o", [], "TestSchema"
+            )).toBe(true);
+            expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
+                {concept: {uuid: "zz"}}, '$o.concept.uuid IN {"c1", "c2"}', "$o", [], "TestSchema"
+            )).toBe(false);
+        });
+
+        it("should resolve $N params and numeric values inside IN {…}", () => {
+            expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
+                {concept: {uuid: "c2"}}, "$o.concept.uuid IN {$0, $1}", "$o", ["c1", "c2"], "TestSchema"
+            )).toBe(true);
+            expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
+                {count: 3}, "$o.count IN {1, 2, 3}", "$o", [], "TestSchema"
+            )).toBe(true);
+            expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
+                {count: 9}, "$o.count IN {1, 2, 3}", "$o", [], "TestSchema"
             )).toBe(false);
         });
     });
@@ -1408,9 +1460,10 @@ describe("JsFallbackFilterEvaluator", () => {
 
     describe("fail loud when a recognized pattern fails to parse", () => {
         const cases = [
-            {name: "DISTINCT with unparseable field", query: "TRUEPREDICATE DISTINCT()", reason: /could not parse DISTINCT field/},
+            {name: "DISTINCT with unparseable field", query: "TRUEPREDICATE DISTINCT()", reason: /could not parse DISTINCT field for TestSchema/},
             {name: "malformed SUBQUERY", query: "SUBQUERY(broken without proper structure", reason: /could not parse SUBQUERY for TestSchema/},
-            {name: "malformed ANY quantifier", query: "ANY badly formed quantifier here", reason: /could not parse ANY quantifier/},
+            {name: "malformed ANY quantifier", query: "ANY badly formed quantifier here", reason: /could not parse ANY quantifier for TestSchema/},
+            {name: "unparseable SORT key", query: "TRUEPREDICATE sort(name!! asc)", reason: /could not parse SORT keys for TestSchema/},
         ];
         cases.forEach(({name, query, reason}) => {
             it(`throws for ${name} rather than returning the full set`, () => {
@@ -1432,17 +1485,40 @@ describe("JsFallbackFilterEvaluator", () => {
             expect(run).toThrow(/unrecognized fallback query for TestSchema/);
         });
 
-        it("throws for an unparseable atomic condition inside SUBQUERY instead of counting every element", () => {
+        it("throws for a garbage RHS inside a SUBQUERY condition instead of silently matching nobody (#1981)", () => {
             const entities = [
                 makeEntity({uuid: "1", observations: [makeObservation({conceptUuid: "c1", valueJSON: "{}"})]}),
             ];
+            // A half-split compound leaves an unresolvable RHS ("'c1' AND"); it must fail loud, not
+            // compare a raw fragment and drop the row.
             const run = () => JsFallbackFilterEvaluator.apply(
                 entities,
-                [{query: 'SUBQUERY(observations, $obs, $obs.concept.uuid IN {"c1", "c2"}).@count > 0', args: []}],
+                [{query: "SUBQUERY(observations, $obs, $obs.concept.uuid == 'c1' AND).@count > 0", args: []}],
                 "TestSchema"
             );
             expect(run).toThrow(UnsupportedRealmQueryError);
             expect(run).toThrow(/could not parse atomic condition for TestSchema/);
+        });
+
+        it("throws for the garbage RHS up-front, even when every list is empty (data-independent)", () => {
+            const entities = [makeEntity({uuid: "1", observations: []})];
+            const run = () => JsFallbackFilterEvaluator.apply(
+                entities,
+                [{query: "SUBQUERY(observations, $obs, $obs.concept.uuid == 'c1' AND).@count > 0", args: []}],
+                "TestSchema"
+            );
+            expect(run).toThrow(/could not parse atomic condition for TestSchema/);
+        });
+
+        it("matches a SUBQUERY condition using IN {…} — nested IN is supported (#1981)", () => {
+            const match = makeEntity({uuid: "1", observations: [makeObservation({conceptUuid: "c1", valueJSON: "{}"})]});
+            const noMatch = makeEntity({uuid: "2", observations: [makeObservation({conceptUuid: "zz", valueJSON: "{}"})]});
+            const result = JsFallbackFilterEvaluator.apply(
+                [match, noMatch],
+                [{query: 'SUBQUERY(observations, $obs, $obs.concept.uuid IN {"c1", "c2"}).@count > 0', args: []}],
+                "TestSchema"
+            );
+            expect(result.map(e => e.uuid)).toEqual(["1"]);
         });
 
         it("throws for an unparseable nested SUBQUERY instead of skipping it", () => {
