@@ -134,7 +134,9 @@ class ActionSelector extends AbstractComponent {
         return _.map(this.props.actions, (action, key) =>
             this.actionButton(
                 action.fn,
-                action.backgroundColor || Colors.ActionButtonColor,
+                // BrandPrimaryDark matches the Next/primary button colour (WizardButtons) - was
+                // ActionButtonColor, a leftover pre-rebrand teal that reads as a different shade.
+                action.backgroundColor || Colors.BrandPrimaryDark,
                 action.label,
                 Colors.TextOnPrimaryColor,
                 action.icon,

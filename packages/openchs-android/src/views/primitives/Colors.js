@@ -66,8 +66,10 @@ class Colors {
 
     static OverdueVisitColor = '#d0011b';
     static FutureVisitColor = '#B8860B';
-    static ScheduledVisitColor = '#009688';
-    static VisitActionColor = '#009688';
+    // Was '#009688' - a leftover pre-rebrand teal that read as a different shade next to
+    // BrandPrimaryDark-coloured buttons (e.g. "New Form", "Do" action links, "Due" badges).
+    static ScheduledVisitColor = this.BrandPrimaryDark;
+    static VisitActionColor = this.BrandPrimaryDark;
     static CancelledVisitColor = '#d0011b';
     static VisitFilterButtonColor = '#4a90e2';
     static Separator = '#C0C0C0';
