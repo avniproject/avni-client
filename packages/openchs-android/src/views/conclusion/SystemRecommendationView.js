@@ -1,7 +1,7 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import PropTypes from 'prop-types';
 import React from "react";
-import {View} from "react-native";
+import {StyleSheet, View} from "react-native";
 import Path from "../../framework/routing/Path";
 import CustomConfirmDialog from "../common/CustomConfirmDialog";
 import IndividualProfile from "../common/IndividualProfile";
@@ -279,26 +279,6 @@ class SystemRecommendationView extends AbstractComponent {
                                             </View>
                                         </View>
                                     </React.Fragment>}
-                                <WizardButtons previous={{
-                                    func: () => !_.isUndefined(this.props.onPreviousCallback) ? this.props.onPreviousCallback(this.context) : this.previous(),
-                                    label: this.I18n.t('previous')
-                                }}
-                                               next={{
-                                                   func: () => this.save(() => {
-                                                       const ws = this.props.workListState;
-                                                       const next = ws && ws.peekNextWorkItem();
-                                                       if (next && next.type === WorkItem.type.SHARE) {
-                                                           CHSNavigator.performNextWorkItemFromRecommendationsView(this, ws, this.context);
-                                                       } else {
-                                                           this.props.onSaveCallback(this);
-                                                       }
-                                                   }),
-                                                   visible: this.props.validationErrors.length === 0,
-                                                   label: this.I18n.t('save')
-                                               }}
-                                               nextAndMore={this.nextAndMore}
-                                               style={{marginHorizontal: 24}}/>
-
                             </View>
                             <ApprovalDialog
                                 primaryButton={this.I18n.t('yes')}
@@ -310,11 +290,47 @@ class SystemRecommendationView extends AbstractComponent {
                                 I18n={this.I18n}/>
                         </View>
                     </ScrollView>
+                    <View style={styles.fixedButtonBar}>
+                        <WizardButtons
+                            containerStyle={{paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}
+                            buttonHeight={56}
+                            previous={{
+                            func: () => !_.isUndefined(this.props.onPreviousCallback) ? this.props.onPreviousCallback(this.context) : this.previous(),
+                            label: this.I18n.t('previous')
+                        }}
+                                       next={{
+                                           func: () => this.save(() => {
+                                               const ws = this.props.workListState;
+                                               const next = ws && ws.peekNextWorkItem();
+                                               if (next && next.type === WorkItem.type.SHARE) {
+                                                   CHSNavigator.performNextWorkItemFromRecommendationsView(this, ws, this.context);
+                                               } else {
+                                                   this.props.onSaveCallback(this);
+                                               }
+                                           }),
+                                           visible: this.props.validationErrors.length === 0,
+                                           label: this.I18n.t('save')
+                                       }}
+                                       nextAndMore={this.nextAndMore}/>
+                    </View>
                 </CHSContent>
             </CHSContainer>
         );
     }
 }
+
+const styles = StyleSheet.create({
+    fixedButtonBar: {
+        height: 84,
+        justifyContent: 'center',
+        backgroundColor: '#ffffff',
+        shadowColor: '#000',
+        shadowOffset: {width: 0, height: -3},
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 8
+    }
+});
 
 export default SystemRecommendationView;
 

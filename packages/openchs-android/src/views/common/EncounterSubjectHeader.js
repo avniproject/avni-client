@@ -57,7 +57,7 @@ class EncounterSubjectHeader extends AbstractComponent {
                     </View>
                 </View>
                 {!_.isEmpty(addressText) &&
-                <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 16}}>
+                <View style={{flexDirection: 'row', alignItems: 'stretch', marginTop: 16}}>
                     <View style={{
                         flex: 1,
                         backgroundColor: '#ffffff',
@@ -77,10 +77,12 @@ class EncounterSubjectHeader extends AbstractComponent {
                             {addressText}
                         </Text>
                     </View>
+                    {/* No fixed height here - stretches (via the row's alignItems: 'stretch') to
+                        match the location box's content-driven height instead of risking a mismatch
+                        if that box's text ever wraps to a different number of lines. */}
                     <TouchableOpacity onPress={onTogglePress}
                                        style={{
                                            width: 48,
-                                           height: 48,
                                            borderRadius: 8,
                                            borderWidth: 1,
                                            borderColor: Colors.BorderDefault,
