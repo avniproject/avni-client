@@ -63,7 +63,9 @@ export class IndividualGeneralHistoryActions {
                     action.newEncounterCallback(newEncounter);
                 },
                 label: encounterType.displayName,
-                backgroundColor: Colors.ActionButtonColor
+                // Matches WizardButtons' primary button colour - ActionButtonColor was a
+                // leftover pre-rebrand teal, a shade off from the rest of the brand palette.
+                backgroundColor: Colors.BrandPrimaryDark
             });
         });
     }
