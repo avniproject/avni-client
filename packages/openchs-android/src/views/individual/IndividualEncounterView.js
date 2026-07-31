@@ -61,7 +61,9 @@ class IndividualEncounterView extends AbstractComponent {
             encounterByType.encounterDateTime = moment().toDate();
             this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter: encounterByType, editing});
         }
-        this.dispatchAction(Actions.ON_FOCUS); // loadPullDownView
+        // Dispatched here (not only didFocus): didFocus fires before this deferred load resolves, so
+        // its isDataLoaded() guard is false on first entry. onFocus is idempotent, so a re-dispatch is fine.
+        this.dispatchAction(Actions.ON_FOCUS);
     }
 
     isDataLoaded() {

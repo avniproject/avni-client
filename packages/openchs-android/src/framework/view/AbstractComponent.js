@@ -1,10 +1,11 @@
 import PropTypes from 'prop-types';
 import React, {Component} from "react";
-import {ActivityIndicator, Alert, InteractionManager, Keyboard, StyleSheet, View} from "react-native";
+import {ActivityIndicator, Alert, InteractionManager, Keyboard, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import _ from "lodash";
 import MessageService from "../../service/MessageService";
 import General from "../../utility/General";
 import DGS from '../../views/primitives/DynamicGlobalStyles';
+import deferPastInteractions from "../../utility/deferPastInteractions";
 import TypedTransition from "../routing/TypedTransition";
 import {logScreenEvent, screenRenderStart} from "../../utility/Analytics";
 import {JSONStringify} from "../../utility/JsonStringify";
@@ -117,14 +118,20 @@ class AbstractComponent extends Component {
             });
         }
 
-        // Deferred load: a loadData() screen dispatches its heavy load after the slide, not in
-        // willMount where it would freeze the transition. _loadStarted is set before loadData() so the
-        // synchronous re-render its dispatch triggers already sees the flag.
+        // Defer the heavy load past the slide (willMount would freeze it). _loadStarted set only after
+        // success, so a throwing load can't flip isDataLoaded() true against the stale reducer slice;
+        // forceUpdate() then clears the loader without relying on the dispatch changing state.
         if (_.isFunction(this.loadData)) {
-            InteractionManager.runAfterInteractions(() => {
+            deferPastInteractions(() => {
                 if (this._isUnmounted) return;
-                this._loadStarted = true;
-                this.loadData();
+                try {
+                    this.loadData();
+                    this._loadStarted = true;
+                } catch (e) {
+                    this._loadError = e;
+                    General.logError(this.viewName(), e);
+                }
+                this.forceUpdate();
             });
         }
 
@@ -156,17 +163,29 @@ class AbstractComponent extends Component {
         );
     }
 
-    // A loadData() screen defines renderLoaded() instead of render(); the base gates on the loader
-    // so the guard can't be forgotten. Other screens override render() and never reach this.
+    // A loadData() screen defines renderLoaded(); the base gates it behind the loader/error state.
     render() {
-        if (_.isFunction(this.loadData) && !this.isDataLoaded()) {
-            return this.renderLoading();
+        if (_.isFunction(this.loadData)) {
+            if (!_.isNil(this._loadError)) return this.renderLoadError();
+            if (!this.isDataLoaded()) return this.renderLoading();
         }
         return this.renderLoaded();
     }
 
     renderLoaded() {
         return null;
+    }
+
+    // Shown when loadData() threw. Bare primitives (no view component — see renderLoading).
+    renderLoadError() {
+        return (
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#ffffff', padding: 20}}>
+                <Text style={{textAlign: 'center', marginBottom: 20}}>{this.I18n.t('screenLoadError')}</Text>
+                <TouchableOpacity onPress={() => this.goBack()}>
+                    <Text style={{color: '#0000ff', textDecorationLine: 'underline'}}>{this.I18n.t('goBack')}</Text>
+                </TouchableOpacity>
+            </View>
+        );
     }
 
     refreshState() {

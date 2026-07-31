@@ -32,7 +32,8 @@ class GeolocationFormElement extends AbstractComponent {
 
     componentDidMount() {
         if (!this.props.editing && this.trackLocation) {
-            // Defer past the slide: a cached fix can resolve in ms and re-render the form mid-animation.
+            // Defer past the slide so a fast (cached) fix can't re-render the form mid-animation. No-op
+            // on deferred-load screens (mounts after the slide); still needed on forms that load on mount.
             InteractionManager.runAfterInteractions(() => {
                 if (this._isUnmounted) return;
                 this.getPosition();
