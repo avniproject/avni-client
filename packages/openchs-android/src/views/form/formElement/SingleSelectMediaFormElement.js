@@ -53,12 +53,12 @@ export default class SingleSelectMediaFormElement extends MediaFormElement {
         // in Figma, whether or not the row is still editable. Non-repeated usages (e.g. profile picture
         // capture, which never gets a questionGroupIndex) are unaffected.
         const isRepeatableRow = !_.isNil(this.props.questionGroupIndex);
-        // Every image under the "Suspicious Images Display" field is, by definition, one the AI
-        // already flagged - show the "AI Flagged" marker instead of a plain row number. Checked on
-        // both the element itself (standalone field) and its parent (repeatable-group row) since
-        // either can carry that name depending on how the form is structured.
-        const isSuspiciousImagesGroup = this.props.element.name === 'Suspicious Images Display'
-            || _.get(this.props, 'parentElement.name') === 'Suspicious Images Display';
+        // TODO: the "AI Flagged" marker was previously shown for every image under a field named
+        // "Suspicious Images Display", assuming that name alone meant the AI had flagged it. That
+        // broke when a non-suspicious image (per the actual AI verdict) still ended up in that
+        // field. Disabled until we wire in the real per-image AI verdict (e.g. a sibling
+        // "AI Suspicion Result" observation) instead of trusting the field name.
+        const isSuspiciousImagesGroup = false;
         return (
             this.props.isShown &&
             <View style={{marginVertical: 16}}>
