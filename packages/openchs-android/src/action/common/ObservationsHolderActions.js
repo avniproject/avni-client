@@ -201,10 +201,15 @@ class ObservationsHolderActions {
         if (!state || !state.formElementGroup || !state.validationResults) return state;
         const formElement = ObservationsHolderActions._findInferenceTargetFormElement(state, action);
         if (!formElement) return state;
+        // Match FormElementGroup.validate's stamping so the union dedup keeps this result: a top-level
+        // element is stamped `undefined` (not null), an RQG child its concrete row index. A null here
+        // fails `null === undefined` in _updateOldFormElementGroupValidations' comparator, so the fresh
+        // success slips past and handleValidationResult wipes this error before Next's block check.
+        const questionGroupIndex = action.questionGroupConceptName != null ? action.questionGroupIndex : undefined;
         const newState = state.clone();
         newState.handleValidationResult(new ValidationResult(
             false, formElement.uuid, action.messageKey, null,
-            action.questionGroupIndex, ValidationResult.ValidationTypes.Inference
+            questionGroupIndex, ValidationResult.ValidationTypes.Inference
         ));
         return newState;
     }

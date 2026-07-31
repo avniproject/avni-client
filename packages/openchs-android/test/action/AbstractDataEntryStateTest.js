@@ -58,6 +58,29 @@ describe('AbstractDataEntryStateTest', () => {
         action.assert();
     });
 
+    it('an Inference unavailable error on a top-level element survives the real Next lifecycle and blocks (#2008, finding 1)', () => {
+        // Drives the REAL handleNext (not a hand-mocked handleValidationResult): _handleNextInternal1
+        // runs formElementGroup.validate — which stamps the AI-verdict element success with `undefined`
+        // — before the block check. The Inference error must dedup against that (undefined, not null)
+        // and survive, or Next silently proceeds. Non-mandatory element so ONLY the Inference error can block.
+        const concept = EntityFactory.createConcept('AI Verdict', Concept.dataType.Text);
+        const formElement = EntityFactory.createFormElement('AI Verdict', false, concept);
+        formElementGroup.addFormElement(formElement);
+        const workLists = new WorkLists(new WorkList('Test', [new WorkItem('100', WorkItem.type.ENCOUNTER, {
+            subjectUUID: '100100100', encounterType: 'Foo',
+        })]));
+
+        let state = new StubbedDataEntryState([], formElementGroup, new Wizard(2, 1), [], workLists);
+        state = ObservationsHolderActions.onInferenceUnavailable(state, {
+            conceptName: 'AI Verdict', questionGroupConceptName: null, questionGroupIndex: null,
+            messageKey: 'aiInferenceFailed',
+        }, testContext);
+
+        const action = WizardNextActionStub.forValidationFailed();
+        state.handleNext(action, testContext);
+        action.assert();   // block held: validationFailed, not movedNext
+    });
+
     it('single select form element data entry', () => {
         const concept = EntityFactory.createConcept('c1', Concept.dataType.Coded);
         EntityFactory.addCodedAnswers(concept, ['a1', 'a2', 'a3']);

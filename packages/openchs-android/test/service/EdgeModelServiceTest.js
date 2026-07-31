@@ -651,26 +651,24 @@ describe('EdgeModelService', () => {
             expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(1);
         });
 
-        it('caps cold-start recompute to one attempt per image per session when the media file is missing', async () => {
-            fs.exists.mockResolvedValue(false);   // synced-in encounter, media not downloaded → NO blanking
+        it('cold-start keeps the persisted verdict and does NOT run inference or block when the media file is missing', async () => {
+            // Synced-in encounter with a valid persisted verdict but its image never downloaded. There's
+            // nothing to recompute against — running inference on the missing file would only fail and
+            // raise a blocking error over a good verdict. Keep the verdict, no inference, no error (#2008 review).
+            fs.exists.mockResolvedValue(false);   // media not on device
             NativeModules.EdgeModelModule.runInferenceOnImage.mockRejectedValue(new Error('IMAGE_NOT_FOUND'));
             const entity = fakeRqgEntity('e1', [{'AI Verdict': 'Suspicious'}]);
 
-            // First cold-start re-eval: attempts once, inference fails (synced-in media not downloaded).
-            // The persisted verdict is NOT blanked (media missing), but the failure is surfaced as unavailable.
             service.scheduleImageInferenceIntoGroup('oral-cancer-v1', '/tmp/missing.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
             await new Promise(r => setImmediate(r));
-            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(1);
             flushInference();
-            expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
-                conceptName: 'AI Verdict', questionGroupConceptName: 'Image-wise AI Assessment',
-                questionGroupIndex: 0, messageKey: 'aiInferenceFailed',
-            });
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).not.toHaveBeenCalled();  // skipped, not run-then-fail
+            expect(service.dispatchAction).not.toHaveBeenCalled();                             // no spurious block
 
-            // Subsequent page re-evals must NOT retry — the attempted-set caps it at one try per image.
+            // Re-eval doesn't retry either (cold-start attempt is capped).
             service.scheduleImageInferenceIntoGroup('oral-cancer-v1', '/tmp/missing.jpg', entity, 'Image-wise AI Assessment', 'AI Verdict', 0);
             await new Promise(r => setImmediate(r));
-            expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(1);  // no retry
+            expect(NativeModules.EdgeModelModule.runInferenceOnImage).not.toHaveBeenCalled();
         });
 
         it('skips on a non-numeric rqgIdx without firing inference', () => {
