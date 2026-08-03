@@ -3,20 +3,21 @@ class StubbedDraftConfigService {
         this.serviceData = serviceData;
     }
 
+    // All four derive from one flag, like the real service.
     isDraftEnabled() {
-        return false;
+        return !!(this.serviceData && this.serviceData.displayDrafts);
     }
 
     shouldSaveDraft(isFirstFlow, isExistingDraft) {
-        return false;
+        return isExistingDraft || (isFirstFlow && this.isDraftEnabled());
     }
 
     shouldLoadDraft() {
-        return false;
+        return this.isDraftEnabled();
     }
 
     shouldDisplayDrafts() {
-        return !!(this.serviceData && this.serviceData.displayDrafts);
+        return this.isDraftEnabled();
     }
 }
 

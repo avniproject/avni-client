@@ -36,7 +36,7 @@ export class IndividualGeneralHistoryActions {
             .filter(encounterType => context.get(RuleEvaluationService)
                 .isEligibleForEncounter(individual, encounterType));
         newState.displayActionSelector = false;
-        const encounterActions = IndividualGeneralHistoryActions.getEncounterActions(newState, privilegeService, action);
+        const encounterActions = IndividualGeneralHistoryActions.getEncounterActions(individual, newState.encounterTypes, privilegeService, action);
         newState.draftUnScheduledEncounters = context.get(DraftConfigService).shouldDisplayDrafts()
             ? context.get(DraftEncounterService).listUnScheduledDrafts(individual)
                 .map(draft => ({encounter: draft.constructEncounter(), expand: false}))
@@ -50,15 +50,17 @@ export class IndividualGeneralHistoryActions {
         };
     }
 
-    static getEncounterActions(newState, privilegeService, action) {
-        const performEncounterCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND programUuid = null AND subjectTypeUuid = '${newState.individual.subjectType.uuid}'`;
+    // Takes individual/encounterTypes (not the whole state) so the button closures don't chain-retain
+    // prior states — this reducer slice persists across subject dashboards.
+    static getEncounterActions(individual, encounterTypes, privilegeService, action) {
+        const performEncounterCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND programUuid = null AND subjectTypeUuid = '${individual.subjectType.uuid}'`;
         const allowedEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performEncounterCriteria, 'encounterTypeUuid');
-        return newState.encounterTypes.filter((encounterType) => privilegeService.hasAllPrivileges() || _.includes(allowedEncounterTypeUuidsForPerformVisit, encounterType.uuid)).map(encounterType => {
+        return encounterTypes.filter((encounterType) => privilegeService.hasAllPrivileges() || _.includes(allowedEncounterTypeUuidsForPerformVisit, encounterType.uuid)).map(encounterType => {
             return ({
                 fn: () => {
                     // Create a new encounter each time the button is clicked to avoid stale data
                     const newEncounter = Encounter.create();
-                    newEncounter.individual = newState.individual;
+                    newEncounter.individual = individual;
                     newEncounter.encounterType = encounterType;
                     action.newEncounterCallback(newEncounter);
                 },
@@ -71,12 +73,6 @@ export class IndividualGeneralHistoryActions {
     static clone(state) {
         // Spread the full state — a key whitelist here silently drops encounters
         return {...state, encounterTypes: state.encounterTypes.slice()};
-    }
-
-    static onShowMore(state) {
-        const newState = IndividualGeneralHistoryActions.clone(state);
-        newState.showCount = state.showCount + SettingsService.IncrementalEncounterDisplayCount;
-        return newState;
     }
 
     static onToggle(state, action) {
@@ -131,20 +127,24 @@ export class IndividualGeneralHistoryActions {
     }
 
     static onRender(state, action, context) {
-        if (context.get(DraftConfigService).shouldDisplayDrafts() && !_.isNil(action.individualUUID)) {
-            const newState = IndividualGeneralHistoryActions.clone(state);
-            const individual = context.get(IndividualService).findByUUID(action.individualUUID);
-            newState.draftUnScheduledEncounters = context.get(DraftEncounterService).listUnScheduledDrafts(individual)
-                .map(draft => ({encounter: draft.constructEncounter(), expand: false}));
-            return newState;
+        if (!context.get(DraftConfigService).shouldDisplayDrafts() || _.isNil(action.individualUUID)) {
+            return state;
         }
-        return state;
+        const individual = context.get(IndividualService).findByUUID(action.individualUUID);
+        // Only refresh the loaded subject's drafts: skip an unresolvable subject (a new registration not
+        // yet persisted) or a different one, else listUnScheduledDrafts([]/mismatch) wipes them.
+        if (_.isNil(individual) || _.isNil(state.individual) || individual.uuid !== state.individual.uuid) {
+            return state;
+        }
+        const newState = IndividualGeneralHistoryActions.clone(state);
+        newState.draftUnScheduledEncounters = context.get(DraftEncounterService).listUnScheduledDrafts(individual)
+            .map(draft => ({encounter: draft.constructEncounter(), expand: false}));
+        return newState;
     }
 }
 
 const actions = {
     ON_LOAD: "IGHA.ON_LOAD",
-    SHOW_MORE: "IGHA.SHOW_MORE",
     ON_TOGGLE: "IGHA.ON_TOGGLE",
     ON_TOGGLE_DRAFT: "IGHA.ON_TOGGLE_DRAFT",
     HIDE_ENCOUNTER_SELECTOR: "IGHA.HIDE_ENCOUNTER_SELECTOR",
@@ -157,7 +157,6 @@ const actions = {
 
 export default new Map([
     [actions.ON_LOAD, IndividualGeneralHistoryActions.onLoad],
-    [actions.SHOW_MORE, IndividualGeneralHistoryActions.onShowMore],
     [actions.ON_TOGGLE, IndividualGeneralHistoryActions.onToggle],
     [actions.ON_TOGGLE_DRAFT, IndividualGeneralHistoryActions.onToggleDraft],
     [actions.HIDE_ENCOUNTER_SELECTOR, IndividualGeneralHistoryActions.hideEncounterSelector],

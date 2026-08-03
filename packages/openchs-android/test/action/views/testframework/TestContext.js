@@ -37,6 +37,8 @@ import DraftConfigService from "../../../../src/service/DraftConfigService";
 import StubbedDraftConfigService from "../../service/stub/StubbedDraftConfigService";
 import DraftEncounterService from "../../../../src/service/draft/DraftEncounterService";
 import StubbedDraftEncounterService from "../../service/stub/StubbedDraftEncounterService";
+import DraftProgramEncounterService from "../../../../src/service/draft/DraftProgramEncounterService";
+import StubbedDraftProgramEncounterService from "../../service/stub/StubbedDraftProgramEncounterService";
 
 class TestContext {
     static stubs = new Map([
@@ -58,7 +60,8 @@ class TestContext {
         [DashboardFilterService, (serviceData, capturedData) => new StubbedDashboardFilterService(serviceData, capturedData)],
         [CustomDashboardCacheService, (serviceData) => new StubbedCustomDashboardCacheService(serviceData)],
         [DraftConfigService, (serviceData) => new StubbedDraftConfigService(serviceData)],
-        [DraftEncounterService, (serviceData) => new StubbedDraftEncounterService(serviceData)]
+        [DraftEncounterService, (serviceData) => new StubbedDraftEncounterService(serviceData)],
+        [DraftProgramEncounterService, (serviceData) => new StubbedDraftProgramEncounterService(serviceData)]
     ]);
 
     constructor(serviceData, capturedData) {

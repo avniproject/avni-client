@@ -12,6 +12,10 @@ class StubbedPrivilegeService extends StubbedBaseService {
     hasAllPrivileges() {
         return false
     }
+
+    allowedEntityTypeUUIDListForCriteria(criteria, key) {
+        return (this.serviceData && this.serviceData.allowedEntityTypeUuids) || [];
+    }
 }
 
 export default StubbedPrivilegeService;
