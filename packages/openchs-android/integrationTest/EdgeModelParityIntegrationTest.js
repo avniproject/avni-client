@@ -14,11 +14,7 @@ const COMPLETION_SENTINEL = "run-complete.json";
 const FAILURE_SENTINEL = "run-failed.txt";
 const sigmoid = (logit) => 1 / (1 + Math.exp(-logit));
 
-// sha256 -> TANUH column, resolved from the synced row names. Throws rather than guess: a wrong
-// attribution produces a plausible-looking per-model table that is silently wrong.
-// Module scope, not a method: IntegrationTestRunner treats every prototype method except
-// constructor/setup/teardown as a test, so a helper on the class is run by the class-level Run
-// button with no argument and reports a failure that isn't real. It never used `this`.
+// Module scope, not a method: the runner treats every prototype method as a test.
 function resolveColumnBySha(edgeModelService) {
     const rows = edgeModelService.getAllNonVoided()
         .filter(row => row.category === "edgeModel" && row.sha256 && row.contentKey);
@@ -45,24 +41,18 @@ class EdgeModelParityIntegrationTest extends BaseIntegrationTest {
         return this;
     }
 
-    // Auto-discovered test method (IntegrationTestRunner runs every method except constructor/setup/teardown).
-    // The runner does NOT await this — it calls success() on the next line, so the screen turns green
-    // at the first await below, before a single image has been scored, and a throw in here rejects a
-    // floating promise nobody is watching (LogBox.ignoreAllLogs() swallows the notice). Green on the
-    // device is therefore not a completion signal and not a pass. The sentinel files written here are
-    // what run-parity.sh polls; see avni-client#2035.
+    // The runner does not await this, so green means started, not finished — the sentinels do.
     async runParitySweep() {
         const base = `${RNFS.ExternalDirectoryPath}/parity`;
         const outDir = `${base}/out`;
-        await RNFS.mkdir(outDir);
-        // Both markers must die at the start of this run. Otherwise a re-run from the app leaves the
-        // previous run's marker in place and run-parity.sh pulls the previous run's CSV as this one's.
-        await removeIfPresent(`${outDir}/${COMPLETION_SENTINEL}`);
-        await removeIfPresent(`${outDir}/${FAILURE_SENTINEL}`);
+        // Everything, setup included, inside the try: a throw out here would write no sentinel at all
+        // and leave the collector waiting out its whole timeout on an error the device already knew.
         try {
+            await RNFS.mkdir(outDir);
+            await removeIfPresent(`${outDir}/${COMPLETION_SENTINEL}`);
+            await removeIfPresent(`${outDir}/${FAILURE_SENTINEL}`);
             const rows = await sweepStagedImages(this.getService(EdgeModelService), base, outDir);
-            // Last statement of the happy path: its presence is what makes the run collectable, and
-            // it can only exist once both CSVs are fully written.
+            // Written last, so its presence means both CSVs are complete on disk.
             await RNFS.writeFile(`${outDir}/${COMPLETION_SENTINEL}`,
                 JSON.stringify({rows: rows, finishedAt: new Date().toISOString()}), "utf8");
             this.log(`EdgeModelParity: wrote ${rows} rows → ${outDir}/per_model_scores.csv`);
@@ -74,12 +64,15 @@ class EdgeModelParityIntegrationTest extends BaseIntegrationTest {
 }
 
 async function removeIfPresent(path) {
-    if (await RNFS.exists(path))
-        await RNFS.unlink(path);
+    try {
+        if (await RNFS.exists(path))
+            await RNFS.unlink(path);
+    } catch (alreadyGone) {
+        // exists/unlink is not atomic; losing the race is the outcome we wanted anyway.
+    }
 }
 
-// The runner has already reported green by the time anything in here throws, so the only way the
-// failure reaches the operator is on disk. A failure to record the failure must not mask it.
+// A failure to record the failure must not mask it.
 async function writeFailureSentinel(outDir, error) {
     try {
         await RNFS.writeFile(`${outDir}/${FAILURE_SENTINEL}`,
@@ -89,8 +82,7 @@ async function writeFailureSentinel(outDir, error) {
     }
 }
 
-// Bulk-runs every staged image through the real EdgeModelService and writes one file per run.
-// Returns the number of rows written, which run-parity.sh checks against the images it pushed.
+// Returns the data-row count read back off disk, not the image count — see the read-back below.
 async function sweepStagedImages(edgeModelService, base, outDir) {
     const columnBySha = resolveColumnBySha(edgeModelService);
 
@@ -107,9 +99,7 @@ async function sweepStagedImages(edgeModelService, base, outDir) {
             throw new Error(`EdgeModelParity: expected ${COLUMNS.length} folds, got ${perModel.length} `
                 + `[${perModel.map(m => m.sha256).join(",")}] — check provisioning before trusting a sweep.`);
         }
-        // The #1985 incident was a duplicated blob in the org's DownloadableContent: three rows,
-        // two sharing a sha, so unanimous-AND ran over 2 distinct models while looking like 3.
-        // Row count alone doesn't catch that — the shas must be distinct.
+        // Distinct shas, not just the right count: a duplicated blob runs one model twice.
         const shas = perModel.map(m => m.sha256);
         if (new Set(shas).size !== shas.length) {
             throw new Error(`EdgeModelParity: duplicate fold sha256 [${shas.join(",")}] — `
@@ -125,12 +115,25 @@ async function sweepStagedImages(edgeModelService, base, outDir) {
         });
         csv += `${id},${COLUMNS.map(c => byColumn[c]).join(",")}\n`;
     }
-    await RNFS.writeFile(`${outDir}/per_model_scores.csv`, csv, "utf8");
+    const scoresPath = `${outDir}/per_model_scores.csv`;
+    await RNFS.writeFile(scoresPath, csv, "utf8");
+
+    // Count what landed rather than what we meant to write. A partial flush (device out of space)
+    // otherwise reports the full image count and the truncated file is collected as complete.
+    const written = countDataRows(await RNFS.readFile(scoresPath, "utf8"));
+    if (written !== images.length) {
+        throw new Error(`EdgeModelParity: wrote ${images.length} rows but ${scoresPath} holds ${written} `
+            + `— the scores file is truncated, do not report on it.`);
+    }
 
     const mapping = "column,sha256\n"
         + COLUMNS.map(c => `${c},${Object.keys(columnBySha).find(s => columnBySha[s] === c)}`).join("\n") + "\n";
     await RNFS.writeFile(`${outDir}/fold-mapping.csv`, mapping, "utf8");
-    return images.length;
+    return written;
+}
+
+function countDataRows(csv) {
+    return csv.split("\n").filter(line => line.trim().length > 0).length - 1;   // minus the header
 }
 
 export default EdgeModelParityIntegrationTest;

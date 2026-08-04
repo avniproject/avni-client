@@ -12,10 +12,8 @@ robustness is TANUH's to close in model development. Gating on the band would fa
 The per-model table is still computed and printed as evidence, with the 1e-2 band shown for
 reference — it is informational and must not affect the exit code.
 
-Verdict parity is necessary but not sufficient: it says nothing about how many images were compared.
-A sweep that lost images between the phone and here still matches every verdict it did compare, so
-the run must also clear a COMPLETENESS gate — the expected number of images joined, and no device
-row left unaccounted for. Covered by report_test.py."""
+Verdict parity says nothing about how many images were compared, so the run must also clear a
+completeness gate: at least the expected join count, and no device row left unaccounted for."""
 import csv, os, sys
 from openpyxl import load_workbook
 
@@ -23,10 +21,7 @@ from openpyxl import load_workbook
 MAX_BAR = 1e-2
 FOLDS = ["model6", "model8", "model8-2"]
 XLSX_COL = {"model6": "Probability_model6", "model8": "Probability_model8", "model8-2": "Probability_model8-2"}
-# Of the 90 shipped verification images, 89 have complete reference scores (one lacks model6).
-# Encoded rather than left for the operator to eyeball — a short sweep must fail, not read as a pass.
-# $PARITY_EXPECTED_IMAGES overrides it when TANUH ships a different fixture set; report_test.py uses
-# that to drive small synthetic sets. Overriding to paper over a short run defeats the gate.
+# 89 of the 90 shipped images have complete reference scores; $PARITY_EXPECTED_IMAGES overrides.
 EXPECTED_IMAGES_DEFAULT = 89
 # How many image ids to name before falling back to a count, for lists that are long by design.
 LIST_LIMIT = 10
@@ -66,8 +61,7 @@ def main():
     joined = [iid for iid in dev if iid in ref]
     incomplete_ids = set(incomplete)
     dev_incomplete = sorted(iid for iid in dev if iid in incomplete_ids)
-    # Every device row must land in exactly one bucket: joined, or skipped because its reference is
-    # incomplete. Anything left over joined to nothing and would otherwise vanish from the denominator.
+    # Joined to nothing, so it would otherwise vanish from the denominator.
     dev_unmatched = sorted(iid for iid in dev if iid not in ref and iid not in incomplete_ids)
     # The xlsx is a superset of the shipped images, so these are reported, not gated on.
     ref_unswept = sorted(iid for iid in ref if iid not in dev)
@@ -92,7 +86,10 @@ def main():
     n = len(joined)
     worst = max(per[f]["max"] for f in FOLDS); total_ge = sum(per[f]["ge"] for f in FOLDS)
     verdicts_ok = verdict_match == n      # verdict parity — the TANUH bar (2026-07-17)
-    complete = not dev_unmatched and n == expected_images
+    # Short fails; over does not — a grown fixture set is a better run, not a missing-images one.
+    short = n < expected_images
+    over = n > expected_images
+    complete = not dev_unmatched and not short
     ok = verdicts_ok and complete         # a run that did not compare every image has not passed
     with open(os.path.join(out, "per_image_scores.csv"), "w", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=list(rows_out[0].keys())); w.writeheader(); w.writerows(rows_out)
@@ -110,16 +107,18 @@ def main():
         lines += ["", f"- verdict mismatches: {', '.join(mismatched)}"]
     if not complete:
         lines += ["", "## ❌ Incomplete run — this is not a pass on the subset", ""]
-        if n != expected_images:
+        if short:
             lines += [f"- joined {n}, expected {expected_images}. Images went missing between the phone "
                       "and this report, or the sweep never finished. Re-run it; do not read the verdict "
                       "line above as a result."]
         if dev_unmatched:
             lines += [f"- {len(dev_unmatched)} device row(s) match no 'Image ID' in the xlsx: "
                       f"{', '.join(dev_unmatched)}"]
+    if over:
+        lines += ["", f"- ℹ️ joined {n}, more than the {expected_images} expected. The fixture set has "
+                  f"grown — not a failure, but update EXPECTED_IMAGES_DEFAULT so short runs stay gated."]
     if ref_unswept:
-        # Expected, not a failure: the xlsx covers all TANUH test images, not just the shipped
-        # verification set, so this list is normally long — name a few and give the count.
+        # Long by design — the xlsx covers all TANUH test images, not just the shipped set.
         shown = ", ".join(ref_unswept[:LIST_LIMIT])
         lines += ["", f"- reference rows with no device score: {len(ref_unswept)} — {shown}"
                   + (f", … (+{len(ref_unswept) - LIST_LIMIT} more)" if len(ref_unswept) > LIST_LIMIT else "")]
