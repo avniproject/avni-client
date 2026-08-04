@@ -82,7 +82,7 @@ echo "  sweep finished: $n_rows rows"
 
 echo "→ pulling results"
 adb pull "$DEVBASE/out/per_model_scores.csv" "$OUT/per_model_scores.csv"
-# Column order comes from a sha256 sort that carries no fold identity — pull the mapping so the
-# model6/model8/model8-2 attribution can be checked against what was actually provisioned.
+# Fold identity comes from the provisioned row NAME, not the sha256 the blob is addressed by — pull
+# the mapping so the model6/model8/model8-2 attribution can be checked against what was provisioned.
 adb pull "$DEVBASE/out/fold-mapping.csv" "$OUT/fold-mapping.csv"
 echo "✓ wrote $OUT/per_model_scores.csv + fold-mapping.csv (gitignored), $n_rows rows"
