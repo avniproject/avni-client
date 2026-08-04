@@ -275,7 +275,7 @@ class FormMappingService extends BaseService {
 
     getFormMappingsForSubjectType(subjectType) {
         return this.findAll()
-            .filtered('subjectType = $0', subjectType);
+            .filtered('subjectType.uuid = $0', subjectType.uuid);
     }
 }
 

@@ -1,6 +1,6 @@
 import DGS from "./DynamicGlobalStyles";
 import {Dimensions} from "react-native";
-import {StatusBar} from 'react-native';
+import {Platform, StatusBar} from 'react-native';
 
 class Distances {
     static get ScaledContentDistanceFromEdge() {
@@ -37,6 +37,11 @@ class Distances {
 
     static get DeviceEffectiveHeight() {
         return Dimensions.get('window').height - StatusBar.currentHeight;
+    }
+
+    // Android 16+ (API 36) forces edge-to-edge; the windowOptOutEdgeToEdgeEnforcement opt-out only works on API <= 35, so on 36+ the app must reserve status-bar space itself. Older OSes already inset content.
+    static get EdgeToEdgeStatusBarInset() {
+        return (Platform.OS === 'android' && Platform.Version >= 36) ? (StatusBar.currentHeight || 0) : 0;
     }
 
     static ContentDistanceFromEdge = 16;

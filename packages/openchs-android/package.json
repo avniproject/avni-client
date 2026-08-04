@@ -71,6 +71,7 @@
     "react-native-safe-area-context and react-native-svg are peer dependencies of native base"
   ],
   "dependencies": {
+    "@bam.tech/react-native-image-resizer": "3.0.11",
     "@bugsnag/react-native": "8.0.0",
     "@op-engineering/op-sqlite": "^11.3.0",
     "@react-native-async-storage/async-storage": "2.1.2",
@@ -102,7 +103,7 @@
     "lodash": "4.17.21",
     "moment": "2.29.4",
     "native-base": "3.4.9",
-    "openchs-models": "1.33.71",
+    "openchs-models": "1.33.75",
     "prop-types": "15.8.1",
     "react": "18.3.1",
     "react-native": "0.77.3",
@@ -139,6 +140,7 @@
     "react-native-vector-icons": "9.2.0",
     "react-native-video": "6.16.1",
     "react-native-video-player": "0.16.3",
+    "react-native-vision-camera": "4.7.3",
     "react-native-webview": "13.16.0",
     "react-native-zip-archive": "6.0.8",
     "realm": "12.14.2",

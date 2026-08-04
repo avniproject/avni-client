@@ -10,30 +10,20 @@ import {Concept} from 'openchs-models';
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 import SubjectInfoCard from "../../common/SubjectInfoCard";
 import Separator from "../../primitives/Separator";
-import MessageService from "../../../service/MessageService";
 
 class AttendanceFormElement extends AbstractFormElement {
-    constructor(props, context) {
-        super(props, context);
-        this.I18n = context.getService(MessageService).getI18n();
-        const groupsSubjects = this.getGroupsSubjects();
-        const subjectUUIDs = _.get(this.props.value, 'answer');
-        this.state = {
-            selected: _.size(groupsSubjects) === _.size(subjectUUIDs),
-        };
-    }
-
     getGroupsSubjects() {
         const subjectTypeUUID = _.get(this.props, 'element.concept').recordValueByKey(Concept.keys.subjectTypeUUID);
-        return this.getService(GroupSubjectService).getAllByGroupSubjectUUID(this.props.subjectUUID, subjectTypeUUID).map(_.identity);
+        const members = this.getService(GroupSubjectService).getAllByGroupSubjectUUID(this.props.subjectUUID, subjectTypeUUID).map(_.identity);
+        return members.filter(({memberSubject}) => this.props.element.isApplicableSubjectUUID(memberSubject.uuid));
     }
 
     renderSubject({memberSubject}, subjectUUIDs) {
         const onPress = () => {
             this.dispatchAction(this.props.actionName, {
-                formElement: this.props.element, 
+                formElement: this.props.element,
                 answerUUID: memberSubject.uuid,
-                parentFormElement: this.props.parentElement, 
+                parentFormElement: this.props.parentElement,
                 questionGroupIndex: this.props.questionGroupIndex
             });
         };
@@ -53,51 +43,37 @@ class AttendanceFormElement extends AbstractFormElement {
         </TouchableOpacity>)
     }
 
-    handleSelectPress = (groupsSubjects, subjectUUIDs) => {
-        const { selected } = this.state;
+    handleSelectPress = (groupsSubjects, subjectUUIDs, selected) => {
         const isNeedOperation = !selected;
-        
-        this.setState({ selected: isNeedOperation }, () => {
-            const uuidsToToggle = [];
-            _.forEach(groupsSubjects, ({ memberSubject }) => {
-                const isMemberSubjectSelected = subjectUUIDs.includes(memberSubject.uuid);
-                
-                if ((isNeedOperation && !isMemberSubjectSelected) || (!isNeedOperation && isMemberSubjectSelected)) {
-                    uuidsToToggle.push(memberSubject.uuid);
-                }
-            });
-            if (!_.isEmpty(uuidsToToggle)) {
-                this.dispatchAction(this.props.actionName, {
-                    formElement: this.props.element,
-                    answerUUIDs: uuidsToToggle,
-                    parentFormElement: this.props.parentElement,
-                    questionGroupIndex: this.props.questionGroupIndex
-                });
+        const uuidsToToggle = [];
+        _.forEach(groupsSubjects, ({ memberSubject }) => {
+            const isMemberSubjectSelected = subjectUUIDs.includes(memberSubject.uuid);
+
+            if ((isNeedOperation && !isMemberSubjectSelected) || (!isNeedOperation && isMemberSubjectSelected)) {
+                uuidsToToggle.push(memberSubject.uuid);
             }
         });
-    };
-
-
-    componentDidUpdate(prevProps, prevState) {
-        const groupsSubjects = this.getGroupsSubjects();
-        const subjectUUIDs = _.get(this.props.value, 'answer');
-        const shouldSelectAll = _.size(subjectUUIDs) === _.size(groupsSubjects);
-        
-        if (shouldSelectAll !== prevState.selected) {
-            this.setState({ selected: shouldSelectAll });
+        if (!_.isEmpty(uuidsToToggle)) {
+            this.dispatchAction(this.props.actionName, {
+                formElement: this.props.element,
+                answerUUIDs: uuidsToToggle,
+                parentFormElement: this.props.parentElement,
+                questionGroupIndex: this.props.questionGroupIndex
+            });
         }
-    }
+    };
 
     render() {
         const groupsSubjects = this.getGroupsSubjects();
         const groupSize = _.size(groupsSubjects);
         const subjectUUIDs = _.get(this.props.value, 'answer') || [];
-        const selectAllLabel = this.state.selected ? this.I18n.t("unselectAllLabel") : this.I18n.t("selectAllLabel");
-        
+        const selected = groupSize === _.size(subjectUUIDs);
+        const selectAllLabel = selected ? this.I18n.t("unselectAllLabel") : this.I18n.t("selectAllLabel");
+
         return (
             <Fragment>
                 <FormElementLabelWithDocumentation element={this.props.element}/>
-                {groupSize>0 && this.props.element.isMultiSelect() && <TouchableOpacity onPress={()=>this.handleSelectPress(groupsSubjects,subjectUUIDs)}>
+                {groupSize>0 && this.props.element.isMultiSelect() && <TouchableOpacity onPress={()=>this.handleSelectPress(groupsSubjects,subjectUUIDs,selected)}>
                     <Text style={{color: 'blue', textAlign: 'right', textDecorationLine: 'underline'}} >{selectAllLabel}</Text>
                 </TouchableOpacity>}
                 { _.map(groupsSubjects, (groupSubject, index) =>

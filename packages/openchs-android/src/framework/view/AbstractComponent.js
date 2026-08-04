@@ -1,10 +1,11 @@
 import PropTypes from 'prop-types';
-import React, {Component, Text, View} from "react";
-import {Alert, StyleSheet, Keyboard, InteractionManager} from "react-native";
+import React, {Component} from "react";
+import {ActivityIndicator, Alert, InteractionManager, Keyboard, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import _ from "lodash";
 import MessageService from "../../service/MessageService";
 import General from "../../utility/General";
 import DGS from '../../views/primitives/DynamicGlobalStyles';
+import deferPastInteractions from "../../utility/deferPastInteractions";
 import TypedTransition from "../routing/TypedTransition";
 import {logScreenEvent, screenRenderStart} from "../../utility/Analytics";
 import {JSONStringify} from "../../utility/JsonStringify";
@@ -116,17 +117,75 @@ class AbstractComponent extends Component {
                 logScreenEvent(this.viewName(), this.screenRenderStartTime);
             });
         }
-        
+
+        // Defer the heavy load past the slide (willMount would freeze it). _loadStarted set only after
+        // success, so a throwing load can't flip isDataLoaded() true against the stale reducer slice;
+        // forceUpdate() then clears the loader without relying on the dispatch changing state.
+        if (_.isFunction(this.loadData)) {
+            deferPastInteractions(() => {
+                if (this._isUnmounted) return;
+                try {
+                    this.loadData();
+                    this._loadStarted = true;
+                } catch (e) {
+                    this._loadError = e;
+                    General.logError(this.viewName(), e);
+                }
+                this.forceUpdate();
+            });
+        }
+
         // Call subclass hook if defined (Template Method Pattern)
         if (this.onViewDidMount) {
             this.onViewDidMount();
         }
     }
-    
+
     // Subclasses should override this instead of componentDidMount
     onViewDidMount() {
         // Default: do nothing
         // Subclasses can override without calling super
+    }
+
+    // Override to also require loaded state (e.g. `super.isDataLoaded() && !_.isNil(this.state.x)`)
+    // when renderLoaded() dereferences it.
+    isDataLoaded() {
+        return this._loadStarted === true;
+    }
+
+    // Bare primitives: this base class must not import a view component (FullScreenLoader → AppHeader
+    // → AbstractComponent would be a circular import).
+    renderLoading() {
+        return (
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#ffffff'}}>
+                <ActivityIndicator size="large"/>
+            </View>
+        );
+    }
+
+    // A loadData() screen defines renderLoaded(); the base gates it behind the loader/error state.
+    render() {
+        if (_.isFunction(this.loadData)) {
+            if (!_.isNil(this._loadError)) return this.renderLoadError();
+            if (!this.isDataLoaded()) return this.renderLoading();
+        }
+        return this.renderLoaded();
+    }
+
+    renderLoaded() {
+        return null;
+    }
+
+    // Shown when loadData() threw. Bare primitives (no view component — see renderLoading).
+    renderLoadError() {
+        return (
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#ffffff', padding: 20}}>
+                <Text style={{textAlign: 'center', marginBottom: 20}}>{this.I18n.t('screenLoadError')}</Text>
+                <TouchableOpacity onPress={() => this.goBack()}>
+                    <Text style={{color: '#0000ff', textDecorationLine: 'underline'}}>{this.I18n.t('goBack')}</Text>
+                </TouchableOpacity>
+            </View>
+        );
     }
 
     refreshState() {
@@ -158,6 +217,7 @@ class AbstractComponent extends Component {
     }
 
     componentWillUnmount() {
+        this._isUnmounted = true;
         if (_.isNil(this.topLevelStateVariable)) return;
         this.unsubscribe();
     }

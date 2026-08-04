@@ -8,7 +8,7 @@ import org.json.JSONObject
 import kotlin.math.exp
 
 /**
- * Named registry of output decoders (~/.claude/plans/composed-tumbling-bachman.md).
+ * Named registry of output decoders.
  *
  * Lookup is by string identifier in the registry override JSON:
  *

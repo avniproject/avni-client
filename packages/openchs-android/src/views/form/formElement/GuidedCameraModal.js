@@ -1,0 +1,106 @@
+import React, {useRef, useState, useEffect} from "react";
+import {Modal, View, Text, TouchableOpacity, StyleSheet, ActivityIndicator} from "react-native";
+import {Camera, useCameraDevice, useCameraPermission} from "react-native-vision-camera";
+import General from "../../../utility/General";
+
+const styles = StyleSheet.create({
+    fill: {...StyleSheet.absoluteFillObject, backgroundColor: "black"},
+    center: {flex: 1, alignItems: "center", justifyContent: "center", padding: 24, backgroundColor: "black"},
+    err: {color: "#ff6b6b", fontSize: 16, textAlign: "center", marginBottom: 16},
+    controls: {position: "absolute", bottom: 0, left: 0, right: 0, height: 120, alignItems: "center", justifyContent: "center", flexDirection: "row"},
+    shutter: {width: 74, height: 74, borderRadius: 37, backgroundColor: "white", borderWidth: 4, borderColor: "#00e0ff"},
+    shutterDisabled: {backgroundColor: "#888", borderColor: "#555"},
+    close: {position: "absolute", top: 40, left: 20, padding: 8},
+    closeText: {color: "white", fontSize: 22},
+    errorBanner: {position: "absolute", top: 40, alignSelf: "center", backgroundColor: "rgba(0,0,0,0.7)", paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8},
+    btn: {marginTop: 16, backgroundColor: "#00e0ff", paddingHorizontal: 20, paddingVertical: 10, borderRadius: 6},
+    btnText: {color: "black", fontWeight: "700"},
+});
+
+export default function GuidedCameraModal({visible, onClose, onCapture, labels}) {
+    const cameraRef = useRef(null);
+    const device = useCameraDevice("back");
+    const {hasPermission, requestPermission} = useCameraPermission();
+    const [error, setError] = useState(null);
+    const [busy, setBusy] = useState(false);
+    // Bumped on every open, close, and unmount; a capture that outlives its session (e.g. a hung
+    // takePhoto the user closed out of) is discarded instead of writing or touching state.
+    const sessionRef = useRef(0);
+    // Synchronous double-tap guard; `busy` state lags a render behind and won't stop a second tap in the same tick.
+    const busyRef = useRef(false);
+
+    // The modal stays mounted while the element renders, so per-session state is reset on open.
+    useEffect(() => {
+        if (visible && !hasPermission) requestPermission();
+        if (visible) {
+            sessionRef.current++;
+            busyRef.current = false;
+            setError(null);
+            setBusy(false);
+        }
+    }, [visible, hasPermission]);
+
+    useEffect(() => () => { sessionRef.current++; }, []);
+
+    const handleClose = () => {
+        sessionRef.current++;
+        onClose();
+    };
+
+    const capture = async () => {
+        if (busyRef.current) return;
+        busyRef.current = true;
+        const session = sessionRef.current;
+        setBusy(true);
+        setError(null);
+        try {
+            const photo = await cameraRef.current.takePhoto({flash: "on"});
+            if (sessionRef.current !== session) return;
+            await onCapture(photo.path);
+        } catch (e) {
+            General.logError('GuidedCameraModal', e);
+            if (sessionRef.current !== session) return;
+            setError(labels.captureFailed);
+        } finally {
+            busyRef.current = false;
+            if (sessionRef.current === session) setBusy(false);
+        }
+    };
+
+    const renderBlocking = (message) => (
+        <View style={styles.center}>
+            <Text style={styles.err}>{message}</Text>
+            <TouchableOpacity style={styles.btn} onPress={handleClose}><Text style={styles.btnText}>{labels.close}</Text></TouchableOpacity>
+        </View>
+    );
+
+    let body;
+    if (!device) body = renderBlocking(labels.noBackCamera);
+    else if (!hasPermission) body = renderBlocking(labels.permissionRequired);
+    else if (!device.hasFlash) body = renderBlocking(labels.flashRequired);
+    else {
+        body = (
+            <View style={styles.fill}>
+                <Camera ref={cameraRef} style={StyleSheet.absoluteFill} device={device} isActive={visible} photo={true} />
+                <TouchableOpacity style={styles.close} onPress={handleClose}><Text style={styles.closeText}>✕</Text></TouchableOpacity>
+                {error && (
+                    <View style={styles.errorBanner} pointerEvents="none"><Text style={styles.err}>{error}</Text></View>
+                )}
+                <View style={styles.controls}>
+                    <TouchableOpacity
+                        onPress={capture}
+                        disabled={busy}
+                        style={[styles.shutter, busy && styles.shutterDisabled]}>
+                        {busy && <ActivityIndicator color="#000" style={StyleSheet.absoluteFill} />}
+                    </TouchableOpacity>
+                </View>
+            </View>
+        );
+    }
+
+    return (
+        <Modal visible={visible} animationType="slide" onRequestClose={handleClose} statusBarTranslucent>
+            {body}
+        </Modal>
+    );
+}

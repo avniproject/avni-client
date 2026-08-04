@@ -1,0 +1,20 @@
+# tools/edge-model/.gitignore — proprietary + derived; NEVER commit. See verify/README.md.
+# Model weights (any location under this dir)
+*.onnx
+*.onnx.data
+*.pt
+*.pth
+# Verification fixtures + outputs + local venv (if ever staged inside the tree by mistake)
+verify/fixtures/
+verify/out/
+verify/.venv/
+__pycache__/
+# Ground truth + derived scores
+*true_label*.xlsx
+*.xlsx
+per_image_scores.csv
+summary.md
+# Patient images
+*.jpg
+*.jpeg
+*.png

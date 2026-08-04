@@ -1,0 +1,19 @@
+name: no-proprietary-assets
+on:
+  pull_request:
+  push:
+    branches: [newmodel, master, "17.0", "17.*"]
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Scan diff for proprietary / large assets
+        run: |
+          base="${{ github.event.pull_request.base.sha || github.event.before }}"
+          head="${{ github.sha }}"
+          if [ -z "$base" ] || ! git cat-file -e "$base^{commit}" 2>/dev/null; then
+            base="$(git rev-list --max-parents=0 HEAD | tail -1)"
+          fi
+          bash tools/edge-model/verify/guard-no-proprietary.sh "range:${base}..${head}"

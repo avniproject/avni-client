@@ -1,6 +1,7 @@
 // @flow
 import _ from "lodash";
 import General from "../utility/General";
+import deferPastInteractions from "../utility/deferPastInteractions";
 import RealmQueryService from "./query/RealmQueryService";
 import UpdateMode from "../repository/UpdateMode";
 
@@ -30,6 +31,11 @@ class BaseService {
 
     updateDatabase(db) {
         this.db = db;
+    }
+
+    // Defer a debounced flush past interactions, capped at 1s so it can't be starved.
+    _deferPastInteractions(flush) {
+        deferPastInteractions(flush, 1000);
     }
 
     init() {

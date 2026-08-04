@@ -53,5 +53,7 @@
   "NoCatchmentFoundErrorMessage": "Catchment not assigned to you/आपको कोई क्षेत्र निर्दिष्ट नहीं किया गया है",
   "FetchingChangedResource": "Fetching changed resources from the server",
   "goToSummary": "SUMMARY",
-  "enterNewPasswordFor" : "Enter new password for {{userName}}"
+  "enterNewPasswordFor" : "Enter new password for {{userName}}",
+  "screenLoadError": "Something went wrong loading this screen.",
+  "goBack": "Go back"
 }

@@ -136,8 +136,10 @@ class ObservationsHolderActions {
     static onInferenceResultAvailable(state, action, context) {
         if (!state || !state.formElementGroup || !state.observationsHolder) return state;
         const newState = state.clone();
-        if (!ObservationsHolderActions._applyInferenceWrite(newState, action)) return state;
-        ObservationsHolderActions._getFormElementStatuses(newState, context);
+        const target = ObservationsHolderActions._applyInferenceWrite(newState, action);
+        if (!target) return state;
+        const formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
+        ObservationsHolderActions._resyncWrittenTargetsValidation(newState, [target], formElementStatuses);
         return newState;
     }
 
@@ -153,21 +155,96 @@ class ObservationsHolderActions {
         if (!state || !state.formElementGroup || !state.observationsHolder) return state;
         if (_.isEmpty(action.results)) return state;
         const newState = state.clone();
-        let appliedAny = false;
+        const written = [];
         for (const result of action.results) {
-            if (ObservationsHolderActions._applyInferenceWrite(newState, result)) appliedAny = true;
+            const target = ObservationsHolderActions._applyInferenceWrite(newState, result);
+            if (target) written.push(target);
         }
-        if (!appliedAny) return state;
-        ObservationsHolderActions._getFormElementStatuses(newState, context);
+        if (_.isEmpty(written)) return state;
+        const formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
+        ObservationsHolderActions._resyncWrittenTargetsValidation(newState, written, formElementStatuses);
         return newState;
+    }
+
+    /**
+     * Handler for EDGE_MODEL.INFERENCE_UNAVAILABLE, dispatched by EdgeModelService when an image
+     * yields no verdict (model blob/key not synced, or inference failed). Raises a validation error
+     * on the form element that scheduled the inference, which blocks Next via
+     * AbstractDataEntryState.anyFailedResultForCurrentFEG() and renders red like any other one.
+     *
+     * Typed Inference rather than Form: a Form-typed result is dropped by
+     * _updateOldFormElementGroupValidations before the Next check reads it, and a Rule-typed one is
+     * overwritten by the next rule cycle (which re-emits a success for every element status). Only a
+     * type outside both of those lifecycles survives to do its job. Cleared in _applyInferenceWrite
+     * when a later verdict lands for the same target.
+     */
+    static onInferenceUnavailable(state, action, context) {
+        if (!state || !state.formElementGroup || !state.validationResults) return state;
+        const formElement = ObservationsHolderActions._findInferenceTargetFormElement(state, action);
+        if (!formElement) return state;
+        // Match FormElementGroup.validate's stamping so the union dedup keeps this result: a top-level
+        // element is stamped `undefined` (not null), an RQG child its concrete row index. A null here
+        // fails `null === undefined` in _updateOldFormElementGroupValidations' comparator, so the fresh
+        // success slips past and handleValidationResult wipes this error before Next's block check.
+        const questionGroupIndex = action.questionGroupConceptName != null ? action.questionGroupIndex : undefined;
+        const newState = state.clone();
+        newState.handleValidationResult(new ValidationResult(
+            false, formElement.uuid, action.messageKey, null,
+            questionGroupIndex, ValidationResult.ValidationTypes.Inference
+        ));
+        return newState;
+    }
+
+    /**
+     * The scheduling rule lives on the target element itself (it passes its own
+     * `formElement.concept.name` as the target), so the concept name resolves back to the element
+     * that should carry the error. Matches the lookup _applyInferenceWrite* use.
+     */
+    static _findInferenceTargetFormElement(state, action) {
+        const formElements = state.formElementGroup.getFormElements();
+        if (action.questionGroupConceptName != null) {
+            return _.find(formElements, fe => fe && fe.concept && fe.concept.name === action.conceptName
+                && fe.isQuestionGroup()
+                && _.get(fe.getParentFormElement(), 'concept.name') === action.questionGroupConceptName);
+        }
+        return _.find(formElements, fe => fe && fe.concept && fe.concept.name === action.conceptName);
+    }
+
+    /**
+     * #2009 — after an async write lands, re-sync ONLY the written targets' Rule-type validation
+     * results from the fresh statuses. The gate case: a rule-emitted blocking error (e.g. the
+     * oral-screening AI-verdict "pending" error) must clear the moment its verdict observation
+     * arrives — without the user touching the page, which on a read-only page they can't.
+     * Targeted by design: it cannot clear mandatory/other-element errors (different
+     * formIdentifier) or other rows (both sides carry a concrete questionGroupIndex), and it
+     * re-syncs rather than blindly removes — a still-failing rule keeps its error. Null-safe for
+     * registered flows whose state doesn't extend AbstractDataEntryState.
+     */
+    static _resyncWrittenTargetsValidation(newState, writtenTargets, formElementStatuses) {
+        if (!_.isFunction(newState.handleValidationResult) || _.isEmpty(formElementStatuses)) return;
+        writtenTargets.forEach(({uuid, questionGroupIndex}) => {
+            const fresh = _.find(formElementStatuses, s => s.uuid === uuid &&
+                (_.isNil(s.questionGroupIndex) ? _.isNil(questionGroupIndex) : s.questionGroupIndex === questionGroupIndex));
+            if (!fresh) return;
+            const [validationResult] = ObservationsHolderActions.getRuleValidationErrors([fresh]);
+            // Gate-state audit trail for the on-device file log (#2009): one line per written row
+            // saying whether its blocking rule error cleared on verdict-land or is still in force.
+            General.logDebug('ObservationsHolderActions',
+                validationResult.success
+                    ? `resync gate CLEARED: ${uuid}[${_.isNil(questionGroupIndex) ? '-' : questionGroupIndex}]`
+                    : `resync gate KEPT: ${uuid}[${_.isNil(questionGroupIndex) ? '-' : questionGroupIndex}] error=${validationResult.messageKey}`);
+            newState.handleValidationResult(validationResult);
+        });
     }
 
     /**
      * Writes a single inference result into `newState.observationsHolder` WITHOUT re-running
      * the form-element rules — the caller does that once (so a batch re-evals once, not N
-     * times). Returns true if a write was applied, false if the result's target concept/row
-     * isn't on the current page (so the caller can leave the state untouched). Routing mirrors
-     * onInferenceResultAvailable:
+     * times). Returns the written target `{uuid, questionGroupIndex}` (the form element the
+     * value landed on — `questionGroupIndex` null for top-level writes), or null if the
+     * result's target concept/row isn't on the current page (so the caller can leave the
+     * state untouched). The target feeds the caller's Rule-validation re-sync (#2009).
+     * Routing mirrors onInferenceResultAvailable:
      *   • Coded concept: value is the answer NAME, resolved to the answer UUID.
      *   • Primitive (text/numeric/date): value stored verbatim.
      *   • questionGroupConceptName present: written into row `questionGroupIndex` of that RQG.
@@ -180,7 +257,13 @@ class ObservationsHolderActions {
             newState.formElementGroup.getFormElements(),
             fe => fe && fe.concept && fe.concept.name === result.conceptName
         );
-        if (!formElement) return false;
+        if (!formElement) return null;
+        if (result.clear === true) {
+            // #2010 invalidation write: blank the obs so the dependent element re-gates against the
+            // absent verdict until the fresh one lands, rather than satisfying a gate on the old photo.
+            newState.observationsHolder._removeExistingObs(formElement.concept);
+            return {uuid: formElement.uuid, questionGroupIndex: null};
+        }
         if (formElement.concept.isCodedConcept()) {
             newState.observationsHolder.addOrUpdateCodedObs(
                 formElement.concept, result.value, formElement.isSingleSelect()
@@ -188,7 +271,20 @@ class ObservationsHolderActions {
         } else {
             newState.observationsHolder.addOrUpdatePrimitiveObs(formElement.concept, result.value);
         }
-        return true;
+        ObservationsHolderActions._clearInferenceValidation(newState, formElement.uuid, result.questionGroupIndex);
+        return {uuid: formElement.uuid, questionGroupIndex: null};
+    }
+
+    /**
+     * A verdict landed, so any earlier "no verdict available" error on this element is stale.
+     * Nothing else clears it — an Inference-typed result deliberately outlives the rule cycle.
+     */
+    static _clearInferenceValidation(newState, formElementUuid, questionGroupIndex) {
+        _.remove(newState.validationResults, vr =>
+            vr.validationType === ValidationResult.ValidationTypes.Inference
+            && vr.formIdentifier === formElementUuid
+            && (_.isNil(vr.questionGroupIndex) || _.isNil(questionGroupIndex)
+                || vr.questionGroupIndex === questionGroupIndex));
     }
 
     static _applyInferenceWriteIntoGroup(newState, result) {
@@ -197,19 +293,24 @@ class ObservationsHolderActions {
             fe => fe && fe.concept && fe.concept.name === result.conceptName && fe.isQuestionGroup()
                 && _.get(fe.getParentFormElement(), 'concept.name') === result.questionGroupConceptName
         );
-        if (!childFormElement) return false;
+        if (!childFormElement) return null;
         const parentFormElement = childFormElement.getParentFormElement();
-        if (!parentFormElement || !parentFormElement.isRepeatableQuestionGroup()) return false;
+        if (!parentFormElement || !parentFormElement.isRepeatableQuestionGroup()) return null;
 
         const parentObs = newState.observationsHolder.getObservation(parentFormElement.concept);
         const rqg = parentObs && parentObs.getValueWrapper();
         if (!rqg || rqg.size() <= result.questionGroupIndex) {
             General.logDebug('ObservationsHolderActions',
                 `onInferenceResult SKIP: RQG '${result.questionGroupConceptName}' has no row ${result.questionGroupIndex}`);
-            return false;
+            return null;
         }
 
         const childConcept = childFormElement.concept;
+        if (result.clear === true) {
+            // #2010 invalidation write (see _applyInferenceWrite).
+            rqg.getGroupObservationAtIndex(result.questionGroupIndex).removeExistingObs(childConcept);
+            return {uuid: childFormElement.uuid, questionGroupIndex: result.questionGroupIndex};
+        }
         let value = result.value;
         if (childConcept.isCodedConcept()) {
             // updateChildObservations expects the answer concept UUID for coded; resolve the
@@ -219,10 +320,10 @@ class ObservationsHolderActions {
             if (value == null) {
                 General.logError('ObservationsHolderActions',
                     `onWrite SKIP: no coded answer '${result.value}' on concept '${childConcept.name}'`);
-                return false;
+                return null;
             }
         } else if (childConcept.isMediaConcept() && value == null) {
-            return false;
+            return null;
         }
         // Coded answers and media URIs are both stored single-select, so updateRepeatableGroupQuestion
         // TOGGLES — re-writing the same answer/URI (e.g. a retake re-confirming a verdict, or a rule
@@ -234,7 +335,8 @@ class ObservationsHolderActions {
         newState.observationsHolder.updateRepeatableGroupQuestion(
             result.questionGroupIndex, parentFormElement, childFormElement, value
         );
-        return true;
+        ObservationsHolderActions._clearInferenceValidation(newState, childFormElement.uuid, result.questionGroupIndex);
+        return {uuid: childFormElement.uuid, questionGroupIndex: result.questionGroupIndex};
     }
 
     static toggleSingleSelectAnswer(state, action, context) {

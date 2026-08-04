@@ -59,6 +59,9 @@ class DownloadableContentService extends BaseService {
             }
         }
         await this.cleanupSupersededBlobs(items);
+        // A sync may have brought a previously-missing model on device. Let inference re-attempt
+        // images it had given up on this session (see EdgeModelService.onModelContentSynced).
+        this.getService("edgeModelService").onModelContentSynced();
         if (!_.isEmpty(failures)) {
             statusMessageCallBack("contentNotDownloaded");
         }

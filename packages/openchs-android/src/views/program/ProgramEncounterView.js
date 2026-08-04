@@ -22,6 +22,7 @@ import CHSContent from "../common/CHSContent";
 import FormMappingService from "../../service/FormMappingService";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 import ProgramEncounterService from "../../service/program/ProgramEncounterService";
+import OrganisationConfigService from "../../service/OrganisationConfigService";
 import moment from "moment";
 import NewVisitPageView from "./NewVisitPageView";
 import {AvniAlert} from "../common/AvniAlert";
@@ -31,6 +32,8 @@ import BackgroundTimer from "react-native-background-timer";
 import Timer from "../common/Timer";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import SystemRecommendationView from "../conclusion/SystemRecommendationView";
+import FullScreenLoader from "../common/FullScreenLoader";
+import CustomActivityIndicator from "../CustomActivityIndicator";
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
@@ -47,21 +50,35 @@ class ProgramEncounterView extends AbstractComponent {
         this.scrollRef = React.createRef();
     }
 
-    UNSAFE_componentWillMount() {
+    loadData() {
         const {encounterType, enrolmentUUID, programEncounter, workLists, pageNumber, editing} = this.props.params;
         if (programEncounter) {
-            this.dispatchAction(Actions.ON_LOAD, {programEncounter, workLists, pageNumber, editing});
-            return super.UNSAFE_componentWillMount();
+            // When the visit date is hidden org-wide the user can't set it, so auto-capture today
+            // for encounters that arrive without one (e.g. scheduled/planned encounters).
+            let encounterToLoad = programEncounter;
+            if (_.isNil(programEncounter.encounterDateTime) && this.context.getService(OrganisationConfigService).isVisitDateHidden()) {
+                encounterToLoad = programEncounter.cloneForEdit();
+                encounterToLoad.encounterDateTime = new Date();
+            }
+            this.dispatchAction(Actions.ON_LOAD, {programEncounter: encounterToLoad, workLists, pageNumber, editing});
+            return;
         }
         const programEncounterByType = this.context.getService(ProgramEncounterService)
             .findDueEncounter({encounterTypeName: encounterType, enrolmentUUID})
             .cloneForEdit();
         programEncounterByType.encounterDateTime = moment().toDate();
         this.dispatchAction(Actions.ON_LOAD, {programEncounter: programEncounterByType, editing});
-        return super.UNSAFE_componentWillMount();
+    }
+
+    isDataLoaded() {
+        return super.isDataLoaded() && !_.isNil(this.state.programEncounter) && !_.isNil(this.state.wizard);
     }
 
     onHardwareBackPress() {
+        if (!this.isDataLoaded()) {
+            TypedTransition.from(this).goBack();
+            return true;
+        }
         this.previous();
         return true;
     }
@@ -126,6 +143,7 @@ class ProgramEncounterView extends AbstractComponent {
             popVerificationVew,
             verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(this, this.next.bind(this), observation, () => this.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation}), () => this.dispatchAction(Actions.ON_SKIP_VERIFICATION, {observation, skipVerification: true})),
             movedNext: this.scrollToTop,
+            settleCompletion: (newState) => this.dispatchAction(Actions.USE_THIS_STATE, {state: newState}),
             fromSDV
         }
     }
@@ -136,6 +154,14 @@ class ProgramEncounterView extends AbstractComponent {
 
     onGoToSummary(fromSDV = false) {
         this.dispatchAction(Actions.SUMMARY_PAGE, this.getNextParams(false, fromSDV))
+    }
+
+    // An immutable, fully-filled encounter always shows the summary. In componentDidUpdate, not
+    // render, so the summary-page push doesn't land mid-slide (the stuck-half-transition bug).
+    componentDidUpdate() {
+        if (this.state.allElementsFilledForImmutableEncounter && !this.state.wizardCompletionInProgress) {
+            this.onGoToSummary(true);
+        }
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -175,15 +201,17 @@ class ProgramEncounterView extends AbstractComponent {
     }
 
 
-    render() {
+    renderLoading() {
+        return <FullScreenLoader title={this.I18n.t('enterData')}/>;
+    }
+
+    renderLoaded() {
         General.logDebug('ProgramEncounterView', 'render');
-        if (this.state.allElementsFilledForImmutableEncounter) {
-            this.onGoToSummary(true)
-        }
         const programEncounterName = !_.isEmpty(this.state.programEncounter.name) ? this.I18n.t(this.state.programEncounter.name) : this.I18n.t(this.state.programEncounter.encounterType.operationalEncounterTypeName);
         const title = `${this.state.programEncounter.programEnrolment.individual.nameString} - ${programEncounterName}`;
         this.displayMessage(this.props.params.message);
         const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);
+        const hideVisitDate = this.context.getService(OrganisationConfigService).isVisitDateHidden() && !_.isNil(this.state.programEncounter.encounterDateTime);
         return (
             <CHSContainer>
                 <CHSContent>
@@ -205,10 +233,11 @@ class ProgramEncounterView extends AbstractComponent {
                                     errorActionName={Actions.SET_LOCATION_ERROR}
                                     validationResult={AbstractDataEntryState.getValidationError(this.state, ProgramEncounter.validationKeys.ENCOUNTER_LOCATION)}
                                 />
+                                {!hideVisitDate &&
                                 <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGED}
                                                  element={new StaticFormElement('encounterDate')}
                                                  dateValue={new PrimitiveValue(this.state.programEncounter.encounterDateTime)}
-                                                 validationResult={AbstractDataEntryState.getValidationError(this.state, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}/>
+                                                 validationResult={AbstractDataEntryState.getValidationError(this.state, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}/>}
                             </View>
                             :
                             <View/>
@@ -244,6 +273,7 @@ class ProgramEncounterView extends AbstractComponent {
                     </View>
                     </ScrollView>
                 </CHSContent>
+                <CustomActivityIndicator loading={!!this.state.wizardCompletionInProgress}/>
             </CHSContainer>
         );
     }
