@@ -146,8 +146,10 @@ decide whether a run is reported as a pass, not the inference itself.
   (#1947 removed the native loaders), so a sweep cannot silently pass by testing a bundled model —
   an unsynced device fails loudly with "model blob not cached yet" instead.
 - Folds are addressed by sha256, which carries no fold identity, so `model6`/`model8`/`model8-2` are
-  assigned by sha-sorted position. Check `out/fold-mapping.csv` against what was provisioned before
-  trusting a per-model diff — a mis-provisioned fold otherwise shows up as a plausible wrong column.
+  attributed from the provisioned row NAME (`mvit2_fold1_6` → `model6`, and so on); the sweep refuses
+  to run if the three names don't resolve, rather than guessing. Check `out/fold-mapping.csv` against
+  what was provisioned before trusting a per-model diff — a mis-provisioned fold otherwise shows up
+  as a plausible wrong column.
 - **Green on the device is not a completion signal, and not a pass.** `IntegrationTestRunner` does
   not await the test method, so the row goes green at the first `await` inside `runParitySweep` —
   before a single image is scored — and a throw inside the sweep rejects a promise the runner never
