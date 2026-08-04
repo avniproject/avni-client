@@ -49,7 +49,7 @@ class SqliteResultsProxy {
      * @param {Array} params.whereClauses - accumulated WHERE conditions
      * @param {Array} params.whereParams - accumulated parameters
      * @param {Array} params.joinClauses - accumulated JOINs
-     * @param {string|null} params.orderByClause - ORDER BY fragment
+     * @param {Array|null} params.orderByTerms - ORDER BY terms as [{expr, dir}]
      * @param {Array|null} params.jsFallbackFilters - Realm queries routed to JS fallback filtering
      * @param {number|null} params.limitClause - SQL LIMIT value extracted from limit(N)
      */
@@ -67,7 +67,9 @@ class SqliteResultsProxy {
                     whereClauses = [],
                     whereParams = [],
                     joinClauses = [],
-                    orderByClause = null,
+                    orderByTerms = null,
+                    distinctColumns = null,
+                    distinctOrderBy = null,
                     jsFallbackFilters = [],
                     limitClause = null,
                     hydrationOptions = null,
@@ -84,7 +86,9 @@ class SqliteResultsProxy {
         this.whereClauses = [...whereClauses];
         this.whereParams = [...whereParams];
         this.joinClauses = [...joinClauses];
-        this.orderByClause = orderByClause;
+        this.orderByTerms = orderByTerms;
+        this.distinctColumns = distinctColumns;
+        this.distinctOrderBy = distinctOrderBy;
         this.jsFallbackFilters = [...jsFallbackFilters];
         this.limitClause = limitClause;
         // Hydration options: {skipLists, depth} — default is full hydration
@@ -137,7 +141,9 @@ class SqliteResultsProxy {
             whereClauses: [...this.whereClauses],
             whereParams: [...this.whereParams],
             joinClauses: [...this.joinClauses],
-            orderByClause: this.orderByClause,
+            orderByTerms: this.orderByTerms,
+            distinctColumns: this.distinctColumns,
+            distinctOrderBy: this.distinctOrderBy,
             jsFallbackFilters: [...this.jsFallbackFilters],
             limitClause: this.limitClause,
             hydrationOptions: options,
@@ -162,7 +168,9 @@ class SqliteResultsProxy {
             whereClauses: [...this.whereClauses],
             whereParams: [...this.whereParams],
             joinClauses: [...this.joinClauses],
-            orderByClause: this.orderByClause,
+            orderByTerms: this.orderByTerms,
+            distinctColumns: this.distinctColumns,
+            distinctOrderBy: this.distinctOrderBy,
             jsFallbackFilters: [...this.jsFallbackFilters],
             limitClause: this.limitClause,
             hydrationOptions: this.hydrationOptions,
@@ -181,6 +189,13 @@ class SqliteResultsProxy {
                 parseResult.joins.forEach(j => {
                     newParams.joinClauses.push(j);
                 });
+            }
+            if (parseResult.distinct) {
+                newParams.distinctColumns = parseResult.distinct.columns;
+                newParams.distinctOrderBy = parseResult.distinct.orderByTerms;
+            }
+            if (parseResult.orderByTerms) {
+                newParams.orderByTerms = parseResult.orderByTerms;
             }
             // Capture clauses that partial parse couldn't translate — route to JS fallback
             if (parseResult.partialParse && parseResult.skippedClauses?.length > 0) {
@@ -246,15 +261,11 @@ class SqliteResultsProxy {
 
         let orderBy;
         if (typeof descriptor === "string") {
-            const col = resolveOrderProp(descriptor);
-            const dir = reverse ? "DESC" : "ASC";
-            orderBy = `${col} ${dir}`;
+            orderBy = [{expr: resolveOrderProp(descriptor), dir: reverse ? "DESC" : "ASC"}];
         } else if (Array.isArray(descriptor)) {
-            orderBy = descriptor.map(([prop, rev]) => {
-                return `${resolveOrderProp(prop)} ${rev ? "DESC" : "ASC"}`;
-            }).join(", ");
+            orderBy = descriptor.map(([prop, rev]) => ({expr: resolveOrderProp(prop), dir: rev ? "DESC" : "ASC"}));
         } else {
-            orderBy = `${resolveOrderProp(String(descriptor))} ASC`;
+            orderBy = [{expr: resolveOrderProp(String(descriptor)), dir: "ASC"}];
         }
 
         return SqliteResultsProxy.create({
@@ -267,7 +278,9 @@ class SqliteResultsProxy {
             whereClauses: [...this.whereClauses],
             whereParams: [...this.whereParams],
             joinClauses: [...this.joinClauses, ...extraJoins],
-            orderByClause: orderBy,
+            orderByTerms: orderBy,
+            distinctColumns: this.distinctColumns,
+            distinctOrderBy: this.distinctOrderBy,
             jsFallbackFilters: [...this.jsFallbackFilters],
             limitClause: this.limitClause,
             hydrationOptions: this.hydrationOptions,
@@ -277,36 +290,63 @@ class SqliteResultsProxy {
 
     // ──── Query execution ────
 
+    static _renderOrderBy(terms) {
+        return terms.map(t => `${t.expr} ${t.dir}`).join(", ");
+    }
+
     _buildSql() {
+        // Windowed DISTINCT: ROW_NUMBER() OVER (PARTITION BY <cols> ORDER BY <sort|rowid>) = 1.
+        // The window wraps the fully-accumulated WHERE (distinct applied last — matches the
+        // prior JS fallback), so filters added after the distinct still narrow rows first.
+        if (this.distinctColumns && this.distinctColumns.length > 0) {
+            const partition = this.distinctColumns.join(", ");
+            const windowOrder = this.distinctOrderBy && this.distinctOrderBy.length > 0
+                ? SqliteResultsProxy._renderOrderBy(this.distinctOrderBy)
+                : "t0.rowid";
+
+            // The outer query sees only t0.* from the subquery, so an outer ORDER BY
+            // that references t0 or a joined alias must be projected into the subquery
+            // and referenced from the outer scope by a synthetic alias.
+            let extraSelect = "";
+            let outerOrderBy = null;
+            if (this.orderByTerms && this.orderByTerms.length > 0) {
+                extraSelect = this.orderByTerms.map((t, i) => `, ${t.expr} AS __ob${i}`).join("");
+                outerOrderBy = this.orderByTerms.map((t, i) => `__ob${i} ${t.dir}`).join(", ");
+            }
+
+            let inner = `SELECT t0.*, ROW_NUMBER() OVER (PARTITION BY ${partition} ORDER BY ${windowOrder}) AS __rn${extraSelect} FROM ${this.tableName} AS t0`;
+            for (const join of this.joinClauses) {
+                inner += ` LEFT JOIN ${join.table} AS ${join.alias} ON ${join.on}`;
+            }
+            if (this.whereClauses.length > 0) {
+                inner += ` WHERE ${this.whereClauses.join(" AND ")}`;
+            }
+            let sql = `SELECT * FROM (${inner}) WHERE __rn = 1`;
+            if (outerOrderBy) {
+                sql += ` ORDER BY ${outerOrderBy}`;
+            }
+            if (this.limitClause != null && this.jsFallbackFilters.length === 0) {
+                sql += ` LIMIT ${this.limitClause}`;
+            }
+            return {sql, params: this.whereParams};
+        }
+
         // Use DISTINCT when JOINs are present to avoid duplicate parent rows.
-        // In Realm, .filtered() on an object type always returns unique objects.
-        // With SQL JOINs, a parent with multiple matching children would appear
-        // multiple times without DISTINCT.
         const distinct = this.joinClauses.length > 0 ? "DISTINCT " : "";
         let sql = `SELECT ${distinct}t0.* FROM ${this.tableName} AS t0`;
 
-        // JOINs
         for (const join of this.joinClauses) {
             sql += ` LEFT JOIN ${join.table} AS ${join.alias} ON ${join.on}`;
         }
-
-        // WHERE
         if (this.whereClauses.length > 0) {
             sql += ` WHERE ${this.whereClauses.join(" AND ")}`;
         }
-
-        // ORDER BY
-        if (this.orderByClause) {
-            sql += ` ORDER BY ${this.orderByClause}`;
+        if (this.orderByTerms && this.orderByTerms.length > 0) {
+            sql += ` ORDER BY ${SqliteResultsProxy._renderOrderBy(this.orderByTerms)}`;
         }
-
-        // LIMIT — only when there are no JS fallback filters.
-        // If JS fallbacks exist, they may further reduce results,
-        // and the LIMIT should apply to the final set (Realm semantics).
         if (this.limitClause != null && this.jsFallbackFilters.length === 0) {
             sql += ` LIMIT ${this.limitClause}`;
         }
-
         return {sql, params: this.whereParams};
     }
 
@@ -529,7 +569,9 @@ class SqliteResultsProxy {
     max(property) {
         const col = camelToSnake(property);
         const {sql: baseSql, params} = this._buildSql();
-        const sql = baseSql.replace(/^SELECT t0\.\*/, `SELECT MAX(t0."${col}") as max_val`);
+        const sql = this.distinctColumns && this.distinctColumns.length > 0
+            ? `SELECT MAX("${col}") as max_val FROM (${baseSql})`
+            : baseSql.replace(/^SELECT t0\.\*/, `SELECT MAX(t0."${col}") as max_val`);
         const rows = this.executeQuery(sql, params);
         return rows && rows.length > 0 ? rows[0].max_val : undefined;
     }
@@ -537,7 +579,9 @@ class SqliteResultsProxy {
     min(property) {
         const col = camelToSnake(property);
         const {sql: baseSql, params} = this._buildSql();
-        const sql = baseSql.replace(/^SELECT t0\.\*/, `SELECT MIN(t0."${col}") as min_val`);
+        const sql = this.distinctColumns && this.distinctColumns.length > 0
+            ? `SELECT MIN("${col}") as min_val FROM (${baseSql})`
+            : baseSql.replace(/^SELECT t0\.\*/, `SELECT MIN(t0."${col}") as min_val`);
         const rows = this.executeQuery(sql, params);
         return rows && rows.length > 0 ? rows[0].min_val : undefined;
     }
@@ -545,7 +589,9 @@ class SqliteResultsProxy {
     sum(property) {
         const col = camelToSnake(property);
         const {sql: baseSql, params} = this._buildSql();
-        const sql = baseSql.replace(/^SELECT t0\.\*/, `SELECT SUM(t0."${col}") as sum_val`);
+        const sql = this.distinctColumns && this.distinctColumns.length > 0
+            ? `SELECT SUM("${col}") as sum_val FROM (${baseSql})`
+            : baseSql.replace(/^SELECT t0\.\*/, `SELECT SUM(t0."${col}") as sum_val`);
         const rows = this.executeQuery(sql, params);
         return rows && rows.length > 0 ? (rows[0].sum_val || 0) : 0;
     }

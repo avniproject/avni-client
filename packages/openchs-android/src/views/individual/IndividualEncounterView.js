@@ -1,4 +1,5 @@
 import {ScrollView, StyleSheet, Vibration, View} from "react-native";
+import moment from "moment";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -19,16 +20,19 @@ import DateFormElement from "../form/formElement/DateFormElement";
 import Distances from "../primitives/Distances";
 import CHSContent from "../common/CHSContent";
 import CHSContainer from "../common/CHSContainer";
+import CustomActivityIndicator from "../CustomActivityIndicator";
 import FormMappingService from "../../service/FormMappingService";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import EncounterService from "../../service/EncounterService";
+import OrganisationConfigService from "../../service/OrganisationConfigService";
 import {AvniAlert} from "../common/AvniAlert";
 import {RejectionMessage} from "../approval/RejectionMessage";
 import SummaryButton from "../common/SummaryButton";
 import Timer from "../common/Timer";
 import BackgroundTimer from "react-native-background-timer";
 import {Actions as IGHActions} from "../../action/individual/IndividualGeneralHistoryActions";
+import FullScreenLoader from "../common/FullScreenLoader";
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -47,23 +51,36 @@ class IndividualEncounterView extends AbstractComponent {
         return 'IndividualEncounterView';
     }
 
-    UNSAFE_componentWillMount() {
+    loadData() {
         const {encounterType, individualUUID, encounter, workLists, pageNumber, editing} = this.props;
         if (encounter) {
-            this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter, workLists, pageNumber, editing});
-            return super.UNSAFE_componentWillMount();
+            // When the visit date is hidden org-wide the user can't set it, so auto-capture today
+            // for encounters that arrive without one (e.g. scheduled/planned encounters).
+            let encounterToLoad = encounter;
+            if (_.isNil(encounter.encounterDateTime) && this.context.getService(OrganisationConfigService).isVisitDateHidden()) {
+                encounterToLoad = encounter.cloneForEdit();
+                encounterToLoad.encounterDateTime = new Date();
+            }
+            this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter: encounterToLoad, workLists, pageNumber, editing});
+        } else {
+            const encounterByType = this.context.getService(EncounterService)
+                .findDueEncounter({encounterTypeName: encounterType, individualUUID})
+                .cloneForEdit();
+            encounterByType.encounterDateTime = moment().toDate();
+            this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter: encounterByType, editing});
         }
-        const encounterByType = this.context.getService(EncounterService)
-            .findDueEncounter({encounterTypeName: encounterType, individualUUID})
-            .cloneForEdit();
-        encounterByType.encounterDateTime = moment().toDate();
-        this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter: encounterByType, editing});
-        return super.UNSAFE_componentWillMount();
+        // Dispatched here (not only didFocus): didFocus fires before this deferred load resolves, so
+        // its isDataLoaded() guard is false on first entry. onFocus is idempotent, so a re-dispatch is fine.
+        this.dispatchAction(Actions.ON_FOCUS);
+    }
+
+    isDataLoaded() {
+        return super.isDataLoaded() && !_.isNil(this.state.encounter) && !_.isNil(this.state.wizard);
     }
 
     didFocus() {
         super.didFocus();
-        this.dispatchAction(Actions.ON_FOCUS);
+        if (this.isDataLoaded()) this.dispatchAction(Actions.ON_FOCUS);
     }
 
     shouldComponentUpdate(nextProps, state) {
@@ -104,6 +121,7 @@ class IndividualEncounterView extends AbstractComponent {
                 skipVerification: true
             })),
             movedNext: this.scrollToTop,
+            settleCompletion: (newState) => this.dispatchAction(Actions.USE_THIS_STATE, {state: newState}),
             fromSDV
         }
     }
@@ -117,7 +135,19 @@ class IndividualEncounterView extends AbstractComponent {
         this.dispatchAction(Actions.SUMMARY_PAGE, params)
     }
 
+    // An immutable, fully-filled encounter always shows the summary. In componentDidUpdate, not
+    // render, so the summary-page push doesn't land mid-slide (the stuck-half-transition bug).
+    componentDidUpdate() {
+        if (this.state.allElementsFilledForImmutableEncounter && !this.state.wizardCompletionInProgress) {
+            this.onGoToSummary(true);
+        }
+    }
+
     onHardwareBackPress() {
+        if (!this.isDataLoaded()) {
+            TypedTransition.from(this).goBack();
+            return true;
+        }
         this.previous();
         return true;
     }
@@ -152,13 +182,15 @@ class IndividualEncounterView extends AbstractComponent {
             })
     }
 
-    render() {
+    renderLoading() {
+        return <FullScreenLoader title={this.I18n.t('enterData')}/>;
+    }
+
+    renderLoaded() {
         const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);
-        General.logDebug(this.viewName(), `render with IndividualUUID=${this.props.individualUUID} and EncounterTypeUUID=${this.props.encounter.encounterType.uuid}`);
-        if (this.state.allElementsFilledForImmutableEncounter) {
-            this.onGoToSummary(true);
-        }
+        General.logDebug(this.viewName(), `render with IndividualUUID=${this.props.individualUUID} and EncounterTypeUUID=${this.state.encounter.encounterType.uuid}`);
         const title = `${this.I18n.t(this.state.encounter.encounterType.displayName)} - ${this.I18n.t('enterData')}`;
+        const hideVisitDate = this.context.getService(OrganisationConfigService).isVisitDateHidden() && !_.isNil(this.state.encounter.encounterDateTime);
         return (
             <CHSContainer>
                 <CHSContent>
@@ -184,10 +216,11 @@ class IndividualEncounterView extends AbstractComponent {
                                     errorActionName={Actions.SET_LOCATION_ERROR}
                                     validationResult={AbstractDataEntryState.getValidationError(this.state, Encounter.validationKeys.ENCOUNTER_LOCATION)}
                                 />
+                                {!hideVisitDate &&
                                 <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGE}
                                                  element={new StaticFormElement(AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}
                                                  dateValue={new PrimitiveValue(this.state.encounter.encounterDateTime)}
-                                                 validationResult={ValidationResult.findByFormIdentifier(this.state.validationResults, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}/>
+                                                 validationResult={ValidationResult.findByFormIdentifier(this.state.validationResults, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}/>}
                             </View>
                         </View> : <View/>}
                     <View style={styles.container}>
@@ -221,6 +254,7 @@ class IndividualEncounterView extends AbstractComponent {
                     </View>
                     </ScrollView>
                 </CHSContent>
+                <CustomActivityIndicator loading={!!this.state.wizardCompletionInProgress}/>
             </CHSContainer>
         );
     }

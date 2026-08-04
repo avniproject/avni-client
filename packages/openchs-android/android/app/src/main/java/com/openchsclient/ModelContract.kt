@@ -3,15 +3,18 @@ package com.openchsclient
 import org.json.JSONObject
 
 /**
- * Resolved per-model contract (~/.claude/plans/composed-tumbling-bachman.md).
+ * Resolved per-model contract.
  *
  * Why this class exists
  * ─────────────────────
  * The bridge (`EdgeModelModule`) is engine-agnostic and model-agnostic. Per-model semantics —
  * which inference engine to use, how to preprocess the image, how to decode the output — live
- * in the registry's `override` block as a small declarative DSL. This class parses that DSL.
+ * in the model's `override` block as a small declarative DSL. This class parses that DSL.
  *
- * Schema (`assets/models/registry.json` → models.<key>.override):
+ * The override arrives on the synced `DownloadableContent` row's payload (see
+ * `EdgeModelService._overrideJsonFor`) — it is not read from APK assets.
+ *
+ * Schema (edgeModel row payload → override):
  *
  *   {
  *     "engine": "onnx",
@@ -41,7 +44,7 @@ data class ModelContract(
         fun parse(overrideJson: String?): ModelContract {
             if (overrideJson.isNullOrBlank()) {
                 throw IllegalStateException(
-                    "registry.json must include an 'override' block describing engine, preprocessor, and decoder. " +
+                    "The synced edgeModel row payload must include an 'override' block describing engine, preprocessor, and decoder. " +
                     "See tools/edge-model/sample-override.json."
                 )
             }

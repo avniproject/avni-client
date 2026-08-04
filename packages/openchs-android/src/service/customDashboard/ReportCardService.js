@@ -87,8 +87,7 @@ class ReportCardService extends BaseService {
         const individualService = this.getService(IndividualService);
         const typeToMethodMap = new Map([
             [StandardReportCardType.types.ScheduledVisits, individualService.allScheduledVisitsIn],
-            [StandardReportCardType.types.OverdueVisits, individualService.allOverdueVisitsIn],
-            [StandardReportCardType.types.DueChecklist, individualService.dueChecklists.individual]
+            [StandardReportCardType.types.OverdueVisits, individualService.allOverdueVisitsIn]
         ]);
         const standardReportCardTypeName = reportCard.standardReportCardType.type;
         const resultFunc = typeToMethodMap.get(standardReportCardTypeName);
@@ -133,7 +132,6 @@ class ReportCardService extends BaseService {
         } else if (standardReportCardTypeName === StandardReportCardType.types.RecentVisits) {
             count = individualService.countRecentlyCompletedVisits(date, reportFilters, getProgramEncounterCriteria(reportCard, formMetaData), getGeneralEncounterCriteria(reportCard, formMetaData), reportCard.getStandardReportCardInputRecentDuration());
         } else {
-            // DueChecklist and other types — fall back to full result
             count = this.getResultForDefaultCardsType(reportFilters, reportCard).result.length;
         }
         return ReportCardResult.create(count, null, true);

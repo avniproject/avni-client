@@ -252,7 +252,8 @@ class MenuView extends AbstractComponent {
                     minHeight: 70,
                     elevation: 3,
                     paddingHorizontal: 16,
-                    paddingVertical: 8
+                    paddingTop: 8 + Distances.EdgeToEdgeStatusBarInset,
+                    paddingBottom: 8
                 }}>
                     <MCIIcon style={{fontSize: 35, color: Colors.headerIconColor, alignSelf: 'center'}}
                              name={'user-circle'}/>

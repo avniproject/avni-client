@@ -351,13 +351,15 @@ class CustomDashboardView extends AbstractComponent {
             onCustomRecordCardResults: (results, status, viewName, approvalStatus_status, reportFilters, reportCard, displayName) => {
                 const isMarkAttendance = reportCard.isActionMarkAttendance();
                 const attendanceEligibility = isMarkAttendance ? this.attendanceEligibility() : null;
+                // Checklist results are a {individual, checklistItemNames} object, not a list.
+                const resultCount = _.isNil(results.length) ? _.size(_.get(results, 'individual')) : results.length;
                 TypedTransition.from(this).with({
                     reportFilters: reportFilters,
                     approvalStatus_status: approvalStatus_status,
                     indicatorActionName: Actions.LOAD_INDICATOR,
                     headerTitle: _.truncate(displayName || reportCard.name, {'length': 30}) || status,
                     results: results,
-                    totalSearchResultsCount: results.length,
+                    totalSearchResultsCount: resultCount,
                     reportCardUUID,
                     listType: status,
                     backFunction: this.onBackPress.bind(this),

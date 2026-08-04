@@ -33,39 +33,28 @@ describe("SqliteResultsProxy fallback filter integration", () => {
         console.warn.mockRestore();
     });
 
+    // ──── TRUEPREDICATE sort/Distinct → SQL window (not JS fallback) ────
+
+    describe("TRUEPREDICATE sort/Distinct → SQL window (not JS fallback)", () => {
+        it("TRUEPREDICATE DISTINCT builds a ROW_NUMBER window (no JS fallback)", () => {
+            const rows = [{uuid: "1", entity_name: "Individual"}];
+            const executeQuery = jest.fn(() => rows);
+            const hydrator = createMockHydrator(row => ({uuid: row.uuid, entityName: row.entity_name}));
+            const proxy = SqliteResultsProxy.create({
+                schemaName: "EntitySyncStatus", tableName: "entity_sync_status",
+                entityClass: MockEntity, executeQuery, hydrator,
+            });
+            proxy.filtered("TRUEPREDICATE DISTINCT(entityName)").getLength();
+            const sql = executeQuery.mock.calls[0][0];
+            expect(sql).toContain('ROW_NUMBER() OVER (PARTITION BY t0."entity_name"');
+            expect(sql).toContain("WHERE __rn = 1");
+        });
+    });
+
     // ──── Fully unsupported → JS fallback ────
 
     describe("fully unsupported query → entire filter goes to JS fallback", () => {
-        it("TRUEPREDICATE DISTINCT deduplicates after hydration", () => {
-            const rows = [
-                {uuid: "1", entity_name: "Individual"},
-                {uuid: "2", entity_name: "Encounter"},
-                {uuid: "3", entity_name: "Individual"},
-                {uuid: "4", entity_name: "Encounter"},
-                {uuid: "5", entity_name: "ProgramEnrolment"},
-            ];
-            const executeQuery = jest.fn(() => rows);
-            const hydrator = createMockHydrator(row => ({
-                uuid: row.uuid,
-                entityName: row.entity_name,
-            }));
-
-            const proxy = SqliteResultsProxy.create({
-                schemaName: "EntitySyncStatus",
-                tableName: "entity_sync_status",
-                entityClass: MockEntity,
-                executeQuery,
-                hydrator,
-            });
-
-            const filtered = proxy.filtered("TRUEPREDICATE DISTINCT(entityName)");
-            expect(filtered.length).toBe(3);
-            expect(filtered[0].entityName).toBe("Individual");
-            expect(filtered[1].entityName).toBe("Encounter");
-            expect(filtered[2].entityName).toBe("ProgramEnrolment");
-        });
-
-        it("@links.@count returns empty", () => {
+        it("@links.@count fails loud through the proxy (#1981)", () => {
             const rows = [{uuid: "1"}, {uuid: "2"}, {uuid: "3"}];
             const executeQuery = jest.fn(() => rows);
             const hydrator = createMockHydrator();
@@ -79,7 +68,7 @@ describe("SqliteResultsProxy fallback filter integration", () => {
             });
 
             const filtered = proxy.filtered("@links.@count == 0");
-            expect(filtered.length).toBe(0);
+            expect(() => filtered.length).toThrow(/@links .*not evaluable for Individual/);
         });
 
         it("SUBQUERY filters by list property after hydration", () => {
@@ -324,34 +313,18 @@ describe("SqliteResultsProxy fallback filter integration", () => {
     // ──── Chained .filtered() calls ────
 
     describe("chained .filtered() calls with mixed SQL and fallback", () => {
-        it("SQL then DISTINCT: .filtered('voided = false').filtered('TRUEPREDICATE DISTINCT(typeUuid)')", () => {
-            const rows = [
-                {uuid: "1", voided: 0, type_uuid: "t1"},
-                {uuid: "2", voided: 0, type_uuid: "t2"},
-                {uuid: "3", voided: 0, type_uuid: "t1"},
-            ];
+        it("SQL then DISTINCT: WHERE is inside the window, distinct applied over it", () => {
+            const rows = [{uuid: "1", voided: 0, type_uuid: "t1"}];
             const executeQuery = jest.fn(() => rows);
-            const hydrator = createMockHydrator(row => ({
-                uuid: row.uuid,
-                voided: row.voided === 1,
-                typeUuid: row.type_uuid,
-            }));
-
+            const hydrator = createMockHydrator(row => ({uuid: row.uuid, voided: row.voided === 1, typeUuid: row.type_uuid}));
             const proxy = SqliteResultsProxy.create({
-                schemaName: "AddressLevel",
-                tableName: "address_level",
-                entityClass: MockEntity,
-                executeQuery,
-                hydrator,
+                schemaName: "AddressLevel", tableName: "address_level",
+                entityClass: MockEntity, executeQuery, hydrator,
             });
-
-            const filtered = proxy
-                .filtered("voided = false")
-                .filtered("TRUEPREDICATE DISTINCT(typeUuid)");
-
-            expect(filtered.length).toBe(2);
-            expect(filtered[0].typeUuid).toBe("t1");
-            expect(filtered[1].typeUuid).toBe("t2");
+            proxy.filtered("voided = false").filtered("TRUEPREDICATE DISTINCT(typeUuid)").getLength();
+            const sql = executeQuery.mock.calls[0][0];
+            expect(sql).toMatch(/PARTITION BY t0\."type_uuid"/);
+            expect(sql).toMatch(/WHERE t0\."voided" = \?\)\s*WHERE __rn = 1/);
         });
 
         it("SQL then SUBQUERY: .filtered('uuid = $0').filtered('SUBQUERY(...).@count > 0')", () => {
@@ -388,7 +361,6 @@ describe("SqliteResultsProxy fallback filter integration", () => {
             const rows = [
                 {uuid: "1", entity_name: "Individual"},
                 {uuid: "2", entity_name: "Encounter"},
-                {uuid: "3", entity_name: "Individual"},
             ];
             const executeQuery = jest.fn(() => rows);
             const hydrator = createMockHydrator(row => ({
@@ -426,7 +398,7 @@ describe("SqliteResultsProxy fallback filter integration", () => {
         it("isEmpty() returns true when fallback eliminates all", () => {
             const rows = [{uuid: "1"}, {uuid: "2"}];
             const executeQuery = jest.fn(() => rows);
-            const hydrator = createMockHydrator();
+            const hydrator = createMockHydrator(row => ({uuid: row.uuid, media: []}));
 
             const proxy = SqliteResultsProxy.create({
                 schemaName: "Individual",
@@ -434,9 +406,59 @@ describe("SqliteResultsProxy fallback filter integration", () => {
                 entityClass: MockEntity,
                 executeQuery,
                 hydrator,
-            }).filtered("@links.@count == 0");
+            }).filtered('ANY media.url CONTAINS[c] "nonexistent"');
 
             expect(proxy.isEmpty()).toBe(true);
+        });
+    });
+
+    // ──── Multi-branch OR (the approval-dashboard shape) through proxy → evaluator ────
+
+    describe("compound OR clause routed entirely to the JS fallback", () => {
+        // Mirrors EntityApprovalStatusService.getAllSubjects: outer predicate OR'd with
+        // SUBQUERYs over three different lists, plus a trailing SORT.
+        const query = "(latestEntityApprovalStatus.approvalStatus.status = $0 and voided = false)"
+            + " or (voided = false and subquery(enrolments, $enrolment, $enrolment.latestEntityApprovalStatus.approvalStatus.status = $1 and $enrolment.voided = false).@count > 0)"
+            + " or (voided = false and subquery(encounters, $encounter, $encounter.latestEntityApprovalStatus.approvalStatus.status = $2 and $encounter.voided = false).@count > 0)"
+            + " or (voided = false and subquery(enrolments.encounters, $pe, $pe.latestEntityApprovalStatus.approvalStatus.status = $3 and $pe.voided = false).@count > 0)"
+            + " SORT(firstName ASC)";
+
+        const pending = {approvalStatus: {status: "Pending"}};
+        const approved = {approvalStatus: {status: "Approved"}};
+        const hydrated = {
+            bySubject: {uuid: "bySubject", firstName: "D", voided: false, latestEntityApprovalStatus: pending, enrolments: [], encounters: []},
+            byEnrolment: {uuid: "byEnrolment", firstName: "C", voided: false, latestEntityApprovalStatus: approved,
+                enrolments: [{voided: false, latestEntityApprovalStatus: pending, encounters: []}], encounters: []},
+            byEncounter: {uuid: "byEncounter", firstName: "B", voided: false, latestEntityApprovalStatus: approved,
+                enrolments: [], encounters: [{voided: false, latestEntityApprovalStatus: pending}]},
+            byProgramEncounter: {uuid: "byProgramEncounter", firstName: "A", voided: false, latestEntityApprovalStatus: approved,
+                enrolments: [{voided: false, latestEntityApprovalStatus: approved,
+                    encounters: [{voided: false, latestEntityApprovalStatus: pending}]}], encounters: []},
+            none: {uuid: "none", firstName: "E", voided: false, latestEntityApprovalStatus: approved, enrolments: [], encounters: []},
+        };
+
+        function approvalProxy() {
+            const rows = Object.keys(hydrated).map(uuid => ({uuid}));
+            return SqliteResultsProxy.create({
+                schemaName: "Individual",
+                tableName: "individual",
+                entityClass: MockEntity,
+                executeQuery: jest.fn(() => rows),
+                hydrator: createMockHydrator(row => hydrated[row.uuid]),
+            }).filtered(query, "Pending", "Pending", "Pending", "Pending");
+        }
+
+        it("matches subjects via every OR branch, not only the first SUBQUERY", () => {
+            const uuids = approvalProxy().map(e => e.uuid);
+            expect(uuids.sort()).toEqual(["byEncounter", "byEnrolment", "byProgramEncounter", "bySubject"]);
+        });
+
+        it("excludes a subject that satisfies no branch", () => {
+            expect(approvalProxy().map(e => e.uuid)).not.toContain("none");
+        });
+
+        it("applies the trailing SORT to the result", () => {
+            expect(approvalProxy().map(e => e.firstName)).toEqual(["A", "B", "C", "D"]);
         });
     });
 });

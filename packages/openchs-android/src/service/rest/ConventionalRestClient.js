@@ -2,6 +2,8 @@ import {getJSON} from '../../framework/http/requests';
 import _ from "lodash";
 import moment from "moment";
 import ChainedRequests from "../../framework/http/ChainedRequests";
+import General from "../../utility/General";
+import {RuleFailureTelemetry} from 'openchs-models';
 
 class ConventionalRestClient {
     constructor(settingsService, privilegeService) {
@@ -40,13 +42,24 @@ class ConventionalRestClient {
     }
 
     chainPostEntities(url, entities, onComplete) {
+        // Diagnostics must never block field-data upload; their failed posts are dropped from the queue instead of aborting the sync.
+        const isBestEffort = entities.metaData.entityName === RuleFailureTelemetry.schema.name;
         return () => {
             const chainedRequest = new ChainedRequests();
-            entities.entities.map((entity) => {
-                return chainedRequest.push(chainedRequest.post(url, entity.resource, onComplete(entities.metaData, entity.resource.uuid)))
+            entities.entities.forEach((entity) => {
+                const onEntityPushed = onComplete(entities.metaData, entity.resource.uuid);
+                const postRequest = chainedRequest.post(url, entity.resource, onEntityPushed);
+                chainedRequest.push(isBestEffort ? this.dropOnFailure(postRequest, entities.metaData, entity, onEntityPushed) : postRequest);
             });
             return chainedRequest.fire();
         }
+    }
+
+    dropOnFailure(postRequest, metaData, entity, onEntityPushed) {
+        return () => postRequest().catch((error) => {
+            General.logWarn('ConventionalRestClient', `Dropping unpushable ${metaData.entityName} ${entity.resource.uuid}: ${_.get(error, 'message', error)} | entity: ${JSON.stringify(entity.resource)}`);
+            return onEntityPushed();
+        });
     }
 
     getAllForEntity(entityMetadata, onGetOfAnEntity, onGetOfFirstPage, afterGetOfEntity, now, deviceId) {

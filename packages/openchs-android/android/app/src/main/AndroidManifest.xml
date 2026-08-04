@@ -34,6 +34,7 @@
             android:theme="@style/AppTheme"
             android:requestLegacyExternalStorage="true"
             android:largeHeap="true"
+            android:enableOnBackInvokedCallback="false"
     >
         <activity
                 android:name=".MainActivity"

@@ -6,6 +6,7 @@ import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import {Platform, Text, TouchableNativeFeedback, View} from "react-native";
 import _ from "lodash";
 import Colors from "../primitives/Colors";
+import Distances from "../primitives/Distances";
 import CHSNavigator from "../../utility/CHSNavigator";
 import {LandingViewActionsNames} from "../../action/LandingViewActions";
 import SyncComponent from "../SyncComponent";
@@ -100,6 +101,7 @@ class AppHeader extends AbstractComponent {
                 flexDirection: 'row',
                 minHeight: 56,
                 elevation: 3,
+                paddingTop: Distances.EdgeToEdgeStatusBarInset,
             }}>
                 {hideBackButton ? <View/> :
                     <TouchableNativeFeedback onPress={() => this.onBack()}

@@ -18,6 +18,7 @@ import CollapsibleEncounter from "../views/common/CollapsibleEncounter";
 import DGS from "../views/primitives/DynamicGlobalStyles";
 import Separator from "../views/primitives/Separator";
 import AvniToast from "../views/common/AvniToast";
+import FullScreenLoader from "../views/common/FullScreenLoader";
 
 @Path('/CompletedEncountersView')
 class CompletedEncountersView extends AbstractComponent {
@@ -29,12 +30,15 @@ class CompletedEncountersView extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.completedEncounters);
     }
 
-    UNSAFE_componentWillMount() {
+    loadData() {
         this.dispatchAction(Actions.ON_LOAD, this.props.params);
-        super.UNSAFE_componentWillMount();
     }
 
-    render() {
+    renderLoading() {
+        return <FullScreenLoader title={this.I18n.t('completedEncounters')} backgroundColor={Colors.GreyContentBackground}/>;
+    }
+
+    renderLoaded() {
         General.logDebug(this.viewName(), 'render');
         const selectedEncounterTypesUuid = this.state.selectedEncounterTypes.map(e => e.uuid);
         const encountersInfo = _.isEmpty(this.state.selectedEncounterTypes) ? this.state.encountersInfo :

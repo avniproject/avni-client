@@ -2,7 +2,7 @@ import _ from "lodash";
 import CustomDashboardService from "../../service/customDashboard/CustomDashboardService";
 import DashboardSectionCardMappingService from "../../service/customDashboard/DashboardSectionCardMappingService";
 import EntityService from "../../service/EntityService";
-import {ReportCard, Encounter, ProgramEncounter, ReportCardResult} from "openchs-models";
+import {ReportCard, Encounter, ProgramEncounter, ReportCardResult, Individual} from "openchs-models";
 import ReportCardService from "../../service/customDashboard/ReportCardService";
 import General from "../../utility/General";
 import DashboardFilterService from "../../service/reports/DashboardFilterService";
@@ -194,6 +194,8 @@ class CustomDashboardActions {
             const countResult = state.cardToCountResultMap[itemKey];
             const displayName = (countResult && countResult.cardName) || reportCard.name;
             const isArrayLike = isArrayLikeResult(result);
+            // Checklist results are an object keyed by individual/checklistItemNames, not a list.
+            const isChecklistCard = standardReportCardType && standardReportCardType.isChecklistType();
             if (reportCard.isActionDoVisit() && isArrayLike) {
                 const doVisitResult = extractValidIndividuals(result);
                 const onActionCompletion = reportCard.onActionCompletion;
@@ -225,12 +227,15 @@ class CustomDashboardActions {
                             standardReportCardType && standardReportCardType.getApprovalStatusForType(), ruleInputArray, reportCard, displayName), 0);
                     }
                 }
-            } else if (isArrayLike) {
+            } else if (result && (isArrayLike || isChecklistCard)) {
                 const isApprovalCard = standardReportCardType && standardReportCardType.isApprovalType();
+                // Deep-link only to something that really is a subject. Rows here can be Comments,
+                // approval entities or org-authored query output that merely carry a uuid, and
+                // SubjectDashboardView crashes on a non-subject uuid. Anything else opens the list.
+                const candidate = result.length === 1 ? (result[0].individual || result[0]) : null;
+                const singleSubject = candidate instanceof Individual ? candidate : null;
                 // MarkAttendance always opens the list, never the single-subject shortcut.
-                const singleSubject = (result.length === 1 && !reportCard.isActionMarkAttendance())
-                    ? (result[0].individual || result[0]) : null;
-                if (!isApprovalCard && singleSubject && singleSubject.uuid) {
+                if (!isApprovalCard && !reportCard.isActionMarkAttendance() && singleSubject) {
                     General.logDebug('CustomDashboardActions', `onCardPress - Single subject, navigating directly to subject profile`);
                     setTimeout(() => action.onShowSubjectAction(singleSubject), 0);
                 } else {
@@ -238,11 +243,6 @@ class CustomDashboardActions {
                     setTimeout(() => action.onCustomRecordCardResults(result, status, viewName,
                         standardReportCardType && standardReportCardType.getApprovalStatusForType(), ruleInputArray, reportCard, displayName), 0);
                 }
-            } else if (standardReportCardType && standardReportCardType.isChecklistType()) {
-                // Checklist result is a {individual, checklistItemNames} object (not
-                // array-like); ChecklistListingView consumes that shape directly.
-                setTimeout(() => action.onCustomRecordCardResults(result, status, viewName,
-                    standardReportCardType.getApprovalStatusForType(), ruleInputArray, reportCard, displayName), 0);
             } else {
                 General.logDebug('CustomDashboardActions', `onCardPress - result not array-like, dismissing loader`);
                 setTimeout(() => action.onDismissLoading(), 0);

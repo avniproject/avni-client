@@ -1,4 +1,5 @@
 import JsFallbackFilterEvaluator from "../../../src/framework/db/JsFallbackFilterEvaluator";
+import {UnsupportedRealmQueryError} from "../../../src/framework/db/RealmQueryParser";
 
 // ──── Fixture helpers ────
 
@@ -59,6 +60,24 @@ describe("JsFallbackFilterEvaluator", () => {
         it("should return undefined for missing property", () => {
             expect(JsFallbackFilterEvaluator._resolveFieldValue({a: 1}, "b")).toBeUndefined();
         });
+
+        it("should flat-map a list hop so a dotted list path resolves to the union", () => {
+            const entity = {enrolments: [{encounters: [{id: 1}, {id: 2}]}, {encounters: [{id: 3}]}]};
+            expect(JsFallbackFilterEvaluator._resolveFieldValue(entity, "enrolments.encounters"))
+                .toEqual([{id: 1}, {id: 2}, {id: 3}]);
+        });
+
+        it("should resolve a scalar field beyond a list hop as a flat list of values", () => {
+            const entity = {enrolments: [{program: {name: "Child"}}, {program: {name: "Other"}}]};
+            expect(JsFallbackFilterEvaluator._resolveFieldValue(entity, "enrolments.program.name"))
+                .toEqual(["Child", "Other"]);
+        });
+
+        it("should skip null links when flat-mapping a list hop", () => {
+            const entity = {enrolments: [{encounters: null}, {encounters: [{id: 1}]}]};
+            expect(JsFallbackFilterEvaluator._resolveFieldValue(entity, "enrolments.encounters"))
+                .toEqual([{id: 1}]);
+        });
     });
 
     describe("_resolveConditionValue", () => {
@@ -100,6 +119,27 @@ describe("JsFallbackFilterEvaluator", () => {
 
         it("should parse float", () => {
             expect(JsFallbackFilterEvaluator._resolveConditionValue("3.14", [])).toBe(3.14);
+        });
+
+        it("throws when the RHS matches no literal form (garbage) instead of returning it raw (#1981)", () => {
+            expect(() => JsFallbackFilterEvaluator._resolveConditionValue("'c1' AND", [], "TestSchema"))
+                .toThrow(/could not resolve condition value for TestSchema/);
+        });
+
+        it("returns a bare identifier unchanged (whitelisted lenient form)", () => {
+            expect(JsFallbackFilterEvaluator._resolveConditionValue("bareToken", [])).toBe("bareToken");
+        });
+    });
+
+    describe("_isValueShape", () => {
+        it("accepts recognized literal forms and bare identifiers", () => {
+            ["'x'", '"x"', "$0", "true", "FALSE", "null", "nil", "42", "-3.5", "bareToken", "a.b.c"]
+                .forEach(v => expect(JsFallbackFilterEvaluator._isValueShape(v)).toBe(true));
+        });
+
+        it("rejects unparsed garbage (spaces, partial quotes, operators)", () => {
+            ["'c1' AND", "a == b", "'unterminated", "foo bar", "", "in-progress"]
+                .forEach(v => expect(JsFallbackFilterEvaluator._isValueShape(v)).toBe(false));
         });
     });
 
@@ -205,6 +245,44 @@ describe("JsFallbackFilterEvaluator", () => {
 
         it("should return null for malformed SUBQUERY", () => {
             expect(JsFallbackFilterEvaluator._parseSubquery("not a subquery")).toBeNull();
+        });
+
+        it("should not truncate conditions at a comma inside a quoted value", () => {
+            const result = JsFallbackFilterEvaluator._parseSubquery(
+                "SUBQUERY(observations, $o, $o.valueJSON contains 'Fever, cough').@count > 0"
+            );
+            expect(result).not.toBeNull();
+            expect(result.conditions).toBe("$o.valueJSON contains 'Fever, cough'");
+        });
+
+        it("should not truncate conditions at a comma inside an IN {…} value-list", () => {
+            const result = JsFallbackFilterEvaluator._parseSubquery(
+                'SUBQUERY(observations, $o, $o.concept.uuid IN {"c1", "c2"}).@count > 0'
+            );
+            expect(result).not.toBeNull();
+            expect(result.conditions).toBe('$o.concept.uuid IN {"c1", "c2"}');
+        });
+
+        it("should not end the SUBQUERY at an unbalanced paren inside a quoted value", () => {
+            const result = JsFallbackFilterEvaluator._parseSubquery(
+                "SUBQUERY(observations, $o, $o.valueJSON contains 'Fever (acute').@count > 0"
+            );
+            expect(result).not.toBeNull();
+            expect(result.conditions).toBe("$o.valueJSON contains 'Fever (acute'");
+            expect(result.count).toBe(0);
+        });
+
+        it("should evaluate a condition whose quoted value contains a comma", () => {
+            const entities = [
+                makeEntity({uuid: "1", observations: [makeObservation({conceptUuid: "c1", valueJSON: '{"value":"Fever, cough"}'})]}),
+                makeEntity({uuid: "2", observations: [makeObservation({conceptUuid: "c1", valueJSON: '{"value":"Fever"}'})]}),
+            ];
+            const result = JsFallbackFilterEvaluator.apply(
+                entities,
+                [{query: "SUBQUERY(observations, $o, $o.valueJSON contains 'Fever, cough').@count > 0", args: []}],
+                "Individual"
+            );
+            expect(result.map(e => e.uuid)).toEqual(["1"]);
         });
     });
 
@@ -671,28 +749,15 @@ describe("JsFallbackFilterEvaluator", () => {
     // ──── @links.@count ────
 
     describe("Pattern D: @links.@count", () => {
-        it("should return empty array for @links.@count", () => {
-            const entities = [
-                makeEntity({uuid: "1"}),
-                makeEntity({uuid: "2"}),
-            ];
-            const result = JsFallbackFilterEvaluator.apply(
+        it("fails loud (throws) rather than returning [] — @links isn't evaluable client-side (#1981)", () => {
+            const entities = [makeEntity({uuid: "1"}), makeEntity({uuid: "2"})];
+            const run = () => JsFallbackFilterEvaluator.apply(
                 entities,
                 [{query: "@links.@count == 0", args: []}],
                 "Individual"
             );
-            expect(result).toEqual([]);
-        });
-
-        it("should log console.warn with schema name", () => {
-            JsFallbackFilterEvaluator.apply(
-                [makeEntity({uuid: "1"})],
-                [{query: "@links.@count == 0", args: []}],
-                "Individual"
-            );
-            expect(console.warn).toHaveBeenCalledWith(
-                expect.stringContaining("@links.@count not evaluable")
-            );
+            expect(run).toThrow(UnsupportedRealmQueryError);
+            expect(run).toThrow(/@links .*not evaluable for Individual/);
         });
     });
 
@@ -917,9 +982,7 @@ describe("JsFallbackFilterEvaluator", () => {
             expect(result).toHaveLength(0);
         });
 
-        it("should handle nested SUBQUERY permissively", () => {
-            // Nested SUBQUERY: outer conditions (voided=false) should still be enforced,
-            // but the inner SUBQUERY condition is skipped (permissive)
+        it("should evaluate nested SUBQUERY alongside non-SUBQUERY conditions", () => {
             const entities = [
                 makeEntity({
                     uuid: "1",
@@ -954,7 +1017,7 @@ describe("JsFallbackFilterEvaluator", () => {
             expect(result[0].uuid).toBe("1");
         });
 
-        it("should evaluate nested SUBQUERY on embedded list (not permissive)", () => {
+        it("should evaluate nested SUBQUERY on embedded list", () => {
             // Simulates maternal deaths rule: nested SUBQUERY on programExitObservations
             const entities = [
                 makeEntity({
@@ -1025,32 +1088,78 @@ describe("JsFallbackFilterEvaluator", () => {
 
     // ──── Condition evaluation ────
 
+    describe("SUBQUERY over a dotted list path", () => {
+        const twoEncounters = () => makeEntity({
+            uuid: "1",
+            enrolments: [makeEnrolment({encounters: [makeEncounter({voided: false}), makeEncounter({voided: false})]})],
+        });
+        const oneEncounter = () => makeEntity({
+            uuid: "2",
+            enrolments: [makeEnrolment({encounters: [makeEncounter({voided: false})]})],
+        });
+
+        it("counts across the list hop for @count >= N", () => {
+            const result = JsFallbackFilterEvaluator.apply(
+                [twoEncounters(), oneEncounter()],
+                [{query: "SUBQUERY(enrolments.encounters, $x, $x.voided = false).@count >= 2", args: []}],
+                "Individual"
+            );
+            expect(result.map(e => e.uuid)).toEqual(["1"]);
+        });
+
+        it("counts across the list hop for @count == 0", () => {
+            const noEncounters = makeEntity({uuid: "3", enrolments: [makeEnrolment({encounters: []})]});
+            const result = JsFallbackFilterEvaluator.apply(
+                [twoEncounters(), noEncounters],
+                [{query: "SUBQUERY(enrolments.encounters, $x, $x.voided = false).@count == 0", args: []}],
+                "Individual"
+            );
+            expect(result.map(e => e.uuid)).toEqual(["3"]);
+        });
+
+        it("unions encounters across multiple enrolments", () => {
+            const split = makeEntity({
+                uuid: "4",
+                enrolments: [
+                    makeEnrolment({encounters: [makeEncounter({voided: false})]}),
+                    makeEnrolment({encounters: [makeEncounter({voided: false})]}),
+                ],
+            });
+            const result = JsFallbackFilterEvaluator.apply(
+                [split],
+                [{query: "SUBQUERY(enrolments.encounters, $x, $x.voided = false).@count >= 2", args: []}],
+                "Individual"
+            );
+            expect(result.map(e => e.uuid)).toEqual(["4"]);
+        });
+    });
+
     describe("_evaluateConditionString", () => {
         it("should evaluate AND with both conditions true", () => {
             const item = {voided: false, name: "Alice"};
             expect(JsFallbackFilterEvaluator._evaluateConditionString(
-                item, '$x.voided = false and $x.name = "Alice"', "$x", []
+                item, '$x.voided = false and $x.name = "Alice"', "$x", [], "TestSchema"
             )).toBe(true);
         });
 
         it("should evaluate AND with one condition false", () => {
             const item = {voided: true, name: "Alice"};
             expect(JsFallbackFilterEvaluator._evaluateConditionString(
-                item, '$x.voided = false and $x.name = "Alice"', "$x", []
+                item, '$x.voided = false and $x.name = "Alice"', "$x", [], "TestSchema"
             )).toBe(false);
         });
 
         it("should evaluate OR with one condition true", () => {
             const item = {status: "B"};
             expect(JsFallbackFilterEvaluator._evaluateConditionString(
-                item, '$x.status = "A" OR $x.status = "B"', "$x", []
+                item, '$x.status = "A" OR $x.status = "B"', "$x", [], "TestSchema"
             )).toBe(true);
         });
 
         it("should evaluate OR with all conditions false", () => {
             const item = {status: "C"};
             expect(JsFallbackFilterEvaluator._evaluateConditionString(
-                item, '$x.status = "A" OR $x.status = "B"', "$x", []
+                item, '$x.status = "A" OR $x.status = "B"', "$x", [], "TestSchema"
             )).toBe(false);
         });
 
@@ -1058,22 +1167,22 @@ describe("JsFallbackFilterEvaluator", () => {
             const item = {a: 1, b: 2, c: 3};
             // (a=1 OR b=99) AND c=3 → (true OR false) AND true → true
             expect(JsFallbackFilterEvaluator._evaluateConditionString(
-                item, "($x.a = 1 OR $x.b = 99) AND $x.c = 3", "$x", []
+                item, "($x.a = 1 OR $x.b = 99) AND $x.c = 3", "$x", [], "TestSchema"
             )).toBe(true);
             // (a=99 OR b=99) AND c=3 → (false OR false) AND true → false
             expect(JsFallbackFilterEvaluator._evaluateConditionString(
-                item, "($x.a = 99 OR $x.b = 99) AND $x.c = 3", "$x", []
+                item, "($x.a = 99 OR $x.b = 99) AND $x.c = 3", "$x", [], "TestSchema"
             )).toBe(false);
         });
 
-        it("should handle nested SUBQUERY in conditions permissively", () => {
+        it("should evaluate nested SUBQUERY in conditions", () => {
             const item = {voided: false, encounters: [{voided: false}]};
-            // Only the non-SUBQUERY condition should be evaluated
             const result = JsFallbackFilterEvaluator._evaluateConditionString(
                 item,
                 "$x.voided = false and (SUBQUERY($x.encounters, $e, $e.voided = false).@count > 0)",
                 "$x",
-                []
+                [],
+                "TestSchema"
             );
             expect(result).toBe(true);
         });
@@ -1084,7 +1193,8 @@ describe("JsFallbackFilterEvaluator", () => {
                 item,
                 "$x.voided = false and (SUBQUERY($x.encounters, $e, $e.voided = false).@count > 0)",
                 "$x",
-                []
+                [],
+                "TestSchema"
             );
             expect(result).toBe(false);
         });
@@ -1094,65 +1204,86 @@ describe("JsFallbackFilterEvaluator", () => {
         it("should evaluate CONTAINS string op", () => {
             const item = {valueJSON: '{"phoneNumber":"1234567890"}'};
             expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
-                item, '$obs.valueJSON contains \'"phoneNumber":"1234567890"\'', "$obs", []
+                item, '$obs.valueJSON contains \'"phoneNumber":"1234567890"\'', "$obs", [], "TestSchema"
             )).toBe(true);
         });
 
         it("should evaluate BEGINSWITH", () => {
             const item = {name: "Alice"};
             expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
-                item, '$x.name BEGINSWITH "Ali"', "$x", []
+                item, '$x.name BEGINSWITH "Ali"', "$x", [], "TestSchema"
             )).toBe(true);
             expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
-                item, '$x.name BEGINSWITH "Bob"', "$x", []
+                item, '$x.name BEGINSWITH "Bob"', "$x", [], "TestSchema"
             )).toBe(false);
         });
 
         it("should evaluate ENDSWITH", () => {
             const item = {name: "Alice"};
             expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
-                item, '$x.name ENDSWITH "ice"', "$x", []
+                item, '$x.name ENDSWITH "ice"', "$x", [], "TestSchema"
             )).toBe(true);
         });
 
         it("should evaluate equality with null", () => {
             const item = {programExitDateTime: null};
             expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
-                item, "$e.programExitDateTime = null", "$e", []
+                item, "$e.programExitDateTime = null", "$e", [], "TestSchema"
             )).toBe(true);
         });
 
         it("should evaluate inequality with null", () => {
             const item = {programExitDateTime: "2024-01-01"};
             expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
-                item, "$e.programExitDateTime != null", "$e", []
+                item, "$e.programExitDateTime != null", "$e", [], "TestSchema"
             )).toBe(true);
         });
 
         it("should evaluate boolean comparison", () => {
             const item = {voided: false};
             expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
-                item, "$e.voided = false", "$e", []
+                item, "$e.voided = false", "$e", [], "TestSchema"
             )).toBe(true);
             expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
-                item, "$e.voided = true", "$e", []
+                item, "$e.voided = true", "$e", [], "TestSchema"
             )).toBe(false);
         });
 
         it("should evaluate $N parameter substitution", () => {
             const item = {uuid: "abc"};
             expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
-                item, "$e.uuid = $0", "$e", ["abc"]
+                item, "$e.uuid = $0", "$e", ["abc"], "TestSchema"
             )).toBe(true);
             expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
-                item, "$e.uuid = $0", "$e", ["def"]
+                item, "$e.uuid = $0", "$e", ["def"], "TestSchema"
             )).toBe(false);
         });
 
         it("should return false when field is null and comparing to non-null", () => {
             const item = {name: null};
             expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
-                item, '$e.name = "Alice"', "$e", []
+                item, '$e.name = "Alice"', "$e", [], "TestSchema"
+            )).toBe(false);
+        });
+
+        it("should evaluate IN {…} membership with quoted values", () => {
+            expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
+                {concept: {uuid: "c2"}}, '$o.concept.uuid IN {"c1", "c2"}', "$o", [], "TestSchema"
+            )).toBe(true);
+            expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
+                {concept: {uuid: "zz"}}, '$o.concept.uuid IN {"c1", "c2"}', "$o", [], "TestSchema"
+            )).toBe(false);
+        });
+
+        it("should resolve $N params and numeric values inside IN {…}", () => {
+            expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
+                {concept: {uuid: "c2"}}, "$o.concept.uuid IN {$0, $1}", "$o", ["c1", "c2"], "TestSchema"
+            )).toBe(true);
+            expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
+                {count: 3}, "$o.count IN {1, 2, 3}", "$o", [], "TestSchema"
+            )).toBe(true);
+            expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
+                {count: 9}, "$o.count IN {1, 2, 3}", "$o", [], "TestSchema"
             )).toBe(false);
         });
     });
@@ -1181,11 +1312,14 @@ describe("JsFallbackFilterEvaluator", () => {
         });
 
         it("should stop pipeline when a filter reduces to empty", () => {
-            const entities = [makeEntity({uuid: "1"}), makeEntity({uuid: "2"})];
+            const entities = [
+                makeEntity({uuid: "1", media: [{url: "http://s3/photo.jpg"}]}),
+                makeEntity({uuid: "2", media: [{url: "http://s3/doc.pdf"}]}),
+            ];
             const result = JsFallbackFilterEvaluator.apply(
                 entities,
                 [
-                    {query: "@links.@count == 0", args: []}, // returns empty
+                    {query: "ANY media.url CONTAINS[c] $0", args: ["nonexistent"]}, // matches nothing → empty
                     {query: "TRUEPREDICATE DISTINCT(uuid)", args: []}, // never reached
                 ],
                 "Individual"
@@ -1197,17 +1331,211 @@ describe("JsFallbackFilterEvaluator", () => {
     // ──── Unrecognized query ────
 
     describe("unrecognized fallback query", () => {
-        it("should pass through entities and log warning", () => {
+        it("fails loud (throws) instead of returning the full unfiltered set (#1981)", () => {
             const entities = [makeEntity({uuid: "1"})];
-            const result = JsFallbackFilterEvaluator.apply(
+            const run = () => JsFallbackFilterEvaluator.apply(
                 entities,
                 [{query: "SOME UNKNOWN QUERY PATTERN", args: []}],
                 "TestSchema"
             );
-            expect(result).toEqual(entities);
-            expect(console.warn).toHaveBeenCalledWith(
-                expect.stringContaining("unrecognized fallback query for TestSchema")
+            expect(run).toThrow(UnsupportedRealmQueryError);
+            expect(run).toThrow(/unrecognized fallback query for TestSchema/);
+        });
+    });
+
+    // ──── Bare TRUEPREDICATE (match everything) ────
+
+    describe("bare TRUEPREDICATE", () => {
+        it("returns the full set — TRUEPREDICATE means match everything", () => {
+            const entities = [makeEntity({uuid: "1"}), makeEntity({uuid: "2"})];
+            const result = JsFallbackFilterEvaluator.apply(
+                entities,
+                [{query: "TRUEPREDICATE", args: []}],
+                "TestSchema"
             );
+            expect(result).toBe(entities);
+        });
+
+        it("TRUEPREDICATE limit(N) returns the first N via _applyLimit recursion", () => {
+            const entities = [makeEntity({uuid: "1"}), makeEntity({uuid: "2"}), makeEntity({uuid: "3"})];
+            const result = JsFallbackFilterEvaluator.apply(
+                entities,
+                [{query: "TRUEPREDICATE limit(2)", args: []}],
+                "TestSchema"
+            );
+            expect(result.map(e => e.uuid)).toEqual(["1", "2"]);
+        });
+    });
+
+    // ──── Compound top-level clauses (AND / OR / NOT) ────
+
+    describe("compound clauses", () => {
+        const approvalLike = () => [
+            makeEntity({uuid: "subject", voided: false, latestEntityApprovalStatus: {approvalStatus: {status: "Pending"}}, enrolments: [], encounters: []}),
+            makeEntity({uuid: "enrolment", voided: false, latestEntityApprovalStatus: {approvalStatus: {status: "Approved"}},
+                enrolments: [makeEnrolment({voided: false})], encounters: []}),
+            makeEntity({uuid: "encounter", voided: false, latestEntityApprovalStatus: {approvalStatus: {status: "Approved"}},
+                enrolments: [], encounters: [makeEncounter({voided: false})]}),
+            makeEntity({uuid: "none", voided: false, latestEntityApprovalStatus: {approvalStatus: {status: "Approved"}},
+                enrolments: [makeEnrolment({voided: true})], encounters: []}),
+        ];
+
+        it("returns the union of all OR branches, not just the branch carrying the SUBQUERY", () => {
+            const query = "(latestEntityApprovalStatus.approvalStatus.status = $0 and voided = false)"
+                + " or (voided = false and SUBQUERY(enrolments, $e, $e.voided = false).@count > 0)"
+                + " or (voided = false and SUBQUERY(encounters, $c, $c.voided = false).@count > 0)";
+            const result = JsFallbackFilterEvaluator.apply(
+                approvalLike(), [{query, args: ["Pending"]}], "Individual"
+            );
+            expect(result.map(e => e.uuid)).toEqual(["subject", "enrolment", "encounter"]);
+        });
+
+        it("intersects top-level AND branches", () => {
+            const entities = approvalLike().concat([
+                makeEntity({uuid: "voidedButEnrolled", voided: true, enrolments: [makeEnrolment({voided: false})], encounters: []}),
+            ]);
+            const query = "voided = false and SUBQUERY(enrolments, $e, $e.voided = false).@count > 0";
+            const result = JsFallbackFilterEvaluator.apply(entities, [{query, args: []}], "Individual");
+            // voidedButEnrolled satisfies the SUBQUERY but fails the voided check — the AND
+            // branch outside the SUBQUERY has to be enforced.
+            expect(result.map(e => e.uuid)).toEqual(["enrolment"]);
+        });
+
+        it("accepts && and || as AND/OR", () => {
+            const query = "(voided = false && SUBQUERY(enrolments, $e, $e.voided = false).@count > 0)"
+                + " || (voided = false && SUBQUERY(encounters, $c, $c.voided = false).@count > 0)";
+            const result = JsFallbackFilterEvaluator.apply(
+                approvalLike(), [{query, args: []}], "Individual"
+            );
+            expect(result.map(e => e.uuid)).toEqual(["enrolment", "encounter"]);
+        });
+
+        it("negates with NOT", () => {
+            const query = "voided = false and NOT (SUBQUERY(enrolments, $e, $e.voided = false).@count > 0)";
+            const result = JsFallbackFilterEvaluator.apply(
+                approvalLike(), [{query, args: []}], "Individual"
+            );
+            expect(result.map(e => e.uuid)).toEqual(["subject", "encounter", "none"]);
+        });
+
+        it("negates with bare !", () => {
+            const query = "voided = false and !(SUBQUERY(enrolments, $e, $e.voided = false).@count > 0)";
+            const result = JsFallbackFilterEvaluator.apply(
+                approvalLike(), [{query, args: []}], "Individual"
+            );
+            expect(result.map(e => e.uuid)).toEqual(["subject", "encounter", "none"]);
+        });
+
+        it("applies a trailing SORT to the compound result", () => {
+            const query = "(voided = false and SUBQUERY(enrolments, $e, $e.voided = false).@count > 0)"
+                + " or (voided = false and SUBQUERY(encounters, $c, $c.voided = false).@count > 0)"
+                + " SORT(uuid ASC)";
+            const result = JsFallbackFilterEvaluator.apply(
+                approvalLike(), [{query, args: []}], "Individual"
+            );
+            expect(result.map(e => e.uuid)).toEqual(["encounter", "enrolment"]);
+        });
+
+        it("counts a dotted list path inside an OR branch", () => {
+            const entities = [
+                makeEntity({uuid: "viaFirstBranch", voided: true, enrolments: [], encounters: []}),
+                makeEntity({uuid: "viaPath", voided: false, enrolments: [makeEnrolment({encounters: [makeEncounter({voided: false})]})], encounters: []}),
+                makeEntity({uuid: "neither", voided: false, enrolments: [], encounters: []}),
+            ];
+            const query = "(voided = true) or (SUBQUERY(enrolments.encounters, $enc, $enc.voided = false).@count > 0)";
+            const result = JsFallbackFilterEvaluator.apply(entities, [{query, args: []}], "Individual");
+            expect(result.map(e => e.uuid)).toEqual(["viaFirstBranch", "viaPath"]);
+        });
+
+        it("still fails loud when an OR branch is unevaluable", () => {
+            const query = "(voided = false) or (SOME UNKNOWN CLAUSE)";
+            const run = () => JsFallbackFilterEvaluator.apply(
+                approvalLike(), [{query, args: []}], "Individual"
+            );
+            expect(run).toThrow(UnsupportedRealmQueryError);
+        });
+    });
+
+    // ──── Fail loud on parse failures (#1981) ────
+
+    describe("fail loud when a recognized pattern fails to parse", () => {
+        const cases = [
+            {name: "DISTINCT with unparseable field", query: "TRUEPREDICATE DISTINCT()", reason: /could not parse DISTINCT field for TestSchema/},
+            {name: "malformed SUBQUERY", query: "SUBQUERY(broken without proper structure", reason: /could not parse SUBQUERY for TestSchema/},
+            {name: "malformed ANY quantifier", query: "ANY badly formed quantifier here", reason: /could not parse ANY quantifier for TestSchema/},
+            {name: "unparseable SORT key", query: "TRUEPREDICATE sort(name!! asc)", reason: /could not parse SORT keys for TestSchema/},
+        ];
+        cases.forEach(({name, query, reason}) => {
+            it(`throws for ${name} rather than returning the full set`, () => {
+                const entities = [makeEntity({uuid: "1"}), makeEntity({uuid: "2"})];
+                const run = () => JsFallbackFilterEvaluator.apply(entities, [{query, args: []}], "TestSchema");
+                expect(run).toThrow(UnsupportedRealmQueryError);
+                expect(run).toThrow(reason);
+            });
+        });
+
+        it("an unrecognized remaining clause under limit(N) fails loud through the recursion", () => {
+            const entities = [makeEntity({uuid: "1"}), makeEntity({uuid: "2"})];
+            const run = () => JsFallbackFilterEvaluator.apply(
+                entities,
+                [{query: "SOME UNKNOWN CLAUSE limit(1)", args: []}],
+                "TestSchema"
+            );
+            expect(run).toThrow(UnsupportedRealmQueryError);
+            expect(run).toThrow(/unrecognized fallback query for TestSchema/);
+        });
+
+        it("throws for a garbage RHS inside a SUBQUERY condition instead of silently matching nobody (#1981)", () => {
+            const entities = [
+                makeEntity({uuid: "1", observations: [makeObservation({conceptUuid: "c1", valueJSON: "{}"})]}),
+            ];
+            // A half-split compound leaves an unresolvable RHS ("'c1' AND"); it must fail loud, not
+            // compare a raw fragment and drop the row.
+            const run = () => JsFallbackFilterEvaluator.apply(
+                entities,
+                [{query: "SUBQUERY(observations, $obs, $obs.concept.uuid == 'c1' AND).@count > 0", args: []}],
+                "TestSchema"
+            );
+            expect(run).toThrow(UnsupportedRealmQueryError);
+            expect(run).toThrow(/could not parse atomic condition for TestSchema/);
+        });
+
+        it("throws for the garbage RHS up-front, even when every list is empty (data-independent)", () => {
+            const entities = [makeEntity({uuid: "1", observations: []})];
+            const run = () => JsFallbackFilterEvaluator.apply(
+                entities,
+                [{query: "SUBQUERY(observations, $obs, $obs.concept.uuid == 'c1' AND).@count > 0", args: []}],
+                "TestSchema"
+            );
+            expect(run).toThrow(/could not parse atomic condition for TestSchema/);
+        });
+
+        it("matches a SUBQUERY condition using IN {…} — nested IN is supported (#1981)", () => {
+            const match = makeEntity({uuid: "1", observations: [makeObservation({conceptUuid: "c1", valueJSON: "{}"})]});
+            const noMatch = makeEntity({uuid: "2", observations: [makeObservation({conceptUuid: "zz", valueJSON: "{}"})]});
+            const result = JsFallbackFilterEvaluator.apply(
+                [match, noMatch],
+                [{query: 'SUBQUERY(observations, $obs, $obs.concept.uuid IN {"c1", "c2"}).@count > 0', args: []}],
+                "TestSchema"
+            );
+            expect(result.map(e => e.uuid)).toEqual(["1"]);
+        });
+
+        it("throws for an unparseable nested SUBQUERY instead of skipping it", () => {
+            const entities = [
+                makeEntity({
+                    uuid: "1",
+                    enrolments: [makeEnrolment({voided: false, encounters: [makeEncounter({voided: false})]})],
+                }),
+            ];
+            const run = () => JsFallbackFilterEvaluator.apply(
+                entities,
+                // Inner SUBQUERY has only two args — _parseSubquery returns null
+                [{query: "SUBQUERY(enrolments, $e, $e.voided = false and (SUBQUERY($e.encounters, $x).@count > 0)).@count > 0", args: []}],
+                "TestSchema"
+            );
+            expect(run).toThrow(UnsupportedRealmQueryError);
+            expect(run).toThrow(/could not parse SUBQUERY for TestSchema/);
         });
     });
 });
