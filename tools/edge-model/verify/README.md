@@ -94,7 +94,9 @@ make tanuh-ensemble TANUH_ENSEMBLE_SRC_DIR="$TANUH_FIXTURES/tanuh_models/ensembl
 #    on the runParitySweep row (the class-level Run does the same thing here; the class has exactly
 #    one test method). Revert index.android.js when finished.
 
-# 4. Push the 90 images, wait for the on-device run, pull the results:
+# 4. Push the 90 images, wait for the on-device run, pull the results. Start this BEFORE running the
+#    test on the device: it clears the device's parity dirs, stages the images, then polls for the
+#    sweep's completion sentinel. Do not press anything when the row goes green — see Notes.
 bash tools/edge-model/verify/run-parity.sh
 
 # 5. Diff device scores vs the xlsx → out/summary.md + PASS/FAIL (exit 0 = PASS):
@@ -107,23 +109,26 @@ tools/edge-model/verify/.venv/bin/python tools/edge-model/verify/report.py
 | File | Role |
 |---|---|
 | `../../../packages/openchs-android/integrationTest/EdgeModelParityIntegrationTest.js` | Runs inside the real app: every staged image → real `EdgeModelService.runEnsembleInferenceOnImage` → corrected Kotlin preprocessing → ONNX-Runtime-Mobile; writes per-model sigmoids to `per_model_scores.csv` plus the column→sha256 `fold-mapping.csv`, via `react-native-fs`. |
-| `run-parity.sh` | adb driver: refuses in-repo fixtures, pushes the 90 images (jpgs only), waits for the on-device run, pulls the results CSV + fold mapping. |
+| `run-parity.sh` | adb driver: refuses in-repo fixtures, clears the device's parity dirs, pushes the 90 images (jpgs only), polls for the sweep's completion sentinel, checks the row count against the images it pushed, pulls the results CSV + fold mapping. |
 | `report.py` | Joins device scores to the xlsx, computes per-model max/mean diff, emits `out/summary.md` + `out/per_image_scores.csv`, exits 0 iff PASS. Skips images whose xlsx reference is incomplete (surfaced in the summary), and fails a run that joined fewer than the expected images or produced device rows the xlsx has no `Image ID` for. |
 | `report_test.py` | Table-driven tests for the two `report.py` gates, over synthesised workbooks in a temp dir. Needs neither a device nor the TANUH fixtures. |
 | `guard-no-proprietary.sh`, `hooks/`, `install-guards.sh` | The data-governance layer (see above). |
 
 ## Testing the harness itself
 
-Needs neither a device nor the TANUH fixtures, so run it before a parity run rather than discovering
-a harness bug halfway through one:
+Neither of these needs a device or the TANUH fixtures, so run them before a parity run rather than
+discovering a harness bug halfway through one:
 
 ```bash
 # report.py's verdict + completeness gates (same interpreter as the reporter — it needs openpyxl):
 tools/edge-model/verify/.venv/bin/python -m unittest discover -s tools/edge-model/verify -p '*_test.py'
+
+# The sweep's completion sentinel and its method discovery:
+cd packages/openchs-android && npx jest test/integrationTest
 ```
 
-The full sweep still can only be confirmed on a provisioned device — this covers the part that
-decides whether a run is reported as a pass, not the inference itself.
+The full sweep still can only be confirmed on a provisioned device — these cover the parts that
+decide whether a run is reported as a pass, not the inference itself.
 
 ## Notes
 
@@ -143,3 +148,10 @@ decides whether a run is reported as a pass, not the inference itself.
 - Folds are addressed by sha256, which carries no fold identity, so `model6`/`model8`/`model8-2` are
   assigned by sha-sorted position. Check `out/fold-mapping.csv` against what was provisioned before
   trusting a per-model diff — a mis-provisioned fold otherwise shows up as a plausible wrong column.
+- **Green on the device is not a completion signal, and not a pass.** `IntegrationTestRunner` does
+  not await the test method, so the row goes green at the first `await` inside `runParitySweep` —
+  before a single image is scored — and a throw inside the sweep rejects a promise the runner never
+  observes. `run-parity.sh` therefore ignores the screen and polls for `out/run-complete.json`, which
+  the sweep writes as its last statement, or `out/run-failed.txt`, which it writes if it threw.
+  Fixing the runner itself would change behaviour for the ten other integration tests, so it is a
+  separate piece of work (avni-client#2035).
