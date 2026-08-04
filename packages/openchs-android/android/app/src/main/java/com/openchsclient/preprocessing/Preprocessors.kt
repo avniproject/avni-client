@@ -7,7 +7,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /**
- * Named registry of image preprocessors (~/.claude/plans/composed-tumbling-bachman.md).
+ * Named registry of image preprocessors.
  *
  * Lookup is by string identifier in the registry override JSON:
  *
@@ -186,7 +186,8 @@ object ImagenetRgbChwPreprocessor : ImagePreprocessor {
  *     "scale": 0.00392156862745098,  // 1/255 — applied AFTER the uint8 cast
  *     "mean_target": 128,            // per-channel scale = mean_target / per-image mean
  *     "round_decimals": 1,           // np.round(x, 1)
- *     "uint8_cast": true             // (val.toInt() and 0xFF) before /255
+ *     "uint8_cast": true,            // cast to uint8 before /255
+ *     "uint8_round": true            // round-to-nearest (cv2.convertScaleAbs); false → truncate (legacy)
  *   }
  *
  * Pipeline (each step matches a comment block in the PoC):
@@ -195,7 +196,7 @@ object ImagenetRgbChwPreprocessor : ImagePreprocessor {
  *   3. Scale each channel so mean → mean_target. (Per-image dynamic, not per-batch fixed.)
  *   4. Clip [0, 255].
  *   5. Round to N decimal places.
- *   6. uint8-cast (truncate to int, mask 0xFF).
+ *   6. uint8-cast: round-to-nearest when uint8_round=true (cv2.convertScaleAbs), else truncate; mask 0xFF.
  *   7. Divide by 255 → [0, 1] float.
  *   8. Write to CHW float buffer in channel_order (BGR for the PoC).
  */
@@ -209,6 +210,7 @@ object MeanTargetBgrRoundedPreprocessor : ImagePreprocessor {
         val meanTarget = params.optDouble("mean_target", 128.0)
         val roundDecimals = params.optInt("round_decimals", 1)
         val uint8Cast = params.optBoolean("uint8_cast", true)
+        val uint8Round = params.optBoolean("uint8_round", false)  // true → round-to-nearest (convertScaleAbs); false → truncate (legacy)
 
         val resized = resize(bitmap, w, h, interpolation)
         val pixels = IntArray(w * h)
@@ -236,6 +238,9 @@ object MeanTargetBgrRoundedPreprocessor : ImagePreprocessor {
         val normR = FloatArray(pixels.size)
         val normG = FloatArray(pixels.size)
         val normB = FloatArray(pixels.size)
+        // uint8 cast: round-to-nearest (cv2.convertScaleAbs / saturate_cast) when uint8_round=true;
+        // truncate (legacy) otherwise. r/g/b are already clipped to [0,255], so 0xFF is a safety mask.
+        fun toU8(v: Double): Int = (if (uint8Round) Math.round(v).toInt() else v.toInt()) and 0xFF
         for (i in pixels.indices) {
             val px = pixels[i]
             var r = ((px shr 16) and 0xFF) * scaleR
@@ -250,9 +255,9 @@ object MeanTargetBgrRoundedPreprocessor : ImagePreprocessor {
             g = Math.round(g * roundFactor) / roundFactor
             b = Math.round(b * roundFactor) / roundFactor
 
-            normR[i] = if (uint8Cast) ((r.toInt() and 0xFF) * scale) else (r.toFloat() * scale)
-            normG[i] = if (uint8Cast) ((g.toInt() and 0xFF) * scale) else (g.toFloat() * scale)
-            normB[i] = if (uint8Cast) ((b.toInt() and 0xFF) * scale) else (b.toFloat() * scale)
+            normR[i] = if (uint8Cast) (toU8(r) * scale) else (r.toFloat() * scale)
+            normG[i] = if (uint8Cast) (toU8(g) * scale) else (g.toFloat() * scale)
+            normB[i] = if (uint8Cast) (toU8(b) * scale) else (b.toFloat() * scale)
         }
 
         // 8. Write to CHW or HWC in the requested channel order.
@@ -282,7 +287,7 @@ object MeanTargetBgrRoundedPreprocessor : ImagePreprocessor {
         // behind BuildConfig.DEBUG so release builds skip the planeSummary traversals.
         if (BuildConfig.DEBUG) {
             Log.d("Preproc", "MeanTargetBgrRounded: w=$w h=$h interp=$interpolation order=$channelOrder layout=$layout " +
-                "scale=$scale meanTarget=$meanTarget round=$roundDecimals uint8Cast=$uint8Cast")
+                "scale=$scale meanTarget=$meanTarget round=$roundDecimals uint8Cast=$uint8Cast uint8Round=$uint8Round")
             Log.d("Preproc", "  rawPixelMean: R=%.4f G=%.4f B=%.4f".format(meanR, meanG, meanB))
             Log.d("Preproc", "  perChannelScale: R=%.6f G=%.6f B=%.6f".format(scaleR, scaleG, scaleB))
             Log.d("Preproc", "  tensorStats: ${planeSummary("plane0", data, 0, plane)}")

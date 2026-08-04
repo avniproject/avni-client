@@ -20,8 +20,9 @@ const EDGE_MODEL_CATEGORY = 'edgeModel';
  *
  * An ensemble = multiple `edgeModel` rows; each is loaded by its own cached path + key. If a
  * fold's blob or key isn't cached yet (download pending/failed at sync), inference does not run —
- * the verdict is simply absent (the failure was already surfaced at sync). Inference never
- * downloads at point of use.
+ * no verdict is written. Rather than let that absence read as a negative, the scheduling path
+ * dispatches INFERENCE_UNAVAILABLE so the form blocks Next (see _scheduleImageInference).
+ * Inference never downloads at point of use — recovery is to sync and refill.
  *
  * Rule usage (single-row category, raw return):
  *   const result = await params.services.edgeModelService.runInferenceOnImage(imagePath);
@@ -45,8 +46,21 @@ export const EDGE_MODEL_ACTION = {
     INFERENCE_RESULT_AVAILABLE: 'EDGE_MODEL.INFERENCE_RESULT_AVAILABLE',
     // Coalesced variant: several inference results from one burst applied together so the
     // form re-evaluates once instead of once-per-result. See _queueInferenceResult below.
-    INFERENCE_RESULTS_BATCH: 'EDGE_MODEL.INFERENCE_RESULTS_BATCH'
+    INFERENCE_RESULTS_BATCH: 'EDGE_MODEL.INFERENCE_RESULTS_BATCH',
+    // No verdict could be produced for an image. Surfaces as a validation error on the image
+    // form element, which blocks Next. See _scheduleImageInference's catch.
+    INFERENCE_UNAVAILABLE: 'EDGE_MODEL.INFERENCE_UNAVAILABLE'
 };
+
+// messageKeys resolved by the form element view via I18n.
+export const INFERENCE_UNAVAILABLE_REASON = {
+    MODEL_UNAVAILABLE: 'aiModelUnavailable',
+    INFERENCE_FAILED: 'aiInferenceFailed'
+};
+
+// Tags the "blob/key not cached yet" rejection so the catch can tell a provisioning gap
+// (recoverable by syncing) apart from a genuine inference failure.
+export const MODEL_NOT_CACHED = 'MODEL_NOT_CACHED';
 
 @Service("edgeModelService")
 class EdgeModelService extends BaseService {
@@ -64,6 +78,16 @@ class EdgeModelService extends BaseService {
         // (now-stale) verdict. In-memory only — on app restart we lazily seed the cache
         // with the current imagePath the first time we see a populated target obs.
         this._lastInferredImageByTarget = new Map();
+        // On a cold session cache we recompute (rather than trust) a persisted verdict, since an
+        // edit may have swapped the image under it. This caps that recompute to one attempt per
+        // image+target per session so a synced-in encounter whose media isn't downloaded (inference
+        // keeps failing) doesn't re-fire on every page re-eval. Keyed by targetKey|imagePath.
+        this._coldStartRecomputeAttempted = new Set();
+        // Targets whose inference already failed for a given image, keyed by targetKey|imagePath.
+        // Two jobs: recovery is sync-then-refill (we never re-download at point of use), so a retry
+        // would fail identically; and the failure dispatch itself triggers a rule cycle, which
+        // re-fires the scheduling rule — without this the pair would loop indefinitely.
+        this._inferenceFailedForImage = new Set();
         // Inference results wait here for a short trailing-debounce window so a burst of N
         // verdicts (one per image on the summary screen) is applied in a single dispatch.
         this._pendingResults = [];
@@ -73,6 +97,22 @@ class EdgeModelService extends BaseService {
 
     getSchema() {
         return DownloadableContent.schema.name;
+    }
+
+    /**
+     * Called after a model-content sync. The per-image failure and cold-start-recompute caps are
+     * "give up until the situation changes" guards keyed to a missing/failed model — and a sync is
+     * exactly that change. Without this, an image that failed inference before the sync would stay
+     * suppressed for the rest of the session (its verdict never re-appears until the photo is
+     * retaken or the app restarts), even though the model is now on device. Clearing lets the next
+     * rule cycle re-attempt once; if it fails again the caps simply refill.
+     */
+    onModelContentSynced() {
+        if (this._inferenceFailedForImage.size === 0 && this._coldStartRecomputeAttempted.size === 0) return;
+        General.logDebug('EdgeModelSvc',
+            `onModelContentSynced: clearing retry caps (failed=${this._inferenceFailedForImage.size}, coldStart=${this._coldStartRecomputeAttempted.size})`);
+        this._inferenceFailedForImage.clear();
+        this._coldStartRecomputeAttempted.clear();
     }
 
     blobPath(sha256) {
@@ -188,7 +228,35 @@ class EdgeModelService extends BaseService {
         const labels = decoderParams.labels ?? ['Negative', 'Positive'];
 
         const t0 = Date.now();
-        const results = await Promise.all(rows.map(row => this._runInferenceOnImageForRow(row, imagePath)));
+        // allSettled, not all: Promise.all reports only the first rejection, so a single named fold
+        // masked the state of every other one — that's what hid a mis-provisioned fold (its row
+        // carried another fold's sha, so the ensemble silently ran 2 distinct models, not 3).
+        // Report every failing fold before throwing.
+        const settled = await Promise.allSettled(rows.map(row => this._runInferenceOnImageForRow(row, imagePath)));
+        const failures = settled
+            .map((s, i) => ({s, sha256: rows[i].sha256}))
+            .filter(({s}) => s.status === 'rejected');
+        if (failures.length > 0) {
+            const detail = failures.map(({s, sha256}) => `${sha256}: ${s.reason && s.reason.message}`).join(' | ');
+            // When every failing fold is merely uncached this is a provisioning gap — syncing then
+            // refilling recovers it. A genuine runtime failure in the mix makes 'sync and retry'
+            // misleading, so it degrades to the plain inference-failed message.
+            const allModelNotCached = failures.every(({s}) => s.reason && s.reason.code === MODEL_NOT_CACHED);
+            throw _.assign(
+                new Error(`EdgeModelService.runEnsembleInferenceOnImage: ${failures.length}/${settled.length} folds failed — ${detail}`),
+                allModelNotCached ? {code: MODEL_NOT_CACHED} : {});
+        }
+        const results = settled.map(s => s.value);
+        // Fail loud on a fold with a non-finite logit rather than letting it silently count as a
+        // negative vote — sigmoid(NaN) > threshold is false, so the native decoder hands back
+        // label="Negative" and the fold would masquerade as a confident negative, the worst outcome
+        // for a screening verdict. Throwing here follows the same contract as a fold that throws
+        // natively: no verdict is written, the target obs stays absent.
+        results.forEach((r, i) => {
+            if (!Number.isFinite(r.logit)) {
+                throw new Error(`EdgeModelService.runEnsembleInferenceOnImage: fold ${rows[i].sha256} returned a non-finite logit (${r.logit}); rows=[${rows.map(row => row.sha256).join(',')}]`);
+            }
+        });
         // Each fold binarises against its own threshold natively; the ensemble is positive only if
         // all folds decoded positive (labels[1]). confidence is the weakest fold's — informational.
         const positive = results.every(r => r.label === labels[1]);
@@ -257,9 +325,16 @@ class EdgeModelService extends BaseService {
      * async work without changing the rule contract; the result lands as a sibling observation
      * the dependent form element's synchronous rule reads via `entity.getObservationValue`.
      *
-     * Errors (including a not-yet-cached model) are swallowed (logged only). On failure the
-     * target obs stays absent and the dependent form element behaves as it would for a
-     * not-yet-arrived result — keeps the form save path unblocked.
+     * A persisted verdict whose image binding is unknown (cold start) or known-different (retake) is
+     * invalidated — blanked — before the recompute, so an absent-verdict rule re-gates against the
+     * missing verdict instead of trusting one that may belong to the old photo (#2010). The cold-start
+     * blank waits on a media-present check; a missing file keeps the verdict.
+     *
+     * On failure (including a not-yet-cached model) no verdict is written — an absent verdict must
+     * never read as a negative one. Instead of silently swallowing it, the failure is dispatched as
+     * INFERENCE_UNAVAILABLE so the form raises a validation error on the target element and blocks
+     * Next. Recovery is sync-then-refill; inference never re-downloads at point of use, so a failure
+     * is terminal for the current image and is not retried (see _inferenceFailedForImage).
      */
     _scheduleImageInference({imagePath, entity, targetConceptName, labelMap, questionGroupConceptName, rqgIdx}) {
         const isRqg = questionGroupConceptName != null;
@@ -277,6 +352,14 @@ class EdgeModelService extends BaseService {
             ? this._readRqgChildValue(entity, questionGroupConceptName, rqgIdx, targetConceptName)
             : entity.getObservationValue(targetConceptName);
 
+        const failureKey = `${targetKey}|${imagePath}`;
+        if (this._inferenceFailedForImage.has(failureKey)) {
+            // The validation error raised by the first failure is still on the form element and
+            // survives rule cycles, so there's nothing to re-dispatch. Retaking the photo yields a
+            // new imagePath (new key) and gets a fresh attempt.
+            return;
+        }
+
         const lastImage = this._lastInferredImageByTarget.get(targetKey);
         if (lastImage === imagePath) {
             // Already inferred for this exact image+target — verdict is either persisted or
@@ -284,18 +367,59 @@ class EdgeModelService extends BaseService {
             // `existing != null` guard covers the resolved-but-not-yet-written window.
             return;
         }
+
+        // #2010 — a persisted verdict whose image binding is unknown (cold start) or known-different
+        // (in-session retake) must not keep satisfying a mandatory gate against the wrong photo.
+        // Blank it (rather than keep the old value until the new one lands) so an absent-verdict rule
+        // re-gates while inference re-runs. The clear rides the shared flush timer at 0ms — off the
+        // reducer call stack, ahead of the fresh verdict, never coalesced behind the 120ms debounce.
+        const coldStartKey = `${targetKey}|${imagePath}`;
+        const queueClear = () => {
+            General.logDebug('EdgeModelSvc',
+                `scheduleImageInference INVALIDATING stale verdict for '${targetConceptName}'${isRqg ? `[${rqgIdx}]` : ''}`);
+            this._queueInferenceResult(isRqg
+                ? {questionGroupConceptName, conceptName: targetConceptName, questionGroupIndex: rqgIdx, value: null, clear: true}
+                : {conceptName: targetConceptName, value: null, clear: true});
+            if (this._flushTimer) clearTimeout(this._flushTimer);
+            this._flushTimer = setTimeout(() => this._flushPendingResults(), 0);
+        };
+
+        // Once a verdict has been blanked (existing == null), a recompute that already failed for
+        // this exact image must not re-fire on every re-eval; a retake (new path) re-enables it.
+        if (existing == null && this._coldStartRecomputeAttempted.has(coldStartKey)) {
+            General.logDebug('EdgeModelSvc',
+                `scheduleImageInference SKIP recompute already attempted for '${targetConceptName}' (${imagePath})`);
+            return;
+        }
+
+        let invalidateIfMediaPresent = false;
+        let invalidateStaleNow = false;
         if (existing != null) {
             if (lastImage === undefined) {
                 // First time we're seeing this target in-session and it's already populated →
-                // persisted verdict from a previous session. Trust it, seed the cache so a
-                // later retake (different imagePath) re-runs.
-                this._lastInferredImageByTarget.set(targetKey, imagePath);
+                // persisted verdict from a previous session. We can't tell whether it still matches
+                // the current image (an edit may have swapped the image under it), so recompute
+                // instead of trusting it. Cap it to one attempt per image so a missing media file
+                // doesn't retry. Blank only when the media is present (recompute will definitively
+                // resolve); a missing file must keep the persisted verdict rather than blank it blindly.
+                if (this._coldStartRecomputeAttempted.has(coldStartKey)) {
+                    General.logDebug('EdgeModelSvc',
+                        `scheduleImageInference SKIP cold-start recompute already attempted for '${targetConceptName}' (${imagePath})`);
+                    return;
+                }
+                this._coldStartRecomputeAttempted.add(coldStartKey);
                 General.logDebug('EdgeModelSvc',
-                    `scheduleImageInference SKIP trust persisted verdict for '${targetConceptName}' (seeded lastImage=${imagePath})`);
-                return;
+                    `scheduleImageInference cold-start recompute for '${targetConceptName}' (persisted verdict, imagePath=${imagePath})`);
+                invalidateIfMediaPresent = true;
+            } else {
+                // existing populated but lastImage defined and != imagePath → the photo was retaken.
+                // The image is known-different, so blank the stale verdict now (the clear runs below,
+                // after the in-flight dedup so a re-eval mid-flight doesn't double-queue it).
+                General.logDebug('EdgeModelSvc',
+                    `scheduleImageInference image CHANGED for '${targetConceptName}' (was ${lastImage}, now ${imagePath}) — re-running`);
+                this._coldStartRecomputeAttempted.add(coldStartKey);
+                invalidateStaleNow = true;
             }
-            General.logDebug('EdgeModelSvc',
-                `scheduleImageInference image CHANGED for '${targetConceptName}' (was ${lastImage}, now ${imagePath}) — re-running`);
         }
 
         const inflightKey = isRqg
@@ -307,9 +431,31 @@ class EdgeModelService extends BaseService {
         }
         this._scheduled.add(inflightKey);
         General.logDebug('EdgeModelSvc', `scheduleImageInference QUEUED: ${inflightKey}`);
+        if (invalidateStaleNow) queueClear();
 
-        this.runInferenceOnImage(imagePath)
+        const SKIP_INFERENCE = {__skipInference: true};
+        const inference = invalidateIfMediaPresent
+            ? (async () => {
+                // Cold-start recompute of a persisted verdict. If the media file isn't on the device
+                // (synced-in encounter whose image never downloaded), there's nothing to recompute
+                // against — running inference on a missing file only fails and would raise a blocking
+                // error over a valid verdict. Keep the persisted verdict and skip. Fail CLOSED when fs
+                // is unavailable too: presence unknown ⇒ don't risk blanking/erroring a good verdict.
+                const mediaPresent = await (fs && fs.exists
+                    ? fs.exists(imagePath).catch(() => false)
+                    : Promise.resolve(false));
+                if (!mediaPresent) {
+                    General.logDebug('EdgeModelSvc',
+                        `scheduleImageInference SKIP cold-start: media absent, keeping persisted verdict for '${targetConceptName}' (${imagePath})`);
+                    return SKIP_INFERENCE;
+                }
+                queueClear();
+                return this.runInferenceOnImage(imagePath);
+            })()
+            : this.runInferenceOnImage(imagePath);
+        inference
             .then(result => {
+                if (result === SKIP_INFERENCE) return;   // cold-start, media absent → verdict kept, no dispatch
                 const rawLabel = result && result.label != null ? result.label : result;
                 // Apply the optional label map so the obs holds the user-facing string
                 // (TextFormElement renders the obs verbatim).
@@ -328,6 +474,20 @@ class EdgeModelService extends BaseService {
             .catch(err => {
                 General.logError('EdgeModelSvc',
                     `scheduleImageInference FAILED ${imagePath}: ${err && err.message}\n${err && err.stack}`);
+                this._inferenceFailedForImage.add(failureKey);
+                // No verdict was produced. Tell the form so it can block Next rather than let the
+                // worker reach the referral screen on an absent verdict. Inference deliberately does
+                // not re-download here — recovery is sync-then-refill, so this is terminal for the
+                // attempt. Dispatched (not returned): the rule that scheduled this is synchronous
+                // and returned long ago.
+                this.dispatchAction(EDGE_MODEL_ACTION.INFERENCE_UNAVAILABLE, {
+                    conceptName: targetConceptName,
+                    questionGroupConceptName,
+                    questionGroupIndex: rqgIdx,
+                    messageKey: err && err.code === MODEL_NOT_CACHED
+                        ? INFERENCE_UNAVAILABLE_REASON.MODEL_UNAVAILABLE
+                        : INFERENCE_UNAVAILABLE_REASON.INFERENCE_FAILED
+                });
             })
             .finally(() => {
                 this._scheduled.delete(inflightKey);
@@ -388,7 +548,9 @@ class EdgeModelService extends BaseService {
 
         const blobPath = this.blobPath(sha256);
         if (!await fs.exists(blobPath)) {
-            throw new Error(`EdgeModelService: model blob not cached yet for sha256 '${sha256}' (download pending or failed at sync)`);
+            throw _.assign(
+                new Error(`EdgeModelService: model blob not cached yet for sha256 '${sha256}' (download pending or failed at sync)`),
+                {code: MODEL_NOT_CACHED});
         }
         const overrideJson = this._overrideJsonFor(row);
         const t0 = Date.now();

@@ -33,6 +33,7 @@ import Timer from "../common/Timer";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 import FullScreenLoader from "../common/FullScreenLoader";
+import CustomActivityIndicator from "../CustomActivityIndicator";
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
@@ -52,7 +53,14 @@ class ProgramEncounterView extends AbstractComponent {
     loadData() {
         const {encounterType, enrolmentUUID, programEncounter, workLists, pageNumber, editing} = this.props.params;
         if (programEncounter) {
-            this.dispatchAction(Actions.ON_LOAD, {programEncounter, workLists, pageNumber, editing});
+            // When the visit date is hidden org-wide the user can't set it, so auto-capture today
+            // for encounters that arrive without one (e.g. scheduled/planned encounters).
+            let encounterToLoad = programEncounter;
+            if (_.isNil(programEncounter.encounterDateTime) && this.context.getService(OrganisationConfigService).isVisitDateHidden()) {
+                encounterToLoad = programEncounter.cloneForEdit();
+                encounterToLoad.encounterDateTime = new Date();
+            }
+            this.dispatchAction(Actions.ON_LOAD, {programEncounter: encounterToLoad, workLists, pageNumber, editing});
             return;
         }
         const programEncounterByType = this.context.getService(ProgramEncounterService)
@@ -135,6 +143,7 @@ class ProgramEncounterView extends AbstractComponent {
             popVerificationVew,
             verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(this, this.next.bind(this), observation, () => this.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation}), () => this.dispatchAction(Actions.ON_SKIP_VERIFICATION, {observation, skipVerification: true})),
             movedNext: this.scrollToTop,
+            settleCompletion: (newState) => this.dispatchAction(Actions.USE_THIS_STATE, {state: newState}),
             fromSDV
         }
     }
@@ -150,7 +159,7 @@ class ProgramEncounterView extends AbstractComponent {
     // An immutable, fully-filled encounter always shows the summary. In componentDidUpdate, not
     // render, so the summary-page push doesn't land mid-slide (the stuck-half-transition bug).
     componentDidUpdate() {
-        if (this.state.allElementsFilledForImmutableEncounter) {
+        if (this.state.allElementsFilledForImmutableEncounter && !this.state.wizardCompletionInProgress) {
             this.onGoToSummary(true);
         }
     }
@@ -202,7 +211,7 @@ class ProgramEncounterView extends AbstractComponent {
         const title = `${this.state.programEncounter.programEnrolment.individual.nameString} - ${programEncounterName}`;
         this.displayMessage(this.props.params.message);
         const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);
-        const hideVisitDate = this.context.getService(OrganisationConfigService).isVisitDateHidden();
+        const hideVisitDate = this.context.getService(OrganisationConfigService).isVisitDateHidden() && !_.isNil(this.state.programEncounter.encounterDateTime);
         return (
             <CHSContainer>
                 <CHSContent>
@@ -264,6 +273,7 @@ class ProgramEncounterView extends AbstractComponent {
                     </View>
                     </ScrollView>
                 </CHSContent>
+                <CustomActivityIndicator loading={!!this.state.wizardCompletionInProgress}/>
             </CHSContainer>
         );
     }

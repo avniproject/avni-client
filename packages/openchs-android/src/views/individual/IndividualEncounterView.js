@@ -20,6 +20,7 @@ import DateFormElement from "../form/formElement/DateFormElement";
 import Distances from "../primitives/Distances";
 import CHSContent from "../common/CHSContent";
 import CHSContainer from "../common/CHSContainer";
+import CustomActivityIndicator from "../CustomActivityIndicator";
 import FormMappingService from "../../service/FormMappingService";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
@@ -53,7 +54,14 @@ class IndividualEncounterView extends AbstractComponent {
     loadData() {
         const {encounterType, individualUUID, encounter, workLists, pageNumber, editing} = this.props;
         if (encounter) {
-            this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter, workLists, pageNumber, editing});
+            // When the visit date is hidden org-wide the user can't set it, so auto-capture today
+            // for encounters that arrive without one (e.g. scheduled/planned encounters).
+            let encounterToLoad = encounter;
+            if (_.isNil(encounter.encounterDateTime) && this.context.getService(OrganisationConfigService).isVisitDateHidden()) {
+                encounterToLoad = encounter.cloneForEdit();
+                encounterToLoad.encounterDateTime = new Date();
+            }
+            this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter: encounterToLoad, workLists, pageNumber, editing});
         } else {
             const encounterByType = this.context.getService(EncounterService)
                 .findDueEncounter({encounterTypeName: encounterType, individualUUID})
@@ -113,6 +121,7 @@ class IndividualEncounterView extends AbstractComponent {
                 skipVerification: true
             })),
             movedNext: this.scrollToTop,
+            settleCompletion: (newState) => this.dispatchAction(Actions.USE_THIS_STATE, {state: newState}),
             fromSDV
         }
     }
@@ -129,7 +138,7 @@ class IndividualEncounterView extends AbstractComponent {
     // An immutable, fully-filled encounter always shows the summary. In componentDidUpdate, not
     // render, so the summary-page push doesn't land mid-slide (the stuck-half-transition bug).
     componentDidUpdate() {
-        if (this.state.allElementsFilledForImmutableEncounter) {
+        if (this.state.allElementsFilledForImmutableEncounter && !this.state.wizardCompletionInProgress) {
             this.onGoToSummary(true);
         }
     }
@@ -181,7 +190,7 @@ class IndividualEncounterView extends AbstractComponent {
         const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);
         General.logDebug(this.viewName(), `render with IndividualUUID=${this.props.individualUUID} and EncounterTypeUUID=${this.state.encounter.encounterType.uuid}`);
         const title = `${this.I18n.t(this.state.encounter.encounterType.displayName)} - ${this.I18n.t('enterData')}`;
-        const hideVisitDate = this.context.getService(OrganisationConfigService).isVisitDateHidden();
+        const hideVisitDate = this.context.getService(OrganisationConfigService).isVisitDateHidden() && !_.isNil(this.state.encounter.encounterDateTime);
         return (
             <CHSContainer>
                 <CHSContent>
@@ -245,6 +254,7 @@ class IndividualEncounterView extends AbstractComponent {
                     </View>
                     </ScrollView>
                 </CHSContent>
+                <CustomActivityIndicator loading={!!this.state.wizardCompletionInProgress}/>
             </CHSContainer>
         );
     }

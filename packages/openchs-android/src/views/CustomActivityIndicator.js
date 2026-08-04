@@ -15,10 +15,10 @@ const CustomActivityIndicator = props => {
     // The full screen level modal indicator doesn't go away on reload screen, from previous ,load, which means app has to be restarted
 
     return (
-        <Modal transparent={true} animationType={'none'} visible={loading}>
+        <Modal transparent={true} animationType={'none'} visible={!!loading}>
             <View style={styles.modalBackground}>
                 <View style={styles.activityIndicatorWrapper}>
-                    <ActivityIndicator animating={loading}/>
+                    <ActivityIndicator animating={!!loading}/>
                 </View>
             </View>
         </Modal>
