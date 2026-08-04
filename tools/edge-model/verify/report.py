@@ -10,7 +10,12 @@ images. It never flips a verdict, unanimous-AND is itself the borderline protect
 robustness is TANUH's to close in model development. Gating on the band would fail every good build.
 
 The per-model table is still computed and printed as evidence, with the 1e-2 band shown for
-reference — it is informational and must not affect the exit code."""
+reference — it is informational and must not affect the exit code.
+
+Verdict parity is necessary but not sufficient: it says nothing about how many images were compared.
+A sweep that lost images between the phone and here still matches every verdict it did compare, so
+the run must also clear a COMPLETENESS gate — the expected number of images joined, and no device
+row left unaccounted for. Covered by report_test.py."""
 import csv, os, sys
 from openpyxl import load_workbook
 
@@ -18,6 +23,13 @@ from openpyxl import load_workbook
 MAX_BAR = 1e-2
 FOLDS = ["model6", "model8", "model8-2"]
 XLSX_COL = {"model6": "Probability_model6", "model8": "Probability_model8", "model8-2": "Probability_model8-2"}
+# Of the 90 shipped verification images, 89 have complete reference scores (one lacks model6).
+# Encoded rather than left for the operator to eyeball — a short sweep must fail, not read as a pass.
+# $PARITY_EXPECTED_IMAGES overrides it when TANUH ships a different fixture set; report_test.py uses
+# that to drive small synthetic sets. Overriding to paper over a short run defeats the gate.
+EXPECTED_IMAGES_DEFAULT = 89
+# How many image ids to name before falling back to a count, for lists that are long by design.
+LIST_LIMIT = 10
 
 
 def load_ref(xlsx):
@@ -42,7 +54,9 @@ def main():
     fx = os.environ["TANUH_FIXTURES"]
     xlsx = os.path.join(fx, "tanuh_test_data", "Data_models_protocol_for_testing_AI_model_integrations",
                         "Test data", "true_label_model_output_probabilities.xlsx")
-    here = os.path.dirname(os.path.abspath(__file__)); out = os.path.join(here, "out")
+    here = os.path.dirname(os.path.abspath(__file__))
+    out = os.environ.get("PARITY_OUT_DIR") or os.path.join(here, "out")
+    expected_images = int(os.environ.get("PARITY_EXPECTED_IMAGES") or EXPECTED_IMAGES_DEFAULT)
     dev = {}
     with open(os.path.join(out, "per_model_scores.csv")) as fh:
         for row in csv.DictReader(fh):
@@ -50,7 +64,13 @@ def main():
     ref, incomplete = load_ref(xlsx)
 
     joined = [iid for iid in dev if iid in ref]
-    dev_incomplete = sorted(iid for iid in dev if iid in set(incomplete))
+    incomplete_ids = set(incomplete)
+    dev_incomplete = sorted(iid for iid in dev if iid in incomplete_ids)
+    # Every device row must land in exactly one bucket: joined, or skipped because its reference is
+    # incomplete. Anything left over joined to nothing and would otherwise vanish from the denominator.
+    dev_unmatched = sorted(iid for iid in dev if iid not in ref and iid not in incomplete_ids)
+    # The xlsx is a superset of the shipped images, so these are reported, not gated on.
+    ref_unswept = sorted(iid for iid in ref if iid not in dev)
     if not joined:
         print(f"❌ 0 images joined (dev {len(dev)}, xlsx {len(ref)}) — image IDs don't match the xlsx. "
               f"Check the pushed image basenames vs the 'Image ID' column.", file=sys.stderr)
@@ -71,19 +91,38 @@ def main():
 
     n = len(joined)
     worst = max(per[f]["max"] for f in FOLDS); total_ge = sum(per[f]["ge"] for f in FOLDS)
-    ok = verdict_match == n          # verdict parity is the pass condition (TANUH, 2026-07-17)
+    verdicts_ok = verdict_match == n      # verdict parity — the TANUH bar (2026-07-17)
+    complete = not dev_unmatched and n == expected_images
+    ok = verdicts_ok and complete         # a run that did not compare every image has not passed
     with open(os.path.join(out, "per_image_scores.csv"), "w", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=list(rows_out[0].keys())); w.writeheader(); w.writerows(rows_out)
     mismatched = [r["image_id"] for r in rows_out if r["dev_verdict"] != r["ref_verdict"]]
     lines = [f"# On-device parity — avni corrected pipeline vs TANUH xlsx", "",
-             f"- images joined: **{n}** (dev {len(dev)}, xlsx-with-complete-scores {len(ref)})",
+             f"- images joined: **{n}** of {expected_images} expected "
+             f"(dev {len(dev)}, xlsx-with-complete-scores {len(ref)})",
              f"- skipped (reference incomplete in xlsx): {len(dev_incomplete)}"
              + (f" — {', '.join(dev_incomplete)}" if dev_incomplete else ""),
-             "- acceptance bar: **verdict-level parity** — every image's refer / no-refer call must",
-             "  match the reference (TANUH, 2026-07-17; \"TANUH AI on Avni\" §6, Resolved)", "",
+             "- acceptance bar: **verdict-level parity over every expected image** — every image's",
+             "  refer / no-refer call must match the reference (TANUH, 2026-07-17; \"TANUH AI on Avni\"",
+             "  §6, Resolved), and the sweep must have covered the full set", "",
              f"**Verdict parity vs reference: {verdict_match}/{n} — {'PASS ✅' if ok else 'FAIL ❌'}**"]
     if mismatched:
         lines += ["", f"- verdict mismatches: {', '.join(mismatched)}"]
+    if not complete:
+        lines += ["", "## ❌ Incomplete run — this is not a pass on the subset", ""]
+        if n != expected_images:
+            lines += [f"- joined {n}, expected {expected_images}. Images went missing between the phone "
+                      "and this report, or the sweep never finished. Re-run it; do not read the verdict "
+                      "line above as a result."]
+        if dev_unmatched:
+            lines += [f"- {len(dev_unmatched)} device row(s) match no 'Image ID' in the xlsx: "
+                      f"{', '.join(dev_unmatched)}"]
+    if ref_unswept:
+        # Expected, not a failure: the xlsx covers all TANUH test images, not just the shipped
+        # verification set, so this list is normally long — name a few and give the count.
+        shown = ", ".join(ref_unswept[:LIST_LIMIT])
+        lines += ["", f"- reference rows with no device score: {len(ref_unswept)} — {shown}"
+                  + (f", … (+{len(ref_unswept) - LIST_LIMIT} more)" if len(ref_unswept) > LIST_LIMIT else "")]
     lines += ["", "## Per-model sigmoid difference (evidence only — does not gate this run)", "",
               f"Reference band for context: max |sigmoid diff| < {MAX_BAR:g}. Exceeding it on a device is",
               "expected: Android's Skia JPEG decode differs by ±1 grey level from desktop libjpeg/OpenCV",
