@@ -15,43 +15,53 @@ OUT="$repo_root/tools/edge-model/verify/out"; mkdir -p "$OUT"
 # Written by EdgeModelParityIntegrationTest — keep both names in step with that file.
 COMPLETE="run-complete.json"
 FAILED="run-failed.txt"
-# A sweep of 90 images on an emulator runs well under this; raise it for a slower device.
+# Time budget for the SWEEP only. The app must already be built, installed and showing the test list
+# before this script runs, so a cold Gradle build is not competing for this budget.
 TIMEOUT_SECONDS="${PARITY_TIMEOUT_SECONDS:-2400}"
 POLL_SECONDS="${PARITY_POLL_SECONDS:-10}"
+# Re-pull a sweep that already finished, without touching the device's results.
+COLLECT_ONLY="${PARITY_COLLECT_ONLY:-0}"
 
 adb get-state >/dev/null 2>&1 || { echo "❌ no device/emulator (adb get-state)"; exit 1; }
-echo "→ pushing verification images to $DEVBASE/images (device only; nothing enters the repo)"
-echo "   NOTE: models are provisioned by sync, not bundled — sync the device before running the sweep,"
-echo "   or every fold fails with 'model blob not cached yet'."
-# Clear both dirs before staging anything. A previous run's per_model_scores.csv is still on the
-# device, and pulling it as though it were this run's result is exactly the failure this guards.
-adb shell "rm -rf $DEVBASE/images $DEVBASE/out"
-adb shell "mkdir -p $DEVBASE/images $DEVBASE/out"
-# The 90 verification images live in test_images_suspicious/ + test_images_nonsuspicious/ (unique
-# UUID basenames), so collect recursively into a flat temp dir and push jpgs only — never the xlsx.
-TMPIMG=$(mktemp -d); find "$IMAGES" -type f -iname '*.jpg' -exec cp {} "$TMPIMG/" \;
-n_img=$(find "$TMPIMG" -type f -iname '*.jpg' | wc -l | tr -d ' ')
-adb push "$TMPIMG/." "$DEVBASE/images/" >/dev/null; rm -rf "$TMPIMG"
-echo "  pushed $n_img images"
 
-echo "→ launch the integration-test app and run 'EdgeModelParityIntegrationTest'."
-echo "   There is no integration build variant: swap the RN entry point by hand in"
-echo "   packages/openchs-android/index.android.js — comment out the './src/Avni' import and"
-echo "   uncomment './integrationTest/IntegrationTestApp' — then rebuild and install OVER the"
-echo "   existing app (uninstalling wipes the cached models and keys; the test build cannot"
-echo "   re-sync them). Run the parity test from the rendered list; it writes"
-echo "   per_model_scores.csv to the device. Revert index.android.js afterwards."
+# Stale local results are graded by report.py as though they were this run's, and every abort below
+# happens before the pull — so clear them before anything can fail.
+rm -f "$OUT/per_model_scores.csv" "$OUT/fold-mapping.csv"
+
+if [ "$COLLECT_ONLY" = "1" ]; then
+  echo "→ collect-only: leaving the device's images and results untouched"
+  n_img=""
+else
+  echo "→ pushing verification images to $DEVBASE/images (device only; nothing enters the repo)"
+  echo "   NOTE: models are provisioned by sync, not bundled — sync the device before running the sweep,"
+  echo "   or every fold fails with 'model blob not cached yet'."
+  # Clearing the device dirs is what stops a previous run's CSV being collected as this one's. It also
+  # destroys a finished sweep, so re-run with PARITY_COLLECT_ONLY=1 when you only need to re-pull.
+  adb shell "rm -rf $DEVBASE/images $DEVBASE/out"
+  adb shell "mkdir -p $DEVBASE/images $DEVBASE/out"
+  # Unique UUID basenames across the two image dirs, so flatten into a temp dir and push jpgs only.
+  TMPIMG=$(mktemp -d); find "$IMAGES" -type f -iname '*.jpg' -exec cp {} "$TMPIMG/" \;
+  n_img=$(find "$TMPIMG" -type f -iname '*.jpg' | wc -l | tr -d ' ')
+  adb push "$TMPIMG/." "$DEVBASE/images/" >/dev/null; rm -rf "$TMPIMG"
+  echo "  pushed $n_img images"
+  echo
+  echo "→ NOW run 'EdgeModelParityIntegrationTest' on the device (the app should already be built,"
+  echo "   installed and showing the test list — see README step 3). Tap Run on runParitySweep."
+fi
 echo
 echo "→ waiting for the sweep to finish (polling every ${POLL_SECONDS}s, up to ${TIMEOUT_SECONDS}s)."
-# NOT waiting for green. IntegrationTestRunner does not await the test, so the row turns green at the
-# first await inside runParitySweep — before any image is scored — and a throw in there rejects a
-# floating promise the runner never sees. The sweep writes $COMPLETE as its very last statement and
-# $FAILED if it threw; those are the only honest signals. See avni-client#2035.
+# Not waiting for green: the runner does not await the test, so green means started. The sentinels do.
 deadline=$(( SECONDS + TIMEOUT_SECONDS ))
 sentinel=""
 while :; do
-  # `|| true`: adb propagates cat's exit code, and a not-yet-written sentinel is the normal case —
-  # without it `set -e` aborts the poll on the first tick.
+  # A dead device returns empty from the sentinel reads below, which is indistinguishable from
+  # "not written yet" — so ask adb directly rather than blaming slowness for 40 minutes.
+  if ! adb get-state >/dev/null 2>&1; then
+    echo "❌ lost the device mid-run (adb get-state). The sweep cannot still be running." >&2
+    echo "   Check the emulator/app (API 37 crashes with a Hermes SIGSEGV), then re-run." >&2
+    exit 1
+  fi
+  # `|| true`: adb propagates cat's exit code, and a not-yet-written sentinel is the normal case.
   failure="$(adb shell "cat $DEVBASE/out/$FAILED 2>/dev/null" 2>/dev/null | tr -d '\r' || true)"
   if [ -n "$failure" ]; then
     echo "❌ the sweep failed on the device:" >&2
@@ -71,9 +81,10 @@ while :; do
   sleep "$POLL_SECONDS"
 done
 
+# The sweep counts rows read back off the written CSV, so this catches a truncated file too.
 n_rows="$(printf '%s' "$sentinel" | sed -n 's/.*"rows":[[:space:]]*\([0-9][0-9]*\).*/\1/p')"
 [ -n "$n_rows" ] || { echo "❌ unreadable completion sentinel: $sentinel" >&2; exit 1; }
-if [ "$n_rows" -ne "$n_img" ]; then
+if [ -n "$n_img" ] && [ "$n_rows" -ne "$n_img" ]; then
   echo "❌ the sweep scored $n_rows of the $n_img images pushed. A report over the subset would call" >&2
   echo "   the run a pass on whatever survived — refusing to collect it." >&2
   exit 1

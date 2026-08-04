@@ -61,8 +61,11 @@ class ReportExitCodeTest(unittest.TestCase):
                 **os.environ,
                 "TANUH_FIXTURES": str(tmp / "fixtures"),
                 "PARITY_OUT_DIR": str(out),
-                "PARITY_EXPECTED_IMAGES": str(expected_images),
             }
+            # expected_images=None leaves the override unset, so the run exercises the real default.
+            env.pop("PARITY_EXPECTED_IMAGES", None)
+            if expected_images is not None:
+                env["PARITY_EXPECTED_IMAGES"] = str(expected_images)
             proc = subprocess.run([sys.executable, str(REPORT)], env=env,
                                   capture_output=True, text=True)
             return proc.returncode, proc.stdout + proc.stderr
@@ -114,9 +117,31 @@ class ReportExitCodeTest(unittest.TestCase):
         self.assertEqual(code, 0, output)
         self.assertIn("elsewhere", output)
 
-    def test_expected_image_count_defaults_to_the_89_shipped_with_complete_scores(self):
-        report = REPORT.read_text()
-        self.assertIn("EXPECTED_IMAGES_DEFAULT = 89", report)
+    def test_a_run_that_joins_more_than_expected_passes_and_says_so(self):
+        """TANUH filling in the one missing model6 cell makes 90 join. That is a better run, not a
+        failed one — gating on equality would report it as 'images went missing'."""
+        ref = [("a", 1, REFER), ("b", 0, NO_REFER), ("c", 1, REFER)]
+        dev = [("a", REFER), ("b", NO_REFER), ("c", REFER)]
+        code, output = self.run_report(ref, dev, expected_images=2)
+        self.assertEqual(code, 0, output)
+        self.assertIn("PASS", output)
+        self.assertIn("more than the 2 expected", output)
+        self.assertNotIn("went missing", output)
+
+    def test_the_default_expected_count_is_the_89_shipped_with_complete_scores(self):
+        """Exercised, not grepped: with no $PARITY_EXPECTED_IMAGES the gate must use 89 itself."""
+        ref = [(f"img{i:03d}", i % 2, REFER if i % 2 else NO_REFER) for i in range(89)]
+        dev = [(f"img{i:03d}", REFER if i % 2 else NO_REFER) for i in range(89)]
+        code, output = self.run_report(ref, dev, expected_images=None)
+        self.assertEqual(code, 0, output)
+        self.assertIn("89", output)
+
+    def test_the_default_expected_count_fails_a_sweep_one_image_short(self):
+        ref = [(f"img{i:03d}", i % 2, REFER if i % 2 else NO_REFER) for i in range(89)]
+        dev = [(f"img{i:03d}", REFER if i % 2 else NO_REFER) for i in range(88)]
+        code, output = self.run_report(ref, dev, expected_images=None)
+        self.assertEqual(code, 1, output)
+        self.assertIn("went missing", output)
 
 
 if __name__ == "__main__":

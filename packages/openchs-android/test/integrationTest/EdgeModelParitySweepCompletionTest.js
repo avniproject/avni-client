@@ -1,13 +1,19 @@
 import {assert} from "chai";
 
 // react-native-fs has no JS fallback off-device, and the sweep is only ever exercised through it.
+// writeFile/readFile are backed by a dict so the sweep's read-back of the scores file is real.
+const mockStore = {};
 const mockFs = {
     ExternalDirectoryPath: "/ext",
     mkdir: jest.fn(() => Promise.resolve()),
     exists: jest.fn(() => Promise.resolve(false)),
     unlink: jest.fn(() => Promise.resolve()),
     readDir: jest.fn(() => Promise.resolve([])),
-    writeFile: jest.fn(() => Promise.resolve())
+    writeFile: jest.fn((path, contents) => {
+        mockStore[path] = contents;
+        return Promise.resolve();
+    }),
+    readFile: jest.fn((path) => Promise.resolve(mockStore[path]))
 };
 jest.mock("react-native-fs", () => mockFs);
 
@@ -48,14 +54,18 @@ function writtenBody(path) {
     return call && call[1];
 }
 
-// IntegrationTestRunner calls testMethod.success() on the line after invoking the test, without
-// awaiting it, so the device screen goes green at the first await inside runParitySweep — before any
-// image is scored — and a throw rejects a promise nobody observes. run-parity.sh therefore trusts
-// only these files. See avni-client#2035.
+// The runner does not await the test, so green means started and a throw rejects an unobserved
+// promise — these files are the only honest completion signal.
 describe("EdgeModelParityIntegrationTest completion sentinel", () => {
     beforeEach(() => {
         Object.values(mockFs).forEach((value) => value.mockClear && value.mockClear());
+        Object.keys(mockStore).forEach((key) => delete mockStore[key]);
         mockFs.exists.mockImplementation(() => Promise.resolve(false));
+        mockFs.mkdir.mockImplementation(() => Promise.resolve());
+        mockFs.writeFile.mockImplementation((path, contents) => {
+            mockStore[path] = contents;
+            return Promise.resolve();
+        });
     });
 
     it("writes the completion sentinel only after both result files", async () => {
@@ -78,7 +88,7 @@ describe("EdgeModelParityIntegrationTest completion sentinel", () => {
 
     it("writes no completion sentinel and records the failure when the sweep throws", async () => {
         mockFs.readDir.mockImplementation(() => Promise.resolve([imageEntry("a.jpg")]));
-        // The #1985 shape: three rows, two sharing a sha, so unanimous-AND runs over 2 models.
+        // Three rows, two sharing a sha, so unanimous-AND runs over 2 distinct models.
         const duplicateFold = () => Promise.resolve({
             perModel: [{sha256: "sha6", logit: 1}, {sha256: "sha6", logit: 1}, {sha256: "sha82", logit: 1}]
         });
@@ -93,6 +103,45 @@ describe("EdgeModelParityIntegrationTest completion sentinel", () => {
         assert.isNotNull(thrown, "the sweep must still reject so 'Run & Throw' surfaces it");
         assert.notInclude(writtenPaths(), `${OUT}/run-complete.json`);
         assert.include(writtenBody(`${OUT}/run-failed.txt`), "duplicate fold sha256");
+    });
+
+    it("records a setup failure, rather than leaving the collector to time out on silence", async () => {
+        // mkdir and the sentinel clearing run before any image is read; a throw there used to escape
+        // the try, so nothing was written and run-parity.sh waited out its full timeout.
+        mockFs.mkdir.mockImplementation(() => Promise.reject(new Error("ENOENT: external storage not mounted")));
+
+        let thrown = null;
+        try {
+            await stubbedTest(edgeModelService(scoresEveryFold)).runParitySweep();
+        } catch (error) {
+            thrown = error;
+        }
+
+        assert.isNotNull(thrown);
+        assert.include(writtenBody(`${OUT}/run-failed.txt`), "external storage not mounted");
+    });
+
+    it("refuses to report a truncated scores file as a complete run", async () => {
+        mockFs.readDir.mockImplementation(() => Promise.resolve(
+            [imageEntry("a.jpg"), imageEntry("b.jpg"), imageEntry("c.jpg")]));
+        // Device runs out of space mid-write: the file lands with fewer rows than were scored.
+        mockFs.writeFile.mockImplementation((path, contents) => {
+            mockStore[path] = path.endsWith("per_model_scores.csv")
+                ? contents.split("\n").slice(0, 3).join("\n") + "\n"
+                : contents;
+            return Promise.resolve();
+        });
+
+        let thrown = null;
+        try {
+            await stubbedTest(edgeModelService(scoresEveryFold)).runParitySweep();
+        } catch (error) {
+            thrown = error;
+        }
+
+        assert.isNotNull(thrown, "a truncated scores file must fail the sweep");
+        assert.include(thrown.message, "truncated");
+        assert.notInclude(writtenPaths(), `${OUT}/run-complete.json`);
     });
 
     it("clears a previous run's sentinels before starting", async () => {
