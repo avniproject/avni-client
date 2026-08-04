@@ -46,7 +46,7 @@ export function ErrorDisplay({avniError, context, username = null}) {
             setIsUploading(true);
             const backupRestoreService = serviceContext.getService(BackupRestoreRealmService);
             // Pass username to avoid realm access during login flow when realm may be corrupted
-            backupRestoreService.backup(MediaQueueService.DumpType.Adhoc, (percentDone, message) => {
+            backupRestoreService.backup(MediaQueueService.DumpType.Adhoc, (percentDone, message, backupError) => {
                 General.logDebug("ErrorDisplay", `${percentDone}% - ${message}`);
                 setUploadProgress(percentDone);
                 setUploadMessage(message);
@@ -60,7 +60,8 @@ export function ErrorDisplay({avniError, context, username = null}) {
                         ]);
                     } else {
                         const title = i18n ? i18n.t('uploadFailed') : 'Upload Failed';
-                        Alert.alert(title, "", [
+                        const body = backupError ? backupError.getDisplayMessage() : "";
+                        Alert.alert(title, body, [
                             {text: 'OK', onPress: () => RNRestart.Restart()}
                         ]);
                     }

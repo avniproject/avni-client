@@ -156,13 +156,20 @@ class MediaQueueService extends BaseService {
 
     foregroundUpload(url, fullFilePath, cb) {
         General.logDebug("MediaQueueService", `foreground uploading ${fullFilePath} to ${url}`);
-        return RNFetchBlob.fetch('PUT', url, {
+        const uploadTask = RNFetchBlob.fetch('PUT', url, {
             "Content-Type": "application/octet-stream",
-        }, RNFetchBlob.wrap(fullFilePath))
-            .uploadProgress((written, total) => {
-                General.logDebug("MediaQueueService", 'uploaded', written / total);
-                cb(written, total);
-            }).then((x) => checkUploadStatus(x, `${url}. ${fullFilePath}`));
+        }, RNFetchBlob.wrap(fullFilePath));
+
+        let jobTimeoutHandler = this.cancelUploadIfNoProgress(new Date(), uploadTask, fullFilePath);
+        uploadTask.uploadProgress((written, total) => {
+            General.logDebug("MediaQueueService", 'uploaded', written / total);
+            clearTimeout(jobTimeoutHandler);
+            jobTimeoutHandler = this.cancelUploadIfNoProgress(new Date(), uploadTask, fullFilePath);
+            cb(written, total);
+        });
+        return uploadTask
+            .then((x) => checkUploadStatus(x, `${url}. ${fullFilePath}`))
+            .finally(() => clearTimeout(jobTimeoutHandler));
     }
 
     deleteFile(mediaQueueItem) {
