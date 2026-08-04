@@ -11,6 +11,28 @@ const COLUMNS = ["model6", "model8", "model8-2"];
 const FOLD_MARKER_TO_COLUMN = {fold1_6: "model6", fold1_8: "model8", fold2_8: "model8-2"};
 const sigmoid = (logit) => 1 / (1 + Math.exp(-logit));
 
+// sha256 -> TANUH column, resolved from the synced row names. Throws rather than guess: a wrong
+// attribution produces a plausible-looking per-model table that is silently wrong.
+// Module scope, not a method: IntegrationTestRunner treats every prototype method except
+// constructor/setup/teardown as a test, so a helper on the class is run by the class-level Run
+// button with no argument and reports a failure that isn't real. It never used `this`.
+function resolveColumnBySha(edgeModelService) {
+    const rows = edgeModelService.getAllNonVoided()
+        .filter(row => row.category === "edgeModel" && row.sha256 && row.contentKey);
+    const bySha = {};
+    rows.forEach(row => {
+        const marker = Object.keys(FOLD_MARKER_TO_COLUMN).find(m => (row.name || "").includes(m));
+        if (marker) bySha[row.sha256] = FOLD_MARKER_TO_COLUMN[marker];
+    });
+    const resolved = Object.values(bySha);
+    if (new Set(resolved).size !== COLUMNS.length) {
+        throw new Error("EdgeModelParity: cannot map folds to TANUH columns by row name. Expected names "
+            + `containing ${Object.keys(FOLD_MARKER_TO_COLUMN).join("/")}, got `
+            + `[${rows.map(r => `${r.name}=${r.sha256}`).join(", ")}].`);
+    }
+    return bySha;
+}
+
 class EdgeModelParityIntegrationTest extends BaseIntegrationTest {
     // MUST override: the base setup calls realmDb.deleteAll(). On 17.x the folds resolve from synced
     // DownloadableContent rows in Realm, so a wipe destroys the device's synced state AND leaves the
@@ -20,25 +42,6 @@ class EdgeModelParityIntegrationTest extends BaseIntegrationTest {
         return this;
     }
 
-    // sha256 -> TANUH column, resolved from the synced row names. Throws rather than guess: a wrong
-    // attribution produces a plausible-looking per-model table that is silently wrong.
-    _resolveColumnBySha(edgeModelService) {
-        const rows = edgeModelService.getAllNonVoided()
-            .filter(row => row.category === "edgeModel" && row.sha256 && row.contentKey);
-        const bySha = {};
-        rows.forEach(row => {
-            const marker = Object.keys(FOLD_MARKER_TO_COLUMN).find(m => (row.name || "").includes(m));
-            if (marker) bySha[row.sha256] = FOLD_MARKER_TO_COLUMN[marker];
-        });
-        const resolved = Object.values(bySha);
-        if (new Set(resolved).size !== COLUMNS.length) {
-            throw new Error("EdgeModelParity: cannot map folds to TANUH columns by row name. Expected names "
-                + `containing ${Object.keys(FOLD_MARKER_TO_COLUMN).join("/")}, got `
-                + `[${rows.map(r => `${r.name}=${r.sha256}`).join(", ")}].`);
-        }
-        return bySha;
-    }
-
     // Auto-discovered test method (IntegrationTestRunner runs every method except constructor/setup/teardown).
     // Bulk-runs every staged image through the real EdgeModelService and writes one file per run.
     async runParitySweep() {
@@ -46,7 +49,7 @@ class EdgeModelParityIntegrationTest extends BaseIntegrationTest {
         const outDir = `${base}/out`;
         await RNFS.mkdir(outDir);
         const edgeModelService = this.getService(EdgeModelService);
-        const columnBySha = this._resolveColumnBySha(edgeModelService);
+        const columnBySha = resolveColumnBySha(edgeModelService);
 
         const entries = await RNFS.readDir(`${base}/images`);
         const images = entries

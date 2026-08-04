@@ -87,8 +87,9 @@ make tanuh-ensemble TANUH_ENSEMBLE_SRC_DIR="$TANUH_FIXTURES/tanuh_models/ensembl
 #    Rebuild and install OVER the existing app — do NOT uninstall, that wipes the cached
 #    models (external files dir) and the AES keys, and the test build cannot re-sync them.
 #    Use an API <= 36 emulator (API 37 crashes the app — Hermes SIGSEGV).
-#    Launch it and run "EdgeModelParityIntegrationTest" from the rendered list.
-#    Revert index.android.js when finished.
+#    Launch it and run "EdgeModelParityIntegrationTest" from the rendered list — use the Run button
+#    on the runParitySweep row (the class-level Run does the same thing here; the class has exactly
+#    one test method). Revert index.android.js when finished.
 
 # 4. Push the 90 images, wait for the on-device run, pull the results:
 bash tools/edge-model/verify/run-parity.sh
