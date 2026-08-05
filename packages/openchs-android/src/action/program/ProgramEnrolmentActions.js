@@ -48,6 +48,11 @@ export class ProgramEnrolmentActions {
                 editableEnrolment = draftEnrolment.constructEnrolment();
                 editableEnrolment.individual = enrolment.individual; // Keep current individual reference
                 editableEnrolment.program = enrolment.program; // Keep current program reference
+                // The draft doesn't capture child collections; carry them over from the persisted
+                // enrolment, otherwise the Modified save below wipes the real encounters/checklists.
+                editableEnrolment.encounters = enrolment.encounters;
+                editableEnrolment.checklists = enrolment.checklists;
+                editableEnrolment.approvalStatuses = enrolment.approvalStatuses;
             }
 
             //Populate identifiers much before form elements are hidden or sent to rules.
