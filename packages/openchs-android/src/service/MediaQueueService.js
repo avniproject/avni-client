@@ -16,6 +16,7 @@ import moment from "moment";
 import I18n from 'i18n-js';
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 const PARALLEL_UPLOAD_COUNT = 1;
+const UPLOAD_PROGRESS_TIMEOUT_MS = 60000;
 
 function checkUploadStatus(response, mediaDisplayText) {
     const statusCode = response.info().status;
@@ -146,29 +147,39 @@ class MediaQueueService extends BaseService {
         return returnPromise;
     }
 
-    cancelUploadIfNoProgress(lastProgressTime, uploadTask, fileName) {
-        const UPLOAD_PROGRESS_TIMEOUT_MS = 60000;
+    cancelUploadIfNoProgress(lastProgressTime, uploadTask, fileName, onTimeout) {
         return setTimeout(() => {
             General.logDebug("MediaQueueService", `Canceling upload of ${fileName}. No progress since ${lastProgressTime}`);
+            if (onTimeout) onTimeout();
             uploadTask.cancel();
         }, UPLOAD_PROGRESS_TIMEOUT_MS);
     }
 
     foregroundUpload(url, fullFilePath, cb) {
         General.logDebug("MediaQueueService", `foreground uploading ${fullFilePath} to ${url}`);
+        // basename only: keeps the signed URL out of user-facing error messages
+        const uploadFileName = url.split('?')[0].split('/').pop();
         const uploadTask = RNFetchBlob.fetch('PUT', url, {
             "Content-Type": "application/octet-stream",
         }, RNFetchBlob.wrap(fullFilePath));
 
-        let jobTimeoutHandler = this.cancelUploadIfNoProgress(new Date(), uploadTask, fullFilePath);
-        uploadTask.uploadProgress((written, total) => {
+        // cancel() rejects with a generic "canceled"; flag our stall so the error names it
+        let stalled = false;
+        const markStalled = () => { stalled = true; };
+        let jobTimeoutHandler = this.cancelUploadIfNoProgress(new Date(), uploadTask, fullFilePath, markStalled);
+        uploadTask.uploadProgress({interval: 1000}, (written, total) => {
             General.logDebug("MediaQueueService", 'uploaded', written / total);
             clearTimeout(jobTimeoutHandler);
-            jobTimeoutHandler = this.cancelUploadIfNoProgress(new Date(), uploadTask, fullFilePath);
+            jobTimeoutHandler = this.cancelUploadIfNoProgress(new Date(), uploadTask, fullFilePath, markStalled);
             cb(written, total);
         });
         return uploadTask
-            .then((x) => checkUploadStatus(x, `${url}. ${fullFilePath}`))
+            .then((x) => checkUploadStatus(x, uploadFileName))
+            .catch((error) => {
+                if (stalled)
+                    throw new Error(`Upload stalled - no progress for ${UPLOAD_PROGRESS_TIMEOUT_MS / 1000} seconds`);
+                throw error;
+            })
             .finally(() => clearTimeout(jobTimeoutHandler));
     }
 
