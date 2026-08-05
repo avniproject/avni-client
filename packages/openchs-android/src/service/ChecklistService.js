@@ -34,9 +34,14 @@ class ChecklistService extends BaseService {
 
     saveOrUpdate(programEnrolment, checklist, db = this.db) {
         const entityQueueItems = [];
-        let existingChecklist = programEnrolment.getChecklists().find(c => c.detail.uuid === checklist.detail.uuid);
+        // Match on the Checklist table, not programEnrolment.getChecklists(): the enrolment's forward link can be stale while the row exists, which would otherwise create a server-conflicting duplicate.
+        const existingChecklist = this.getAll(Checklist.schema.name)
+            .filtered('voided = false and programEnrolment.uuid = $0 and detail.uuid = $1',
+                programEnrolment.uuid, checklist.detail.uuid)[0];
         if (!_.isNil(existingChecklist)) {
             existingChecklist.baseDate = checklist.baseDate;
+            if (!programEnrolment.getChecklists().some(c => c.uuid === existingChecklist.uuid))
+                programEnrolment.addChecklist(existingChecklist);   // re-link a diverged forward list
             entityQueueItems.push(EntityQueue.create(existingChecklist, Checklist.schema.name));
             return entityQueueItems;
         }
