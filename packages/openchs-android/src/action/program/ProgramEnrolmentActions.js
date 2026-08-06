@@ -39,20 +39,19 @@ export class ProgramEnrolmentActions {
 
             // Check for existing draft and restore if found (only for enrolment, not exit) - lookup by individual+program
             const draftConfigService = context.get(DraftConfigService);
-            const draftEnrolment = isProgramEnrolment && draftConfigService.shouldLoadDraft()
+            const programEnrolmentService = context.get(ProgramEnrolmentService);
+            const draft = isProgramEnrolment && draftConfigService.shouldLoadDraft()
                 ? context.get(DraftEnrolmentService).findByIndividualAndProgram(action.enrolment.individual, action.enrolment.program)
                 : null;
+            // A draft only ever represents an enrolment that isn't saved yet. Since the lookup is by
+            // individual+program, a match on a saved enrolment is a stale slot left by a different one.
+            const draftEnrolment = draft && !programEnrolmentService.existsByUuid(draft.uuid) ? draft : null;
             const isDraft = !!draftEnrolment;
             let editableEnrolment = enrolment;
             if (draftEnrolment) {
                 editableEnrolment = draftEnrolment.constructEnrolment();
                 editableEnrolment.individual = enrolment.individual; // Keep current individual reference
                 editableEnrolment.program = enrolment.program; // Keep current program reference
-                // The draft doesn't capture child collections; carry them over from the persisted
-                // enrolment, otherwise the Modified save below wipes the real encounters/checklists.
-                editableEnrolment.encounters = enrolment.encounters;
-                editableEnrolment.checklists = enrolment.checklists;
-                editableEnrolment.approvalStatuses = enrolment.approvalStatuses;
             }
 
             //Populate identifiers much before form elements are hidden or sent to rules.
@@ -61,9 +60,9 @@ export class ProgramEnrolmentActions {
             const groupAffiliationState = new GroupAffiliationState();
             const enrolmentForm = isProgramEnrolment ? form : formMappingService.findFormForProgramEnrolment(editableEnrolment.program, editableEnrolment.individual.subjectType);
             context.get(GroupSubjectService).populateGroups(editableEnrolment.individual.uuid, enrolmentForm, groupAffiliationState);
-            const isNewEnrolment = !context.get(ProgramEnrolmentService).existsByUuid(editableEnrolment.uuid);
+            const isNewEnrolment = !programEnrolmentService.existsByUuid(editableEnrolment.uuid);
             const isFirstFlow = isNewEnrolment || !action.editing;
-            const saveDrafts = isProgramEnrolment && draftConfigService.shouldSaveDraft(isFirstFlow, isDraft);
+            const saveDrafts = isProgramEnrolment && draftConfigService.shouldSaveDraft(isNewEnrolment, isDraft);
             const formElementGroup = (_.isNil(form) || _.isNil(form.firstFormElementGroup)) ? new StaticFormElementGroup(form) : form.firstFormElementGroup;
             const numberOfPages = (_.isNil(form) || _.isNil(form.firstFormElementGroup)) ? 1 : form.numberOfPages;
             let formElementStatuses = context

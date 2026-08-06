@@ -46,7 +46,24 @@ describe('ProgramEnrolmentActionsTest', () => {
         }, context);
     });
 
-    it('resuming a draft keeps the enrolment linked to its existing checklists, encounters and approval statuses', () => {
+    it('resumes the draft of an enrolment that has not been saved yet', () => {
+        const enrolment = enrolmentWithChildren();
+        const draft = DraftEnrolment.create(enrolment);
+
+        // enrolment is deliberately absent from serviceData, so existsByUuid is false
+        const context = new TestContext({draftEnabled: true, draftEnrolment: draft});
+
+        let state = ProgramEnrolmentActions.getInitialState(context);
+        state = ProgramEnrolmentActions.onLoad(state, {
+            enrolment: enrolment,
+            usage: ProgramEnrolmentState.UsageKeys.Enrol
+        }, context);
+
+        expect(state.isDraft).to.equal(true);
+        expect(state.enrolment.uuid).to.equal(draft.uuid);
+    });
+
+    it('ignores a draft whose enrolment is already saved', () => {
         const enrolment = enrolmentWithChildren();
         const draft = DraftEnrolment.create(enrolment);
 
@@ -60,12 +77,35 @@ describe('ProgramEnrolmentActionsTest', () => {
             usage: ProgramEnrolmentState.UsageKeys.Enrol
         }, context);
 
-        expect(state.isDraft).to.equal(true);
-        expect(state.enrolment.uuid).to.equal(enrolment.uuid);
-        // Without these links ChecklistService creates a second checklist for the same
-        // (checklistDetail, enrolment) pair, which the server rejects with a 409 on sync.
+        expect(state.isDraft).to.equal(false);
+        expect(state.saveDrafts).to.equal(false);
         expect(state.enrolment.checklists).to.have.lengthOf(1);
         expect(state.enrolment.encounters).to.have.lengthOf(1);
         expect(state.enrolment.approvalStatuses).to.have.lengthOf(1);
+    });
+
+    it('does not adopt another enrolment uuid when re-enrolling with a stale draft in the slot', () => {
+        const savedEnrolment = enrolmentWithChildren();
+        const draft = DraftEnrolment.create(savedEnrolment);
+
+        // re-enrolment starts from a fresh instance for the same individual + program
+        const newEnrolment = ProgramEnrolment.createEmptyInstance();
+        newEnrolment.individual = savedEnrolment.individual;
+        newEnrolment.program = savedEnrolment.program;
+
+        const serviceData = {draftEnabled: true, draftEnrolment: draft};
+        serviceData[savedEnrolment.uuid] = savedEnrolment;
+        const context = new TestContext(serviceData);
+
+        let state = ProgramEnrolmentActions.getInitialState(context);
+        state = ProgramEnrolmentActions.onLoad(state, {
+            enrolment: newEnrolment,
+            usage: ProgramEnrolmentState.UsageKeys.Enrol
+        }, context);
+
+        // taking the draft's uuid here would overwrite savedEnrolment and wipe its checklists
+        expect(state.enrolment.uuid).to.equal(newEnrolment.uuid);
+        expect(state.enrolment.uuid).to.not.equal(savedEnrolment.uuid);
+        expect(state.isDraft).to.equal(false);
     });
 });
