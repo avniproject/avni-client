@@ -1,6 +1,7 @@
 import React, {useRef, useState, useEffect} from "react";
-import {Modal, View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator} from "react-native";
+import {Modal, View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator, Linking} from "react-native";
 import {Camera, useCameraDevice, useCameraPermission} from "react-native-vision-camera";
+import fs from 'react-native-fs';
 import General from "../../../utility/General";
 
 const styles = StyleSheet.create({
@@ -38,6 +39,15 @@ export default function GuidedCameraModal({visible, onClose, onCapture, labels})
     const sessionRef = useRef(0);
     // Synchronous double-tap guard; `busy` state lags a render behind and won't stop a second tap in the same tick.
     const busyRef = useRef(false);
+    // Path of the full-res capture currently held for review. takePhoto writes it to disk, so it must
+    // be unlinked on every discard path (Retake, close, unmount) or it leaks one file per discard.
+    const previewPathRef = useRef(null);
+
+    const discardPreview = () => {
+        if (previewPathRef.current) fs.unlink(previewPathRef.current).catch(() => {});
+        previewPathRef.current = null;
+        setPreview(null);
+    };
 
     // The modal stays mounted while the element renders, so per-session state is reset on open.
     useEffect(() => {
@@ -47,16 +57,22 @@ export default function GuidedCameraModal({visible, onClose, onCapture, labels})
             busyRef.current = false;
             setError(null);
             setBusy(false);
-            setPreview(null);
+            discardPreview();
         }
     }, [visible, hasPermission]);
 
-    useEffect(() => () => { sessionRef.current++; }, []);
+    useEffect(() => () => {
+        sessionRef.current++;
+        if (previewPathRef.current) fs.unlink(previewPathRef.current).catch(() => {});
+    }, []);
 
     const handleClose = () => {
+        discardPreview();
         sessionRef.current++;
         onClose();
     };
+
+    const openSettings = () => Linking.openSettings().catch((e) => General.logError('GuidedCameraModal', e));
 
     const capture = async () => {
         if (busyRef.current) return;
@@ -66,7 +82,11 @@ export default function GuidedCameraModal({visible, onClose, onCapture, labels})
         setError(null);
         try {
             const photo = await cameraRef.current.takePhoto({flash: "on"});
-            if (sessionRef.current !== session) return;
+            if (sessionRef.current !== session) {
+                fs.unlink(photo.path).catch(() => {}); // captured after the session ended — discard it
+                return;
+            }
+            previewPathRef.current = photo.path;
             setPreview(photo); // review before committing — no asset is saved yet
         } catch (e) {
             General.logError('GuidedCameraModal', e);
@@ -83,24 +103,35 @@ export default function GuidedCameraModal({visible, onClose, onCapture, labels})
         busyRef.current = true;
         const session = sessionRef.current;
         setBusy(true);
+        setError(null);
         try {
-            await onCapture(preview.path); // resize + save + close (or reopen with error on failure)
+            await onCapture(preview.path); // resize + save + close; onGuidedCapture unlinks the original on success
+            if (sessionRef.current !== session) return;
+            previewPathRef.current = null; // consumed — ownership passed to onGuidedCapture
+        } catch (e) {
+            General.logError('GuidedCameraModal', e);
+            if (sessionRef.current !== session) return;
+            setError(labels.captureFailed); // keep the preview so the user can retake; the file is still ours to clean up
         } finally {
             busyRef.current = false;
             if (sessionRef.current === session) setBusy(false);
         }
     };
 
-    const renderBlocking = (message) => (
+    const renderBlocking = (message, action) => (
         <View style={styles.center}>
             <Text style={styles.err}>{message}</Text>
+            {action}
             <TouchableOpacity style={styles.btn} onPress={handleClose}><Text style={styles.btnText}>{labels.close}</Text></TouchableOpacity>
         </View>
     );
 
     let body;
     if (!device) body = renderBlocking(labels.noBackCamera);
-    else if (!hasPermission) body = renderBlocking(labels.permissionRequired);
+    else if (!hasPermission) body = renderBlocking(
+        labels.permissionRequired,
+        <TouchableOpacity style={styles.btn} onPress={openSettings}><Text style={styles.btnText}>{labels.openSettings}</Text></TouchableOpacity>
+    );
     else if (!device.hasFlash) body = renderBlocking(labels.flashRequired);
     else {
         body = (
@@ -115,7 +146,7 @@ export default function GuidedCameraModal({visible, onClose, onCapture, labels})
                 )}
                 {preview ? (
                     <View style={styles.reviewControls}>
-                        <TouchableOpacity style={styles.reviewBtn} disabled={busy} onPress={() => setPreview(null)}>
+                        <TouchableOpacity style={styles.reviewBtn} disabled={busy} onPress={discardPreview}>
                             <Text style={styles.reviewBtnText}>{labels.retake}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.reviewBtnPrimary} disabled={busy} onPress={usePhoto}>
