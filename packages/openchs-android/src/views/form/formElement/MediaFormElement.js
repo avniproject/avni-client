@@ -136,7 +136,8 @@ export default class MediaFormElement extends AbstractFormElement {
             captureFailed: this.I18n.t('guidedCameraCaptureFailed'),
             close: this.I18n.t('closeModal'),
             retake: this.I18n.t('Retake'),
-            usePhoto: this.I18n.t('Use photo')
+            usePhoto: this.I18n.t('Use photo'),
+            openSettings: this.I18n.t('Open settings')
         };
     }
 
