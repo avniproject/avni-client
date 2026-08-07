@@ -134,7 +134,9 @@ export default class MediaFormElement extends AbstractFormElement {
             permissionRequired: this.I18n.t('guidedCameraPermissionRequired'),
             flashRequired: this.I18n.t('guidedCameraFlashRequired'),
             captureFailed: this.I18n.t('guidedCameraCaptureFailed'),
-            close: this.I18n.t('closeModal')
+            close: this.I18n.t('closeModal'),
+            retake: this.I18n.t('Retake'),
+            usePhoto: this.I18n.t('Use photo')
         };
     }
 
