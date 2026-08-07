@@ -53,8 +53,8 @@ class EdgeModelParityIntegrationTest extends BaseIntegrationTest {
             await removeIfPresent(`${outDir}/${FAILURE_SENTINEL}`);
             const rows = await sweepStagedImages(this.getService(EdgeModelService), base, outDir);
             // Written last, so its presence means both CSVs are complete on disk.
-            await RNFS.writeFile(`${outDir}/${COMPLETION_SENTINEL}`,
-                JSON.stringify({rows: rows, finishedAt: new Date().toISOString()}), "utf8");
+            await writeAtomic(`${outDir}/${COMPLETION_SENTINEL}`,
+                JSON.stringify({rows: rows, finishedAt: new Date().toISOString()}));
             this.log(`EdgeModelParity: wrote ${rows} rows → ${outDir}/per_model_scores.csv`);
         } catch (error) {
             await writeFailureSentinel(outDir, error);
@@ -72,11 +72,19 @@ async function removeIfPresent(path) {
     }
 }
 
+// A sentinel is polled by another process, so it must never be observable half-written. The bytes go
+// to a temp name and RNFS.moveFile renames within the same dir — POSIX rename, so readers see the
+// file absent or whole, never partial. Every reader gets this, not just the ones that guard for it.
+async function writeAtomic(path, contents) {
+    const temp = `${path}.tmp`;
+    await RNFS.writeFile(temp, contents, "utf8");
+    await RNFS.moveFile(temp, path);
+}
+
 // A failure to record the failure must not mask it.
 async function writeFailureSentinel(outDir, error) {
     try {
-        await RNFS.writeFile(`${outDir}/${FAILURE_SENTINEL}`,
-            `${(error && error.message) || error}\n`, "utf8");
+        await writeAtomic(`${outDir}/${FAILURE_SENTINEL}`, `${(error && error.message) || error}\n`);
     } catch (ignored) {
         console.error("EdgeModelParity: could not write the failure sentinel", ignored);
     }

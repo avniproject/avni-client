@@ -51,6 +51,12 @@ fi
 echo
 echo "→ waiting for the sweep to finish (polling every ${POLL_SECONDS}s, up to ${TIMEOUT_SECONDS}s)."
 # Not waiting for green: the runner does not await the test, so green means started. The sentinels do.
+
+# `|| true`: adb propagates cat's exit code, and a not-yet-written sentinel is the normal case.
+read_out_file() {
+  adb shell "cat $DEVBASE/out/$1 2>/dev/null" 2>/dev/null | tr -d '\r' || true
+}
+
 deadline=$(( SECONDS + TIMEOUT_SECONDS ))
 sentinel=""
 while :; do
@@ -61,15 +67,15 @@ while :; do
     echo "   Check the emulator/app (API 37 crashes with a Hermes SIGSEGV), then re-run." >&2
     exit 1
   fi
-  # `|| true`: adb propagates cat's exit code, and a not-yet-written sentinel is the normal case.
-  failure="$(adb shell "cat $DEVBASE/out/$FAILED 2>/dev/null" 2>/dev/null | tr -d '\r' || true)"
+  failure="$(read_out_file "$FAILED")"
   if [ -n "$failure" ]; then
     echo "❌ the sweep failed on the device:" >&2
     echo "$failure" >&2
     exit 1
   fi
-  sentinel="$(adb shell "cat $DEVBASE/out/$COMPLETE 2>/dev/null" 2>/dev/null | tr -d '\r' || true)"
-  # Only trust a sentinel that arrived whole — the poll can catch a partial write.
+  sentinel="$(read_out_file "$COMPLETE")"
+  # The sweep publishes sentinels by renaming a temp file into place, so a partial read should be
+  # impossible. Kept anyway: RNFS.moveFile falls back to copy+delete if the rename ever fails.
   case "$sentinel" in *'}') break;; esac
   sentinel=""
   if [ "$SECONDS" -ge "$deadline" ]; then
