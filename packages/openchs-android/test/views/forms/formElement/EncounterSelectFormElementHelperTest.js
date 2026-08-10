@@ -36,6 +36,16 @@ describe("EncounterSelectFormElementHelper.applicableEncounters", () => {
             ["completed-uuid", "cancelled-uuid"]);
     });
 
+    it("applies both filters when a rule sets them together, excluding from what it shows", () => {
+        assert.deepEqual(uuidsOf(EncounterSelectFormElementHelper.applicableEncounters(allEncounters,
+            ["completed-uuid", "scheduled-uuid"], ["scheduled-uuid"])), ["completed-uuid"]);
+    });
+
+    it("returns nothing when the two filters cancel each other out", () => {
+        assert.deepEqual(uuidsOf(EncounterSelectFormElementHelper.applicableEncounters(allEncounters,
+            ["scheduled-uuid"], ["scheduled-uuid"])), []);
+    });
+
     it("treats a nil filter the same as an empty one", () => {
         assert.deepEqual(uuidsOf(EncounterSelectFormElementHelper.applicableEncounters(allEncounters, undefined, undefined)),
             ["completed-uuid", "scheduled-uuid", "cancelled-uuid"]);
