@@ -28,6 +28,8 @@ import FormMappingService from "./FormMappingService";
 import UserInfoService from './UserInfoService';
 import moment from "moment";
 import FileLoggerService from '../utility/FileLoggerService';
+import AvniError from "../framework/errorHandling/AvniError";
+import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 
 const REALM_FILE_NAME = "default.realm";
 const REALM_FILE_FULL_PATH = `${fs.DocumentDirectoryPath}/${REALM_FILE_NAME}`;
@@ -108,7 +110,7 @@ export default class BackupRestoreRealmService extends BaseService {
                 // Clean up files on error
                 removeBackupFile(destZipFile).catch(() => {});
                 this._cleanupBackupFiles(destFile).catch(() => {});
-                cb(100, "backupFailed");
+                cb(100, "backupFailed", this._toAvniError(error));
             });
     }
 
@@ -118,8 +120,9 @@ export default class BackupRestoreRealmService extends BaseService {
         const serverUrl = this._getServerUrl();
         
         if (!serverUrl) {
-            General.logError("BackupRestoreRealmService", "No server URL available for logs-only backup");
-            cb(100, "backupFailed");
+            const message = "No server URL available for logs-only backup";
+            General.logError("BackupRestoreRealmService", message);
+            cb(100, "backupFailed", AvniError.create(message, message));
             return;
         }
         
@@ -146,8 +149,17 @@ export default class BackupRestoreRealmService extends BaseService {
                 General.logError("BackupRestoreRealmService", `Logs-only backup failed: ${error.message}`);
                 // Clean up files on error
                 removeBackupFile(logsOnlyFileName).catch(() => {});
-                cb(100, "backupFailed");
+                cb(100, "backupFailed", this._toAvniError(error));
             });
+    }
+
+    _toAvniError(error) {
+        try {
+            return ErrorUtil.getAvniErrorSync(error);
+        } catch (e) {
+            const message = _.get(error, "message", String(error));
+            return AvniError.create(message, message);
+        }
     }
 
     _getUsernameForBackup(providedUsername = null) {
