@@ -1,5 +1,4 @@
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import ListView from 'deprecated-react-native-listview';
 import PropTypes from 'prop-types';
 import React from 'react';
 import {Text} from 'native-base';
@@ -21,7 +20,6 @@ import TypedTransition from '../../framework/routing/TypedTransition';
 import CompletedEncountersView from '../../encounter/CompletedEncountersView';
 import CollapsibleEncounter from './CollapsibleEncounter';
 import PrivilegeService from '../../service/PrivilegeService';
-import ListViewHelper from '../../utility/ListViewHelper';
 import UserInfoService from "../../service/UserInfoService";
 import FormPDFService from "../../service/FormPDFService";
 import FormShareService from "../../service/FormShareService";
@@ -267,7 +265,7 @@ class PreviousEncounters extends AbstractComponent {
         } else {
             toDisplayEncounters = _.sortBy(this.props.encounters, (encounter) => encounter.encounterDateTime || encounter.cancelDateTime || encounter.earliestVisitDateTime);
         }
-        const dataSource = ListViewHelper.getDataSource(toDisplayEncounters);
+        // Plain rows, not the deprecated ListView: virtualization misbehaves nested in a ScrollView (see Observations); the inline list is bounded by showCount / View-All.
         const renderable = (<View>
             <View style={{flexDirection: 'row', alignItems: 'center', backgroundColor: Styles.whiteColor}}>
                 {this.props.title && (
@@ -285,13 +283,8 @@ class PreviousEncounters extends AbstractComponent {
             ) : (
                 <View/>
             )}
-            <ListView
-                enableEmptySections={true}
-                dataSource={dataSource}
-                pageSize={1}
-                initialListSize={1}
-                removeClippedSubviews={true}
-                renderRow={(encounter) => <View style={styles.container}>
+            {toDisplayEncounters.map((encounter, index) => (
+                <View key={_.get(encounter, 'encounter.uuid') || _.get(encounter, 'uuid') || index} style={styles.container}>
                     {this.props.expandCollapseView ?
                         <CollapsibleEncounter encountersInfo={encounter}
                                               onToggleAction={this.props.onToggleAction}
@@ -304,8 +297,8 @@ class PreviousEncounters extends AbstractComponent {
                                               formElementGroupEditAction={this.props.onEditEncounterActionName}
                         />
                         : this.renderNormalView(encounter)}
-                </View>}
-            />
+                </View>
+            ))}
         </View>);
         return (
             <View>
