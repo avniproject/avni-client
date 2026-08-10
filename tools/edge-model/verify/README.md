@@ -7,8 +7,11 @@ evidence for **avni-client#1985** (design: `avni-product-ops/analysis/tanuh-ense
 
 ## Acceptance bar
 
-**Verdict-level parity** — the run passes when every image's refer / no-refer call matches the
-reference sheet. That is the gate in `report.py` and its exit code.
+**Verdict-level parity over the full image set** — the run passes when every image's refer /
+no-refer call matches the reference sheet, *and* the sweep actually covered every image. Both are
+gated in `report.py` and its exit code. Verdict parity on its own says nothing about how many images
+were compared: a sweep that lost images between the phone and the report still matches every verdict
+it did compare, and used to print PASS on the remainder.
 
 ### Settled 2026-07-17 — do not reopen
 
@@ -87,13 +90,22 @@ make tanuh-ensemble TANUH_ENSEMBLE_SRC_DIR="$TANUH_FIXTURES/tanuh_models/ensembl
 #    Rebuild and install OVER the existing app — do NOT uninstall, that wipes the cached
 #    models (external files dir) and the AES keys, and the test build cannot re-sync them.
 #    Use an API <= 36 emulator (API 37 crashes the app — Hermes SIGSEGV).
-#    Launch it and run "EdgeModelParityIntegrationTest" from the rendered list.
-#    Revert index.android.js when finished.
+#    Launch it so the test list is on screen. Do NOT tap Run yet — step 4 stages the images and
+#    clears the device's parity dirs, which would wipe a sweep started here.
+#    Revert index.android.js when the whole run is finished.
 
-# 4. Push the 90 images, wait for the on-device run, pull the results:
+# 4. Push the 90 images and start the collector. It clears the device's parity dirs, stages the
+#    images, then prints "NOW run …" and polls for the sweep's completion sentinel:
 bash tools/edge-model/verify/run-parity.sh
 
-# 5. Diff device scores vs the xlsx → out/summary.md + PASS/FAIL (exit 0 = PASS):
+# 5. ONLY when step 4 says so, tap Run on the runParitySweep row on the device. (The class-level Run
+#    does the same thing — the class has exactly one test method.) Leave run-parity.sh polling; it
+#    finishes on its own. Green on the device is not the signal to press anything — see Notes.
+#
+#    If the pull failed but the sweep finished, re-collect WITHOUT redoing the ~90-image run:
+#      PARITY_COLLECT_ONLY=1 bash tools/edge-model/verify/run-parity.sh
+
+# 6. Diff device scores vs the xlsx → out/summary.md + PASS/FAIL (exit 0 = PASS):
 python3 -m venv tools/edge-model/verify/.venv && tools/edge-model/verify/.venv/bin/pip install openpyxl
 tools/edge-model/verify/.venv/bin/python tools/edge-model/verify/report.py
 ```
@@ -103,15 +115,39 @@ tools/edge-model/verify/.venv/bin/python tools/edge-model/verify/report.py
 | File | Role |
 |---|---|
 | `../../../packages/openchs-android/integrationTest/EdgeModelParityIntegrationTest.js` | Runs inside the real app: every staged image → real `EdgeModelService.runEnsembleInferenceOnImage` → corrected Kotlin preprocessing → ONNX-Runtime-Mobile; writes per-model sigmoids to `per_model_scores.csv` plus the column→sha256 `fold-mapping.csv`, via `react-native-fs`. |
-| `run-parity.sh` | adb driver: refuses in-repo fixtures, pushes the 90 images (jpgs only), waits for the on-device run, pulls the results CSV + fold mapping. |
-| `report.py` | Joins device scores to the xlsx, computes per-model max/mean diff, emits `out/summary.md` + `out/per_image_scores.csv`, exits 0 iff PASS. Skips images whose xlsx reference is incomplete (surfaced in the summary). |
+| `run-parity.sh` | adb driver: refuses in-repo fixtures, clears the stale local `out/` and the device's parity dirs, pushes the 90 images (jpgs only), polls for the sweep's completion sentinel (aborting early if the device disappears), checks the row count against the images it pushed, pulls the results CSV + fold mapping. `PARITY_COLLECT_ONLY=1` re-pulls a finished sweep without clearing or re-pushing anything. |
+| `report.py` | Joins device scores to the xlsx, computes per-model max/mean diff, emits `out/summary.md` + `out/per_image_scores.csv`, exits 0 iff PASS. Skips images whose xlsx reference is incomplete (surfaced in the summary), and fails a run that joined fewer than the expected images or produced device rows the xlsx has no `Image ID` for. |
+| `report_test.py` | Table-driven tests for the two `report.py` gates, over synthesised workbooks in a temp dir. Needs neither a device nor the TANUH fixtures. |
 | `guard-no-proprietary.sh`, `hooks/`, `install-guards.sh` | The data-governance layer (see above). |
+
+## Testing the harness itself
+
+Neither of these needs a device or the TANUH fixtures, so run them before a parity run rather than
+discovering a harness bug halfway through one:
+
+```bash
+# report.py's verdict + completeness gates (same interpreter as the reporter — it needs openpyxl):
+tools/edge-model/verify/.venv/bin/python -m unittest discover -s tools/edge-model/verify -p '*_test.py'
+
+# The sweep's completion sentinel and its method discovery:
+cd packages/openchs-android && npx jest test/integrationTest
+```
+
+The full sweep still can only be confirmed on a provisioned device — these cover the parts that
+decide whether a run is reported as a pass, not the inference itself.
 
 ## Notes
 
 - The reference xlsx is a superset (all TANUH test images); the reporter joins on the images actually
   present locally. Of the 90 shipped verification images, **89** have complete reference scores (one
-  lacks `model6`); that image is skipped and reported, so expect **89** joined.
+  lacks `model6`); that image is skipped and reported, so **89** join. That number is encoded as
+  `EXPECTED_IMAGES_DEFAULT` in `report.py` and gated on — a sweep that joined *fewer* FAILs instead of
+  passing on the subset. Joining *more* is not a failure: if TANUH fills in that missing `model6`
+  cell, 90 join, the run passes, and the summary says to bump the constant. Override with
+  `$PARITY_EXPECTED_IMAGES` only when the fixture set genuinely changed; using it to get past a short
+  run is exactly what the gate exists to stop.
+- The sweep counts the rows it reads back off `per_model_scores.csv`, not the images it scored, so a
+  truncated write (device out of space) fails the sweep instead of being collected as complete.
 - Models are **not** pushed by this harness — the build is model-free and the folds arrive via synced
   `DownloadableContent`. The harness is delivery-agnostic; it only needs the folds cached on device.
 - The sweep necessarily reads the **on-device cache**, never app assets: it calls
@@ -120,5 +156,14 @@ tools/edge-model/verify/.venv/bin/python tools/edge-model/verify/report.py
   (#1947 removed the native loaders), so a sweep cannot silently pass by testing a bundled model —
   an unsynced device fails loudly with "model blob not cached yet" instead.
 - Folds are addressed by sha256, which carries no fold identity, so `model6`/`model8`/`model8-2` are
-  assigned by sha-sorted position. Check `out/fold-mapping.csv` against what was provisioned before
-  trusting a per-model diff — a mis-provisioned fold otherwise shows up as a plausible wrong column.
+  attributed from the provisioned row NAME (`mvit2_fold1_6` → `model6`, and so on); the sweep refuses
+  to run if the three names don't resolve, rather than guessing. Check `out/fold-mapping.csv` against
+  what was provisioned before trusting a per-model diff — a mis-provisioned fold otherwise shows up
+  as a plausible wrong column.
+- **Green on the device is not a completion signal, and not a pass.** `IntegrationTestRunner` does
+  not await the test method, so the row goes green at the first `await` inside `runParitySweep` —
+  before a single image is scored — and a throw inside the sweep rejects a promise the runner never
+  observes. `run-parity.sh` therefore ignores the screen and polls for `out/run-complete.json`, which
+  the sweep writes as its last statement, or `out/run-failed.txt`, which it writes if it threw.
+  Fixing the runner itself would change behaviour for the ten other integration tests, so it is a
+  separate piece of work (avni-client#2035).

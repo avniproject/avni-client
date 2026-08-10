@@ -26,6 +26,15 @@ class CollapsibleEncounter extends AbstractComponent {
         super(props, context);
     }
 
+    // Excludes the parent's render closures (new every render, same output) so a toggle re-renders
+    // only the affected row; keyed by uuid since Realm encounters mutate in place.
+    shouldComponentUpdate(nextProps) {
+        const current = this.props.encountersInfo;
+        const next = nextProps.encountersInfo;
+        return current.expand !== next.expand
+            || current.encounter.uuid !== next.encounter.uuid;
+    }
+
     editEncounterByFEG(pageNumber) {
         const {encountersInfo, formType, formElementGroupEditAction} = this.props;
 

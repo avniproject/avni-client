@@ -6,6 +6,7 @@ import RadioLabelValue from "../../primitives/RadioLabelValue";
 import ConceptService from "../../../service/ConceptService";
 import IndividualService from "../../../service/IndividualService";
 import AddressLevelService from "../../../service/AddressLevelService";
+import EncounterSelectFormElementHelper from "./EncounterSelectFormElementHelper";
 import _ from 'lodash';
 
 
@@ -32,10 +33,10 @@ class EncounterSelectFormElement extends AbstractFormElement {
     }
 
     getEncounterOptions() {
-        if (this.encounterScope === Concept.encounterScopes.withinSubject) {
-            return this.encounterService.getAllBySubjectUUIDAndTypeUUID(this.props.subjectUUID, this.encounterTypeUUID).map(_.identity);
-        }
-        return [];
+        if (this.encounterScope !== Concept.encounterScopes.withinSubject) return [];
+        const {answersToShow, answersToExclude} = this.props.element;
+        const encounters = this.encounterService.getAllBySubjectUUIDAndTypeUUID(this.props.subjectUUID, this.encounterTypeUUID).map(_.identity);
+        return EncounterSelectFormElementHelper.applicableEncounters(encounters, answersToShow, answersToExclude);
     }
 
     getValueLabelPairs() {

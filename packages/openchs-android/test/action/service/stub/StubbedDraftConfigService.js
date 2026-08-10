@@ -1,3 +1,5 @@
+import _ from "lodash";
+
 class StubbedDraftConfigService {
     constructor(serviceData) {
         this.serviceData = serviceData;
@@ -5,7 +7,7 @@ class StubbedDraftConfigService {
 
     // All four derive from one flag, like the real service.
     isDraftEnabled() {
-        return !!(this.serviceData && this.serviceData.displayDrafts);
+        return !!(this.serviceData && (this.serviceData.draftEnabled || this.serviceData.displayDrafts));
     }
 
     shouldSaveDraft(isFirstFlow, isExistingDraft) {

@@ -1,8 +1,9 @@
 import BaseService from '../BaseService';
 import Service from '../../framework/bean/Service';
 import {DraftEnrolment} from 'avni-models';
-import {Individual, ObservationsHolder, Program} from 'openchs-models';
+import {Individual, ObservationsHolder, Program, ProgramEnrolment} from 'openchs-models';
 import UpdateMode from "../../repository/UpdateMode";
+import _ from 'lodash';
 
 @Service("draftEnrolmentService")
 class DraftEnrolmentService extends BaseService {
@@ -38,6 +39,10 @@ class DraftEnrolmentService extends BaseService {
         return drafts.length > 0 ? drafts[0] : null;
     }
 
+    isPersistedEnrolment(uuid) {
+        return !_.isNil(this.findByUUID(uuid, ProgramEnrolment.schema.name));
+    }
+
     /**
      * Save a program enrolment as draft
      * @param {ProgramEnrolment} enrolment
@@ -49,8 +54,10 @@ class DraftEnrolmentService extends BaseService {
 
         let draftEnrolment = DraftEnrolment.create(enrolment);
 
-        // If existing draft found, use its UUID to update instead of creating new
-        if (existingDraft) {
+        // If existing draft found, use its UUID to update instead of creating new. A draft whose
+        // enrolment is already saved is a stale slot from a different enrolment - adopting its uuid
+        // would file this draft under that enrolment.
+        if (existingDraft && !this.isPersistedEnrolment(existingDraft.uuid)) {
             draftEnrolment.uuid = existingDraft.uuid;
         }
 

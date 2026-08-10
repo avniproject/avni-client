@@ -175,7 +175,7 @@ class MenuView extends AbstractComponent {
                     text: this.I18n.t('yes'), onPress: () => {
                         this.dispatchAction(MenuActionNames.ON_BACKUP_DUMP, {
                             dumpType: dumpType,
-                            onBackupDumpCb: (percentDone, message) => {
+                            onBackupDumpCb: (percentDone, message, avniError) => {
                                 this.dispatchAction(MenuActionNames.ON_BACKUP_PROGRESS, {
                                     percentDone: percentDone,
                                     message: message
@@ -184,7 +184,7 @@ class MenuView extends AbstractComponent {
                                     if (message === "backupCompleted") {
                                         Alert.alert(this.I18n.t('uploadSuccessful'));
                                     } else if (message === "backupFailed") {
-                                        Alert.alert(this.I18n.t('uploadFailed'));
+                                        this.showBackupFailedAlert(avniError);
                                     }
                                 }
                             }
@@ -197,6 +197,11 @@ class MenuView extends AbstractComponent {
                 }
             ]
         );
+    }
+
+    showBackupFailedAlert(avniError) {
+        const body = avniError ? avniError.getDisplayMessage() : "";
+        Alert.alert(this.I18n.t('uploadFailed'), body);
     }
 
     getCatchmentUploadErrorMessage() {

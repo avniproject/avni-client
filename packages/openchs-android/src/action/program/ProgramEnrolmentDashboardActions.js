@@ -39,7 +39,8 @@ class ProgramEnrolmentDashboardActions {
             expandEnrolmentInfo: false,
             completedEncounters: [],
             draftUnScheduledProgramEncounters: [],
-            editFormRuleResponse: ActionEligibilityResponse.createAllowedResponse()
+            editFormRuleResponse: ActionEligibilityResponse.createAllowedResponse(),
+            loaded: false
         };
     }
 
@@ -286,6 +287,7 @@ class ProgramEnrolmentDashboardActions {
     static _onEnrolmentChange(newState, context, enrolment) {
         const ruleService = context.get(RuleEvaluationService);
         newState.enrolment = enrolment;
+        newState.loaded = true;
         newState.enrolmentSummary = ruleService.getEnrolmentSummary(newState.enrolment, ProgramEnrolment.schema.name, context);
         newState.dashboardButtons = ProgramEnrolmentDashboardActions._addProgramConfig(newState.enrolment.program, context);
         newState.showCount = SettingsService.IncrementalEncounterDisplayCount;
