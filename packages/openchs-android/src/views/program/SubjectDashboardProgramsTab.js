@@ -343,6 +343,9 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
+        // Skip the pre-load landing render — showing a loader until ON_LOAD avoids building the whole
+        // dashboard tree (and re-running its privilege queries) once with empty data, then again with it.
+        if (!this.state.loaded) return this.renderLoading();
         let enrolments = _.reverse(_.sortBy(this.enrolments(), (enrolment) => enrolment.enrolmentDateTime));
         const dashboardButtons = this.state.dashboardButtons || [];
         const performVisitCriteria = this.state.enrolment.program && `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND subjectTypeUuid = '${this.state.enrolment.individual.subjectType.uuid}' AND programUuid = '${this.state.enrolment.program.uuid}'` || '';
