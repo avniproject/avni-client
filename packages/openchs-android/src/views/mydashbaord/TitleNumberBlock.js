@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import {Dimensions, StyleSheet, Text, TouchableNativeFeedback, View} from 'react-native';
+import {StyleSheet, Text, TouchableNativeFeedback, View} from 'react-native';
 import Fonts from '../primitives/Fonts';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import MCIcon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -35,8 +35,9 @@ class TitleNumberBlock extends AbstractComponent {
             marginTop: cardGap,
             // Two columns (matching CardTileView's width) instead of three - three-across left too
             // little room for longer labels ("Registrations"), forcing them onto extra wrapped
-            // lines and inflating the tile's height unevenly.
-            width: (Dimensions.get('window').width - (cardGap * 3)) / 2,
+            // lines. Percentage rather than a pixel value computed from Dimensions.get('window')
+            // so it stays correct regardless of the actual measured row width.
+            width: '47%',
         },
         // Label-above-number, arrow pinned to the top-right of the row - matches CardTileView
         // (the richer tile style used on the custom dashboard) instead of the old bottom-right
@@ -65,9 +66,11 @@ class TitleNumberBlock extends AbstractComponent {
                 <View
                     style={[TitleNumberBlock.styles.container, {
                         // Alternate left margin every other tile (2nd, 4th, ...) to match the
-                        // 2-column grid - the old fixed "index 1 or 2" check assumed a 3-per-row
-                        // layout and would misalign tiles once a row wrapped after 2 items.
-                        marginLeft: index % 2 !== 0 ? cardGap : 0,
+                        // 2-column grid. Guard against index being unset (e.g. AddressFamilyRow's
+                        // family-folder tiles, which rely purely on their row's own
+                        // justifyContent: 'space-between' for spacing) - index % 2 on undefined is
+                        // NaN, and NaN !== 0 is true, which would wrongly add the margin every time.
+                        marginLeft: typeof index === 'number' && index % 2 !== 0 ? cardGap : 0,
                         backgroundColor: cardColor,
                         borderColor: cardColor
                     }]}>
