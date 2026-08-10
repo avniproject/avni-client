@@ -426,6 +426,15 @@ class IndividualProfile extends AbstractComponent {
         return _.size(this.state.programActions) === 1 ? this.renderNameDirectly(_.head(this.state.programActions)) : this.renderTitle();
     }
 
+    // Subject keyed by uuid — Realm objects mutate in place, so same-subject updates come via state.
+    shouldComponentUpdate(nextProps, nextState) {
+        return nextProps.individual.uuid !== this.props.individual.uuid
+            || nextProps.displayOnly !== this.props.displayOnly
+            || nextProps.programsAvailable !== this.props.programsAvailable
+            || nextProps.hideEnrol !== this.props.hideEnrol
+            || !General.objectsShallowEquals(nextState, this.state);
+    }
+
     render() {
         General.logDebug('IndividualProfile', 'render');
         let isPerson = this.props.individual.subjectType.isPerson();
