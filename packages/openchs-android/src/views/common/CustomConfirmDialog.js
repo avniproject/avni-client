@@ -80,7 +80,7 @@ class CustomConfirmDialog extends React.Component {
         const firstPrimaryIndex = actions.findIndex(a => a.primary);
         return actions.map((action, index) => (
             <TouchableOpacity key={index} onPress={this.handleAction(action.onPress)}
-                               style={[styles.btn, styles.fullWidthBtn, index === firstPrimaryIndex ? styles.primaryBtn : styles.secondaryBtn, index > 0 && styles.stackedBtnSpacing]}>
+                               style={[styles.btn, index === firstPrimaryIndex ? styles.primaryBtn : styles.secondaryBtn, styles.fullWidthBtn, index > 0 && styles.stackedBtnSpacing]}>
                 <Text style={index === firstPrimaryIndex ? styles.primaryText : styles.secondaryText}>{action.label}</Text>
             </TouchableOpacity>
         ));

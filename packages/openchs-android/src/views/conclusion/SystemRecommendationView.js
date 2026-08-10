@@ -238,7 +238,7 @@ class SystemRecommendationView extends AbstractComponent {
                                func={() => this.onAppHeaderBack(this.props.isSaveDraftOn)}
                                displayHomePressWarning={!this.props.isSaveDraftOn}/>
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.props.entityApprovalStatus}/>
-                    <ScrollView ref={this.scrollRef}>
+                    <ScrollView ref={this.scrollRef} style={{flex: 1}}>
                         <View style={{flexDirection: 'column', backgroundColor: Styles.greyBackground}}>
                             {!_.isNil(this.props.individual) && this.profile()}
                             <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>
@@ -321,7 +321,11 @@ class SystemRecommendationView extends AbstractComponent {
 
 const styles = StyleSheet.create({
     fixedButtonBar: {
-        height: 84,
+        // minHeight (not a fixed height) - this bar can carry an extra "Save and register
+        // another..." row above Previous/Save (see nextAndMore), which needs more than the
+        // single-row 84 to avoid clipping/overlapping the shadowed background.
+        minHeight: 84,
+        paddingVertical: 12,
         justifyContent: 'center',
         backgroundColor: '#ffffff',
         shadowColor: '#000',
