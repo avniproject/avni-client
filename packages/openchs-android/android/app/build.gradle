@@ -234,7 +234,7 @@ android {
             // src/tanuh/assets/models/ at build time and are gitignored.
             // See tools/edge-model/README.md for the cold-start build flow.
             applicationId "org.tanuh.openchsclient"
-            resValue "string", "app_name", "TANUH"
+            resValue "string", "app_name", "TANUH SAMVIT"
             signingConfig signingConfigs.tanuh
             // Dedicated Bugsnag project: tanuh-avni-client. Hardcoded because Bugsnag API
             // keys are project identifiers (similar to Sentry DSNs), not auth secrets — they
