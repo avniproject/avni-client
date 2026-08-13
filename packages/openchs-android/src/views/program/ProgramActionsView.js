@@ -14,6 +14,7 @@ import Styles from "../primitives/Styles";
 import {Privilege, EncounterType} from "avni-models";
 import PrivilegeService from "../../service/PrivilegeService";
 import {StartProgramActions as Actions} from "../../action/program/StartProgramActions";
+import deferPastInteractions from "../../utility/deferPastInteractions";
 import Pressable from "react-native/Libraries/Components/Pressable/Pressable";
 
 @Path('/ProgramActionsView')
@@ -23,11 +24,21 @@ class ProgramActionsView extends AbstractComponent {
         this.privilegeService = context.getService(PrivilegeService);
     }
 
-    UNSAFE_componentWillMount() {
-        const allowedEncounterTypeUuids = this.props.allowedEncounterTypeUuids;
-        const enrolment = this.props.enrolment;
+    // Deferred, not done in willMount: onLoad runs an eligibility rule per encounter type (~1.5s on
+    // large orgs) and would starve the JS-thread-driven navigation slide into the subject dashboard.
+    // forceUpdate because shouldComponentUpdate below rejects the store update that lands with it.
+    onViewDidMount() {
+        deferPastInteractions(() => {
+            if (this._isUnmounted) return;
+            this.dispatchOnLoad();
+            this.forceUpdate();
+        });
+    }
+
+    dispatchOnLoad() {
+        const {allowedEncounterTypeUuids, enrolment} = this.props;
+        this.loadedEnrolmentUUID = enrolment.uuid;
         this.dispatchAction(Actions.onLoad, {enrolmentUUID: enrolment.uuid, allowedEncounterTypeUuids});
-        return super.UNSAFE_componentWillMount();
     }
 
     shouldComponentUpdate(nextProps, state) {
@@ -36,10 +47,10 @@ class ProgramActionsView extends AbstractComponent {
             || !_.isEqual(nextProps.programDashboardButtons,  this.props.programDashboardButtons);
     }
 
+    // Guarded on the enrolment: the forceUpdate that clears the deferred load also lands here, and
+    // re-dispatching would run the whole eligibility pass a second time.
     componentDidUpdate() {
-        const allowedEncounterTypeUuids = this.props.allowedEncounterTypeUuids;
-        const enrolment = this.props.enrolment;
-        this.dispatchAction(Actions.onLoad, {enrolmentUUID: enrolment.uuid, allowedEncounterTypeUuids});
+        if (this.props.enrolment.uuid !== this.loadedEnrolmentUUID) this.dispatchOnLoad();
     }
 
     static propTypes = {

@@ -28,6 +28,7 @@ import PhoneCall from "../../model/PhoneCall";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import AvniIcon from "../common/AvniIcon";
 import GlificScheduledAndSentMsgsView from '../glific/GlificScheduledAndSentMsgsView';
+import deferPastInteractions from "../../utility/deferPastInteractions";
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
@@ -160,7 +161,11 @@ class IndividualProfile extends AbstractComponent {
                 })
             ])));
         };
-        setTimeout(() => this.dispatchAction(Actions.INDIVIDUAL_SELECTED, {individual, programEnrolmentCallback}), 300);
+        // A fixed 300ms timer used to fire into the tail of the navigation slide; wait for it to finish.
+        deferPastInteractions(() => {
+            if (this._isUnmounted) return;
+            this.dispatchAction(Actions.INDIVIDUAL_SELECTED, {individual, programEnrolmentCallback});
+        });
     }
 
 
