@@ -220,7 +220,8 @@ class ProgramEncounterView extends AbstractComponent {
                                 <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGED}
                                                  element={Object.assign(new StaticFormElement('encounterDate'), {styles: {color: Colors.BrandPrimary}})}
                                                  dateValue={new PrimitiveValue(this.state.programEncounter.encounterDateTime)}
-                                                 validationResult={AbstractDataEntryState.getValidationError(this.state, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}/>
+                                                 validationResult={AbstractDataEntryState.getValidationError(this.state, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}
+                                                 style={{paddingTop: 0}}/>
                             </View>
                             :
                             <View/>

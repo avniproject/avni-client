@@ -36,7 +36,7 @@ class EncounterSubjectHeader extends AbstractComponent {
         const i18n = this.I18n;
         const addressText = individual.lowestTwoLevelAddress(i18n);
         return (
-            <View style={{backgroundColor: '#ffffff', paddingVertical: 16}}>
+            <View style={{backgroundColor: '#ffffff', paddingTop: 16, paddingBottom: 12}}>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                     <SubjectProfilePicture
                         size={AVATAR_SIZE}
@@ -57,16 +57,14 @@ class EncounterSubjectHeader extends AbstractComponent {
                     </View>
                 </View>
                 {!_.isEmpty(addressText) &&
-                <View style={{flexDirection: 'row', alignItems: 'stretch', marginTop: 16}}>
+                <View style={{marginTop: 16}}>
                     <View style={{
-                        flex: 1,
                         backgroundColor: '#ffffff',
                         borderWidth: 1,
                         borderColor: Colors.InputBorderNormal,
                         borderRadius: 8,
                         paddingHorizontal: 12,
-                        paddingVertical: 8,
-                        marginRight: 10
+                        paddingVertical: 8
                     }}>
                         <Text style={{fontSize: Styles.smallerTextSize, color: Styles.greyText}}>
                             {i18n.t('location')}
@@ -77,21 +75,24 @@ class EncounterSubjectHeader extends AbstractComponent {
                             {addressText}
                         </Text>
                     </View>
-                    {/* No fixed height here - stretches (via the row's alignItems: 'stretch') to
-                        match the location box's content-driven height instead of risking a mismatch
-                        if that box's text ever wraps to a different number of lines. */}
                     <TouchableOpacity onPress={onTogglePress}
                                        style={{
-                                           width: 48,
-                                           borderRadius: 8,
-                                           borderWidth: 1,
-                                           borderColor: Colors.BorderDefault,
-                                           backgroundColor: '#ffffff',
+                                           flexDirection: 'row',
                                            alignItems: 'center',
-                                           justifyContent: 'center'
+                                           justifyContent: 'center',
+                                           marginTop: 28,
+                                           height: 56,
+                                           borderWidth: 1,
+                                           borderColor: Colors.BrandPrimaryDark,
+                                           borderRadius: 8,
+                                           paddingHorizontal: 12,
+                                           backgroundColor: 'transparent'
                                        }}>
-                        <Icon name={isExpanded ? 'chevron-up' : 'chevron-down'} size={22}
-                              color={Styles.greyText}/>
+                        <Text style={{fontSize: Styles.smallTextSize, color: Colors.BrandPrimaryDark, fontWeight: '500', marginRight: 4}}>
+                            {i18n.t(isExpanded ? 'viewLess' : 'viewMore')}
+                        </Text>
+                        <Icon name={isExpanded ? 'chevron-up' : 'chevron-down'} size={18}
+                              color={Colors.BrandPrimaryDark}/>
                     </TouchableOpacity>
                 </View>}
             </View>

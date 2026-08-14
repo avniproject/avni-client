@@ -202,7 +202,8 @@ class IndividualEncounterView extends AbstractComponent {
                                 <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGE}
                                                  element={Object.assign(new StaticFormElement(AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME), {styles: {color: Colors.BrandPrimary}})}
                                                  dateValue={new PrimitiveValue(this.state.encounter.encounterDateTime)}
-                                                 validationResult={ValidationResult.findByFormIdentifier(this.state.validationResults, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}/>
+                                                 validationResult={ValidationResult.findByFormIdentifier(this.state.validationResults, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}
+                                                 style={{paddingTop: 0}}/>
                             </View>
                         </View> : <View/>}
                     <View style={styles.container}>

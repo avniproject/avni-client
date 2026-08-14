@@ -2,7 +2,6 @@ import React, {Fragment} from 'react';
 import AbstractFormElement from "./AbstractFormElement";
 import PropTypes from "prop-types";
 import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
-import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import Colors from "../../primitives/Colors";
 import Styles from "../../primitives/Styles";
 import {QuestionGroup as QuestionGroupModel, RepeatableQuestionGroup} from 'avni-models';
@@ -53,15 +52,14 @@ class RepeatableFormElement extends AbstractFormElement {
         });
     }
 
-    actionButton(iconName, onPress, isDisabled, primaryColor) {
+    actionButton(label, onPress, isDisabled, primaryColor) {
+        const color = isDisabled ? Colors.DisabledButtonColor : primaryColor;
         return this.props.element.recordValueByKey('disableManualActions') ? null :
             <TouchableOpacity activeOpacity={0.5}
                               disabled={isDisabled}
                               onPress={onPress}
-                              style={styles.actionButton}>
-                <MCIIcon name={iconName}
-                      style={{fontSize: 25, color: isDisabled ? Colors.DisabledButtonColor : primaryColor}}
-                />
+                              style={[styles.actionButton, {borderColor: color}]}>
+                <Text numberOfLines={1} style={{fontSize: Styles.normalTextSize, fontWeight: '500', color}}>{label}</Text>
             </TouchableOpacity>;
     }
 
@@ -127,7 +125,7 @@ class RepeatableFormElement extends AbstractFormElement {
         }
         return (
             <Fragment key={this.rowKeys[questionGroupIndex]}>
-                {this.actionButton('minus-circle', () => this.onRemove(questionGroupIndex), isRemoveDisabled, Colors.NegativeActionButtonColor)}
+                {this.actionButton(this.I18n.t('remove'), () => this.onRemove(questionGroupIndex), isRemoveDisabled, Colors.NegativeActionButtonColor)}
                 <QuestionGroup
                     questionGroupIndex={questionGroupIndex}
                     element={this.props.element}
@@ -153,7 +151,7 @@ class RepeatableFormElement extends AbstractFormElement {
                 <FormElementLabelWithDocumentation element={this.props.element}/>
                 {this.shouldShowMinimumCountHint && this.renderMinimumCountHint()}
                 {_.map(_.range(0, _.max([1, this.props.value.size()])), index => this.renderQuestionGroup(index))}
-                {this.actionButton('plus-circle', () => this.onAdd(), isAddDisabled, Colors.ActionButtonColor)}
+                {this.actionButton(this.I18n.t('addMoreItem'), () => this.onAdd(), isAddDisabled, Colors.ActionButtonColor)}
             </View>
         );
     }
@@ -162,8 +160,16 @@ class RepeatableFormElement extends AbstractFormElement {
 
 const styles = StyleSheet.create({
     actionButton: {
+        flexDirection: 'row',
         alignSelf: 'flex-end',
         marginTop: 10,
+        paddingHorizontal: 20,
+        height: 56,
+        borderWidth: 1,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'transparent',
     },
     minCountRow: {
         flexDirection: 'row',
