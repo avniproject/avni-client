@@ -1,5 +1,5 @@
+//current sdk version 35 which need to be updated to 36 later
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-//current sdk version 35 which need to be updated to 36
 buildscript {
 
     ext {
