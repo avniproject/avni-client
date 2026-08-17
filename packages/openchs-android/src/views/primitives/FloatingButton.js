@@ -28,6 +28,7 @@ class FloatingButton extends AbstractComponent {
                                   alignItems: 'center',
                                   justifyContent: 'center',
                                   backgroundColor: Colors.AccentColor,
+                                  borderRadius: 8,
                                   elevation: 2,
                               }}>
                 <Text style={{

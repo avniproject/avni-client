@@ -16,22 +16,16 @@ const renderIcon = function (iconName, textColor) {
 
 const renderNumber = function (countResult = {}, textColor) {
     if ((_.isNil(get(countResult, 'primaryValue')))) {
-        return <ActivityIndicator size="small" color={textColor}/>;
+        return <ActivityIndicator size="small" color={textColor} style={{marginTop: 8, alignSelf: 'flex-start'}}/>;
     }
-    const primaryStyle = [styles.cardPrimaryTextStyle, {color: textColor}, countResult.hasErrorMsg && styles.cardPrimaryTextErrorStyle, {marginTop: -20}];
+    const primaryStyle = [styles.cardPrimaryTextStyle, {color: textColor, marginTop: 2}, countResult.hasErrorMsg && styles.cardPrimaryTextErrorStyle];
     const secondaryStyle = [styles.cardSecondaryTextStyle, {color: textColor}, countResult.hasErrorMsg && styles.cardSecondaryTextErrorStyle];
     const {primaryValue, secondaryValue} = countResult;
 
     return (
         <View>
-            <View style={{alignItems: 'flex-end', paddingTop: 10, minHeight: 40}}>
-                {secondaryValue ?
-                    <Text style={[secondaryStyle, {marginLeft: 33, minHeight: 50}]}>
-                        {secondaryValue}
-                    </Text> :
-                    null}
-            </View>
             <Text style={primaryStyle}>{primaryValue}</Text>
+            {secondaryValue ? <Text style={[secondaryStyle, {marginTop: 2}]}>{secondaryValue}</Text> : null}
         </View>
     );
 };
@@ -39,15 +33,17 @@ const renderNumber = function (countResult = {}, textColor) {
 const cardGap = 14;
 
 export const CardTileView = ({index, reportCard, I18n, onCardPress, countResult}) => {
-    const {name, colour, itemKey, iconName} = reportCard;
+    const {name, itemKey, iconName, colour} = reportCard;
     const cardWidth = (Dimensions.get('window').width - cardGap * 3) / 2;
     const cardName = (countResult && countResult.cardName) || name;
-    const textColor = (countResult && countResult.textColor) || Styles.blackColor;
-    const descriptionColor = (countResult && countResult.textColor) || Styles.blackColor;
-    const cardColor = (countResult && countResult.cardColor) || colour || '#999999';
+    // Tile background colour is server-configured (reportCard.colour / countResult.cardColor)
+    // so each tile can carry its own colour again; '#DAF3F4' was a temporary flat Figma colour.
+    // const cardColor = '#DAF3F4';
+    const cardColor = (countResult && countResult.cardColor) || colour || '#DAF3F4';
+    const textColor = Colors.BrandPrimaryDark;
+    const descriptionColor = Colors.BrandPrimaryDark;
     const clickable = get(countResult, 'clickable');
-    const chevronColor = Colors.darker(0.1, cardColor);
-    const cardBorderColor = Colors.darker(0.2, cardColor);
+    const cardBorderColor = Colors.BorderDefault;
 
     return (
         <TouchableNativeFeedback onPress={() => onCardPress(itemKey)} disabled={!clickable}>
@@ -56,30 +52,19 @@ export const CardTileView = ({index, reportCard, I18n, onCardPress, countResult}
                       marginTop: cardGap,
                       marginLeft: index % 2 !== 0 ? cardGap : 0,
                       width: cardWidth,
-                      minHeight: 100,
+                      minHeight: 64,
                       backgroundColor: cardColor,
                       borderColor: cardBorderColor,
                       borderWidth: 1,
-                      paddingLeft: 16,
+                      padding: 8,
                   }]}>
                 <View style={styles.cardNameContainerStyle}>
-                    <View>
-                        {renderNumber(countResult, textColor)}
+                    <View style={{flex: 1}}>
                         <Text style={[styles.cardNameTextStyle, {color: descriptionColor}]}>{I18n.t(cardName)}</Text>
+                        {renderNumber(countResult, textColor)}
                     </View>
-                    <View>
-                        {iconName && renderIcon(iconName, textColor)}
-                    </View>
-                </View>
-                <View style={{position: 'absolute', right: 0, bottom: 0, height: 20, width: 20}}>
-                    <View style={{
-                        backgroundColor: chevronColor,
-                        borderTopLeftRadius: 4, borderBottomRightRadius: 4,
-                        height: 20, width: 20, alignItems: 'center', justifyContent: 'center'
-                    }}>
-                        {clickable &&
-                            <MCIcon name={'chevron-right'} size={20} color={textColor} style={{opacity: 0.8}}/>}
-                    </View>
+                    {iconName && renderIcon(iconName, textColor)}
+                    {clickable && <MCIcon name={'arrow-top-right'} size={20} color={textColor} style={{marginLeft: 8}}/>}
                 </View>
             </View>
         </TouchableNativeFeedback>
@@ -92,16 +77,17 @@ const styles = StyleSheet.create({
         borderWidth: StyleSheet.hairlineWidth,
     },
     cardNameTextStyle: {
-        fontSize: Styles.normalTextSize,
+        fontSize: Styles.smallerTextSize,
         fontStyle: 'normal'
     },
     cardNameContainerStyle: {
-        paddingBottom: 20,
-        marginRight: 12
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        justifyContent: 'space-between'
     },
     cardPrimaryTextStyle: {
-        fontSize: 28,
-        fontWeight: '900',
+        fontSize: 22,
+        fontWeight: '400',
         fontStyle: 'normal',
     },
     cardSecondaryTextStyle: {
@@ -111,7 +97,7 @@ const styles = StyleSheet.create({
     iconContainer: {
         flexDirection: 'column',
         alignItems: 'flex-end',
-        flex: 1
+        marginLeft: 8
     },
     cardPrimaryTextErrorStyle: {
         fontSize: 11,

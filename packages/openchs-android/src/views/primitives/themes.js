@@ -221,7 +221,7 @@ export default {
 
 
     // Other
-    borderRadiusBase: (Platform.OS === 'ios' ) ? 5 : 2,
+    borderRadiusBase: 8,
     borderWidth: 1,
     contentPadding: 10,
 

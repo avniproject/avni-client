@@ -1,5 +1,5 @@
 import React from "react";
-import {ScrollView, Text, TouchableNativeFeedback, View} from 'react-native';
+import {ScrollView, StyleSheet, Text, TouchableNativeFeedback, View} from 'react-native';
 import ListView from "deprecated-react-native-listview";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -96,6 +96,19 @@ class MyDashboardView extends AbstractComponent {
         </View>
     }
 
+    // Shown in place of the (still-empty) status tiles while a first-time user's initial sync is
+    // running - matches the rounded/brand-light tile look used elsewhere (TitleNumberBlock etc.)
+    // instead of leaving blank grey space under the sync progress modal.
+    renderSyncingPlaceholder() {
+        return (
+            <View style={styles.syncingCard}>
+                <AvniIcon name='sync' type='MaterialCommunityIcons' style={styles.syncingIcon}/>
+                <Text style={styles.syncingTitle}>Setting up your dashboard</Text>
+                <Text style={styles.syncingSubtitle}>Your data will appear here once the first sync finishes</Text>
+            </View>
+        );
+    }
+
     refreshDashBoard() {
         this.dispatchAction(Actions.LOAD_INDICATOR, {status: true});
         setTimeout(() => this.dispatchAction(Actions.ON_LOAD, {fetchFromDB: true}), 0);
@@ -120,9 +133,11 @@ class MyDashboardView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), "render");
-        const dataSource = this.ds.cloneWithRows(this.renderableVisits());
+        const visits = this.renderableVisits();
+        const dataSource = this.ds.cloneWithRows(visits);
         const date = this.state.date;
         const {startSync, icon, onSearch} = this.props;
+        const showSyncingPlaceholder = startSync && _.isEmpty(visits);
         const showWelcomeMessage = this.context.getService(OrganisationConfigService).isGuideUserToRegisterButtonOn();
         const title = showWelcomeMessage
             ? this.I18n.t('welcomeMessage', {userName: this.context.getService(UserInfoService).getUserInfo().getDisplayUsername()?.split(' ')[0]})
@@ -163,16 +178,18 @@ class MyDashboardView extends AbstractComponent {
                 <CustomActivityIndicator
                     loading={this.state.loading}/>
                 <ScrollView>
-                    <ListView enableEmptySections={true}
-                              style={{marginBottom: 190}}
-                              dataSource={dataSource}
-                              initialListSize={1}
-                              removeClippedSubviews={true}
-                              renderHeader={() => this.renderHeader()}
-                              renderRow={(rowData) => <StatusCountRow visits={rowData.visits}
-                                                                      sectionName={rowData.sectionName}
-                                                                      backFunction={() => this.onBackCallback()}
-                                                                      dueChecklist={this.state.dueChecklistWithChecklistItem}/>}/>
+                    {this.renderHeader()}
+                    {showSyncingPlaceholder ?
+                        this.renderSyncingPlaceholder() :
+                        <ListView enableEmptySections={true}
+                                  style={{marginBottom: 190}}
+                                  dataSource={dataSource}
+                                  initialListSize={1}
+                                  removeClippedSubviews={true}
+                                  renderRow={(rowData) => <StatusCountRow visits={rowData.visits}
+                                                                          sectionName={rowData.sectionName}
+                                                                          backFunction={() => this.onBackCallback()}
+                                                                          dueChecklist={this.state.dueChecklistWithChecklistItem}/>}/>}
                     <Separator height={10} backgroundColor={Colors.GreyContentBackground}/>
                 </ScrollView>
                 <Separator height={110} backgroundColor={Colors.GreyContentBackground}/>
@@ -180,5 +197,38 @@ class MyDashboardView extends AbstractComponent {
         );
     }
 }
+
+const styles = StyleSheet.create({
+    syncingCard: {
+        marginHorizontal: 10,
+        marginTop: 20,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: Colors.BrandLight,
+        backgroundColor: Colors.BrandLight,
+        paddingVertical: 32,
+        paddingHorizontal: 20,
+        alignItems: 'center',
+    },
+    syncingIcon: {
+        fontSize: 40,
+        color: Colors.BrandPrimaryDark,
+        opacity: 0.9,
+        marginBottom: 12,
+    },
+    syncingTitle: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: Colors.BrandPrimaryDark,
+        textAlign: 'center',
+    },
+    syncingSubtitle: {
+        fontSize: 13,
+        color: Colors.BrandPrimaryDark,
+        opacity: 0.8,
+        textAlign: 'center',
+        marginTop: 6,
+    },
+});
 
 export default MyDashboardView;

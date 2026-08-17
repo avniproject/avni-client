@@ -1,4 +1,4 @@
-import {ToastAndroid, Alert, BackHandler, ScrollView} from "react-native";
+import {ToastAndroid, BackHandler, ScrollView} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -14,6 +14,7 @@ import TypedTransition from "../../framework/routing/TypedTransition";
 import ChecklistDisplay from "./ChecklistDisplay";
 import CHSNavigator from "../../utility/CHSNavigator";
 import AvniToast from "../common/AvniToast";
+import CustomConfirmDialog from "../common/CustomConfirmDialog";
 
 @Path('/ChecklistView')
 class ChecklistView extends AbstractComponent {
@@ -49,17 +50,18 @@ class ChecklistView extends AbstractComponent {
 
     goBack() {
         if (this.state.promptForSave) {
-            Alert.alert("Unsaved Changes", "Do you want to save before exiting? ", [
-                {
-                    text: this.I18n.t('yes'), onPress: () => {
-                    }
+            // "no" proceeds with exiting (goBack), "yes" is a no-op that leaves the user on the screen - preserving that existing (inverted) behavior, only the rendering changed
+            CustomConfirmDialog.show({
+                title: "Unsaved Changes",
+                message: "Do you want to save before exiting? ",
+                yesLabel: this.I18n.t('no'),
+                noLabel: this.I18n.t('yes'),
+                onYes: () => {
+                    TypedTransition.from(this).goBack();
                 },
-                {
-                    text: this.I18n.t('no'), onPress: () => {
-                        TypedTransition.from(this).goBack();
-                    }
+                onNo: () => {
                 }
-            ]);
+            });
             return true;
         } else {
             TypedTransition.from(this).goBack();

@@ -39,9 +39,15 @@ class AbstractFormElement extends AbstractComponent {
     // Relies on the subclass's showMedia(uri) (clear button suppressed when isReadOnly).
     renderReadOnlyMediaList(uris) {
         if (_.isEmpty(uris)) return this.showEmptyReadOnly();
+        // TODO: this previously flagged every image under a field named "Suspicious Images Display",
+        // assuming that name alone meant the AI had flagged it. That broke when a non-suspicious
+        // image (per the actual AI verdict) still ended up in that field. Disabled until we wire in
+        // the real per-image AI verdict (e.g. a sibling "AI Suspicion Result" observation) instead
+        // of trusting the field name.
+        const isSuspiciousImagesGroup = false;
         return _.map(uris, (uri, index) => (
             <View key={`${uri}-${index}`} style={{marginBottom: 3}}>
-                {this.showMedia(uri)}
+                {this.showMedia(uri, undefined, index, isSuspiciousImagesGroup)}
                 <View style={{flex: 1, borderColor: Colors.BlackBackground, borderBottomWidth: StyleSheet.hairlineWidth, opacity: 0.1}}/>
             </View>
         ));

@@ -147,7 +147,7 @@ export default class AutocompleteSearch extends AbstractComponent {
                             {this.I18n.t(item[displayKey])}
                         </Text>
                         {this._itemSelected(item) ?
-                            <Icon name="check" style={{fontSize: 20, color: Colors.ActionButtonColor}}/> :
+                            <Icon name="check-outline" style={{fontSize: 20, color: Colors.ActionButtonColor}}/> :
                             null}
                     </View>
                 </View>
@@ -241,7 +241,7 @@ export default class AutocompleteSearch extends AbstractComponent {
                         {_.size(this.state.searchTerm) > 0 && isMulti &&
                         <TouchableOpacity onPress={this._submitSelection}>
                             <Icon
-                                name='check-circle'
+                                name='check-circle-outline'
                                 style={styles.indicator}
                             />
                         </TouchableOpacity>}

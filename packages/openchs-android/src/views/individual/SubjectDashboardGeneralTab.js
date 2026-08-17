@@ -12,7 +12,6 @@ import Separator from "../primitives/Separator";
 import CHSNavigator from "../../utility/CHSNavigator";
 import ActionSelector from "../common/ActionSelector";
 import PrivilegeService from "../../service/PrivilegeService";
-import NewFormButton from "../common/NewFormButton";
 import AvniToast from "../common/AvniToast";
 import {SubjectType} from "openchs-models";
 
@@ -51,7 +50,7 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
                                     allowedEncounterTypeUuidsForCancelVisit={[]}
                                     allowedEncounterTypeUuidsForPerformVisit={[]}
                                     formType={Form.formTypes.Encounter}
-                                    style={{marginBottom: 21}}
+                                    style={{marginBottom: 32}}
                                     showPartial={false}
                                     showCount={this.state.showCount}
                                     title={this.I18n.t('drafts')}
@@ -76,7 +75,7 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
                                         allowedEncounterTypeUuidsForCancelVisit={allowedEncounterTypeUuidsForCancelVisit}
                                         allowedEncounterTypeUuidsForPerformVisit={allowedEncounterTypeUuidsForPerformVisit}
                                         formType={Form.formTypes.Encounter}
-                                        style={{ marginBottom: 21 }}
+                                        style={{marginBottom: 32}}
                                         showPartial={false}
                                         showCount={this.state.showCount}
                                         title={this.I18n.t('visitsPlanned')}
@@ -99,7 +98,7 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
                                     allowedEncounterTypeUuidsForShareEncounter={allowedEncounterTypeUuidsForShareEncounter}
                                     formType={Form.formTypes.Encounter}
                                     cancelFormType={Form.formTypes.IndividualEncounterCancellation}
-                                    style={{marginBottom: 21}}
+                                    style={{marginBottom: 32}}
                                     showPartial={true}
                                     showCount={this.state.showCount}
                                     title={this.I18n.t('completedEncounters')}
@@ -113,7 +112,7 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
 
     render() {
         return (
-            <View style={{backgroundColor: Colors.WhiteContentBackground, marginTop: 10}}>
+            <View style={{backgroundColor: Colors.GreyContentBackground, marginTop: 10}}>
                 <ActionSelector
                     title={this.I18n.t("followupTypes")}
                     hide={() => this.dispatchAction(Actions.HIDE_ENCOUNTER_SELECTOR)}
@@ -121,12 +120,11 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
                     actions={this.state.encounterActions}
                 />
                 <View style={{marginHorizontal: 10}}>
-                    <NewFormButton display={!this.props.params.displayGeneralInfoInProfileTab} style={{marginBottom: 50}}/>
                     {this.renderDraftVisits()}
                     {this.renderPlannedVisits()}
                     {this.renderCompletedVisits()}
                 </View>
-                <Separator height={110} backgroundColor={Colors.WhiteContentBackground}/>
+                <Separator height={110} backgroundColor={Colors.GreyContentBackground}/>
                 {this.state.editFormRuleResponse.isDisallowed() &&
                     <AvniToast message={this.I18n.t(this.state.editFormRuleResponse.getMessage())} onAutoClose={() => this.dispatchAction(Actions.ON_EDIT_ERROR_SHOWN)}/>}
             </View>

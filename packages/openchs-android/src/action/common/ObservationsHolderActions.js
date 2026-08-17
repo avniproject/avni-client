@@ -134,13 +134,7 @@ class ObservationsHolderActions {
      * the state unchanged.
      */
     static onInferenceResultAvailable(state, action, context) {
-        if (!state || !state.formElementGroup || !state.observationsHolder) return state;
-        const newState = state.clone();
-        const target = ObservationsHolderActions._applyInferenceWrite(newState, action);
-        if (!target) return state;
-        const formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
-        ObservationsHolderActions._resyncWrittenTargetsValidation(newState, [target], formElementStatuses);
-        return newState;
+        return ObservationsHolderActions.onObservationWriteBatch(state, {results: [action]}, context);
     }
 
     /**
@@ -162,7 +156,7 @@ class ObservationsHolderActions {
         }
         if (_.isEmpty(written)) return state;
         const formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
-        ObservationsHolderActions._resyncWrittenTargetsValidation(newState, written, formElementStatuses);
+        ObservationsHolderActions._resyncWrittenTargetsValidation(newState, written, formElementStatuses, context);
         return newState;
     }
 
@@ -218,11 +212,18 @@ class ObservationsHolderActions {
      * Targeted by design: it cannot clear mandatory/other-element errors (different
      * formIdentifier) or other rows (both sides carry a concrete questionGroupIndex), and it
      * re-syncs rather than blindly removes — a still-failing rule keeps its error. Null-safe for
-     * registered flows whose state doesn't extend AbstractDataEntryState.
+     * registered flows whose state doesn't extend AbstractDataEntryState. Routed through
+     * handleValidationResults so devSkipValidation is honoured; targets are deduped so a same-row
+     * clear+verdict batch re-syncs (and logs) once.
      */
-    static _resyncWrittenTargetsValidation(newState, writtenTargets, formElementStatuses) {
-        if (!_.isFunction(newState.handleValidationResult) || _.isEmpty(formElementStatuses)) return;
+    static _resyncWrittenTargetsValidation(newState, writtenTargets, formElementStatuses, context) {
+        if (!_.isFunction(newState.handleValidationResults) || _.isEmpty(formElementStatuses)) return;
+        const seen = new Set();
+        const validationResults = [];
         writtenTargets.forEach(({uuid, questionGroupIndex}) => {
+            const targetKey = `${uuid}|${questionGroupIndex}`;
+            if (seen.has(targetKey)) return;
+            seen.add(targetKey);
             const fresh = _.find(formElementStatuses, s => s.uuid === uuid &&
                 (_.isNil(s.questionGroupIndex) ? _.isNil(questionGroupIndex) : s.questionGroupIndex === questionGroupIndex));
             if (!fresh) return;
@@ -233,8 +234,9 @@ class ObservationsHolderActions {
                 validationResult.success
                     ? `resync gate CLEARED: ${uuid}[${_.isNil(questionGroupIndex) ? '-' : questionGroupIndex}]`
                     : `resync gate KEPT: ${uuid}[${_.isNil(questionGroupIndex) ? '-' : questionGroupIndex}] error=${validationResult.messageKey}`);
-            newState.handleValidationResult(validationResult);
+            validationResults.push(validationResult);
         });
+        if (validationResults.length > 0) newState.handleValidationResults(validationResults, context);
     }
 
     /**

@@ -9,7 +9,6 @@ import AddressLevelService from "../../service/AddressLevelService";
 import AddressLevelsState from "../../action/common/AddressLevelsState";
 import Styles from "../primitives/Styles";
 import Colors from "../primitives/Colors";
-import Distances from "../primitives/Distances";
 import {Text} from "native-base";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import LocationHierarchyService from "../../service/LocationHierarchyService";
@@ -184,7 +183,6 @@ class AddressLevels extends AbstractComponent {
             return (
                 <View key={idx}>
                     {block}
-                    {!isLeaf && <View style={{height: 1, backgroundColor: Colors.InputBorderNormal, marginTop: 4, marginBottom: 12}}/>}
                 </View>
             );
         });
@@ -199,16 +197,10 @@ class AddressLevels extends AbstractComponent {
                         <Text style={Styles.formLabel}>{this.props.fieldLabel || this.I18n.t('Address')}{mandatoryText}</Text>
                         <Text style={Styles.helpText}>{userHint}</Text>
                     </>}
-                <View style={{
-                    borderWidth: 1,
-                    borderStyle: 'dashed',
-                    borderRadius: 1,
-                    borderColor: Colors.InputBorderNormal,
-                    paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge,
-                    // paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
-                }}>
+                <View>
                     {addressLevels}
                 </View>
+                <View style={{height: 1, backgroundColor: Colors.TextHint, opacity: 0.3, marginTop: 12}}/>
                 <View style={{backgroundColor: '#ffffff'}}>
                     <ValidationErrorMessage validationResult={this.props.validationError}/>
                 </View>

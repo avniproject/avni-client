@@ -102,7 +102,7 @@ class FileFormElement extends AbstractFormElement {
                 marginTop: 16
             }]}>
                 <TouchableOpacity onPress={() => this.selectFile(onUpdateObservations)}>
-                    <Icon name={'folder-open'} style={[styles.icon, {marginRight: 3}]}/>
+                    <Icon name={'folder-open-outline'} style={[styles.icon, {marginRight: 3}]}/>
                 </TouchableOpacity>
             </View>
         );
@@ -113,7 +113,7 @@ class FileFormElement extends AbstractFormElement {
             <View style={styles.content}>
                 <ExpandableMedia source={mediaUri} type={this.props.element.concept.datatype}/>
                 {!this.isReadOnly && <TouchableNativeFeedback onPress={() => onClearAnswer()}>
-                    <Icon name={"backspace"} style={[styles.icon]}/>
+                    <Icon name={"backspace-outline"} style={[styles.icon]}/>
                 </TouchableNativeFeedback>}
             </View>
         );

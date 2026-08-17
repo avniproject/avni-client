@@ -135,7 +135,7 @@ export const PaginatedView = ({results, onIndividualSelection, currentPage, titl
                     style={{
                         padding: 10,
                         backgroundColor: Colors.ActionButtonColor,
-                        borderRadius: 4,
+                        borderRadius: 8,
                         flexDirection: 'row',
                         justifyContent: 'center',
                         alignItems: 'center',

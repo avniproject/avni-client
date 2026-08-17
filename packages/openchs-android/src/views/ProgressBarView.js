@@ -33,17 +33,19 @@ class ProgressBarView extends AbstractComponent {
             flex: 1,
             flexDirection: 'column',
             flexWrap: 'nowrap',
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            backgroundColor: Colors.ModalBackgroundColor,
         };
         this.syncBackground = {
-            width: width * .7,
+            width: width * .8,
             flexDirection: 'row',
             flexWrap: 'nowrap',
             justifyContent: 'center',
             alignItems: 'center',
-            padding: 20,
+            padding: 24,
             alignSelf: 'center',
-            backgroundColor: Colors.getCode("paperGrey900").color,
+            backgroundColor: Colors.WhiteContentBackground,
+            borderRadius: 16,
+            elevation: 4,
         };
         this.container = {
             flexDirection: 'row',
@@ -51,12 +53,13 @@ class ProgressBarView extends AbstractComponent {
             alignItems: 'center',
         };
         this.syncTextContent = {
-            color: Colors.TextOnPrimaryColor,
+            color: Colors.TextPrimaryDark,
             lineHeight: 30,
             height: 70,
         };
         this.percentageText = {
-            color: Colors.TextOnPrimaryColor,
+            color: Colors.BrandPrimaryDark,
+            fontWeight: '600',
         };
 
     }
@@ -74,7 +77,7 @@ class ProgressBarView extends AbstractComponent {
                    onRequestClose={_.noop}
                    visible={this.props.syncing}>
                 <KeepAwake />
-                <View style={[this.syncContainerStyle, {backgroundColor: 'rgba(0, 0, 0, 0.25)'}]}
+                <View style={this.syncContainerStyle}
                       key={`spinner_${Date.now()}`}>
                     <View style={{flex: .4}}/>
                     <View style={this.syncBackground}>
@@ -86,7 +89,7 @@ class ProgressBarView extends AbstractComponent {
                                             {_.isNil(this.props.message) ? this.I18n.t("doingNothing") : displayMessage}
                                         </Text>
                                         <ProgressBar styleAttr="Horizontal" progress={this.props.progress}
-                                                            indeterminate={false} color="white"/>
+                                                            indeterminate={false} color={Colors.BrandPrimaryDark}/>
                                         <Text
                                             style={[this.percentageText, {textAlign: 'center'}, Fonts.typography("paperFontSubhead")]}>
                                             {((this.props.progress) * 100).toFixed(0)}%
@@ -96,10 +99,10 @@ class ProgressBarView extends AbstractComponent {
                                     (this.props.notifyUserOnCompletion ? <View>
                                         <View style={this.container}>
                                             <Text
-                                                style={[Fonts.typography("paperFontSubhead"), {color: Colors.TextOnPrimaryColor}]}>
+                                                style={[Fonts.typography("paperFontSubhead"), {color: Colors.TextPrimaryDark}]}>
                                                 {this.I18n.t("syncComplete")}
                                             </Text>
-                                            <Icon name='check-circle' size={21} style={[{color: Colors.TextOnPrimaryColor}]}/>
+                                            <Icon name='check-circle-outline' size={21} style={[{color: Colors.BrandPrimaryDark, marginLeft: 8}]}/>
                                         </View>
                                         {this.props.contentDownloadWarning &&
                                             <Text style={[Fonts.typography("paperFontBody1"),
@@ -109,7 +112,7 @@ class ProgressBarView extends AbstractComponent {
                                         <View style={{paddingTop: 20}}>
                                             <Button
                                                 title={`${this.I18n.t('ok')}`}
-                                                color={Colors.ActionButtonColor}
+                                                color={Colors.BrandPrimaryDark}
                                                 onPress={() => this.props.onPress()}/>
                                         </View>
                                     </View> : <View/>)}

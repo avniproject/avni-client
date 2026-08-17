@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, {Component, Text, View} from "react";
-import {Alert, StyleSheet, Keyboard, InteractionManager} from "react-native";
+import {StyleSheet, Keyboard, InteractionManager} from "react-native";
 import _ from "lodash";
 import MessageService from "../../service/MessageService";
 import General from "../../utility/General";
@@ -9,6 +9,7 @@ import TypedTransition from "../routing/TypedTransition";
 import {logScreenEvent, screenRenderStart} from "../../utility/Analytics";
 import {JSONStringify} from "../../utility/JsonStringify";
 import ServiceContext from "../context/ServiceContext";
+import CustomConfirmDialog from "../../views/common/CustomConfirmDialog";
 
 class AbstractComponent extends Component {
     static contextType = ServiceContext;
@@ -92,14 +93,11 @@ class AbstractComponent extends Component {
     }
 
     showError(message) {
-        Alert.alert(this.I18n.t("validationError"), message,
-            [
-                {
-                    text: this.I18n.t('ok'), onPress: () => {
-                    }
-                },
-            ]
-        );
+        CustomConfirmDialog.showAlert({
+            title: this.I18n.t("validationError"),
+            message,
+            okLabel: this.I18n.t('ok')
+        });
     }
 
     UNSAFE_componentWillMount() {
@@ -186,9 +184,12 @@ class AbstractComponent extends Component {
 
     handleError({syncRequiredError}) {
         if (syncRequiredError) {
-            Alert.alert(this.I18n.t("syncRequired"), this.I18n.t(syncRequiredError), [
-                {text: this.I18n.t('okay'), onPress: _.noop}
-            ]);
+            CustomConfirmDialog.showAlert({
+                title: this.I18n.t("syncRequired"),
+                message: this.I18n.t(syncRequiredError),
+                okLabel: this.I18n.t('okay'),
+                onOk: _.noop
+            });
         }
     }
 

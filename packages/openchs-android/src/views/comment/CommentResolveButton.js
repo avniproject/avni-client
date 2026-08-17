@@ -26,7 +26,7 @@ class CommentResolveButton extends AbstractComponent {
                     width: 90,
                     paddingHorizontal: 16,
                     marginRight: 10,
-                    borderRadius: 6,
+                    borderRadius: 8,
                     backgroundColor: '#FFFFFF'
                 }}>
                     <Text style={{color: Colors.DarkPrimaryColor}}>{this.I18n.t("resolve")}</Text>

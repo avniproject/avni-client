@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View} from "react-native";
+import {Text, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -22,50 +22,45 @@ class NextScheduledVisits extends AbstractComponent {
     }
 
     createScheduledVisitStyles(highlight) {
+        // Figma shows this table as plain text with thin column dividers only - no shaded
+        // header row, no cell borders, and teal-colored data values.
         this.styles =
             {
-                visitTable: {
-                    marginHorizontal: 3,
-                    backgroundColor: Colors.GreyContentBackground
-                },
-                visitRow: {borderRightWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
+                visitTable: {},
+                visitRow: {},
                 visitColumn: {
+                    paddingBottom: 2,
+                    textAlign: 'left',
+                    flex: 1
+                },
+                visitColumnDivider: {
                     borderLeftWidth: 1,
                     borderColor: 'rgba(0, 0, 0, 0.12)',
-                    paddingLeft: 3,
-                    paddingBottom: 2,
-                    textAlign: 'center',
-                    flex: 1
+                    paddingLeft: 8
                 },
                 container: {
                     flex: 1,
                     paddingTop: 30
                 },
                 tableHeaderRow: {
-                    marginHorizontal: 3,
                     marginTop: 4,
                     flexDirection: "row",
-                    borderBottomColor: Colors.InputBorderNormal,
-                    borderBottomWidth: StyleSheet.hairlineWidth,
-                    flexWrap : 'wrap',
-                    backgroundColor: Colors.HighlightBackgroundColor
+                    flexWrap : 'wrap'
                 },
                 tableColHeader: {
-                    borderLeftWidth: 1,
-                    borderColor: 'rgba(0, 0, 0, 0.12)',
-                    paddingLeft: 3,
-                    paddingBottom: 2,
-                    textAlign: 'center',
-                    fontSize: Fonts.Normal,
-                    color: Styles.greyText,
-                    fontWeight: 'bold',
+                    paddingBottom: 6,
+                    textAlign: 'left',
+                    fontSize: Styles.smallTextSize,
+                    color: Colors.TextPrimaryDark,
+                    opacity: 0.7,
+                    fontWeight: 'normal',
                     paddingTop:5
                 }
             }
     }
 
     renderTitle() {
-        if (this.props.title) return (<Text style={Fonts.Title}>{this.props.title}</Text>);
+        if (this.props.title) return (<Text style={[Fonts.Title, {color: Colors.BrandPrimaryDark}]}>{this.props.title}</Text>);
     }
 
     render() {
@@ -82,27 +77,28 @@ class NextScheduledVisits extends AbstractComponent {
                 {this.renderTitle()}
                 < View style={[this.styles.tableHeaderRow]}>
                     <Text style={[this.styles.tableColHeader, {flex: 1.5,}]}>{this.I18n.t('visitName')}</Text>
-                    <Text style={[this.styles.tableColHeader, {flex: 1.5,}]}>{this.I18n.t('schedulingFor')}</Text>
-                    <Text style={[this.styles.tableColHeader, {flex: 1.5,}]}>{this.I18n.t('overdueBy')}</Text>
+                    <Text style={[this.styles.tableColHeader, this.styles.visitColumnDivider, {flex: 1.5,}]}>{this.I18n.t('schedulingFor')}</Text>
+                    <Text style={[this.styles.tableColHeader, this.styles.visitColumnDivider, {flex: 1.5,}]}>{this.I18n.t('overdueBy')}</Text>
                 </View>
                 <View style={this.styles.visitTable}>
                     {nextScheduledVisits.map(([visitName, scheduledFor, overdueBy], idx) => (
                         <React.Fragment key={idx}>
-                            < View style={[{flexDirection: "row"}, this.styles.visitRow]}>
+                            <View style={[{flexDirection: "row"}, this.styles.visitRow]}>
                                 <Text style={[{
                                     textAlign: 'left',
-                                    fontSize: Fonts.Normal,
-                                    color: Styles.greyText
+                                    fontSize: Styles.smallTextSize,
+                                    color: Colors.BrandPrimary
                                 }, this.styles.visitColumn]}>{visitName}</Text>
                                 <Text style={[{
                                     textAlign: 'left',
-                                    fontSize: Fonts.Medium,
-                                }, this.styles.visitColumn]}>{scheduledFor}</Text>
+                                    fontSize: Styles.smallTextSize,
+                                    color: Colors.BrandPrimary
+                                }, this.styles.visitColumn, this.styles.visitColumnDivider]}>{scheduledFor}</Text>
                                 <Text style={[{
                                     textAlign: 'left',
-                                    fontSize: Fonts.Normal,
-                                    color: Styles.greyText
-                                }, this.styles.visitColumn]}>{overdueBy}</Text>
+                                    fontSize: Styles.smallTextSize,
+                                    color: Colors.BrandPrimary
+                                }, this.styles.visitColumn, this.styles.visitColumnDivider]}>{overdueBy}</Text>
                             </View>
                             {idx < nextScheduledVisits.length - 1 && <Separator height={1}/>}
                         </React.Fragment>

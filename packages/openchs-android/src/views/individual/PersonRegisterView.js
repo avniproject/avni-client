@@ -1,4 +1,4 @@
-import {ToastAndroid, ScrollView} from "react-native";
+import {ToastAndroid, ScrollView, StyleSheet, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -123,6 +123,7 @@ class PersonRegisterView extends AbstractComponent {
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.individual.latestEntityApprovalStatus}/>
                     <ScrollView keyboardShouldPersistTaps="handled"
                         ref={this.scrollRef} style={{
+                        flex: 1,
                         marginTop: Distances.ScaledVerticalSpacingDisplaySections,
                         flexDirection: 'column',
                         paddingHorizontal: Distances.ScaledContentDistanceFromEdge
@@ -155,13 +156,30 @@ class PersonRegisterView extends AbstractComponent {
                                 this.dispatchAction(Actions.REGISTRATION_ENTER_ADDRESS_LEVEL, {value: _.head(lowestSelectedAddresses)})}
                             minLevelTypeUUIDs={this.state.minLevelTypeUUIDs}
                         />
-                        <WizardButtons
-                            next={{func: () => PersonRegisterViewsMixin.next(this), label: this.I18n.t('next')}}/>
                     </ScrollView>
+                    <View style={styles.fixedButtonBar}>
+                        <WizardButtons
+                            containerStyle={{paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}
+                            buttonHeight={56}
+                            next={{func: () => PersonRegisterViewsMixin.next(this), label: this.I18n.t('next')}}/>
+                    </View>
                 </CHSContent>
             </CHSContainer>
         );
     }
 }
+
+const styles = StyleSheet.create({
+    fixedButtonBar: {
+        height: 84,
+        justifyContent: 'center',
+        backgroundColor: '#ffffff',
+        shadowColor: '#000',
+        shadowOffset: {width: 0, height: -3},
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 8
+    }
+});
 
 export default PersonRegisterView;

@@ -1,5 +1,5 @@
 import Config from "../Config";
-import {Alert, View} from "react-native";
+import {View} from "react-native";
 import React, {useState, useRef, useEffect} from 'react';
 import RNRestart from "react-native-restart";
 import {JSONStringify} from "../../utility/JsonStringify";
@@ -10,6 +10,7 @@ import General from "../../utility/General";
 import GlobalContext from "../../GlobalContext";
 import ProgressBarView from "../../views/ProgressBarView";
 import MessageService from "../../service/MessageService";
+import CustomConfirmDialog from "../../views/common/CustomConfirmDialog";
 
 export function ErrorDisplay({avniError, context, username = null}) {
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -55,42 +56,37 @@ export function ErrorDisplay({avniError, context, username = null}) {
                     const i18n = getI18n();
                     if (message === "backupCompleted") {
                         const title = i18n ? i18n.t('uploadSuccessful') : 'Upload Successful';
-                        Alert.alert(title, "", [
-                            {text: 'OK', onPress: () => RNRestart.Restart()}
-                        ]);
+                        CustomConfirmDialog.showAlert({title, message: "", okLabel: 'OK', onOk: () => RNRestart.Restart()});
                     } else {
                         const title = i18n ? i18n.t('uploadFailed') : 'Upload Failed';
                         const body = backupError ? backupError.getDisplayMessage() : "";
-                        Alert.alert(title, body, [
-                            {text: 'OK', onPress: () => RNRestart.Restart()}
-                        ]);
+                        CustomConfirmDialog.showAlert({title, message: body, okLabel: 'OK', onOk: () => RNRestart.Restart()});
                     }
                 }
             }, username);
         } else {
-            Alert.alert("Upload not available", "App not initialized. The app will restart.");
+            CustomConfirmDialog.showAlert({title: "Upload not available", message: "App not initialized. The app will restart."});
             RNRestart.Restart();
         }
     };
 
-    const buttons = [
-        {text: "Close", onPress: () => setShowErrorAlert(false)},
-        {text: "Restart", onPress: () => {
-            setShowErrorAlert(false);
-            RNRestart.Restart();
-        }},
-        {text: "Upload issue info", onPress: uploadIssueInfo}
-    ];
-    
     // Use useEffect to show alert only when needed
     useEffect(() => {
         if (!Config.allowServerURLConfig && !isUploading && showErrorAlert) {
-            Alert.alert("App will restart now", avniError.getDisplayMessage(),
-                buttons,
-                {cancelable: true}
-            );
+            CustomConfirmDialog.showActions({
+                title: "App will restart now",
+                message: avniError.getDisplayMessage(),
+                actions: [
+                    {label: "Close", primary: true, onPress: () => setShowErrorAlert(false)},
+                    {label: "Restart", onPress: () => {
+                        setShowErrorAlert(false);
+                        RNRestart.Restart();
+                    }},
+                    {label: "Upload issue info", onPress: uploadIssueInfo}
+                ]
+            });
         }
-    }, [Config.allowServerURLConfig, isUploading, showErrorAlert, avniError, buttons]);
+    }, [Config.allowServerURLConfig, isUploading, showErrorAlert, avniError]);
     
     return (
         <View>

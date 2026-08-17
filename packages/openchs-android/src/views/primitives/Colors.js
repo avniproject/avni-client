@@ -10,9 +10,11 @@ class Colors {
     static Complimentary = '#148be4';
     static TertiaryColor = 'lightgrey';
 
-    static ValidationError = '#d0011b';
-    static AbnormalValueHighlight = '#d0011b';
-    static NegativeActionButtonColor = '#d0011b';
+    static ValidationError = '#B91C1C';
+    static AbnormalValueHighlight = '#B91C1C';
+    static NegativeActionButtonColor = '#B91C1C';
+    static AbnormalSelectedBackground = '#F4DCDC';
+    static AbnormalSelectedText = '#B91C1C';
     static InputNormal = 'rgba(0, 0, 0, 0.87)';
     static InputBorderNormal = 'rgba(0, 0, 0, 0.12)';
     static GreyBackground = 'rgba(97, 97, 97, 0.20)';
@@ -35,6 +37,16 @@ class Colors {
 
     static FilterBar = '#114486';
     static FilterButtonColor = '#EBF4F3';
+    static BrandPrimary = '#14868C'; // color/brand/primary from Figma design tokens
+    static BrandPrimaryDark = '#00767D'; // color/brand/primary dark from Figma design tokens
+    static BrandLight = '#DAF3F4'; // color/brand/light from Figma design tokens
+    static BrandSecondary = '#144A8C'; // color/brand/secondary from Figma design tokens
+    static SectionHeaderBackground = '#F2F2F2'; // color/states/error/light, reused as form-group section header background
+    static BorderDefault = '#E5E7EB'; // color/border/border-default from Figma design tokens
+    static TextHint = '#9CA3AF'; // color/text/text-color-hint from Figma design tokens
+    static TextPrimaryDark = '#111827'; // color/text/text-color-primary from Figma design tokens
+    static TextSecondary = '#6B7280'; // color/text/text-color-secondary from Figma design tokens
+    static WarningTextDark = '#A16207'; // color/states/warning/dark from Figma design tokens
 
     static getCode(colorName) {
         return color[colorName];
@@ -43,7 +55,7 @@ class Colors {
     static buttonIconColor = '#FFFFFF';
     static headerIconColor = '#FFFFFF';
     static headerTextColor = '#FFFFFF';
-    static headerBackgroundColor = '#212121';
+    static headerBackgroundColor = '#14868C'; // color/brand/primary from Figma design tokens (app bar)
     static bottomBarColor = 'white';
     static bottomBarIconColor = 'black';
     static programEnrolmentBottomBarColor = '#212121';
@@ -54,8 +66,10 @@ class Colors {
 
     static OverdueVisitColor = '#d0011b';
     static FutureVisitColor = '#B8860B';
-    static ScheduledVisitColor = '#009688';
-    static VisitActionColor = '#009688';
+    // Was '#009688' - a leftover pre-rebrand teal that read as a different shade next to
+    // BrandPrimaryDark-coloured buttons (e.g. "New Form", "Do" action links, "Due" badges).
+    static ScheduledVisitColor = this.BrandPrimaryDark;
+    static VisitActionColor = this.BrandPrimaryDark;
     static CancelledVisitColor = '#d0011b';
     static VisitFilterButtonColor = '#4a90e2';
     static Separator = '#C0C0C0';

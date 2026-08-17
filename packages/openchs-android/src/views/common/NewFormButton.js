@@ -1,12 +1,35 @@
 import React from 'react';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Reducers from "../../reducer";
-import {Text, TouchableNativeFeedback, View} from "react-native";
+import {StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
 import Fonts from "../primitives/Fonts";
 import {Actions} from "../../action/individual/IndividualGeneralHistoryActions";
 import _ from "lodash";
-import Styles from "../primitives/Styles";
 import Colors from "../primitives/Colors";
+import MCIcon from "react-native-vector-icons/MaterialCommunityIcons";
+
+const styles = StyleSheet.create({
+    floatingContainer: {
+        position: 'absolute',
+        right: 16,
+        bottom: 24,
+        zIndex: 10,
+        elevation: 6
+    },
+    fabButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: Colors.BrandPrimaryDark,
+        borderRadius: 8,
+        paddingVertical: 10,
+        paddingHorizontal: 18,
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: {width: 0, height: 2},
+        shadowOpacity: 0.2,
+        shadowRadius: 4
+    }
+});
 
 class NewFormButton extends AbstractComponent {
 
@@ -14,14 +37,15 @@ class NewFormButton extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.individualGeneralHistory);
     }
 
-    renderButton(onPress, buttonStyle, text, textColor, index) {
+    renderButton(onPress, text, index) {
         return (
             <TouchableNativeFeedback onPress={onPress} key={index}>
-                <View style={buttonStyle}>
+                <View style={styles.fabButton}>
+                    <MCIcon name='plus' size={20} color={Colors.TextOnPrimaryColor}/>
                     <Text style={{
                         fontSize: Fonts.Medium,
-                        color: textColor,
-                        paddingHorizontal: 10
+                        color: Colors.TextOnPrimaryColor,
+                        paddingLeft: 6
                     }}>{text}</Text>
                 </View>
             </TouchableNativeFeedback>
@@ -34,11 +58,11 @@ class NewFormButton extends AbstractComponent {
     }
 
     renderNewFormButton() {
-        return this.renderButton(() => this.startEncounter(), Styles.basicPrimaryButtonView, this.I18n.t('newGeneralVisit'), Colors.TextOnPrimaryColor)
+        return this.renderButton(() => this.startEncounter(), this.I18n.t('newGeneralVisit'))
     }
 
     renderEncounterNameButton(encounterAction) {
-        return this.renderButton(() => encounterAction.fn(), Styles.basicPrimaryButtonView, this.I18n.t(encounterAction.label), Colors.TextOnPrimaryColor)
+        return this.renderButton(() => encounterAction.fn(), this.I18n.t(encounterAction.label))
     }
 
     renderButtonBasedOnEncounters() {
@@ -46,13 +70,11 @@ class NewFormButton extends AbstractComponent {
     }
 
     renderOption() {
-        const containerStyle = this.props.style || {};
+        const containerStyle = [styles.floatingContainer, this.props.style || {}];
         const availableActions = _.size(this.state.encounterActions);
         return ( availableActions > 0 ?
             <View style={containerStyle}>
-                <View style={{marginTop: 2, position: 'absolute', right: 8}}>
-                    {this.renderButtonBasedOnEncounters()}
-                </View>
+                {this.renderButtonBasedOnEncounters()}
             </View> : <View/>
         )
     }

@@ -27,7 +27,8 @@ class TextFormElement extends AbstractFormElement {
         allowedValues: PropTypes.array,
         helpText: PropTypes.string,
         isTableView: PropTypes.bool,
-        isSecureInput: PropTypes.bool
+        isSecureInput: PropTypes.bool,
+        labelColor: PropTypes.string
     };
     static defaultProps = {
         style: {},
@@ -56,34 +57,38 @@ class TextFormElement extends AbstractFormElement {
         const containerStyle = _.get(this.props, 'containerStyle', {flexDirection: 'column', justifyContent: 'flex-start'});
         const labelStyle = _.get(this.props, 'labelStyle', {});
         const inputStyle = _.get(this.props, 'inputStyle', {});
+        const underlineColorAndroid = _.get(this.props, 'underlineColorAndroid', this.borderColor);
         return (
-            <View style={containerStyle}>
-                <View style={labelStyle}>
-                    <FormElementLabelWithDocumentation element={this.props.element} isTableView={this.props.isTableView}/>
-                    <HelpText t={this.I18n.t} text={this.props.helpText}/>
+            <View>
+                <View style={containerStyle}>
+                    <View style={labelStyle}>
+                        <FormElementLabelWithDocumentation element={this.props.element} isTableView={this.props.isTableView}
+                                                            labelColor={this.props.labelColor}/>
+                        <HelpText t={this.I18n.t} text={this.props.helpText}/>
+                    </View>
+                    <View style={inputStyle}>
+                        {this.props.isSecureInput === true ?
+                            <SecureTextInput {...this.props} style={[Styles.formBodyText, this.props.style]}
+                                       underlineColorAndroid={underlineColorAndroid} secureTextEntry={this.props.secureTextEntry}
+                                       value={_.isNil(this.props.value) ? "" : this.props.value.answer}
+                                       onChangeText={(text) => this.onInputChange(text)} multiline={this.props.multiline}
+                                       numberOfLines={this.props.multiline ? 4 : 1}
+                                       keyboardType={this.props.keyboardType || 'default'}
+                            />
+                            :
+                            <TextInput {...this.props} style={[Styles.formBodyText, this.props.style]}
+                                             underlineColorAndroid={underlineColorAndroid}
+                                             secureTextEntry={this.props.secureTextEntry}
+                                             value={_.isNil(this.props.value) ? "" : this.props.value.answer}
+                                             onChangeText={(text) => this.onInputChange(text)}
+                                             multiline={this.props.multiline}
+                                             numberOfLines={this.props.multiline ? 4 : 1}
+                                             keyboardType={this.props.keyboardType || 'default'}
+                            />
+                        }
+                    </View>
                 </View>
-                <View style={inputStyle}>
-                    {this.props.isSecureInput === true ?
-                        <SecureTextInput {...this.props} style={[Styles.formBodyText, this.props.style]}
-                                   underlineColorAndroid={this.borderColor} secureTextEntry={this.props.secureTextEntry}
-                                   value={_.isNil(this.props.value) ? "" : this.props.value.answer}
-                                   onChangeText={(text) => this.onInputChange(text)} multiline={this.props.multiline}
-                                   numberOfLines={this.props.multiline ? 4 : 1}
-                                   keyboardType={this.props.keyboardType || 'default'}
-                        />
-                        :
-                        <TextInput {...this.props} style={[Styles.formBodyText, this.props.style]}
-                                         underlineColorAndroid={this.borderColor}
-                                         secureTextEntry={this.props.secureTextEntry}
-                                         value={_.isNil(this.props.value) ? "" : this.props.value.answer}
-                                         onChangeText={(text) => this.onInputChange(text)}
-                                         multiline={this.props.multiline}
-                                         numberOfLines={this.props.multiline ? 4 : 1}
-                                         keyboardType={this.props.keyboardType || 'default'}
-                        />
-                    }
-                        <ValidationErrorMessage validationResult={this.props.validationResult}/>
-                </View>
+                <ValidationErrorMessage validationResult={this.props.validationResult}/>
             </View>);
     }
 

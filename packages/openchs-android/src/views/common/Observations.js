@@ -43,16 +43,14 @@ class Observations extends AbstractComponent {
 
     createObservationsStyles(highlight) {
         this.styles = highlight ?
+            // "System Recommendations" on the Summary screen - Figma shows this as plain stacked
+            // label/value text on the page background, not a bordered/shaded table row.
             {
-                observationTable: {
-                    backgroundColor: Colors.HighlightBackgroundColor
-                },
-                observationRow: {borderRightWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
+                observationTable: {},
+                observationRow: {flexDirection: 'column', paddingVertical: 6},
                 observationColumn: {
-                    borderLeftWidth: 1,
-                    borderColor: 'rgba(0, 0, 0, 0.12)',
-                    paddingLeft: 3,
-                    paddingBottom: 2,
+                    paddingLeft: 0,
+                    paddingTop: 2,
                     flex: 1
                 },
                 observationSubject: {
@@ -67,8 +65,9 @@ class Observations extends AbstractComponent {
                 },
                 conceptNameStyle: {
                     textAlign: 'left',
-                    fontSize: Fonts.Small,
-                    color: Styles.greyText,
+                    fontSize: Styles.smallerTextSize,
+                    color: Colors.TextPrimaryDark,
+                    opacity: 0.7
                 }
             }
             :
@@ -76,12 +75,14 @@ class Observations extends AbstractComponent {
                 observationTable: {
                     backgroundColor: Colors.cardBackgroundColor
                 },
-                observationRow: {borderRightWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
+                observationRow: {
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    paddingHorizontal: 20,
+                    paddingVertical: 14
+                },
                 observationColumn: {
-                    borderLeftWidth: 1,
-                    borderColor: 'rgba(0, 0, 0, 0.12)',
-                    paddingLeft: 3,
-                    paddingBottom: 2,
                     flex: 1
                 },
                 observationSubject: {
@@ -115,14 +116,16 @@ class Observations extends AbstractComponent {
                 },
                 conceptNameStyle: {
                     textAlign: 'left',
-                    fontSize: Fonts.Small,
+                    fontSize: Fonts.Normal,
                     color: Styles.greyText,
                 }
             }
     }
 
     renderTitle() {
-        if (this.props.title) return (<Text style={Fonts.Title}>{this.props.title}</Text>);
+        if (this.props.title) return (
+            <Text style={[Fonts.Title, this.props.highlight && {color: Colors.BrandPrimaryDark}]}>{this.props.title}</Text>
+        );
     }
 
     makeCall(number) {
@@ -164,7 +167,7 @@ class Observations extends AbstractComponent {
             const allMediaURIs = _.map(displayable.displayValue, mediaObject => mediaObject.uri);
             return (
                 <View style={this.styles.observationColumn}>
-                    <View style={{flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                         {_.map(allMediaURIs, (value, index) =>
                             <ExpandableMedia key={index} source={value} type={renderType} relatedMediaURIs={allMediaURIs}/>)}
                     </View>
@@ -174,7 +177,7 @@ class Observations extends AbstractComponent {
             const allMediaURIs = _.split(displayable.displayValue, ',');
             return (
                 <View style={this.styles.observationColumn}>
-                    <View style={{flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                     {_.map(allMediaURIs, (value, index) =>
                         <ExpandableMedia key={index} source={value} type={renderType} relatedMediaURIs={allMediaURIs}/>)}
                     </View>
@@ -235,10 +238,11 @@ class Observations extends AbstractComponent {
     }
 
     renderObservationText(isAbnormal, obs, additionalStyles) {
+        const highlightValueColor = this.props.highlight && !isAbnormal ? Colors.BrandPrimary : undefined;
         return <Text style={[{
-            textAlign: 'left',
-            fontSize: Fonts.Small,
-            color: isAbnormal ? Styles.redColor : Styles.blackColor
+            textAlign: this.props.highlight ? 'left' : 'right',
+            fontSize: this.props.highlight ? Fonts.Small : Fonts.Normal,
+            color: highlightValueColor || (isAbnormal ? Styles.redColor : Styles.blackColor)
         }, this.styles.observationColumn, additionalStyles]}>{obs}</Text>;
     }
 
@@ -247,17 +251,21 @@ class Observations extends AbstractComponent {
         this.props.onFormElementGroupEdit(this.props.form.getFormElementGroupOrder(groupUUID));
     }
 
-    observationTable(groupUUID, groupName, observations, groupStyles, quickFormEdit) {
-        const initialFlex = quickFormEdit ? 0.85 : 0.9;
-        return <View style={{flexDirection: 'column'}} key={groupUUID}>
+    observationTable(groupUUID, groupName, observations, groupStyles, quickFormEdit, isFirst, isLast) {
+        const initialFlex = quickFormEdit ? 1 : 0.9;
+        const cornerRadius = 8;
+        return <View style={[{flexDirection: 'column'},
+            isLast && {borderBottomLeftRadius: cornerRadius, borderBottomRightRadius: cornerRadius, overflow: 'hidden'}]} key={groupUUID}>
             <View style={[{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 padding: 4,
                 backgroundColor: 'rgba(0, 0, 0, 0.12)'
-            }, this.styles.observationRow, this.styles.observationColumn, groupStyles]}>
-                <View style={{flex: initialFlex}}>
+            }, this.styles.observationRow, this.styles.observationColumn,
+                isFirst && {borderTopLeftRadius: cornerRadius, borderTopRightRadius: cornerRadius},
+                groupStyles]}>
+                <View style={{flex: initialFlex, flexWrap: 'wrap'}}>
                     <Text style={[{fontWeight: 'bold'}, groupStyles]} numberOfLines={2} ellipsizeMode="tail">{this.I18n.t(groupName)}</Text>
                 </View>
                 {groupUUID && quickFormEdit &&
@@ -268,11 +276,24 @@ class Observations extends AbstractComponent {
                     </TouchableOpacity>
                 </View>}
             </View>
-            {_.map(observations, (observation) => this.renderObservationValue(observation, {paddingLeft: 8}))}
+            {_.map(observations, (observation) => this.renderObservationValue(observation))}
         </View>;
     }
 
     renderNormalView(observation, extraConceptStyle) {
+        const isMediaType = observation.concept.datatype === Concept.dataType.ImageV2 || Concept.dataType.Media.includes(observation.concept.datatype);
+        if (isMediaType) {
+            return (
+                <View style={[this.styles.observationRow, {flexDirection: 'column', alignItems: 'flex-start'}]} key={observation.concept.uuid}>
+                    <Text style={[this.styles.conceptNameStyle, {textAlign: 'left'}, extraConceptStyle]}>
+                        {this.I18n.t(observation.concept.name)}
+                    </Text>
+                    <View style={{marginTop: 8, alignSelf: 'stretch'}}>
+                        {this.renderValue(observation)}
+                    </View>
+                </View>
+            )
+        }
         return (
             <View style={[{flexDirection: "row"}, this.styles.observationRow]} key={observation.concept.uuid}>
                 <Text style={[this.styles.conceptNameStyle, this.styles.observationColumn, extraConceptStyle]}>
@@ -316,12 +337,10 @@ class Observations extends AbstractComponent {
         const observations = valueWrapper ? valueWrapper.getValue() : [];
         return (
             <Fragment key={observation.concept.uuid}>
-                <View style={[{flexDirection: "row"}, this.styles.observationRow]}>
-                    <View style={{width: 5, backgroundColor: 'rgba(0, 0, 0, 0.12)'}}/>
-                    <Text style={[this.styles.conceptNameStyle, this.styles.observationColumn, observation.styles]}>
+                <View style={[this.styles.observationRow, {flexDirection: 'column', alignItems: 'flex-start'}]}>
+                    <Text style={[this.styles.conceptNameStyle, {textAlign: 'left'}]}>
                         {this.I18n.t(observation.concept.name)}
                     </Text>
-                    <View style={[this.styles.observationColumn, observation.styles]}/>
                 </View>
                 {isRepeatable ?
                     this.renderRepeatableQuestionGroup(observations) :
@@ -341,11 +360,11 @@ class Observations extends AbstractComponent {
         const observations = this.props.observations || [];
 
         return <View style={this.styles.observationTable}>
-            <Separator height={1} backgroundColor={'rgba(0, 0, 0, 0.12)'}/>
+            {!this.props.highlight && <Separator height={1} backgroundColor={'rgba(0, 0, 0, 0.12)'}/>}
             {observations.map((observation, idx) => (
                 <Fragment key={observation.concept.uuid}>
-                    {this.renderObservationValue(observation, {paddingLeft: 8})}
-                    {idx < observations.length - 1 && <Separator height={1}/>}
+                    {this.renderObservationValue(observation, this.props.highlight ? {paddingLeft: 0} : {paddingLeft: 8})}
+                    {!this.props.highlight && idx < observations.length - 1 && <Separator height={1}/>}
                 </Fragment>
             ))}
         </View>;
@@ -353,13 +372,14 @@ class Observations extends AbstractComponent {
 
     renderObservationTable(quickFormEdit) {
         const sectionWiseObs = this.props.form.sectionWiseOrderedObservations(this.props.observations);
+        const lastIndex = sectionWiseObs.length - 1;
 
         return <View style={this.styles.observationTable}>
             <Separator height={1} backgroundColor={'rgba(0, 0, 0, 0.12)'}/>
             {sectionWiseObs.map(({groupName, groupUUID, observations, groupStyles}, idx) => (
                 <Fragment key={groupUUID || idx}>
-                    {this.observationTable(groupUUID, groupName, observations, groupStyles, quickFormEdit)}
-                    {idx < sectionWiseObs.length - 1 && <Separator height={1}/>}
+                    {this.observationTable(groupUUID, groupName, observations, groupStyles, quickFormEdit, idx === 0, idx === lastIndex)}
+                    {idx < lastIndex && <Separator height={1}/>}
                 </Fragment>
             ))}
         </View>;

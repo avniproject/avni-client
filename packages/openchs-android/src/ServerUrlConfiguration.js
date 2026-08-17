@@ -100,7 +100,7 @@ class ServerUrlConfiguration extends Component {
                         marginTop: 20,
                         backgroundColor: this.state.serverUrl && this.state.isValidUrl && !this.state.isVerifying ? "#009973" : "gray",
                         paddingVertical: 10,
-                        borderRadius: 5,
+                        borderRadius: 8,
                         alignItems: 'center',
                     }}
                     disabled={!this.state.serverUrl || !this.state.isValidUrl || this.state.isVerifying}

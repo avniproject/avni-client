@@ -92,13 +92,13 @@ class IndividualListView extends AbstractComponent {
     }
 
     renderHeader = ({section: {title, data}}) => (_.isEmpty(title) ? null :
-      <View style={{display: 'flex', flexDirection: 'row'}}>
+      <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center', paddingTop: 20, paddingBottom: 20}}>
           <Text style={{
-              fontSize: 12, color: Styles.blackColor
+              fontSize: 13, color: Colors.TextPrimaryDark
           }}>{`   ${title}`}</Text>
           <Text style={{
-              fontSize: 12, color: Styles.lightgrey
-          }}>{` ${this.I18n.t("matchingResults")}: ${data.length}`}</Text>
+              fontSize: 13, color: Colors.TextHint
+          }}>{`  •  ${data.length} ${this.I18n.t(data.length === 1 ? 'patient' : 'patients')}`}</Text>
       </View>);
 
     renderItems = (item, section, listType, cardType) => {
@@ -141,9 +141,11 @@ class IndividualListView extends AbstractComponent {
                     func={this.props.backFunction}
                     icon={this.props.iconName}
                     iconFunc={this.props.iconFunction}/>
-                <SearchResultsHeader
+                {/* Figma (node 2681-3728, "Total Patients" list) has no top-level "N matching results" summary
+                    bar - hiding it here. Per-section date headers below still show their own counts. */}
+                {/* <SearchResultsHeader
                     totalCount={this.props.totalSearchResultsCount}
-                    displayedCount={this.props.totalSearchResultsCount}/>
+                    displayedCount={this.props.totalSearchResultsCount}/> */}
                 {this.state.listReady ? (
                     <SectionList
                         style={{marginBottom: 16, flex: 1}}
@@ -152,7 +154,7 @@ class IndividualListView extends AbstractComponent {
                         renderItem={({item, section}) => this.renderItems(item, section, this.props.listType, this.props.headerTitle)}
                         renderSectionHeader={this.renderHeader}
                         SectionSeparatorComponent={({trailingItem}) => allUniqueGroups.length > 1 && !trailingItem ? (
-                            <Separator style={{alignSelf: 'stretch', margin: 6}} height={2} backgroundColor={Colors.GreyBackground}/>) : null}
+                            <Separator style={{alignSelf: 'stretch', margin: 6}} height={1} backgroundColor={Colors.GreyBackground}/>) : null}
                         initialNumToRender={10}
                         windowSize={5}
                         updateCellsBatchingPeriod={100}

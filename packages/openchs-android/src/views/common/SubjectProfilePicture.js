@@ -5,22 +5,22 @@ import PropTypes from 'prop-types';
 import MediaService from '../../service/MediaService';
 import _, {isEmpty} from 'lodash';
 import AvniModel from './AvniModel';
-import Styles from '../primitives/Styles';
+import Colors from '../primitives/Colors';
 
-function Initials({name = ''}) {
+function Initials({name = '', size = 56, round = false}) {
     const initials = name && name.split(' ').map(n => n && n[0].toUpperCase()).join('').substring(0, 2);
     return <View style={{
-        backgroundColor: '#E6F6F5',
-        borderRadius: 8,
-        height: 56,
-        width: 56,
+        backgroundColor: Colors.BrandPrimary,
+        borderRadius: round ? size / 2 : 8,
+        height: size,
+        width: size,
         justifyContent: 'center',
         alignItems: 'center'
     }}>
         <Text style={{
-            color: Styles.blackColor,
-            fontWeight: '700',
-            fontSize: Styles.titleSize,
+            color: Colors.TextOnPrimaryColor,
+            fontWeight: '400',
+            fontSize: Math.max(12, Math.round(size * 0.35)),
         }}>{initials}</Text>
     </View>;
 }
@@ -83,7 +83,7 @@ class SubjectProfilePicture extends AbstractComponent {
             alignItems: 'center',
             justifyContent: 'center'
         }}>
-            {loadDefaultIcon ? <Initials name={individual.nameString}/> : this.renderIcon(iconConfig)}
+            {loadDefaultIcon ? <Initials name={individual.nameString} size={size} round={round}/> : this.renderIcon(iconConfig)}
         </View>;
     }
 
@@ -93,7 +93,7 @@ class SubjectProfilePicture extends AbstractComponent {
         return (
             <View style={containerStyle}>
                 <AvniModel dismiss={() => this.onIconTouch()} visible={this.state.expandIcon}>
-                    {this.renderImage({round: false, size: 250, individual: individual})}
+                    {this.renderImage({round: this.props.round, size: 250, individual: individual})}
                 </AvniModel>
                 <TouchableNativeFeedback
                     pointerEvents={'none'}

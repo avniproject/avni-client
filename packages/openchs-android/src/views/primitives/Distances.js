@@ -45,7 +45,7 @@ class Distances {
     }
 
     static ContentDistanceFromEdge = 16;
-    static ContainerHorizontalDistanceFromEdge = 14;
+    static ContainerHorizontalDistanceFromEdge = 16;
     static ContentDistanceWithinContainer = 10;
     static VerticalSpacingBetweenFormElements = 20;
     static VerticalSpacingDisplaySections = 16;

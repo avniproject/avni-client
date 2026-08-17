@@ -5,11 +5,12 @@ import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
 import {Text} from "native-base";
 import General from "../../utility/General";
-import {Alert, View, TouchableHighlight} from "react-native";
+import {View, TouchableHighlight} from "react-native";
 import _ from "lodash";
 import CHSNavigator from "../../utility/CHSNavigator";
 import {  ObservationsHolder  } from 'avni-models';
 import { AvniAlert } from "../common/AvniAlert";
+import CustomConfirmDialog from "../common/CustomConfirmDialog";
 
 class ChecklistItemDisplay extends AbstractComponent {
     static propTypes = {
@@ -33,7 +34,10 @@ class ChecklistItemDisplay extends AbstractComponent {
             if (this.props.checklistItem.editable)
                 this.props.onEdit(this.props.checklistItem);
             else
-                Alert.alert(this.I18n.t("voidedChecklistItemDetailAlertTitle"), new ObservationsHolder(checklistItem.observations).toString(this.I18n));
+                CustomConfirmDialog.showAlert({
+                    title: this.I18n.t("voidedChecklistItemDetailAlertTitle"),
+                    message: new ObservationsHolder(checklistItem.observations).toString(this.I18n)
+                });
         }
     }
 
@@ -53,7 +57,7 @@ class ChecklistItemDisplay extends AbstractComponent {
             <TouchableHighlight style={this.appendedStyle({
                 borderWidth: 0,
                 borderColor: 'rgba(97, 97, 97, 0.20)',
-                borderRadius: 4,
+                borderRadius: 8,
                 padding: 0,
                 margin: 2,
                 shadowOffset: { width: 0, height: 0 },
@@ -78,7 +82,7 @@ class ChecklistItemDisplay extends AbstractComponent {
             <TouchableHighlight style={this.appendedStyle({
                 borderWidth: 2,
                 borderColor: 'rgba(97, 97, 97, 0.20)',
-                borderRadius: 4,
+                borderRadius: 8,
                 backgroundColor: backgroundColor,
                 padding: 6,
                 margin: 4,

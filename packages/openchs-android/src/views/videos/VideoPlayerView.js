@@ -5,9 +5,10 @@ import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
 import General from "../../utility/General";
 import Video from 'react-native-video';
-import {Alert, Text, TouchableHighlight, View} from 'react-native';
+import {Text, TouchableHighlight, View} from 'react-native';
 import Distances from "../primitives/Distances";
 import _ from "lodash";
+import CustomConfirmDialog from "../common/CustomConfirmDialog";
 
 //TODO: Replace some of the code inside it and put Enhanced Video Player Component
 @Path('/VideoPlayerView')
@@ -68,7 +69,7 @@ class VideoPlayerView extends AbstractComponent {
         }
         General.logError(this.viewName(), event);
         General.logError(this.viewName(), message);
-        Alert.alert(this.I18n.t("UnableToPlayVideoError"), message, [{text: this.I18n.t('Okay'), onPress: this.goBack}]);
+        CustomConfirmDialog.showAlert({title: this.I18n.t("UnableToPlayVideoError"), message, okLabel: this.I18n.t('Okay'), onOk: this.goBack});
     };
 
     render() {

@@ -1,10 +1,6 @@
-/**
- * #2009 — after an async inference/media write lands, ONLY the written element+row's Rule-type
- * validation result is re-synced from the fresh statuses. Mandatory/other-element/other-row
- * errors are untouchable by construction. Spy-on-static-helpers pattern per
- * ObservationsHolderActionsInferenceBatchTest.js; handleValidationResult is the REAL
- * AbstractDataEntryState implementation borrowed onto a plain state object.
- */
+// Targeted validation re-sync on async inference/media writes: only the written element+row is
+// re-synced from fresh statuses; other elements/rows stay untouched. Spy-on-static-helpers
+// pattern per ObservationsHolderActionsInferenceBatchTest.js.
 import ObservationsHolderActions from "../../src/action/common/ObservationsHolderActions";
 import AbstractDataEntryState from "../../src/state/AbstractDataEntryState";
 import {ValidationResult} from "avni-models";
@@ -19,13 +15,17 @@ const makeState = (validationResults) => {
         observationsHolder: {},
         validationResults,
         handleValidationResult: AbstractDataEntryState.prototype.handleValidationResult,
+        handleValidationResults: AbstractDataEntryState.prototype.handleValidationResults,
     };
     return {formElementGroup: {}, observationsHolder: {}, clone: () => newState, _newState: newState};
 };
 
+// Minimal context satisfying handleValidationResults' SettingsService lookup.
+const ctx = (devSkipValidation = false) => ({get: () => ({getSettings: () => ({devSkipValidation})})});
+
 const freshStatus = (uuid, questionGroupIndex, validationErrors) => ({uuid, questionGroupIndex, validationErrors});
 
-describe('ObservationsHolderActions targeted validation re-sync (#2009)', () => {
+describe('ObservationsHolderActions targeted validation re-sync', () => {
     afterEach(() => jest.restoreAllMocks());
 
     it('clears the written row\'s stale Rule error when the fresh status has no errors', () => {
@@ -35,7 +35,7 @@ describe('ObservationsHolderActions targeted validation re-sync (#2009)', () => 
         jest.spyOn(ObservationsHolderActions, '_getFormElementStatuses')
             .mockReturnValue([freshStatus('fe-verdict', 1, [])]);
         ObservationsHolderActions.onObservationWriteBatch(state,
-            {results: [{questionGroupConceptName: 'G', conceptName: 'V', questionGroupIndex: 1, value: 'Suspicious'}]}, {});
+            {results: [{questionGroupConceptName: 'G', conceptName: 'V', questionGroupIndex: 1, value: 'Suspicious'}]}, ctx());
         expect(state._newState.validationResults).toHaveLength(0);
     });
 
@@ -46,7 +46,7 @@ describe('ObservationsHolderActions targeted validation re-sync (#2009)', () => 
         jest.spyOn(ObservationsHolderActions, '_getFormElementStatuses')
             .mockReturnValue([freshStatus('fe-verdict', 1, ['aiVerdictPending'])]);
         ObservationsHolderActions.onObservationWriteBatch(state,
-            {results: [{questionGroupConceptName: 'G', conceptName: 'V', questionGroupIndex: 1, value: 'X'}]}, {});
+            {results: [{questionGroupConceptName: 'G', conceptName: 'V', questionGroupIndex: 1, value: 'X'}]}, ctx());
         expect(state._newState.validationResults).toHaveLength(1);
         expect(state._newState.validationResults[0].success).toBe(false);
     });
@@ -58,7 +58,7 @@ describe('ObservationsHolderActions targeted validation re-sync (#2009)', () => 
         jest.spyOn(ObservationsHolderActions, '_getFormElementStatuses')
             .mockReturnValue([freshStatus('fe-verdict', 0, ['aiVerdictPending']), freshStatus('fe-verdict', 1, [])]);
         ObservationsHolderActions.onObservationWriteBatch(state,
-            {results: [{questionGroupConceptName: 'G', conceptName: 'V', questionGroupIndex: 1, value: 'X'}]}, {});
+            {results: [{questionGroupConceptName: 'G', conceptName: 'V', questionGroupIndex: 1, value: 'X'}]}, ctx());
         expect(state._newState.validationResults).toHaveLength(1);
         expect(state._newState.validationResults[0].questionGroupIndex).toBe(0);
     });
@@ -71,11 +71,11 @@ describe('ObservationsHolderActions targeted validation re-sync (#2009)', () => 
         jest.spyOn(ObservationsHolderActions, '_getFormElementStatuses')
             .mockReturnValue([freshStatus('fe-verdict', 1, [])]);
         ObservationsHolderActions.onObservationWriteBatch(state,
-            {results: [{questionGroupConceptName: 'G', conceptName: 'V', questionGroupIndex: 1, value: 'X'}]}, {});
+            {results: [{questionGroupConceptName: 'G', conceptName: 'V', questionGroupIndex: 1, value: 'X'}]}, ctx());
         expect(state._newState.validationResults).toEqual([mandatoryVR]);
     });
 
-    it('is null-safe when the state has no handleValidationResult (e.g. Task flows)', () => {
+    it('is null-safe when the state lacks the validation API (defensive only — all registered flows have it)', () => {
         const bare = {formElementGroup: {}, observationsHolder: {}};
         const state = {formElementGroup: {}, observationsHolder: {}, clone: () => bare, _newState: bare};
         jest.spyOn(ObservationsHolderActions, '_applyInferenceWrite')
@@ -83,14 +83,25 @@ describe('ObservationsHolderActions targeted validation re-sync (#2009)', () => 
         jest.spyOn(ObservationsHolderActions, '_getFormElementStatuses')
             .mockReturnValue([freshStatus('fe-verdict', 1, [])]);
         expect(() => ObservationsHolderActions.onObservationWriteBatch(state,
-            {results: [{questionGroupConceptName: 'G', conceptName: 'V', questionGroupIndex: 1, value: 'X'}]}, {}))
+            {results: [{questionGroupConceptName: 'G', conceptName: 'V', questionGroupIndex: 1, value: 'X'}]}, ctx()))
             .not.toThrow();
     });
 
+    it('respects devSkipValidation — no validation mutation when the dev setting is on', () => {
+        const stale = ruleVR('fe-verdict', 1, 'aiVerdictPending');
+        const state = makeState([stale]);
+        jest.spyOn(ObservationsHolderActions, '_applyInferenceWrite')
+            .mockReturnValue({uuid: 'fe-verdict', questionGroupIndex: 1});
+        jest.spyOn(ObservationsHolderActions, '_getFormElementStatuses')
+            .mockReturnValue([freshStatus('fe-verdict', 1, [])]);
+        ObservationsHolderActions.onObservationWriteBatch(state,
+            {results: [{questionGroupConceptName: 'G', conceptName: 'V', questionGroupIndex: 1, value: 'X'}]}, ctx(true));
+        expect(state._newState.validationResults).toEqual([stale]);
+    });
+
     it('clears a stale mandatory (Form-type) failure for the written row when its value lands', () => {
-        // Field scenario (20 Jul): AI Verdict is a MANDATORY element; worker taps Next while the
-        // verdict is pending → "There is no value specified" stored (Form-type). The verdict then
-        // lands via the async write — the stale text must clear without any navigation.
+        // Worker tapped Next while the verdict was pending → "no value specified" stored; the
+        // async write must clear it without any navigation.
         const mandatoryFailure = new ValidationResult(false, 'fe-verdict', 'emptyValidationMessage', null, 1);
         const state = makeState([mandatoryFailure]);
         jest.spyOn(ObservationsHolderActions, '_applyInferenceWrite')
@@ -98,7 +109,24 @@ describe('ObservationsHolderActions targeted validation re-sync (#2009)', () => 
         jest.spyOn(ObservationsHolderActions, '_getFormElementStatuses')
             .mockReturnValue([freshStatus('fe-verdict', 1, [])]);
         ObservationsHolderActions.onObservationWriteBatch(state,
-            {results: [{questionGroupConceptName: 'G', conceptName: 'V', questionGroupIndex: 1, value: 'Non-Suspicious'}]}, {});
+            {results: [{questionGroupConceptName: 'G', conceptName: 'V', questionGroupIndex: 1, value: 'Non-Suspicious'}]}, ctx());
+        expect(state._newState.validationResults).toHaveLength(0);
+    });
+
+    it('re-syncs a same-row [clear, verdict] batch exactly once — one gate log, not two', () => {
+        const logSpy = jest.spyOn(General, 'logDebug').mockImplementation(() => {});
+        const state = makeState([ruleVR('fe-verdict', 1, 'aiVerdictPending')]);
+        jest.spyOn(ObservationsHolderActions, '_applyInferenceWrite')
+            .mockReturnValue({uuid: 'fe-verdict', questionGroupIndex: 1});
+        jest.spyOn(ObservationsHolderActions, '_getFormElementStatuses')
+            .mockReturnValue([freshStatus('fe-verdict', 1, [])]);
+        ObservationsHolderActions.onObservationWriteBatch(state,
+            {results: [
+                {questionGroupConceptName: 'G', conceptName: 'V', questionGroupIndex: 1, value: null, clear: true},
+                {questionGroupConceptName: 'G', conceptName: 'V', questionGroupIndex: 1, value: 'Non-Suspicious'},
+            ]}, ctx());
+        const gateLogs = logSpy.mock.calls.map(c => String(c[1])).filter(m => m.startsWith('resync gate'));
+        expect(gateLogs).toHaveLength(1);
         expect(state._newState.validationResults).toHaveLength(0);
     });
 
@@ -114,7 +142,7 @@ describe('ObservationsHolderActions targeted validation re-sync (#2009)', () => 
             {results: [
                 {questionGroupConceptName: 'G', conceptName: 'V', questionGroupIndex: 0, value: 'X'},
                 {questionGroupConceptName: 'G', conceptName: 'V', questionGroupIndex: 1, value: 'Y'},
-            ]}, {});
+            ]}, ctx());
         const gateLogs = logSpy.mock.calls.map(c => String(c[1])).filter(m => m.startsWith('resync gate'));
         expect(gateLogs).toEqual([
             'resync gate CLEARED: fe-verdict[0]',
@@ -129,7 +157,7 @@ describe('ObservationsHolderActions targeted validation re-sync (#2009)', () => 
         jest.spyOn(ObservationsHolderActions, '_getFormElementStatuses')
             .mockReturnValue([freshStatus('fe-verdict', 0, [])]);
         ObservationsHolderActions.onInferenceResultAvailable(state,
-            {questionGroupConceptName: 'G', conceptName: 'V', questionGroupIndex: 0, value: 'Suspicious'}, {});
+            {questionGroupConceptName: 'G', conceptName: 'V', questionGroupIndex: 0, value: 'Suspicious'}, ctx());
         expect(state._newState.validationResults).toHaveLength(0);
     });
 });

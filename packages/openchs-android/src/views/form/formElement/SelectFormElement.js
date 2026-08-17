@@ -4,6 +4,7 @@ import React from "react";
 import _ from "lodash";
 import AbstractFormElement from "./AbstractFormElement";
 import Distances from "../../primitives/Distances";
+import Colors from "../../primitives/Colors";
 import RadioLabelValue from "../../primitives/RadioLabelValue";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 import SelectableItemGroup from "../../primitives/SelectableItemGroup";
@@ -49,11 +50,16 @@ class SelectFormElement extends AbstractFormElement {
         const currentLocale = this.getService(UserInfoService).getUserSettings().locale;
         const hasMediaContent = this.props.element.concept.hasMedia();
         return (
-            <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>
+            <View style={{
+                flexDirection: 'column',
+                paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
+                borderBottomWidth: 1,
+                borderBottomColor: Colors.InputBorderNormal
+            }}>
                 <FormElementLabelWithDocumentation element={this.props.element} />
                 <SelectableItemGroup
                     multiSelect={this.props.multiSelect}
-                    inPairs={!hasMediaContent}
+                    inPairs={false}
                     onPress={(value) => this.toggleFormElementAnswerSelection(value)}
                     selectionFn={this.props.isSelected}
                     labelKey={this.props.element.name}

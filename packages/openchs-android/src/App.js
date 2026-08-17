@@ -23,6 +23,7 @@ import AvniErrorBoundary from "./framework/errorHandling/AvniErrorBoundary";
 import UnhandledErrorView from "./framework/errorHandling/UnhandledErrorView";
 import ErrorUtil from "./framework/errorHandling/ErrorUtil";
 import ServiceContext from "./framework/context/ServiceContext";
+import CustomConfirmDialog from "./views/common/CustomConfirmDialog";
 
 const {TamperCheckModule} = NativeModules;
 
@@ -52,6 +53,7 @@ class App extends Component {
     renderRootedDeviceErrorMessageAndExitApplication() {
         const clipboardString = `This is a Rooted Device. Exiting Avni application due to security considerations.`;
         General.logError("App", `renderError: ${clipboardString}`);
+        // Not converted: fires synchronously during the initial render(), before CustomConfirmDialog's singleton has mounted via componentDidMount, so showAlert() would silently no-op here - kept as native Alert for this security-critical exit path.
         Alert.alert("App will exit now", clipboardString,
             [
                 {
@@ -142,6 +144,7 @@ class App extends Component {
                 <AvniErrorBoundary>
                     {this.renderApp()}
                 </AvniErrorBoundary>
+                <CustomConfirmDialog/>
             </ServiceContext.Provider>
         );
     }

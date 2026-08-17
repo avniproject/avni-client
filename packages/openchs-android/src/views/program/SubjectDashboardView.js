@@ -4,7 +4,6 @@ import {View, TouchableOpacity, Text, StyleSheet, ToastAndroid, ScrollView} from
 import SubjectDashboardGeneralTab from "../individual/SubjectDashboardGeneralTab";
 import PropTypes from 'prop-types';
 import Colors from "../primitives/Colors";
-import Styles from "../primitives/Styles";
 import IndividualProfile from "../common/IndividualProfile";
 import CHSContainer from "../common/CHSContainer";
 import AppHeader from "../common/AppHeader";
@@ -18,6 +17,7 @@ import {Names as Actions} from "../../action/program/SubjectDashboardViewActions
 import MCIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import OIcon from "react-native-vector-icons/Octicons";
 import _ from "lodash";
+import NewFormButton from "../common/NewFormButton";
 
 class SubjectDashboardView extends AbstractComponent {
     static propTypes = {
@@ -86,18 +86,16 @@ class SubjectDashboardView extends AbstractComponent {
         ];
         this.displayMessage(this.props.message);
         return (
-            <CHSContainer>
-                <CHSContent style={{backgroundColor: Colors.GreyContentBackground}}>
-                    <ScrollView style={{backgroundColor: Colors.WhiteContentBackground}}>
-                    <View style={{backgroundColor: Styles.defaultBackground}}>
-                        <AppHeader title={this.I18n.t('individualDashboard')} func={this.props.backFunction}/>
+            <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
+                <AppHeader title={this.I18n.t('individualDashboard')} func={this.props.backFunction}/>
+                <CHSContent>
+                    <ScrollView style={{backgroundColor: Colors.GreyContentBackground}}>
                         <IndividualProfile individual={this.state.individual}
                                            displayOnly={false}
                                            viewContext={IndividualProfile.viewContext.NonWizard}
                                            programsAvailable={this.state.programsAvailable}
                                            hideEnrol={this.state.hideEnrol}
                         />
-                    </View>
                         {this.state.individualProfile && (
                             <SubjectDashboardProfileTab
                                 params={{individualUUID: individualUUID, displayGeneralInfoInProfileTab: this.state.displayGeneralInfoInProfileTab}}/>
@@ -111,6 +109,10 @@ class SubjectDashboardView extends AbstractComponent {
                         )}
                     </ScrollView>
                 </CHSContent>
+                <NewFormButton
+                    display={(this.state.individualProfile && this.state.displayGeneralInfoInProfileTab) || this.state.history}
+                    style={this.state.displayProgramTab ? {bottom: 24 + 55} : {}}
+                />
                 {this.state.displayProgramTab &&
                 <View style={styles.tabContainer}>
                     {this.renderOptions(options)}

@@ -56,7 +56,7 @@ class PreviousEncounterPullDownView extends AbstractComponent {
                                 width: 96,
                                 height: 36,
                                 backgroundColor: Colors.SecondaryActionButtonColor,
-                                borderRadius: 18
+                                borderRadius: 8
                             }}
                             onPress={this.toggleExpandCollapse}/>
                 </View>

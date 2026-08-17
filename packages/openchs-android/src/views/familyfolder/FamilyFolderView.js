@@ -44,7 +44,7 @@ class FamilyFolderView extends AbstractComponent {
                 justifyContent: 'center',
                 right: 30,
                 bottom: 30,
-                borderRadius: 150,
+                borderRadius: 8,
                 backgroundColor:Colors.AccentColor
             },
 
@@ -78,7 +78,7 @@ class FamilyFolderView extends AbstractComponent {
                     </View>
                 </CHSContent>
                 <TouchableOpacity activeOpacity={0.5} onPress={this._onPressButton.bind(this)} style ={FamilyFolderView.styles.TouchableOpacityStyle}>
-                    <AvniIcon name='account-multiple-plus' type='MaterialCommunityIcons'
+                    <AvniIcon name='account-multiple-plus-outline' type='MaterialCommunityIcons'
                               style={{fontSize: 40, ...FamilyFolderView.styles.FloatingButtonStyle}}/>
                 </TouchableOpacity>
             </CHSContainer>
