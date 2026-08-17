@@ -3,10 +3,10 @@
 buildscript {
 
     ext {
-        buildToolsVersion = "35.0.0"
+        buildToolsVersion = "36.1.0"
         minSdkVersion = 24
-        compileSdkVersion = 35
-        targetSdkVersion = 35
+        compileSdkVersion = 36
+        targetSdkVersion = 36
         supportLibVersion = "1.2.0"
         googlePlayServicesVersion = "18.0.0" // Updated for better compatibility
         kotlinVersion = '2.0.21'
@@ -71,7 +71,7 @@ subprojects {
         project ->
             if (project.hasProperty("android")) {
                 android {
-                    compileSdkVersion = 35
+                    compileSdkVersion = 36
                 }
             }
     }
