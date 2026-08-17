@@ -1,12 +1,12 @@
-//current sdk version 35 which need to be updated to 36 later
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
+
 buildscript {
 
     ext {
-        buildToolsVersion = "36.1.0"
+        buildToolsVersion = ""35.0.0""
         minSdkVersion = 24
-        compileSdkVersion = 36
-        targetSdkVersion = 36
+        compileSdkVersion = 35
+        targetSdkVersion = 35
         supportLibVersion = "1.2.0"
         googlePlayServicesVersion = "18.0.0" // Updated for better compatibility
         kotlinVersion = '2.0.21'
@@ -71,7 +71,7 @@ subprojects {
         project ->
             if (project.hasProperty("android")) {
                 android {
-                    compileSdkVersion = 36
+                    compileSdkVersion = 35
                 }
             }
     }
