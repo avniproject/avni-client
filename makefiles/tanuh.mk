@@ -279,4 +279,15 @@ run_app_tanuh_dev: ## Install + launch tanuh debug build, prod backend with dev 
 run-app-tanuh: run_app_tanuh
 run-app-tanuh-dev: run_app_tanuh_dev
 
-.PHONY: tanuh-setup tanuh-encrypt tanuh-verify-no-model tanuh-apk _tanuh-release-assemble tanuh-ensemble tanuh-ensemble-apk tanuh-aab tanuh-universal-apk tanuh-size-gate tanuh-ensemble-aab tanuh-ensemble-universal-apk tanuh-clean tanuh-placeholder run_app_tanuh run_app_tanuh_dev run-app-tanuh run-app-tanuh-dev
+run_app_prerelease_tanuh: ## Install + launch tanuh debug build, prerelease backend.
+	$(MAKE) as_prerelease flavor=tanuh
+	$(MAKE) _run_app flavor=tanuh
+
+run_app_prerelease_tanuh_dev: ## Install + launch tanuh debug build, prerelease backend with dev menu.
+	$(MAKE) as_prerelease_dev flavor=tanuh
+	$(MAKE) _run_app flavor=tanuh
+
+run-app-prerelease-tanuh: run_app_prerelease_tanuh
+run-app-prerelease-tanuh-dev: run_app_prerelease_tanuh_dev
+
+.PHONY: tanuh-setup tanuh-encrypt tanuh-verify-no-model tanuh-apk _tanuh-release-assemble tanuh-ensemble tanuh-ensemble-apk tanuh-aab tanuh-universal-apk tanuh-size-gate tanuh-ensemble-aab tanuh-ensemble-universal-apk tanuh-clean tanuh-placeholder run_app_tanuh run_app_tanuh_dev run-app-tanuh run-app-tanuh-dev run_app_prerelease_tanuh run_app_prerelease_tanuh_dev run-app-prerelease-tanuh run-app-prerelease-tanuh-dev
