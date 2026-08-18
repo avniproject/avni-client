@@ -186,8 +186,11 @@ class AbstractDataEntryState {
         const validationResults = this.validateEntity(context);
         const formElementGroupValidations = this.formElementGroup.validate(this.observationsHolder, this.filteredFormElements);
         const databaseValidations = this.validationResults.filter((x) => x.validationType === ValidationResult.ValidationTypes.Database);
-        const allValidationResults = _.unionWith(validationResults, formElementGroupValidations, databaseValidations,
-            (a, b) => a.formIdentifier === b.formIdentifier && a.questionGroupIndex === b.questionGroupIndex);
+        // validate() can emit success+failure for one key; failures sort first so the dedup keeps them.
+        const sameKey = (a, b) => a.formIdentifier === b.formIdentifier && a.questionGroupIndex === b.questionGroupIndex;
+        const allValidationResults = _.uniqWith(
+            _.sortBy([...validationResults, ...formElementGroupValidations, ...databaseValidations], 'success'),
+            sameKey);
         this._updateOldFormElementGroupValidations(allValidationResults, context);
 
         if (EnvironmentConfig.goToLastPageOnNext()) {

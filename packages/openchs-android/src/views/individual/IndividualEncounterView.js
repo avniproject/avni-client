@@ -121,6 +121,7 @@ class IndividualEncounterView extends AbstractComponent {
                 skipVerification: true
             })),
             movedNext: this.scrollToTop,
+            validationFailed: this.scrollToStaticFieldError,
             settleCompletion: (newState) => this.dispatchAction(Actions.USE_THIS_STATE, {state: newState}),
             fromSDV
         }

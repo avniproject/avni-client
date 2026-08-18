@@ -59,7 +59,8 @@ class ChecklistItemView extends AbstractComponent {
                 const headerMessage = `${this.I18n.t(state.checklistItem.checklist.programEnrolment.program.displayName)}, ${this.I18n.t(state.checklistItem.checklist.detail.name)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.checklistItem.checklist.programEnrolment.individual, state.checklistItem.observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, state.checklistItem.detail.form, null, null, false,  false, state.checklistItem.isRejectedEntity(), state.checklistItem.latestEntityApprovalStatus);
             },
-            movedNext: this.scrollToTop
+            movedNext: this.scrollToTop,
+            validationFailed: this.scrollToStaticFieldError
         });
     }
 
