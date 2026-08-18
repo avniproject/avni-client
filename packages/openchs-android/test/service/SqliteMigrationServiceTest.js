@@ -108,6 +108,7 @@ describe('SqliteMigrationService', () => {
     let mockSyncService;
     let mockPrivilegeService;
     let mockEntitySyncStatusService;
+    let mockEntityQueueService;
     let mockUserInfoService;
     let mockSettingsService;
     let mockBeanStore;
@@ -128,6 +129,9 @@ describe('SqliteMigrationService', () => {
         mockEntitySyncStatusService = {
             getTotalEntitiesPending: jest.fn(() => 0),
             setup: jest.fn(),
+        };
+        mockEntityQueueService = {
+            getPendingFieldDataCount: jest.fn(() => 0),
         };
         mockUserInfoService = {
             getUserInfo: jest.fn(() => ({username: 'test-user'})),
@@ -154,6 +158,7 @@ describe('SqliteMigrationService', () => {
                     case 'syncService': return mockSyncService;
                     case 'PrivilegeService': return mockPrivilegeService;
                     case 'entitySyncStatusService': return mockEntitySyncStatusService;
+                    case 'entityQueueService': return mockEntityQueueService;
                     case 'userInfoService': return mockUserInfoService;
                     case 'settingsService': return mockSettingsService;
                     default: return null;
@@ -213,7 +218,7 @@ describe('SqliteMigrationService', () => {
             mockPrivilegeService.ownedGroups.mockReturnValue([
                 {groupUuid: SQLITE_MIGRATION_GROUP_UUID, groupName: SQLITE_MIGRATION_GROUP_NAME},
             ]);
-            mockEntitySyncStatusService.getTotalEntitiesPending.mockReturnValue(0);
+            mockEntityQueueService.getPendingFieldDataCount.mockReturnValue(0);
 
             await service.checkAndMaybeMigrate();
 
@@ -230,17 +235,61 @@ describe('SqliteMigrationService', () => {
             expect(state.activeBackend).toBe(BACKENDS.SQLITE);
         });
 
-        it('runs upload-only sync when pending entities exist', async () => {
+        it('uploads pending entities and defers the switch to the next sync', async () => {
             mockPrivilegeService.ownedGroups.mockReturnValue([
                 {groupUuid: SQLITE_MIGRATION_GROUP_UUID, groupName: SQLITE_MIGRATION_GROUP_NAME},
             ]);
-            mockEntitySyncStatusService.getTotalEntitiesPending.mockReturnValue(5);
+            mockEntityQueueService.getPendingFieldDataCount.mockReturnValue(5);
 
             await service.checkAndMaybeMigrate();
 
-            // Two syncs: upload-only, then full target sync
-            expect(mockSyncService.sync).toHaveBeenCalledTimes(2);
+            // Upload-only sync, and nothing more. Switching now would run the target sync
+            // seconds after the upload, inside the server's `now - 10s` blind window, so
+            // the records just uploaded would not come back on the new backend (#2006).
+            expect(mockSyncService.sync).toHaveBeenCalledTimes(1);
+            expect(mockGlobalContext.switchBackend).not.toHaveBeenCalled();
+            const state = await service.getState();
+            expect(state.phase).toBe(MIGRATION_PHASES.PENDING_UPLOAD);
+        });
+
+        it('does not clobber state when the upload sync completes the migration itself', async () => {
+            mockPrivilegeService.ownedGroups.mockReturnValue([
+                {groupUuid: SQLITE_MIGRATION_GROUP_UUID, groupName: SQLITE_MIGRATION_GROUP_NAME},
+            ]);
+            mockEntityQueueService.getPendingFieldDataCount.mockReturnValue(5);
+            // getUpdatedSyncSource escalates an upload-only sync to a full one after 12h,
+            // which switches the backend mid-sync and finalises the migration.
+            mockSyncService.sync.mockImplementationOnce(async () => {
+                await SqliteMigrationService.persistStateForUser('test-user', {
+                    activeBackend: BACKENDS.SQLITE,
+                    desiredBackend: BACKENDS.SQLITE,
+                    phase: MIGRATION_PHASES.IDLE,
+                    attemptCount: 1,
+                    lastError: null,
+                });
+            });
+
+            await service.checkAndMaybeMigrate();
+
+            const state = await service.getState();
+            expect(state.phase).toBe(MIGRATION_PHASES.IDLE);
+            expect(state.activeBackend).toBe(BACKENDS.SQLITE);
+        });
+
+        it('completes the migration on the next sync once the outbox is empty', async () => {
+            mockPrivilegeService.ownedGroups.mockReturnValue([
+                {groupUuid: SQLITE_MIGRATION_GROUP_UUID, groupName: SQLITE_MIGRATION_GROUP_NAME},
+            ]);
+            mockEntityQueueService.getPendingFieldDataCount.mockReturnValue(5);
+            await service.checkAndMaybeMigrate();
+
+            mockEntityQueueService.getPendingFieldDataCount.mockReturnValue(0);
+            await service.resumeIfPending();
+
             expect(mockGlobalContext.switchBackend).toHaveBeenCalledWith(BACKENDS.SQLITE);
+            const state = await service.getState();
+            expect(state.phase).toBe(MIGRATION_PHASES.IDLE);
+            expect(state.activeBackend).toBe(BACKENDS.SQLITE);
         });
 
         it('runs SQLite → Realm reverse migration', async () => {
@@ -351,7 +400,7 @@ describe('SqliteMigrationService', () => {
             mockPrivilegeService.ownedGroups.mockReturnValue([
                 {groupUuid: SQLITE_MIGRATION_GROUP_UUID, groupName: SQLITE_MIGRATION_GROUP_NAME},
             ]);
-            mockEntitySyncStatusService.getTotalEntitiesPending.mockReturnValue(3);
+            mockEntityQueueService.getPendingFieldDataCount.mockReturnValue(3);
             mockSyncService.sync.mockImplementationOnce(async () => {
                 throw new Error('upload failed');
             });
@@ -373,7 +422,7 @@ describe('SqliteMigrationService', () => {
             mockPrivilegeService.ownedGroups.mockReturnValue([
                 {groupUuid: SQLITE_MIGRATION_GROUP_UUID, groupName: SQLITE_MIGRATION_GROUP_NAME},
             ]);
-            mockEntitySyncStatusService.getTotalEntitiesPending.mockReturnValue(0);
+            mockEntityQueueService.getPendingFieldDataCount.mockReturnValue(0);
             // First sync (target full sync) fails
             mockSyncService.sync.mockImplementationOnce(async () => {
                 throw new Error('target sync failed');
@@ -403,16 +452,15 @@ describe('SqliteMigrationService', () => {
                 attemptCount: 1,
                 lastError: 'previous failure',
             });
-            mockEntitySyncStatusService.getTotalEntitiesPending.mockReturnValue(2);
+            mockEntityQueueService.getPendingFieldDataCount.mockReturnValue(2);
 
             await service.resumeIfPending();
 
-            // Re-runs upload, switches, runs target sync
-            expect(mockSyncService.sync).toHaveBeenCalledTimes(2);
-            expect(mockGlobalContext.switchBackend).toHaveBeenCalledWith(BACKENDS.SQLITE);
+            // Re-runs the upload and stops there — the switch waits for the next sync.
+            expect(mockSyncService.sync).toHaveBeenCalledTimes(1);
+            expect(mockGlobalContext.switchBackend).not.toHaveBeenCalled();
             const state = await service.getState();
-            expect(state.phase).toBe(MIGRATION_PHASES.IDLE);
-            expect(state.activeBackend).toBe(BACKENDS.SQLITE);
+            expect(state.phase).toBe(MIGRATION_PHASES.PENDING_UPLOAD);
             expect(state.attemptCount).toBe(2);
         });
 
@@ -459,7 +507,7 @@ describe('SqliteMigrationService', () => {
             mockPrivilegeService.ownedGroups.mockReturnValue([
                 {groupUuid: SQLITE_MIGRATION_GROUP_UUID, groupName: SQLITE_MIGRATION_GROUP_NAME},
             ]);
-            mockEntitySyncStatusService.getTotalEntitiesPending.mockReturnValue(0);
+            mockEntityQueueService.getPendingFieldDataCount.mockReturnValue(0);
 
             // Make sync take a tick so concurrent calls overlap
             mockSyncService.sync.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 10)));

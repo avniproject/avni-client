@@ -249,6 +249,10 @@ class SyncService extends BaseService {
             });
 
         let {syncDetails, endDateTime, now} = await this.getSyncDetails();
+        // Server clock read immediately after pushData, so everything this sync uploaded
+        // is stamped at or before it. The migration catch-up pull needs it to know when
+        // its window has moved past our own uploads.
+        const serverTimeAfterUpload = now;
 
         const entitiesWithoutSubjectMigrationAndResetSync = _.filter(allEntitiesMetaData, ({entityName}) => !_.includes(['ResetSync', 'SubjectMigration'], entityName));
         const filteredMetadata = _.filter(entitiesWithoutSubjectMigrationAndResetSync, ({entityName}) => _.find(syncDetails, sd => sd.entityName === entityName));
@@ -319,6 +323,7 @@ class SyncService extends BaseService {
                 }
             })
             .then(() => this.getTxData(filteredTxData, onProgressPerEntity, syncDetailsWithPrivileges, endDateTime))
+            .then(() => migrationSwitched && this._catchUpTxDataAfterMigration(allEntitiesMetaData, serverTimeAfterUpload))
             .then(() => this.downloadNewsImages())
             .then(() => this.downloadExtensions())
             .then(() => this.downloadCustomCardHtmlFiles())
@@ -341,6 +346,36 @@ class SyncService extends BaseService {
                 this._enableForeignKeysIfSqlite();
                 if (syncSucceeded) this._checkForeignKeyIntegrityIfSqlite();
             })
+    }
+
+    // The tx pull's upper bound is the server's `now - 10s`, so records THIS sync uploaded
+    // are stamped past it and the migration's full pull skips them — and the source DB,
+    // their only other copy, has just been abandoned. Pull once more against a fresh
+    // window to bring them across; checkpoints advanced during the full pull, so it is a
+    // cheap delta (#2006).
+    async _catchUpTxDataAfterMigration(allEntitiesMetaData, serverTimeAfterUpload) {
+        let {syncDetails, endDateTime} = await this.getSyncDetails();
+        // Both timestamps are server-issued, so this comparison is immune to device clock
+        // skew. A short sync can leave the window still short of our own uploads; wait it
+        // out rather than lose them, since the source DB is already gone.
+        const shortfallMillis = moment(serverTimeAfterUpload).diff(moment(endDateTime));
+        if (shortfallMillis > 0) {
+            General.logInfo("SyncService",
+                `Catch-up pull window is ${shortfallMillis}ms short of this sync's uploads — waiting`);
+            await new Promise(resolve => setTimeout(resolve, shortfallMillis + 1000));
+            ({syncDetails, endDateTime} = await this.getSyncDetails());
+        }
+        const currentVersionEntitySyncDetails = this.retainEntitiesPresentInCurrentVersion(syncDetails, allEntitiesMetaData);
+        this.entitySyncStatusService.updateAsPerSyncDetails(currentVersionEntitySyncDetails);
+        const syncDetailsWithPrivileges = this.entitySyncStatusService.removeRevokedPrivileges(
+            allEntitiesMetaData, currentVersionEntitySyncDetails);
+        const txMetadata = this.getMetadataByType(
+            _.filter(allEntitiesMetaData, ({entityName}) =>
+                !_.includes(['ResetSync', 'SubjectMigration'], entityName)
+                && _.find(syncDetails, sd => sd.entityName === entityName)), "tx");
+        // Progress is deliberately not reported — the bar has already accounted for
+        // these entities once and would overshoot.
+        return this.getTxData(txMetadata, _.noop, syncDetailsWithPrivileges, endDateTime);
     }
 
     /**
@@ -733,6 +768,16 @@ class SyncService extends BaseService {
         const globalContext = GlobalContext.getInstance();
 
         if (desired !== 'sqlite' || globalContext.getActiveBackend() === 'sqlite') {
+            return false;
+        }
+
+        // Migrating abandons the source DB and rebuilds the target from the server, so
+        // anything still in the outbox exists nowhere else and would be lost. Defer the
+        // switch — the next sync retries it once the upload has gone through.
+        const pendingFieldData = this.entityQueueService.getPendingFieldDataCount();
+        if (pendingFieldData > 0) {
+            General.logWarn("SyncService",
+                `Deferring SQLite migration: ${pendingFieldData} local changes still awaiting upload (${this.entityQueueService.getPendingFieldDataSummary()})`);
             return false;
         }
 

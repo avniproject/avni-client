@@ -63,7 +63,10 @@ function buildSyncService({preSwitch, switchResult}) {
     const noop = () => {};
     const resolved = () => Promise.resolve();
 
-    svc.entitySyncStatusService = {updateAsPerSyncDetails: jest.fn()};
+    svc.entitySyncStatusService = {
+        updateAsPerSyncDetails: jest.fn(),
+        removeRevokedPrivileges: jest.fn((_meta, syncDetails) => syncDetails),
+    };
 
     svc.pushData = jest.fn(resolved);
     svc.getResetSyncData = jest.fn(resolved);
