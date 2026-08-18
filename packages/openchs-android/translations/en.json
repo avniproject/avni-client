@@ -236,6 +236,8 @@
     "viewMore": "View More",
     "viewLess": "View Less",
     "addMoreItem": "Add More",
+    "medicalDisclaimerNotice": "Notice:",
+    "medicalDisclaimerBody": "TANUH SAMVIT supports decision-making for health workers and does not provide medical diagnoses. Always consult a healthcare professional.",
     "removeItem": "Remove",
     "trackLocation": "Track Location",
     "autoSync": "Auto Sync",
