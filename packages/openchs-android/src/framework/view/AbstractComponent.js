@@ -219,7 +219,7 @@ class AbstractComponent extends Component {
 
     // Static fields (visit date, GPS) render above the FormElementGroup, outside its scroll-to-error wrapping.
     scrollToStaticFieldError(state) {
-        if (_.some(state.validationResults, (vr) => !vr.success && _.includes(state.staticFormElementIds, vr.formIdentifier))) {
+        if (state.hasStaticFieldError()) {
             this.scrollToTop();
         }
     }
