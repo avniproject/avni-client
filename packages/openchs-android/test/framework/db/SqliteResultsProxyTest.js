@@ -728,8 +728,10 @@ describe("TRUEPREDICATE window query", () => {
              .sorted("createdDateTime", true)
              .getLength();
         const sql = getExecutedSql(executeQuery);
-        expect(sql).toContain('ORDER BY t0."created_date_time" ASC)');   // window internal
-        expect(sql.trim()).toMatch(/WHERE __rn = 1 ORDER BY __ob0 DESC$/); // outer
+        // rowid closes both orderings: ties inside the window pick the first row in table
+        // order, and the outer sort can't fall back to partition order.
+        expect(sql).toContain('ORDER BY t0."created_date_time" ASC, t0.rowid)');   // window internal
+        expect(sql.trim()).toMatch(/WHERE __rn = 1 ORDER BY __ob0 DESC, __rid$/); // outer
     });
 
     it("sort-only (no distinct) → plain ORDER BY, no window", () => {

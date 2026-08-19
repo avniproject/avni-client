@@ -1152,10 +1152,11 @@ class RealmQueryParser {
             const keys = sortBody.split(",").map(s => s.trim()).filter(Boolean);
             if (keys.length === 0) return null;
             orderByTerms = keys.map(k => {
-                const mk = k.match(/^([\w.]+)(?:\s+(asc|desc))?$/i);
+                // Realm accepts the long spelling of the direction as well as asc/desc.
+                const mk = k.match(/^([\w.]+)(?:\s+(asc|desc|ascending|descending))?$/i);
                 if (!mk) throw new Error(`Unparseable sort key: "${k}"`);
                 const {column} = gen.resolveField(mk[1]);
-                return {expr: column, dir: mk[2] ? mk[2].toUpperCase() : "ASC"};
+                return {expr: column, dir: mk[2] && mk[2].toUpperCase().startsWith("DESC") ? "DESC" : "ASC"};
             });
         }
 

@@ -300,18 +300,22 @@ class SqliteResultsProxy {
         // prior JS fallback), so filters added after the distinct still narrow rows first.
         if (this.distinctColumns && this.distinctColumns.length > 0) {
             const partition = this.distinctColumns.join(", ");
+            // Realm's sort is stable and its distinct keeps the first row in table order, so
+            // ties must fall back to insertion order or the winner is whatever the plan yields.
             const windowOrder = this.distinctOrderBy && this.distinctOrderBy.length > 0
-                ? SqliteResultsProxy._renderOrderBy(this.distinctOrderBy)
+                ? `${SqliteResultsProxy._renderOrderBy(this.distinctOrderBy)}, t0.rowid`
                 : "t0.rowid";
 
             // The outer query sees only t0.* from the subquery, so an outer ORDER BY
             // that references t0 or a joined alias must be projected into the subquery
-            // and referenced from the outer scope by a synthetic alias.
-            let extraSelect = "";
-            let outerOrderBy = null;
+            // and referenced from the outer scope by a synthetic alias. rowid rides along
+            // as the final tiebreaker, and as the sole ordering when there is no sort:
+            // without it the window's partition order leaks out as the row order.
+            let extraSelect = ", t0.rowid AS __rid";
+            let outerOrderBy = "__rid";
             if (this.orderByTerms && this.orderByTerms.length > 0) {
-                extraSelect = this.orderByTerms.map((t, i) => `, ${t.expr} AS __ob${i}`).join("");
-                outerOrderBy = this.orderByTerms.map((t, i) => `__ob${i} ${t.dir}`).join(", ");
+                extraSelect += this.orderByTerms.map((t, i) => `, ${t.expr} AS __ob${i}`).join("");
+                outerOrderBy = `${this.orderByTerms.map((t, i) => `__ob${i} ${t.dir}`).join(", ")}, __rid`;
             }
 
             let inner = `SELECT t0.*, ROW_NUMBER() OVER (PARTITION BY ${partition} ORDER BY ${windowOrder}) AS __rn${extraSelect} FROM ${this.tableName} AS t0`;
@@ -321,10 +325,7 @@ class SqliteResultsProxy {
             if (this.whereClauses.length > 0) {
                 inner += ` WHERE ${this.whereClauses.join(" AND ")}`;
             }
-            let sql = `SELECT * FROM (${inner}) WHERE __rn = 1`;
-            if (outerOrderBy) {
-                sql += ` ORDER BY ${outerOrderBy}`;
-            }
+            let sql = `SELECT * FROM (${inner}) WHERE __rn = 1 ORDER BY ${outerOrderBy}`;
             if (this.limitClause != null && this.jsFallbackFilters.length === 0) {
                 sql += ` LIMIT ${this.limitClause}`;
             }

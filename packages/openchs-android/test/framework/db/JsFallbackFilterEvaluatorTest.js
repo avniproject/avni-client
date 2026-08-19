@@ -458,7 +458,7 @@ describe("JsFallbackFilterEvaluator", () => {
             expect(result).toHaveLength(1);
         });
 
-        it("should handle DISTINCT with SORT(field ASC)", () => {
+        it("applies DISTINCT before a trailing SORT, matching Realm's written order", () => {
             // Entities with same typeUuid but different levels
             // SORT ASC: pick the entity with lowest level per typeUuid group
             const entities = [
@@ -473,14 +473,13 @@ describe("JsFallbackFilterEvaluator", () => {
                 "AddressLevel"
             );
             expect(result).toHaveLength(2);
-            // t1 winner is uuid=3 (level 3, lowest), t2 winner is uuid=2 (level 2)
-            // Original order: entities that are winners
-            const uuids = result.map(e => e.uuid);
-            expect(uuids).toContain("2");
-            expect(uuids).toContain("3");
+            // Descriptors apply in written order: DISTINCT first keeps each type's
+            // first-inserted row (1, 2), then SORT orders them by level. Verified
+            // against Realm 12.14.2, which returns 2,1 for this data.
+            expect(result.map(e => e.uuid)).toEqual(["2", "1"]);
         });
 
-        it("should handle DISTINCT with SORT(field DESC)", () => {
+        it("applies DISTINCT before a trailing SORT DESC, matching Realm's written order", () => {
             const entities = [
                 makeEntity({uuid: "1", typeUuid: "t1", level: 5}),
                 makeEntity({uuid: "2", typeUuid: "t2", level: 2}),
@@ -493,10 +492,8 @@ describe("JsFallbackFilterEvaluator", () => {
                 "AddressLevel"
             );
             expect(result).toHaveLength(2);
-            // t1 winner is uuid=1 (level 5, highest), t2 winner is uuid=4 (level 8)
-            const uuids = result.map(e => e.uuid);
-            expect(uuids).toContain("1");
-            expect(uuids).toContain("4");
+            // Same dedupe-then-sort order; Realm 12.14.2 returns 1,2 for this data.
+            expect(result.map(e => e.uuid)).toEqual(["1", "2"]);
         });
     });
 

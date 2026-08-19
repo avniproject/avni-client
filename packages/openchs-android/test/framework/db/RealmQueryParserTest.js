@@ -354,9 +354,16 @@ describe("RealmQueryParser", () => {
         });
 
         it("malformed sort key degrades to JS fallback instead of throwing", () => {
-            expect(() => RealmQueryParser.parse("TRUEPREDICATE sort(name ascending) Distinct(uuid)", [], "X", new Map())).not.toThrow();
-            const r = RealmQueryParser.parse("TRUEPREDICATE sort(name ascending) Distinct(uuid)", [], "X", new Map());
+            // "name asc desc" is rejected by Realm itself; "ascending" is not, and translates.
+            expect(() => RealmQueryParser.parse("TRUEPREDICATE sort(name asc desc) Distinct(uuid)", [], "X", new Map())).not.toThrow();
+            const r = RealmQueryParser.parse("TRUEPREDICATE sort(name asc desc) Distinct(uuid)", [], "X", new Map());
             expect(r.distinct).toBeFalsy();
+        });
+
+        it("translates the long spelling of the sort direction, as Realm accepts it", () => {
+            const r = RealmQueryParser.parse("TRUEPREDICATE sort(name ascending, level descending)", [], "X", new Map());
+            expect(r.unsupported).toBeFalsy();
+            expect(r.orderByTerms.map(t => t.dir)).toEqual(["ASC", "DESC"]);
         });
 
         it("reversed Distinct(...) sort(...) is not translated (stays on fallback)", () => {

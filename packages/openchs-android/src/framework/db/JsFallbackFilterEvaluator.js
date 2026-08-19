@@ -162,8 +162,8 @@ class JsFallbackFilterEvaluator {
             .map(k => k.trim())
             .filter(Boolean)
             .map(k => {
-                const m = k.match(/^([\w.]+)(?:\s+(asc|desc))?$/i);
-                return m ? {field: m[1], desc: (m[2] || "").toUpperCase() === "DESC"} : null;
+                const m = k.match(/^([\w.]+)(?:\s+(asc|desc|ascending|descending))?$/i);
+                return m ? {field: m[1], desc: (m[2] || "").toUpperCase().startsWith("DESC")} : null;
             });
         if (keys.length === 0 || keys.some(k => k === null)) {
             throw new UnsupportedRealmQueryError(sortBody, `could not parse SORT keys for ${schemaName}`);
@@ -195,11 +195,18 @@ class JsFallbackFilterEvaluator {
         const field = distinctMatch[1];
 
         // Check for embedded SORT(field dir) — used in some queries
-        const sortMatch = query.match(/SORT\s*\(\s*([\w.]+)\s+(ASC|DESC)\s*\)/i);
+        const sortMatch = query.match(/SORT\s*\(\s*([\w.]+)(?:\s+(ASC|DESC|ASCENDING|DESCENDING))?\s*\)/i);
+
+        // Realm applies descriptors in written order: a SORT after the DISTINCT dedupes
+        // first (keeping each key's first row in table order) and only then orders.
+        if (sortMatch && distinctMatch.index < sortMatch.index) {
+            const deduped = this._applyDistinct(entities, query.replace(sortMatch[0], ""), args, schemaName);
+            return this._applySort(deduped, `${sortMatch[1]}${sortMatch[2] ? " " + sortMatch[2] : ""}`, schemaName);
+        }
 
         if (sortMatch) {
             const sortField = sortMatch[1];
-            const sortDesc = sortMatch[2].toUpperCase() === "DESC";
+            const sortDesc = (sortMatch[2] || "").toUpperCase().startsWith("DESC");
 
             // Sort a copy to determine winners per distinct value
             const sorted = [...entities].sort((a, b) => {
