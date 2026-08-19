@@ -261,14 +261,14 @@ class SyncService extends BaseService {
         // Only MyGroups has to be fresh before the migration check — it is what decides
         // whether to switch. The rest is deferred: on a migration sync the switch abandons
         // this backend and re-pulls every reference entity into SQLite, so pulling the bulk
-        // here would fetch the whole reference dataset twice (#2006).
+        // here would fetch the whole reference dataset twice.
         const migrationDecisionMetadata = _.filter(referenceEntityMetadata,
             ({entityName}) => entityName === MyGroups.schema.name);
         const deferredReferenceMetadata = _.filter(referenceEntityMetadata,
             ({entityName}) => entityName !== MyGroups.schema.name);
         // let (not const): after a mid-sync backend switch these are recomputed from the
         // post-switch syncDetails so the transactional pull uses the fresh REALLY_OLD_DATE
-        // checkpoints on the new backend rather than the pre-switch (Realm) ones. See #2006.
+        // checkpoints on the new backend rather than the pre-switch (Realm) ones.
         let filteredTxData = this.getMetadataByType(filteredMetadata, "tx");
         const userInfoData = _.filter(filteredMetadata, ({entityName}) => entityName === "UserInfo");
         const subjectMigrationMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "SubjectMigration");
@@ -301,7 +301,7 @@ class SyncService extends BaseService {
                     // entity_sync_status to REALLY_OLD_DATE, so these carry "never synced" checkpoints;
                     // the pre-switch values were computed against the already-synced Realm backend and
                     // would make the tx pull fetch only rows changed since the Realm sync — leaving the
-                    // new SQLite DB near-empty (#2006).
+                    // new SQLite DB near-empty.
                     const postSwitchFilteredMetadata = _.filter(entitiesWithoutSubjectMigrationAndResetSync,
                         ({entityName}) => _.find(syncDetails, sd => sd.entityName === entityName));
                     filteredTxData = this.getMetadataByType(postSwitchFilteredMetadata, "tx");
@@ -366,7 +366,7 @@ class SyncService extends BaseService {
     // are stamped past it and the migration's full pull skips them — and the source DB,
     // their only other copy, has just been abandoned. Pull once more against a fresh
     // window to bring them across; checkpoints advanced during the full pull, so it is a
-    // cheap delta (#2006).
+    // cheap delta.
     async _catchUpTxDataAfterMigration(allEntitiesMetaData, serverTimeAfterUpload) {
         let {syncDetails, endDateTime} = await this.getSyncDetails();
         // Both timestamps are server-issued, so this comparison is immune to device clock
@@ -738,6 +738,11 @@ class SyncService extends BaseService {
         await this.getTxData(userInfoData, onProgressPerEntity, syncDetails, endDateTime);
         await this.getRefData(refMetadata, onProgressPerEntity, now, endDateTime);
         this._buildReferenceCacheIfSqlite();
+
+        // Pull ResetSyncs and mark them migrated like a fresh install, else the next sync sees them as not-migrated and wrongly resets
+        const resetSyncMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "ResetSync");
+        await this.getResetSyncData(resetSyncMetadata, onProgressPerEntity);
+        this.getService(ResetSyncService).markAllResetSyncsMigrated();
 
         // Re-persist migration state now that UserInfo is available on SQLite so
         // subsequent reads find the state under the SQLite-backed username key
