@@ -8,6 +8,7 @@ import SettingsService from "./SettingsService";
 import {
     EntityMetaData,
     EntitySyncStatus,
+    MyGroups,
     RuleFailureTelemetry,
     SyncTelemetry,
     IgnorableSyncError
@@ -257,6 +258,14 @@ class SyncService extends BaseService {
         const entitiesWithoutSubjectMigrationAndResetSync = _.filter(allEntitiesMetaData, ({entityName}) => !_.includes(['ResetSync', 'SubjectMigration'], entityName));
         const filteredMetadata = _.filter(entitiesWithoutSubjectMigrationAndResetSync, ({entityName}) => _.find(syncDetails, sd => sd.entityName === entityName));
         const referenceEntityMetadata = this.getMetadataByType(filteredMetadata, "reference");
+        // Only MyGroups has to be fresh before the migration check — it is what decides
+        // whether to switch. The rest is deferred: on a migration sync the switch abandons
+        // this backend and re-pulls every reference entity into SQLite, so pulling the bulk
+        // here would fetch the whole reference dataset twice (#2006).
+        const migrationDecisionMetadata = _.filter(referenceEntityMetadata,
+            ({entityName}) => entityName === MyGroups.schema.name);
+        const deferredReferenceMetadata = _.filter(referenceEntityMetadata,
+            ({entityName}) => entityName !== MyGroups.schema.name);
         // let (not const): after a mid-sync backend switch these are recomputed from the
         // post-switch syncDetails so the transactional pull uses the fresh REALLY_OLD_DATE
         // checkpoints on the new backend rather than the pre-switch (Realm) ones. See #2006.
@@ -279,7 +288,7 @@ class SyncService extends BaseService {
         this._enableShallowHydrationIfSqlite();
         return Promise.resolve(statusMessageCallBack("downloadForms"))
             .then(() => this.getTxData(userInfoData, onProgressPerEntity, syncDetails, endDateTime))
-            .then(() => this.getRefData(referenceEntityMetadata, onProgressPerEntity, now, endDateTime))
+            .then(() => this.getRefData(migrationDecisionMetadata, onProgressPerEntity, now, endDateTime))
             .then(async () => {
                 const result = await this._switchBackendAndResyncRefDataIfNeeded(
                     statusMessageCallBack, onProgressPerEntity, allEntitiesMetaData);
@@ -299,6 +308,11 @@ class SyncService extends BaseService {
                     currentVersionEntitySyncDetails = this.retainEntitiesPresentInCurrentVersion(syncDetails, allEntitiesMetaData);
                 }
             })
+            // _switchBackendAndResyncRefDataIfNeeded already re-pulled all reference data on
+            // the new backend, so only the no-switch path still owes the deferred bulk.
+            .then(() => migrationSwitched
+                ? undefined
+                : this.getRefData(deferredReferenceMetadata, onProgressPerEntity, now, endDateTime))
             .then(() => this.getService(EncryptionService).encryptOrDecryptDbIfRequired())
             .then(() => {
                 // Encryption/decryption reinitializes the DB; the fresh proxy comes up
