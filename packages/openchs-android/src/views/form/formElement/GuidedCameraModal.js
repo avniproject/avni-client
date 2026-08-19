@@ -1,6 +1,6 @@
 import React, {useRef, useState, useEffect} from "react";
-import {Modal, View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator, Linking} from "react-native";
-import {Camera, useCameraDevice, useCameraPermission} from "react-native-vision-camera";
+import {Modal, View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator} from "react-native";
+import {Camera, useCameraDevice} from "react-native-vision-camera";
 import fs from 'react-native-fs';
 import General from "../../../utility/General";
 
@@ -25,10 +25,11 @@ const styles = StyleSheet.create({
 
 const fileUri = (p) => (p.startsWith("file://") ? p : `file://${p}`);
 
+// Camera permission is requested (and denial handled with the standard DevicePermissions dialog)
+// before this modal opens — see MediaFormElement.openGuidedCamera — so it only renders with permission granted.
 export default function GuidedCameraModal({visible, onClose, onCapture, labels}) {
     const cameraRef = useRef(null);
     const device = useCameraDevice("back");
-    const {hasPermission, requestPermission} = useCameraPermission();
     const [error, setError] = useState(null);
     const [busy, setBusy] = useState(false);
     // The just-captured photo, held for review; the user confirms (Use photo) or discards (Retake)
@@ -51,7 +52,6 @@ export default function GuidedCameraModal({visible, onClose, onCapture, labels})
 
     // The modal stays mounted while the element renders, so per-session state is reset on open.
     useEffect(() => {
-        if (visible && !hasPermission) requestPermission();
         if (visible) {
             sessionRef.current++;
             busyRef.current = false;
@@ -59,7 +59,7 @@ export default function GuidedCameraModal({visible, onClose, onCapture, labels})
             setBusy(false);
             discardPreview();
         }
-    }, [visible, hasPermission]);
+    }, [visible]);
 
     useEffect(() => () => {
         sessionRef.current++;
@@ -71,8 +71,6 @@ export default function GuidedCameraModal({visible, onClose, onCapture, labels})
         sessionRef.current++;
         onClose();
     };
-
-    const openSettings = () => Linking.openSettings().catch((e) => General.logError('GuidedCameraModal', e));
 
     const capture = async () => {
         if (busyRef.current) return;
@@ -118,20 +116,15 @@ export default function GuidedCameraModal({visible, onClose, onCapture, labels})
         }
     };
 
-    const renderBlocking = (message, action) => (
+    const renderBlocking = (message) => (
         <View style={styles.center}>
             <Text style={styles.err}>{message}</Text>
-            {action}
             <TouchableOpacity style={styles.btn} onPress={handleClose}><Text style={styles.btnText}>{labels.close}</Text></TouchableOpacity>
         </View>
     );
 
     let body;
     if (!device) body = renderBlocking(labels.noBackCamera);
-    else if (!hasPermission) body = renderBlocking(
-        labels.permissionRequired,
-        <TouchableOpacity style={styles.btn} onPress={openSettings}><Text style={styles.btnText}>{labels.openSettings}</Text></TouchableOpacity>
-    );
     else if (!device.hasFlash) body = renderBlocking(labels.flashRequired);
     else {
         body = (

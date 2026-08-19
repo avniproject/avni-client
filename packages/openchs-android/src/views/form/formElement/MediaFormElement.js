@@ -131,17 +131,16 @@ export default class MediaFormElement extends AbstractFormElement {
     get guidedCameraLabels() {
         return {
             noBackCamera: this.I18n.t('guidedCameraNoBackCamera'),
-            permissionRequired: this.I18n.t('guidedCameraPermissionRequired'),
             flashRequired: this.I18n.t('guidedCameraFlashRequired'),
             captureFailed: this.I18n.t('guidedCameraCaptureFailed'),
             close: this.I18n.t('closeModal'),
             retake: this.I18n.t('Retake'),
-            usePhoto: this.I18n.t('Use photo'),
-            openSettings: this.I18n.t('Open settings')
+            usePhoto: this.I18n.t('Use photo')
         };
     }
 
-    openGuidedCamera(onUpdateObservations) {
+    async openGuidedCamera(onUpdateObservations) {
+        if (!await DevicePermissions.request({camera: true})) return;
         this._guidedOnUpdate = onUpdateObservations;
         // Resize params only — avoids getDefaultOptions' videoQuality check throwing out of this sync handler.
         this._guidedOptions = {
