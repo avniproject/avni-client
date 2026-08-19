@@ -14,6 +14,7 @@ import Colors from "../primitives/Colors";
 import Distances from "../primitives/Distances";
 import Styles from '../primitives/Styles';
 import {View} from 'native-base';
+import deferPastInteractions from "../../utility/deferPastInteractions";
 
 const BATCH_SIZE = 30;
 
@@ -44,14 +45,22 @@ class IndividualListView extends AbstractComponent {
     }
 
     onViewDidMount() {
-        if (this.props.results.length > 0) {
-            this._initBatch();
-        } else {
-            this.setState({listReady: true});
-            if (this.props.indicatorActionName) {
-                this.dispatchAction(this.props.indicatorActionName, {loading: false});
-            }
+        // Dismissed up front, not with the batch: it is a full-screen modal owned by the screen we
+        // came from, so holding it until the list is built hides the navigation slide behind it.
+        if (this.props.indicatorActionName) {
+            this.dispatchAction(this.props.indicatorActionName, {loading: false});
         }
+        if (this.props.results.length === 0) {
+            this.setState({listReady: true});
+            return;
+        }
+        // Every card in the batch reads the subject's enrolments, address and search-result
+        // observations out of Realm; doing that here starves the JS-thread-driven slide in from the
+        // dashboard and freezes it part way. The spinner below covers the wait.
+        deferPastInteractions(() => {
+            if (this._isUnmounted) return;
+            this._initBatch();
+        });
     }
 
     componentDidUpdate(prevProps) {
@@ -62,11 +71,7 @@ class IndividualListView extends AbstractComponent {
 
     _initBatch() {
         if (this.state.items.length > 0) return;
-        const batch = this.sliceBatch(0);
-        this.setState({listReady: true, items: batch});
-        if (this.props.indicatorActionName) {
-            this.dispatchAction(this.props.indicatorActionName, {loading: false});
-        }
+        this.setState({listReady: true, items: this.sliceBatch(0)});
     }
 
     sliceBatch(offset) {

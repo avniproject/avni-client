@@ -1,5 +1,5 @@
 import TypedTransition from "../../framework/routing/TypedTransition";
-import {View, TouchableNativeFeedback, Text} from "react-native";
+import {ActivityIndicator, View, TouchableNativeFeedback, Text} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -26,12 +26,10 @@ class ProgramActionsView extends AbstractComponent {
 
     // Deferred, not done in willMount: onLoad runs an eligibility rule per encounter type (~1.5s on
     // large orgs) and would starve the JS-thread-driven navigation slide into the subject dashboard.
-    // forceUpdate because shouldComponentUpdate below rejects the store update that lands with it.
     onViewDidMount() {
         deferPastInteractions(() => {
             if (this._isUnmounted) return;
-            this.dispatchOnLoad();
-            this.forceUpdate();
+            this.load();
         });
     }
 
@@ -41,16 +39,27 @@ class ProgramActionsView extends AbstractComponent {
         this.dispatchAction(Actions.onLoad, {enrolmentUUID: enrolment.uuid, allowedEncounterTypeUuids});
     }
 
+    isEligibilityLoaded() {
+        return this.loadedEnrolmentUUID === this.props.enrolment.uuid;
+    }
+
+    // forceUpdate unconditionally: shouldComponentUpdate rejects the store update the dispatch lands
+    // with, so without it the pending placeholder is never replaced. Skipping an already-done load
+    // matters because either caller can be the one that gets there first.
+    load() {
+        if (!this.isEligibilityLoaded()) this.dispatchOnLoad();
+        this.forceUpdate();
+    }
+
     shouldComponentUpdate(nextProps, state) {
         const enrolment = this.state.enrolment;
         return (!_.isNil(enrolment) && _.get(nextProps, 'enrolment.uuid') !== enrolment.uuid)
             || !_.isEqual(nextProps.programDashboardButtons,  this.props.programDashboardButtons);
     }
 
-    // Guarded on the enrolment: the forceUpdate that clears the deferred load also lands here, and
-    // re-dispatching would run the whole eligibility pass a second time.
     componentDidUpdate() {
-        if (this.props.enrolment.uuid !== this.loadedEnrolmentUUID) this.dispatchOnLoad();
+        if (this.isEligibilityLoaded()) return;
+        this.load();
     }
 
     static propTypes = {
@@ -107,6 +116,22 @@ class ProgramActionsView extends AbstractComponent {
         return this.state.isSingle ? this.renderSingleEncounter() : this.renderNormalButton()
     }
 
+    // Holds the button's slot while the deferred eligibility pass runs. Without it the slot reads as
+    // "no visit available" for the duration of the load and then the button pops in.
+    renderPendingOption() {
+        return (
+            <View style={[Styles.basicPrimaryButtonView, {backgroundColor: Colors.GreyBackground, elevation: 0}]}>
+                <ActivityIndicator size="small" color={Colors.DarkPrimaryColor}/>
+            </View>
+        );
+    }
+
+    renderEncounterAction() {
+        if (!this.props.enrolment.isActive) return <View/>;
+        if (!this.isEligibilityLoaded()) return this.renderPendingOption();
+        return _.size(this.state.allAllowed) > 0 ? this.renderOption() : <View/>;
+    }
+
     render() {
         const checklistPredicate = this.props.enrolment.hasChecklist &&
             this.props.enrolment.checklists.map(checklist => `checklistDetailUuid = '${checklist.detail.uuid}'`).join(' OR ');
@@ -116,7 +141,7 @@ class ProgramActionsView extends AbstractComponent {
         return (
             <View
                 style={{flex: 1, flexDirection: 'column', marginTop: 8}}>
-                {this.props.enrolment.isActive && (_.size(this.state.allAllowed) > 0) ? this.renderOption() : <View/>}
+                {this.renderEncounterAction()}
                 {this.props.enrolment.hasChecklist && (this.privilegeService.hasAllPrivileges() || !_.isEmpty(allowedChecklistTypeUuids)) ?
                     this.renderButton(() => this.openChecklist(), Styles.basicPrimaryButtonView,
                         this.I18n.t('vaccinations'), Colors.TextOnPrimaryColor)

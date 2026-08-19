@@ -1,4 +1,5 @@
 import React from "react";
+import {ActivityIndicator} from "react-native";
 import TestRenderer, {act} from "react-test-renderer";
 
 // Capture the deferred callback so the test controls when it runs.
@@ -36,9 +37,9 @@ import ProgramActionsView from "../../../src/views/program/ProgramActionsView";
 import ServiceContext from "../../../src/framework/context/ServiceContext";
 import {StartProgramActions} from "../../../src/action/program/StartProgramActions";
 
-const enrolment = (uuid) => ({
+const enrolment = (uuid, isActive = true) => ({
     uuid,
-    isActive: true,
+    isActive,
     hasChecklist: false,
     checklists: [],
     program: null,
@@ -47,6 +48,7 @@ const enrolment = (uuid) => ({
 
 const buildContext = (dispatched) => {
     let storeState = {startProgramActions: StartProgramActions.getInitialState()};
+    const subscribers = [];
     return {
         getService: (Class) => {
             if (Class && Class.name === "PrivilegeService") {
@@ -60,7 +62,10 @@ const buildContext = (dispatched) => {
         },
         getStore: () => ({
             getState: () => storeState,
-            subscribe: () => () => {},
+            subscribe: (fn) => {
+                subscribers.push(fn);
+                return () => {};
+            },
             dispatch: (action) => {
                 dispatched.push(action);
                 // Mimic the reducer landing an eligible encounter so the button can render.
@@ -72,28 +77,49 @@ const buildContext = (dispatched) => {
                         allAllowed: [{encounterType: {name: "Lab test"}, parent: {}}],
                     },
                 };
+                subscribers.forEach((fn) => fn());
             },
         }),
         getDB: () => ({}),
     };
 };
 
-const mount = (dispatched, enrolmentUUID = "e-1") => {
+const view = (enrolmentUUID, isActive, dashboardButtons, dispatched) => (
+    <ServiceContext.Provider value={buildContext(dispatched)}>
+        <ProgramActionsView enrolment={enrolment(enrolmentUUID, isActive)}
+                            allowedEncounterTypeUuids={[]}
+                            programDashboardButtons={dashboardButtons}/>
+    </ServiceContext.Provider>
+);
+
+const mount = (dispatched, enrolmentUUID = "e-1", isActive = true) => {
     let tr;
+    const context = buildContext(dispatched);
     act(() => {
         tr = TestRenderer.create(
-            <ServiceContext.Provider value={buildContext(dispatched)}>
-                <ProgramActionsView enrolment={enrolment(enrolmentUUID)}
+            <ServiceContext.Provider value={context}>
+                <ProgramActionsView enrolment={enrolment(enrolmentUUID, isActive)}
                                     allowedEncounterTypeUuids={[]}
                                     programDashboardButtons={[]}/>
             </ServiceContext.Provider>,
         );
     });
+    tr.rerenderWith = (dashboardButtons) => act(() => tr.update(
+        <ServiceContext.Provider value={context}>
+            <ProgramActionsView enrolment={enrolment(enrolmentUUID, isActive)}
+                                allowedEncounterTypeUuids={[]}
+                                programDashboardButtons={dashboardButtons}/>
+        </ServiceContext.Provider>,
+    ));
     return tr;
 };
 
 const loadDispatches = (dispatched) =>
     dispatched.filter((a) => a.type === StartProgramActions.onLoad.Id);
+
+const spinners = (tr) => tr.root.findAllByType(ActivityIndicator);
+
+const renderedText = (tr) => JSON.stringify(tr.toJSON());
 
 describe("ProgramActionsView deferred load", () => {
     beforeEach(() => {
@@ -137,5 +163,51 @@ describe("ProgramActionsView deferred load", () => {
         act(() => mockCapturedCallbacks[0]());
 
         expect(loadDispatches(dispatched)).toHaveLength(0);
+    });
+
+    it("holds the action slot with a placeholder while the load is pending", () => {
+        const tr = mount([]);
+
+        // Without this the slot renders empty, which is what it shows when nothing is eligible.
+        expect(spinners(tr)).toHaveLength(1);
+    });
+
+    it("replaces the placeholder with the action button once the load lands", () => {
+        const tr = mount([]);
+
+        act(() => mockCapturedCallbacks[0]());
+
+        expect(spinners(tr)).toHaveLength(0);
+        expect(renderedText(tr)).toContain("newProgramVisit");
+    });
+
+    it("shows no placeholder for an inactive enrolment", () => {
+        // An exited enrolment never gets an action button, so a spinner there would resolve to nothing.
+        const tr = mount([], "e-1", false);
+
+        expect(spinners(tr)).toHaveLength(0);
+    });
+
+    it("clears the placeholder when a prop change loads before the deferred callback", () => {
+        // SubjectDashboardProgramsTab lands dashboardButtons after interactions too, and the store
+        // update that follows is rejected by shouldComponentUpdate, so the load has to force a render.
+        const dispatched = [];
+        const tr = mount(dispatched);
+
+        tr.rerenderWith([{label: "growthChart"}]);
+
+        expect(loadDispatches(dispatched)).toHaveLength(1);
+        expect(spinners(tr)).toHaveLength(0);
+        expect(renderedText(tr)).toContain("newProgramVisit");
+    });
+
+    it("does not run the eligibility pass twice when the deferred callback follows a prop change", () => {
+        const dispatched = [];
+        const tr = mount(dispatched);
+
+        tr.rerenderWith([{label: "growthChart"}]);
+        act(() => mockCapturedCallbacks[0]());
+
+        expect(loadDispatches(dispatched)).toHaveLength(1);
     });
 });
