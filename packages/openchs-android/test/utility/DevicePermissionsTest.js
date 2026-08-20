@@ -62,3 +62,23 @@ describe('DevicePermissions', () => {
         assert.lengthOf(alertArgs, 0);
     });
 });
+
+describe('DevicePermissions.hasDeviceLocation', () => {
+    beforeEach(() => {
+        PermissionsAndroid.check = () => Promise.resolve(false);
+    });
+
+    it('is true when fine location is granted', async () => {
+        PermissionsAndroid.check = (permission) => Promise.resolve(permission === PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
+        assert.isTrue(await DevicePermissions.hasDeviceLocation());
+    });
+
+    it('is true when only approximate (coarse) location is granted', async () => {
+        PermissionsAndroid.check = (permission) => Promise.resolve(permission === PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION);
+        assert.isTrue(await DevicePermissions.hasDeviceLocation());
+    });
+
+    it('is false when neither fine nor coarse location is granted', async () => {
+        assert.isFalse(await DevicePermissions.hasDeviceLocation());
+    });
+});
