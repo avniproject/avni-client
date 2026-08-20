@@ -46,9 +46,11 @@ class IndividualSearchResultPaginatedView extends AbstractComponent {
         return 'IndividualSearchResultPaginatedView';
     }
 
+    // Deferred rather than dismissed on mount: this is the dashboard's full-screen modal, and it is
+    // what covers the navigation slide while PaginatedView below builds its first chunk.
     onViewDidMount() {
         if (this.props.indicatorActionName) {
-            setTimeout(() => this.dispatchAction(this.props.indicatorActionName, {loading: false}), 0);
+            deferPastInteractions(() => this.dispatchAction(this.props.indicatorActionName, {loading: false}));
         }
     }
 

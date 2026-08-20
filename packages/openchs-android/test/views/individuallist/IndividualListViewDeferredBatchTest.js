@@ -55,20 +55,25 @@ const buildContext = (dispatched) => ({
 const results = (count) =>
     _.range(count).map((i) => ({individual: {uuid: `i-${i}`}, visitInfo: {groupingBy: "g", visitName: []}}));
 
-const mount = (dispatched, count) => {
+const render = (dispatched, count, extraProps = {}) => (
+    <ServiceContext.Provider value={buildContext(dispatched)}>
+        <IndividualListView results={results(count)}
+                            totalSearchResultsCount={count}
+                            headerTitle="someCard"
+                            indicatorActionName="LOAD_INDICATOR"
+                            {...extraProps}/>
+    </ServiceContext.Provider>
+);
+
+const mount = (dispatched, count, extraProps = {}) => {
     let tr;
     act(() => {
-        tr = TestRenderer.create(
-            <ServiceContext.Provider value={buildContext(dispatched)}>
-                <IndividualListView results={results(count)}
-                                    totalSearchResultsCount={count}
-                                    headerTitle="someCard"
-                                    indicatorActionName="LOAD_INDICATOR"/>
-            </ServiceContext.Provider>,
-        );
+        tr = TestRenderer.create(render(dispatched, count, extraProps));
     });
     return tr;
 };
+
+const spinning = (tr) => tr.root.findAllByType(ActivityIndicator).length > 0;
 
 const cards = (tr) => _.uniq(JSON.stringify(tr.toJSON()).match(/i-\d+/g) || []);
 
@@ -86,11 +91,15 @@ describe("IndividualListView deferred batch", () => {
         expect(mockCapturedCallbacks).toHaveLength(1);
     });
 
-    it("dismisses the previous screen's loading modal on mount, not with the batch", () => {
+    it("holds the dashboard's loading modal up until the deferred callback", () => {
         const dispatched = [];
         mount(dispatched, 5);
 
-        // It is a full-screen modal owned by the dashboard; holding it hides the slide behind it.
+        // Dismissing on mount uncovers the slide before anything is on screen - loader missing.
+        expect(dispatched).toHaveLength(0);
+
+        act(() => mockCapturedCallbacks[0]());
+
         expect(dispatched).toEqual([{type: "LOAD_INDICATOR", loading: false}]);
     });
 
@@ -112,11 +121,54 @@ describe("IndividualListView deferred batch", () => {
         expect(tr.root.findAllByType(ActivityIndicator)).toHaveLength(0);
     });
 
-    it("does not build the batch if unmounted before the deferred callback fires", () => {
-        const tr = mount([], 5);
+    it("still dismisses the modal, without building the batch, if unmounted first", () => {
+        const dispatched = [];
+        const tr = mount(dispatched, 5);
 
         act(() => tr.unmount());
+        act(() => mockCapturedCallbacks[0]());
 
-        expect(() => act(() => mockCapturedCallbacks[0]())).not.toThrow();
+        // Otherwise a quick back press out of the list leaves the dashboard behind a stuck modal.
+        expect(dispatched).toEqual([{type: "LOAD_INDICATOR", loading: false}]);
+    });
+
+    it("keeps the spinner up while the owner is still loading, despite empty results", () => {
+        // MyDashboard -> due/overdue mounts with no results yet; without this the empty list renders
+        // straight away and reads as "no due visits" until the rows pop in.
+        const tr = mount([], 0, {loading: true, indicatorActionName: undefined});
+
+        expect(spinning(tr)).toBe(true);
+    });
+
+    it("renders the rows once the owner's load lands", () => {
+        const dispatched = [];
+        const tr = mount(dispatched, 0, {loading: true, indicatorActionName: undefined});
+
+        act(() => tr.update(render(dispatched, 5, {loading: false, indicatorActionName: undefined})));
+
+        expect(spinning(tr)).toBe(false);
+        expect(cards(tr)).toHaveLength(5);
+    });
+
+    it("shows an empty list, not a spinner, when the owner loaded nothing", () => {
+        const dispatched = [];
+        const tr = mount(dispatched, 0, {loading: true, indicatorActionName: undefined});
+
+        act(() => tr.update(render(dispatched, 0, {loading: false, indicatorActionName: undefined})));
+
+        expect(spinning(tr)).toBe(false);
+        expect(cards(tr)).toHaveLength(0);
+    });
+
+    it("paginates through deferPastInteractions so a leaked handle cannot strand loadingMore", () => {
+        const tr = mount([], 40);
+        act(() => mockCapturedCallbacks[0]());
+        expect(cards(tr)).toHaveLength(30);
+
+        act(() => tr.root.findByType(IndividualListView).instance.onEndReached());
+
+        expect(mockCapturedCallbacks).toHaveLength(2);
+        act(() => mockCapturedCallbacks[1]());
+        expect(cards(tr)).toHaveLength(40);
     });
 });
