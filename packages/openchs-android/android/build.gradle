@@ -77,5 +77,14 @@ subprojects {
     }
 }
 
+// NOTE: OpenCV (TANUH-only, camera-feature Phase 2) used to be wired in here as an included
+// Gradle module (`project(':opencv')`, driven by an OPENCV_ANDROID_SDK_DIR env var), which also
+// needed a workaround block in this file excluding OpenCV's own MatAt.kt from Kotlin compilation
+// (a Kotlin 2.0.21/OpenCV 4.11.0 codegen incompatibility, unrelated to this app's code). That's
+// gone now — OpenCV is included the same way fhir-app does it: a plain local .aar file dependency
+// (app/build.gradle: tanuhImplementation(files("libs/opencv-4110-android-trimmed.aar"))), so
+// there's nothing to configure at the root project level any more. See app/build.gradle for
+// details on how that trimmed AAR is built.
+
 // React Native Gradle Plugin - root project configuration for RN 0.77+
 apply plugin: "com.facebook.react.rootproject"

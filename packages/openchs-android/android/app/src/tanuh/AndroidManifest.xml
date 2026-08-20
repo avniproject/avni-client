@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Flavor-scoped manifest fragment for the tanuh build only. Gradle's manifest merger combines
+  this with src/main/AndroidManifest.xml (which already declares the CAMERA permission) only
+  when building the tanuh variant — CameraCaptureActivity is never registered, and never present,
+  in any other partner flavor's merged manifest.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <activity
+            android:name="com.openchsclient.camera.CameraCaptureActivity"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:exported="false" />
+    </application>
+
+</manifest>

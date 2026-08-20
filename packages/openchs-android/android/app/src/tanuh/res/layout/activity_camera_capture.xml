@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Camera capture screen layout, ported from fhir-app's (Aarogya Aarohan) fragment_camera_launcher.xml.
+  View IDs are kept identical to the reference so the port is easy to diff against the original;
+  all custom-view classes, drawables, colors, dimens, and strings are namespaced under a
+  `camera_` prefix and live in src/tanuh/res/, so they never collide with (or leak into) any
+  other partner flavor's resources.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="true"
+    android:focusable="true"
+    android:background="@color/camera_black_24">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/photo_preview_cl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="@color/camera_black">
+
+        <com.openchsclient.camera.ZoomableImageView
+            android:id="@+id/previewImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/previewControls"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/camera_spacing_16"
+            android:layout_marginBottom="32dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:visibility="visible"
+            android:weightSum="2"
+            app:layout_constraintVertical_bias="0.9"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/previewImage">
+
+            <LinearLayout
+                android:id="@+id/retake_ll"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:background="@drawable/camera_button_white_border"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/photo_retake"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:drawablePadding="@dimen/camera_spacing_8"
+                    android:gravity="center"
+                    android:text="@string/camera_retake"
+                    android:textAlignment="center"
+                    android:textColor="@color/camera_white"
+                    android:textSize="18sp"
+                    app:drawableStartCompat="@drawable/camera_ic_retake" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/done_ll"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:background="@drawable/camera_button_primary"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/photo_select"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:drawablePadding="@dimen/camera_spacing_8"
+                    android:gravity="center"
+                    android:text="@string/camera_done"
+                    android:textAlignment="center"
+                    android:textColor="@color/camera_white"
+                    android:textSize="18sp"
+                    app:drawableStartCompat="@drawable/camera_done_check_mark" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_gravity="center"
+        android:layout_height="match_parent">
+
+        <FrameLayout
+            android:id="@+id/camera_preview_fl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/camera_dark"
+            android:gravity="center"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.camera.view.PreviewView
+                android:id="@+id/previewView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.openchsclient.camera.CustomGraphic
+                android:id="@+id/cameraGrid"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_gravity="center"
+                android:elevation="@dimen/camera_spacing_8"
+                app:layout_constraintBottom_toBottomOf="@+id/previewView"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/previewView" />
+
+        </FrameLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/closeCameraIB"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:elevation="@dimen/camera_spacing_8"
+        android:layout_gravity="start"
+        android:background="@null"
+        android:layout_margin="@dimen/camera_spacing_16"
+        android:src="@drawable/camera_ic_close"/>
+
+    <LinearLayout
+        android:id="@+id/cameraControlsll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="@dimen/camera_spacing_36"
+        android:layout_gravity="bottom">
+
+        <LinearLayout
+            android:id="@+id/zoomIndicatorll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:gravity="center"
+            android:padding="@dimen/camera_spacing_8"
+            android:layout_marginBottom="@dimen/camera_spacing_16"
+            android:background="@color/camera_translucent_background">
+
+            <com.openchsclient.camera.CustomSeekBar
+                android:id="@+id/zoomSeekBar"
+                android:layout_width="200dp"
+                android:layout_height="36dp"
+                android:elevation="@dimen/camera_spacing_8"
+                android:padding="@dimen/camera_spacing_8"
+                android:layout_gravity="center"
+                app:measuringTapeDrawable="@drawable/camera_zoom_indicator" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="36dp"
+            android:gravity="center"
+            android:weightSum="3"
+            android:layout_marginTop="@dimen/camera_spacing_8">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center">
+
+                <androidx.appcompat.widget.AppCompatImageButton
+                    android:id="@+id/aspectRatio"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_gravity="center"
+                    android:background="@null"
+                    android:src="@drawable/camera_aspect_ratio" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/zoomIv"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:background="@null"
+                    android:src="@drawable/camera_ic_zoom_in" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center">
+
+                <androidx.appcompat.widget.AppCompatImageButton
+                    android:id="@+id/flashButton"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_gravity="center"
+                    android:background="@null"
+                    android:src="@drawable/camera_flash_on" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/captureButton"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:src="@drawable/camera_ic_camera_shutter"
+            android:layout_gravity="center"
+            android:elevation="@dimen/camera_spacing_16" />
+    </LinearLayout>
+</FrameLayout>

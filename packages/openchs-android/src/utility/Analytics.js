@@ -129,5 +129,12 @@ export const firebaseEvents = {
     LOG_IN_ERROR: 'login_error',
     LOG_OUT: 'logout',
     SUMMARY_PRESSED: 'summary_pressed',
-    QUICK_FORM_EDIT: 'quick_form_edit'
+    QUICK_FORM_EDIT: 'quick_form_edit',
+    // Camera usability enhancement (Phase 2) — logged from MediaV2FormElement.js/MediaFormElement.js
+    // after NativeModules.CameraModule.launchCamera() resolves, using the `quality` object it
+    // returns (blur/brightness/contrast/noise scoring done natively via OpenCVUtils.kt/
+    // ImageQualityAnalyzer.kt, TANUH-only). This is the telemetry sink decision from the camera
+    // master doc, Section 8 decision #2 (Firebase Analytics, not PostHog — this app already
+    // depends on @react-native-firebase/analytics, unlike fhir-app's PostHog-based reference).
+    CAMERA_PHOTO_QUALITY: 'camera_photo_quality'
 };

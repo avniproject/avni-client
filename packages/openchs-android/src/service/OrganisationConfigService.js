@@ -80,6 +80,17 @@ class OrganisationConfigService extends BaseService {
     isGuideUserToRegisterButtonOn() {
         return !!this.getSettings().guideUserToRegisterButton;
     }
+
+    // Camera usability enhancement (Phase 3) — originally designed as a server-controlled
+    // rollout flag (enableNativeCameraCapture in the synced OrganisationConfig settings blob,
+    // same mechanism as isSaveDraftOn()/isSummaryButtonSetup() above), gated so that only the
+    // tanuh flavour (where NativeModules.CameraModule actually exists) would ever read it.
+    // CONFIRMED (2026-08-18): that server-side flag will not be added — TANUH has decided native
+    // camera capture is unconditionally on for this flavour. This is intentionally hardcoded
+    // `true`, not a temporary test override; there is no per-organisation opt-out.
+    isNativeCameraEnabled() {
+        return true;
+    }
 }
 
 export default OrganisationConfigService;

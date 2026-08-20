@@ -51,6 +51,19 @@ public class MainApplication extends Application implements ReactApplication {
                 if (tamperCheckPackage != null) packages.add(tamperCheckPackage);
             } catch (Exception e) {
                 Log.i("MainApplication", e.toString());
+            }
+
+            // Camera usability enhancement (Phase 3) — TANUH-ONLY. CameraPackage/CameraModule
+            // live in src/tanuh/java/com/openchsclient/camera/, so this class simply doesn't
+            // exist on any other flavour's classpath; Class.forName() throws
+            // ClassNotFoundException there and the camera bridge is silently absent, exactly
+            // like TamperCheckPackage above.
+            try {
+                Class<?> cameraPackageClass = Class.forName("com.openchsclient.camera.CameraPackage");
+                ReactPackage cameraPackage = (ReactPackage) cameraPackageClass.getDeclaredConstructor().newInstance();
+                if (cameraPackage != null) packages.add(cameraPackage);
+            } catch (Exception e) {
+                Log.i("MainApplication", e.toString());
             } finally {
                 return packages;
             }

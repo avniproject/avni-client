@@ -108,6 +108,13 @@ tools/edge-model/source/*
 packages/openchs-android/android/app/src/tanuh/assets/models/*
 !packages/openchs-android/android/app/src/tanuh/assets/models/.gitkeep
 
+# OpenCV Android AAR (TANUH-only, camera-feature Phase 2 — image quality scoring). Same pattern
+# as fhir-app's own libs/opencv-411-android.aar: a large third-party binary, never committed —
+# each tanuh developer builds/places their own copy at this path (see camera master doc / this
+# repo's app/build.gradle for how it's built: `./gradlew :opencv:assembleRelease` against a local
+# OpenCV Android SDK checkout).
+packages/openchs-android/android/app/libs/*.aar
+
 # TANUH release keystore — never committed.
 tanuh-release-key.keystore
 

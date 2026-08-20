@@ -309,6 +309,54 @@ dependencies {
     // 16 KB-aligned, so widening the scope costs ~17 MB/ABI but does NOT reintroduce a 16 KB failure.
     // (OnnxEngine.kt would also need to move out of src/tanuh/ into src/main/ at that point.)
     tanuhImplementation('com.microsoft.onnxruntime:onnxruntime-android:1.22.0')
+    // Camera usability enhancement (Phase 1) — TANUH-ONLY, mirrors the tanuhImplementation
+    // scoping above for onnxruntime. CameraX backs the in-app camera screen
+    // (com.openchsclient.camera.CameraCaptureActivity, src/tanuh/java/...); no other flavour
+    // gets this dependency or the Kotlin/resource files that use it.
+    // NOTE: 1.3.4 was the last version verified against this project's compileSdk/AGP at the
+    // time this was written — this session had no network access to confirm whether a newer
+    // stable CameraX release exists. Check for a current stable version before building.
+    def cameraxVersion = "1.3.4"
+    tanuhImplementation "androidx.camera:camera-core:$cameraxVersion"
+    tanuhImplementation "androidx.camera:camera-camera2:$cameraxVersion"
+    tanuhImplementation "androidx.camera:camera-lifecycle:$cameraxVersion"
+    tanuhImplementation "androidx.camera:camera-view:$cameraxVersion"
+
+    // ConstraintLayout — used by activity_camera_capture.xml and CameraCaptureActivity.kt
+    // (src/tanuh only). Not previously a dependency anywhere in this app (fhir-app declares it
+    // explicitly; avni-client never needed it before this feature), which is the most likely
+    // cause of the first compileTanuhDebugKotlin failure — ConstraintLayout wasn't on the
+    // classpath at all.
+    tanuhImplementation "androidx.constraintlayout:constraintlayout:2.1.4"
+
+    // Guava (real, "-android" flavor) — CameraX's ProcessCameraProvider.getInstance() returns a
+    // com.google.common.util.concurrent.ListenableFuture. That class is normally supplied
+    // transitively via androidx.concurrent:concurrent-futures -> com.google.guava:listenablefuture,
+    // but this app pulls in a large number of unrelated native modules, and something elsewhere in
+    // that dependency graph is winning Gradle's conflict resolution and substituting Guava's
+    // deliberately-empty "9999.0-empty-to-avoid-conflict-with-guava" stub artifact instead — which
+    // has zero classes, hence "Unresolved reference 'common'" / "Cannot access class
+    // ListenableFuture" at compile time (confirmed via a direct ./gradlew compileTanuhDebugKotlin
+    // run). Declaring the real guava-android jar directly, at a reasonably high version, forces it
+    // to win that resolution instead of the empty stub.
+    tanuhImplementation "com.google.guava:guava:32.1.3-android"
+
+    // OpenCV (TANUH-ONLY, Phase 2 — image quality scoring: blur/brightness/noise via
+    // OpenCVUtils.kt/ImageQualityAnalyzer.kt, src/tanuh only). Same pattern fhir-app uses for its
+    // own OpenCV dependency (android/quest/build.gradle.kts:
+    // implementation(files("libs/opencv-411-android.aar"))) — a plain local .aar file dependency,
+    // not a Maven artifact or an included Gradle module. The .aar itself is gitignored (see
+    // .gitignore) — each tanuh developer places their own copy at
+    // app/libs/opencv-4110-android-trimmed.aar before building; no env var or settings.gradle
+    // wiring needed (this replaces the earlier OPENCV_ANDROID_SDK_DIR/project(':opencv') approach).
+    // TRIMMED BUILD: built via OpenCV's platforms/android/build_sdk.py with
+    // --modules_list core,imgproc,imgcodecs,videoio,java --no_kotlin --no_samples_build
+    // --disable IPP, then `./gradlew :opencv:assembleRelease` against that trimmed SDK checkout —
+    // 19.7MB vs. 59.5MB for the earlier full-SDK build (see camera master doc Section 5/7). If you
+    // need a different module set, rebuild with build_sdk.py and drop the new .aar in here — no
+    // other wiring changes needed.
+    tanuhImplementation(files("libs/opencv-4110-android-trimmed.aar"))
+
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01'

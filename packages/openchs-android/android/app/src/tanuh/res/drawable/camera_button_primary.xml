@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- "Done" button — filled brand-color style with rounded corners + ripple, matching the
+     app-wide borderRadius: 8 button convention (see NewFormButton.js's fabButton style) instead
+     of the previous flat, unrounded @color/camera_color_primary background. -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/camera_ripple_white">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/camera_color_primary" />
+            <corners android:radius="@dimen/camera_button_corner_radius" />
+        </shape>
+    </item>
+</ripple>

@@ -1,4 +1,4 @@
-import {StyleSheet, TouchableNativeFeedback, View, PermissionsAndroid, Text} from "react-native";
+import {StyleSheet, TouchableNativeFeedback, View, PermissionsAndroid, Text, NativeModules} from "react-native";
 import React from "react";
 import AbstractFormElement from "./AbstractFormElement";
 import {launchCamera, launchImageLibrary} from "react-native-image-picker";
@@ -11,7 +11,9 @@ import ExpandableMedia from "../../common/ExpandableMedia";
 import FileSystem from "../../../model/FileSystem";
 import DeviceInfo from 'react-native-device-info';
 import RemoveMediaConfirmDialog from "../../common/RemoveMediaConfirmDialog";
+import OrganisationConfigService from "../../../service/OrganisationConfigService";
 import _ from "lodash";
+import {logEvent, firebaseEvents} from "../../../utility/Analytics";
 
 const styles = StyleSheet.create({
     icon: {
@@ -190,6 +192,18 @@ export default class MediaFormElement extends AbstractFormElement {
             || this.props.element.concept.datatype === 'Profile-Pics';
     }
 
+    // Camera usability enhancement (Phase 3) — same gating as MediaV2FormElement.useNativeCameraScreen():
+    // true only for photo questions (this native screen doesn't record video), only when
+    // NativeModules.CameraModule actually exists (a tanuh build), and only when the organisation
+    // has opted in via the server-synced OrganisationConfig flag. This is the legacy
+    // Image/Video/Profile-Pics datatype path (routed here via SingleSelectMediaFormElement /
+    // MultiSelectMediaFormElement) — MediaV2FormElement.js covers the newer ImageV2 datatype
+    // separately; both check the same flag independently.
+    useNativeCameraScreen() {
+        return this.isImage && !!NativeModules.CameraModule
+            && this.getService(OrganisationConfigService).isNativeCameraEnabled();
+    }
+
     get label() {
         let label = super.label;
         if (this.isVideo) {
@@ -255,8 +269,27 @@ export default class MediaFormElement extends AbstractFormElement {
         const options = { ...this.getDefaultOptions(),
             durationLimit: this.getFromKeyValue('durationLimitInSecs', DEFAULT_DURATION_LIMIT)};
         if (await this.isPermissionGranted()) {
-            launchCamera(options,
-                (response) => this.addMediaFromPicker(response, onUpdateObservations));
+            if (this.useNativeCameraScreen()) {
+                try {
+                    // Camera usability enhancement (Phase 2) — CameraModule.launchCamera() now
+                    // resolves {uri, quality} | null instead of a plain file path string, same
+                    // contract change as MediaV2FormElement.launchCamera(native).
+                    const result = await NativeModules.CameraModule.launchCamera();
+                    if (result && result.uri) {
+                        this.addMediaFromPicker({assets: [{uri: `file://${result.uri}`}]}, onUpdateObservations);
+                        if (result.quality) {
+                            logEvent(firebaseEvents.CAMERA_PHOTO_QUALITY, result.quality);
+                        }
+                    }
+                    // result is null when the user cancelled inside the native screen — a
+                    // no-op, matching react-native-image-picker's didCancel behaviour below.
+                } catch (error) {
+                    General.logError('MediaFormElement.launchCamera (native)', error);
+                }
+            } else {
+                launchCamera(options,
+                    (response) => this.addMediaFromPicker(response, onUpdateObservations));
+            }
         }
     }
 

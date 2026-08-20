@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- All colors here are scoped to the Phase 1 camera screen only (src/tanuh, camera_ prefix)
+         so they can never collide with resources in src/main or any other flavor. -->
+    <color name="camera_black_24">#3D000000</color>
+    <color name="camera_black">#FF000000</color>
+    <color name="camera_white">#FFFFFFFF</color>
+    <color name="camera_dark">#FF212121</color>
+    <color name="camera_translucent_background">#99000000</color>
+    <!-- BrandPrimaryDark — same hex used for the app's other primary action buttons, e.g.
+         Colors.BrandPrimaryDark in src/views/primitives/Colors.js ('#00767D'; also used directly
+         by src/views/common/NewFormButton.js's fabButton style). Kept as the literal hex rather
+         than referencing the JS constant since native Android resources can't import JS values —
+         if BrandPrimaryDark ever changes in Colors.js, update this to match. -->
+    <color name="camera_color_primary">#FF00767D</color>
+    <!-- Translucent white for the ripple/touch-feedback on both the filled "Done" button and the
+         outlined "Retake" button. -->
+    <color name="camera_ripple_white">#33FFFFFF</color>
+</resources>
