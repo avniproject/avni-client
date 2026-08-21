@@ -265,7 +265,8 @@ class PreviousEncounters extends AbstractComponent {
         } else {
             toDisplayEncounters = _.sortBy(this.props.encounters, (encounter) => encounter.encounterDateTime || encounter.cancelDateTime || encounter.earliestVisitDateTime);
         }
-        // Plain rows, not the deprecated ListView: virtualization misbehaves nested in a ScrollView (see Observations); the inline list is bounded by showCount / View-All.
+        // Plain rows, not the deprecated ListView: virtualization misbehaves nested in a ScrollView (see Observations).
+        // showPartial callers are bounded by showCount / View-All; the rest render every row in one pass.
         const renderable = (<View>
             <View style={{flexDirection: 'row', alignItems: 'center', backgroundColor: Styles.whiteColor}}>
                 {this.props.title && (
