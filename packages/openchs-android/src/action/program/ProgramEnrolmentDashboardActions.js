@@ -102,6 +102,14 @@ class ProgramEnrolmentDashboardActions {
     static onLanding(state, action, context) {
         const {enrolmentUUID, individualUUID} = action;
         const newState = ProgramEnrolmentDashboardActions.clone(state);
+        // The slice is shared across subjects and nothing else clears it, so without this the next
+        // subject skips the loader and renders the previous subject's visits, summary and buttons.
+        newState.loaded = false;
+        newState.completedEncounters = [];
+        newState.draftUnScheduledProgramEncounters = [];
+        newState.enrolmentSummary = [];
+        newState.dashboardButtons = [];
+        newState.showCount = SettingsService.IncrementalEncounterDisplayCount;
         newState.enrolment = ProgramEnrolmentDashboardActions._getEnrolment(newState, context, individualUUID, enrolmentUUID);
         return newState;
     }
