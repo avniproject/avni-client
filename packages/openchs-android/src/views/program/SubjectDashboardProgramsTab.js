@@ -54,20 +54,25 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
     onViewDidMount() {
         // Defer post-mount work past the slide animation so heavy reducers cannot freeze the in-flight transition.
         InteractionManager.runAfterInteractions(() => {
-            try {
-                this.dispatchOnLoad();
-            } catch (e) {
-                // A throwing ON_LOAD (rule/privilege eval) must not strand the tab on the loader —
-                // fall through to render whatever ON_LANDING produced.
-                General.logError(this.viewName(), e);
-                this._loadFailed = true;
-                this.forceUpdate();
-            }
+            if (this._isUnmounted) return;
+            this.dispatchOnLoad();
         });
     }
 
+    // A throwing rule/privilege eval must not strand the tab on the loader — fall through to render
+    // whatever ON_LANDING produced. Every entry into the load path goes through here.
+    safeDispatch(actionName) {
+        try {
+            this.dispatchAction(actionName, this.props);
+        } catch (e) {
+            General.logError(this.viewName(), e);
+            this._loadFailed = true;
+            if (!this._isUnmounted) this.forceUpdate();
+        }
+    }
+
     dispatchOnLoad() {
-        this.dispatchAction(Actions.ON_LOAD, this.props);
+        this.safeDispatch(Actions.ON_LOAD);
     }
 
     componentWillReceiveProps() {
@@ -78,7 +83,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
 
     didFocus() {
         super.didFocus();
-        this.dispatchAction(Actions.ON_FOCUS, this.props);
+        this.safeDispatch(Actions.ON_FOCUS);
     }
 
     editEnrolment(pageNumber) {
