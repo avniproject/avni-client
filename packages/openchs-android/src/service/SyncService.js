@@ -6,6 +6,7 @@ import EntitySyncStatusService from "./EntitySyncStatusService";
 import SettingsService from "./SettingsService";
 
 import {
+    EntityApprovalStatus,
     EntityMetaData,
     EntitySyncStatus,
     MyGroups,
@@ -621,6 +622,12 @@ class SyncService extends BaseService {
     // the link on the parent row (e.g. concept.answers), so re-save those parents.
     async _persistAllBatch(entityMetaData, entityResources, entities, loadedSince) {
         await this.db.bulkCreate(entityMetaData.schemaName, entities);
+
+        // associateChild also maintains the parent's latestEntityApprovalStatus link;
+        // with no parent re-save here, derive it in SQL from the just-written rows.
+        if (entityMetaData.schemaName === EntityApprovalStatus.schema.name && !_.isEmpty(entityMetaData.parent)) {
+            this.db.recomputeLatestEntityApprovalStatus(entityMetaData.parent.schemaName, _.uniq(_.compact(entities.map(e => e.entityUUID))));
+        }
 
         if (!_.isEmpty(entityMetaData.parent) && this._parentStoresChildAsJsonArray(entityMetaData)) {
             const mergedParents = entityMetaData.hasMoreThanOneAssociation

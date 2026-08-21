@@ -704,6 +704,29 @@ class SqliteProxy {
         }
     }
 
+    /**
+     * Derive latest_entity_approval_status_uuid for the given parents from their
+     * entity_approval_status rows. The Realm sync path refreshes this link by
+     * re-saving parents via associateChild; the batch path skips parent re-saves
+     * (FK-on-child lists need none), so the link is recomputed here in SQL.
+     * Mirrors the model's maxBy(approvalStatuses, 'statusDateTime').
+     */
+    recomputeLatestEntityApprovalStatus(parentSchemaName, parentUuids) {
+        if (_.isEmpty(parentUuids)) return;
+        const tableMeta = this.tableMetaMap.get(parentSchemaName);
+        if (!tableMeta) throw new Error(`SqliteProxy.recomputeLatestEntityApprovalStatus: No table metadata for "${parentSchemaName}"`);
+        _.chunk(parentUuids, 500).forEach(chunk => {
+            const placeholders = chunk.map(() => "?").join(", ");
+            this._executeRaw(
+                `UPDATE ${tableMeta.tableName} SET latest_entity_approval_status_uuid = (
+                    SELECT uuid FROM entity_approval_status
+                    WHERE entity_uuid = ${tableMeta.tableName}.uuid
+                    ORDER BY status_date_time DESC LIMIT 1
+                ) WHERE uuid IN (${placeholders})`,
+                chunk);
+        });
+    }
+
     // ──── Reference data cache ────
 
     /**
