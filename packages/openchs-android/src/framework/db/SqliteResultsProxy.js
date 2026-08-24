@@ -26,12 +26,28 @@ const SqliteResultsProxyHandler = {
         } else if (name === "length") {
             return target.getLength();
         } else if (name === "realmCollection") {
-            // Return the Proxy wrapper (receiver), not the raw target,
-            // so getUnderlyingRealmCollection() returns an object with
-            // Proxy-intercepted length/index access.
-            return receiver;
+            // getUnderlyingRealmCollection() must yield raw underlying objects —
+            // Realm hands out Realm.Objects and callers re-wrap per item
+            // (e.g. new Individual(x.item)), so returning wrapped entities here
+            // double-wraps them and writes via entity.that then hit getter-only
+            // class properties.
+            return target.getRawCollection();
         }
         return Reflect.get(...arguments);
+    },
+};
+
+const RawCollectionProxyHandler = {
+    get: function (target, name, receiver) {
+        if (typeof name !== "symbol" && !isNaN(name) && !isNaN(parseInt(name))) {
+            const entity = target.getAt(Number.parseInt(name));
+            return (entity && entity.that) ? entity.that : entity;
+        } else if (name === "length") {
+            return target.getLength();
+        } else if (name === "realmCollection") {
+            return receiver;
+        }
+        return Reflect.get(target, name);
     },
 };
 
@@ -451,6 +467,13 @@ class SqliteResultsProxy {
 
     createEntity(hydratedObj) {
         return new this.entityClass(hydratedObj);
+    }
+
+    getRawCollection() {
+        if (!this._rawCollectionProxy) {
+            this._rawCollectionProxy = new Proxy(this, RawCollectionProxyHandler);
+        }
+        return this._rawCollectionProxy;
     }
 
     // ──── Collection API ────

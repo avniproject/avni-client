@@ -72,14 +72,14 @@ schemaMap.set("EncounterType", {
 
 // ──── Helper to create a proxy and capture SQL ────
 
-function createProxy({rows = [], schemaName = "Individual", tableName = "individual", realmSchemaMap = schemaMap, hydratorTransform} = {}) {
+function createProxy({rows = [], schemaName = "Individual", tableName = "individual", realmSchemaMap = schemaMap, hydratorTransform, entityClass = MockEntity} = {}) {
     const executeQuery = jest.fn(() => rows);
     const hydrator = createMockHydrator(hydratorTransform || (row => ({...row})));
 
     const proxy = SqliteResultsProxy.create({
         schemaName,
         tableName,
-        entityClass: MockEntity,
+        entityClass,
         executeQuery,
         hydrator,
         realmSchemaMap,
@@ -738,5 +738,50 @@ describe("TRUEPREDICATE window query", () => {
         const sql = getExecutedSql(executeQuery);
         expect(sql).not.toContain("ROW_NUMBER");
         expect(sql).toContain('ORDER BY t0."encounter_date_time" DESC');
+    });
+});
+
+describe("realmCollection — getUnderlyingRealmCollection contract", () => {
+    class MockWrappedEntity {
+        constructor(that) {
+            this.that = that;
+        }
+
+        get firstName() {
+            return this.that.firstName;
+        }
+    }
+
+    function createWrappedProxy() {
+        const rows = [
+            {uuid: "1", first_name: "Alice", voided: 0},
+            {uuid: "2", first_name: "Bob", voided: 0},
+        ];
+        return createProxy({
+            rows,
+            entityClass: MockWrappedEntity,
+            hydratorTransform: row => ({uuid: row.uuid, firstName: row.first_name}),
+        });
+    }
+
+    it("[index] on the results returns wrapped entities", () => {
+        const {proxy} = createWrappedProxy();
+        expect(proxy[0]).toBeInstanceOf(MockWrappedEntity);
+        expect(proxy[0].firstName).toBe("Alice");
+    });
+
+    it("realmCollection[index] returns the raw hydrated object so callers can re-wrap without double-wrapping", () => {
+        const {proxy} = createWrappedProxy();
+        const raw = proxy.realmCollection[0];
+        expect(raw).not.toBeInstanceOf(MockWrappedEntity);
+        expect(raw.firstName).toBe("Alice");
+        const rewrapped = new MockWrappedEntity(raw);
+        expect(rewrapped.that.that).toBeUndefined();
+    });
+
+    it("realmCollection.length matches the results length", () => {
+        const {proxy} = createWrappedProxy();
+        expect(proxy.realmCollection.length).toBe(2);
+        expect(proxy.realmCollection[5]).toBeNull();
     });
 });
