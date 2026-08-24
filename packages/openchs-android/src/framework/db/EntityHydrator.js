@@ -103,8 +103,10 @@ class EntityHydrator {
         // recursive FK preload) instead return shallow entities (scalar fields
         // + depth-0 cached refs, lists empty). Toggled by SyncService for the
         // duration of a sync, since openchs-models' fromResource calls
-        // findByKey("uuid", ...) per child entity — and during sync the caller
-        // only needs the parent's uuid for the FK column, not its full subtree.
+        // findByKey("uuid", ...) per child entity — and during sync only the
+        // parent's uuid reaches the FK column, not its full subtree. It is also
+        // the one mode where lists stay eagerly empty rather than lazy; see
+        // _defineLazyList.
         this._shallowMode = false;
     }
 
@@ -212,6 +214,10 @@ class EntityHydrator {
                 } else if (objectType && depth > 0 && (!skipLists || (listsToInclude && listsToInclude.has(propName)))) {
                     // Referenced list — query child table
                     result[propName] = this.resolveList(schemaName, propName, objectType, row.uuid, depth - 1);
+                } else if (objectType && !this._shallowMode) {
+                    // Below the prefetch budget, or skipped by the caller. Resolve on access
+                    // rather than reporting [] — an unloaded list must not read as an empty one.
+                    this._defineLazyList(result, propName, schemaName, objectType, row.uuid);
                 } else {
                     result[propName] = [];
                 }
@@ -223,6 +229,35 @@ class EntityHydrator {
         });
 
         return result;
+    }
+
+    // Sync sets shallow mode and then spreads every list property of the parent
+    // (avni-models General.pick, via Individual.associateChild) for each synced child —
+    // lazy accessors there would fire a query per list per entity. Shallow mode keeps
+    // returning [] until #2019's element-level proxies make the spread cheap again.
+    _defineLazyList(target, propName, parentSchemaName, childSchemaName, parentUuid) {
+        let resolved = false;
+        let value;
+        Object.defineProperty(target, propName, {
+            enumerable: true,
+            configurable: true,
+            get: () => {
+                if (!resolved) {
+                    resolved = true;
+                    this.beginHydrationSession();
+                    try {
+                        value = this.resolveList(parentSchemaName, propName, childSchemaName, parentUuid, 1);
+                    } finally {
+                        this.endHydrationSession();
+                    }
+                }
+                return value;
+            },
+            set: (newValue) => {
+                resolved = true;
+                value = newValue;
+            }
+        });
     }
 
     /**

@@ -864,8 +864,12 @@ class SyncService extends BaseService {
      * ParentSchema) for every synced child entity. Without shallow mode, each call
      * triggers SqliteResultsProxy's deep batchPreload — fetching the parent's
      * entire 3-level subtree (e.g., an Individual's 400 encounters + their concept
-     * refs) on every sync entity. The result is only used for its uuid (to populate
-     * a FK column via bulkCreate), so the deep hydration is wasted work.
+     * refs) on every sync entity, when only the uuid reaches the FK column via
+     * bulkCreate.
+     *
+     * The parent is not read for its uuid alone: Individual.associateChild spreads
+     * every list property through General.pick. Shallow mode is what keeps those
+     * lists empty and that spread cheap — see EntityHydrator._defineLazyList.
      */
     _enableShallowHydrationIfSqlite() {
         if (this.context.getRepositoryFactory().setShallowHydrationMode(true)) {
