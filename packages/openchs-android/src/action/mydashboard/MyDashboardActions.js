@@ -95,22 +95,34 @@ function getCustomFilterSubjectUUIDs(dashboardCacheFilter, context) {
     return customFilterService.applyCustomFilters(selectedCustomFilters, 'myDashboardFilters');
 }
 
+// The subject restriction compiles to one OR term per subject, and SQLite caps expression depth
+// at 1000, so the counts are summed over chunks. Every encounter, enrolment and subject row
+// belongs to exactly one subject, so chunking the subjects partitions the rows and the sum is exact.
+const customFilterChunkSize = 500;
+
 function countCards(individualService, dashboardCacheFilter, customFilterSubjectUUIDs) {
     if (!_.isNil(customFilterSubjectUUIDs) && _.isEmpty(customFilterSubjectUUIDs)) return {...emptyCard};
 
-    const criteria = (field) => _.isEmpty(customFilterSubjectUUIDs) ? dashboardCacheFilter[field] :
-        RealmQueryService.andQuery([dashboardCacheFilter[field], RealmQueryService.orKeyValueQuery(customFilterSubjectPaths[field], customFilterSubjectUUIDs)]);
     const filterDate = dashboardCacheFilter.filterDate;
+    const card = {...emptyCard};
+    const subjectChunks = _.isEmpty(customFilterSubjectUUIDs) ? [null] : _.chunk(customFilterSubjectUUIDs, customFilterChunkSize);
 
-    return {
-        scheduled: individualService.countScheduledVisits(filterDate, [], criteria('encountersFilters'), criteria('generalEncountersFilters')),
-        overdue: individualService.countOverdueVisits(filterDate, [], criteria('encountersFilters'), criteria('generalEncountersFilters')),
-        recentlyCompletedVisits: individualService.countRecentlyCompletedVisits(filterDate, [], criteria('encountersFilters'), criteria('generalEncountersFilters')),
-        recentlyCompletedRegistration: individualService.countRecentlyRegistered(filterDate, [], criteria('individualFilters')),
-        recentlyCompletedEnrolment: individualService.countRecentlyEnrolled(filterDate, [], criteria('enrolmentFilters')),
-        total: individualService.countAllIn(filterDate, [], criteria('individualFilters')),
-        dueChecklist: 0
-    };
+    subjectChunks.forEach((subjectUUIDs) => {
+        const restrictedTo = (field) => _.isEmpty(subjectUUIDs) ? dashboardCacheFilter[field] :
+            RealmQueryService.andQuery([dashboardCacheFilter[field], RealmQueryService.orKeyValueQuery(customFilterSubjectPaths[field], subjectUUIDs)]);
+        const encounterCriteria = restrictedTo('encountersFilters');
+        const generalEncounterCriteria = restrictedTo('generalEncountersFilters');
+        const subjectCriteria = restrictedTo('individualFilters');
+
+        card.scheduled += individualService.countScheduledVisits(filterDate, [], encounterCriteria, generalEncounterCriteria);
+        card.overdue += individualService.countOverdueVisits(filterDate, [], encounterCriteria, generalEncounterCriteria);
+        card.recentlyCompletedVisits += individualService.countRecentlyCompletedVisits(filterDate, [], encounterCriteria, generalEncounterCriteria);
+        card.recentlyCompletedRegistration += individualService.countRecentlyRegistered(filterDate, [], subjectCriteria);
+        card.recentlyCompletedEnrolment += individualService.countRecentlyEnrolled(filterDate, [], restrictedTo('enrolmentFilters'));
+        card.total += individualService.countAllIn(filterDate, [], subjectCriteria);
+    });
+
+    return card;
 }
 
 /*
@@ -177,9 +189,10 @@ class MyDashboardActions {
         const fetchFromDB = action.fetchFromDB || state.fetchFromDB;
         let customFilterSubjectUUIDs = action.customFilterSubjectUUIDs;
         if (_.isUndefined(customFilterSubjectUUIDs)) {
-            // Resolving a custom filter means querying for its subjects, so only do it when the
-            // counts are actually being recomputed.
-            customFilterSubjectUUIDs = fetchFromDB ? getCustomFilterSubjectUUIDs(dashboardCacheFilter, context) : (state.individualUUIDs || null);
+            // Resolving a custom filter means querying for its subjects, so reuse the last answer
+            // on a load that is not recomputing the counts anyway.
+            customFilterSubjectUUIDs = (fetchFromDB || _.isUndefined(state.individualUUIDs)) ?
+                getCustomFilterSubjectUUIDs(dashboardCacheFilter, context) : state.individualUUIDs;
         }
 
         // The card is the only source of the displayed numbers. Entity lists are built on demand

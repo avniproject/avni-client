@@ -157,6 +157,30 @@ describe("MyDashboardActions.onLoad card counts", () => {
         assert.include(individualService.callTo("countRecentlyEnrolled").args[2], 'individual.uuid = "subject-1"');
     });
 
+    it("chunks a large custom filter so the query stays inside SQLite's expression depth limit", () => {
+        const subjectUUIDs = _.times(1200, (i) => `subject-${i}`);
+        const individualService = makeIndividualService({...UNFILTERED, scheduled: 1, total: 1});
+        const dashboardCacheService = makeDashboardCacheService();
+        dashboardCacheService.setSelectedCustomFilters({Age: [{uuid: "opt-1"}]});
+        const context = buildContext({
+            individualService,
+            dashboardCacheService,
+            customFilterService: {isDashboardFiltersEmpty: () => false, applyCustomFilters: () => subjectUUIDs}
+        });
+
+        const state = MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
+
+        const scheduledCalls = individualService.calls.filter((c) => c.name === "countScheduledVisits");
+        assert.equal(scheduledCalls.length, 3, "1200 subjects must be counted over three chunks of 500");
+        scheduledCalls.forEach(({args}) => {
+            args.slice(2).forEach((criteria) => assert.isAtMost((criteria.match(/ OR /g) || []).length, 499));
+        });
+        // Every row belongs to exactly one subject, so the chunk counts sum without double counting.
+        assert.equal(countsOf(state).scheduled, 3);
+        assert.equal(countsOf(state).total, 3);
+        assert.deepEqual(_.uniq(subjectUUIDs.map((uuid) => scheduledCalls.some(({args}) => args[2].includes(`"${uuid}"`)))), [true]);
+    });
+
     it("zeroes the cards for a custom filter that matches nothing, and restores them when it is cleared", () => {
         const individualService = makeIndividualService();
         const dashboardCacheService = makeDashboardCacheService();
