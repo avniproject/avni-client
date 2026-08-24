@@ -742,14 +742,10 @@ class SyncService extends BaseService {
         this.entitySyncStatusService.updateAsPerSyncDetails(currentVersionDetails);
         this._disableForeignKeysIfSqlite();
         this._enableShallowHydrationIfSqlite();
+        await this._pullResetSyncsAndMarkMigratedBeforeRefData(allEntitiesMetaData, onProgressPerEntity);
         await this.getTxData(userInfoData, onProgressPerEntity, syncDetails, endDateTime);
         await this.getRefData(refMetadata, onProgressPerEntity, now, endDateTime);
         this._buildReferenceCacheIfSqlite();
-
-        // Pull ResetSyncs and mark them migrated like a fresh install, else the next sync sees them as not-migrated and wrongly resets
-        const resetSyncMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "ResetSync");
-        await this.getResetSyncData(resetSyncMetadata, onProgressPerEntity);
-        this.getService(ResetSyncService).markAllResetSyncsMigrated();
 
         // Re-persist migration state now that UserInfo is available on SQLite so
         // subsequent reads find the state under the SQLite-backed username key
@@ -773,6 +769,13 @@ class SyncService extends BaseService {
         }
 
         return {syncDetails, endDateTime};
+    }
+
+    // Must run before getRefData, else a failure mid-refdata leaves unmigrated ResetSyncs and triggers a spurious reset
+    async _pullResetSyncsAndMarkMigratedBeforeRefData(allEntitiesMetaData, onProgressPerEntity) {
+        const resetSyncMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "ResetSync");
+        await this.getResetSyncData(resetSyncMetadata, onProgressPerEntity);
+        this.getService(ResetSyncService).markAllResetSyncsMigrated();
     }
 
     /**
