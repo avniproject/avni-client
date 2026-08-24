@@ -66,13 +66,51 @@ function updateCachedFilterFields(from, context) {
     dashboardCacheService.updateFilter(dashboardCacheFilter);
 }
 
-function getResultCounts(queryResult, subjectType, context) {
-    const readCachedData = context.get(UserInfoService).getUserSettings().disableAutoRefresh;
-    const dashboardCacheService = context.get(DashboardCacheService);
-    const dashboardCache = dashboardCacheService.getCache();
-    const privilegeService = context.get(PrivilegeService);
-    const displayProgramTab = privilegeService.displayProgramTab(subjectType);
-    return readCachedData ? MyDashboardActions.getRowCount(dashboardCache.getCard(), displayProgramTab) : MyDashboardActions.getRowCount(_.mapValues(queryResult, v => v && v.length || 0), displayProgramTab);
+const emptyCard = {
+    scheduled: 0,
+    overdue: 0,
+    recentlyCompletedVisits: 0,
+    recentlyCompletedRegistration: 0,
+    recentlyCompletedEnrolment: 0,
+    total: 0,
+    dueChecklist: 0
+};
+
+// Path from the schema each criteria runs against back to the subject, used to narrow the
+// counts to the subjects a custom filter matched.
+const customFilterSubjectPaths = {
+    individualFilters: 'uuid',
+    encountersFilters: 'programEnrolment.individual.uuid',
+    generalEncountersFilters: 'individual.uuid',
+    enrolmentFilters: 'individual.uuid'
+};
+
+// Returns null when no custom filter is applied, otherwise the (possibly empty) list of subjects
+// it matched. Resolved on every load rather than carried in state: a stale value used to hold
+// every card at zero until the app was restarted.
+function getCustomFilterSubjectUUIDs(dashboardCacheFilter, context) {
+    const customFilterService = context.get(CustomFilterService);
+    const selectedCustomFilters = dashboardCacheFilter.selectedCustomFilters || {};
+    if (customFilterService.isDashboardFiltersEmpty(selectedCustomFilters)) return null;
+    return customFilterService.applyCustomFilters(selectedCustomFilters, 'myDashboardFilters');
+}
+
+function countCards(individualService, dashboardCacheFilter, customFilterSubjectUUIDs) {
+    if (!_.isNil(customFilterSubjectUUIDs) && _.isEmpty(customFilterSubjectUUIDs)) return {...emptyCard};
+
+    const criteria = (field) => _.isEmpty(customFilterSubjectUUIDs) ? dashboardCacheFilter[field] :
+        RealmQueryService.andQuery([dashboardCacheFilter[field], RealmQueryService.orKeyValueQuery(customFilterSubjectPaths[field], customFilterSubjectUUIDs)]);
+    const filterDate = dashboardCacheFilter.filterDate;
+
+    return {
+        scheduled: individualService.countScheduledVisits(filterDate, [], criteria('encountersFilters'), criteria('generalEncountersFilters')),
+        overdue: individualService.countOverdueVisits(filterDate, [], criteria('encountersFilters'), criteria('generalEncountersFilters')),
+        recentlyCompletedVisits: individualService.countRecentlyCompletedVisits(filterDate, [], criteria('encountersFilters'), criteria('generalEncountersFilters')),
+        recentlyCompletedRegistration: individualService.countRecentlyRegistered(filterDate, [], criteria('individualFilters')),
+        recentlyCompletedEnrolment: individualService.countRecentlyEnrolled(filterDate, [], criteria('enrolmentFilters')),
+        total: individualService.countAllIn(filterDate, [], criteria('individualFilters')),
+        dueChecklist: 0
+    };
 }
 
 /*
@@ -126,108 +164,45 @@ class MyDashboardActions {
 
     static commonIndividuals = (otherFilteredIndividuals, customFilteredIndividualsUUIDs, isTotal = false) => {
         const getIndividualUUID = (indInfo) => isTotal ? indInfo.uuid : indInfo.individual.uuid;
-        return ((_.isEmpty(customFilteredIndividualsUUIDs) || _.isEmpty(otherFilteredIndividuals)) ?
+        return ((_.isNil(customFilteredIndividualsUUIDs) || _.isEmpty(otherFilteredIndividuals)) ?
             otherFilteredIndividuals : otherFilteredIndividuals.filter(iInfo => _.includes(customFilteredIndividualsUUIDs, getIndividualUUID(iInfo))));
     };
 
     static onLoad(state, action, context) {
         updateCacheWithPostSyncValues(context);
 
-        const individualService = context.get(IndividualService);
         const dashboardCacheService = context.get(DashboardCacheService);
         const dashboardCache = dashboardCacheService.getCache();
         const dashboardCacheFilter = dashboardCache.getFilter();
         const fetchFromDB = action.fetchFromDB || state.fetchFromDB;
-
-        // When fetching from DB, compute counts only (fast) and return empty entity lists.
-        // Entity lists are built on-demand when the user taps a card (via ON_LIST_LOAD).
-        // This works for both Realm (where counts via .length are O(1)) and SQLite
-        // (where counts use SELECT COUNT). Avoids 40s+ hydration of all entity lists upfront.
-        if (fetchFromDB && !state.returnEmpty) {
-            const card = {
-                scheduled: individualService.countScheduledVisits(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.encountersFilters, dashboardCacheFilter.generalEncountersFilters),
-                overdue: individualService.countOverdueVisits(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.encountersFilters, dashboardCacheFilter.generalEncountersFilters),
-                recentlyCompletedVisits: individualService.countRecentlyCompletedVisits(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.encountersFilters, dashboardCacheFilter.generalEncountersFilters),
-                recentlyCompletedRegistration: individualService.countRecentlyRegistered(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.individualFilters),
-                recentlyCompletedEnrolment: individualService.countRecentlyEnrolled(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.enrolmentFilters),
-                total: individualService.countAllIn(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.individualFilters),
-                dueChecklist: 0,
-            };
-            dashboardCacheService.updateCard(card);
-
-            const subjectType = context.get(SubjectTypeService).findByUUID(dashboardCacheFilter.selectedSubjectTypeUUID);
-            const privilegeService = context.get(PrivilegeService);
-            const displayProgramTab = privilegeService.displayProgramTab(subjectType);
-
-            return {
-                ...state,
-                scheduled: [], overdue: [], recentlyCompletedVisits: [],
-                recentlyCompletedRegistration: [], recentlyCompletedEnrolment: [],
-                total: [], dueChecklist: [],
-                dueChecklistWithChecklistItem: {individual: [], checklistItemNames: []},
-                visits: MyDashboardActions.getRowCount(card, displayProgramTab),
-                selectedSubjectType: subjectType,
-                individualFilters: dashboardCacheFilter.individualFilters,
-                encountersFilters: dashboardCacheFilter.encountersFilters,
-                generalEncountersFilters: dashboardCacheFilter.generalEncountersFilters,
-                enrolmentFilters: dashboardCacheFilter.enrolmentFilters,
-                dueChecklistFilter: dashboardCacheFilter.dueChecklistFilter,
-                itemsToDisplay: [],
-                fetchFromDB: false,
-                loading: false,
-                addressLevelState: new AddressLevelState(dashboardCacheFilter.selectedAddressesInfo),
-                selectedAddressesInfo: dashboardCacheFilter.selectedAddressesInfo,
-                selectedLocations: dashboardCacheFilter.selectedLocations,
-                selectedCustomFilters: dashboardCacheFilter.selectedCustomFilters,
-                selectedGenders: dashboardCacheFilter.selectedGenders,
-                selectedPrograms: dashboardCacheFilter.selectedPrograms,
-                selectedEncounterTypes: dashboardCacheFilter.selectedEncounterTypes,
-                selectedGeneralEncounterTypes: dashboardCacheFilter.selectedGeneralEncounterTypes,
-                date: {value: dashboardCacheFilter.filterDate}
-            };
+        let customFilterSubjectUUIDs = action.customFilterSubjectUUIDs;
+        if (_.isUndefined(customFilterSubjectUUIDs)) {
+            // Resolving a custom filter means querying for its subjects, so only do it when the
+            // counts are actually being recomputed.
+            customFilterSubjectUUIDs = fetchFromDB ? getCustomFilterSubjectUUIDs(dashboardCacheFilter, context) : (state.individualUUIDs || null);
         }
 
-        const queryProgramEncounter = MyDashboardActions.shouldQueryProgramEncounter(state);
-        const queryGeneralEncounter = MyDashboardActions.shouldQueryGeneralEncounter(state);
-        const dueChecklistWithChecklistItem = individualService.dueChecklistForDefaultDashboard(dashboardCacheFilter.filterDate, dashboardCacheFilter.dueChecklistFilter);
-
-        const [
-            allIndividualsWithScheduledVisits,
-            allIndividualsWithOverDueVisits,
-            allIndividualsWithRecentlyCompletedVisits,
-            allIndividualsWithRecentRegistrations,
-            allIndividualsWithRecentEnrolments,
-            allIndividuals,
-            dueChecklist
-        ] = state.returnEmpty ? [[], [], [], [], [], [], [], []] :
-            [state.scheduled, state.overdue, state.recentlyCompletedVisits, state.recentlyCompletedRegistration, state.recentlyCompletedEnrolment, state.total, state.dueChecklist];
-
-        dueChecklistWithChecklistItem.individual = dueChecklist;
-
-        const queryResult = {
-            scheduled: allIndividualsWithScheduledVisits,
-            overdue: allIndividualsWithOverDueVisits,
-            recentlyCompletedVisits: allIndividualsWithRecentlyCompletedVisits,
-            recentlyCompletedRegistration: allIndividualsWithRecentRegistrations,
-            recentlyCompletedEnrolment: allIndividualsWithRecentEnrolments,
-            total: allIndividuals,
-            dueChecklist: dueChecklist,
-            dueChecklistWithChecklistItem: dueChecklistWithChecklistItem
-        };
-
-        if (state.returnEmpty) {
-            const card = _.mapValues(queryResult, v => v && v.length || 0);
+        // The card is the only source of the displayed numbers. Entity lists are built on demand
+        // when a card is tapped (ON_LIST_LOAD), so their lengths say nothing about the counts.
+        const card = fetchFromDB ?
+            countCards(context.get(IndividualService), dashboardCacheFilter, customFilterSubjectUUIDs) :
+            {...emptyCard, ...dashboardCache.getCard()};
+        if (fetchFromDB) {
             dashboardCacheService.updateCard(card);
         }
 
         const subjectType = context.get(SubjectTypeService).findByUUID(dashboardCacheFilter.selectedSubjectTypeUUID);
-        const counts = getResultCounts(queryResult, subjectType, context);
+        const displayProgramTab = context.get(PrivilegeService).displayProgramTab(subjectType);
 
         return {
             ...state,
-            ...queryResult,
-            visits: counts,
+            scheduled: [], overdue: [], recentlyCompletedVisits: [],
+            recentlyCompletedRegistration: [], recentlyCompletedEnrolment: [],
+            total: [], dueChecklist: [],
+            dueChecklistWithChecklistItem: {individual: [], checklistItemNames: []},
+            visits: MyDashboardActions.getRowCount(card, displayProgramTab),
             selectedSubjectType: subjectType,
+            individualUUIDs: customFilterSubjectUUIDs,
             individualFilters: dashboardCacheFilter.individualFilters,
             encountersFilters: dashboardCacheFilter.encountersFilters,
             generalEncountersFilters: dashboardCacheFilter.generalEncountersFilters,
@@ -439,8 +414,7 @@ class MyDashboardActions {
             selectedSubjectType: action.selectedSubjectType,
             fetchFromDB: true,
             selectedCustomFilters: selectedCustomFilterBySubjectType,
-            returnEmpty: !dashboardFiltersEmpty && _.isEmpty(individualUUIDs),
-            individualUUIDs,
+            individualUUIDs: dashboardFiltersEmpty ? null : individualUUIDs,
             selectedGenders: action.selectedGenders
         };
         const selectedFilterTypes = MyDashboardActions.getSelectedFilterTypes(newState);
@@ -456,7 +430,9 @@ class MyDashboardActions {
             }));
         const anyActiveTypes = newState.addressLevelState.anyActiveTypesArray;
         updateCachedFilterFields({selectedAddressesInfo, anyActiveTypes, selectedSubjectTypeUUID: newState.selectedSubjectType.uuid, filterDate: action.filterDate}, context);
-        const updatedState = _.isNil(action.listType) ? MyDashboardActions.onLoad(newState, {}, context) : MyDashboardActions.onListLoad(newState, action, context);
+        const updatedState = _.isNil(action.listType) ?
+            MyDashboardActions.onLoad(newState, {customFilterSubjectUUIDs: newState.individualUUIDs}, context) :
+            MyDashboardActions.onListLoad(newState, action, context);
         logEvent(firebaseEvents.MY_DASHBOARD_FILTER, {time_taken: Date.now() - startTime, applied_filters: selectedFilterTypes});
         return updatedState;
     }
