@@ -235,3 +235,57 @@ describe('backend switch is deferred while local data is unsynced (#2006)', () =
         expect(mockGlobalContext.switchBackend).toHaveBeenCalledWith('sqlite');
     });
 });
+
+// The SQLite batch persist path skips parent re-saves, so it must explicitly
+// rederive the parent's latestEntityApprovalStatus link when an approval-status
+// page lands. These pin that call — the defect was the call being absent.
+describe('_persistAllBatch — approval status link recompute', () => {
+    function buildBatchSyncService() {
+        const svc = Object.create(SyncService.prototype);
+        svc.db = {
+            isSqlite: true,
+            bulkCreate: jest.fn(async () => {}),
+            recomputeLatestEntityApprovalStatus: jest.fn(),
+        };
+        svc.entitySyncStatusService = {get: jest.fn(() => ({uuid: 'ess-uuid'}))};
+        svc.getCreateEntityFunctions = jest.fn(() => []);
+        svc.bulkSaveOrUpdate = jest.fn();
+        return svc;
+    }
+
+    const subjectEasMetaData = {
+        entityName: 'SubjectEntityApprovalStatus',
+        schemaName: 'EntityApprovalStatus',
+        parent: {entityName: 'Individual', schemaName: 'Individual'},
+        syncStatus: {entityTypeUuid: 'st-1'},
+    };
+
+    const encounterMetaData = {
+        entityName: 'Encounter',
+        schemaName: 'Encounter',
+        parent: {entityName: 'Individual', schemaName: 'Individual'},
+        syncStatus: {entityTypeUuid: 'et-1'},
+    };
+
+    it('recomputes the parent link with distinct entityUUIDs after an approval-status page', async () => {
+        const svc = buildBatchSyncService();
+        const entities = [
+            {uuid: 'e1', entityUUID: 'i1'},
+            {uuid: 'e2', entityUUID: 'i1'},
+            {uuid: 'e3', entityUUID: null},
+            {uuid: 'e4', entityUUID: 'i2'},
+        ];
+
+        await svc._persistAllBatch(subjectEasMetaData, [], entities, '2026-08-24T00:00:00.000Z');
+
+        expect(svc.db.bulkCreate).toHaveBeenCalledWith('EntityApprovalStatus', entities);
+        expect(svc.db.recomputeLatestEntityApprovalStatus).toHaveBeenCalledTimes(1);
+        expect(svc.db.recomputeLatestEntityApprovalStatus).toHaveBeenCalledWith('Individual', ['i1', 'i2']);
+    });
+
+    it('does not recompute for non-approval-status entity types', async () => {
+        const svc = buildBatchSyncService();
+        await svc._persistAllBatch(encounterMetaData, [], [{uuid: 'e1', individualUUID: 'i1'}], '2026-08-24T00:00:00.000Z');
+        expect(svc.db.recomputeLatestEntityApprovalStatus).not.toHaveBeenCalled();
+    });
+});

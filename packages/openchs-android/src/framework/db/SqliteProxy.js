@@ -715,6 +715,7 @@ class SqliteProxy {
         if (_.isEmpty(parentUuids)) return;
         const tableMeta = this.tableMetaMap.get(parentSchemaName);
         if (!tableMeta) throw new Error(`SqliteProxy.recomputeLatestEntityApprovalStatus: No table metadata for "${parentSchemaName}"`);
+        if (!tableMeta.getColumn("latest_entity_approval_status_uuid")) return;
         _.chunk(parentUuids, 500).forEach(chunk => {
             const placeholders = chunk.map(() => "?").join(", ");
             this._executeRaw(

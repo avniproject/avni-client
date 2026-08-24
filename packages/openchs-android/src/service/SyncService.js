@@ -447,7 +447,7 @@ class SyncService extends BaseService {
         General.logDebug("SyncService", "Starting to download concept media (images and videos)");
         const conceptsWithMedia = this.conceptService.getAllConceptsWithIcon();
         General.logDebug("SyncService", `Found ${conceptsWithMedia.length} concepts with media`);
-        
+
         const allMediaItems = [];
         conceptsWithMedia.forEach(concept => {
             if (concept.media && concept.media.length > 0) {
@@ -462,15 +462,15 @@ class SyncService extends BaseService {
                 });
             }
         });
-        
+
         General.logDebug("SyncService", `Found ${allMediaItems.length} media items to download`);
-        
+
         if (allMediaItems.length === 0) {
             return Promise.resolve([]);
         }
 
         const chunkedMediaItems = _.chunk(allMediaItems, PARALLEL_DOWNLOAD_COUNT);
-        
+
         const downloadChunk = (chunk) => {
             return Promise.all(chunk.map(mediaItem => {
                 return this.mediaService.downloadFileIfRequired(mediaItem.url, 'Metadata', false)
@@ -480,12 +480,12 @@ class SyncService extends BaseService {
                     });
             }));
         };
-        
+
         let promise = Promise.resolve();
         chunkedMediaItems.forEach(chunk => {
             promise = promise.then(() => downloadChunk(chunk));
         });
-        
+
         return promise;
     }
 
@@ -759,6 +759,7 @@ class SyncService extends BaseService {
             if (migrationService) {
                 const state = await migrationService.getState();
                 state.activeBackend = 'sqlite';
+
                 state.desiredBackend = 'sqlite';
                 state.phase = 'pending_target_sync';
                 state.lastError = null;
