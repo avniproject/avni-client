@@ -2,6 +2,11 @@ import React from "react";
 import TestRenderer, {act} from "react-test-renderer";
 
 // Capture the deferred callback so the test controls when it runs.
+// The load is scheduled behind a double requestAnimationFrame so the scene's final commit paints before
+// the JS thread blocks (avni-client#2054). Resolving rAF inline keeps this test about WHICH trigger runs
+// the load, not about draining frame queues.
+global.requestAnimationFrame = (cb) => cb();
+
 let mockCapturedCallbacks;
 jest.mock("../../../src/utility/deferPastInteractions", () => ({
     __esModule: true,
@@ -71,14 +76,19 @@ describe("IndividualList deferred list load", () => {
         mockListProps = [];
     });
 
-    it("does not run the list query during mount, and marks the list as loading", () => {
+    // RESET_LIST used to run synchronously in willMount, i.e. DURING the navigation slide. It is now in
+    // loadData() with ON_LIST_LOAD, so neither touches the JS thread until the transition has painted -
+    // the MyDashboard-card-to-subject-list stutter (avni-client#2054).
+    it("dispatches nothing during mount, and marks the list as loading", () => {
         const dispatched = [];
         mount(dispatched);
 
-        expect(types(dispatched)).toEqual(["RESET_LIST"]);
+        expect(types(dispatched)).toEqual([]);
         expect(mockCapturedCallbacks).toHaveLength(1);
-        // Without this the empty list renders straight away and reads as "no due visits".
-        expect(mockListProps[0].loading).toBe(true);
+        // The base class's loader is on screen, so the list child has not rendered at all yet. Stronger
+        // than the previous `loading: true` assertion: an empty list cannot flash as "no due visits"
+        // if it is never rendered.
+        expect(mockListProps).toHaveLength(0);
     });
 
     it("runs the list query once the deferred callback fires and clears loading", () => {
@@ -98,7 +108,7 @@ describe("IndividualList deferred list load", () => {
         act(() => tr.unmount());
         act(() => mockCapturedCallbacks[0]());
 
-        expect(types(dispatched)).toEqual(["RESET_LIST"]);
+        expect(types(dispatched)).toEqual([]);
     });
 });
 

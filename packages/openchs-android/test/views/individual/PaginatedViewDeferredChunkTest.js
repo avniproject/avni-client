@@ -56,6 +56,11 @@ const serviceContext = {getService: () => ({getI18n: () => ({t: (k) => k})})};
 
 const results = (count) => _.range(count).map((i) => ({uuid: `i-${i}`}));
 
+// The scene-transition trigger schedules behind a double requestAnimationFrame so the transition's
+// final commit paints first (avni-client#2054). Resolved inline here so tests stay about which
+// trigger fires, not about draining frame queues.
+global.requestAnimationFrame = (cb) => cb();
+
 const mount = (count) => {
     let tr;
     act(() => {

@@ -149,7 +149,11 @@ class AbstractComponent extends Component {
     // still need one more commit pushed from JS. Measured 25 Aug: didFocus at +513ms, the blocking load
     // started 7ms later, and the last frame the UI thread ever painted was mid-slide — which is exactly
     // the split screen reported in avni-client#2054. The double rAF lets that commit land first.
-    runAfterSceneTransition(fn) {
+    // opts.evenIfUnmounted: run `fn` even if this component has since unmounted. Off by default - a
+    // screen that has gone away should not run its own load. Opt in only when the callback settles
+    // something owned by ANOTHER screen, e.g. IndividualListView dismissing the dashboard's loading
+    // modal: skipping that leaves the dashboard stuck behind a modal after a quick back press.
+    runAfterSceneTransition(fn, opts = {}) {
         // Per-registration state, NOT instance fields: a component may call this more than once
         // (SubjectDashboardProgramsTab registers loadData() via the base class AND dispatchOnLoad() from
         // onViewDidMount). Sharing a single _fired flag made the second registration a silent no-op, and
@@ -180,11 +184,12 @@ class AbstractComponent extends Component {
         };
 
         const fire = (source) => {
-            if (this._isUnmounted || reg.fired) return;
+            if (reg.fired) return;
+            if (this._isUnmounted && !opts.evenIfUnmounted) return;
             reg.fired = true;
             release();
             requestAnimationFrame(() => requestAnimationFrame(() => {
-                if (this._isUnmounted) return;
+                if (this._isUnmounted && !opts.evenIfUnmounted) return;
                 Perf.mark("sceneTrigger.fired", {view: this.viewName(), source, sinceArmedMs: Date.now() - armedAt});
                 fn();
             }));
