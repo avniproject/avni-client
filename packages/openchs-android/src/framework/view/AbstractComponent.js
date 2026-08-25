@@ -281,7 +281,12 @@ class AbstractComponent extends Component {
             // #2054 diagnostic: names the store-driven re-renders, e.g. the repeated
             // SystemRecommendationView renders after a Summary press.
             Perf.mark("refreshState.setState", {view: this.viewName()});
-            if (!_.isNil(nextState.error))
+            // Only surface an error once this screen's own load has populated the slice. Entry work is
+            // deferred now, so at mount this slice can still hold the PREVIOUS occupant's error — showing
+            // it would pop an alert over the loading spinner for something this screen did not do.
+            // Screens without a loadData() contract are unaffected: they never defer, so _loadStarted is
+            // irrelevant and the guard falls through on !_.isFunction(this.loadData).
+            if (!_.isNil(nextState.error) && (!_.isFunction(this.loadData) || this._loadStarted))
                 this.showError(nextState.error.message);
             this.setState(nextState);
         }

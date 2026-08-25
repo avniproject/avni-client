@@ -5,6 +5,14 @@ import {Text} from "react-native";
 // Same capture trick as AbstractComponentDeferredLoadTest: the interaction-based defer is the
 // fallback path here, so the test controls whether it ever runs.
 let mockCapturedCallbacks;
+// Only this suite constructs a screen WITH a topLevelStateVariable (the stale-error test), which is the
+// path that touches Analytics. Stubbed so the test is about error surfacing, not about analytics wiring.
+jest.mock("../../../src/utility/Analytics", () => ({
+    __esModule: true,
+    screenRenderStart: () => 0,
+    logScreenEvent: () => {},
+}));
+
 jest.mock("../../../src/utility/deferPastInteractions", () => ({
     __esModule: true,
     default: (cb) => mockCapturedCallbacks.push(cb),
@@ -202,6 +210,46 @@ describe("AbstractComponent load waits for the scene transition", () => {
         flushFrames();
 
         expect(loadImpl).toHaveBeenCalledTimes(1);
+    });
+
+    // refreshState() calls showError() on any non-nil error in its slice. Entry work used to be
+    // dispatched in willMount BEFORE super's subscribe/refreshState, so that slice had just been
+    // rebuilt by this screen. Deferring the dispatch inverted it: refreshState now runs at mount and
+    // reads whatever the PREVIOUS occupant of the shared slice left behind, alert included, over the
+    // loading spinner (avni-client#2054 review).
+    it("does not surface an error left in the slice by a previous screen", () => {
+        const shown = [];
+        const stateSlice = {error: {message: "left over from the last screen"}};
+        const ctx = {
+            ...makeContext(subscribe, "/ScreenA"),
+            getStore: () => ({getState: () => ({slice: stateSlice}), subscribe: () => () => {}}),
+        };
+
+        class SliceScreen extends AbstractComponent {
+            constructor(props, c) { super(props, c, "slice"); }
+            viewName() { return "SliceScreen"; }
+            showError(message) { shown.push(message); }
+            loadData() { this.props.loadImpl(); }
+            renderLoaded() { return null; }
+        }
+
+        let tr;
+        act(() => {
+            tr = TestRenderer.create(
+                <ServiceContext.Provider value={ctx}>
+                    <SliceScreen loadImpl={jest.fn()}/>
+                </ServiceContext.Provider>,
+            );
+        });
+
+        expect(shown).toEqual([]);   // not this screen's error — its own load has not run yet
+
+        const instance = tr.root.findByType(SliceScreen).instance;
+        act(() => instance.runDeferredLoad());
+        stateSlice.error = {message: "raised by this screen"};
+        act(() => instance.refreshState());
+
+        expect(shown).toEqual(["raised by this screen"]);
     });
 
     it("does not load, and leaves no listener, after unmount", () => {
