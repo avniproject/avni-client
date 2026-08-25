@@ -253,6 +253,9 @@ class AbstractComponent extends Component {
     refreshState() {
         const nextState = this.getContextState(this.topLevelStateVariable);
         if (!General.objectsShallowEquals(nextState, this.state)) {
+            // #2054 diagnostic: names the store-driven re-renders, e.g. the repeated
+            // SystemRecommendationView renders after a Summary press.
+            Perf.mark("refreshState.setState", {view: this.viewName()});
             if (!_.isNil(nextState.error))
                 this.showError(nextState.error.message);
             this.setState(nextState);

@@ -93,7 +93,11 @@ class SubjectRegisterView extends AbstractComponent {
         return false;
     }
 
-    UNSAFE_componentWillMount() {
+    // Deferred out of willMount: this dispatch builds the form's initial state and blocks the JS
+    // thread, which starved the navigation slide (avni-client#2054). The base class runs it once the
+    // scene transition has painted and shows renderLoading() until then, so the form is never drawn
+    // half-built. Same rules, same order, same result - only when it runs changes.
+    loadData() {
         const params = this.props.params;
         this.dispatchAction(Actions.ON_LOAD, {
             subjectUUID: params.subjectUUID,
@@ -106,7 +110,6 @@ class SubjectRegisterView extends AbstractComponent {
                 this.dispatchAction(Actions.USE_THIS_STATE, {state: newState});
             }
         });
-        return super.UNSAFE_componentWillMount();
     }
 
     onAppHeaderBack(saveDraftOn) {
@@ -125,7 +128,7 @@ class SubjectRegisterView extends AbstractComponent {
         }
     }
 
-    render() {
+    renderLoaded() {
         General.logDebug(this.viewName(), 'render');
         {
             this.displayMessage(this.props.message)
