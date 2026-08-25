@@ -371,6 +371,11 @@ class SqliteMigrationService extends BaseService {
         }
     }
 
+    _getPendingFieldDataCount() {
+        const entityQueueService = this.getService('entityQueueService');
+        return entityQueueService ? entityQueueService.getPendingFieldDataCount() : 0;
+    }
+
     async _runSync(syncSource, callbacks) {
         // Late require to avoid circular dependency at module load time
         const SyncService = require('./SyncService').default;
@@ -426,15 +431,34 @@ class SqliteMigrationService extends BaseService {
 
         try {
             if (state.phase === MIGRATION_PHASES.PENDING_UPLOAD) {
-                const entitySyncStatusService = this.getService('entitySyncStatusService');
-                const pendingCount = entitySyncStatusService ? entitySyncStatusService.getTotalEntitiesPending() : 0;
+                const pendingCount = this._getPendingFieldDataCount();
                 if (pendingCount > 0) {
                     General.logInfo("SqliteMigrationService",
                         `Uploading ${pendingCount} pending entities before backend switch`);
                     await this._runSync(SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB, callbacks);
-                } else {
-                    General.logInfo("SqliteMigrationService", "No pending entities — skipping upload phase");
+                    // getUpdatedSyncSource escalates an upload-only sync to a full one after
+                    // 12h, so the sync above may have switched the backend mid-flight and
+                    // finalised the migration. Re-read before writing or we would clobber
+                    // that back to pending_upload and re-run the whole migration next launch.
+                    const stateAfterUpload = await this.getState();
+                    if (stateAfterUpload.phase !== MIGRATION_PHASES.PENDING_UPLOAD) {
+                        General.logInfo("SqliteMigrationService",
+                            `Upload sync advanced the migration to phase=${stateAfterUpload.phase} — nothing more to do`);
+                        return;
+                    }
+                    // Stop here even on a clean upload. The target sync pulls with the
+                    // server's `now - 10s` upper bound, so records uploaded seconds ago
+                    // fall outside it and would not come back on the new backend (#2006).
+                    // Staying at PENDING_UPLOAD lets the next sync do the switch, by which
+                    // point the upload is well inside the window.
+                    General.logInfo("SqliteMigrationService",
+                        `Deferring backend switch to the next sync — ${pendingCount} entities were just uploaded`);
+                    stateAfterUpload.attemptCount = state.attemptCount;
+                    stateAfterUpload.lastError = null;
+                    await this.persistState(stateAfterUpload);
+                    return;
                 }
+                General.logInfo("SqliteMigrationService", "No pending entities — skipping upload phase");
                 // Capture only the per-user auth state from Settings on the source
                 // backend. Everything else is bootstrapped on the target via
                 // SettingsService.init() + the migration sync itself.
@@ -458,6 +482,19 @@ class SqliteMigrationService extends BaseService {
                 // resume after a crash where AsyncStorage state advanced but
                 // GlobalContext booted into the source backend).
                 if (globalContext.getActiveBackend() !== state.desiredBackend) {
+                    // The source DB is abandoned by the switch, so anything still in its
+                    // outbox exists nowhere else. Drop back a phase rather than lose it (#2006).
+                    const pendingCount = this._getPendingFieldDataCount();
+                    if (pendingCount > 0) {
+                        General.logWarn("SqliteMigrationService",
+                            `Backend switch aborted: ${pendingCount} local changes still awaiting upload`);
+                        state.phase = MIGRATION_PHASES.PENDING_UPLOAD;
+                        // Deferring is a normal outcome, not a failure — a stale lastError here
+                        // would misreport why the migration is sitting still.
+                        state.lastError = null;
+                        await this.persistState(state);
+                        return;
+                    }
                     // Capture auth state from the source before switching
                     // (in case this is a resume after the previous attempt failed
                     // before the bootstrap step completed).

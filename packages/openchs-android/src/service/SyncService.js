@@ -6,8 +6,10 @@ import EntitySyncStatusService from "./EntitySyncStatusService";
 import SettingsService from "./SettingsService";
 
 import {
+    EntityApprovalStatus,
     EntityMetaData,
     EntitySyncStatus,
+    MyGroups,
     RuleFailureTelemetry,
     SyncTelemetry,
     IgnorableSyncError
@@ -249,13 +251,25 @@ class SyncService extends BaseService {
             });
 
         let {syncDetails, endDateTime, now} = await this.getSyncDetails();
+        // Server clock read immediately after pushData, so everything this sync uploaded
+        // is stamped at or before it. The migration catch-up pull needs it to know when
+        // its window has moved past our own uploads.
+        const serverTimeAfterUpload = now;
 
         const entitiesWithoutSubjectMigrationAndResetSync = _.filter(allEntitiesMetaData, ({entityName}) => !_.includes(['ResetSync', 'SubjectMigration'], entityName));
         const filteredMetadata = _.filter(entitiesWithoutSubjectMigrationAndResetSync, ({entityName}) => _.find(syncDetails, sd => sd.entityName === entityName));
         const referenceEntityMetadata = this.getMetadataByType(filteredMetadata, "reference");
+        // Only MyGroups has to be fresh before the migration check — it is what decides
+        // whether to switch. The rest is deferred: on a migration sync the switch abandons
+        // this backend and re-pulls every reference entity into SQLite, so pulling the bulk
+        // here would fetch the whole reference dataset twice.
+        const migrationDecisionMetadata = _.filter(referenceEntityMetadata,
+            ({entityName}) => entityName === MyGroups.schema.name);
+        const deferredReferenceMetadata = _.filter(referenceEntityMetadata,
+            ({entityName}) => entityName !== MyGroups.schema.name);
         // let (not const): after a mid-sync backend switch these are recomputed from the
         // post-switch syncDetails so the transactional pull uses the fresh REALLY_OLD_DATE
-        // checkpoints on the new backend rather than the pre-switch (Realm) ones. See #2006.
+        // checkpoints on the new backend rather than the pre-switch (Realm) ones.
         let filteredTxData = this.getMetadataByType(filteredMetadata, "tx");
         const userInfoData = _.filter(filteredMetadata, ({entityName}) => entityName === "UserInfo");
         const subjectMigrationMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "SubjectMigration");
@@ -275,7 +289,7 @@ class SyncService extends BaseService {
         this._enableShallowHydrationIfSqlite();
         return Promise.resolve(statusMessageCallBack("downloadForms"))
             .then(() => this.getTxData(userInfoData, onProgressPerEntity, syncDetails, endDateTime))
-            .then(() => this.getRefData(referenceEntityMetadata, onProgressPerEntity, now, endDateTime))
+            .then(() => this.getRefData(migrationDecisionMetadata, onProgressPerEntity, now, endDateTime))
             .then(async () => {
                 const result = await this._switchBackendAndResyncRefDataIfNeeded(
                     statusMessageCallBack, onProgressPerEntity, allEntitiesMetaData);
@@ -288,13 +302,18 @@ class SyncService extends BaseService {
                     // entity_sync_status to REALLY_OLD_DATE, so these carry "never synced" checkpoints;
                     // the pre-switch values were computed against the already-synced Realm backend and
                     // would make the tx pull fetch only rows changed since the Realm sync — leaving the
-                    // new SQLite DB near-empty (#2006).
+                    // new SQLite DB near-empty.
                     const postSwitchFilteredMetadata = _.filter(entitiesWithoutSubjectMigrationAndResetSync,
                         ({entityName}) => _.find(syncDetails, sd => sd.entityName === entityName));
                     filteredTxData = this.getMetadataByType(postSwitchFilteredMetadata, "tx");
                     currentVersionEntitySyncDetails = this.retainEntitiesPresentInCurrentVersion(syncDetails, allEntitiesMetaData);
                 }
             })
+            // _switchBackendAndResyncRefDataIfNeeded already re-pulled all reference data on
+            // the new backend, so only the no-switch path still owes the deferred bulk.
+            .then(() => migrationSwitched
+                ? undefined
+                : this.getRefData(deferredReferenceMetadata, onProgressPerEntity, now, endDateTime))
             .then(() => this.getService(EncryptionService).encryptOrDecryptDbIfRequired())
             .then(() => {
                 // Encryption/decryption reinitializes the DB; the fresh proxy comes up
@@ -319,6 +338,7 @@ class SyncService extends BaseService {
                 }
             })
             .then(() => this.getTxData(filteredTxData, onProgressPerEntity, syncDetailsWithPrivileges, endDateTime))
+            .then(() => migrationSwitched && this._catchUpTxDataAfterMigration(allEntitiesMetaData, serverTimeAfterUpload))
             .then(() => this.downloadNewsImages())
             .then(() => this.downloadExtensions())
             .then(() => this.downloadCustomCardHtmlFiles())
@@ -341,6 +361,36 @@ class SyncService extends BaseService {
                 this._enableForeignKeysIfSqlite();
                 if (syncSucceeded) this._checkForeignKeyIntegrityIfSqlite();
             })
+    }
+
+    // The tx pull's upper bound is the server's `now - 10s`, so records THIS sync uploaded
+    // are stamped past it and the migration's full pull skips them — and the source DB,
+    // their only other copy, has just been abandoned. Pull once more against a fresh
+    // window to bring them across; checkpoints advanced during the full pull, so it is a
+    // cheap delta.
+    async _catchUpTxDataAfterMigration(allEntitiesMetaData, serverTimeAfterUpload) {
+        let {syncDetails, endDateTime} = await this.getSyncDetails();
+        // Both timestamps are server-issued, so this comparison is immune to device clock
+        // skew. A short sync can leave the window still short of our own uploads; wait it
+        // out rather than lose them, since the source DB is already gone.
+        const shortfallMillis = moment(serverTimeAfterUpload).diff(moment(endDateTime));
+        if (shortfallMillis > 0) {
+            General.logInfo("SyncService",
+                `Catch-up pull window is ${shortfallMillis}ms short of this sync's uploads — waiting`);
+            await new Promise(resolve => setTimeout(resolve, shortfallMillis + 1000));
+            ({syncDetails, endDateTime} = await this.getSyncDetails());
+        }
+        const currentVersionEntitySyncDetails = this.retainEntitiesPresentInCurrentVersion(syncDetails, allEntitiesMetaData);
+        this.entitySyncStatusService.updateAsPerSyncDetails(currentVersionEntitySyncDetails);
+        const syncDetailsWithPrivileges = this.entitySyncStatusService.removeRevokedPrivileges(
+            allEntitiesMetaData, currentVersionEntitySyncDetails);
+        const txMetadata = this.getMetadataByType(
+            _.filter(allEntitiesMetaData, ({entityName}) =>
+                !_.includes(['ResetSync', 'SubjectMigration'], entityName)
+                && _.find(syncDetails, sd => sd.entityName === entityName)), "tx");
+        // Progress is deliberately not reported — the bar has already accounted for
+        // these entities once and would overshoot.
+        return this.getTxData(txMetadata, _.noop, syncDetailsWithPrivileges, endDateTime);
     }
 
     /**
@@ -397,7 +447,7 @@ class SyncService extends BaseService {
         General.logDebug("SyncService", "Starting to download concept media (images and videos)");
         const conceptsWithMedia = this.conceptService.getAllConceptsWithIcon();
         General.logDebug("SyncService", `Found ${conceptsWithMedia.length} concepts with media`);
-        
+
         const allMediaItems = [];
         conceptsWithMedia.forEach(concept => {
             if (concept.media && concept.media.length > 0) {
@@ -412,15 +462,15 @@ class SyncService extends BaseService {
                 });
             }
         });
-        
+
         General.logDebug("SyncService", `Found ${allMediaItems.length} media items to download`);
-        
+
         if (allMediaItems.length === 0) {
             return Promise.resolve([]);
         }
 
         const chunkedMediaItems = _.chunk(allMediaItems, PARALLEL_DOWNLOAD_COUNT);
-        
+
         const downloadChunk = (chunk) => {
             return Promise.all(chunk.map(mediaItem => {
                 return this.mediaService.downloadFileIfRequired(mediaItem.url, 'Metadata', false)
@@ -430,12 +480,12 @@ class SyncService extends BaseService {
                     });
             }));
         };
-        
+
         let promise = Promise.resolve();
         chunkedMediaItems.forEach(chunk => {
             promise = promise.then(() => downloadChunk(chunk));
         });
-        
+
         return promise;
     }
 
@@ -573,6 +623,12 @@ class SyncService extends BaseService {
     async _persistAllBatch(entityMetaData, entityResources, entities, loadedSince) {
         await this.db.bulkCreate(entityMetaData.schemaName, entities);
 
+        // associateChild also maintains the parent's latestEntityApprovalStatus link;
+        // with no parent re-save here, derive it in SQL from the just-written rows.
+        if (entityMetaData.schemaName === EntityApprovalStatus.schema.name && !_.isEmpty(entityMetaData.parent)) {
+            this.db.recomputeLatestEntityApprovalStatus(entityMetaData.parent.schemaName, _.uniq(_.compact(entities.map(e => e.entityUUID))));
+        }
+
         if (!_.isEmpty(entityMetaData.parent) && this._parentStoresChildAsJsonArray(entityMetaData)) {
             const mergedParents = entityMetaData.hasMoreThanOneAssociation
                 ? this.associateMultipleParents(entityResources, entities, entityMetaData)
@@ -686,6 +742,7 @@ class SyncService extends BaseService {
         this.entitySyncStatusService.updateAsPerSyncDetails(currentVersionDetails);
         this._disableForeignKeysIfSqlite();
         this._enableShallowHydrationIfSqlite();
+        await this._pullResetSyncsAndMarkMigratedBeforeRefData(allEntitiesMetaData, onProgressPerEntity);
         await this.getTxData(userInfoData, onProgressPerEntity, syncDetails, endDateTime);
         await this.getRefData(refMetadata, onProgressPerEntity, now, endDateTime);
         this._buildReferenceCacheIfSqlite();
@@ -702,6 +759,7 @@ class SyncService extends BaseService {
             if (migrationService) {
                 const state = await migrationService.getState();
                 state.activeBackend = 'sqlite';
+
                 state.desiredBackend = 'sqlite';
                 state.phase = 'pending_target_sync';
                 state.lastError = null;
@@ -712,6 +770,13 @@ class SyncService extends BaseService {
         }
 
         return {syncDetails, endDateTime};
+    }
+
+    // Must run before getRefData, else a failure mid-refdata leaves unmigrated ResetSyncs and triggers a spurious reset
+    async _pullResetSyncsAndMarkMigratedBeforeRefData(allEntitiesMetaData, onProgressPerEntity) {
+        const resetSyncMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "ResetSync");
+        await this.getResetSyncData(resetSyncMetadata, onProgressPerEntity);
+        this.getService(ResetSyncService).markAllResetSyncsMigrated();
     }
 
     /**
@@ -733,6 +798,16 @@ class SyncService extends BaseService {
         const globalContext = GlobalContext.getInstance();
 
         if (desired !== 'sqlite' || globalContext.getActiveBackend() === 'sqlite') {
+            return false;
+        }
+
+        // Migrating abandons the source DB and rebuilds the target from the server, so
+        // anything still in the outbox exists nowhere else and would be lost. Defer the
+        // switch — the next sync retries it once the upload has gone through.
+        const pendingFieldData = this.entityQueueService.getPendingFieldDataCount();
+        if (pendingFieldData > 0) {
+            General.logWarn("SyncService",
+                `Deferring SQLite migration: ${pendingFieldData} local changes still awaiting upload (${this.entityQueueService.getPendingFieldDataSummary()})`);
             return false;
         }
 
@@ -790,8 +865,12 @@ class SyncService extends BaseService {
      * ParentSchema) for every synced child entity. Without shallow mode, each call
      * triggers SqliteResultsProxy's deep batchPreload — fetching the parent's
      * entire 3-level subtree (e.g., an Individual's 400 encounters + their concept
-     * refs) on every sync entity. The result is only used for its uuid (to populate
-     * a FK column via bulkCreate), so the deep hydration is wasted work.
+     * refs) on every sync entity, when only the uuid reaches the FK column via
+     * bulkCreate.
+     *
+     * The parent is not read for its uuid alone: Individual.associateChild spreads
+     * every list property through General.pick. Shallow mode is what keeps those
+     * lists empty and that spread cheap — see EntityHydrator._defineLazyList.
      */
     _enableShallowHydrationIfSqlite() {
         if (this.context.getRepositoryFactory().setShallowHydrationMode(true)) {

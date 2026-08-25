@@ -88,7 +88,8 @@ class ProgramEncounterCancelView extends AbstractComponent {
                 phoneNumberObservation: null,
                 popVerificationVew,
                 verifyPhoneNumber: () => {},
-                movedNext: this.scrollToTop
+                movedNext: this.scrollToTop,
+                validationFailed: this.scrollToStaticFieldError
             };
         }
 
@@ -112,7 +113,8 @@ class ProgramEncounterCancelView extends AbstractComponent {
             phoneNumberObservation,
             popVerificationVew,
             verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(this, this.next.bind(this), observation, () => this.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation}), () => this.dispatchAction(Actions.ON_SKIP_VERIFICATION, {observation, skipVerification: true})),
-            movedNext: this.scrollToTop
+            movedNext: this.scrollToTop,
+            validationFailed: this.scrollToStaticFieldError
         }
     }
 

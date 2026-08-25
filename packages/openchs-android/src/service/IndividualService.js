@@ -170,6 +170,34 @@ function applyUserFilters(entities, reportFilters, schema, customFilterService) 
     return filteredEntities;
 }
 
+// The drill-down drops a subject whose every qualifying visit is of a type the user
+// cannot performVisit on, so the count has to apply the same filter (#2024).
+function applyPerformVisitPrivilege(entities, allowedEncounterTypeUuids) {
+    if (_.isNil(allowedEncounterTypeUuids)) return entities;
+    if (_.isEmpty(allowedEncounterTypeUuids)) return null;
+    return entities.filtered(RealmQueryService.orKeyValueQuery('encounterType.uuid', allowedEncounterTypeUuids));
+}
+
+// One row per subject, projected in the database so the count stays hydration-free.
+function distinctSubjectUuids(entities, schema) {
+    const subjectUuidPath = subjectUuidQueries[schema];
+    if (typeof entities.distinctValues === 'function') return entities.distinctValues(subjectUuidPath);
+    return entities.filtered(`TRUEPREDICATE DISTINCT(${subjectUuidPath})`).map(entity => _.get(entity, subjectUuidPath));
+}
+
+function countDistinctSubjects(entities, schema) {
+    const subjectUuidPath = subjectUuidQueries[schema];
+    if (typeof entities.countDistinct === 'function') return entities.countDistinct(subjectUuidPath);
+    return entities.filtered(`TRUEPREDICATE DISTINCT(${subjectUuidPath})`).length;
+}
+
+function subjectUuidsAfterFilters(entities, criteria, reportFilters, schema, customFilterService, allowedEncounterTypeUuids) {
+    entities = applyConfiguredFilters(entities, criteria);
+    entities = applyUserFilters(entities, reportFilters, schema, customFilterService);
+    entities = applyPerformVisitPrivilege(entities, allowedEncounterTypeUuids);
+    return _.isNil(entities) ? [] : distinctSubjectUuids(entities, schema);
+}
+
 @Service("individualService")
 class IndividualService extends BaseService {
     constructor(db, context) {
@@ -196,39 +224,62 @@ class IndividualService extends BaseService {
     }
 
     // ── Count-only methods for dashboard cards (no hydration) ──
+    //
+    // Each card counts subjects, matching the drill-down it opens onto: the two encounter
+    // tables are deduplicated together, since one subject can hold a due visit in both.
+
+    performVisitEncounterTypeUuids() {
+        const privilegeService = this.getService(PrivilegeService);
+        if (privilegeService.hasAllPrivileges()) return {programEncounterTypes: null, encounterTypes: null};
+        const criteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}'`;
+        return {
+            programEncounterTypes: privilegeService.allowedEntityTypeUUIDListForCriteria(criteria, 'programEncounterTypeUuid'),
+            encounterTypes: privilegeService.allowedEntityTypeUUIDListForCriteria(criteria, 'encounterTypeUuid')
+        };
+    }
+
+    countSubjectsAcross(queries, reportFilters) {
+        const customFilterService = this.getService(CustomFilterService);
+        const subjectUuids = new Set();
+        queries.forEach(({entities, criteria, schema, allowedEncounterTypeUuids}) => {
+            subjectUuidsAfterFilters(entities, criteria, reportFilters, schema, customFilterService, allowedEncounterTypeUuids)
+                .forEach(subjectUuid => subjectUuids.add(subjectUuid));
+        });
+        return subjectUuids.size;
+    }
 
     countScheduledVisits(date, reportFilters, programEncounterCriteria, encounterCriteria) {
         const {dateMidnight, dateMorning} = get24HoursDateRange(date);
-        const customFilterService = this.getService(CustomFilterService);
+        const allowed = this.performVisitEncounterTypeUuids();
 
-        let peQuery = this.getRepository(ProgramEncounter.schema.name).findAll()
+        const peQuery = this.getRepository(ProgramEncounter.schema.name).findAll()
             .filtered('earliestVisitDateTime <= $0 AND maxVisitDateTime >= $1 AND encounterDateTime = null AND cancelDateTime = null AND programEnrolment.programExitDateTime = null AND programEnrolment.voided = false AND programEnrolment.individual.voided = false AND voided = false',
                 dateMidnight, dateMorning);
-        const peCount = countAfterFilters(peQuery, programEncounterCriteria, reportFilters, ProgramEncounter.schema.name, customFilterService);
-
-        let encQuery = this.getRepository(Encounter.schema.name).findAll()
+        const encQuery = this.getRepository(Encounter.schema.name).findAll()
             .filtered('earliestVisitDateTime <= $0 AND maxVisitDateTime >= $1 AND encounterDateTime = null AND cancelDateTime = null AND individual.voided = false AND voided = false',
                 dateMidnight, dateMorning);
-        const encCount = countAfterFilters(encQuery, encounterCriteria, reportFilters, Encounter.schema.name, customFilterService);
 
-        return peCount + encCount;
+        return this.countSubjectsAcross([
+            {entities: peQuery, criteria: programEncounterCriteria, schema: ProgramEncounter.schema.name, allowedEncounterTypeUuids: allowed.programEncounterTypes},
+            {entities: encQuery, criteria: encounterCriteria, schema: Encounter.schema.name, allowedEncounterTypeUuids: allowed.encounterTypes}
+        ], reportFilters);
     }
 
     countOverdueVisits(date, reportFilters, programEncounterCriteria, encounterCriteria) {
         const {dateMorning} = get24HoursDateRange(date);
-        const customFilterService = this.getService(CustomFilterService);
+        const allowed = this.performVisitEncounterTypeUuids();
 
-        let peQuery = this.getRepository(ProgramEncounter.schema.name).findAll()
+        const peQuery = this.getRepository(ProgramEncounter.schema.name).findAll()
             .filtered('maxVisitDateTime < $0 AND cancelDateTime = null AND encounterDateTime = null AND programEnrolment.programExitDateTime = null AND programEnrolment.voided = false AND programEnrolment.individual.voided = false AND voided = false',
                 dateMorning);
-        const peCount = countAfterFilters(peQuery, programEncounterCriteria, reportFilters, ProgramEncounter.schema.name, customFilterService);
-
-        let encQuery = this.getRepository(Encounter.schema.name).findAll()
+        const encQuery = this.getRepository(Encounter.schema.name).findAll()
             .filtered('maxVisitDateTime < $0 AND cancelDateTime = null AND encounterDateTime = null AND individual.voided = false AND voided = false',
                 dateMorning);
-        const encCount = countAfterFilters(encQuery, encounterCriteria, reportFilters, Encounter.schema.name, customFilterService);
 
-        return peCount + encCount;
+        return this.countSubjectsAcross([
+            {entities: peQuery, criteria: programEncounterCriteria, schema: ProgramEncounter.schema.name, allowedEncounterTypeUuids: allowed.programEncounterTypes},
+            {entities: encQuery, criteria: encounterCriteria, schema: Encounter.schema.name, allowedEncounterTypeUuids: allowed.encounterTypes}
+        ], reportFilters);
     }
 
     countAllIn(date, reportFilters, subjectCriteria) {
@@ -249,24 +300,26 @@ class IndividualService extends BaseService {
         const {fromDate, tillDate} = getDateRange(date, duration);
         let enrolments = this.getRepository(ProgramEnrolment.schema.name).findAll()
             .filtered('voided = false AND individual.voided = false AND enrolmentDateTime <= $0 AND enrolmentDateTime >= $1', tillDate, fromDate);
-        return countAfterFilters(enrolments, programEnrolmentCriteria, reportFilters, ProgramEnrolment.schema.name, this.getService(CustomFilterService));
+        enrolments = applyConfiguredFilters(enrolments, programEnrolmentCriteria);
+        enrolments = applyUserFilters(enrolments, reportFilters, ProgramEnrolment.schema.name, this.getService(CustomFilterService));
+        return countDistinctSubjects(enrolments, ProgramEnrolment.schema.name);
     }
 
     countRecentlyCompletedVisits(date, reportFilters, programEncounterCriteria, encounterCriteria, duration = new Duration(1, Duration.Day)) {
         const {fromDate, tillDate} = getDateRange(date, duration);
-        const customFilterService = this.getService(CustomFilterService);
 
-        let peQuery = this.getRepository(ProgramEncounter.schema.name).findAll()
+        const peQuery = this.getRepository(ProgramEncounter.schema.name).findAll()
             .filtered('encounterDateTime <= $0 AND encounterDateTime >= $1 AND programEnrolment.voided = false AND programEnrolment.individual.voided = false AND voided = false',
                 tillDate, fromDate);
-        const peCount = countAfterFilters(peQuery, programEncounterCriteria, reportFilters, ProgramEncounter.schema.name, customFilterService);
-
-        let encQuery = this.getRepository(Encounter.schema.name).findAll()
+        const encQuery = this.getRepository(Encounter.schema.name).findAll()
             .filtered('encounterDateTime <= $0 AND encounterDateTime >= $1 AND individual.voided = false AND voided = false',
                 tillDate, fromDate);
-        const encCount = countAfterFilters(encQuery, encounterCriteria, reportFilters, Encounter.schema.name, customFilterService);
 
-        return peCount + encCount;
+        // A completed visit needs no performVisit privilege — the drill-down allows every row.
+        return this.countSubjectsAcross([
+            {entities: peQuery, criteria: programEncounterCriteria, schema: ProgramEncounter.schema.name},
+            {entities: encQuery, criteria: encounterCriteria, schema: Encounter.schema.name}
+        ], reportFilters);
     }
 
     search(criteria, individualUUIDs) {

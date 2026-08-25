@@ -1,7 +1,9 @@
 /**
- * Regression test for #2006.
+ * Regression tests for the data pulled during a mid-sync backend switch
+ * (Realm → SQLite migration): the tx pull checkpoints and the ResetSync
+ * handling.
  *
- * When a mid-sync backend switch happens (Realm → SQLite migration), the
+ * Tx pull: when a mid-sync backend switch happens, the
  * transactional download MUST use the POST-switch sync details — the new
  * SQLite backend's entity_sync_status is re-seeded to REALLY_OLD_DATE, so the
  * server has to be asked for the full history. The bug (silently introduced
@@ -12,6 +14,14 @@
  *
  * This test drives the real `dataServerSync` with stubbed collaborators and a
  * spy on `getTxData`, and asserts the checkpoints the tx pull actually uses.
+ *
+ * ResetSync: it is excluded from the reference re-sync that runs during the
+ * switch, yet its checkpoint is seeded to REALLY_OLD_DATE — so the freshly built
+ * SQLite backend had zero ResetSync rows and a REALLY_OLD checkpoint, and the
+ * NEXT ordinary sync pulled the whole org's ResetSyncs (hasMigrated=false) while
+ * Concept already existed, triggering a spurious Reset Sync. The fix pulls
+ * ResetSync during the switch and marks them migrated, mirroring a fresh
+ * install; that block drives the REAL `_switchBackendAndResyncRefDataIfNeeded`.
  *
  * Run: npx jest test/service/SyncServiceMigrationTxPullTest.js --selectProjects unit --verbose
  */
@@ -63,7 +73,10 @@ function buildSyncService({preSwitch, switchResult}) {
     const noop = () => {};
     const resolved = () => Promise.resolve();
 
-    svc.entitySyncStatusService = {updateAsPerSyncDetails: jest.fn()};
+    svc.entitySyncStatusService = {
+        updateAsPerSyncDetails: jest.fn(),
+        removeRevokedPrivileges: jest.fn((_meta, syncDetails) => syncDetails),
+    };
 
     svc.pushData = jest.fn(resolved);
     svc.getResetSyncData = jest.fn(resolved);
@@ -127,7 +140,7 @@ function loadedSinceFor(syncDetails, entityName) {
     return syncDetails.find(sd => sd.entityName === entityName).loadedSince;
 }
 
-describe('SyncService transactional pull after mid-sync backend switch (#2006)', () => {
+describe('SyncService transactional pull after mid-sync backend switch', () => {
     it('uses POST-switch checkpoints for the tx pull when a migration switch happens', async () => {
         const svc = buildSyncService({
             preSwitch: syncDetailsAt(RECENT),
@@ -143,7 +156,7 @@ describe('SyncService transactional pull after mid-sync backend switch (#2006)',
         // The tx pull must request the full history seeded on the new backend...
         expect(loadedSinceFor(syncDetails, 'ProgramEnrolment')).toBe(REALLY_OLD);
         expect(loadedSinceFor(syncDetails, 'Encounter')).toBe(REALLY_OLD);
-        // ...never the stale pre-switch Realm checkpoints (the #2006 regression).
+        // ...never the stale pre-switch Realm checkpoints (the original regression).
         expect(loadedSinceFor(syncDetails, 'ProgramEnrolment')).not.toBe(RECENT);
         // ...and the post-switch endDateTime is used too.
         expect(endDateTime).toBe('post-end');
@@ -164,5 +177,64 @@ describe('SyncService transactional pull after mid-sync backend switch (#2006)',
 
         expect(loadedSinceFor(syncDetails, 'ProgramEnrolment')).toBe(RECENT);
         expect(endDateTime).toBe('pre-end');
+    });
+});
+
+describe('SyncService ResetSync handling during Realm->SQLite switch', () => {
+    const SWITCH_ENTITIES_META_DATA = [...ALL_ENTITIES_META_DATA, {entityName: 'UserInfo', type: 'reference'}];
+
+    function buildSwitchingService({switched}) {
+        const svc = Object.create(SyncService.prototype);
+        const noop = () => {};
+        const resolved = () => Promise.resolve();
+
+        svc._checkAndSwitchBackendMidSync = jest.fn(async () => switched);
+        svc.getSyncDetails = jest.fn(async () => ({
+            syncDetails: [{entityName: 'Concept'}, {entityName: 'UserInfo'}],
+            endDateTime: 'end', now: 'now',
+        }));
+        svc.retainEntitiesPresentInCurrentVersion = (syncDetails) => syncDetails;
+        svc.entitySyncStatusService = {updateAsPerSyncDetails: jest.fn()};
+        svc._disableForeignKeysIfSqlite = noop;
+        svc._enableShallowHydrationIfSqlite = noop;
+        svc._buildReferenceCacheIfSqlite = jest.fn(resolved);
+        svc.getTxData = jest.fn(resolved);
+        svc.getRefData = jest.fn(resolved);
+        svc.getResetSyncData = jest.fn(resolved);
+
+        const resetSyncService = {markAllResetSyncsMigrated: jest.fn()};
+        svc.getService = jest.fn((arg) =>
+            arg === 'sqliteMigrationService'
+                ? {getState: async () => ({}), persistState: async () => {}}
+                : resetSyncService);
+        svc._resetSyncService = resetSyncService;
+
+        return svc;
+    }
+
+    it('pulls ResetSync into the new backend and marks it migrated on a switch', async () => {
+        const svc = buildSwitchingService({switched: true});
+
+        const result = await svc._switchBackendAndResyncRefDataIfNeeded(() => {}, () => {}, SWITCH_ENTITIES_META_DATA);
+
+        expect(result).not.toBeNull();
+
+        // ResetSync is pulled into the freshly built SQLite backend (advancing its checkpoint).
+        expect(svc.getResetSyncData).toHaveBeenCalledTimes(1);
+        const [resetMetadata] = svc.getResetSyncData.mock.calls[0];
+        expect(resetMetadata.map(e => e.entityName)).toEqual(['ResetSync']);
+
+        // ...and marked migrated, so the next sync sees no pending reset.
+        expect(svc._resetSyncService.markAllResetSyncsMigrated).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not touch ResetSync when no backend switch happens', async () => {
+        const svc = buildSwitchingService({switched: false});
+
+        const result = await svc._switchBackendAndResyncRefDataIfNeeded(() => {}, () => {}, SWITCH_ENTITIES_META_DATA);
+
+        expect(result).toBeNull();
+        expect(svc.getResetSyncData).not.toHaveBeenCalled();
+        expect(svc._resetSyncService.markAllResetSyncsMigrated).not.toHaveBeenCalled();
     });
 });

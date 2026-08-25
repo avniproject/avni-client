@@ -34,10 +34,14 @@ class ResetSyncService extends BaseService {
         const isFreshSync = this.backupRestoreRealmService.isDatabaseNeverSynced();
         if (isFreshSync) {
             // No change required as it's fresh sync
-            _.forEach(this.getNotMigratedResetSyncs(), resetSync => this._updateHasMigrated(resetSync));
+            this.markAllResetSyncsMigrated();
             return false;
         }
         return _.size(this.getNotMigratedResetSyncs()) > 0;
+    }
+
+    markAllResetSyncsMigrated() {
+        _.forEach(this.getNotMigratedResetSyncs(), resetSync => this._updateHasMigrated(resetSync));
     }
 
     resetSync() {
@@ -53,7 +57,7 @@ class ResetSyncService extends BaseService {
               });
             this.clearDataIn(allEntities);
             this.entitySyncStatusService.setup();
-            _.forEach(notMigratedSyncReset, resetSync => this._updateHasMigrated(resetSync));
+            this.markAllResetSyncsMigrated();
         } else {
             _.forEach(notMigratedSyncReset, (resetSync) => {
                 if (_.isEmpty(resetSync)) return;

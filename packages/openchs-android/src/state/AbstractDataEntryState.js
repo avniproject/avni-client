@@ -186,8 +186,10 @@ class AbstractDataEntryState {
         const validationResults = this.validateEntity(context);
         const formElementGroupValidations = this.formElementGroup.validate(this.observationsHolder, this.filteredFormElements);
         const databaseValidations = this.validationResults.filter((x) => x.validationType === ValidationResult.ValidationTypes.Database);
-        const allValidationResults = _.unionWith(validationResults, formElementGroupValidations, databaseValidations,
-            (a, b) => a.formIdentifier === b.formIdentifier && a.questionGroupIndex === b.questionGroupIndex);
+        // validate() can emit success+failure for one key; failures sort first so the dedup keeps them.
+        const allValidationResults = _.uniqWith(
+            _.sortBy([...validationResults, ...formElementGroupValidations, ...databaseValidations], 'success'),
+            AbstractDataEntryState.hasSameValidationKey);
         this._updateOldFormElementGroupValidations(allValidationResults, context);
 
         if (EnvironmentConfig.goToLastPageOnNext()) {
@@ -341,7 +343,7 @@ class AbstractDataEntryState {
 
     _updateOldFormElementGroupValidations(allValidationResults, context) {
         _.remove(this.validationResults, (validationResult) => validationResult.validationType === ValidationResult.ValidationTypes.Form)
-        const allRuleValidationResults = _.unionWith(this.validationResults, allValidationResults, (a, b) => a.formIdentifier === b.formIdentifier && a.questionGroupIndex === b.questionGroupIndex);
+        const allRuleValidationResults = _.unionWith(this.validationResults, allValidationResults, AbstractDataEntryState.hasSameValidationKey);
         this.handleValidationResults(allRuleValidationResults, context);
     }
 
@@ -451,6 +453,15 @@ class AbstractDataEntryState {
     static hasValidationError(state, formElementIdentifier) {
         const validationError = AbstractDataEntryState.getValidationError(state, formElementIdentifier);
         return !_.isNil(validationError);
+    }
+
+    static hasSameValidationKey(a, b) {
+        return a.formIdentifier === b.formIdentifier && a.questionGroupIndex === b.questionGroupIndex;
+    }
+
+    hasStaticFieldError() {
+        return _.some(this.validationResults, (validationResult) =>
+            !validationResult.success && _.includes(this.staticFormElementIds, validationResult.formIdentifier));
     }
 
     anyFailedResultForCurrentFEG() {

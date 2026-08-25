@@ -26,12 +26,28 @@ const SqliteResultsProxyHandler = {
         } else if (name === "length") {
             return target.getLength();
         } else if (name === "realmCollection") {
-            // Return the Proxy wrapper (receiver), not the raw target,
-            // so getUnderlyingRealmCollection() returns an object with
-            // Proxy-intercepted length/index access.
-            return receiver;
+            // getUnderlyingRealmCollection() must yield raw underlying objects —
+            // Realm hands out Realm.Objects and callers re-wrap per item
+            // (e.g. new Individual(x.item)), so returning wrapped entities here
+            // double-wraps them and writes via entity.that then hit getter-only
+            // class properties.
+            return target.getRawCollection();
         }
         return Reflect.get(...arguments);
+    },
+};
+
+const RawCollectionProxyHandler = {
+    get: function (target, name, receiver) {
+        if (typeof name !== "symbol" && !isNaN(name) && !isNaN(parseInt(name))) {
+            const entity = target.getAt(Number.parseInt(name));
+            return (entity && entity.that) ? entity.that : entity;
+        } else if (name === "length") {
+            return target.getLength();
+        } else if (name === "realmCollection") {
+            return receiver;
+        }
+        return Reflect.get(target, name);
     },
 };
 
@@ -213,50 +229,57 @@ class SqliteResultsProxy {
         return SqliteResultsProxy.create(newParams);
     }
 
+    /**
+     * Resolve a property path (may contain dots) to a SQL column reference, adding a
+     * LEFT JOIN per hop. Aliases start after `aliasCounter` so they can't collide with
+     * joins already accumulated on this proxy.
+     */
+    _resolvePropertyPath(prop, aliasCounter) {
+        const joins = [];
+        if (!prop.includes(".")) {
+            return {expr: `t0."${camelToSnake(prop)}"`, joins, aliasCounter};
+        }
+        const parts = prop.split(".");
+        let currentSchema = this.schemaName;
+        let currentAlias = "t0";
+
+        for (let i = 0; i < parts.length - 1; i++) {
+            const partName = parts[i];
+            const schema = this.realmSchemaMap.get(currentSchema);
+            if (!schema) return {expr: `t0."${camelToSnake(prop.replace(/\./g, "_"))}"`, joins, aliasCounter};
+
+            const propSchema = schema.properties[partName];
+            if (!propSchema || (typeof propSchema === "object" ? propSchema.type : propSchema) !== "object") {
+                return {expr: `${currentAlias}."${camelToSnake(partName)}"`, joins, aliasCounter};
+            }
+
+            const targetSchema = typeof propSchema === "object" ? propSchema.objectType : null;
+            if (!targetSchema) return {expr: `${currentAlias}."${camelToSnake(partName)}"`, joins, aliasCounter};
+
+            const newAlias = `t${++aliasCounter}`;
+            joins.push({
+                table: schemaNameToTableName(targetSchema),
+                alias: newAlias,
+                on: `${currentAlias}."${camelToSnake(partName)}_uuid" = ${newAlias}."uuid"`,
+            });
+
+            currentAlias = newAlias;
+            currentSchema = targetSchema;
+        }
+
+        const lastPart = parts[parts.length - 1];
+        return {expr: `${currentAlias}."${camelToSnake(lastPart)}"`, joins, aliasCounter};
+    }
+
     sorted(descriptor, reverse) {
         const extraJoins = [];
-        const aliasOffset = this.joinClauses.length;
-        let aliasCounter = aliasOffset;
+        let aliasCounter = this.joinClauses.length;
 
-        // Resolve a single property path (may contain dots) to a SQL column reference
         const resolveOrderProp = (prop) => {
-            if (!prop.includes(".")) {
-                return `t0."${camelToSnake(prop)}"`;
-            }
-            // Dot-notation: resolve through schema relationships with JOINs
-            const parts = prop.split(".");
-            let currentSchema = this.schemaName;
-            let currentAlias = "t0";
-
-            for (let i = 0; i < parts.length - 1; i++) {
-                const partName = parts[i];
-                const schema = this.realmSchemaMap.get(currentSchema);
-                if (!schema) return `t0."${camelToSnake(prop.replace(/\./g, "_"))}"`;
-
-                const propSchema = schema.properties[partName];
-                if (!propSchema || (typeof propSchema === "object" ? propSchema.type : propSchema) !== "object") {
-                    return `${currentAlias}."${camelToSnake(partName)}"`;
-                }
-
-                const targetSchema = typeof propSchema === "object" ? propSchema.objectType : null;
-                if (!targetSchema) return `${currentAlias}."${camelToSnake(partName)}"`;
-
-                const newAlias = `t${++aliasCounter}`;
-                const targetTableName = schemaNameToTableName(targetSchema);
-                const fkColumn = `${camelToSnake(partName)}_uuid`;
-
-                extraJoins.push({
-                    table: targetTableName,
-                    alias: newAlias,
-                    on: `${currentAlias}."${fkColumn}" = ${newAlias}."uuid"`,
-                });
-
-                currentAlias = newAlias;
-                currentSchema = targetSchema;
-            }
-
-            const lastPart = parts[parts.length - 1];
-            return `${currentAlias}."${camelToSnake(lastPart)}"`;
+            const resolved = this._resolvePropertyPath(prop, aliasCounter);
+            aliasCounter = resolved.aliasCounter;
+            extraJoins.push(...resolved.joins);
+            return resolved.expr;
         };
 
         let orderBy;
@@ -453,6 +476,13 @@ class SqliteResultsProxy {
         return new this.entityClass(hydratedObj);
     }
 
+    getRawCollection() {
+        if (!this._rawCollectionProxy) {
+            this._rawCollectionProxy = new Proxy(this, RawCollectionProxyHandler);
+        }
+        return this._rawCollectionProxy;
+    }
+
     // ──── Collection API ────
 
     getAt(index) {
@@ -479,6 +509,49 @@ class SqliteResultsProxy {
         const countSql = `SELECT COUNT(*) AS cnt FROM (${innerSql})`;
         const rows = this.executeQuery(countSql, params);
         return (rows && rows.length > 0) ? rows[0].cnt : 0;
+    }
+
+    _buildDistinctSql(propertyPath, aggregate) {
+        // Windowed DISTINCT projects only t0.* out of a subquery, so a joined alias is
+        // not addressable from the outer scope — those queries take the hydrated path.
+        if (this.distinctColumns && this.distinctColumns.length > 0) return null;
+
+        const {expr, joins} = this._resolvePropertyPath(propertyPath, this.joinClauses.length);
+        const projection = aggregate ? `COUNT(DISTINCT ${expr})` : `DISTINCT ${expr}`;
+        let sql = `SELECT ${projection} AS val FROM ${this.tableName} AS t0`;
+        for (const join of [...this.joinClauses, ...joins]) {
+            sql += ` LEFT JOIN ${join.table} AS ${join.alias} ON ${join.on}`;
+        }
+        if (this.whereClauses.length > 0) {
+            sql += ` WHERE ${this.whereClauses.join(" AND ")}`;
+        }
+        return {sql, params: this.whereParams};
+    }
+
+    /**
+     * Distinct values of one property, projected in SQL so no row is hydrated.
+     * Lets a caller count subjects across two queries by unioning the two sets.
+     */
+    distinctValues(propertyPath) {
+        if (this.jsFallbackFilters.length === 0) {
+            const built = this._buildDistinctSql(propertyPath, false);
+            if (built) {
+                const rows = this.executeQuery(built.sql, built.params);
+                return (rows || []).map(row => row.val).filter(value => !_.isNil(value));
+            }
+        }
+        return _.uniq(this._getEntities().map(entity => _.get(entity, propertyPath))).filter(value => !_.isNil(value));
+    }
+
+    countDistinct(propertyPath) {
+        if (this.jsFallbackFilters.length === 0) {
+            const built = this._buildDistinctSql(propertyPath, true);
+            if (built) {
+                const rows = this.executeQuery(built.sql, built.params);
+                return (rows && rows.length > 0) ? rows[0].val : 0;
+            }
+        }
+        return this.distinctValues(propertyPath).length;
     }
 
     getLength() {
