@@ -71,7 +71,7 @@ class RuleService extends BaseService {
                     rule.voided === false && rule.type === ruleType &&
                     rule.entity.uuid === ruledEntity.uuid && rule.entity.type === ruledEntityType);
             return this.getRuleFunctions(rules);
-        }, {type: ruleType, entity: ruledEntity.name, tableRows: all.length});
+        }, () => ({type: ruleType, entity: ruledEntity.name, tableRows: all.length}));
     }
 
     getRuleFunctions(rules = []) {

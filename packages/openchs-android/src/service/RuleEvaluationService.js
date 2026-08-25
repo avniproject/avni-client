@@ -976,13 +976,13 @@ class RuleEvaluationService extends BaseService {
     isEligibleForEncounter(individual, encounterType) {
         return Perf.time("isEligibleForEncounter",
             () => this._isEligibleForEncounter(individual, encounterType),
-            {encounterType: encounterType.name});
+            () => ({encounterType: encounterType.name}));
     }
 
     _isEligibleForEncounter(individual, encounterType) {
         const rulesFromTheBundle = Perf.time("getAllRuleItemsFor",
             () => this.getAllRuleItemsFor(encounterType, "EncounterEligibilityCheck", "EncounterType"),
-            {encounterType: encounterType.name});
+            () => ({encounterType: encounterType.name}));
         if (!_.isNil(encounterType.encounterEligibilityCheckRule) && !_.isEmpty(_.trim(encounterType.encounterEligibilityCheckRule))) {
             try {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();

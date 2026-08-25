@@ -9,7 +9,7 @@ class ObservationsHolderActions {
         const ruleService = context.get(RuleEvaluationService);
         const formElementStatuses = Perf.time("getFormElementsStatuses",
             () => ruleService.getFormElementsStatuses(state.getEntity(), state.getEntityType(), formElementGroup, state.getEntityContext()),
-            {feg: formElementGroup.name, entityType: state.getEntityType()});
+            () => ({feg: formElementGroup.name, entityType: state.getEntityType()}));
         state.filteredFormElements = FormElementGroup._sortedFormElements(formElementGroup.filterElements(formElementStatuses));
         return formElementStatuses;
     }

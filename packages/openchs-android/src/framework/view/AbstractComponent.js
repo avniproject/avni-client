@@ -161,7 +161,7 @@ class AbstractComponent extends Component {
         // lifetime. Each call now owns its own flag, listener and timer. (avni-client#2054)
         const subscribeSceneDidFocus = _.get(this.context, 'subscribeSceneDidFocus');
         const armedAt = Date.now();
-        Perf.mark("sceneTrigger.armed", {view: this.viewName(), wired: _.isFunction(subscribeSceneDidFocus)});
+        Perf.mark("sceneTrigger.armed", () => ({view: this.viewName(), wired: _.isFunction(subscribeSceneDidFocus)}));
 
         // The route in flight when this registration was armed. Router passes the route to every
         // listener; without this a different scene's transition fires our pending load mid-slide, on a
@@ -190,7 +190,7 @@ class AbstractComponent extends Component {
             release();
             requestAnimationFrame(() => requestAnimationFrame(() => {
                 if (this._isUnmounted && !opts.evenIfUnmounted) return;
-                Perf.mark("sceneTrigger.fired", {view: this.viewName(), source, sinceArmedMs: Date.now() - armedAt});
+                Perf.mark("sceneTrigger.fired", () => ({view: this.viewName(), source, sinceArmedMs: Date.now() - armedAt}));
                 fn();
             }));
         };
@@ -285,7 +285,7 @@ class AbstractComponent extends Component {
         if (!General.objectsShallowEquals(nextState, this.state)) {
             // #2054 diagnostic: names the store-driven re-renders, e.g. the repeated
             // SystemRecommendationView renders after a Summary press.
-            Perf.mark("refreshState.setState", {view: this.viewName()});
+            Perf.mark("refreshState.setState", () => ({view: this.viewName()}));
             // Only surface an error once this screen's own load has populated the slice. Entry work is
             // deferred now, so at mount this slice can still hold the PREVIOUS occupant's error — showing
             // it would pop an alert over the loading spinner for something this screen did not do.
