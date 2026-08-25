@@ -141,9 +141,6 @@ class AbstractComponent extends Component {
         }
     }
 
-    // Runs `fn` once, after the Navigator reports the scene transition complete. Public so screens that
-    // schedule their own work instead of using the loadData() contract (ProgramActionsView) get the same
-    // trigger rather than hand-rolling one.
     // Runs `fn` once, after the scene transition has been PAINTED. Public so screens that schedule their
     // own work instead of using the loadData() contract (ProgramActionsView) get the same trigger.
     //
@@ -153,26 +150,49 @@ class AbstractComponent extends Component {
     // started 7ms later, and the last frame the UI thread ever painted was mid-slide — which is exactly
     // the split screen reported in avni-client#2054. The double rAF lets that commit land first.
     runAfterSceneTransition(fn) {
+        // Per-registration state, NOT instance fields: a component may call this more than once
+        // (SubjectDashboardProgramsTab registers loadData() via the base class AND dispatchOnLoad() from
+        // onViewDidMount). Sharing a single _fired flag made the second registration a silent no-op, and
+        // sharing a single unsubscribe slot leaked the first listener into the Router for the app's
+        // lifetime. Each call now owns its own flag, listener and timer. (avni-client#2054)
         const subscribeSceneDidFocus = _.get(this.context, 'subscribeSceneDidFocus');
         const armedAt = Date.now();
         Perf.mark("sceneTrigger.armed", {view: this.viewName(), wired: _.isFunction(subscribeSceneDidFocus)});
+
+        const reg = {fired: false, unsubscribe: null, timer: null};
+        this._sceneTransitionRegistrations = this._sceneTransitionRegistrations || [];
+        this._sceneTransitionRegistrations.push(reg);
+
+        const release = () => {
+            if (reg.timer) {
+                clearTimeout(reg.timer);
+                reg.timer = null;
+            }
+            if (_.isFunction(reg.unsubscribe)) {
+                reg.unsubscribe();
+                reg.unsubscribe = null;
+            }
+        };
+
         const fire = (source) => {
-            if (this._isUnmounted || this._sceneTransitionFired) return;
-            this._sceneTransitionFired = true;
-            this.clearDeferredLoadTriggers();
+            if (this._isUnmounted || reg.fired) return;
+            reg.fired = true;
+            release();
             requestAnimationFrame(() => requestAnimationFrame(() => {
                 if (this._isUnmounted) return;
                 Perf.mark("sceneTrigger.fired", {view: this.viewName(), source, sinceArmedMs: Date.now() - armedAt});
                 fn();
             }));
         };
+
         if (_.isFunction(subscribeSceneDidFocus)) {
-            this._unsubscribeSceneDidFocus = subscribeSceneDidFocus(() => fire("didFocus"));
-            this._loadFallbackTimer = setTimeout(() => fire("timer"), AbstractComponent.LOAD_FALLBACK_MS);
+            reg.unsubscribe = subscribeSceneDidFocus(() => fire("didFocus"));
+            reg.timer = setTimeout(() => fire("timer"), AbstractComponent.LOAD_FALLBACK_MS);
         } else {
             // Mounted outside the Router — no scene to wait for.
             deferPastInteractions(() => fire("interactions"));
         }
+        reg.release = release;
     }
 
     // Idempotent: whichever trigger arrives first wins, the rest no-op. _loadStarted is set only after
@@ -189,18 +209,14 @@ class AbstractComponent extends Component {
             this._loadError = e;
             General.logError(this.viewName(), e);
         }
+        if (this._isUnmounted) return;   // loadData() can dispatch a reducer that navigates away
         this.forceUpdate();
     }
 
     clearDeferredLoadTriggers() {
-        if (this._loadFallbackTimer) {
-            clearTimeout(this._loadFallbackTimer);
-            this._loadFallbackTimer = null;
-        }
-        if (_.isFunction(this._unsubscribeSceneDidFocus)) {
-            this._unsubscribeSceneDidFocus();
-            this._unsubscribeSceneDidFocus = null;
-        }
+        _.forEach(this._sceneTransitionRegistrations || [], (reg) => {
+            if (_.isFunction(reg.release)) reg.release();
+        });
     }
 
     // Subclasses should override this instead of componentDidMount

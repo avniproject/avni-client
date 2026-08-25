@@ -140,6 +140,37 @@ describe("AbstractComponent load waits for the scene transition", () => {
         expect(loadImpl).toHaveBeenCalledTimes(1);
     });
 
+    // Regression guard for a defect found in code review: SubjectDashboardProgramsTab registers
+    // loadData() through the base class AND dispatchOnLoad() from onViewDidMount. When the registration
+    // state lived in single instance fields, the first fire set a shared flag and the SECOND callback
+    // never ran at all — ON_LOAD silently never dispatched — while the first listener leaked into the
+    // Router forever. Each registration must be independent.
+    it("runs every registration when a component subscribes more than once", () => {
+        const first = jest.fn();
+        const second = jest.fn();
+        const tr = mount(jest.fn(), makeContext(subscribe));
+        const instance = tr.root.findByType(TestScreen).instance;
+
+        act(() => instance.runAfterSceneTransition(first));
+        act(() => instance.runAfterSceneTransition(second));
+        act(() => listeners.slice().forEach((l) => l()));
+        flushFrames();
+
+        expect(first).toHaveBeenCalledTimes(1);
+        expect(second).toHaveBeenCalledTimes(1);
+    });
+
+    it("releases every listener on unmount, not just the last registration", () => {
+        const tr = mount(jest.fn(), makeContext(subscribe));
+        const instance = tr.root.findByType(TestScreen).instance;
+
+        act(() => instance.runAfterSceneTransition(jest.fn()));
+        act(() => instance.runAfterSceneTransition(jest.fn()));
+        act(() => tr.unmount());
+
+        expect(listeners.length).toBe(0);
+    });
+
     it("does not load, and leaves no listener, after unmount", () => {
         const loadImpl = jest.fn();
         const tr = mount(loadImpl, makeContext(subscribe));

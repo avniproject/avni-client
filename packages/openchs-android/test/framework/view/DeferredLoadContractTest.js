@@ -21,6 +21,7 @@ const DEFERRED_LOAD_SCREENS = [
     "views/program/NewVisitMenuView.js",
     "views/program/ProgramEncounterView.js",
     "views/individual/IndividualEncounterView.js",
+    "encounter/CompletedEncountersView.js",
     "views/individual/SubjectDashboardGeneralTab.js",
     "views/individual/SubjectDashboardProfileTab.js",
     "views/program/SubjectDashboardProgramsTab.js",
