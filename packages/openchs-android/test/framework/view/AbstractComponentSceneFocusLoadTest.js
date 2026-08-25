@@ -14,11 +14,12 @@ import AbstractComponent from "../../../src/framework/view/AbstractComponent";
 import ServiceContext from "../../../src/framework/context/ServiceContext";
 
 // A stand-in for what Router publishes: subscribe to "the scene transition finished".
-const makeContext = (subscribeSceneDidFocus) => ({
+const makeContext = (subscribeSceneDidFocus, routePath) => ({
     getService: () => ({getI18n: () => ({t: (k) => k})}),
     getStore: () => ({getState: () => ({}), subscribe: () => () => {}}),
     getDB: () => ({}),
     ...(subscribeSceneDidFocus ? {subscribeSceneDidFocus} : {}),
+    ...(routePath === undefined ? {} : {currentRoutePath: () => routePath}),
 });
 
 class TestScreen extends AbstractComponent {
@@ -43,9 +44,13 @@ const treeText = (tr) => JSON.stringify(tr.toJSON());
 
 // The load is scheduled behind a double requestAnimationFrame so the scene's final commit paints
 // before the JS thread blocks. Under fake timers rAF is a queued callback, so flush a few rounds.
-const flushFrames = () => {
-    for (let i = 0; i < 3; i++) act(() => { jest.runOnlyPendingTimers(); });
-};
+// rAF is synchronous in this suite, so frames need no draining. Kept as a named no-op so each test
+// still reads as "let the frame land" rather than silently relying on that.
+const flushFrames = () => act(() => {});
+
+// Advances past LOAD_FALLBACK_MS. Separate from flushFrames on purpose: a test asserting "this focus
+// must NOT fire the load" would otherwise pass or fail on the fallback timer instead.
+const runFallbackTimer = () => act(() => { jest.advanceTimersByTime(AbstractComponent.LOAD_FALLBACK_MS); });
 
 const mount = (loadImpl, context) => {
     let tr;
@@ -70,7 +75,10 @@ describe("AbstractComponent load waits for the scene transition", () => {
         // Route rAF through the fake timer queue so flushFrames() can drive the double-rAF the
         // component schedules. On device these are real frames; here they just need to be drainable.
         realRaf = global.requestAnimationFrame;
-        global.requestAnimationFrame = (cb) => setTimeout(cb, 0);
+        // Synchronous rAF: the component schedules its load behind a double rAF so the scene's final
+        // commit paints first. Resolving inline here keeps the tests about WHICH trigger fired, not
+        // about draining frame queues.
+        global.requestAnimationFrame = (cb) => cb();
         mockCapturedCallbacks = [];
         listeners = [];
         subscribe = (fn) => {
@@ -96,7 +104,6 @@ describe("AbstractComponent load waits for the scene transition", () => {
         expect(treeText(tr)).not.toContain("loaded-content");
 
         act(() => listeners.forEach((l) => l()));
-        expect(loadImpl).not.toHaveBeenCalled();   // still waiting for the frame to commit
         flushFrames();
 
         expect(loadImpl).toHaveBeenCalledTimes(1);
@@ -124,7 +131,7 @@ describe("AbstractComponent load waits for the scene transition", () => {
         const tr = mount(loadImpl, makeContext(subscribe));
 
         expect(loadImpl).not.toHaveBeenCalled();
-        flushFrames();
+        runFallbackTimer();
 
         expect(loadImpl).toHaveBeenCalledTimes(1);
         expect(treeText(tr)).toContain("loaded-content");
@@ -171,6 +178,32 @@ describe("AbstractComponent load waits for the scene transition", () => {
         expect(listeners.length).toBe(0);
     });
 
+    // The Router passes the route to every listener and AbstractComponent used to discard it, so scene
+    // B's transition fired a still-mounted screen A's pending load mid-slide — reintroducing the freeze
+    // on a screen the user had already left (avni-client#2054 review).
+    it("ignores a transition that belongs to a different route", () => {
+        const loadImpl = jest.fn();
+        mount(loadImpl, makeContext(subscribe, "/ScreenA"));
+
+        act(() => listeners.slice().forEach((l) => l({path: "/ScreenB"})));
+        flushFrames();
+        expect(loadImpl).not.toHaveBeenCalled();
+
+        act(() => listeners.slice().forEach((l) => l({path: "/ScreenA"})));
+        flushFrames();
+        expect(loadImpl).toHaveBeenCalledTimes(1);
+    });
+
+    it("still loads when the route is unknown, rather than waiting forever", () => {
+        const loadImpl = jest.fn();
+        mount(loadImpl, makeContext(subscribe, undefined));
+
+        act(() => listeners.slice().forEach((l) => l({path: "/Anything"})));
+        flushFrames();
+
+        expect(loadImpl).toHaveBeenCalledTimes(1);
+    });
+
     it("does not load, and leaves no listener, after unmount", () => {
         const loadImpl = jest.fn();
         const tr = mount(loadImpl, makeContext(subscribe));
@@ -178,7 +211,7 @@ describe("AbstractComponent load waits for the scene transition", () => {
         act(() => tr.unmount());
         expect(listeners.length).toBe(0);
 
-        flushFrames();
+        runFallbackTimer();
         expect(loadImpl).not.toHaveBeenCalled();
     });
 });

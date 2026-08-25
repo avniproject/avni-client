@@ -5,6 +5,7 @@ import {Navigator} from 'react-native-deprecated-custom-components';
 import General from "../../utility/General";
 import _ from 'lodash';
 import ServiceContext from '../context/ServiceContext';
+import SceneFocusRegistry from './SceneFocusRegistry';
 
 export default class Router extends Component {
     static propTypes = {
@@ -24,17 +25,20 @@ export default class Router extends Component {
         });
         this.state = {routes};
         this.routeElementMap = {};
-        this.sceneDidFocusListeners = new Set();
+        // Focus is published as state, not a bare event: a screen mounted inside a parent's
+        // renderLoaded() comes into existence after its scene has already focused, and would otherwise
+        // wait out AbstractComponent's fallback timer. See SceneFocusRegistry. (avni-client#2054)
+        this.sceneFocus = new SceneFocusRegistry((fn) => requestAnimationFrame(fn));
         this.renderScene = this.renderScene.bind(this);
     }
 
     // didFocus() below only reaches the route's ROOT component (routeElementMap is keyed by path), so a
     // screen rendered as a child of that root - NewVisitMenuView inside NewVisitPageView, for instance -
     // never hears about it. Views subscribe here instead, at any depth, via ServiceContext.
-    subscribeSceneDidFocus = (listener) => {
-        this.sceneDidFocusListeners.add(listener);
-        return () => this.sceneDidFocusListeners.delete(listener);
-    };
+    subscribeSceneDidFocus = (listener) => this.sceneFocus.subscribe(listener);
+
+    // The path currently transitioning or focused. Lets a subscriber ignore another scene's transition.
+    currentRoutePath = () => this.path;
 
     componentDidMount = () => {
         this.backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -106,6 +110,8 @@ export default class Router extends Component {
     }
 
     willFocus(route) {
+        // A new transition has begun, so the previous focus must not be replayed to late subscribers.
+        this.sceneFocus.markTransitionStarted();
         const element = this.routeElementMap[route.path];
         if (!_.isNil(element) && _.isFunction(element.willFocus)) {
             element.willFocus();
@@ -117,13 +123,7 @@ export default class Router extends Component {
         if (!_.isNil(element) && _.isFunction(element.didFocus)) {
             element.didFocus();
         }
-        this.sceneDidFocusListeners.forEach((listener) => {
-            try {
-                listener(route);
-            } catch (e) {
-                General.logErrorAsInfo("Router", e);
-            }
-        });
+        this.sceneFocus.markFocused(route);
     }
 
     render() {
@@ -133,7 +133,8 @@ export default class Router extends Component {
                     <ServiceContext.Provider value={{
                         ...parentContext,
                         navigator: () => this.navigator,
-                        subscribeSceneDidFocus: this.subscribeSceneDidFocus
+                        subscribeSceneDidFocus: this.subscribeSceneDidFocus,
+                        currentRoutePath: this.currentRoutePath
                     }}>
                         <Navigator
                             onWillFocus={(route) => this.willFocus(route)}

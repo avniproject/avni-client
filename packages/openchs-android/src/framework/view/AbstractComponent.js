@@ -159,6 +159,11 @@ class AbstractComponent extends Component {
         const armedAt = Date.now();
         Perf.mark("sceneTrigger.armed", {view: this.viewName(), wired: _.isFunction(subscribeSceneDidFocus)});
 
+        // The route in flight when this registration was armed. Router passes the route to every
+        // listener; without this a different scene's transition fires our pending load mid-slide, on a
+        // screen the user has already left. Unknown route => accept any focus, so a component outside
+        // the Router's knowledge still loads rather than waiting for the timer.
+        const armedForRoute = _.invoke(this.context, 'currentRoutePath');
         const reg = {fired: false, unsubscribe: null, timer: null};
         this._sceneTransitionRegistrations = this._sceneTransitionRegistrations || [];
         this._sceneTransitionRegistrations.push(reg);
@@ -186,7 +191,11 @@ class AbstractComponent extends Component {
         };
 
         if (_.isFunction(subscribeSceneDidFocus)) {
-            reg.unsubscribe = subscribeSceneDidFocus(() => fire("didFocus"));
+            reg.unsubscribe = subscribeSceneDidFocus((route) => {
+                const focusedPath = _.get(route, 'path');
+                if (!_.isNil(armedForRoute) && !_.isNil(focusedPath) && focusedPath !== armedForRoute) return;
+                fire("didFocus");
+            });
             reg.timer = setTimeout(() => fire("timer"), AbstractComponent.LOAD_FALLBACK_MS);
         } else {
             // Mounted outside the Router — no scene to wait for.
