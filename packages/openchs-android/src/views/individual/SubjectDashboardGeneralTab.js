@@ -26,7 +26,11 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
         this.privilegeService = context.getService(PrivilegeService);
     }
 
-    UNSAFE_componentWillMount() {
+    // Deferred out of willMount: this dispatch runs the dashboard's entry work and blocks the JS
+    // thread, which starved the navigation slide (avni-client#2054). Nothing deferred it at all
+    // before. The base class runs it once the scene transition has painted and holds
+    // renderLoading() until then. Same rules, same order, same result - only the timing changes.
+    loadData() {
         const newEncounterCallback = (encounter) => {
             CHSNavigator.navigateToEncounterView(this, {
                 individualUUID: this.props.params.individualUUID,
@@ -34,7 +38,6 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
             });
         };
         this.dispatchAction(Actions.ON_LOAD, {individualUUID: this.props.params.individualUUID, newEncounterCallback});
-        return super.UNSAFE_componentWillMount();
     }
 
     shouldComponentUpdate(nextProps, state) {
@@ -111,7 +114,7 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
         />);
     }
 
-    render() {
+    renderLoaded() {
         return (
             <View style={{backgroundColor: Colors.WhiteContentBackground, marginTop: 10}}>
                 <ActionSelector

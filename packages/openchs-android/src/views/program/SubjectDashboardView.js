@@ -33,9 +33,12 @@ class SubjectDashboardView extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.subjectDashboardView);
     }
 
-    UNSAFE_componentWillMount() {
+    // Deferred out of willMount: this dispatch runs the dashboard's entry work and blocks the JS
+    // thread, which starved the navigation slide (avni-client#2054). Nothing deferred it at all
+    // before. The base class runs it once the scene transition has painted and holds
+    // renderLoading() until then. Same rules, same order, same result - only the timing changes.
+    loadData() {
         this.dispatchAction(Actions.ON_LOAD, this.props);
-        return super.UNSAFE_componentWillMount();
     }
 
     displayMessage(message) {
@@ -76,7 +79,7 @@ class SubjectDashboardView extends AbstractComponent {
         );
     });
 
-    render() {
+    renderLoaded() {
         General.logDebug(this.viewName(), 'render');
         const {enrolmentUUID, individualUUID, backFunction} = this.state;
         const options = [

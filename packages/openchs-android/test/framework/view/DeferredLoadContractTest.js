@@ -21,6 +21,9 @@ const DEFERRED_LOAD_SCREENS = [
     "views/program/NewVisitMenuView.js",
     "views/program/ProgramEncounterView.js",
     "views/individual/IndividualEncounterView.js",
+    "views/program/SubjectDashboardView.js",
+    "views/individual/SubjectDashboardGeneralTab.js",
+    "views/individual/SubjectDashboardProfileTab.js",
 ];
 
 const read = (rel) => fs.readFileSync(path.join(SRC, rel), "utf8");
