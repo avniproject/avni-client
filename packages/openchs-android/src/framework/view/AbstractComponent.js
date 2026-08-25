@@ -4,6 +4,7 @@ import {ActivityIndicator, Alert, InteractionManager, Keyboard, StyleSheet, Text
 import _ from "lodash";
 import MessageService from "../../service/MessageService";
 import General from "../../utility/General";
+import Perf from "../../utility/perf";
 import DGS from '../../views/primitives/DynamicGlobalStyles';
 import deferPastInteractions from "../../utility/deferPastInteractions";
 import TypedTransition from "../routing/TypedTransition";
@@ -13,6 +14,9 @@ import ServiceContext from "../context/ServiceContext";
 
 class AbstractComponent extends Component {
     static contextType = ServiceContext;
+    // Safety net if a route never reports focus. Comfortably longer than a scene transition, so in the
+    // normal case the focus signal always wins and this never fires.
+    static LOAD_FALLBACK_MS = 1500;
     static styles = StyleSheet.create({
         spinner: {
             justifyContent: 'center',
@@ -119,26 +123,83 @@ class AbstractComponent extends Component {
             });
         }
 
-        // Defer the heavy load past the slide (willMount would freeze it). _loadStarted set only after
-        // success, so a throwing load can't flip isDataLoaded() true against the stale reducer slice;
-        // forceUpdate() then clears the loader without relying on the dispatch changing state.
+        // Start the heavy load only once the scene transition has actually finished painting.
+        // InteractionManager settles earlier than the slide's last frame, and starting a multi-second
+        // synchronous block there starves the spring mid-flight, leaving the OUTGOING screen on
+        // screen under the new header (avni-client#2054, device QA 25 Aug: block began at +483 ms,
+        // first render at +4.15 s). Router publishes the transition-complete signal through
+        // ServiceContext so children at any depth hear it, not just the route's root component.
+        // The timer is the safety net for a route that never reports focus, and deferPastInteractions
+        // covers components mounted outside the Router entirely.
         if (_.isFunction(this.loadData)) {
-            deferPastInteractions(() => {
-                if (this._isUnmounted) return;
-                try {
-                    this.loadData();
-                    this._loadStarted = true;
-                } catch (e) {
-                    this._loadError = e;
-                    General.logError(this.viewName(), e);
-                }
-                this.forceUpdate();
-            });
+            this.runAfterSceneTransition(() => this.runDeferredLoad());
         }
 
         // Call subclass hook if defined (Template Method Pattern)
         if (this.onViewDidMount) {
             this.onViewDidMount();
+        }
+    }
+
+    // Runs `fn` once, after the Navigator reports the scene transition complete. Public so screens that
+    // schedule their own work instead of using the loadData() contract (ProgramActionsView) get the same
+    // trigger rather than hand-rolling one.
+    // Runs `fn` once, after the scene transition has been PAINTED. Public so screens that schedule their
+    // own work instead of using the loadData() contract (ProgramActionsView) get the same trigger.
+    //
+    // Waiting for didFocus alone is not enough: it means "the transition animation finished", not "the
+    // result is on screen". The slide is JS-driven, so its final position and this screen's loader both
+    // still need one more commit pushed from JS. Measured 25 Aug: didFocus at +513ms, the blocking load
+    // started 7ms later, and the last frame the UI thread ever painted was mid-slide — which is exactly
+    // the split screen reported in avni-client#2054. The double rAF lets that commit land first.
+    runAfterSceneTransition(fn) {
+        const subscribeSceneDidFocus = _.get(this.context, 'subscribeSceneDidFocus');
+        const armedAt = Date.now();
+        Perf.mark("sceneTrigger.armed", {view: this.viewName(), wired: _.isFunction(subscribeSceneDidFocus)});
+        const fire = (source) => {
+            if (this._isUnmounted || this._sceneTransitionFired) return;
+            this._sceneTransitionFired = true;
+            this.clearDeferredLoadTriggers();
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                if (this._isUnmounted) return;
+                Perf.mark("sceneTrigger.fired", {view: this.viewName(), source, sinceArmedMs: Date.now() - armedAt});
+                fn();
+            }));
+        };
+        if (_.isFunction(subscribeSceneDidFocus)) {
+            this._unsubscribeSceneDidFocus = subscribeSceneDidFocus(() => fire("didFocus"));
+            this._loadFallbackTimer = setTimeout(() => fire("timer"), AbstractComponent.LOAD_FALLBACK_MS);
+        } else {
+            // Mounted outside the Router — no scene to wait for.
+            deferPastInteractions(() => fire("interactions"));
+        }
+    }
+
+    // Idempotent: whichever trigger arrives first wins, the rest no-op. _loadStarted is set only after
+    // a successful load, so a throwing load can't flip isDataLoaded() true against the stale reducer
+    // slice; forceUpdate() then clears the loader without relying on the dispatch changing state.
+    runDeferredLoad() {
+        if (this._isUnmounted || this._loadStarted || !_.isNil(this._loadError)) return;
+        if (!_.isFunction(this.loadData)) return;
+        this.clearDeferredLoadTriggers();
+        try {
+            this.loadData();
+            this._loadStarted = true;
+        } catch (e) {
+            this._loadError = e;
+            General.logError(this.viewName(), e);
+        }
+        this.forceUpdate();
+    }
+
+    clearDeferredLoadTriggers() {
+        if (this._loadFallbackTimer) {
+            clearTimeout(this._loadFallbackTimer);
+            this._loadFallbackTimer = null;
+        }
+        if (_.isFunction(this._unsubscribeSceneDidFocus)) {
+            this._unsubscribeSceneDidFocus();
+            this._unsubscribeSceneDidFocus = null;
         }
     }
 
@@ -226,6 +287,8 @@ class AbstractComponent extends Component {
 
     componentWillUnmount() {
         this._isUnmounted = true;
+        this.clearDeferredLoadTriggers();   // before the early return below — a leaked scene listener
+                                            // would keep a dead component reachable from the Router
         if (_.isNil(this.topLevelStateVariable)) return;
         this.unsubscribe();
     }

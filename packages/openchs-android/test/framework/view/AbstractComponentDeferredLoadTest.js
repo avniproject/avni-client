@@ -9,6 +9,8 @@ jest.mock("../../../src/utility/deferPastInteractions", () => ({
     default: (cb) => mockCapturedCallbacks.push(cb),
 }));
 
+global.requestAnimationFrame = (cb) => cb();
+
 import AbstractComponent from "../../../src/framework/view/AbstractComponent";
 import ServiceContext from "../../../src/framework/context/ServiceContext";
 

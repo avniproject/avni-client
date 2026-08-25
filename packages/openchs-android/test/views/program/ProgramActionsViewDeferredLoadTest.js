@@ -1,3 +1,4 @@
+global.requestAnimationFrame = (cb) => cb();
 import React from "react";
 import {ActivityIndicator} from "react-native";
 import TestRenderer, {act} from "react-test-renderer";

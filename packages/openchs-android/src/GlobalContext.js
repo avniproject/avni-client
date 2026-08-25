@@ -1,6 +1,7 @@
 import BeanRegistry from "./framework/bean/BeanRegistry";
 import _ from 'lodash';
 import {initAnalytics, updateAnalyticsDatabase} from "./utility/Analytics";
+import Perf from "./utility/perf";
 
 let singleton;
 
@@ -26,8 +27,14 @@ class GlobalContext {
     }
 
     async initialiseGlobalContext(appStore, realmFactory) {
+        // avni-client#2084 instrumentation: on a large realm this is the dominant part of a cold start
+        // and it scales with data size, unlike the dev-bundle fetch which does not exist in a release build.
+        const _t0 = Date.now();
         this.db =  await realmFactory.createRealm();
+        Perf.mark("startup.realmOpen", {ms: Date.now() - _t0});
+        const _t1 = Date.now();
         this.beanRegistry.init(this.db);
+        Perf.mark("startup.beanRegistryInit", {ms: Date.now() - _t1});
         
         // Runtime validation: Verify critical services are registered
         const criticalServices = [

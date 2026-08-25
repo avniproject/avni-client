@@ -31,6 +31,7 @@ import ProgramEncounterService from "./program/ProgramEncounterService";
 import ProgramEnrolmentService from "./ProgramEnrolmentService";
 import FormMappingService from "./FormMappingService";
 import General from "../utility/General";
+import Perf from "../utility/perf";
 import RuleService from "./RuleService";
 import IndividualService from "./IndividualService";
 import EncounterService from "./EncounterService";
@@ -973,7 +974,15 @@ class RuleEvaluationService extends BaseService {
     }
 
     isEligibleForEncounter(individual, encounterType) {
-        const rulesFromTheBundle = this.getAllRuleItemsFor(encounterType, "EncounterEligibilityCheck", "EncounterType");
+        return Perf.time("isEligibleForEncounter",
+            () => this._isEligibleForEncounter(individual, encounterType),
+            {encounterType: encounterType.name});
+    }
+
+    _isEligibleForEncounter(individual, encounterType) {
+        const rulesFromTheBundle = Perf.time("getAllRuleItemsFor",
+            () => this.getAllRuleItemsFor(encounterType, "EncounterEligibilityCheck", "EncounterType"),
+            {encounterType: encounterType.name});
         if (!_.isNil(encounterType.encounterEligibilityCheckRule) && !_.isEmpty(_.trim(encounterType.encounterEligibilityCheckRule))) {
             try {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();

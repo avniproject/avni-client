@@ -27,8 +27,12 @@ class ProgramActionsView extends AbstractComponent {
     // Deferred, not done in willMount: onLoad runs an eligibility rule per encounter type (~1.5s on
     // large orgs) and would starve the JS-thread-driven navigation slide into the subject dashboard.
     onViewDidMount() {
-        deferPastInteractions(() => {
-            if (this._isUnmounted) return;
+        // Wait for the Navigator to report the transition complete, not just for InteractionManager to
+        // settle — the latter fires while the slide is still animating, and this load blocks the JS
+        // thread for seconds (measured 1.4-1.8s per eligibility rule on JSCS data, avni-client#2054).
+        this.runAfterSceneTransition(() => {
+            if (this._isUnmounted || this._eligibilityLoadStarted) return;
+            this._eligibilityLoadStarted = true;
             this.load();
         });
     }

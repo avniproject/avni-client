@@ -24,8 +24,17 @@ export default class Router extends Component {
         });
         this.state = {routes};
         this.routeElementMap = {};
+        this.sceneDidFocusListeners = new Set();
         this.renderScene = this.renderScene.bind(this);
     }
+
+    // didFocus() below only reaches the route's ROOT component (routeElementMap is keyed by path), so a
+    // screen rendered as a child of that root - NewVisitMenuView inside NewVisitPageView, for instance -
+    // never hears about it. Views subscribe here instead, at any depth, via ServiceContext.
+    subscribeSceneDidFocus = (listener) => {
+        this.sceneDidFocusListeners.add(listener);
+        return () => this.sceneDidFocusListeners.delete(listener);
+    };
 
     componentDidMount = () => {
         this.backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -108,13 +117,24 @@ export default class Router extends Component {
         if (!_.isNil(element) && _.isFunction(element.didFocus)) {
             element.didFocus();
         }
+        this.sceneDidFocusListeners.forEach((listener) => {
+            try {
+                listener(route);
+            } catch (e) {
+                General.logErrorAsInfo("Router", e);
+            }
+        });
     }
 
     render() {
         return (
             <ServiceContext.Consumer>
                 {(parentContext) => (
-                    <ServiceContext.Provider value={{...parentContext, navigator: () => this.navigator}}>
+                    <ServiceContext.Provider value={{
+                        ...parentContext,
+                        navigator: () => this.navigator,
+                        subscribeSceneDidFocus: this.subscribeSceneDidFocus
+                    }}>
                         <Navigator
                             onWillFocus={(route) => this.willFocus(route)}
                             onDidFocus={(route) => this.didFocus(route)}
