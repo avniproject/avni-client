@@ -36,6 +36,7 @@ class Mixin {
                 if (AbstractDataEntryState.hasValidationError(view.state, BaseEntity.fieldKeys.EXTERNAL_RULE)) {
                     view.showError(newState.validationResults[0].message);
                 }
+                view.scrollToStaticFieldError(newState);
             },
             popVerificationVewFunc: () => TypedTransition.from(view).popToBookmark(),
             popVerificationVew,

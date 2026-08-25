@@ -30,6 +30,7 @@ class AbstractComponent extends Component {
         this.scrollToTop = this.scrollToTop.bind(this);
         this.scrollToPosition = this.scrollToPosition.bind(this);
         this.scrollToBottom = this.scrollToBottom.bind(this);
+        this.scrollToStaticFieldError = this.scrollToStaticFieldError.bind(this);
         
         // Initialize screen render start time for analytics (if topLevelStateVariable is set)
         if (!_.isNil(topLevelStateVariable)) {
@@ -213,6 +214,13 @@ class AbstractComponent extends Component {
     scrollToPosition(x, y) {
         if (this.scrollRef) {
             this.scrollRef.current?.scrollTo({x, y, animated: true});
+        }
+    }
+
+    // Static fields (visit date, GPS) render above the FormElementGroup, outside its scroll-to-error wrapping.
+    scrollToStaticFieldError(state) {
+        if (state.hasStaticFieldError()) {
+            this.scrollToTop();
         }
     }
 

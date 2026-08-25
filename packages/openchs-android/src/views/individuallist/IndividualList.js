@@ -1,5 +1,4 @@
 import React from "react";
-import {InteractionManager} from "react-native";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
@@ -7,6 +6,7 @@ import {MyDashboardActionNames as Actions} from "../../action/mydashboard/MyDash
 import General from "../../utility/General";
 import CHSNavigator from "../../utility/CHSNavigator";
 import IndividualListView from "./IndividualListView";
+import deferPastInteractions from "../../utility/deferPastInteractions";
 
 @Path('/IndividualList')
 class IndividualList extends AbstractComponent {
@@ -24,8 +24,13 @@ class IndividualList extends AbstractComponent {
         General.logDebug("IndividualList", "Component Will Mount");
         this.dispatchAction(Actions.RESET_LIST);
         super.UNSAFE_componentWillMount();
-        InteractionManager.runAfterInteractions(() => {
+        // deferPastInteractions, not runAfterInteractions: a leaked interaction handle would leave
+        // the list waiting on a load that never runs, which is the symptom this card is chasing.
+        deferPastInteractions(() => {
+            if (this._isUnmounted) return;
+            this.listLoaded = true;
             this.dispatchAction(Actions.ON_LIST_LOAD, {...this.props.params});
+            this.forceUpdate();
         });
     }
 
@@ -58,6 +63,7 @@ class IndividualList extends AbstractComponent {
         General.logDebug(this.viewName(), 'render');
         return (
             <IndividualListView
+                loading={!this.listLoaded}
                 results={this.state.itemsToDisplay}
                 totalSearchResultsCount={this.state.individuals.data.length}
                 headerTitle={this.props.params.cardTitle}

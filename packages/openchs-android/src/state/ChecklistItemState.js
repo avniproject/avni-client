@@ -39,7 +39,7 @@ class ChecklistItemState extends AbstractDataEntryState {
     }
 
     validateEntity() {
-        return this.checklistItem.validate();
+        return this.checklistItem.validate() || [];
     }
 
     get staticFormElementIds() {

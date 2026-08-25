@@ -1,7 +1,7 @@
 // @flow
 import PropTypes from "prop-types";
 import React from "react";
-import {SectionList, StyleSheet, Text, ToastAndroid, TouchableNativeFeedback, View} from "react-native";
+import {ActivityIndicator, SectionList, StyleSheet, Text, ToastAndroid, TouchableNativeFeedback, View} from "react-native";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {StartProgramActions as Actions} from "../../action/program/StartProgramActions";
 import Reducers from "../../reducer/index";
@@ -29,9 +29,17 @@ class NewVisitMenuView extends AbstractComponent {
         this.privilegeService = context.getService(PrivilegeService);
     }
 
-    UNSAFE_componentWillMount() {
+    loadData() {
         this.dispatchAction(Actions.onLoad, this.props);
-        return super.UNSAFE_componentWillMount();
+    }
+
+    // NewVisitPageView already draws the container and header, so this fills only the content area.
+    renderLoading() {
+        return (
+            <View style={{minHeight: 200, justifyContent: 'center', alignItems: 'center'}}>
+                <ActivityIndicator size="large"/>
+            </View>
+        );
     }
 
     static Header = ({section: {title, data}}) => {
@@ -86,7 +94,7 @@ class NewVisitMenuView extends AbstractComponent {
                                       onSelect={() => CHSNavigator.proceedEncounter(encounterType, parent, this.props.onSaveCallback, this)}/>;
     };
 
-    render() {
+    renderLoaded() {
         General.logDebug(this.viewName(), "render");
         const encounters = _.filter(this.state.encounters, ({encounter}) => this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuids, encounter.encounterType.uuid));
         const encounterTypes = _.filter(this.state.encounterTypes, ({encounterType}) => this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuids, encounterType.uuid));

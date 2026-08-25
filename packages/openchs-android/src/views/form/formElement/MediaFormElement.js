@@ -1,4 +1,4 @@
-import {StyleSheet, TouchableNativeFeedback, View, PermissionsAndroid} from "react-native";
+import {StyleSheet, TouchableNativeFeedback, View} from "react-native";
 import React from "react";
 import AbstractFormElement from "./AbstractFormElement";
 import {launchCamera, launchImageLibrary} from "react-native-image-picker";
@@ -8,8 +8,8 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Colors from "../../primitives/Colors";
 import ExpandableMedia from "../../common/ExpandableMedia";
 import FileSystem from "../../../model/FileSystem";
-import DeviceInfo from 'react-native-device-info';
 import _ from "lodash";
+import DevicePermissions from "../../../utility/DevicePermissions";
 import GuidedCameraModal from "./GuidedCameraModal";
 import {toPickerResponse, isGuidedCameraEnabled, resizeCapturedImage} from "./GuidedCameraHelper";
 import ImageResizer from "@bam.tech/react-native-image-resizer";
@@ -131,17 +131,16 @@ export default class MediaFormElement extends AbstractFormElement {
     get guidedCameraLabels() {
         return {
             noBackCamera: this.I18n.t('guidedCameraNoBackCamera'),
-            permissionRequired: this.I18n.t('guidedCameraPermissionRequired'),
             flashRequired: this.I18n.t('guidedCameraFlashRequired'),
             captureFailed: this.I18n.t('guidedCameraCaptureFailed'),
             close: this.I18n.t('closeModal'),
             retake: this.I18n.t('Retake'),
-            usePhoto: this.I18n.t('Use photo'),
-            openSettings: this.I18n.t('Open settings')
+            usePhoto: this.I18n.t('Use photo')
         };
     }
 
-    openGuidedCamera(onUpdateObservations) {
+    async openGuidedCamera(onUpdateObservations) {
+        if (!await DevicePermissions.request({camera: true})) return;
         this._guidedOnUpdate = onUpdateObservations;
         // Resize params only — avoids getDefaultOptions' videoQuality check throwing out of this sync handler.
         this._guidedOptions = {
@@ -165,7 +164,7 @@ export default class MediaFormElement extends AbstractFormElement {
         this.setState({ mode: Mode.Camera });
         const options = { ...this.getDefaultOptions(),
             durationLimit: this.getFromKeyValue('durationLimitInSecs', DEFAULT_DURATION_LIMIT)};
-        if (await this.isPermissionGranted()) {
+        if (await DevicePermissions.request({camera: true})) {
             launchCamera(options,
                 (response) => this.addMediaFromPicker(response, onUpdateObservations));
         }
@@ -177,29 +176,10 @@ export default class MediaFormElement extends AbstractFormElement {
         const options = { ...this.getDefaultOptions(),
             selectionLimit: isMultiSelect ? 0 : 1
         };
-        if (await this.isPermissionGranted()) {
+        if (await DevicePermissions.request()) {
             launchImageLibrary(options,
                 (response) => this.addMediaFromPicker(response, onUpdateObservations));
         }
-    }
-
-    async isPermissionGranted() {
-        const apiLevel = await DeviceInfo.getApiLevel();
-
-        const permissionRequest = await PermissionsAndroid.requestMultiple(
-            apiLevel >= General.STORAGE_PERMISSIONS_DEPRECATED_API_LEVEL ?
-                [
-                    PermissionsAndroid.PERMISSIONS.CAMERA
-                ]
-                :
-                [
-                    PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-                    PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-                    PermissionsAndroid.PERMISSIONS.CAMERA
-                ]
-        );
-
-        return _.every(permissionRequest, permission => permission === PermissionsAndroid.RESULTS.GRANTED);
     }
 
     showMedia(mediaUri, onClearAnswer) {
