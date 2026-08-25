@@ -1,6 +1,6 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import React from 'react';
-import {View, TouchableOpacity, Text, StyleSheet, ToastAndroid, ScrollView} from 'react-native';
+import {View, TouchableOpacity, Text, StyleSheet, ToastAndroid, ScrollView, ActivityIndicator} from 'react-native';
 import SubjectDashboardGeneralTab from "../individual/SubjectDashboardGeneralTab";
 import PropTypes from 'prop-types';
 import Colors from "../primitives/Colors";
@@ -33,10 +33,10 @@ class SubjectDashboardView extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.subjectDashboardView);
     }
 
-    // Deferred out of willMount: this dispatch runs the dashboard's entry work and blocks the JS
-    // thread, which starved the navigation slide (avni-client#2054). Nothing deferred it at all
-    // before. The base class runs it once the scene transition has painted and holds
-    // renderLoading() until then. Same rules, same order, same result - only the timing changes.
+    // Deferred: this view's own entry work is ~200-700ms and it runs during the navigation slide,
+    // which was visible as jank on device. Its heavy children (Programs/Profile/General tabs) defer
+    // independently now, so this loader only ever covers this view's own work.
+    // (avni-client#2054)
     loadData() {
         this.dispatchAction(Actions.ON_LOAD, this.props);
     }
@@ -78,6 +78,25 @@ class SubjectDashboardView extends AbstractComponent {
             </View>
         );
     });
+
+    // Header and back button stay on screen rather than the base class's full-area white. This view is
+    // the container for all three tabs; blanking it blanks the whole dashboard, which on a large
+    // database read as the app having died. backFunction comes from props, so back works while loading.
+    renderLoading() {
+        return (
+            <CHSContainer>
+                <CHSContent style={{backgroundColor: Colors.GreyContentBackground}}>
+                    <View style={{backgroundColor: Styles.defaultBackground}}>
+                        <AppHeader title={this.I18n.t('individualDashboard')} func={this.props.backFunction}/>
+                    </View>
+                    <View style={{minHeight: 200, justifyContent: 'center', alignItems: 'center',
+                                  backgroundColor: Colors.WhiteContentBackground}}>
+                        <ActivityIndicator size="large"/>
+                    </View>
+                </CHSContent>
+            </CHSContainer>
+        );
+    }
 
     renderLoaded() {
         General.logDebug(this.viewName(), 'render');

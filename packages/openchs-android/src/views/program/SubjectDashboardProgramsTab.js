@@ -1,4 +1,4 @@
-import {Alert, InteractionManager, ScrollView, TouchableOpacity, View} from "react-native";
+import {ActivityIndicator, Alert, InteractionManager, ScrollView, TouchableOpacity, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -46,14 +46,19 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
         this.privilegeService = context.getService(PrivilegeService);
     }
 
-    UNSAFE_componentWillMount() {
+    // Deferred out of willMount so the subject card and Enrol in Program above stay on screen while this
+    // section loads, rather than the whole dashboard waiting. The base class holds renderLoading() until
+    // this returns. (avni-client#2054)
+    loadData() {
         this.dispatchAction(Actions.ON_LANDING, this.props);
-        return super.UNSAFE_componentWillMount();
     }
 
     onViewDidMount() {
-        // Defer post-mount work past the slide animation so heavy reducers cannot freeze the in-flight transition.
-        InteractionManager.runAfterInteractions(() => {
+        // Wait for the scene transition to have PAINTED, not just for InteractionManager to settle -
+        // the latter fires before the slide's final commit, and ON_LOAD blocks for seconds on a large
+        // database (~2.5s measured on the JSCS realm).
+        this.runAfterSceneTransition(() => {
+            if (this._isUnmounted) return;
             this.dispatchOnLoad();
         });
     }
@@ -341,7 +346,19 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
             </View></View>);
     }
 
-    render() {
+    // Localized loader: this section sits below the subject card, which is already on screen. Keeps the
+    // same container so nothing shifts when the content arrives.
+    renderLoading() {
+        return (
+            <View style={{backgroundColor: Colors.WhiteContentBackground}}>
+                <View style={{minHeight: 160, justifyContent: 'center', alignItems: 'center'}}>
+                    <ActivityIndicator size="small"/>
+                </View>
+            </View>
+        );
+    }
+
+    renderLoaded() {
         General.logDebug(this.viewName(), 'render');
         let enrolments = _.reverse(_.sortBy(this.enrolments(), (enrolment) => enrolment.enrolmentDateTime));
         const dashboardButtons = this.state.dashboardButtons || [];

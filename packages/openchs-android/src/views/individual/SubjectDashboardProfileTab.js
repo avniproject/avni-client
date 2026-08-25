@@ -1,4 +1,4 @@
-import {Alert, StyleSheet, Text, ToastAndroid, TouchableOpacity, View} from "react-native";
+import {ActivityIndicator, Alert, StyleSheet, Text, ToastAndroid, TouchableOpacity, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -414,6 +414,20 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                               style={{marginVertical: DGS.resizeHeight(8)}}/>
             </View>
         </View>
+    }
+
+    // Localized loader, not the base class's full-area one: these tabs render inside a dashboard the
+    // user is already looking at, so blanking the whole area to white would be a bigger visual change
+    // than the wait it covers. Keeps the tab's own container and background so nothing shifts when the
+    // content arrives. (avni-client#2054)
+    renderLoading() {
+        return (
+            <View style={{backgroundColor: Colors.WhiteContentBackground, marginTop: 10}}>
+                <View style={{minHeight: 120, justifyContent: 'center', alignItems: 'center'}}>
+                    <ActivityIndicator size="small"/>
+                </View>
+            </View>
+        );
     }
 
     renderLoaded() {
