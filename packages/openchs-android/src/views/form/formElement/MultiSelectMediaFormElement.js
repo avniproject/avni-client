@@ -102,6 +102,7 @@ export default class MultiSelectMediaFormElement extends MediaFormElement {
                     <Text style={{fontSize: Fonts.Normal, color: Styles.whiteColor}}>{this.I18n.t('addMore')}</Text>
                 </Button>
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
+                {this.renderGuidedCameraModal()}
             </View>
         );
     }

@@ -43,6 +43,7 @@ export default class FileSystem {
                         .then(() => FileSystem.mkdir(FileSystem.getIconsDir(), 'icons'))
                         .then(() => FileSystem.mkdir(FileSystem.getMetadataDir(), 'metadata'))
                         .then(() => FileSystem.mkdir(FileSystem.getModelsDir(), 'models'))
+                        .then(() => FileSystem.mkdir(FileSystem.getGuidanceDir(), 'guidance'))
                         .then(() => FileSystem.mkdir(FileSystem.getModelKeysDir(), 'model-keys'))
                         .then(() => FileSystem.mkdir(FileSystem.getProfilePicsDir(), 'profile-pics'))
                         .then(() => {
@@ -111,8 +112,17 @@ export default class FileSystem {
         return `${fs.ExternalDirectoryPath}/Avni/metadata`;
     }
 
+    // A row's contentKey is mirrored verbatim beneath this, so device layout matches the bucket.
+    static getDownloadableContentRootDir() {
+        return `${fs.ExternalDirectoryPath}/Avni`;
+    }
+
     static getModelsDir() {
-        return `${fs.ExternalDirectoryPath}/Avni/models`;
+        return `${FileSystem.getDownloadableContentRootDir()}/models`;
+    }
+
+    static getGuidanceDir() {
+        return `${FileSystem.getDownloadableContentRootDir()}/guidance`;
     }
 
     // App-private internal storage - model AES keys must never be on external storage.
