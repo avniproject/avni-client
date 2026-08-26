@@ -42,12 +42,14 @@ import GroupSubjectService from "./GroupSubjectService";
 import ProgramService from "./program/ProgramService";
 import individualServiceFacade from "./facade/IndividualServiceFacade";
 import addressLevelServiceFacade from "./facade/AddressLevelServiceFacade";
+import downloadableContentFacade from "./facade/DownloadableContentFacade";
 import MessageService from './MessageService';
 import {Groups, ReportCardResult, NestedReportCardResult, RuleDependency} from "openchs-models";
 import {JSONStringify} from "../utility/JsonStringify";
 import UserInfoService from "./UserInfoService";
 import PrivilegeService from './PrivilegeService';
 import AuthService from "./AuthService";
+import {BlockReason, isGuidedCameraKeyValue} from "../model/CaptureGuidance";
 import EdgeModelService from "./EdgeModelService";
 import MediaService from "./MediaService";
 
@@ -119,6 +121,7 @@ class RuleEvaluationService extends BaseService {
         this.services = {
             individualService: individualServiceFacade,
             addressLevelService: addressLevelServiceFacade,
+            downloadableContent: downloadableContentFacade,
             edgeModelService: this.getService(EdgeModelService),
             mediaService: this.getService(MediaService),
             ruleService: this.getService(RuleService),
@@ -938,15 +941,40 @@ class RuleEvaluationService extends BaseService {
                 // in the rule — log loudly so it's visible in prod logcat.
                 General.logError('Rule-FE',
                     `FE rule '${formElement.name}' returned a Promise — form-element rules MUST be synchronous. Use scheduleImageInference for async work.`);
+                // A Promise has no uuid, so filterElements can never match it back and the row vanishes.
+                if (this.isGuidedCameraFormElement(formElement)) return this.guidedCameraBlockedStatus(formElement);
             }
             return result;
         } catch (e) {
             General.logError("Rule-FE",
                 `FE rule FAILED for '${formElement.name}' (${formElement.uuid}): ${e && e.message}\n${e && e.stack}`);
-            this.saveFailedRules(e, formElement.uuid, this.getIndividualUUID(entity, entityName),
-                'FormElement', formElement.uuid, entityName, entity.uuid);
+            const reportFailure = () => this.saveFailedRules(e, formElement.uuid, this.getIndividualUUID(entity, entityName),
+                'FormElement', formElement.uuid, entityName, _.get(entity, 'uuid'));
+            if (this.isGuidedCameraFormElement(formElement)) {
+                // Built before reporting, so a throw inside saveFailedRules can't take the row down.
+                const blockedStatus = this.guidedCameraBlockedStatus(formElement);
+                try {
+                    reportFailure();
+                } catch (reportingError) {
+                    General.logError("Rule-FE", `Failed to record FE rule failure: ${reportingError && reportingError.message}`);
+                }
+                return blockedStatus;
+            }
+            reportFailure();
             return null;
         }
+    }
+
+    // keyValue-only: this layer has no datatype, and a service must not reach into views/.
+    isGuidedCameraFormElement(formElement) {
+        return isGuidedCameraKeyValue(_.invoke(formElement, 'recordValueByKey', 'guidedCamera'));
+    }
+
+    // Assigned directly, not via addCaptureGuidance: rules-config's FormElementStatus lacks it.
+    guidedCameraBlockedStatus(formElement) {
+        const status = new FormElementStatus(formElement.uuid, true, null);
+        status.captureGuidance = {blockCapture: {reason: BlockReason.Misconfiguration}};
+        return status;
     }
 
     /**

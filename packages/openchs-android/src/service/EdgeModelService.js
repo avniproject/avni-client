@@ -5,6 +5,7 @@ import General from "../utility/General";
 import fs from 'react-native-fs';
 import _ from "lodash";
 import {DownloadableContent} from 'avni-models';
+import {contentBlobPath} from "./DownloadableContentService";
 import FileSystem from "../model/FileSystem";
 
 const EDGE_MODEL_CATEGORY = 'edgeModel';
@@ -115,8 +116,8 @@ class EdgeModelService extends BaseService {
         this._coldStartRecomputeAttempted.clear();
     }
 
-    blobPath(sha256) {
-        return `${FileSystem.getModelsDir()}/${sha256}.bin`;
+    blobPath(row) {
+        return contentBlobPath(row);
     }
 
     keyPath(sha256) {
@@ -545,7 +546,7 @@ class EdgeModelService extends BaseService {
         const sha256 = row.sha256;
         if (this._loaded.has(sha256)) return;  // Steady-state cache hit on every inference; no log to avoid per-call noise.
 
-        const blobPath = this.blobPath(sha256);
+        const blobPath = this.blobPath(row);
         if (!await fs.exists(blobPath)) {
             throw _.assign(
                 new Error(`EdgeModelService: model blob not cached yet for sha256 '${sha256}' (download pending or failed at sync)`),
@@ -578,7 +579,7 @@ class EdgeModelService extends BaseService {
             // drop it so the next sync re-fetches. Pre-native guard throws are transient pending
             // states — the cache is fine, so leave it alone.
             if (nativeLoadAttempted) {
-                await fs.unlink(this.blobPath(sha256)).catch(() => {});
+                await fs.unlink(this.blobPath(row)).catch(() => {});
             }
             throw e;
         }

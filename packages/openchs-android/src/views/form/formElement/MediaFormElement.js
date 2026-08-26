@@ -1,4 +1,4 @@
-import {StyleSheet, TouchableNativeFeedback, View, PermissionsAndroid, Text} from "react-native";
+import {StyleSheet, TouchableNativeFeedback, View, PermissionsAndroid, Text, Image} from "react-native";
 import React from "react";
 import AbstractFormElement from "./AbstractFormElement";
 import {launchCamera, launchImageLibrary} from "react-native-image-picker";
@@ -14,6 +14,14 @@ import RemoveMediaConfirmDialog from "../../common/RemoveMediaConfirmDialog";
 import _ from "lodash";
 import GuidedCameraModal from "./GuidedCameraModal";
 import {toPickerResponse, isGuidedCameraEnabled, resizeCapturedImage} from "./GuidedCameraHelper";
+import {
+    resolveCaptureGuidance,
+    decideGuidedRowState,
+    probeGuidanceBlobs,
+    forgetGuidanceBlob,
+    guidanceBlobCacheGeneration,
+    toFileUri
+} from "../../../model/CaptureGuidance";
 import ImageResizer from "@bam.tech/react-native-image-resizer";
 
 const styles = StyleSheet.create({
@@ -24,9 +32,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         textAlignVertical: 'center',
     },
-    // Icons are rendered inside this fixed square box (bigger than the glyph itself) rather than
-    // sized purely by fontSize/lineHeight, so the vector-icon font's own metrics can't clip the
-    // glyph against a tight row height.
     iconButtonBox: {
         width: 44,
         height: 44,
@@ -138,6 +143,41 @@ const styles = StyleSheet.create({
         color: '#ffffff',
         fontSize: Styles.smallTextSize,
         marginRight: 8,
+    },
+    guidanceLabel: {
+        color: Colors.DefaultPrimaryColor,
+        fontSize: Styles.smallTextSize,
+        fontWeight: '600',
+        marginTop: 12,
+    },
+    reckoner: {
+        width: '100%',
+        height: 180,
+        marginTop: 8,
+        borderRadius: 12,
+        backgroundColor: '#ffffff',
+        borderWidth: 1,
+        borderColor: Colors.InputBorderNormal,
+    },
+    blockedBox: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        marginTop: 12,
+        padding: 12,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: Colors.ValidationError,
+        backgroundColor: '#FEF2F2',
+    },
+    blockedIcon: {
+        color: Colors.ValidationError,
+        fontSize: 18,
+        marginRight: 8,
+    },
+    blockedText: {
+        flex: 1,
+        color: Colors.ValidationError,
+        fontSize: Styles.smallTextSize,
     }
 });
 
@@ -156,7 +196,7 @@ export default class MediaFormElement extends AbstractFormElement {
     constructor(props, context) {
         super(props, context);
         // Explicit false: RN Modal's `visible` defaults to true, so undefined would flash the camera open.
-        this.state = {showGuidedCamera: false, pendingClearAnswer: null};
+        this.state = {showGuidedCamera: false, pendingClearAnswer: null, guidanceBlobs: {}};
         this.cancelRemove = this.cancelRemove.bind(this);
         this.performRemove = this.performRemove.bind(this);
     }
@@ -266,11 +306,80 @@ export default class MediaFormElement extends AbstractFormElement {
             permissionRequired: this.I18n.t('guidedCameraPermissionRequired'),
             flashRequired: this.I18n.t('guidedCameraFlashRequired'),
             captureFailed: this.I18n.t('guidedCameraCaptureFailed'),
+            continueWithoutPhoto: this.I18n.t('guidedCameraContinueWithoutPhoto'),
             close: this.I18n.t('closeModal'),
             retake: this.I18n.t('Retake'),
             usePhoto: this.I18n.t('Use photo'),
             openSettings: this.I18n.t('Open settings')
         };
+    }
+
+    // Memoised: read five or six times per render, and resolution logs on a bad rule.
+    get captureGuidance() {
+        const raw = this.props.element.captureGuidance;
+        if (this._resolvedGuidanceFor !== raw || _.isNil(this._resolvedGuidance)) {
+            this._resolvedGuidanceFor = raw;
+            this._resolvedGuidance = resolveCaptureGuidance(raw, FileSystem.getGuidanceDir());
+        }
+        return this._resolvedGuidance;
+    }
+
+    get guidedRowState() {
+        return decideGuidedRowState(this.captureGuidance, this.state.guidanceBlobs);
+    }
+
+    onViewDidMount() {
+        this.probeGuidanceBlobs();
+    }
+
+    componentDidUpdate() {
+        this.probeGuidanceBlobs();
+    }
+
+    // The existence check is async and render is not, so probe once and hold the answer in state.
+    probeGuidanceBlobs() {
+        if (!this.isGuidedCamera) return; // a plain photo question never touches the filesystem
+        const {reckonerPath, overlayPath} = this.captureGuidance;
+        if (!reckonerPath && !overlayPath) return;
+        // Keyed on paths, not object identity — filterElements clones every cycle. The generation
+        // retires this memory on sync, or a row blocked beforehand stays blocked while mounted.
+        const key = `${guidanceBlobCacheGeneration()}|${reckonerPath}|${overlayPath}`;
+        if (key === this._probedGuidanceKey) return;
+        this._probedGuidanceKey = key;
+        probeGuidanceBlobs(fs.exists, [reckonerPath, overlayPath])
+            .then(probed => this.setState(state => ({guidanceBlobs: {...state.guidanceBlobs, ...probed}})));
+    }
+
+    // Undecodable counts as missing, so the row blocks rather than showing an empty frame.
+    onGuidanceImageError(path) {
+        if (!path) return;
+        forgetGuidanceBlob(path);
+        this.setState(state => ({guidanceBlobs: {...state.guidanceBlobs, [path]: false}}));
+    }
+
+    guidanceBlockedMessage(rowState) {
+        return rowState.rawMessage || this.I18n.t(rowState.messageKey);
+    }
+
+    renderGuidedCameraModal() {
+        if (!this.isGuidedCamera) return null;
+        const guidance = this.captureGuidance;
+        const rowState = this.guidedRowState;
+        return (
+            <GuidedCameraModal
+                visible={!!this.state.showGuidedCamera}
+                labels={this.guidedCameraLabels}
+                flash={guidance.flash}
+                blockOnNoFlash={guidance.blockOnNoFlash}
+                blockOnCaptureFailure={guidance.blockOnCaptureFailure}
+                guidanceLabel={guidance.label}
+                overlayPath={rowState.overlayReady ? rowState.overlayPath : null}
+                onOverlayError={() => this.onGuidanceImageError(rowState.overlayPath)}
+                blockedMessage={rowState.blocked ? this.guidanceBlockedMessage(rowState) : null}
+                onClose={() => this.setState({showGuidedCamera: false})}
+                onCapture={(photoPath) => this.onGuidedCapture(photoPath)}
+            />
+        );
     }
 
     openGuidedCamera(onUpdateObservations) {
@@ -372,10 +481,21 @@ export default class MediaFormElement extends AbstractFormElement {
     }
 
     showInputOptions(onUpdateObservations) {
-        const guided = this.isGuidedCamera;
+        if (!this.isGuidedCamera) return this.renderStandardInputOptions(onUpdateObservations);
+        const rowState = this.guidedRowState;
+        if (rowState.blocked) return this.renderBlockedCapture(rowState);
+        return (
+            <View>
+                {this.renderGuidance(rowState)}
+                {this.renderGuidedCaptureButton(onUpdateObservations, rowState.probing)}
+            </View>
+        );
+    }
+
+    renderStandardInputOptions(onUpdateObservations) {
         return (
             <View style={styles.mediaActionRow}>
-                {!guided && !this.props.element.restrictGalleryUpload &&
+                {!this.props.element.restrictGalleryUpload &&
                 <TouchableNativeFeedback onPress={() => this.launchMediaLibrary(onUpdateObservations)}
                                           background={TouchableNativeFeedback.SelectableBackground()}>
                     <View style={styles.uploadButton}>
@@ -383,9 +503,7 @@ export default class MediaFormElement extends AbstractFormElement {
                         <Icon name={'folder-upload-outline'} size={20} color={Colors.BrandPrimary}/>
                     </View>
                 </TouchableNativeFeedback>}
-                <TouchableNativeFeedback onPress={() => {
-                    guided ? this.openGuidedCamera(onUpdateObservations) : this.launchCamera(onUpdateObservations)
-                }}
+                <TouchableNativeFeedback onPress={() => this.launchCamera(onUpdateObservations)}
                                           background={TouchableNativeFeedback.SelectableBackground()}>
                     <View style={styles.addImageButton}>
                         <Text style={styles.addImageButtonText}>{this.I18n.t('addImageButtonLabel')}</Text>
@@ -393,12 +511,48 @@ export default class MediaFormElement extends AbstractFormElement {
                               size={20} color={'#ffffff'}/>
                     </View>
                 </TouchableNativeFeedback>
-                {guided && <GuidedCameraModal
-                    visible={!!this.state.showGuidedCamera}
-                    labels={this.guidedCameraLabels}
-                    onClose={() => this.setState({showGuidedCamera: false})}
-                    onCapture={(photoPath) => this.onGuidedCapture(photoPath)}
-                />}
+            </View>
+        );
+    }
+
+    // Org-authored text, rendered verbatim — never through the platform's translations.
+    renderGuidance(rowState) {
+        const label = this.captureGuidance.label;
+        return (
+            <View>
+                {label && <Text style={styles.guidanceLabel}>{label}</Text>}
+                {rowState.showReckoner &&
+                    <Image source={{uri: toFileUri(rowState.reckonerPath)}} style={styles.reckoner} resizeMode={'contain'}
+                           onError={() => this.onGuidanceImageError(rowState.reckonerPath)}/>}
+            </View>
+        );
+    }
+
+    renderGuidedCaptureButton(onUpdateObservations, disabled) {
+        return (
+            <View style={styles.mediaActionRow}>
+                <TouchableNativeFeedback disabled={disabled}
+                                          onPress={() => this.openGuidedCamera(onUpdateObservations)}
+                                          background={TouchableNativeFeedback.SelectableBackground()}>
+                    <View style={[styles.addImageButton, disabled && {backgroundColor: Colors.DisabledButtonColor}]}>
+                        <Text style={styles.addImageButtonText}>{this.I18n.t('addImageButtonLabel')}</Text>
+                        <Icon name={'camera-plus'} size={20} color={'#ffffff'}/>
+                    </View>
+                </TouchableNativeFeedback>
+            </View>
+        );
+    }
+
+    // Visible and blocked, never hidden: a photo without its guidance is worse than no photo.
+    renderBlockedCapture(rowState) {
+        const label = this.captureGuidance.label;
+        return (
+            <View>
+                {label && <Text style={styles.guidanceLabel}>{label}</Text>}
+                <View style={styles.blockedBox}>
+                    <Icon name={'alert-circle-outline'} style={styles.blockedIcon}/>
+                    <Text style={styles.blockedText}>{this.guidanceBlockedMessage(rowState)}</Text>
+                </View>
             </View>
         );
     }

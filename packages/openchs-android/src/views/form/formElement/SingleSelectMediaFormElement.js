@@ -69,6 +69,7 @@ export default class SingleSelectMediaFormElement extends MediaFormElement {
                     style={{flex: 1, borderColor: 'black', borderBottomWidth: StyleSheet.hairlineWidth, opacity: 0.1}}/>
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
                 {this.renderRemoveConfirmDialog()}
+                {this.renderGuidedCameraModal()}
             </View>
         );
     }

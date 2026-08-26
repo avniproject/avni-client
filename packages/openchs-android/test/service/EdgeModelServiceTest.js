@@ -52,9 +52,14 @@ const OVERRIDE = {
 // Mirrors DownloadableContent: payload is a JSON string, getPayload() parses it.
 const row = (overrides = {}) => {
     const base = {
-        category: 'edgeModel', sha256: 'sha-a', contentKey: 'models/sha-a.bin', needsKey: true, voided: false,
+        category: 'edgeModel', sha256: 'sha-a', needsKey: true, voided: false,
         payload: JSON.stringify(OVERRIDE), ...overrides,
     };
+    // The blob path is resolved from contentKey, so keep the fixture's key and sha consistent the
+    // way the admin screen does when it authors a row.
+    if (!('contentKey' in overrides)) {
+        base.contentKey = `models/${base.sha256}.bin`;
+    }
     return {
         ...base,
         getPayload() {
