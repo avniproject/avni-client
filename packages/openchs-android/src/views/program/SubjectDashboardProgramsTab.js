@@ -1,4 +1,4 @@
-import {Alert, InteractionManager, ScrollView, TouchableOpacity, View} from "react-native";
+import {ActivityIndicator, Alert, ScrollView, TouchableOpacity, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -46,21 +46,28 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
         this.privilegeService = context.getService(PrivilegeService);
     }
 
-    UNSAFE_componentWillMount() {
+    // Deferred out of willMount so the subject card and Enrol in Program above stay on screen while this
+    // section loads, rather than the whole dashboard waiting. The base class holds renderLoading() until
+    // this returns. (avni-client#2054)
+    loadData() {
         this.dispatchAction(Actions.ON_LANDING, this.props);
-        return super.UNSAFE_componentWillMount();
     }
 
     onViewDidMount() {
-        // Defer post-mount work past the slide animation so heavy reducers cannot freeze the in-flight transition.
-        InteractionManager.runAfterInteractions(() => {
+        // Wait for the scene transition to have PAINTED, not just for InteractionManager to settle -
+        // the latter fires before the slide's final commit, and ON_LOAD blocks for seconds on a large
+        // database (~2.5s measured on the JSCS realm).
+        this.runAfterSceneTransition(() => {
             if (this._isUnmounted) return;
             this.dispatchOnLoad();
         });
     }
 
     // A throwing rule/privilege eval must not strand the tab on the loader — fall through to render
-    // whatever ON_LANDING produced. Every entry into the load path goes through here.
+    // whatever ON_LANDING produced, via _loadFailed in isDataLoaded() below. ON_LANDING is dispatched
+    // from loadData(), which the base class already wraps in its own try/catch (#1892 + #2054).
+    // didFocus() is kept as inherited but does not fire on this component: Router.didFocus() only
+    // calls route-mapped elements, and this tab is rendered as a child of SubjectDashboardView.
     safeDispatch(actionName) {
         try {
             this.dispatchAction(actionName, this.props);
@@ -354,11 +361,33 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
             </View></View>);
     }
 
-    render() {
+    // The base gate alone is not enough here. super.isDataLoaded() flips as soon as loadData()
+    // (ON_LANDING) returns, but onLanding() deliberately zeroes the visits, summary and buttons — the
+    // slice is shared across subjects, so without that clear the next subject renders the previous
+    // one's data. Rendering between ON_LANDING and ON_LOAD would therefore paint a fully built but
+    // empty Programs section for as long as ON_LOAD takes (~2.5s on the JSCS database) and then pop,
+    // and would run every privilege query twice. state.loaded is set by ON_LOAD (#1892).
+    // This holds only this tab's own 160px loader below the subject card, not the whole dashboard, so
+    // it does not reinstate the wait #2054 removed. _loadFailed is the escape: a throwing ON_LOAD
+    // caught by safeDispatch renders whatever ON_LANDING produced rather than sticking on the loader.
+    isDataLoaded() {
+        return super.isDataLoaded() && (this.state.loaded === true || this._loadFailed === true);
+    }
+
+    // Localized loader: this section sits below the subject card, which is already on screen. Keeps the
+    // same container so nothing shifts when the content arrives.
+    renderLoading() {
+        return (
+            <View style={{backgroundColor: Colors.WhiteContentBackground}}>
+                <View style={{minHeight: 160, justifyContent: 'center', alignItems: 'center'}}>
+                    <ActivityIndicator size="small"/>
+                </View>
+            </View>
+        );
+    }
+
+    renderLoaded() {
         General.logDebug(this.viewName(), 'render');
-        // Skip the pre-load landing render — showing a loader until ON_LOAD avoids building the whole
-        // dashboard tree (and re-running its privilege queries) once with empty data, then again with it.
-        if (!this.state.loaded && !this._loadFailed) return this.renderLoading();
         let enrolments = _.reverse(_.sortBy(this.enrolments(), (enrolment) => enrolment.enrolmentDateTime));
         const dashboardButtons = this.state.dashboardButtons || [];
         const performVisitCriteria = this.state.enrolment.program && `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND subjectTypeUuid = '${this.state.enrolment.individual.subjectType.uuid}' AND programUuid = '${this.state.enrolment.program.uuid}'` || '';

@@ -9,7 +9,11 @@ parameters:
   versionCode:
     type: string
     default: "1"
-    description: Version code for the binary for internal use on the play store. Is of the format 100302.
+    description: >
+      Version code for the binary, for internal use on the play store. Format is "1" followed by the versionName
+      digits — for versionName 17.2.0 pass 1170200, for 17.3.0 pass 1170300. Do NOT pass the plain digits form
+      (170200): 17.1.0 was mistakenly built with versionCode=700003 instead of 170100 and is on the store as
+      9088611, and Play version codes can never go backwards. See android/app/build.gradle for the arithmetic.
   versionName:
     type: string
     default: "1.0.0"

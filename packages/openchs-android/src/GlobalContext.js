@@ -3,6 +3,7 @@ import _ from 'lodash';
 import {initAnalytics, updateAnalyticsDatabase} from "./utility/Analytics";
 import General from "./utility/General";
 import {BACKENDS} from "./framework/BackendTypes";
+import Perf from "./utility/perf";
 
 let singleton;
 
@@ -39,17 +40,28 @@ class GlobalContext {
         // Realm open natively — reconcile before touching either database.
         // Lazy load to avoid circular dependency.
         const EncryptionService = require("./service/EncryptionService").default;
+        const _tEnc = Date.now();
         await EncryptionService.removeStaleKeyIfDbsPlaintext();
+        Perf.mark("startup.encryptionReconcile", {ms: Date.now() - _tEnc});
 
         // Always initialize Realm (needed during transition for unsynced data verification)
+        // avni-client#2084 instrumentation: on a large realm this is the dominant part of a cold start
+        // and it scales with data size, unlike the dev-bundle fetch which does not exist in a release build.
+        const _t0 = Date.now();
         this.db = await realmFactory.createRealm();
+        Perf.mark("startup.realmOpen", {ms: Date.now() - _t0});
 
         // Initialize SQLite alongside Realm
+        // Marked even on the failure path: a slow-then-failing open still costs cold start, and
+        // without a mark here the startup.* marks would stop summing to the real cold-start time.
+        const _tSqlite = Date.now();
         try {
             const SqliteFactory = require("./framework/db/SqliteFactory").default;
             this.sqliteDb = await SqliteFactory.createSqliteProxy();
             General.logInfo("GlobalContext", "SQLite database initialized");
+            Perf.mark("startup.sqliteInit", {ms: Date.now() - _tSqlite});
         } catch (e) {
+            Perf.mark("startup.sqliteInit", {ms: Date.now() - _tSqlite, failed: true});
             General.logWarn("GlobalContext", `SQLite init skipped: ${e.message}`);
         }
 
@@ -60,7 +72,9 @@ class GlobalContext {
         // the per-user migration state records.
         this._activeBackend = BACKENDS.REALM;
         General.logInfo("GlobalContext", `Initialising bean registry with activeBackend=${this._activeBackend}`);
+        const _t1 = Date.now();
         this.beanRegistry.init(this.db);
+        Perf.mark("startup.beanRegistryInit", {ms: Date.now() - _t1});
 
         // Runtime validation: Verify critical services are registered
         const criticalServices = [

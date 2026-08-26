@@ -50,7 +50,7 @@ class IndividualSearchResultPaginatedView extends AbstractComponent {
     // what covers the navigation slide while PaginatedView below builds its first chunk.
     onViewDidMount() {
         if (this.props.indicatorActionName) {
-            deferPastInteractions(() => this.dispatchAction(this.props.indicatorActionName, {loading: false}));
+            this.runAfterSceneTransition(() => this.dispatchAction(this.props.indicatorActionName, {loading: false}));
         }
     }
 
