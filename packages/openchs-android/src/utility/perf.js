@@ -10,10 +10,37 @@ import General from "./General";
 // no timers held across frames — because the thing being measured is a JS-thread stall and anything
 // clever here would show up in the numbers.
 export default class Perf {
+    // No log level exists until SettingsService.init(), and canLog() compares against undefined, so a
+    // startup measurement emitted there is dropped without a trace. Held instead, bounded in case none appears.
+    static _held = [];
+    static _HOLD_LIMIT = 20;
+
     // Follows the app's log level. Debug is only set when EnvironmentConfig.isDevMode() (see
     // SettingsService), so a release build pays nothing here — no Date.now(), no logging.
     static _enabled() {
         return General.canLog(General.LogLevel.Debug);
+    }
+
+    static _levelSet() {
+        return !_.isNil(General.getCurrentLogLevel());
+    }
+
+    static _record(line) {
+        if (!Perf._levelSet()) {
+            if (Perf._held.length < Perf._HOLD_LIMIT) Perf._held.push({line, atMs: Date.now()});
+            return;
+        }
+        Perf._release();
+        General.logDebug("PERF", line);
+    }
+
+    // Held lines are emitted out of their measurement order, hence takenAtMs.
+    static _release() {
+        if (Perf._held.length === 0) return;
+        const held = Perf._held;
+        Perf._held = [];
+        if (!Perf._enabled()) return;
+        held.forEach(h => General.logDebug("PERF", `${h.line} takenAtMs=${h.atMs}`));
     }
 
     /**
@@ -23,18 +50,21 @@ export default class Perf {
      * in a single 3-minute session, and RuleService's fields read a Realm collection's length.
      */
     static mark(tag, fields) {
-        if (!Perf._enabled()) return;
-        General.logDebug("PERF", `PERF| tag=${tag}${Perf._fmt(fields)}`);
+        if (Perf._levelSet() && !Perf._enabled()) return Perf._release();
+        Perf._record(`PERF| tag=${tag}${Perf._fmt(fields)}`);
     }
 
     // Wraps a synchronous call and reports how long it blocked.
     static time(tag, fn, fields) {
-        if (!Perf._enabled()) return fn();
+        if (Perf._levelSet() && !Perf._enabled()) {
+            Perf._release();
+            return fn();
+        }
         const start = Date.now();
         try {
             return fn();
         } finally {
-            General.logDebug("PERF", `PERF| tag=${tag} ms=${Date.now() - start}${Perf._fmt(fields)}`);
+            Perf._record(`PERF| tag=${tag} ms=${Date.now() - start}${Perf._fmt(fields)}`);
         }
     }
 
