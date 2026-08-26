@@ -10402,10 +10402,10 @@ open@^7.4.2:
     grunt "^1.0.3"
     webpack "^4.13.0"
 
-openchs-models@1.33.76:
-  version "1.33.76"
-  resolved "https://registry.npmjs.org/openchs-models/-/openchs-models-1.33.76.tgz"
-  integrity sha512-Dv7+7iKyPPPyQPZGpilWvLMMANBSJPOmi0aqNPq7VuYyoSFT8dnikHpovPhXRIlj9kjXy5jLfa+KvBLQ9R4xNA==
+openchs-models@1.33.78:
+  version "1.33.78"
+  resolved "https://registry.npmjs.org/openchs-models/-/openchs-models-1.33.78.tgz"
+  integrity sha512-SnotmwZuAfilcUDLDlCRAktemWEPtlrU/wipgqhArzeu/yOeNPzi5ikiSozFHRwY+Qp4hXZPwi7WLg682SgWTw==
   dependencies:
     uuid "^9.0.1"
 
