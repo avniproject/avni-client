@@ -38,7 +38,11 @@ class PersonRegisterFormView extends AbstractComponent {
         this.scrollRef = React.createRef();
     }
 
-    UNSAFE_componentWillMount() {
+    // Deferred out of willMount: this dispatch builds the form's initial state and blocks the JS
+    // thread, which starved the navigation slide (avni-client#2054). The base class runs it once the
+    // scene transition has painted and shows renderLoading() until then, so the form is never drawn
+    // half-built. Same rules, same order, same result - only when it runs changes.
+    loadData() {
         const params = this.props.params;
         if (params.pageNumber) {
             this.dispatchAction(Actions.ON_FORM_LOAD,
@@ -53,7 +57,6 @@ class PersonRegisterFormView extends AbstractComponent {
                     }
                 });
         }
-        super.UNSAFE_componentWillMount();
     }
 
     getTitleForGroupSubject(){
@@ -119,7 +122,7 @@ class PersonRegisterFormView extends AbstractComponent {
             })
     }
 
-    render() {
+    renderLoaded() {
         General.logDebug(this.viewName(), `render`);
         const title = `${this.I18n.t(this.registrationType)} ${this.I18n.t('registration')}`;
         const subjectType = this.state.individual.subjectType;

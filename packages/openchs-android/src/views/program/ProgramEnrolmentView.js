@@ -51,14 +51,17 @@ class ProgramEnrolmentView extends AbstractComponent {
         return false;
     }
 
-    UNSAFE_componentWillMount() {
+    // Deferred out of willMount: this dispatch builds the form's initial state and blocks the JS
+    // thread, which starved the navigation slide (avni-client#2054). The base class runs it once the
+    // scene transition has painted and shows renderLoading() until then, so the form is never drawn
+    // half-built. Same rules, same order, same result - only when it runs changes.
+    loadData() {
         this.dispatchAction(Actions.ON_LOAD, {
             enrolment: this.props.enrolment,
             usage: ProgramEnrolmentView.usageContext.usage,
             workLists: this.props.workLists,
             pageNumber: this.props.pageNumber,
         });
-        return super.UNSAFE_componentWillMount();
     }
 
     onBack() {
@@ -93,7 +96,7 @@ class ProgramEnrolmentView extends AbstractComponent {
         AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n);
     }
 
-    render() {
+    renderLoaded() {
         General.logDebug(this.viewName(), 'render');
         this.displayMessage(this.props.message);
         return <ProgramFormComponent editing={this.state.isNewEntity}

@@ -2,11 +2,14 @@ import _ from "lodash";
 import {Concept, Duration, FormElementGroup, Observation, RepeatableQuestionGroup, ValidationResult} from 'openchs-models';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import General from "../../utility/General";
+import Perf from "../../utility/perf";
 
 class ObservationsHolderActions {
     static updateFormElements(formElementGroup, state, context) {
         const ruleService = context.get(RuleEvaluationService);
-        const formElementStatuses = ruleService.getFormElementsStatuses(state.getEntity(), state.getEntityType(), formElementGroup, state.getEntityContext());
+        const formElementStatuses = Perf.time("getFormElementsStatuses",
+            () => ruleService.getFormElementsStatuses(state.getEntity(), state.getEntityType(), formElementGroup, state.getEntityContext()),
+            () => ({feg: formElementGroup.name, entityType: state.getEntityType()}));
         state.filteredFormElements = FormElementGroup._sortedFormElements(formElementGroup.filterElements(formElementStatuses));
         return formElementStatuses;
     }

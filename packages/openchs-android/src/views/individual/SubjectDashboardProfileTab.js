@@ -1,4 +1,4 @@
-import {Alert, StyleSheet, Text, ToastAndroid, TouchableOpacity, View} from "react-native";
+import {ActivityIndicator, Alert, StyleSheet, Text, ToastAndroid, TouchableOpacity, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -57,7 +57,11 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         this.privilegeService = context.getService(PrivilegeService);
     }
 
-    UNSAFE_componentWillMount() {
+    // Deferred out of willMount: this dispatch runs the dashboard's entry work and blocks the JS
+    // thread, which starved the navigation slide (avni-client#2054). Nothing deferred it at all
+    // before. The base class runs it once the scene transition has painted and holds
+    // renderLoading() until then. Same rules, same order, same result - only the timing changes.
+    loadData() {
         const newEncounterCallback = (encounter) => {
             CHSNavigator.navigateToEncounterView(this, {
                 individualUUID: this.props.params.individualUUID,
@@ -69,7 +73,6 @@ class SubjectDashboardProfileTab extends AbstractComponent {
             individualUUID: this.props.params.individualUUID,
             newEncounterCallback
         });
-        return super.UNSAFE_componentWillMount();
     }
 
     getRelativeActions() {
@@ -413,7 +416,21 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         </View>
     }
 
-    render() {
+    // Localized loader, not the base class's full-area one: these tabs render inside a dashboard the
+    // user is already looking at, so blanking the whole area to white would be a bigger visual change
+    // than the wait it covers. Keeps the tab's own container and background so nothing shifts when the
+    // content arrives. (avni-client#2054)
+    renderLoading() {
+        return (
+            <View style={{backgroundColor: Colors.WhiteContentBackground, marginTop: 10}}>
+                <View style={{minHeight: 120, justifyContent: 'center', alignItems: 'center'}}>
+                    <ActivityIndicator size="small"/>
+                </View>
+            </View>
+        );
+    }
+
+    renderLoaded() {
         General.logDebug(this.viewName(), 'render');
         const displayGeneralEncounterInfo = this.props.params.displayGeneralInfoInProfileTab;
         const {individual, editFormRuleResponse, isRelationshipTypePresent, displayIndicator, subjectProgramEligibilityStatuses} = this.state;

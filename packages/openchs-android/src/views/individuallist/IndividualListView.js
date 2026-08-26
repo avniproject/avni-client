@@ -55,11 +55,13 @@ class IndividualListView extends AbstractComponent {
         // observations out of Realm; doing that on mount starves the JS-thread-driven slide in from
         // the dashboard and freezes it part way. The dashboard's loading modal stays up over the
         // whole transition, so nothing uncovers it mid-slide.
-        deferPastInteractions(() => {
+        // evenIfUnmounted: the modal belongs to the dashboard we came from, so it must be dismissed
+        // even if the user has already pressed back. The batch build below is still guarded.
+        this.runAfterSceneTransition(() => {
             this.dismissLoadingIndicator();
             if (this._isUnmounted) return;
             this._initBatch();
-        });
+        }, {evenIfUnmounted: true});
     }
 
     // Owned by the screen we came from, so it has to be dismissed even if we are already gone.

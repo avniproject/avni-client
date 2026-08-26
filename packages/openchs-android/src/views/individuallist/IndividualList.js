@@ -6,7 +6,6 @@ import {MyDashboardActionNames as Actions} from "../../action/mydashboard/MyDash
 import General from "../../utility/General";
 import CHSNavigator from "../../utility/CHSNavigator";
 import IndividualListView from "./IndividualListView";
-import deferPastInteractions from "../../utility/deferPastInteractions";
 
 @Path('/IndividualList')
 class IndividualList extends AbstractComponent {
@@ -20,18 +19,16 @@ class IndividualList extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.myDashboard);
     }
 
-    UNSAFE_componentWillMount() {
-        General.logDebug("IndividualList", "Component Will Mount");
+    // Both dispatches were in willMount: RESET_LIST ran synchronously DURING the navigation slide, and
+    // ON_LIST_LOAD ran on deferPastInteractions - the InteractionManager trigger that settles before the
+    // slide's final commit. That is the MyDashboard-card-to-subject-list frame stutter. The base class
+    // now runs this once the transition has painted, holds renderLoading() until it returns, and renders
+    // renderLoadError() if it throws - which the hand-rolled deferral did not. (avni-client#2054)
+    loadData() {
+        General.logDebug("IndividualList", "loadData");
         this.dispatchAction(Actions.RESET_LIST);
-        super.UNSAFE_componentWillMount();
-        // deferPastInteractions, not runAfterInteractions: a leaked interaction handle would leave
-        // the list waiting on a load that never runs, which is the symptom this card is chasing.
-        deferPastInteractions(() => {
-            if (this._isUnmounted) return;
-            this.listLoaded = true;
-            this.dispatchAction(Actions.ON_LIST_LOAD, {...this.props.params});
-            this.forceUpdate();
-        });
+        this.listLoaded = true;
+        this.dispatchAction(Actions.ON_LIST_LOAD, {...this.props.params});
     }
 
     onHardwareBackPress() {
@@ -59,7 +56,7 @@ class IndividualList extends AbstractComponent {
         });
     }
 
-    render() {
+    renderLoaded() {
         General.logDebug(this.viewName(), 'render');
         return (
             <IndividualListView

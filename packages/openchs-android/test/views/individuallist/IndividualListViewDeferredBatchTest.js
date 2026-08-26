@@ -35,6 +35,11 @@ jest.mock("../../../src/views/common/CHSContainer", () => ({
 
 // native-base primitives need a NativeBaseProvider above them, which this test has no use for.
 jest.mock("native-base", () => {
+
+// The scene-transition trigger schedules behind a double requestAnimationFrame so the transition's
+// final commit paints first (avni-client#2054). Resolved inline here so tests stay about which
+// trigger fires, not about draining frame queues.
+global.requestAnimationFrame = (cb) => cb();
     const RN = require("react-native");
     return {__esModule: true, View: RN.View, Text: RN.Text};
 });

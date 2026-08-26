@@ -73,7 +73,11 @@ class PersonRegisterView extends AbstractComponent {
         return this.getTitleForGroupSubject() || this.getTitleForSubjectRegistration() || regName || 'REG_DISPLAY-Individual';
     }
 
-    UNSAFE_componentWillMount() {
+    // Deferred out of willMount: this dispatch builds the form's initial state and blocks the JS
+    // thread, which starved the navigation slide (avni-client#2054). The base class runs it once the
+    // scene transition has painted and shows renderLoading() until then, so the form is never drawn
+    // half-built. Same rules, same order, same result - only when it runs changes.
+    loadData() {
         const params = this.props.params;
         this.dispatchAction(Actions.ON_LOAD,
             {
@@ -87,7 +91,6 @@ class PersonRegisterView extends AbstractComponent {
                     this.dispatchAction(Actions.USE_THIS_STATE, {state: newState});
                 }
             });
-        super.UNSAFE_componentWillMount();
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -110,7 +113,7 @@ class PersonRegisterView extends AbstractComponent {
         AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n);
     }
 
-    render() {
+    renderLoaded() {
         General.logDebug(this.viewName(), `render`);
         const profilePicFormElement = new StaticFormElement("profilePicture", false, 'Profile-Pics', []);
         const title = `${this.I18n.t(this.registrationType)} ${this.I18n.t('registration')}`;
