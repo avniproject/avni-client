@@ -646,6 +646,23 @@ describe("RealmQueryParser", () => {
         }});
         schemaMap.set("Program", {name: "Program", primaryKey: "uuid", properties: {uuid: "string", name: "string"}});
 
+        it("conditions AFTER a leading SUBQUERY are translated, not dropped", () => {
+            const r = RealmQueryParser.parse(
+                "SUBQUERY(enrolments, $e, $e.program.name = 'Child' and $e.voided = false).@count > 0 and voided = false",
+                [], "Individual", schemaMap);
+            expect(r.unsupported).toBe(false);
+            expect(r.where).toContain('t0."uuid" IN (SELECT "individual_uuid" FROM program_enrolment');
+            expect(r.where).toMatch(/t0\."voided" = \?/);   // the trailing clause survives
+        });
+
+        it("lowercase 'and' after the SUBQUERY count comparison also survives", () => {
+            const r = RealmQueryParser.parse(
+                "SUBQUERY(enrolments, $e, $e.voided = false).@count > 0 and voided = false",
+                [], "Individual", schemaMap);
+            expect(r.unsupported).toBe(false);
+            expect(r.where).toMatch(/t0\."voided" = \?/);
+        });
+
         it("OR inside conditions → parenthesized OR in the IN-subquery", () => {
             const r = RealmQueryParser.parse(
                 "SUBQUERY(enrolments, $e, $e.program.name = 'Child' OR $e.voided = false).@count > 0",

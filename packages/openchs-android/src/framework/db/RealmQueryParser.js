@@ -1202,6 +1202,11 @@ class RealmQueryParser {
                     const tail = clause.substring(i + 1).trim();
                     const countMatch = tail.match(/^\.@count\s*(==|!=|<>|<=|>=|<|>|=)\s*(\d+)/i);
                     if (!countMatch) return null;
+                    // The clause must END at the count comparison. Without this, a query like
+                    // "SUBQUERY(...).@count > 0 and voided = false" translated only the subquery
+                    // and silently DROPPED the trailing conditions — returning wrong rows.
+                    // Residue => not a pure subquery clause; caller falls back to clause splitting.
+                    if (tail.slice(countMatch[0].length).trim().length > 0) return null;
                     return {
                         listProp: argStrs[0]?.trim(),
                         varName: argStrs[1]?.trim(),
