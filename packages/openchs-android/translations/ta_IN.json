@@ -418,6 +418,17 @@
     "whatsApp": "வாட்ஸ்அப்",
     "registerButtonGuideMessage": "வணக்கம் {{userName}}, கீழே உள்ள \"பதிவு\" பொத்தானை தட்டி, உங்கள் தரவை உள்ளிடத் தொடங்குங்கள்.",
     "welcomeMessage": "வணக்கம் {{userName}}, வரவேற்கிறோம்!",
-    "removalReason": "Reason for removal"
+    "removalReason": "Reason for removal",
+    "closeModal": "மூடு",
+    "guidedCameraNoBackCamera": "இந்தச் சாதனத்தில் பின்புறக் கேமரா இல்லை.",
+    "guidedCameraPermissionRequired": "கேமரா அனுமதி தேவை.",
+    "guidedCameraFlashRequired": "இந்தச் சாதனத்தில் ஃபிளாஷ் இல்லை. வழிகாட்டப்பட்ட படத்திற்கு ஃபிளாஷ் தேவை, எனவே இது தடுக்கப்பட்டுள்ளது.",
+    "guidedCameraCaptureFailed": "படத்தை எடுக்க முடியவில்லை. மீண்டும் எடுக்கவும்.",
+    "guidedCameraContinueWithoutPhoto": "படம் இல்லாமல் தொடரவும்",
+    "guidedCaptureGuidanceMissing": "வழிகாட்டிப் படங்கள் ஒத்திசைக்கப்படவில்லை. இந்தப் படத்தை எடுக்க ஒத்திசைத்து மீண்டும் முயற்சிக்கவும்.",
+    "guidedCaptureMisconfigured": "வழிகாட்டி அமைப்பில் சிக்கல் உள்ளது. இந்தப் படத்திற்கான படமெடுப்பு நிறுத்தப்பட்டுள்ளது — உங்கள் மேற்பார்வையாளரிடம் தெரிவிக்கவும்.",
+    "Retake": "மீண்டும் எடு",
+    "Use photo": "படத்தைப் பயன்படுத்து",
+    "Open settings": "அமைப்புகளைத் திறக்கவும்"
   }
 }

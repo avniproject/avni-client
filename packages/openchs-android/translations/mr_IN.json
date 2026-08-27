@@ -406,6 +406,17 @@
     "whatsApp": "व्हॉट्सअॅप",
     "registerButtonGuideMessage": "हाय {{userName}}, खाली \"कृपया नोंद करा\" बटण टॅप करून डाटा भरा.",
     "welcomeMessage": "हाय  {{userName}}, स्वागत।",
-    "removalReason": "Reason for removal"
+    "removalReason": "Reason for removal",
+    "closeModal": "बंद करा",
+    "guidedCameraNoBackCamera": "या डिव्हाइसवर मागील कॅमेरा उपलब्ध नाही.",
+    "guidedCameraPermissionRequired": "कॅमेरा परवानगी आवश्यक आहे.",
+    "guidedCameraFlashRequired": "या डिव्हाइसमध्ये फ्लॅश नाही. मार्गदर्शित फोटोसाठी फ्लॅश आवश्यक आहे, म्हणून तो अवरोधित आहे.",
+    "guidedCameraCaptureFailed": "फोटो घेता आला नाही. कृपया पुन्हा घ्या.",
+    "guidedCameraContinueWithoutPhoto": "फोटोशिवाय पुढे जा",
+    "guidedCaptureGuidanceMissing": "मार्गदर्शन प्रतिमा सिंक झालेल्या नाहीत. हा फोटो घेण्यासाठी सिंक करा आणि पुन्हा प्रयत्न करा.",
+    "guidedCaptureMisconfigured": "मार्गदर्शन सेट-अपमध्ये समस्या आहे. या फोटोसाठी कॅप्चर थांबवले आहे — कृपया आपल्या पर्यवेक्षकांना कळवा.",
+    "Retake": "पुन्हा घ्या",
+    "Use photo": "फोटो वापरा",
+    "Open settings": "सेटिंग्ज उघडा"
   }
 }

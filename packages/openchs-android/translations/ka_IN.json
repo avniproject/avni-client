@@ -417,6 +417,17 @@
     "whatsApp": "ವಾಟ್ಸ್ಆಪ್",
     "registerButtonGuideMessage": "ಹಾಯ್ {{userName}}, ಕೆಳಗೆ \"ನೋಂದಣಿ\" ಬಟನ್ ಕ್ಲಿಕ್ ಮಾಡುವ ಮೂಲಕ ನಿಮ್ಮ ಡೇಟಾವನ್ನು ನಮೂದಿಸಿ.",
     "welcomeMessage": "ಹಾಯ್ {{userName}}, ಸ್ವಾಗತ !",
-    "removalReason": "Reason for removal"
+    "removalReason": "Reason for removal",
+    "closeModal": "ಮುಚ್ಚಿ",
+    "guidedCameraNoBackCamera": "ಈ ಸಾಧನದಲ್ಲಿ ಹಿಂಬದಿ ಕ್ಯಾಮೆರಾ ಲಭ್ಯವಿಲ್ಲ.",
+    "guidedCameraPermissionRequired": "ಕ್ಯಾಮೆರಾ ಅನುಮತಿ ಅಗತ್ಯವಿದೆ.",
+    "guidedCameraFlashRequired": "ಈ ಸಾಧನದಲ್ಲಿ ಫ್ಲ್ಯಾಶ್ ಇಲ್ಲ. ಮಾರ್ಗದರ್ಶಿತ ಫೋಟೋಗೆ ಫ್ಲ್ಯಾಶ್ ಅಗತ್ಯವಿದೆ, ಆದ್ದರಿಂದ ಇದನ್ನು ತಡೆಯಲಾಗಿದೆ.",
+    "guidedCameraCaptureFailed": "ಫೋಟೋ ತೆಗೆಯಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ತೆಗೆಯಿರಿ.",
+    "guidedCameraContinueWithoutPhoto": "ಫೋಟೋ ಇಲ್ಲದೆ ಮುಂದುವರಿಸಿ",
+    "guidedCaptureGuidanceMissing": "ಮಾರ್ಗದರ್ಶನ ಚಿತ್ರಗಳು ಸಿಂಕ್ ಆಗಿಲ್ಲ. ಈ ಫೋಟೋ ತೆಗೆಯಲು ಸಿಂಕ್ ಮಾಡಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
+    "guidedCaptureMisconfigured": "ಮಾರ್ಗದರ್ಶನ ಸೆಟ್-ಅಪ್‌ನಲ್ಲಿ ಸಮಸ್ಯೆ ಇದೆ. ಈ ಫೋಟೋಗೆ ಕ್ಯಾಪ್ಚರ್ ನಿಲ್ಲಿಸಲಾಗಿದೆ — ದಯವಿಟ್ಟು ನಿಮ್ಮ ಮೇಲ್ವಿಚಾರಕರಿಗೆ ತಿಳಿಸಿ.",
+    "Retake": "ಮತ್ತೆ ತೆಗೆಯಿರಿ",
+    "Use photo": "ಫೋಟೋ ಬಳಸಿ",
+    "Open settings": "ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ತೆರೆಯಿರಿ"
   }
 }
