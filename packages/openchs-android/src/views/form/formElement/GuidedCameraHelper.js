@@ -13,3 +13,9 @@ export function resizeCapturedImage(ImageResizer, photoPath, {maxWidth, maxHeigh
         .createResizedImage(photoPath, maxWidth, maxHeight, 'JPEG', qualityPercent, 0)
         .then(result => (result.uri.startsWith("file://") ? result.uri : `file://${result.uri}`));
 }
+
+// useCameraFormat throws on an empty format list instead of returning undefined.
+export function deviceWithFormats(device) {
+    const formats = device && device.formats;
+    return Array.isArray(formats) && formats.length > 0 ? device : undefined;
+}

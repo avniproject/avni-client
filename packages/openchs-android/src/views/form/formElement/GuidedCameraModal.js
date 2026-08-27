@@ -4,6 +4,7 @@ import {Camera, useCameraDevice, useCameraFormat, useCameraPermission} from "rea
 import fs from 'react-native-fs';
 import General from "../../../utility/General";
 import {toFileUri} from "../../../model/CaptureGuidance";
+import {deviceWithFormats} from "./GuidedCameraHelper";
 
 // Cameras report formats in landscape, so a 4:3 sensor frame presents as a 3:4 viewfinder.
 const PHOTO_ASPECT = 4 / 3;
@@ -46,7 +47,7 @@ export default function GuidedCameraModal({
     const device = useCameraDevice("back");
     // videoAspectRatio drives the preview, photoAspectRatio drives takePhoto; pin one and they can
     // disagree, and the overlay then lies about framing.
-    const format = useCameraFormat(device, [
+    const format = useCameraFormat(deviceWithFormats(device), [
         {videoAspectRatio: PHOTO_ASPECT},
         {photoAspectRatio: PHOTO_ASPECT},
         {photoResolution: {width: 1600, height: 1200}}
@@ -96,12 +97,17 @@ export default function GuidedCameraModal({
     }, [blockedMessage]);
 
     useEffect(() => {
+        if (device && !deviceWithFormats(device)) {
+            General.logWarn('GuidedCameraModal',
+                `Camera device ${device.id} reports no formats; the preview aspect cannot be pinned and the overlay will not align.`);
+            return;
+        }
         if (!format) return;
         if (Math.abs(format.photoWidth / format.photoHeight - PHOTO_ASPECT) > 0.02) {
             General.logWarn('GuidedCameraModal',
                 `No 4:3 photo format on this device (got ${format.photoWidth}x${format.photoHeight}); overlay alignment will be approximate.`);
         }
-    }, [format]);
+    }, [device, format]);
 
     useEffect(() => () => {
         sessionRef.current++;
