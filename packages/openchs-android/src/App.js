@@ -23,13 +23,17 @@ import AvniErrorBoundary from "./framework/errorHandling/AvniErrorBoundary";
 import UnhandledErrorView from "./framework/errorHandling/UnhandledErrorView";
 import ErrorUtil from "./framework/errorHandling/ErrorUtil";
 import ServiceContext from "./framework/context/ServiceContext";
+import Perf from "./utility/perf";
 
 const {TamperCheckModule} = NativeModules;
 
 class App extends Component {
     constructor(props, context) {
         super(props, context);
-        FileSystem.init();
+        // avni-client#2084: runs in the constructor, so it precedes every other startup mark. ~15 mkdir
+        // calls plus a recursive migrateOldData; on a dirty shutdown the first FS touch contends with
+        // WAL recovery on the realm file, which is the multi-minute stall RC3 names.
+        Perf.time("startup.fileSystemInit", () => FileSystem.init());
         this.getBean = this.getBean.bind(this);
         this.handleError = this.handleError.bind(this);
         ErrorHandler.set(this.handleError);
@@ -71,6 +75,8 @@ class App extends Component {
     }
 
     async componentDidMount() {
+        Perf.mark("startup.componentDidMount.begin");
+        const _tCdm = Date.now();
         General.logDebug("App", "componentDidMount");
         try {
             if (!_.isNil(TamperCheckModule)) TamperCheckModule.validateAppSignature();
@@ -84,13 +90,19 @@ class App extends Component {
             const globalContext = GlobalContext.getInstance();
             if (!globalContext.isInitialised()) {
                 await globalContext.initialiseGlobalContext(AppStore, RealmFactory);
-                globalContext.routes = PathRegistry.routes();
+                globalContext.routes = Perf.time("startup.pathRegistryRoutes", () => PathRegistry.routes());
             }
 
             const entitySyncStatusService = globalContext.beanRegistry.getService("entitySyncStatusService");
-            entitySyncStatusService.setup();
+            // A realm write per missing entity, on every launch (avni-client#2084).
+            Perf.time("startup.entitySyncStatusSetup", () => entitySyncStatusService.setup());
 
-            RegisterAndScheduleJobs();
+            Perf.time("startup.registerAndScheduleJobs", () => RegisterAndScheduleJobs());
+            // Fires immediately before isInitialisationDone flips, so the interval between this and the
+            // first LandingView mark is exactly the first-paint boundary: it says whether the wait the
+            // worker reports happens behind the "Upgrading Database" splash or on a screen that will
+            // not respond. (avni-client#2084)
+            Perf.mark("startup.componentDidMount.end", () => ({ms: Date.now() - _tCdm}));
             this.setState(state => ({...state, isInitialisationDone: true}));
         } catch (e) {
             console.log("App", e);
