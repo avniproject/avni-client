@@ -8,6 +8,7 @@ import {assert} from "chai";
 import _ from "lodash";
 
 jest.mock("../../../src/framework/bean/Service", () => () => (target) => target);
+jest.mock("../../../src/utility/Analytics", () => ({logEvent: () => {}, firebaseEvents: {MY_DASHBOARD_FILTER: "my_dashboard_filter"}}));
 
 import {MyDashboardActions} from "../../../src/action/mydashboard/MyDashboardActions";
 
@@ -39,7 +40,14 @@ function makeIndividualService(counts = UNFILTERED, dueChecklist = noDueChecklis
         countRecentlyRegistered: (...args) => (record("countRecentlyRegistered", args), counts.recentlyCompletedRegistration),
         countRecentlyEnrolled: (...args) => (record("countRecentlyEnrolled", args), counts.recentlyCompletedEnrolment),
         countAllIn: (...args) => (record("countAllIn", args), counts.total),
-        dueChecklistForDefaultDashboard: (...args) => (record("dueChecklistForDefaultDashboard", args), dueChecklist())
+        dueChecklistForDefaultDashboard: (...args) => (record("dueChecklistForDefaultDashboard", args), dueChecklist()),
+        // Entity lists, used by onListLoad when filters are applied from the list screen.
+        allScheduledVisitsIn: () => [],
+        allOverdueVisitsIn: () => [],
+        recentlyCompletedVisitsIn: () => [],
+        recentlyRegistered: () => [],
+        recentlyEnrolled: () => [],
+        allIn: () => []
     };
 }
 
@@ -317,6 +325,41 @@ describe("MyDashboardActions.onLoad card counts", () => {
         // SyncService.reset() dispatches RESET, which returns the reducer to its initial state.
         MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
         assert.equal(customFilterService.resolutions, 2, "freshly synced data must be re-filtered");
+    });
+
+    it("leaves the memo key and the resolved subjects describing the same filter on the list branch", () => {
+        const dashboardCacheService = makeDashboardCacheService();
+        const customFilterService = makeCustomFilterService(["subject-1"]);
+        const context = buildContext({
+            individualService: makeIndividualService(),
+            dashboardCacheService,
+            customFilterService
+        });
+
+        const selectedCustomFilters = {Age: [{uuid: "opt-1", subjectTypeUUID: SUBJECT_TYPE.uuid}]};
+        const applyAction = {
+            filters: new Map(),
+            locationSearchCriteria: {clone: () => ({getAllAddressLevelUUIDs: () => []})},
+            addressLevelState: {clone: () => ({levels: new Map(), anyActiveTypesArray: []}), anyActiveTypesArray: []},
+            filterDate: new Date("2026-08-24T00:00:00.000Z"),
+            programs: [], selectedPrograms: [], encounterTypes: [], selectedEncounterTypes: [],
+            generalEncounterTypes: [], selectedGeneralEncounterTypes: [], selectedGenders: [],
+            selectedLocations: [], selectedSubjectType: SUBJECT_TYPE,
+            selectedCustomFilters,
+            // FiltersView passes listType when filters are applied from the individual-list screen.
+            listType: "total"
+        };
+
+        const afterList = MyDashboardActions.assignFilters(MyDashboardActions.getInitialState(context), applyAction, context);
+
+        assert.deepEqual(afterList.individualUUIDs, ["subject-1"]);
+        assert.equal(afterList.customFilterResolvedAgainst, JSON.stringify({Age: selectedCustomFilters.Age}),
+            "key must describe the filter individualUUIDs was resolved from");
+
+        // The next dashboard load must reuse that answer rather than scan again.
+        const resolutionsAfterApply = customFilterService.resolutions;
+        MyDashboardActions.onLoad(afterList, {fetchFromDB: true}, context);
+        assert.equal(customFilterService.resolutions, resolutionsAfterApply, "no wasted re-scan");
     });
 
     it("zeroes the cards for a custom filter that matches nothing, and restores them when it is cleared", () => {

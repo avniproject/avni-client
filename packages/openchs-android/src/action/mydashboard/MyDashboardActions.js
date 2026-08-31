@@ -458,6 +458,9 @@ class MyDashboardActions {
             fetchFromDB: true,
             selectedCustomFilters: selectedCustomFilterBySubjectType,
             individualUUIDs: dashboardFiltersEmpty ? null : individualUUIDs,
+            // Kept beside individualUUIDs so the two always describe the same filter, on the list
+            // branch below as well as the load branch.
+            customFilterResolvedAgainst: dashboardFiltersEmpty ? null : JSON.stringify(selectedCustomFilterBySubjectType),
             selectedGenders: action.selectedGenders
         };
         const selectedFilterTypes = MyDashboardActions.getSelectedFilterTypes(newState);
@@ -476,7 +479,7 @@ class MyDashboardActions {
         const updatedState = _.isNil(action.listType) ?
             MyDashboardActions.onLoad(newState, {
                 customFilterSubjectUUIDs: newState.individualUUIDs,
-                customFilterResolvedAgainst: dashboardFiltersEmpty ? null : JSON.stringify(selectedCustomFilterBySubjectType)
+                customFilterResolvedAgainst: newState.customFilterResolvedAgainst
             }, context) :
             MyDashboardActions.onListLoad(newState, action, context);
         logEvent(firebaseEvents.MY_DASHBOARD_FILTER, {time_taken: Date.now() - startTime, applied_filters: selectedFilterTypes});
