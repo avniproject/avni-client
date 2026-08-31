@@ -24,7 +24,10 @@ const UNFILTERED = {
 
 const ALL_ZERO = _.mapValues(UNFILTERED, () => 0);
 
-function makeIndividualService(counts = UNFILTERED) {
+const dueSubject = (uuid) => ({individual: {uuid}, visitInfo: {uuid}});
+const noDueChecklist = () => ({individual: [], checklistItemNames: []});
+
+function makeIndividualService(counts = UNFILTERED, dueChecklist = noDueChecklist) {
     const calls = [];
     const record = (name, args) => calls.push({name, args});
     return {
@@ -36,7 +39,7 @@ function makeIndividualService(counts = UNFILTERED) {
         countRecentlyRegistered: (...args) => (record("countRecentlyRegistered", args), counts.recentlyCompletedRegistration),
         countRecentlyEnrolled: (...args) => (record("countRecentlyEnrolled", args), counts.recentlyCompletedEnrolment),
         countAllIn: (...args) => (record("countAllIn", args), counts.total),
-        dueChecklistForDefaultDashboard: () => ({individual: [], checklistItemNames: []})
+        dueChecklistForDefaultDashboard: (...args) => (record("dueChecklistForDefaultDashboard", args), dueChecklist())
     };
 }
 
@@ -91,6 +94,81 @@ function makeCustomFilterService(matched) {
     };
     return service;
 }
+
+describe("MyDashboardActions.onLoad due checklist card", () => {
+    // Two enrolments for one subject: the card counts people, not rows (#2024).
+    const twoDueOnePerson = () => ({
+        individual: [dueSubject("child-1"), dueSubject("child-2"), dueSubject("child-1")],
+        checklistItemNames: ["Vaccine A", "Vaccine B"]
+    });
+
+    function contextWith(dueChecklist, disableAutoRefresh = false) {
+        return buildContext({
+            individualService: makeIndividualService(UNFILTERED, dueChecklist),
+            dashboardCacheService: makeDashboardCacheService(),
+            customFilterService: noCustomFilters(),
+            disableAutoRefresh
+        });
+    }
+
+    const dueCountOf = (state) => Object.assign({}, ...state.visits.map((r) => r.visits)).dueChecklist.count;
+
+    it("shows the number of people with a checklist due, and carries the list for the drill-down", () => {
+        const context = contextWith(twoDueOnePerson);
+        const state = MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
+
+        assert.equal(dueCountOf(state), 2, "child-1 appears twice but is one person");
+        assert.equal(state.dueChecklistWithChecklistItem.individual.length, 3);
+        assert.deepEqual(state.dueChecklistWithChecklistItem.checklistItemNames, ["Vaccine A", "Vaccine B"]);
+    });
+
+    it("stays hidden for an org without checklists", () => {
+        const context = contextWith(noDueChecklist);
+        const state = MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
+        assert.equal(dueCountOf(state), 0, "a zero count is what hides the row");
+    });
+
+    it("keeps the number across re-entry", () => {
+        const context = contextWith(twoDueOnePerson);
+        const loaded = MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
+        const reEntered = MyDashboardActions.onLoad(loaded, {fetchFromDB: false}, context);
+        assert.equal(dueCountOf(reEntered), 2);
+        assert.equal(reEntered.dueChecklistWithChecklistItem.individual.length, 3);
+    });
+
+    it("never shows a due count it has no list for", () => {
+        // The cached card carries a due count, but the list lives only in reducer state. After a
+        // restart with auto-refresh off the list is gone, so the card must not offer a drill-down
+        // onto an empty listing — StatusCountRow hands this list straight to ChecklistListingView.
+        const dashboardCacheService = makeDashboardCacheService();
+        dashboardCacheService.updateCard({...UNFILTERED, dueChecklist: 2});
+        const context = buildContext({
+            individualService: makeIndividualService(UNFILTERED, twoDueOnePerson),
+            dashboardCacheService,
+            customFilterService: noCustomFilters(),
+            disableAutoRefresh: true
+        });
+
+        const afterRestart = MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
+        assert.deepEqual(countsOf(afterRestart), UNFILTERED, "the other cards still come from cache");
+        assert.equal(dueCountOf(afterRestart), 0);
+        assert.isEmpty(afterRestart.dueChecklistWithChecklistItem.individual);
+    });
+
+    it("restricts the due checklist to the subjects a custom filter matched", () => {
+        const individualService = makeIndividualService(UNFILTERED, twoDueOnePerson);
+        const dashboardCacheService = makeDashboardCacheService();
+        dashboardCacheService.setSelectedCustomFilters({Age: [{uuid: "opt-1"}]});
+        const context = buildContext({
+            individualService,
+            dashboardCacheService,
+            customFilterService: {isDashboardFiltersEmpty: () => false, applyCustomFilters: () => ["child-1"]}
+        });
+
+        MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
+        assert.include(individualService.callTo("dueChecklistForDefaultDashboard").args[1], 'individual.uuid = "child-1"');
+    });
+});
 
 describe("MyDashboardActions.onLoad card counts", () => {
     it("keeps the numbers when the screen is re-entered without a fresh fetch", () => {

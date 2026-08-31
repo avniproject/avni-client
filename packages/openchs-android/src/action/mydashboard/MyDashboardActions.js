@@ -82,8 +82,16 @@ const customFilterSubjectPaths = {
     individualFilters: 'uuid',
     encountersFilters: 'programEnrolment.individual.uuid',
     generalEncountersFilters: 'individual.uuid',
-    enrolmentFilters: 'individual.uuid'
+    enrolmentFilters: 'individual.uuid',
+    dueChecklistFilter: 'individual.uuid'
 };
+
+const emptyDueChecklist = {individual: [], checklistItemNames: []};
+
+// Cards count people, not rows (#2024): one subject with two due enrolments is one person.
+function countSubjects(individualsWithVisitInfo) {
+    return new Set(_.map(individualsWithVisitInfo, ({individual}) => individual.uuid)).size;
+}
 
 // Returns null when no custom filter is applied, otherwise the (possibly empty) list of subjects
 // it matched, along with the filter it was resolved against.
@@ -109,10 +117,13 @@ function resolveCustomFilterSubjects(dashboardCacheFilter, state, context) {
 const customFilterChunkSize = 500;
 
 function countCards(individualService, dashboardCacheFilter, customFilterSubjectUUIDs) {
-    if (!_.isNil(customFilterSubjectUUIDs) && _.isEmpty(customFilterSubjectUUIDs)) return {...emptyCard};
+    if (!_.isNil(customFilterSubjectUUIDs) && _.isEmpty(customFilterSubjectUUIDs)) {
+        return {card: {...emptyCard}, dueChecklistWithChecklistItem: emptyDueChecklist};
+    }
 
     const filterDate = dashboardCacheFilter.filterDate;
     const card = {...emptyCard};
+    const dueChecklist = {individual: [], checklistItemNames: []};
     const subjectChunks = _.isEmpty(customFilterSubjectUUIDs) ? [null] : _.chunk(customFilterSubjectUUIDs, customFilterChunkSize);
 
     subjectChunks.forEach((subjectUUIDs) => {
@@ -128,9 +139,18 @@ function countCards(individualService, dashboardCacheFilter, customFilterSubject
         card.recentlyCompletedRegistration += individualService.countRecentlyRegistered(filterDate, [], subjectCriteria);
         card.recentlyCompletedEnrolment += individualService.countRecentlyEnrolled(filterDate, [], restrictedTo('enrolmentFilters'));
         card.total += individualService.countAllIn(filterDate, [], subjectCriteria);
+
+        // The due checklist has no count-only form: whether an item is due comes from
+        // calculateApplicableState in JS, and the card hands this list straight to
+        // ChecklistListingView instead of loading it on tap. Orgs without the feature pay nothing
+        // for it — dueChecklistForDefaultDashboard returns empty before it queries.
+        const chunkDueChecklist = individualService.dueChecklistForDefaultDashboard(filterDate, restrictedTo('dueChecklistFilter'));
+        dueChecklist.individual.push(...chunkDueChecklist.individual);
+        dueChecklist.checklistItemNames.push(...chunkDueChecklist.checklistItemNames);
     });
 
-    return card;
+    card.dueChecklist = countSubjects(dueChecklist.individual);
+    return {card, dueChecklistWithChecklistItem: dueChecklist};
 }
 
 /*
@@ -201,11 +221,16 @@ class MyDashboardActions {
 
         // The card is the only source of the displayed numbers. Entity lists are built on demand
         // when a card is tapped (ON_LIST_LOAD), so their lengths say nothing about the counts.
-        const card = fetchFromDB ?
-            countCards(context.get(IndividualService), dashboardCacheFilter, customFilterSubjectUUIDs) :
-            {...emptyCard, ...dashboardCache.getCard()};
+        // The due checklist is the exception: its list cannot be rebuilt on tap, so its number is
+        // always taken from the list actually in hand — never from the cache, which would leave a
+        // tappable card opening an empty listing.
+        let card, dueChecklistWithChecklistItem;
         if (fetchFromDB) {
+            ({card, dueChecklistWithChecklistItem} = countCards(context.get(IndividualService), dashboardCacheFilter, customFilterSubjectUUIDs));
             dashboardCacheService.updateCard(card);
+        } else {
+            dueChecklistWithChecklistItem = state.dueChecklistWithChecklistItem || emptyDueChecklist;
+            card = {...emptyCard, ...dashboardCache.getCard(), dueChecklist: countSubjects(dueChecklistWithChecklistItem.individual)};
         }
 
         const subjectType = context.get(SubjectTypeService).findByUUID(dashboardCacheFilter.selectedSubjectTypeUUID);
@@ -216,7 +241,7 @@ class MyDashboardActions {
             scheduled: [], overdue: [], recentlyCompletedVisits: [],
             recentlyCompletedRegistration: [], recentlyCompletedEnrolment: [],
             total: [], dueChecklist: [],
-            dueChecklistWithChecklistItem: {individual: [], checklistItemNames: []},
+            dueChecklistWithChecklistItem,
             visits: MyDashboardActions.getRowCount(card, displayProgramTab),
             selectedSubjectType: subjectType,
             individualUUIDs: customFilterSubjectUUIDs,
