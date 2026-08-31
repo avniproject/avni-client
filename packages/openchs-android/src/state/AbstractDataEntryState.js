@@ -12,6 +12,7 @@ import EntityService from "../service/EntityService";
 import TimerState from "./TimerState";
 import EnvironmentConfig from "../framework/EnvironmentConfig";
 import PrivilegeService from "../service/PrivilegeService";
+import Perf from "../utility/perf";
 import {EncounterType, Privilege} from "openchs-models";
 import ProgramService from "../service/program/ProgramService";
 
@@ -166,10 +167,21 @@ class AbstractDataEntryState {
         return this;
     }
 
+    // avni-client#2086 (A): pressing Summary does not jump to the summary - it advances the wizard one
+    // page at a time to the end, running each page's rule evaluation on the way, because those pages'
+    // rules produce the decisions and visit schedules the summary needs. So the cost scales with pages
+    // REMAINING, which is why Summary from an early page is slower than from the last one. Marked per
+    // page so that claim is measured rather than asserted.
     async handleSummaryPageAsync(action, context) {
+        const _tWalk = Date.now();
+        let _pages = 0;
+        Perf.mark("summary.walk.begin", () => ({fromPage: this.wizard.currentPage}));
         while (!this.wizard.isLastPage() && !this.anyFailedResultForCurrentFEG()) {
             const currentPageBeforeNext = this.wizard.currentPage;
+            const _tPage = Date.now();
             await this.handleNextAsync(action, context);
+            _pages++;
+            Perf.mark("summary.walk.page", () => ({page: currentPageBeforeNext, ms: Date.now() - _tPage}));
             //if last feg has no visible form elements, handleNext moves previous to feg with visible form elements
             //and as a result, the isLastPage() condition is never satisfied causing an infinite loop
             if (!(this.wizard.currentPage > currentPageBeforeNext)) break;
@@ -177,7 +189,9 @@ class AbstractDataEntryState {
         // after the last page one more next to go to SR page
         if (this.wizard.isLastPage() && !this.anyFailedResultForCurrentFEG()) {
             await this.handleNextAsync(action, context);
+            _pages++;
         }
+        Perf.mark("summary.walk.end", () => ({pages: _pages, ms: Date.now() - _tWalk}));
         return this;
     }
 
