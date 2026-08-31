@@ -78,6 +78,20 @@ function countsOf(state) {
 
 const noCustomFilters = () => ({isDashboardFiltersEmpty: () => true, applyCustomFilters: () => []});
 
+// Resolving a custom filter scans observations (tens of seconds on a large org), so track how
+// often it actually runs.
+function makeCustomFilterService(matched) {
+    const service = {
+        resolutions: 0,
+        isDashboardFiltersEmpty: (filters) => _.isEmpty(filters) || _.every(filters, _.isEmpty),
+        applyCustomFilters: () => {
+            service.resolutions += 1;
+            return matched;
+        }
+    };
+    return service;
+}
+
 describe("MyDashboardActions.onLoad card counts", () => {
     it("keeps the numbers when the screen is re-entered without a fresh fetch", () => {
         const context = buildContext({
@@ -179,6 +193,52 @@ describe("MyDashboardActions.onLoad card counts", () => {
         assert.equal(countsOf(state).scheduled, 3);
         assert.equal(countsOf(state).total, 3);
         assert.deepEqual(_.uniq(subjectUUIDs.map((uuid) => scheduledCalls.some(({args}) => args[2].includes(`"${uuid}"`)))), [true]);
+    });
+
+    it("resolves a custom filter once and reuses it until the filter itself changes", () => {
+        const dashboardCacheService = makeDashboardCacheService();
+        dashboardCacheService.setSelectedCustomFilters({Age: [{uuid: "opt-1"}]});
+        const customFilterService = makeCustomFilterService(["subject-1"]);
+        const context = buildContext({
+            individualService: makeIndividualService(),
+            dashboardCacheService,
+            customFilterService
+        });
+
+        let state = MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
+        assert.equal(customFilterService.resolutions, 1);
+
+        // Date toggles, manual refreshes and re-entries must not re-run the scan.
+        state = MyDashboardActions.onDate(state, {value: new Date("2026-08-26T00:00:00.000Z")}, context);
+        state = MyDashboardActions.onLoad(state, {fetchFromDB: true}, context);
+        state = MyDashboardActions.onLoad(state, {fetchFromDB: false}, context);
+        assert.equal(customFilterService.resolutions, 1, "the same filter must not be resolved again");
+        assert.deepEqual(countsOf(state), UNFILTERED);
+
+        // Changing the filter must re-resolve it.
+        dashboardCacheService.setSelectedCustomFilters({Age: [{uuid: "opt-2"}]});
+        state = MyDashboardActions.onLoad(state, {fetchFromDB: true}, context);
+        assert.equal(customFilterService.resolutions, 2);
+
+        // Clearing it must re-resolve to unrestricted counts, without another scan.
+        dashboardCacheService.setSelectedCustomFilters({});
+        state = MyDashboardActions.onLoad(state, {fetchFromDB: true}, context);
+        assert.equal(customFilterService.resolutions, 2, "an empty filter needs no scan");
+        assert.isNull(state.individualUUIDs);
+    });
+
+    it("re-resolves after a sync, since RESET clears the memo", () => {
+        const dashboardCacheService = makeDashboardCacheService();
+        dashboardCacheService.setSelectedCustomFilters({Age: [{uuid: "opt-1"}]});
+        const customFilterService = makeCustomFilterService(["subject-1"]);
+        const context = buildContext({individualService: makeIndividualService(), dashboardCacheService, customFilterService});
+
+        MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
+        assert.equal(customFilterService.resolutions, 1);
+
+        // SyncService.reset() dispatches RESET, which returns the reducer to its initial state.
+        MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
+        assert.equal(customFilterService.resolutions, 2, "freshly synced data must be re-filtered");
     });
 
     it("zeroes the cards for a custom filter that matches nothing, and restores them when it is cleared", () => {

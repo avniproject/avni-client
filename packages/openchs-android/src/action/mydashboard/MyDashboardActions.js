@@ -86,13 +86,21 @@ const customFilterSubjectPaths = {
 };
 
 // Returns null when no custom filter is applied, otherwise the (possibly empty) list of subjects
-// it matched. Resolved on every load rather than carried in state: a stale value used to hold
-// every card at zero until the app was restarted.
-function getCustomFilterSubjectUUIDs(dashboardCacheFilter, context) {
+// it matched, along with the filter it was resolved against.
+//
+// Resolving scans observations and can take tens of seconds, so the answer is memoised against
+// the filter that produced it rather than recomputed per load. Keying on the filter is what keeps
+// it self-healing: the value the old returnEmpty flag carried was never re-derived at all, so a
+// filter matching nothing pinned every card to zero until the app was restarted. A sync clears
+// reducer state, so the next load re-resolves against freshly synced data.
+function resolveCustomFilterSubjects(dashboardCacheFilter, state, context) {
     const customFilterService = context.get(CustomFilterService);
     const selectedCustomFilters = dashboardCacheFilter.selectedCustomFilters || {};
-    if (customFilterService.isDashboardFiltersEmpty(selectedCustomFilters)) return null;
-    return customFilterService.applyCustomFilters(selectedCustomFilters, 'myDashboardFilters');
+    if (customFilterService.isDashboardFiltersEmpty(selectedCustomFilters)) return {individualUUIDs: null, resolvedAgainst: null};
+
+    const resolvedAgainst = JSON.stringify(selectedCustomFilters);
+    if (state.customFilterResolvedAgainst === resolvedAgainst) return {individualUUIDs: state.individualUUIDs, resolvedAgainst};
+    return {individualUUIDs: customFilterService.applyCustomFilters(selectedCustomFilters, 'myDashboardFilters'), resolvedAgainst};
 }
 
 // The subject restriction compiles to one OR term per subject, and SQLite caps expression depth
@@ -187,13 +195,9 @@ class MyDashboardActions {
         const dashboardCache = dashboardCacheService.getCache();
         const dashboardCacheFilter = dashboardCache.getFilter();
         const fetchFromDB = action.fetchFromDB || state.fetchFromDB;
-        let customFilterSubjectUUIDs = action.customFilterSubjectUUIDs;
-        if (_.isUndefined(customFilterSubjectUUIDs)) {
-            // Resolving a custom filter means querying for its subjects, so reuse the last answer
-            // on a load that is not recomputing the counts anyway.
-            customFilterSubjectUUIDs = (fetchFromDB || _.isUndefined(state.individualUUIDs)) ?
-                getCustomFilterSubjectUUIDs(dashboardCacheFilter, context) : state.individualUUIDs;
-        }
+        const {individualUUIDs: customFilterSubjectUUIDs, resolvedAgainst} = _.isUndefined(action.customFilterSubjectUUIDs) ?
+            resolveCustomFilterSubjects(dashboardCacheFilter, state, context) :
+            {individualUUIDs: action.customFilterSubjectUUIDs, resolvedAgainst: action.customFilterResolvedAgainst};
 
         // The card is the only source of the displayed numbers. Entity lists are built on demand
         // when a card is tapped (ON_LIST_LOAD), so their lengths say nothing about the counts.
@@ -216,6 +220,7 @@ class MyDashboardActions {
             visits: MyDashboardActions.getRowCount(card, displayProgramTab),
             selectedSubjectType: subjectType,
             individualUUIDs: customFilterSubjectUUIDs,
+            customFilterResolvedAgainst: resolvedAgainst,
             individualFilters: dashboardCacheFilter.individualFilters,
             encountersFilters: dashboardCacheFilter.encountersFilters,
             generalEncountersFilters: dashboardCacheFilter.generalEncountersFilters,
@@ -444,7 +449,10 @@ class MyDashboardActions {
         const anyActiveTypes = newState.addressLevelState.anyActiveTypesArray;
         updateCachedFilterFields({selectedAddressesInfo, anyActiveTypes, selectedSubjectTypeUUID: newState.selectedSubjectType.uuid, filterDate: action.filterDate}, context);
         const updatedState = _.isNil(action.listType) ?
-            MyDashboardActions.onLoad(newState, {customFilterSubjectUUIDs: newState.individualUUIDs}, context) :
+            MyDashboardActions.onLoad(newState, {
+                customFilterSubjectUUIDs: newState.individualUUIDs,
+                customFilterResolvedAgainst: dashboardFiltersEmpty ? null : JSON.stringify(selectedCustomFilterBySubjectType)
+            }, context) :
             MyDashboardActions.onListLoad(newState, action, context);
         logEvent(firebaseEvents.MY_DASHBOARD_FILTER, {time_taken: Date.now() - startTime, applied_filters: selectedFilterTypes});
         return updatedState;
