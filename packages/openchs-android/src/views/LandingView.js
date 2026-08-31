@@ -29,6 +29,7 @@ import LocalCacheService from '../service/LocalCacheService';
 import {CustomDashboardType} from "../service/customDashboard/CustomDashboardService";
 import OrganisationConfigService from "../service/OrganisationConfigService";
 import UserInfoService from "../service/UserInfoService";
+import Perf from "../utility/perf";
 import {CopilotProvider, CopilotStep, walkthroughable, useCopilot} from "react-native-copilot";
 import CopilotTooltip from "./common/CopilotTooltip";
 
@@ -139,7 +140,12 @@ class LandingView extends AbstractComponent {
     UNSAFE_componentWillMount() {
         const componentMountTime = new Date();
         General.logDebug('LandingView', 'UNSAFE_componentWillMount started');
-        this.dispatchAction(Actions.ON_LOAD, {cachedSubjectTypeUUID: null});
+        Perf.time("LandingView.onLoadDispatch",
+            () => this.dispatchAction(Actions.ON_LOAD, {cachedSubjectTypeUUID: null}));
+        // NOTE (avni-client#2084/#2086): the `took N ms` below is NOT the cost of this AsyncStorage
+        // read. It is how long the JS thread stayed blocked before the microtask could run, so it is a
+        // proxy for total block. The 62,235 ms quoted on #2086 came from here and was read as a storage
+        // cost; it is not one. Use the Perf marks for attribution, this line only as a total.
         LocalCacheService.getPreviouslySelectedSubjectTypeUuid().then(cachedSubjectTypeUUID => {
             General.logDebug('LandingView', `Retrieved cached subject type UUID: ${cachedSubjectTypeUUID}, took ${new Date() - componentMountTime} ms`);
             if (cachedSubjectTypeUUID) {
