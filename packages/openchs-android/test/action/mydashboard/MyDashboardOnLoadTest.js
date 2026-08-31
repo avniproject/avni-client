@@ -281,7 +281,7 @@ describe("MyDashboardActions.onLoad card counts", () => {
         assert.deepEqual(_.uniq(subjectUUIDs.map((uuid) => scheduledCalls.some(({args}) => args[2].includes(`"${uuid}"`)))), [true]);
     });
 
-    it("resolves a custom filter once and reuses it until the filter itself changes", () => {
+    it("reuses the resolved subjects only where data cannot have changed the answer", () => {
         const dashboardCacheService = makeDashboardCacheService();
         dashboardCacheService.setSelectedCustomFilters({Age: [{uuid: "opt-1"}]});
         const customFilterService = makeCustomFilterService(["subject-1"]);
@@ -294,23 +294,51 @@ describe("MyDashboardActions.onLoad card counts", () => {
         let state = MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
         assert.equal(customFilterService.resolutions, 1);
 
-        // Date toggles, manual refreshes and re-entries must not re-run the scan.
+        // applyCustomFilters takes no date, so Today/Tomorrow cannot change which subjects match.
         state = MyDashboardActions.onDate(state, {value: new Date("2026-08-26T00:00:00.000Z")}, context);
-        state = MyDashboardActions.onLoad(state, {fetchFromDB: true}, context);
+        assert.equal(customFilterService.resolutions, 1, "a date change cannot alter the matched subjects");
+
+        // A plain re-entry does not recompute the counts at all.
         state = MyDashboardActions.onLoad(state, {fetchFromDB: false}, context);
-        assert.equal(customFilterService.resolutions, 1, "the same filter must not be resolved again");
+        assert.equal(customFilterService.resolutions, 1, "no counts recomputed, nothing to resolve for");
         assert.deepEqual(countsOf(state), UNFILTERED);
 
-        // Changing the filter must re-resolve it.
-        dashboardCacheService.setSelectedCustomFilters({Age: [{uuid: "opt-2"}]});
+        // A refresh must see subjects that became matches since the filter was applied.
         state = MyDashboardActions.onLoad(state, {fetchFromDB: true}, context);
         assert.equal(customFilterService.resolutions, 2);
 
-        // Clearing it must re-resolve to unrestricted counts, without another scan.
+        // Changing the filter re-resolves it.
+        dashboardCacheService.setSelectedCustomFilters({Age: [{uuid: "opt-2"}]});
+        state = MyDashboardActions.onLoad(state, {fetchFromDB: true}, context);
+        assert.equal(customFilterService.resolutions, 3);
+
+        // Clearing it needs no scan at all.
         dashboardCacheService.setSelectedCustomFilters({});
         state = MyDashboardActions.onLoad(state, {fetchFromDB: true}, context);
-        assert.equal(customFilterService.resolutions, 2, "an empty filter needs no scan");
+        assert.equal(customFilterService.resolutions, 3, "an empty filter needs no scan");
         assert.isNull(state.individualUUIDs);
+    });
+
+    it("counts subjects that became matches after the filter was applied", () => {
+        // The worker registers a matching person offline, then refreshes. An upload-only
+        // background sync would not have reset reducer state, so nothing else invalidates this.
+        let matched = ["subject-1"];
+        const individualService = makeIndividualService();
+        const dashboardCacheService = makeDashboardCacheService();
+        dashboardCacheService.setSelectedCustomFilters({Age: [{uuid: "opt-1"}]});
+        const context = buildContext({
+            individualService,
+            dashboardCacheService,
+            customFilterService: {isDashboardFiltersEmpty: () => false, applyCustomFilters: () => matched}
+        });
+
+        const state = MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
+        assert.notInclude(individualService.callTo("countAllIn").args[2], '"subject-2"');
+
+        matched = ["subject-1", "subject-2"];
+        MyDashboardActions.onLoad(state, {fetchFromDB: true}, context);
+        assert.include(individualService.callTo("countAllIn").args[2], '"subject-2"',
+            "the newly matching subject must reach the counts without an app restart");
     });
 
     it("re-resolves after a sync, since RESET clears the memo", () => {
@@ -356,9 +384,10 @@ describe("MyDashboardActions.onLoad card counts", () => {
         assert.equal(afterList.customFilterResolvedAgainst, JSON.stringify({Age: selectedCustomFilters.Age}),
             "key must describe the filter individualUUIDs was resolved from");
 
-        // The next dashboard load must reuse that answer rather than scan again.
+        // Once the counts have been recomputed, a later re-entry reuses that answer rather than
+        // scanning again — which it can only do if the key describes the filter behind it.
         const resolutionsAfterApply = customFilterService.resolutions;
-        MyDashboardActions.onLoad(afterList, {fetchFromDB: true}, context);
+        MyDashboardActions.onLoad({...afterList, fetchFromDB: false}, {}, context);
         assert.equal(customFilterService.resolutions, resolutionsAfterApply, "no wasted re-scan");
     });
 

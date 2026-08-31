@@ -93,21 +93,34 @@ function countSubjects(individualsWithVisitInfo) {
     return new Set(_.map(individualsWithVisitInfo, ({individual}) => individual.uuid)).size;
 }
 
-// Returns null when no custom filter is applied, otherwise the (possibly empty) list of subjects
-// it matched, along with the filter it was resolved against.
+// Which subjects a custom filter matches changes when data is entered, not only when the filter
+// changes — a newly registered subject joins the set, a voided one leaves it. So the previous
+// answer is reused only where it provably cannot have gone stale:
 //
-// Resolving scans observations and can take tens of seconds, so the answer is memoised against
-// the filter that produced it rather than recomputed per load. Keying on the filter is what keeps
-// it self-healing: the value the old returnEmpty flag carried was never re-derived at all, so a
-// filter matching nothing pinned every card to zero until the app was restarted. A sync clears
-// reducer state, so the next load re-resolves against freshly synced data.
-function resolveCustomFilterSubjects(dashboardCacheFilter, state, context) {
+//   - the load is not recomputing the counts anyway, so the numbers come from the cache; or
+//   - only the date moved. applyCustomFilters takes no date, so Today/Tomorrow cannot alter which
+//     subjects match.
+//
+// Every other refetching load resolves again and sees data entered since the filter was applied.
+// Reusing across those was wrong: an upload-only background sync does not reset reducer state
+// (SyncService.js:704), and is only upgraded to a full one after twelve hours, so a worker's own
+// registrations could sit uncounted for that long.
+function mayReuseCustomFilterSubjects(fetchFromDB, action, state) {
+    if (_.isUndefined(state.customFilterResolvedAgainst)) return false;
+    return !fetchFromDB || action.reuseCustomFilterSubjects === true;
+}
+
+// Returns null when no custom filter is applied, otherwise the (possibly empty) list of subjects
+// it matched, along with the filter it was resolved against. The two are always stored together:
+// a value under a key describing a different filter is how the old returnEmpty flag pinned every
+// card to zero until the app was restarted.
+function resolveCustomFilterSubjects(dashboardCacheFilter, state, context, mayReuse) {
     const customFilterService = context.get(CustomFilterService);
     const selectedCustomFilters = dashboardCacheFilter.selectedCustomFilters || {};
     if (customFilterService.isDashboardFiltersEmpty(selectedCustomFilters)) return {individualUUIDs: null, resolvedAgainst: null};
 
     const resolvedAgainst = JSON.stringify(selectedCustomFilters);
-    if (state.customFilterResolvedAgainst === resolvedAgainst) return {individualUUIDs: state.individualUUIDs, resolvedAgainst};
+    if (mayReuse && state.customFilterResolvedAgainst === resolvedAgainst) return {individualUUIDs: state.individualUUIDs, resolvedAgainst};
     return {individualUUIDs: customFilterService.applyCustomFilters(selectedCustomFilters, 'myDashboardFilters'), resolvedAgainst};
 }
 
@@ -216,7 +229,7 @@ class MyDashboardActions {
         const dashboardCacheFilter = dashboardCache.getFilter();
         const fetchFromDB = action.fetchFromDB || state.fetchFromDB;
         const {individualUUIDs: customFilterSubjectUUIDs, resolvedAgainst} = _.isUndefined(action.customFilterSubjectUUIDs) ?
-            resolveCustomFilterSubjects(dashboardCacheFilter, state, context) :
+            resolveCustomFilterSubjects(dashboardCacheFilter, state, context, mayReuseCustomFilterSubjects(fetchFromDB, action, state)) :
             {individualUUIDs: action.customFilterSubjectUUIDs, resolvedAgainst: action.customFilterResolvedAgainst};
 
         // The card is the only source of the displayed numbers. Entity lists are built on demand
@@ -310,7 +323,7 @@ class MyDashboardActions {
 
     static onDate(state, action, context) {
         updateCachedFilterFields({filterDate: action.value}, context);
-        return MyDashboardActions.onLoad({...state, fetchFromDB: true}, action, context);
+        return MyDashboardActions.onLoad({...state, fetchFromDB: true}, {...action, reuseCustomFilterSubjects: true}, context);
     }
 
     static resetList(state) {
