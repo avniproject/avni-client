@@ -163,7 +163,8 @@ export default class BackupRestoreSqliteService extends BaseService {
         }
     }
 
-    // Mirrors SqliteMigrationService._seedEntitySyncStatusOnTargetBackend.
+    // Mirrors the seeding half of SqliteMigrationService._resetTargetBackend — but NOT
+    // the wipe: the snapshot file is intentionally pre-populated.
     // Idempotent: setup() only inserts REALLY_OLD_DATE rows for entities the
     // user can pull (no privilegeParam) AND that don't already have a row.
     // Existing snapshot rows with their loaded_since values are untouched.

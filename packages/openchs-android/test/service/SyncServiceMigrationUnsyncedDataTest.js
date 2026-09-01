@@ -208,12 +208,14 @@ describe('backend switch is deferred while local data is unsynced (#2006)', () =
         getState: jest.fn(async () => ({phase: 'idle'})),
         persistState: jest.fn(async () => {}),
         _bootstrapTargetSettings: jest.fn(async () => {}),
+        _resetTargetBackend: jest.fn(),
     };
 
     beforeEach(() => {
         mockGlobalContext.switchBackend.mockClear();
         mockGlobalContext.getActiveBackend.mockReturnValue('realm');
         migrationService.persistState.mockClear();
+        migrationService._resetTargetBackend.mockClear();
     });
 
     it('does not switch while the outbox still holds field data', async () => {
@@ -233,6 +235,24 @@ describe('backend switch is deferred while local data is unsynced (#2006)', () =
 
         expect(switched).toBe(true);
         expect(mockGlobalContext.switchBackend).toHaveBeenCalledWith('sqlite');
+    });
+
+    // The target file is shared across users and holds whatever the last one left, so
+    // migrating into it without a wipe merges the two (#2083).
+    it('empties the target backend after switching to it', async () => {
+        const svc = buildSwitchCandidate(0);
+
+        await svc._checkAndSwitchBackendMidSync(() => {});
+
+        expect(migrationService._resetTargetBackend).toHaveBeenCalled();
+    });
+
+    it('does not touch the target backend when the switch is deferred', async () => {
+        const svc = buildSwitchCandidate(3);
+
+        await svc._checkAndSwitchBackendMidSync(() => {});
+
+        expect(migrationService._resetTargetBackend).not.toHaveBeenCalled();
     });
 });
 

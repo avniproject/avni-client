@@ -13,6 +13,8 @@ jest.mock('@react-native-async-storage/async-storage', () => {
         getItem: jest.fn(async (key) => store.has(key) ? store.get(key) : null),
         setItem: jest.fn(async (key, value) => { store.set(key, value); }),
         removeItem: jest.fn(async (key) => { store.delete(key); }),
+        getAllKeys: jest.fn(async () => Array.from(store.keys())),
+        multiRemove: jest.fn(async (keys) => { keys.forEach(k => store.delete(k)); }),
         clear: jest.fn(async () => { store.clear(); }),
     };
 });
@@ -90,10 +92,12 @@ jest.mock('../../src/service/BaseService', () => {
 jest.mock('openchs-models', () => ({
     EntityMetaData: {
         model: () => [],
+        entitiesLoadedFromServer: () => [{schema: {name: 'Individual'}}, {schema: {name: 'EntitySyncStatus'}}],
     },
 }));
 
 const AsyncStorage = require('@react-native-async-storage/async-storage');
+const SessionUsername = require('../../src/service/SessionUsername').default;
 const SqliteMigrationServiceModule = require('../../src/service/SqliteMigrationService');
 const SqliteMigrationService = SqliteMigrationServiceModule.default;
 const {
@@ -111,6 +115,7 @@ describe('SqliteMigrationService', () => {
     let mockEntityQueueService;
     let mockUserInfoService;
     let mockSettingsService;
+    let mockEntityService;
     let mockBeanStore;
 
     beforeEach(() => {
@@ -135,6 +140,9 @@ describe('SqliteMigrationService', () => {
         };
         mockUserInfoService = {
             getUserInfo: jest.fn(() => ({username: 'test-user'})),
+        };
+        mockEntityService = {
+            clearDataIn: jest.fn(),
         };
         // Default mock: settings has idpType set so the auth bootstrap path "just works"
         const mockSettings = {
@@ -161,6 +169,7 @@ describe('SqliteMigrationService', () => {
                     case 'entityQueueService': return mockEntityQueueService;
                     case 'userInfoService': return mockUserInfoService;
                     case 'settingsService': return mockSettingsService;
+                    case 'entityService': return mockEntityService;
                     default: return null;
                 }
             }),
@@ -544,6 +553,62 @@ describe('SqliteMigrationService', () => {
             expect(read).toEqual(original);
         });
 
+        it('keys state on the session username, not the active backend UserInfo row (#2083)', async () => {
+            // The device last ran Realm as anjali, so Realm's UserInfo row still says anjali.
+            mockUserInfoService.getUserInfo.mockReturnValue({username: 'anjali@phulwari'});
+            await SessionUsername.set('nupoork@ntest');
+            await SqliteMigrationService.persistStateForUser('anjali@phulwari', {
+                activeBackend: BACKENDS.SQLITE,
+                desiredBackend: BACKENDS.SQLITE,
+                phase: MIGRATION_PHASES.IDLE,
+            });
+
+            const state = await service.getState();
+
+            expect(state.activeBackend).toBe(BACKENDS.REALM);
+        });
+
+        it('falls back to the UserInfo row when no session username was recorded', async () => {
+            mockUserInfoService.getUserInfo.mockReturnValue({username: 'legacy-user'});
+            await SqliteMigrationService.persistStateForUser('legacy-user', {
+                activeBackend: BACKENDS.SQLITE,
+                desiredBackend: BACKENDS.SQLITE,
+                phase: MIGRATION_PHASES.IDLE,
+            });
+
+            const state = await service.getState();
+
+            expect(state.activeBackend).toBe(BACKENDS.SQLITE);
+        });
+
+        it('writes state under the session username', async () => {
+            mockUserInfoService.getUserInfo.mockReturnValue({username: 'anjali@phulwari'});
+            await SessionUsername.set('nupoork@ntest');
+
+            await service.persistState({
+                activeBackend: BACKENDS.SQLITE,
+                desiredBackend: BACKENDS.SQLITE,
+                phase: MIGRATION_PHASES.IDLE,
+            });
+
+            const written = await SqliteMigrationService.readStateForUser('nupoork@ntest');
+            const untouched = await SqliteMigrationService.readStateForUser('anjali@phulwari');
+            expect(written.activeBackend).toBe(BACKENDS.SQLITE);
+            expect(untouched.activeBackend).toBe(BACKENDS.REALM);
+        });
+
+        it('clearAllMigrationState removes every user\'s key', async () => {
+            await SqliteMigrationService.persistStateForUser('a@x', {activeBackend: BACKENDS.SQLITE});
+            await SqliteMigrationService.persistStateForUser('b@x', {activeBackend: BACKENDS.SQLITE});
+            AsyncStorage.__store.set('unrelated.key', 'keep me');
+
+            await SqliteMigrationService.clearAllMigrationState();
+
+            expect((await SqliteMigrationService.readStateForUser('a@x')).activeBackend).toBe(BACKENDS.REALM);
+            expect((await SqliteMigrationService.readStateForUser('b@x')).activeBackend).toBe(BACKENDS.REALM);
+            expect(AsyncStorage.__store.get('unrelated.key')).toBe('keep me');
+        });
+
         it('state is keyed by username (different users do not collide)', async () => {
             await SqliteMigrationService.persistStateForUser('alice', {
                 activeBackend: BACKENDS.SQLITE,
@@ -556,5 +621,71 @@ describe('SqliteMigrationService', () => {
             expect(aliceState.activeBackend).toBe(BACKENDS.SQLITE);
             expect(bobState.activeBackend).toBe(BACKENDS.REALM); // default
         });
+    });
+
+    describe('target backend reset', () => {
+        it('wipes server-loaded entities before seeding checkpoints', () => {
+            service._resetTargetBackend();
+
+            expect(mockEntityService.clearDataIn).toHaveBeenCalled();
+            expect(mockEntitySyncStatusService.setup).toHaveBeenCalled();
+            const clearOrder = mockEntityService.clearDataIn.mock.invocationCallOrder[0];
+            const setupOrder = mockEntitySyncStatusService.setup.mock.invocationCallOrder[0];
+            expect(clearOrder).toBeLessThan(setupOrder);
+        });
+
+        it('clears the target backend during a Realm to SQLite migration', async () => {
+            mockPrivilegeService.ownedGroups.mockReturnValue([{groupUuid: SQLITE_MIGRATION_GROUP_UUID}]);
+
+            await service.checkAndMaybeMigrate();
+
+            expect(mockGlobalContext.switchBackend).toHaveBeenCalledWith(BACKENDS.SQLITE);
+            expect(mockEntityService.clearDataIn).toHaveBeenCalled();
+        });
+
+        // The callers check the SOURCE outbox before switching; the wipe lands on the target,
+        // whose EntityQueue is in entitiesLoadedFromServer().
+        it('does not wipe a target that holds unsynced local changes', () => {
+            mockEntityQueueService.getPendingFieldDataCount.mockReturnValue(4);
+
+            service._resetTargetBackend();
+
+            expect(mockEntityService.clearDataIn).not.toHaveBeenCalled();
+            expect(mockEntitySyncStatusService.setup).toHaveBeenCalled();
+        });
+
+        it('preserves unsynced target data across a resume that switches backends', async () => {
+            await SessionUsername.set('test-user');
+            await SqliteMigrationService.persistStateForUser('test-user', {
+                activeBackend: BACKENDS.SQLITE,
+                desiredBackend: BACKENDS.SQLITE,
+                phase: MIGRATION_PHASES.PENDING_TARGET_SYNC,
+            });
+            // Source outbox empty, target outbox is not — the count flips after the switch.
+            mockGlobalContext.getActiveBackend.mockReturnValue(BACKENDS.REALM);
+            mockEntityQueueService.getPendingFieldDataCount
+                .mockReturnValueOnce(0)
+                .mockReturnValue(2);
+
+            await service.resumeIfPending();
+
+            expect(mockGlobalContext.switchBackend).toHaveBeenCalledWith(BACKENDS.SQLITE);
+            expect(mockEntityService.clearDataIn).not.toHaveBeenCalled();
+        });
+
+        it('does not wipe anything on the launch-time reconcile', async () => {
+            await SessionUsername.set('test-user');
+            await SqliteMigrationService.persistStateForUser('test-user', {
+                activeBackend: BACKENDS.SQLITE,
+                desiredBackend: BACKENDS.SQLITE,
+                phase: MIGRATION_PHASES.IDLE,
+            });
+
+            await service.resumeIfPending();
+
+            expect(mockGlobalContext.switchBackend).toHaveBeenCalledWith(BACKENDS.SQLITE);
+            expect(mockEntityService.clearDataIn).not.toHaveBeenCalled();
+        });
+
     });
 });

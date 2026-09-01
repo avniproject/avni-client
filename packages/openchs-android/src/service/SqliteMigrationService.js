@@ -4,6 +4,7 @@ import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
 import General from "../utility/General";
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
+import SessionUsername from "./SessionUsername";
 import {BACKENDS} from "../framework/BackendTypes";
 
 // Note: Other services are looked up via this.getService(name) (string-based) to avoid
@@ -83,6 +84,22 @@ class SqliteMigrationService extends BaseService {
         }
     }
 
+    // Called when the device's data is wiped (Delete Data, or a different user logging
+    // in). Leaving these behind means the next launch reconciles the backend from a
+    // user who no longer has data here.
+    static async clearAllMigrationState() {
+        try {
+            const keys = await AsyncStorage.getAllKeys();
+            const migrationKeys = _.filter(keys, k => _.startsWith(k, ASYNC_STORAGE_KEY_PREFIX));
+            if (!_.isEmpty(migrationKeys)) {
+                await AsyncStorage.multiRemove(migrationKeys);
+                General.logInfo("SqliteMigrationService", `Cleared migration state: ${migrationKeys.join(', ')}`);
+            }
+        } catch (e) {
+            General.logError("SqliteMigrationService", `Failed to clear migration state: ${e.message}`);
+        }
+    }
+
     static async persistStateForUser(username, state) {
         try {
             await AsyncStorage.setItem(asyncStorageKey(username), JSON.stringify(state));
@@ -91,7 +108,14 @@ class SqliteMigrationService extends BaseService {
         }
     }
 
-    _getCurrentUsername() {
+    // UserInfo lives in whichever database is active, which at launch is Realm — and
+    // Realm's row belongs to whoever last used Realm, not necessarily the session user.
+    // Prefer the username recorded at login, outside both databases.
+    async _getCurrentUsername() {
+        const sessionUsername = await SessionUsername.get();
+        if (sessionUsername) return sessionUsername;
+        // Installs that have not logged in since this was introduced have no recorded
+        // session username; fall back to the row this used to key on.
         try {
             const userInfoService = this.getService('userInfoService');
             if (!userInfoService) return null;
@@ -103,12 +127,12 @@ class SqliteMigrationService extends BaseService {
     }
 
     async getState() {
-        const username = this._getCurrentUsername();
+        const username = await this._getCurrentUsername();
         return SqliteMigrationService.readStateForUser(username);
     }
 
     async persistState(state) {
-        const username = this._getCurrentUsername();
+        const username = await this._getCurrentUsername();
         await SqliteMigrationService.persistStateForUser(username, state);
     }
 
@@ -351,22 +375,46 @@ class SqliteMigrationService extends BaseService {
     }
 
     /**
-     * Seed baseline entitySyncStatus rows on the currently active backend.
-     * Called after switchBackend() so the new backend has the checkpoint rows
-     * needed by SyncService — without these, the first sync attempt fails with
-     * "Cannot read property 'loadedSince' of undefined" because
-     * EntitySyncStatusService.get() returns undefined for missing rows.
+     * Empty the backend we have just switched to, then seed baseline entitySyncStatus.
+     *
+     * Both halves matter. The target file is shared across users and is whatever the
+     * last occupant left behind, so without the wipe a migration merges the new user's
+     * data into the previous one's. And setup() only inserts rows that are MISSING, so
+     * on a previously-used file every checkpoint survives at its old value and the
+     * "re-pull everything" that follows silently degrades to a delta pull — which is
+     * how a form element ends up referencing a concept that never arrives.
+     *
+     * Clearing entitiesLoadedFromServer() removes the EntitySyncStatus rows too, so the
+     * subsequent setup() re-creates them all at REALLY_OLD_DATE. Only safe to call when
+     * a full sync follows; never on the launch-time reconcile, which does not re-sync.
      */
-    _seedEntitySyncStatusOnTargetBackend() {
+    _resetTargetBackend() {
         try {
+            const {EntityMetaData} = require('openchs-models');
+            const entityService = this.getService('entityService');
             const entitySyncStatusService = this.getService('entitySyncStatusService');
+            // The callers check the SOURCE outbox before switching; nothing checks the
+            // target's. A target can hold unsynced records of its own — a migration that
+            // switched and then failed leaves the user working on it — and the wipe would
+            // take them with it, since entitiesLoadedFromServer() includes EntityQueue.
+            // Uploaded-and-abandoned data is recoverable from the server; this is not, so
+            // keep it and skip the wipe. Same call is made after the switch, so this reads
+            // the target.
+            const pendingOnTarget = this._getPendingFieldDataCount();
+            if (pendingOnTarget > 0) {
+                General.logWarn("SqliteMigrationService",
+                    `Skipping target backend wipe: ${pendingOnTarget} unsynced local changes present there`);
+            } else if (entityService && typeof entityService.clearDataIn === 'function') {
+                General.logInfo("SqliteMigrationService", "Clearing target backend before migration sync");
+                entityService.clearDataIn(EntityMetaData.entitiesLoadedFromServer());
+            }
             if (entitySyncStatusService && typeof entitySyncStatusService.setup === 'function') {
                 General.logInfo("SqliteMigrationService", "Seeding baseline entitySyncStatus on target backend");
                 entitySyncStatusService.setup();
             }
         } catch (e) {
             General.logError("SqliteMigrationService",
-                `Failed to seed entitySyncStatus on target backend: ${e.message}`);
+                `Failed to reset target backend: ${e.message}`);
             throw e;
         }
     }
@@ -464,11 +512,9 @@ class SqliteMigrationService extends BaseService {
                 // SettingsService.init() + the migration sync itself.
                 const authState = this._captureAuthState();
                 globalContext.switchBackend(state.desiredBackend);
-                // Seed baseline entitySyncStatus rows on the new backend so the
-                // sync flow can read sync checkpoints. Without this, the first
-                // call to entitySyncStatusService.get(...) returns undefined and
-                // ConventionalRestClient throws "Cannot read property 'loadedSince'".
-                this._seedEntitySyncStatusOnTargetBackend();
+                // Wipe whatever the previous occupant of this backend left, and seed
+                // baseline checkpoints so the migration sync re-pulls from scratch.
+                this._resetTargetBackend();
                 // Bootstrap Settings on the target: run init() + apply captured auth.
                 await this._bootstrapTargetSettings(authState);
                 state.phase = MIGRATION_PHASES.PENDING_TARGET_SYNC;
@@ -500,7 +546,7 @@ class SqliteMigrationService extends BaseService {
                     // before the bootstrap step completed).
                     const authState = this._captureAuthState();
                     globalContext.switchBackend(state.desiredBackend);
-                    this._seedEntitySyncStatusOnTargetBackend();
+                    this._resetTargetBackend();
                     await this._bootstrapTargetSettings(authState);
                 } else {
                     // Already on target. Sanity check: if Settings is missing or
