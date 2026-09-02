@@ -274,7 +274,7 @@ class IndividualProfile extends AbstractComponent {
     renderProfileHeader() {
         const isPerson = this.props.individual.subjectType.isPerson();
         return (
-            <View style={{flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12}}>
+            <View style={{flexDirection: 'row', alignItems: 'center', paddingHorizontal: 15, paddingTop: 16, paddingBottom: 12}}>
                 <SubjectProfilePicture
                     size={56}
                     subjectType={this.props.individual.subjectType}
@@ -305,7 +305,7 @@ class IndividualProfile extends AbstractComponent {
         ].filter(icon => icon !== null);
         if (icons.length === 0) return null;
         return (
-            <View style={{flexDirection: 'row', justifyContent: 'flex-start', paddingHorizontal: 16, paddingBottom: 8}}>
+            <View style={{flexDirection: 'row', justifyContent: 'flex-start', paddingHorizontal: 15, paddingBottom: 8}}>
                 {icons}
             </View>
         );
@@ -324,7 +324,7 @@ class IndividualProfile extends AbstractComponent {
                     alignItems: 'center',
                     backgroundColor: Colors.BrandLight,
                     borderRadius: 8,
-                    marginHorizontal: 16,
+                    marginHorizontal: 15,
                     marginBottom: 12,
                     paddingHorizontal: 12,
                     paddingVertical: 10
@@ -436,12 +436,18 @@ class IndividualProfile extends AbstractComponent {
                         </View></>
                 ) :
                 (
-                    <View style={this.appendedStyle({
-                        flexDirection: 'column',
-                        backgroundColor: Styles.greyBackground,
-                        paddingHorizontal: Distances.ContentDistanceFromEdge,
-                        paddingVertical: Distances.ContentDistanceFromEdge
-                    })}>
+                    <View style={[
+                        this.appendedStyle({
+                            flexDirection: 'column',
+                            backgroundColor: Styles.greyBackground,
+                            paddingVertical: Distances.ContentDistanceFromEdge
+                        }),
+                        // Applied last, outside appendedStyle's merge/scale step - a caller-supplied
+                        // style prop (e.g. SystemRecommendationView's profile()) would otherwise
+                        // override this, and appendedStyle's scaleStyle() would re-scale it by
+                        // device width, undoing the fixed, device-independent value we want here.
+                        {paddingHorizontal: Distances.ScaledContentDistanceFromEdge}
+                    ]}>
                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
                             <SubjectProfilePicture size={56}
                                                    subjectType={this.props.individual.subjectType}

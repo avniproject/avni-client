@@ -279,7 +279,7 @@ class PreviousEncounters extends AbstractComponent {
         const renderable = (<View>
             <View style={{flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.GreyContentBackground}}>
                 {this.props.title && (
-                    <Text style={[Styles.dashboardSubsectionTitleText, {paddingLeft: 10}]}>
+                    <Text style={Styles.dashboardSubsectionTitleText}>
                         {this.props.title}
                     </Text>
                 )}
@@ -335,8 +335,11 @@ export default PreviousEncounters;
 
 const styles = StyleSheet.create({
     container: {
-        padding: Distances.ScaledContentDistanceFromEdge,
-        marginHorizontal: 4,
+        // Card-internal content inset - deliberately its own fixed value, not tied to the
+        // screen's outer edge-margin constant. This is padding *inside* the card (between its
+        // border and its text), not the card's distance from the screen edge, so it shouldn't
+        // move every time that outer margin is tuned.
+        padding: 16,
         backgroundColor: Colors.WhiteContentBackground,
         marginVertical: 8,
         borderRadius: 8,

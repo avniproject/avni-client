@@ -27,6 +27,11 @@ class NewVisitPageView extends AbstractComponent {
         AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
     }
 
+    onHardwareBackPress() {
+        this.onAppHeaderBack();
+        return true;
+    }
+
     render() {
         General.logDebug(this.viewName(), "render");
 
@@ -34,7 +39,7 @@ class NewVisitPageView extends AbstractComponent {
             <CHSContainer>
                 <CHSContent>
                     <AppHeader title={this.I18n.t("chooseVisit")}
-                               backFunction={() => this.onAppHeaderBack()}
+                               func={() => this.onAppHeaderBack()}
                                displayHomePressWarning={true}
                     />
                     <ScrollView>

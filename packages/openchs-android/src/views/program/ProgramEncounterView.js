@@ -16,6 +16,7 @@ import DateFormElement from "../../views/form/formElement/DateFormElement";
 import _ from "lodash";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import General from "../../utility/General";
+import {getCurrentPageValidationResults} from "../../utility/FormPageReadiness";
 import Distances from "../primitives/Distances";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
@@ -65,7 +66,7 @@ class ProgramEncounterView extends AbstractComponent {
     }
 
     onHardwareBackPress() {
-        this.previous();
+        this.onAppHeaderBack(this.state.saveDrafts);
         return true;
     }
 
@@ -188,13 +189,23 @@ class ProgramEncounterView extends AbstractComponent {
         const title = programEncounterName;
         this.displayMessage(this.props.params.message);
         const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);
+        const observationHolder = new ObservationsHolder(this.state.programEncounter.observations);
+        const filteredFormElements = this.state.filteredFormElements || this.state.formElementGroup.getFormElements();
+        // Mirrors the checks state.validateEntity() runs on Next-press (minus the GPS location check,
+        // which needs reducer context) so the button colour reflects page completeness without
+        // duplicating side-effecting validation here.
+        const currentPageValidationResults = [
+            ...(this.state.wizard.isFirstFormPage() ? this.state.programEncounter.validate() : []),
+            ...getCurrentPageValidationResults(this.state.formElementGroup, filteredFormElements, observationHolder)
+        ];
+        const isCurrentPageComplete = _.every(currentPageValidationResults, validationResult => validationResult.success);
         return (
             <CHSContainer>
                 <CHSContent>
-                    <ScrollView ref={this.scrollRef} style={{flex: 1}} keyboardShouldPersistTaps="handled">
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack(this.state.saveDrafts)}
                                displayHomePressWarning={!this.state.saveDrafts}/>
+                    <ScrollView ref={this.scrollRef} style={{flex: 1}} keyboardShouldPersistTaps="handled">
                     {displayTimer ?
                         <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.state.formElementGroup}/> : null}
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.programEncounter.latestEntityApprovalStatus}/>
@@ -232,7 +243,7 @@ class ProgramEncounterView extends AbstractComponent {
                     <View style={{backgroundColor: '#ffffff', flexDirection: 'column'}}>
                         {_.get(this.state, 'timerState.displayQuestions', true) &&
                             <FormElementGroup
-                            observationHolder={new ObservationsHolder(this.state.programEncounter.observations)}
+                            observationHolder={observationHolder}
                             group={this.state.formElementGroup}
                             actions={Actions}
                             validationResults={this.state.validationResults}
@@ -256,7 +267,8 @@ class ProgramEncounterView extends AbstractComponent {
                             }}
                             next={{
                                 func: () => this.next(),
-                                label: this.I18n.t('next')
+                                label: this.I18n.t('next'),
+                                ready: isCurrentPageComplete
                             }}
                         />
                     </View>}
