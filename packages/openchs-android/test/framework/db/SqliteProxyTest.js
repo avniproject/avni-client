@@ -12,13 +12,18 @@ function createProxy() {
     return proxy;
 }
 
+function updateCalls(proxy) {
+    return proxy._executeRaw.mock.calls.filter(([sql]) => sql.startsWith("UPDATE"));
+}
+
 describe("SqliteProxy.recomputeLatestEntityApprovalStatus", () => {
     it("derives the link from the latest status_date_time in entity_approval_status", () => {
         const proxy = createProxy();
         proxy.recomputeLatestEntityApprovalStatus("Individual", ["i1", "i2"]);
 
-        expect(proxy._executeRaw).toHaveBeenCalledTimes(1);
-        const [sql, params] = proxy._executeRaw.mock.calls[0];
+        const updates = updateCalls(proxy);
+        expect(updates).toHaveLength(1);
+        const [sql, params] = updates[0];
         expect(sql).toContain("UPDATE individual SET latest_entity_approval_status_uuid");
         expect(sql).toContain("SELECT uuid FROM entity_approval_status");
         expect(sql).toContain("WHERE entity_uuid = individual.uuid");
@@ -32,9 +37,19 @@ describe("SqliteProxy.recomputeLatestEntityApprovalStatus", () => {
         const uuids = Array.from({length: 501}, (_, i) => `u${i}`);
         proxy.recomputeLatestEntityApprovalStatus("Individual", uuids);
 
-        expect(proxy._executeRaw).toHaveBeenCalledTimes(2);
-        expect(proxy._executeRaw.mock.calls[0][1]).toHaveLength(500);
-        expect(proxy._executeRaw.mock.calls[1][1]).toEqual(["u500"]);
+        const updates = updateCalls(proxy);
+        expect(updates).toHaveLength(2);
+        expect(updates[0][1]).toHaveLength(500);
+        expect(updates[1][1]).toEqual(["u500"]);
+    });
+
+    it("runs all chunks inside a single transaction", () => {
+        const proxy = createProxy();
+        const uuids = Array.from({length: 501}, (_, i) => `u${i}`);
+        proxy.recomputeLatestEntityApprovalStatus("Individual", uuids);
+
+        const statements = proxy._executeRaw.mock.calls.map(([sql]) => sql.split(" ")[0]);
+        expect(statements).toEqual(["BEGIN", "UPDATE", "UPDATE", "COMMIT"]);
     });
 
     it("no-ops for an empty uuid list", () => {
