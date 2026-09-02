@@ -741,6 +741,45 @@ describe("TRUEPREDICATE window query", () => {
     });
 });
 
+// #2075 — count() matches .length only for a fully translated, unshaped query. This predicate
+// is what keeps a card's number from moving when the count path gets faster.
+describe("canCountInSql — the guard on routing a card count to COUNT(*)", () => {
+    it("is true for a plain filter, the shape a dashboard rule produces", () => {
+        const {proxy, executeQuery} = createProxy();
+        const filtered = proxy.filtered("voided = false");
+
+        expect(filtered.canCountInSql()).toBe(true);
+        expect(executeQuery).not.toHaveBeenCalled();   // asking must not hydrate either
+    });
+
+    it("is true for a bare collection with no filter at all", () => {
+        const {proxy} = createProxy();
+        expect(proxy.canCountInSql()).toBe(true);
+    });
+
+    it("is false when a limit is set — count() strips LIMIT deliberately", () => {
+        const {proxy} = createProxy();
+        expect(proxy.filtered("voided = false limit(2)").canCountInSql()).toBe(false);
+    });
+
+    it("is true for an unlimited distinct — _buildSql windows it, so COUNT(*) counts the same set", () => {
+        const {proxy} = createProxy({schemaName: "EntitySyncStatus", tableName: "entity_sync_status"});
+        expect(proxy.filtered("TRUEPREDICATE DISTINCT(entityName)").canCountInSql()).toBe(true);
+    });
+
+    it("is false when any predicate fell through to the JS fallback", () => {
+        const {proxy} = createProxy();
+        const filtered = proxy.filtered('SUBQUERY(observations, $obs, $obs.concept.uuid = "c1").@count > 0');
+
+        expect(filtered.canCountInSql()).toBe(false);
+    });
+
+    it("is false for a limited distinct — the #1977 shape where count() returns 3 and .length returns 2", () => {
+        const {proxy} = createProxy({schemaName: "EntitySyncStatus", tableName: "entity_sync_status"});
+        expect(proxy.filtered("TRUEPREDICATE DISTINCT(entityName) limit(2)").canCountInSql()).toBe(false);
+    });
+});
+
 describe("realmCollection — getUnderlyingRealmCollection contract", () => {
     class MockWrappedEntity {
         constructor(that) {

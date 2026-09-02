@@ -492,6 +492,12 @@ class SqliteResultsProxy {
         return _.isNil(obj) ? null : this.createEntity(obj);
     }
 
+    // count() agrees with .length until a limit reshapes the result — it strips LIMIT below, which is #1977's 3-vs-2. Distinct alone is windowed in _buildSql and counts correctly.
+    canCountInSql() {
+        return this.jsFallbackFilters.length === 0
+            && this.limitClause == null;
+    }
+
     /**
      * Return count using SELECT COUNT(*) without hydrating any rows.
      * Use this when only the count is needed (e.g., dashboard card counts).

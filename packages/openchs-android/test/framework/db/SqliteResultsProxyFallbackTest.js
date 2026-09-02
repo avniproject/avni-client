@@ -412,6 +412,43 @@ describe("SqliteResultsProxy fallback filter integration", () => {
         });
     });
 
+    // ──── #2075: the count guard, where the fallback makes SQL counting wrong ────
+
+    describe("canCountInSql — a fallback-filtered query must not be counted in SQL", () => {
+        function createFallbackProxy() {
+            // Three rows come back from SQL; the fallback keeps only the one with a matching url.
+            const rows = [{uuid: "1"}, {uuid: "2"}, {uuid: "3"}];
+            const executeQuery = jest.fn(() => rows);
+            const hydrator = createMockHydrator(row => ({
+                uuid: row.uuid,
+                media: row.uuid === "2" ? [{url: "photo-keep.png"}] : [],
+            }));
+
+            const proxy = SqliteResultsProxy.create({
+                schemaName: "Individual",
+                tableName: "individual",
+                entityClass: MockEntity,
+                executeQuery,
+                hydrator,
+            }).filtered('ANY media.url CONTAINS[c] "keep"');
+
+            return {proxy, executeQuery};
+        }
+
+        it("refuses SQL counting once a predicate has fallen through to JS", () => {
+            const {proxy} = createFallbackProxy();
+            expect(proxy.canCountInSql()).toBe(false);
+        });
+
+        it("the guarded count is the post-fallback number, not the row count SQL would return", () => {
+            const {proxy} = createFallbackProxy();
+
+            // SQL returns 3 rows; only 1 survives the JS fallback. The card must show 1.
+            expect(proxy.length).toBe(1);
+            expect(proxy.count()).toBe(1);
+        });
+    });
+
     // ──── Multi-branch OR (the approval-dashboard shape) through proxy → evaluator ────
 
     describe("compound OR clause routed entirely to the JS fallback", () => {

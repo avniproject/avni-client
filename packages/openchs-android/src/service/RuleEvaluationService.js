@@ -69,6 +69,11 @@ function executeLineListFunction(lineListFunction, reportCard, saveFailedRules) 
     }
 }
 
+// Both count-related methods together, so an incidental count() on a rule's own result object is not read as a collection (#2075).
+function isSqliteCollection(queryResult) {
+    return typeof queryResult.count === 'function' && typeof queryResult.canCountInSql === 'function';
+}
+
 function getGlobalRuleFunction(ruleService) {
     const globalRuleDependency = ruleService.findByUUID(GlobalRuleUUID, RuleDependency.schema.name);
     if (!_.isNil(globalRuleDependency)) {
@@ -1103,14 +1108,30 @@ class RuleEvaluationService extends BaseService {
 
     isOldStyleQueryResult(queryResult) {
         //The result can either be an array or a RealmResultsProxy. We are verifying this by looking for existence of the length key.
+        // Reading .length on a SQLite collection hydrates every row, so recognise one without touching it (#2075).
+        if (isSqliteCollection(queryResult)) return true;
         return queryResult.length !== undefined;
+    }
+
+    // #1865's wiring, guarded: Realm and anything canCountInSql() rejects fall through to .length, so no card's number moves (#2075).
+    countOfQueryResult(queryResult) {
+        if (!isSqliteCollection(queryResult) || !queryResult.canCountInSql()) return queryResult.length;
+        try {
+            return queryResult.count();
+        } catch (e) {
+            // COUNT(*) wraps the base SQL in a subquery, a shape .length never ran. Rules are
+            // org-authored, so rather than break a card that worked, fall back to loading it.
+            General.logWarn("CardCount", `COUNT(*) failed, falling back to hydration: ${e.message}`);
+            return queryResult.length;
+        }
     }
 
     getDashboardCardResult(reportCard, ruleInput) {
         const queryResult = this.executeDashboardCardRule(reportCard, ruleInput);
         if (!queryResult.hasErrorMsg && this.isOldStyleQueryResult(queryResult)) {
-            General.logInfo("CardCount", `${reportCard.name} = ${queryResult.length}`);
-            return ReportCardResult.create(queryResult.length, null, true);
+            const count = this.countOfQueryResult(queryResult);
+            General.logInfo("CardCount", `${reportCard.name} = ${count}`);
+            return ReportCardResult.create(count, null, true);
         } else if (reportCard.nested) {
             const nestedResults = _.map(queryResult.reportCards, (result, index) => {
                 return NestedReportCardResult.fromQueryResult(result, reportCard, index);
