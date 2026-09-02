@@ -119,7 +119,7 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
                     visible={this.state.displayActionSelector}
                     actions={this.state.encounterActions}
                 />
-                <View style={{marginHorizontal: 10}}>
+                <View style={{marginHorizontal: 15}}>
                     {this.renderDraftVisits()}
                     {this.renderPlannedVisits()}
                     {this.renderCompletedVisits()}

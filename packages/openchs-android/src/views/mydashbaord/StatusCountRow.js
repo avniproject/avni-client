@@ -20,7 +20,7 @@ class StatusCountRow extends AbstractComponent {
         visitBlockContainer: {
             marginTop: 2,
             flexDirection: 'row',
-            marginHorizontal: 10,
+            marginHorizontal: 15,
             flex: 1,
             flexWrap: 'wrap',
             marginBottom: 15,
@@ -68,7 +68,7 @@ class StatusCountRow extends AbstractComponent {
         return (
             <Fragment>
                 <Text style={[{
-                    paddingHorizontal: 10,
+                    paddingHorizontal: 15,
                     fontSize: 17,
                 }]}>
                     {this.I18n.t(sectionName)}

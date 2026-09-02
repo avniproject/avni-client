@@ -46,7 +46,10 @@ class QuestionGroup extends AbstractFormElement {
         questionGroupIndex: PropTypes.number,
         actions: PropTypes.object,
         subjectUUID: PropTypes.string,
-        suppressGroupValidationMessage: PropTypes.bool
+        suppressGroupValidationMessage: PropTypes.bool,
+        // Only set when this group is a row inside RepeatableFormElement - suppresses the last
+        // field's own bottom divider, since the row's card border already closes it off.
+        hideLastElementSeparator: PropTypes.bool
     };
 
     static defaultProps = {
@@ -146,7 +149,7 @@ class QuestionGroup extends AbstractFormElement {
     renderNormalView(allGroupQuestions) {
         return (
             <Fragment>
-                {_.map(allGroupQuestions, fe => {
+                {_.map(allGroupQuestions, (fe, index) => {
                     const concept = fe.concept;
                     const validationResult = this.getValidationResultForFormElement(fe);
                     const commonProps = {
@@ -155,7 +158,8 @@ class QuestionGroup extends AbstractFormElement {
                         validationResult: validationResult,
                         parentElement: this.props.element,
                         parentFormElement: this.props.element,
-                        questionGroupIndex: this.props.questionGroupIndex
+                        questionGroupIndex: this.props.questionGroupIndex,
+                        hideBottomBorder: this.props.hideLastElementSeparator && index === allGroupQuestions.length - 1
                     };
                     const dataType = concept.datatype;
                     const dataTypes = Concept.dataType;

@@ -401,7 +401,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
     renderProfileOrVoided(individual) {
         if (individual.subjectType.getSetting(SubjectType.settingKeys.displayRegistrationDetails) !== false) {
             return <View>
-                <Text style={[Styles.dashboardSubsectionTitleText, {paddingLeft: 10}]}>
+                <Text style={Styles.dashboardSubsectionTitleText}>
                     {this.I18n.t("registrationInformation")}
                 </Text>
                 <View style={[styles.container, this.state.expand && {backgroundColor: Colors.BrandLight}]}>
@@ -413,13 +413,12 @@ class SubjectDashboardProfileTab extends AbstractComponent {
 
     renderSummary() {
         return <View>
-            <View style={{marginLeft: 10}}>
+            <View>
                 <Text style={Styles.dashboardSubsectionTitleText}>{this.I18n.t('subjectSummary')}</Text>
             </View>
 
             <View style={{
-                padding: Distances.ScaledContentDistanceFromEdge,
-                margin: 4,
+                padding: 16,
                 backgroundColor: Styles.greyBackground,
                 marginVertical: 16,
                 borderWidth: 2,
@@ -440,7 +439,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         const groupSubjectToggle = individual.subjectType.isGroup();
         return (
             <View style={{backgroundColor: Colors.GreyContentBackground, marginTop: 10}}>
-                <View style={{marginHorizontal: 10}}>
+                <View style={{marginHorizontal: 15}}>
                     <CustomActivityIndicator loading={displayIndicator}/>
                     <SubjectProgramEligibilityWidget
                         subject={individual}
@@ -474,8 +473,9 @@ export default SubjectDashboardProfileTab;
 
 const styles = StyleSheet.create({
     container: {
-        padding: Distances.ScaledContentDistanceFromEdge,
-        marginHorizontal: 4,
+        // Card-internal content inset - fixed, independent of the outer edge-margin constant.
+        // Matches PreviousEncounters.js's equivalent card style for the same reasoning.
+        padding: 16,
         backgroundColor: Colors.WhiteContentBackground,
         marginVertical: 8,
         borderRadius: 8,
