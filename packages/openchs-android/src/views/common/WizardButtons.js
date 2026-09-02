@@ -67,7 +67,17 @@ class WizardButtons extends AbstractComponent {
                     <View style={{flex: 0.5}}/>}
                 {nextButton.visible ?
                     <Button primary
-                            style={{flex: 0.5, marginLeft: 8, justifyContent: "center", backgroundColor: Colors.BrandPrimaryDark, borderRadius: BUTTON_RADIUS, ...buttonHeightStyle}}
+                            style={{
+                                flex: 0.5,
+                                marginLeft: 8,
+                                justifyContent: "center",
+                                // Stays enabled either way - ready === false just shows the paler,
+                                // not-yet-satisfied colour instead of the full brand colour.
+                                backgroundColor: nextButton.ready === false ? '#DAF3F4' : Colors.BrandPrimaryDark,
+                                borderRadius: BUTTON_RADIUS,
+                                ...buttonHeightStyle
+                            }}
+                            _text={nextButton.ready === false ? {color: Colors.BrandPrimaryDark} : undefined}
                             onPress={() => nextButton.func()}>{nextButton.label}
                     </Button> : <View style={{flex: 0.5}}/>}
             </View>

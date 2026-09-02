@@ -108,7 +108,6 @@ const styles = StyleSheet.create({
     },
     uploadButton: {
         flex: 1,
-        minWidth: 120,
         height: 48,
         marginRight: 16,
         borderRadius: 8,
@@ -125,7 +124,7 @@ const styles = StyleSheet.create({
         marginRight: 8,
     },
     addImageButton: {
-        width: 160,
+        flex: 1,
         height: 48,
         borderRadius: 8,
         backgroundColor: Colors.BrandPrimary,

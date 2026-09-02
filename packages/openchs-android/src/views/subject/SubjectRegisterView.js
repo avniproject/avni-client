@@ -114,6 +114,11 @@ class SubjectRegisterView extends AbstractComponent {
         AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n);
     }
 
+    onHardwareBackPress() {
+        this.onAppHeaderBack(this.state.saveDrafts);
+        return true;
+    }
+
     shouldComponentUpdate(nextProps, nextState) {
         return nextState.wizard && nextState.wizard.isNonFormPage();
     }
@@ -132,6 +137,15 @@ class SubjectRegisterView extends AbstractComponent {
         }
         const profilePicFormElement = new StaticFormElement("profilePicture", false, 'Profile-Pics', []);
         const title = `${this.I18n.t(this.registrationType)} ${this.I18n.t('registration')}`;
+        // Mirrors the same checks state.validateEntity() runs on Next-press (minus the ones needing
+        // reducer context - GPS location and duplicate-name lookup) so the button colour reflects
+        // page completeness without duplicating side-effecting/DB-backed validation here.
+        const registrationValidationResults = [
+            ...this.state.subject.validate(),
+            ...(this.state.subject.isHousehold() && this.state.isNewEntity ? [this.state.household.validateTotalMembers()] : []),
+            ...(this.state.groupAffiliation ? this.state.groupAffiliation.validate(this.state.filteredFormElements) : [])
+        ];
+        const isCurrentPageComplete = _.every(registrationValidationResults, validationResult => validationResult.success);
         return (
             <CHSContainer>
                 <CHSContent>
@@ -203,7 +217,7 @@ class SubjectRegisterView extends AbstractComponent {
                         <WizardButtons
                             containerStyle={{paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}
                             buttonHeight={56}
-                            next={{func: () => SubjectRegisterViewsMixin.next(this), label: this.I18n.t('next')}}/>
+                            next={{func: () => SubjectRegisterViewsMixin.next(this), label: this.I18n.t('next'), ready: isCurrentPageComplete}}/>
                     </View>
                 </CHSContent>
             </CHSContainer>

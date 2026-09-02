@@ -535,7 +535,7 @@ class CustomDashboardView extends AbstractComponent {
 
 const styles = StyleSheet.create({
     dashboardPickerContainer: {
-        paddingHorizontal: 8,
+        paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
         paddingTop: 24,
         paddingBottom: 16,
         zIndex: 10
@@ -558,7 +558,7 @@ const styles = StyleSheet.create({
         color: Colors.TextPrimaryDark
     },
     container: {
-        marginHorizontal: Styles.ContainerHorizontalDistanceFromEdge,
+        marginHorizontal: Distances.ScaledContentDistanceFromEdge,
         marginBottom: Styles.ContentDistanceFromEdge
     },
     sectionContainer: {

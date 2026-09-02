@@ -200,7 +200,7 @@ class MyDashboardView extends AbstractComponent {
 
 const styles = StyleSheet.create({
     syncingCard: {
-        marginHorizontal: 10,
+        marginHorizontal: 15,
         marginTop: 20,
         borderRadius: 10,
         borderWidth: 1,

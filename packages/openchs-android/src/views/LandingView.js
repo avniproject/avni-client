@@ -13,7 +13,7 @@ import {LandingViewActionsNames as Actions} from "../action/LandingViewActions";
 import Reducers from "../reducer";
 import Styles from "./primitives/Styles";
 import MyDashboardView from "./mydashbaord/MyDashboardView";
-import {Dimensions, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {BackHandler, Dimensions, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import EntityService from "../service/EntityService";
 import {SubjectType} from "avni-models";
 import _ from "lodash";
@@ -87,6 +87,14 @@ class LandingView extends AbstractComponent {
 
     viewName() {
         return "LandingView";
+    }
+
+    // This is the home dashboard - Login/RootView are no longer in the navigator stack beneath
+    // it by this point, so Router's generic pop()-based hardware-back fallback has nothing left
+    // to pop to and silently no-ops instead of exiting. Handle it explicitly here.
+    onHardwareBackPress() {
+        BackHandler.exitApp();
+        return true;
     }
 
     componentDidUpdate(prevProps, prevState) {
