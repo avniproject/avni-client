@@ -64,11 +64,8 @@ class SelectedMembersList extends AbstractComponent {
 
     render() {
         const {selectedMembers} = this.props;
-        if (_.isEmpty(selectedMembers)) {
-            return <Text style={{fontSize: 15, color: Styles.lightgrey, marginTop: 8}}>
-                {this.I18n.t('noMembersSelected')}
-            </Text>;
-        }
+        // Nothing to say before anything is picked - the search button already says it.
+        if (_.isEmpty(selectedMembers)) return null;
         return <View>
             {this.renderHeader()}
             {selectedMembers.length > VIRTUALISE_THRESHOLD
