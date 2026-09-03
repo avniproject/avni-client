@@ -13,18 +13,20 @@ class FloatingButton extends AbstractComponent {
 
     static propTypes = {
         buttonTextKey: PropTypes.string.isRequired,
+        buttonTextParams: PropTypes.object,
         onClick: PropTypes.func.isRequired
     }
 
     render() {
-        const {buttonTextKey, onClick} = this.props;
+        const {buttonTextKey, buttonTextParams, onClick} = this.props;
 
         return <View style={{height: 60, position: 'absolute', bottom: 0, right: 35}}>
             <TouchableOpacity activeOpacity={0.5}
                               onPress={onClick}
                               style={{
                                   height: 40,
-                                  width: 80,
+                                  minWidth: 80,
+                                  paddingHorizontal: 12,
                                   alignItems: 'center',
                                   justifyContent: 'center',
                                   backgroundColor: Colors.AccentColor,
@@ -34,7 +36,7 @@ class FloatingButton extends AbstractComponent {
                     color: 'white',
                     alignSelf: 'center',
                     fontSize: Styles.normalTextSize
-                }}>{this.I18n.t(buttonTextKey)}</Text>
+                }}>{this.I18n.t(buttonTextKey, buttonTextParams)}</Text>
             </TouchableOpacity>
         </View>;
     }

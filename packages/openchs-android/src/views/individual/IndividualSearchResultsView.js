@@ -1,54 +1,38 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import {FlatList, TouchableNativeFeedback, View} from "react-native";
+import {FlatList, View} from "react-native";
 import PropTypes from 'prop-types';
-import React, {Component} from "react";
+import React from "react";
 import Path from "../../framework/routing/Path";
 import AppHeader from "../common/AppHeader";
 import Colors from "../primitives/Colors";
 import General from "../../utility/General";
 import SearchResultsHeader from "./SearchResultsHeader";
-import IndividualDetailsCard from "../common/IndividualDetailsCard";
 import {IndividualSearchActionNames as Actions} from "../../action/individual/IndividualSearchActions";
 import {getUnderlyingRealmCollection, Individual} from "openchs-models";
 import ZeroResults from "../common/ZeroResults";
-
-class IndividualSearchResultRow extends Component {
-    static propTypes = {
-        item: PropTypes.any.isRequired,
-        onResultRowPress: PropTypes.func.isRequired
-    }
-
-    constructor(props, context) {
-        super(props, context);
-    }
-
-    shouldComponentUpdate() {
-        return false;
-    }
-
-    render() {
-        const {item, onResultRowPress} = this.props;
-        const individual = new Individual(item);
-        return <TouchableNativeFeedback key={individual.uuid} onPress={() => onResultRowPress(individual)}
-                                        background={TouchableNativeFeedback.SelectableBackground()}>
-            <View>
-                <IndividualDetailsCard individual={individual}/>
-            </View>
-        </TouchableNativeFeedback>;
-    }
-}
+import IndividualSearchResultRow from "./IndividualSearchResultRow";
+import FloatingButton from "../primitives/FloatingButton";
+import _ from "lodash";
 
 @Path('/individualSearchResults')
 class IndividualSearchResultsView extends AbstractComponent {
     static propTypes = {
         searchResults: PropTypes.any.isRequired,
         totalSearchResultsCount: PropTypes.number.isRequired,
-        onIndividualSelection: PropTypes.func.isRequired,
+        onIndividualSelection: PropTypes.func,
         headerTitle: PropTypes.string,
+        multiSelect: PropTypes.bool,
+        preSelectedUUIDs: PropTypes.array,
+        onIndividualsSelection: PropTypes.func,
+        maxSelectable: PropTypes.number,
+        selectionFullMessage: PropTypes.string
     };
 
     constructor(props, context) {
         super(props, context);
+        // No topLevelStateVariable, so AbstractComponent never subscribes to the store and never
+        // seeds this.state. Selection is local to this screen and has to be initialised here.
+        this.state = {selectedUUIDs: props.preSelectedUUIDs || []};
     }
 
     viewName() {
@@ -60,9 +44,33 @@ class IndividualSearchResultsView extends AbstractComponent {
         super.UNSAFE_componentWillMount();
     }
 
+    isSelectionFull() {
+        return !_.isNil(this.props.maxSelectable) && this.state.selectedUUIDs.length >= this.props.maxSelectable;
+    }
+
+    toggleSelection(individual) {
+        const selected = _.includes(this.state.selectedUUIDs, individual.uuid);
+        if (!selected && this.isSelectionFull()) {
+            this.showError(this.props.selectionFullMessage);
+            return;
+        }
+        this.setState(({selectedUUIDs}) => ({
+            selectedUUIDs: selected
+                ? _.without(selectedUUIDs, individual.uuid)
+                : [...selectedUUIDs, individual.uuid]
+        }));
+    }
+
+    onDone() {
+        const byUUID = _.keyBy(_.map(this.props.searchResults, item => new Individual(item)), 'uuid');
+        this.props.onIndividualsSelection(this, _.compact(_.map(this.state.selectedUUIDs, uuid => byUUID[uuid])));
+    }
+
     render() {
         General.logDebug(this.viewName(), 'render');
         const title = this.props.headerTitle || "searchResults";
+        const {multiSelect} = this.props;
+        const {selectedUUIDs} = this.state;
 
         return (
             <View style={{backgroundColor: Colors.GreyContentBackground,flex:1}}>
@@ -72,15 +80,25 @@ class IndividualSearchResultsView extends AbstractComponent {
                 <FlatList
                     data={this.props.searchResults}
                     keyExtractor={(item) => item.uuid}
-                    renderItem={({item}) => <IndividualSearchResultRow item={item} onResultRowPress={this.onResultRowPress.bind(this)}/>}
+                    extraData={multiSelect ? selectedUUIDs : undefined}
+                    renderItem={({item}) => <IndividualSearchResultRow item={item}
+                                                                       checked={multiSelect ? _.includes(selectedUUIDs, item.uuid) : undefined}
+                                                                       onResultRowPress={this.onResultRowPress.bind(this)}/>}
                 />
                 <ZeroResults count={this.props.searchResults.length}/>
+                {multiSelect && selectedUUIDs.length > 0 &&
+                <FloatingButton buttonTextKey="doneWithCount" buttonTextParams={{count: selectedUUIDs.length}}
+                                onClick={() => this.onDone()}/>}
             </View>
         );
     }
 
     onResultRowPress(individual) {
-        this.props.onIndividualSelection(this, individual);
+        if (this.props.multiSelect) {
+            this.toggleSelection(individual);
+        } else {
+            this.props.onIndividualSelection(this, individual);
+        }
     }
 }
 
