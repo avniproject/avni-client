@@ -434,6 +434,7 @@
     "proceedRegistration": "Register new {{member}}",
     "searchExisting": "Search existing {{member}}",
     "addMemberRole": "Add {{role}}",
+    "tooManyMembersSelected": "Select at most {{max}} members at a time",
     "groupMember": "Group Member",
     "groupMembers": "Group Members",
     "membersSelectedCount": "{{count}} selected",

@@ -1,5 +1,5 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import {FlatList, View} from "react-native";
+import {FlatList, ToastAndroid, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import Path from "../../framework/routing/Path";
@@ -52,7 +52,8 @@ class IndividualSearchResultsView extends AbstractComponent {
     toggleSelection(individual) {
         const selected = _.includes(this.state.selectedUUIDs, individual.uuid);
         if (!selected && this.isSelectionFull()) {
-            this.showError(this.props.selectionFullMessage);
+            // A soft limit on a list the user is scanning - a toast, not a modal to dismiss.
+            ToastAndroid.show(this.props.selectionFullMessage, ToastAndroid.SHORT);
             return;
         }
         this.setState(({selectedUUIDs}) => ({
