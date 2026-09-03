@@ -25,21 +25,29 @@ class GroupSubjectService extends BaseService {
     }
 
     addMember(groupSubject, addRelative, individualRelative) {
-        const entityService = this.getService(EntityService);
-        const freshMember = {
-            uuid: groupSubject.uuid,
-            groupSubject: entityService.findByUUID(groupSubject.groupSubject.uuid, Individual.schema.name),
-            memberSubject: entityService.findByUUID(groupSubject.memberSubject.uuid, Individual.schema.name),
-            groupRole: entityService.findByUUID(groupSubject.groupRole.uuid, GroupRole.schema.name),
-            membershipStartDate: groupSubject.membershipStartDate,
-            membershipEndDate: groupSubject.membershipEndDate,
-        };
-        const groupSubjectEntity = GroupSubject.create(freshMember);
+        this.addMembers([groupSubject], addRelative, individualRelative);
+    }
+
+    addMembers(members, addRelative, individualRelative) {
+        const entities = members.map(member => this.buildGroupSubject(member));
         this.transactionManager.write(() => {
             if (addRelative && individualRelative.isRelationPresent()) {
                 this.getService(IndividualRelationshipService).addOrUpdateRelative(individualRelative)
             }
-            this.saveGroupSubject(groupSubjectEntity);
+            entities.forEach(entity => this.saveGroupSubject(entity));
+        });
+    }
+
+    buildGroupSubject(member) {
+        const entityService = this.getService(EntityService);
+        // Re-fetch the linked entities: the ones held in reducer state can be stale copies.
+        return GroupSubject.create({
+            uuid: member.uuid,
+            groupSubject: entityService.findByUUID(member.groupSubject.uuid, Individual.schema.name),
+            memberSubject: entityService.findByUUID(member.memberSubject.uuid, Individual.schema.name),
+            groupRole: entityService.findByUUID(member.groupRole.uuid, GroupRole.schema.name),
+            membershipStartDate: member.membershipStartDate,
+            membershipEndDate: member.membershipEndDate,
         });
     }
 
