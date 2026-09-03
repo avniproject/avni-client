@@ -11,7 +11,8 @@ import CHSContent from "./common/CHSContent";
 import Colors from "./primitives/Colors";
 import AuthService from "../service/AuthService";
 import RuleEvaluationService from "../service/RuleEvaluationService";
-import Distances from "./primitives/Distances";
+import Distances, {edgeToEdgeStatusBarInset} from "./primitives/Distances";
+import {SafeAreaInsetsContext} from "react-native-safe-area-context";
 import Fonts from "./primitives/Fonts";
 import CHSContainer from "./common/CHSContainer";
 import Separator from "./primitives/Separator";
@@ -249,6 +250,8 @@ class MenuView extends AbstractComponent {
 
     renderTitle() {
         return (
+            <SafeAreaInsetsContext.Consumer>
+                {(insets) => (
             <TouchableNativeFeedback onPress={() => this.userSettingsView()}
                                      background={this.background()}>
                 <View style={{
@@ -257,7 +260,7 @@ class MenuView extends AbstractComponent {
                     minHeight: 70,
                     elevation: 3,
                     paddingHorizontal: 16,
-                    paddingTop: 8 + Distances.EdgeToEdgeStatusBarInset,
+                    paddingTop: 8 + edgeToEdgeStatusBarInset(insets),
                     paddingBottom: 8
                 }}>
                     <MCIIcon style={{fontSize: 35, color: Colors.headerIconColor, alignSelf: 'center'}}
@@ -281,7 +284,9 @@ class MenuView extends AbstractComponent {
                         }]}>{this.I18n.t('editSettings')}</Text>
                     </View>
                 </View>
-            </TouchableNativeFeedback>);
+            </TouchableNativeFeedback>
+                )}
+            </SafeAreaInsetsContext.Consumer>);
     }
 
     onMetabaseReportClick() {
