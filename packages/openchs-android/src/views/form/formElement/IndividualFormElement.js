@@ -24,7 +24,7 @@ class IndividualFormElement extends AbstractFormElement {
         memberSubjectType: PropTypes.object,
         multiSelect: PropTypes.bool,
         multiSelectActionName: PropTypes.string,
-        preSelectedUUIDs: PropTypes.array,
+        preSelectedMembers: PropTypes.array,
         excludedSubjectUUIDs: PropTypes.array,
         maxSelectable: PropTypes.number,
         selectionFullMessage: PropTypes.string,
@@ -36,7 +36,7 @@ class IndividualFormElement extends AbstractFormElement {
     }
 
     search() {
-        const {multiSelect, multiSelectActionName, preSelectedUUIDs, excludedSubjectUUIDs} = this.props;
+        const {multiSelect, multiSelectActionName, preSelectedMembers, excludedSubjectUUIDs} = this.props;
         TypedTransition.from(this).bookmark().with(
             {
                 showHeader: true, headerMessage: this.props.searchHeaderMessage, hideBackButton: false,
@@ -50,7 +50,7 @@ class IndividualFormElement extends AbstractFormElement {
                     });
                 },
                 multiSelect,
-                preSelectedUUIDs,
+                preSelectedMembers,
                 maxSelectable: this.props.maxSelectable,
                 selectionFullMessage: this.props.selectionFullMessage,
                 onIndividualsSelection: (source, individuals) => {

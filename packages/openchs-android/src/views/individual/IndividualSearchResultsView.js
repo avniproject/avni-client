@@ -11,6 +11,7 @@ import {IndividualSearchActionNames as Actions} from "../../action/individual/In
 import {getUnderlyingRealmCollection, Individual} from "openchs-models";
 import ZeroResults from "../common/ZeroResults";
 import IndividualSearchResultRow from "./IndividualSearchResultRow";
+import resolveSelectedIndividuals from "./resolveSelectedIndividuals";
 import FloatingButton from "../primitives/FloatingButton";
 import _ from "lodash";
 
@@ -22,7 +23,7 @@ class IndividualSearchResultsView extends AbstractComponent {
         onIndividualSelection: PropTypes.func,
         headerTitle: PropTypes.string,
         multiSelect: PropTypes.bool,
-        preSelectedUUIDs: PropTypes.array,
+        preSelectedMembers: PropTypes.array,
         onIndividualsSelection: PropTypes.func,
         maxSelectable: PropTypes.number,
         selectionFullMessage: PropTypes.string
@@ -32,7 +33,7 @@ class IndividualSearchResultsView extends AbstractComponent {
         super(props, context);
         // No topLevelStateVariable, so AbstractComponent never subscribes to the store and never
         // seeds this.state. Selection is local to this screen and has to be initialised here.
-        this.state = {selectedUUIDs: props.preSelectedUUIDs || []};
+        this.state = {selectedUUIDs: _.map(props.preSelectedMembers, 'uuid')};
     }
 
     viewName() {
@@ -62,8 +63,9 @@ class IndividualSearchResultsView extends AbstractComponent {
     }
 
     onDone() {
-        const byUUID = _.keyBy(_.map(this.props.searchResults, item => new Individual(item)), 'uuid');
-        this.props.onIndividualsSelection(this, _.compact(_.map(this.state.selectedUUIDs, uuid => byUUID[uuid])));
+        const selected = resolveSelectedIndividuals(this.state.selectedUUIDs, this.props.searchResults,
+            this.props.preSelectedMembers, item => new Individual(item));
+        this.props.onIndividualsSelection(this, selected);
     }
 
     render() {

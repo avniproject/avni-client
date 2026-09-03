@@ -266,7 +266,7 @@ class AddNewMemberView extends AbstractComponent {
                                 memberSubjectType={this.state.member.groupRole.memberSubjectType}
                                 multiSelect={bulkAdd}
                                 multiSelectActionName={Actions.ON_MEMBERS_SELECT}
-                                preSelectedUUIDs={_.map(selectedMembers, ({memberSubject}) => memberSubject.uuid)}
+                                preSelectedMembers={_.map(selectedMembers, 'memberSubject')}
                                 excludedSubjectUUIDs={bulkAdd ? this.state.excludedMemberUUIDs : undefined}
                                 maxSelectable={bulkAdd ? this.selectionLimit() : undefined}
                                 selectionFullMessage={this.selectionLimitMessage()}

@@ -38,7 +38,7 @@ class IndividualSearchView extends AbstractComponent {
         headerMessage: PropTypes.string,
         allowedSubjectTypes: PropTypes.array,
         multiSelect: PropTypes.bool,
-        preSelectedUUIDs: PropTypes.array,
+        preSelectedMembers: PropTypes.array,
         onIndividualsSelection: PropTypes.func,
         maxSelectable: PropTypes.number,
         selectionFullMessage: PropTypes.string
@@ -72,7 +72,7 @@ class IndividualSearchView extends AbstractComponent {
                 totalSearchResultsCount: count,
                 onIndividualSelection: this.props.onIndividualSelection,
                 multiSelect: this.props.multiSelect,
-                preSelectedUUIDs: this.props.preSelectedUUIDs,
+                preSelectedMembers: this.props.preSelectedMembers,
                 onIndividualsSelection: this.props.onIndividualsSelection,
                 maxSelectable: this.props.maxSelectable,
                 selectionFullMessage: this.props.selectionFullMessage
