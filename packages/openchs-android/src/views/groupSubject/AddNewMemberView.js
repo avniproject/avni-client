@@ -145,6 +145,14 @@ class AddNewMemberView extends AbstractComponent {
             : Math.min(headroom, MemberAction.MAX_BULK_SELECTION);
     }
 
+    // Past the limit the predicate costs more than the duplicate check it saves, so fall back to
+    // catching an existing member at selection time, which validateCandidate does anyway.
+    searchExclusions() {
+        const excluded = this.state.excludedMemberUUIDs;
+        return this.state.bulkAddEnabled && excluded.length <= MemberAction.MAX_SEARCH_EXCLUSIONS
+            ? excluded : undefined;
+    }
+
     selectionLimitMessage() {
         const headroom = this.roleHeadroom();
         return this.selectionLimit() === headroom
@@ -267,7 +275,7 @@ class AddNewMemberView extends AbstractComponent {
                                 multiSelect={bulkAdd}
                                 multiSelectActionName={Actions.ON_MEMBERS_SELECT}
                                 preSelectedMembers={_.map(selectedMembers, 'memberSubject')}
-                                excludedSubjectUUIDs={bulkAdd ? this.state.excludedMemberUUIDs : undefined}
+                                excludedSubjectUUIDs={this.searchExclusions()}
                                 maxSelectable={bulkAdd ? this.selectionLimit() : undefined}
                                 selectionFullMessage={this.selectionLimitMessage()}
                                 validationResult={AbstractDataEntryState.getValidationError(this.state, 'GROUP_MEMBER')}/>

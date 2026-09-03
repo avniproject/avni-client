@@ -92,6 +92,15 @@ describe("MemberAction bulk add — when it is offered", () => {
     });
 });
 
+describe("MemberAction.onLoad — reading the existing membership", () => {
+    it("survives a membership whose member subject never synced (#1279)", () => {
+        const partial = [existingMembership("m1"), {voided: false, groupRole: {uuid: "r1"}}];
+        const state = loadedState({members: partial});
+        assert.deepEqual(state.excludedMemberUUIDs, ["m1"]);
+        assert.strictEqual(state.existingMemberCountByRoleUUID["r1"], 2);
+    });
+});
+
 describe("MemberAction.addMembers", () => {
     it("keeps one row per person, in the order they were picked", () => {
         const state = select(loadedState(), [subject({uuid: "m1"}), subject({uuid: "m2"})]);

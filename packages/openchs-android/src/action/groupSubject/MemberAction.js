@@ -14,6 +14,10 @@ export class MemberAction {
     // thread, and the whole batch runs in one dispatch.
     static MAX_BULK_SELECTION = 100;
 
+    // The exclusion list is joined into the search predicate one `uuid != "..."` at a time, so a
+    // group near a four-figure cap would hand the parser a query tens of kilobytes long.
+    static MAX_SEARCH_EXCLUSIONS = 200;
+
     static getInitialState(context) {
         const relations = context.get(EntityService).loadAllNonVoided(IndividualRelation.schema.name);
         return {
@@ -98,8 +102,8 @@ export class MemberAction {
             const currentMembers = _.filter(groupSubject.groupSubjects, ({voided}) => !voided);
             // Snapshot: groupSubjects is a memoised lazy list, so it will not grow during a batch
             // and re-filtering it on every selection change re-hydrates the whole membership.
-            newState.excludedMemberUUIDs = _.map(currentMembers, gs => gs.memberSubject.uuid);
-            newState.existingMemberCountByRoleUUID = _.countBy(currentMembers, gs => gs.groupRole.uuid);
+            newState.excludedMemberUUIDs = _.compact(_.map(currentMembers, gs => _.get(gs, 'memberSubject.uuid')));
+            newState.existingMemberCountByRoleUUID = _.countBy(currentMembers, gs => _.get(gs, 'groupRole.uuid'));
         }
         MemberAction.autoAssignRoleIfRequired(newState, newState.member.groupSubject, newState.groupRoles, context);
         return newState;
