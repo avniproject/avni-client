@@ -40,13 +40,15 @@ class IndividualSearchView extends AbstractComponent {
         multiSelect: PropTypes.bool,
         preSelectedMembers: PropTypes.array,
         onIndividualsSelection: PropTypes.func,
+        onSelectionChange: PropTypes.func,
         maxSelectable: PropTypes.number,
         selectionFullMessage: PropTypes.string
     };
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.individualSearch);
-        this.customFilterService = context.getService(CustomFilterService)
+        this.customFilterService = context.getService(CustomFilterService);
+        this.carriedSelection = props.preSelectedMembers;
     }
 
     viewName() {
@@ -72,7 +74,8 @@ class IndividualSearchView extends AbstractComponent {
                 totalSearchResultsCount: count,
                 onIndividualSelection: this.props.onIndividualSelection,
                 multiSelect: this.props.multiSelect,
-                preSelectedMembers: this.props.preSelectedMembers,
+                preSelectedMembers: this.carriedSelection,
+                onSelectionChange: (members) => this.carriedSelection = members,
                 onIndividualsSelection: this.props.onIndividualsSelection,
                 maxSelectable: this.props.maxSelectable,
                 selectionFullMessage: this.props.selectionFullMessage

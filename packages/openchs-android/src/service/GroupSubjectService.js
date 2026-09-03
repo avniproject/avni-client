@@ -30,12 +30,14 @@ class GroupSubjectService extends BaseService {
 
     addMembers(members, addRelative, individualRelative) {
         const entities = members.map(member => this.buildGroupSubject(member));
+        let saved = 0;
         this.transactionManager.write(() => {
             if (addRelative && individualRelative.isRelationPresent()) {
                 this.getService(IndividualRelationshipService).addOrUpdateRelative(individualRelative)
             }
-            entities.forEach(entity => this.saveGroupSubject(entity));
+            entities.forEach(entity => saved += this.saveGroupSubject(entity) ? 1 : 0);
         });
+        return saved;
     }
 
     buildGroupSubject(member) {
@@ -82,9 +84,10 @@ class GroupSubjectService extends BaseService {
             this.getRepository(Individual.schema.name).create(memberSubjectInd, true);
             this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(savedGroupSubject, GroupSubject.schema.name));
             General.logDebug('GroupSubjectService', 'Member Saved');
-        } else {
-            General.logDebug('GroupSubjectService', 'Member already exists. Not creating duplicate.');
+            return true;
         }
+        General.logDebug('GroupSubjectService', 'Member already exists. Not creating duplicate.');
+        return false;
     }
 
     getAllGroups(memberSubject) {

@@ -265,8 +265,7 @@ export class MemberAction {
                 if (!_.isEmpty(newState.validationResults)) return newState;
                 const members = MemberAction.saveableMembers(newState);
                 if (!_.isEmpty(members)) {
-                    context.get(GroupSubjectService).addMembers(members, false);
-                    action.cb(members.length);
+                    action.cb(context.get(GroupSubjectService).addMembers(members, false));
                 }
                 return newState;
             }
@@ -314,7 +313,10 @@ export class MemberAction {
         const maximumNumberOfMembers = newState.member.groupRole.maximumNumberOfMembers;
         const validationError = currentMemberCount === maximumNumberOfMembers ? ValidationResult.failure('ROLE', 'maxLimitReachedMsg') : ValidationResult.successful('ROLE');
         MemberAction.handleValidationResult(newState, validationError);
-        return newState;
+        // saveableMembers stamps whatever role is current, and the radio stays live above the
+        // selection - so every row's cap and subject-type verdict has to be taken again.
+        return _.isEmpty(newState.selectedMembers) ? newState
+            : MemberAction.revalidateSelection(newState, _.map(newState.selectedMembers, 'memberSubject'), context);
     }
 
     static addMember(state, action, context) {

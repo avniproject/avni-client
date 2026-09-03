@@ -197,6 +197,38 @@ describe("MemberAction.saveableMembers", () => {
 });
 
 
+describe("MemberAction.addRole — changing the role after members are picked", () => {
+    const TEACHER = {uuid: "st-teacher"};
+
+    it("re-judges every row against the role that will actually be stamped on them", () => {
+        const monitor = {uuid: "r2", role: "Monitor", memberSubjectType: TEACHER, maximumNumberOfMembers: 1};
+        const picked = select(loadedState(), [subject({uuid: "m1"}), subject({uuid: "m2"})]);
+        picked.groupRoles = [picked.member.groupRole, monitor];
+
+        const after = MemberAction.addRole(picked, {value: monitor}, context([monitor]));
+
+        after.selectedMembers.forEach(row =>
+            assert.include(messages(row), "memberSubjectTypeMismatchMessage",
+                "students cannot hold a role whose member type is Teacher"));
+        assert.lengthOf(MemberAction.saveableMembers(after), 0);
+    });
+
+    it("re-applies the new role's cap to the standing selection", () => {
+        const capped = {...ROLE, uuid: "r3", maximumNumberOfMembers: 1};
+        const picked = select(loadedState(), [subject({uuid: "m1"}), subject({uuid: "m2"})]);
+
+        const after = MemberAction.addRole(picked, {value: capped}, context([capped]));
+
+        assert.deepEqual(messages(after.selectedMembers[0]), []);
+        assert.include(messages(after.selectedMembers[1]), "maxLimitReachedMsg");
+    });
+
+    it("leaves an untouched screen alone", () => {
+        const fresh = loadedState();
+        assert.deepEqual(MemberAction.addRole(fresh, {value: ROLE}, context()).selectedMembers, []);
+    });
+});
+
 describe("MemberAction.onSave — the batch's shared fields", () => {
     const savingContext = (saved) => ({
         get: (type) => {
@@ -211,6 +243,18 @@ describe("MemberAction.onSave — the batch's shared fields", () => {
         const picked = select(loadedState(), [subject({uuid: "m1"}), subject({uuid: "m2"})]);
         MemberAction.onSave(picked, {cb: () => {}}, savingContext(saved));
         assert.deepEqual(saved.map(m => m.memberSubject.uuid), ["m1", "m2"]);
+    });
+
+    it("reports the number actually written, not the number handed over", () => {
+        // addMembers returns what saveGroupSubject accepted; it skips a member the group already has.
+        const reported = [];
+        const writingOne = {get: (type) => (type && type.name) === "GroupSubjectService"
+            ? {addMembers: () => 1} : {loadAllNonVoided: () => []}};
+        const picked = select(loadedState(), [subject({uuid: "m1"}), subject({uuid: "m2"})]);
+
+        MemberAction.onSave(picked, {cb: (n) => reported.push(n)}, writingOne);
+
+        assert.deepEqual(reported, [1], "saying 2 when one was skipped would be a lie to the user");
     });
 
     it("refuses the whole batch when a shared field is invalid, e.g. the start date was cleared", () => {

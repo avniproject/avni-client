@@ -25,6 +25,7 @@ class IndividualSearchResultsView extends AbstractComponent {
         multiSelect: PropTypes.bool,
         preSelectedMembers: PropTypes.array,
         onIndividualsSelection: PropTypes.func,
+        onSelectionChange: PropTypes.func,
         maxSelectable: PropTypes.number,
         selectionFullMessage: PropTypes.string
     };
@@ -56,17 +57,23 @@ class IndividualSearchResultsView extends AbstractComponent {
             ToastAndroid.show(this.props.selectionFullMessage, ToastAndroid.SHORT);
             return;
         }
-        this.setState(({selectedUUIDs}) => ({
-            selectedUUIDs: selected
-                ? _.without(selectedUUIDs, individual.uuid)
-                : [...selectedUUIDs, individual.uuid]
-        }));
+        this.setState(({selectedUUIDs}) => {
+            const next = selected ? _.without(selectedUUIDs, individual.uuid)
+                : [...selectedUUIDs, individual.uuid];
+            // Publish upward: going Back to the filter and searching again mounts a fresh results
+            // screen, which would otherwise be seeded from the prop as it was two searches ago.
+            if (this.props.onSelectionChange) this.props.onSelectionChange(this.resolve(next));
+            return {selectedUUIDs: next};
+        });
+    }
+
+    resolve(selectedUUIDs) {
+        return resolveSelectedIndividuals(selectedUUIDs, this.props.searchResults,
+            this.props.preSelectedMembers, item => new Individual(item));
     }
 
     onDone() {
-        const selected = resolveSelectedIndividuals(this.state.selectedUUIDs, this.props.searchResults,
-            this.props.preSelectedMembers, item => new Individual(item));
-        this.props.onIndividualsSelection(this, selected);
+        this.props.onIndividualsSelection(this, this.resolve(this.state.selectedUUIDs));
     }
 
     render() {
