@@ -8,7 +8,7 @@ import PropTypes from "prop-types";
 import CHSNavigator from "../../utility/CHSNavigator";
 import General from "../../utility/General";
 import Reducers from "../../reducer";
-import {AddNewMemberActions as Actions} from "../../action/groupSubject/MemberAction";
+import {AddNewMemberActions as Actions, MemberAction} from "../../action/groupSubject/MemberAction";
 import {Alert, Text, ToastAndroid, TouchableOpacity, View, ScrollView} from "react-native";
 import Styles from "../primitives/Styles";
 import IndividualFormElement from "../form/formElement/IndividualFormElement";
@@ -17,6 +17,7 @@ import StaticFormElement from "../viewmodel/StaticFormElement";
 import WizardButtons from "../common/WizardButtons";
 import Colors from "../primitives/Colors";
 import AddMemberDetails from "./AddMemberDetails";
+import SelectedMembersList from "./SelectedMembersList";
 import {IndividualRelative, WorkItem, WorkList, WorkLists} from "avni-models";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import GenericDashboardView from "../program/GenericDashboardView";
@@ -77,6 +78,9 @@ class AddNewMemberView extends AbstractComponent {
     }
 
     save(cb) {
+        if (this.isBulkAdd()) {
+            return this.saveSelection(cb);
+        }
         if (this.state.member.memberSubject.voided) {
             Alert.alert(this.I18n.t("voidedIndividualAlertTitle"),
               this.I18n.t("voidedIndividualAlertMessage"));
@@ -86,6 +90,45 @@ class AddNewMemberView extends AbstractComponent {
         } else {
             this.dispatchAction(Actions.ON_SAVE, {cb});
         }
+    }
+
+    isBulkAdd() {
+        return this.state.bulkAddEnabled && !_.isEmpty(this.state.selectedMembers);
+    }
+
+    // Nothing here removes a row on the user's behalf: cancelling leaves the selection as it was.
+    saveSelection(cb) {
+        const selected = this.state.selectedMembers;
+        const blocked = _.filter(selected, ({validationResults}) => !_.isEmpty(validationResults));
+        const eligible = selected.length - blocked.length;
+        if (eligible === 0) {
+            return Alert.alert(this.I18n.t("validationResult"),
+              this.I18n.t(_.head(_.head(blocked).validationResults).messageKey));
+        }
+        if (_.isEmpty(blocked)) {
+            return this.dispatchAction(Actions.ON_SAVE, {cb});
+        }
+        Alert.alert(this.I18n.t("someMembersCannotBeAdded"),
+          this.I18n.t("someMembersCannotBeAddedDescription",
+            {skipped: blocked.length, total: selected.length, eligible}),
+          [
+              {text: this.I18n.t("cancel"), style: "cancel"},
+              {text: this.I18n.t("addNMembers", {count: eligible}), onPress: () => this.dispatchAction(Actions.ON_SAVE, {cb})}
+          ]);
+    }
+
+    savedMessage(savedCount) {
+        return _.isNil(savedCount) || savedCount === 1
+            ? this.I18n.t('newMemberAddedMsg')
+            : this.I18n.t('membersAddedMsg', {count: savedCount});
+    }
+
+    remainingCapacity() {
+        const groupRole = this.state.member.groupRole;
+        const maximumNumberOfMembers = groupRole.maximumNumberOfMembers;
+        if (!_.isFinite(maximumNumberOfMembers)) return MemberAction.MAX_BULK_SELECTION;
+        const existing = _.get(this.state.existingMemberCountByRoleUUID, groupRole.uuid, 0);
+        return _.clamp(maximumNumberOfMembers - existing, 0, MemberAction.MAX_BULK_SELECTION);
     }
 
     renderRegistrationButton(memberSubjectType, regText) {
@@ -111,10 +154,10 @@ class AddNewMemberView extends AbstractComponent {
 
     next() {
         if (_.isNil(this.props.params)) {
-            const cb = () => TypedTransition.from(this).resetStack([AddNewMemberView, GenericDashboardView],
+            const cb = (savedCount) => TypedTransition.from(this).resetStack([AddNewMemberView, GenericDashboardView],
                 [TypedTransition.createRoute(GenericDashboardView, {
                     individualUUID: this.state.member.groupSubject.uuid,
-                    message: this.I18n.t('newMemberAddedMsg'),
+                    message: this.savedMessage(savedCount),
                     tab: 1
                 })]);
             return this.save(cb);
@@ -174,6 +217,9 @@ class AddNewMemberView extends AbstractComponent {
         this.displayMessage(this.props.message);
         const nextLabel = _.isNil(this.props.params) ? 'save' : 'next';
         const groupRole = this.state.member.groupRole;
+        const bulkAdd = this.state.bulkAddEnabled;
+        const selectedMembers = this.state.selectedMembers;
+        const hasSelection = bulkAdd ? !_.isEmpty(selectedMembers) : !_.isEmpty(this.state.member.memberSubject);
         const title = groupRole.role ? this.I18n.t('addMemberRole', {role: groupRole.role}) : this.I18n.t('addNewMember');
         const regText = groupRole.memberSubjectType && groupRole.memberSubjectType.name;
         return (
@@ -189,22 +235,32 @@ class AddNewMemberView extends AbstractComponent {
                         {this.displaySearchOption() &&
                         <View>
                             <IndividualFormElement
-                                individualNameValue={_.isNil(this.state.member.memberSubject.name) ? "" : this.state.member.memberSubject.name}
-                                element={new StaticFormElement('Group Member', true)}
+                                individualNameValue={bulkAdd || _.isNil(this.state.member.memberSubject.name) ? "" : this.state.member.memberSubject.name}
+                                element={new StaticFormElement(bulkAdd ? 'groupMembers' : 'groupMember', true)}
                                 inputChangeActionName={Actions.ON_MEMBER_SELECT}
                                 searchHeaderMessage={searchHeaderMessage}
                                 hideIcon={!_.isNil(this.props.params)}
-                                displayText={_.isEmpty(this.state.member.memberSubject)}
+                                displayText={!hasSelection}
                                 regText={regText}
                                 memberSubjectType={this.state.member.groupRole.memberSubjectType}
+                                multiSelect={bulkAdd}
+                                multiSelectActionName={Actions.ON_MEMBERS_SELECT}
+                                preSelectedUUIDs={_.map(selectedMembers, ({memberSubject}) => memberSubject.uuid)}
+                                excludedSubjectUUIDs={bulkAdd ? this.state.excludedMemberUUIDs : undefined}
+                                maxSelectable={bulkAdd ? this.remainingCapacity() : undefined}
+                                selectionFullMessage={this.I18n.t('maxLimitReachedMsg')}
                                 validationResult={AbstractDataEntryState.getValidationError(this.state, 'GROUP_MEMBER')}/>
+                            {bulkAdd &&
+                            <SelectedMembersList selectedMembers={selectedMembers}
+                                                 roleCapacityRemaining={this.remainingCapacity() - selectedMembers.length}
+                                                 onRemove={(memberSubjectUUID) => this.dispatchAction(Actions.ON_MEMBER_REMOVE, {memberSubjectUUID})}/>}
                             <ValidationErrorMessage
                                 validationResult={AbstractDataEntryState.getValidationError(this.state, IndividualRelative.validationKeys.RELATIVE)}/>
                             {this.displayRegistrationOption() &&
                             this.renderRegistrationButton(this.state.member.groupRole.memberSubjectType, regText)}
                         </View>
                         }
-                        {!_.isEmpty(this.state.member.memberSubject) &&
+                        {hasSelection &&
                         <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}
                                        next={{func: () => this.next(), label: this.I18n.t(nextLabel)}}
                                        nextAndMore={this.nextAndMore}
