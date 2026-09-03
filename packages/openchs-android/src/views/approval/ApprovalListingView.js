@@ -61,11 +61,15 @@ class ApprovalListingView extends AbstractComponent {
         this.setState({subjects: this.fetchSubjects(filterItem.value), formMapping: filterItem.value});
     }
 
-    // SQLite results are a snapshot, not a live Realm collection — re-query on
-    // return so an approved/rejected record drops off the list.
+    // SQLite results are a snapshot — re-query on return so processed records drop off.
     didFocus() {
         super.didFocus();
-        this.setState({subjects: this.fetchSubjects(this.state.formMapping)});
+        if (!this._focusedOnce) {
+            // Navigator also emits didFocus on the initial push, when props.results is still fresh.
+            this._focusedOnce = true;
+            return;
+        }
+        setTimeout(() => this.setState({subjects: this.fetchSubjects(this.state.formMapping)}), 0);
     }
 
     openFilterPicker(value) {
