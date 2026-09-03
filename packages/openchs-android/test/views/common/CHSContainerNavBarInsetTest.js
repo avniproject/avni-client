@@ -33,6 +33,23 @@ function containerStyleOn(os, osVersion, safeAreaInsets, containerStyle) {
     }
 }
 
+function nestedContainerStylesOn(os, osVersion, safeAreaInsets) {
+    const original = ['OS', 'Version'].map((field) => [field, Object.getOwnPropertyDescriptor(Platform, field)]);
+    Object.defineProperty(Platform, 'OS', {configurable: true, get: () => os});
+    Object.defineProperty(Platform, 'Version', {configurable: true, get: () => osVersion});
+    try {
+        const tree = renderer.create(
+            <SafeAreaInsetsContext.Provider value={safeAreaInsets}>
+                <CHSContainer><CHSContainer><View/></CHSContainer></CHSContainer>
+            </SafeAreaInsetsContext.Provider>
+        );
+        const boxes = tree.root.findAllByType(View);
+        return {outer: boxes[0].props.style, inner: boxes[1].props.style};
+    } finally {
+        original.forEach(([field, descriptor]) => Object.defineProperty(Platform, field, descriptor));
+    }
+}
+
 const threeButtonNav = {top: 24, bottom: 48, left: 0, right: 0};
 
 describe('CHSContainer navigation bar inset', () => {
@@ -51,5 +68,14 @@ describe('CHSContainer navigation bar inset', () => {
     it('keeps the style the screen asked for', () => {
         expect(containerStyleOn('android', 36, threeButtonNav, {backgroundColor: 'white'})).toEqual(
             [{backgroundColor: 'white'}, {borderBottomWidth: 48, borderBottomColor: 'transparent'}]);
+    });
+
+    // LandingView nests a container per screen it hosts. The inset alone cannot tell them apart on the
+    // first paint — NativeBaseProvider seeds every nested SafeAreaProvider with the full-window metrics,
+    // so both levels see 48 here — which is why nesting is tracked through a context instead.
+    it('reserves the strip once when containers nest, from the very first render', () => {
+        const styles = nestedContainerStylesOn('android', 36, threeButtonNav);
+        expect(styles.outer).toEqual([undefined, {borderBottomWidth: 48, borderBottomColor: 'transparent'}]);
+        expect(styles.inner).toEqual([undefined, {borderBottomWidth: 0, borderBottomColor: 'transparent'}]);
     });
 });
