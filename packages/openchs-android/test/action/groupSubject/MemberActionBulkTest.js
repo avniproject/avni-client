@@ -18,6 +18,7 @@ jest.mock("../../../src/action/individual/IndividualRegistrationDetailsActions",
 }));
 
 import {MemberAction} from "../../../src/action/groupSubject/MemberAction";
+import {ValidationResult} from "avni-models";
 
 const STUDENT = {uuid: "st-student"};
 const ROLE = {uuid: "r1", role: "Student", memberSubjectType: STUDENT, maximumNumberOfMembers: null};
@@ -183,6 +184,34 @@ describe("MemberAction.saveableMembers", () => {
         assert.strictEqual(saveable[0].memberSubject.uuid, "m1");
         assert.isUndefined(saveable[0].uuid, "a shared uuid would upsert one row instead of adding many");
         assert.strictEqual(saveable[0].groupRole.uuid, "r1");
+    });
+});
+
+
+describe("MemberAction.onSave — the batch's shared fields", () => {
+    const savingContext = (saved) => ({
+        get: (type) => {
+            const name = type && type.name;
+            if (name === "GroupSubjectService") return {addMembers: (members) => saved.push(...members)};
+            return {loadAllNonVoided: () => []};
+        }
+    });
+
+    it("saves the eligible members", () => {
+        const saved = [];
+        const picked = select(loadedState(), [subject({uuid: "m1"}), subject({uuid: "m2"})]);
+        MemberAction.onSave(picked, {cb: () => {}}, savingContext(saved));
+        assert.deepEqual(saved.map(m => m.memberSubject.uuid), ["m1", "m2"]);
+    });
+
+    it("refuses the whole batch when a shared field is invalid, e.g. the start date was cleared", () => {
+        const saved = [];
+        const picked = select(loadedState(), [subject({uuid: "m1"}), subject({uuid: "m2"})]);
+        picked.validationResults = [ValidationResult.failure("MEMBERSHIP_START_DATE", "emptyValidationMessage")];
+
+        MemberAction.onSave(picked, {cb: () => assert.fail("must not report a save")}, savingContext(saved));
+
+        assert.lengthOf(saved, 0, "every row would have been written with no membershipStartDate");
     });
 });
 

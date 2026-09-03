@@ -256,6 +256,9 @@ export class MemberAction {
             const newState = MemberAction.clone(state);
             const groupRole = state.member.groupRole;
             if (!_.isEmpty(newState.selectedMembers)) {
+                // Role and start date are shared by the batch and can be cleared after the members
+                // are picked; writing past that would give every row an empty membershipStartDate.
+                if (!_.isEmpty(newState.validationResults)) return newState;
                 const members = MemberAction.saveableMembers(newState);
                 if (!_.isEmpty(members)) {
                     context.get(GroupSubjectService).addMembers(members, false);

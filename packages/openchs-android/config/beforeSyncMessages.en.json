@@ -67,5 +67,6 @@
   "someMembersCannotBeAddedDescription": "{{skipped}} of {{total}} selected members cannot be added. Add the remaining {{eligible}}?",
   "addNMembers": "Add {{count}}",
   "membersAddedMsg": "{{count}} members added",
-  "memberSubjectTypeMismatchMessage": "This subject cannot hold the selected role"
+  "memberSubjectTypeMismatchMessage": "This subject cannot hold the selected role",
+  "tooManyMembersSelected": "Select at most {{max}} members at a time"
 }

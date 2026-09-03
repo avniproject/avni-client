@@ -98,6 +98,12 @@ class AddNewMemberView extends AbstractComponent {
 
     // Nothing here removes a row on the user's behalf: cancelling leaves the selection as it was.
     saveSelection(cb) {
+        // Role and start date are shared by the batch, and the start date can be cleared after the
+        // members are picked. Saving past that would write every row with no membershipStartDate.
+        if (!_.isEmpty(this.state.validationResults)) {
+            return Alert.alert(this.I18n.t("validationResult"),
+              this.I18n.t(this.state.validationResults[0].messageKey));
+        }
         const selected = this.state.selectedMembers;
         const blocked = _.filter(selected, ({validationResults}) => !_.isEmpty(validationResults));
         const eligible = selected.length - blocked.length;
@@ -123,12 +129,27 @@ class AddNewMemberView extends AbstractComponent {
             : this.I18n.t('membersAddedMsg', {count: savedCount});
     }
 
-    remainingCapacity() {
+    // What the role still has room for, or null when it declares no cap. Deliberately not clamped
+    // to the batch limit - the two are different things and only one of them is about the role.
+    roleHeadroom() {
         const groupRole = this.state.member.groupRole;
         const maximumNumberOfMembers = groupRole.maximumNumberOfMembers;
-        if (!_.isFinite(maximumNumberOfMembers)) return MemberAction.MAX_BULK_SELECTION;
+        if (!_.isFinite(maximumNumberOfMembers)) return null;
         const existing = _.get(this.state.existingMemberCountByRoleUUID, groupRole.uuid, 0);
-        return _.clamp(maximumNumberOfMembers - existing, 0, MemberAction.MAX_BULK_SELECTION);
+        return Math.max(maximumNumberOfMembers - existing, 0);
+    }
+
+    selectionLimit() {
+        const headroom = this.roleHeadroom();
+        return _.isNil(headroom) ? MemberAction.MAX_BULK_SELECTION
+            : Math.min(headroom, MemberAction.MAX_BULK_SELECTION);
+    }
+
+    selectionLimitMessage() {
+        const headroom = this.roleHeadroom();
+        return this.selectionLimit() === headroom
+            ? this.I18n.t('maxLimitReachedMsg')
+            : this.I18n.t('tooManyMembersSelected', {max: MemberAction.MAX_BULK_SELECTION});
     }
 
     renderRegistrationButton(memberSubjectType, regText) {
@@ -247,12 +268,12 @@ class AddNewMemberView extends AbstractComponent {
                                 multiSelectActionName={Actions.ON_MEMBERS_SELECT}
                                 preSelectedUUIDs={_.map(selectedMembers, ({memberSubject}) => memberSubject.uuid)}
                                 excludedSubjectUUIDs={bulkAdd ? this.state.excludedMemberUUIDs : undefined}
-                                maxSelectable={bulkAdd ? this.remainingCapacity() : undefined}
-                                selectionFullMessage={this.I18n.t('maxLimitReachedMsg')}
+                                maxSelectable={bulkAdd ? this.selectionLimit() : undefined}
+                                selectionFullMessage={this.selectionLimitMessage()}
                                 validationResult={AbstractDataEntryState.getValidationError(this.state, 'GROUP_MEMBER')}/>
                             {bulkAdd &&
                             <SelectedMembersList selectedMembers={selectedMembers}
-                                                 roleCapacityRemaining={this.remainingCapacity() - selectedMembers.length}
+                                                 roleCapacityRemaining={_.isNil(this.roleHeadroom()) ? null : this.roleHeadroom() - selectedMembers.length}
                                                  onRemove={(memberSubjectUUID) => this.dispatchAction(Actions.ON_MEMBER_REMOVE, {memberSubjectUUID})}/>}
                             <ValidationErrorMessage
                                 validationResult={AbstractDataEntryState.getValidationError(this.state, IndividualRelative.validationKeys.RELATIVE)}/>
