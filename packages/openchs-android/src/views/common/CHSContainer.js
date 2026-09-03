@@ -1,6 +1,23 @@
 import PropTypes from "prop-types";
 import React from "react";
 import {Box, NativeBaseProvider} from "native-base";
+import {useEdgeToEdgeNavBarInset} from "../primitives/Distances";
+
+// The strip is reserved with a transparent border rather than padding because the screens that break
+// under edge-to-edge anchor their buttons with position:absolute, and Yoga resolves those insets
+// against the padding box — it subtracts the container's border but not its padding. Backgrounds
+// paint across a border, so the strip still carries the screen's own colour.
+// A nested container reserves nothing: the outer one has already moved it off the window edge.
+const ScreenBox = ({style, onLayout, children}) => {
+    const navBarInset = useEdgeToEdgeNavBarInset();
+    return (
+        <Box style={[style, {borderBottomWidth: navBarInset, borderBottomColor: 'transparent'}]}
+             flex={1}
+             onLayout={onLayout}>
+            {children}
+        </Box>
+    );
+};
 
 class CHSContainer extends React.Component {
 
@@ -12,9 +29,9 @@ class CHSContainer extends React.Component {
     render() {
         return (
             <NativeBaseProvider>
-                <Box style={this.props.style} flex={1} onLayout={this.props.onLayout}>
+                <ScreenBox style={this.props.style} onLayout={this.props.onLayout}>
                     {this.props.children}
-                </Box>
+                </ScreenBox>
             </NativeBaseProvider>
         );
     }
