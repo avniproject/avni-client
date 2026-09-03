@@ -1,6 +1,8 @@
 import DGS from "./DynamicGlobalStyles";
+import {useContext} from "react";
 import {Dimensions} from "react-native";
 import {Platform, StatusBar} from 'react-native';
+import {SafeAreaInsetsContext} from "react-native-safe-area-context";
 
 class Distances {
     static get ScaledContentDistanceFromEdge() {
@@ -53,6 +55,17 @@ class Distances {
     static VerticalSmallSpacingBetweenOptionItems = DGS.resizeHeight(2);
     static HorizontalSpacingBetweenOptionItems = 20;
     static HorizontalSmallSpacingBetweenOptionItems = 8;
+}
+
+// The navigation-bar half of the same problem: under forced edge-to-edge the activity window also runs
+// under the bottom bar, so bottom-anchored content has to reserve that strip. Measured rather than
+// assumed, because it differs between gesture and 3-button navigation. Only the activity window needs
+// this — a Modal gets its own dialog window, which RN keeps fitted to the system bars unless it is
+// given navigationBarTranslucent, so modals must not add the inset again.
+// Needs a SafeAreaProvider above it — NativeBaseProvider renders one inside every CHSContainer.
+export function useEdgeToEdgeNavBarInset() {
+    const insets = useContext(SafeAreaInsetsContext);
+    return (Platform.OS === 'android' && Platform.Version >= 36) ? (insets?.bottom ?? 0) : 0;
 }
 
 export default Distances;
