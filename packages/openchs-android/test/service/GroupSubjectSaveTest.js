@@ -7,36 +7,7 @@ import {assert} from "chai";
 
 jest.mock("../../src/framework/bean/Service", () => () => (target) => target);
 
-import {GroupSubject} from "avni-models";
-import GroupSubjectService from "../../src/service/GroupSubjectService";
-
-const individualStub = () => ({addGroupSubject: jest.fn(), addGroup: jest.fn()});
-
-function harness(existingMembers) {
-    const service = Object.create(GroupSubjectService.prototype);
-    service.getGroupSubjects = () => existingMembers;
-    service.getService = () => ({findByUUID: () => individualStub()});
-    const created = [];
-    // 18.0 persists via the repository abstraction: this.repository.create for the GroupSubject
-    // and this.getRepository(schema).create for the linked Individual / EntityQueue rows.
-    // this.repository resolves to getRepository() with no arg -> getSchema() -> GroupSubject.
-    service.getRepository = (schema) => ({
-        create: (obj) => {
-            created.push({schema: schema || GroupSubject.schema.name, obj});
-            return obj;
-        }
-    });
-    return {service, savedGroupSubjects: () => created.filter(c => c.schema === GroupSubject.schema.name)};
-}
-
-const member = ({uuid, memberUUID = "m1", start = null, voided = false}) => ({
-    uuid,
-    groupSubject: {uuid: "g1"},
-    memberSubject: {uuid: memberUUID},
-    membershipStartDate: start,
-    membershipEndDate: null,
-    voided,
-});
+import {harness, member} from "./groupSubjectSaveHarness";
 
 describe("GroupSubjectService.saveGroupSubject", () => {
     it("persists an edit to membershipStartDate on an existing membership (same uuid)", () => {

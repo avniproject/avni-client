@@ -25,21 +25,31 @@ class GroupSubjectService extends BaseService {
     }
 
     addMember(groupSubject, addRelative, individualRelative) {
-        const entityService = this.getService(EntityService);
-        const freshMember = {
-            uuid: groupSubject.uuid,
-            groupSubject: entityService.findByUUID(groupSubject.groupSubject.uuid, Individual.schema.name),
-            memberSubject: entityService.findByUUID(groupSubject.memberSubject.uuid, Individual.schema.name),
-            groupRole: entityService.findByUUID(groupSubject.groupRole.uuid, GroupRole.schema.name),
-            membershipStartDate: groupSubject.membershipStartDate,
-            membershipEndDate: groupSubject.membershipEndDate,
-        };
-        const groupSubjectEntity = GroupSubject.create(freshMember);
+        this.addMembers([groupSubject], addRelative, individualRelative);
+    }
+
+    addMembers(members, addRelative, individualRelative) {
+        const entities = members.map(member => this.buildGroupSubject(member));
+        let saved = 0;
         this.transactionManager.write(() => {
             if (addRelative && individualRelative.isRelationPresent()) {
                 this.getService(IndividualRelationshipService).addOrUpdateRelative(individualRelative)
             }
-            this.saveGroupSubject(groupSubjectEntity);
+            entities.forEach(entity => saved += this.saveGroupSubject(entity) ? 1 : 0);
+        });
+        return saved;
+    }
+
+    buildGroupSubject(member) {
+        const entityService = this.getService(EntityService);
+        // Re-fetch the linked entities: the ones held in reducer state can be stale copies.
+        return GroupSubject.create({
+            uuid: member.uuid,
+            groupSubject: entityService.findByUUID(member.groupSubject.uuid, Individual.schema.name),
+            memberSubject: entityService.findByUUID(member.memberSubject.uuid, Individual.schema.name),
+            groupRole: entityService.findByUUID(member.groupRole.uuid, GroupRole.schema.name),
+            membershipStartDate: member.membershipStartDate,
+            membershipEndDate: member.membershipEndDate,
         });
     }
 
@@ -74,9 +84,10 @@ class GroupSubjectService extends BaseService {
             this.getRepository(Individual.schema.name).create(memberSubjectInd, true);
             this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(savedGroupSubject, GroupSubject.schema.name));
             General.logDebug('GroupSubjectService', 'Member Saved');
-        } else {
-            General.logDebug('GroupSubjectService', 'Member already exists. Not creating duplicate.');
+            return true;
         }
+        General.logDebug('GroupSubjectService', 'Member already exists. Not creating duplicate.');
+        return false;
     }
 
     getAllGroups(memberSubject) {

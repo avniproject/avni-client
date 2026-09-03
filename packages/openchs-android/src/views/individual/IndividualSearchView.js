@@ -33,15 +33,22 @@ import DatePicker from "../primitives/DatePicker";
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
     static propTypes = {
-        onIndividualSelection: PropTypes.func.isRequired,
+        onIndividualSelection: PropTypes.func,
         showHeader: PropTypes.bool,
         headerMessage: PropTypes.string,
-        allowedSubjectTypes: PropTypes.array
+        allowedSubjectTypes: PropTypes.array,
+        multiSelect: PropTypes.bool,
+        preSelectedMembers: PropTypes.array,
+        onIndividualsSelection: PropTypes.func,
+        onSelectionChange: PropTypes.func,
+        maxSelectable: PropTypes.number,
+        selectionFullMessage: PropTypes.string
     };
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.individualSearch);
-        this.customFilterService = context.getService(CustomFilterService)
+        this.customFilterService = context.getService(CustomFilterService);
+        this.carriedSelection = props.preSelectedMembers;
     }
 
     viewName() {
@@ -65,7 +72,13 @@ class IndividualSearchView extends AbstractComponent {
             cb: (individualSearchResults, count) => TypedTransition.from(this).with({
                 searchResults: individualSearchResults,
                 totalSearchResultsCount: count,
-                onIndividualSelection: this.props.onIndividualSelection
+                onIndividualSelection: this.props.onIndividualSelection,
+                multiSelect: this.props.multiSelect,
+                preSelectedMembers: this.carriedSelection,
+                onSelectionChange: (members) => this.carriedSelection = members,
+                onIndividualsSelection: this.props.onIndividualsSelection,
+                maxSelectable: this.props.maxSelectable,
+                selectionFullMessage: this.props.selectionFullMessage
             }).to(IndividualSearchResultsView, true)
         });
     }

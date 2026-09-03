@@ -22,6 +22,12 @@ class IndividualFormElement extends AbstractFormElement {
         searchHeaderMessage: PropTypes.string.isRequired,
         hideIcon: PropTypes.bool,
         memberSubjectType: PropTypes.object,
+        multiSelect: PropTypes.bool,
+        multiSelectActionName: PropTypes.string,
+        preSelectedMembers: PropTypes.array,
+        excludedSubjectUUIDs: PropTypes.array,
+        maxSelectable: PropTypes.number,
+        selectionFullMessage: PropTypes.string,
     };
     static iconStyle = {color: Colors.ActionButtonColor, opacity: 0.8, alignSelf: 'center', fontSize: 36};
 
@@ -30,16 +36,27 @@ class IndividualFormElement extends AbstractFormElement {
     }
 
     search() {
+        const {multiSelect, multiSelectActionName, preSelectedMembers, excludedSubjectUUIDs} = this.props;
         TypedTransition.from(this).bookmark().with(
             {
                 showHeader: true, headerMessage: this.props.searchHeaderMessage, hideBackButton: false,
                 memberSubjectType: this.props.memberSubjectType,
+                excludedSubjectUUIDs,
                 onIndividualSelection: (source, individual) => {
                     TypedTransition.from(source).popToBookmark();
                     this.dispatchAction(this.props.inputChangeActionName, {
                         formElement: this.props.element,
                         value: individual,
                     });
+                },
+                multiSelect,
+                preSelectedMembers,
+                maxSelectable: this.props.maxSelectable,
+                selectionFullMessage: this.props.selectionFullMessage,
+                onIndividualsSelection: (source, individuals) => {
+                    TypedTransition.from(source).popToBookmark();
+                    // Let the pop paint before the rule runs once per candidate.
+                    setTimeout(() => this.dispatchAction(multiSelectActionName, {value: individuals}), 0);
                 },
                 allowedSubjectTypes: [SubjectType.types.Person]
             }).to(IndividualSearchView, true);
