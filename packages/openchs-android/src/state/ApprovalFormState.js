@@ -54,10 +54,18 @@ class ApprovalFormState extends AbstractDataEntryState {
         return EntityApprovalStatus.schema.name;
     }
 
+    /**
+     * The three fields below are load-bearing and easy to lose. onSave clones before reading
+     * approvalStatusToApply, so dropping it here silently turns every rejection into an approval - the
+     * status reads undefined and falls to the approve branch. Caught by ApprovalFormSaveTest.
+     */
     clone() {
         const newState = new ApprovalFormState();
         newState.entityApprovalStatus = this.entityApprovalStatus;
         newState.displayProgressIndicator = this.displayProgressIndicator;
+        newState.approvalStatusToApply = this.approvalStatusToApply;
+        newState.approvedEntity = this.approvedEntity;
+        newState.approvedEntitySchema = this.approvedEntitySchema;
         super.clone(newState);
         return newState;
     }

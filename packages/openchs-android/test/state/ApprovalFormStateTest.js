@@ -74,6 +74,25 @@ describe('ApprovalFormState', () => {
     });
 
     /**
+     * Regression, found while implementing #2092. onSave clones the state before reading
+     * approvalStatusToApply, so a clone that drops it makes the status read undefined and fall to the
+     * approve branch - turning every rejection into an approval, silently and with no error.
+     */
+    it('clones without losing which decision is being applied', () => {
+        const state = ApprovalFormState.createOnLoadStateForEmptyForm(entityApprovalStatus, aForm());
+        state.approvalStatusToApply = ApprovalStatus.statuses.Rejected;
+        state.approvedEntity = {uuid: 'entity-uuid'};
+        state.approvedEntitySchema = 'Individual';
+
+        const cloned = state.clone();
+
+        assert.equal(ApprovalStatus.statuses.Rejected, cloned.approvalStatusToApply,
+            'a rejection must not become an approval on the way through onSave');
+        assert.equal('entity-uuid', cloned.approvedEntity.uuid);
+        assert.equal('Individual', cloned.approvedEntitySchema);
+    });
+
+    /**
      * Backing out of the form must leave the record's approval status untouched. The state holds an
      * unsaved decision, so this asserts the state never writes - nothing here persists, and the save is
      * avni-client#2092's job.

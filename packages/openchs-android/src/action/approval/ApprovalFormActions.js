@@ -13,9 +13,8 @@ import General from "../../utility/General";
  * deliberately unsaved and never written here: opening the form, paging through it and backing out must
  * all leave the record's approval status exactly as it was.
  *
- * Note for reviewers: the answers the approver gives do not persist yet. This story opens the form;
- * carrying the answers through the save path is avniproject/avni-client#2092, at which point onSave stops
- * discarding state.getEntity().observations.
+ * The answers are carried into the save by onSave (avniproject/avni-client#2092) and belong to the
+ * decision, never to the record being judged.
  */
 class ApprovalFormActions {
 
@@ -76,17 +75,24 @@ class ApprovalFormActions {
     }
 
     /**
-     * Applies the decision the approver came here to make. The answers are not carried yet - see the class
-     * comment; that is avniproject/avni-client#2092. Nothing is written before this point, which is what
-     * makes backing out of the form safe.
+     * Applies the decision the approver came here to make, carrying the answers they gave. Nothing is
+     * written before this point, which is what makes backing out of the form leave the approval status
+     * untouched.
+     *
+     * The answers go to the decision, not to the record being judged - a record rejected, corrected and
+     * rejected again keeps both sets, each against its own decision.
+     *
+     * A rejection reached through a form has no typed comment: the comment box is what a form replaces,
+     * and the organisation expresses "you must give a reason" through its own mandatory questions.
      */
     static onSave(state, action, context) {
         const newState = state.clone();
         const service = context.get(EntityApprovalStatusService);
+        const observations = newState.getEntity().observations;
         if (newState.approvalStatusToApply === ApprovalStatus.statuses.Rejected) {
-            service.rejectEntity(newState.approvedEntity, newState.approvedEntitySchema, null);
+            service.rejectEntity(newState.approvedEntity, newState.approvedEntitySchema, null, observations);
         } else {
-            service.approveEntity(newState.approvedEntity, newState.approvedEntitySchema);
+            service.approveEntity(newState.approvedEntity, newState.approvedEntitySchema, observations);
         }
         action.cb();
         return newState;
