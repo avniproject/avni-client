@@ -25,6 +25,9 @@ import {
 import Reducers from "../../reducer";
 import {ApprovalActionNames as Actions} from "../../action/approval/ApprovalActions";
 import {ApprovalButton} from "./ApprovalButton";
+import ApprovalFormView from "./ApprovalFormView";
+import TypedTransition from "../../framework/routing/TypedTransition";
+import {ApprovalStatus} from 'avni-models';
 import {ApprovalDialog} from "./ApprovalDialog";
 import {RejectionMessage} from "./RejectionMessage";
 import _ from 'lodash';
@@ -127,19 +130,41 @@ class ApprovalDetailsView extends AbstractComponent {
             });
     }
 
+    /**
+     * Handed to the press actions so a mapped Approval or Rejection form can be opened. Navigation cannot
+     * live in the reducer, so the reducer decides and calls back here - the same shape onApprove/onReject
+     * already use with their `cb`. When no form is mapped the callback is never invoked and the reducer
+     * falls through to the comment box exactly as before.
+     */
+    navigateToApprovalForm(entity, status, titleKey) {
+        return (form) => TypedTransition.from(this).with({
+            entity,
+            schema: entity.getSchemaName(),
+            form,
+            status,
+            title: titleKey
+        }).to(ApprovalFormView);
+    }
+
     renderApproveAndRejectButtons(entity, I18n) {
         return (<View style={styles.footerContainer}>
             <ApprovalButton
                 name={I18n.t('reject')}
                 textColor={Colors.TextOnPrimaryColor}
                 buttonColor={Colors.NegativeActionButtonColor}
-                onPress={() => this.dispatchAction(Actions.ON_REJECT_PRESS, {entity, I18n})}
+                onPress={() => this.dispatchAction(Actions.ON_REJECT_PRESS, {
+                    entity, I18n,
+                    navigateToForm: this.navigateToApprovalForm(entity, ApprovalStatus.statuses.Rejected, 'reject')
+                })}
                 extraStyle={{paddingHorizontal: 20}}/>
             <ApprovalButton
                 name={I18n.t('approve')}
                 textColor={Colors.TextOnPrimaryColor}
                 buttonColor={Colors.DarkPrimaryColor}
-                onPress={() => this.dispatchAction(Actions.ON_APPROVE_PRESS, {entity, I18n})}
+                onPress={() => this.dispatchAction(Actions.ON_APPROVE_PRESS, {
+                    entity, I18n,
+                    navigateToForm: this.navigateToApprovalForm(entity, ApprovalStatus.statuses.Approved, 'approve')
+                })}
                 extraStyle={{paddingHorizontal: 20}}/>
         </View>)
     }

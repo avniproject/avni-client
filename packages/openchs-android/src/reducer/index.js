@@ -42,6 +42,7 @@ import {ApprovalActionMap, ApprovalActions} from "../action/approval/ApprovalAct
 import {NewsActionMap, NewsActions} from "../action/news/NewsActions";
 import {CommentActionMap, CommentActions} from "../action/comment/CommentActions";
 import {MenuActionMap, MenuActions} from "../action/MenuActions";
+import {ApprovalFormActionMap, ApprovalFormActions} from "../action/approval/ApprovalFormActions";
 import {TaskActionMap, TaskActions} from "../action/task/TaskActions";
 import {TaskFilterActionMap, TaskFilterActions} from "../action/task/TaskFilterActions";
 import {TaskListActionMap, TaskListActions} from "../action/task/TaskListActions";
@@ -97,6 +98,7 @@ export default class Reducers {
         news: "news",
         comment: "comment",
         menuView: "menuView",
+        approvalForm: "ApprovalForm",
         task: "Task",
         taskFilter: "TaskFilter",
         taskList: "TaskList",
@@ -152,6 +154,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.news] = Reducers._add(NewsActionMap, NewsActions, beanStore);
         reducerMap[Reducers.reducerKeys.comment] = Reducers._add(CommentActionMap, CommentActions, beanStore);
         reducerMap[Reducers.reducerKeys.menuView] = Reducers._add(MenuActionMap, MenuActions, beanStore);
+        reducerMap[Reducers.reducerKeys.approvalForm] = Reducers._add(ApprovalFormActionMap, ApprovalFormActions, beanStore);
         reducerMap[Reducers.reducerKeys.task] = Reducers._add(TaskActionMap, TaskActions, beanStore);
         reducerMap[Reducers.reducerKeys.taskList] = Reducers._add(TaskListActionMap, TaskListActions, beanStore);
         reducerMap[Reducers.reducerKeys.taskFilter] = Reducers._add(TaskFilterActionMap, TaskFilterActions, beanStore);
