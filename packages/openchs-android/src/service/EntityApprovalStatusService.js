@@ -46,10 +46,15 @@ class EntityApprovalStatusService extends BaseService {
         return EntityApprovalStatus.schema.name;
     }
 
-    saveStatus(entityUUID, entityType, status, db, approvalStatusComment, entityTypeUuid) {
+    /**
+     * observations carries the answers given on the Approval or Rejection form, and is trailing and
+     * defaulted so every existing caller is unaffected - createPendingStatus in particular, which runs on
+     * every registration and encounter in an approval-enabled organisation and never has answers.
+     */
+    saveStatus(entityUUID, entityType, status, db, approvalStatusComment, entityTypeUuid, observations = []) {
         const entityService = this.getService(EntityService);
         const approvalStatus = entityService.findByKey("status", status, ApprovalStatus.schema.name);
-        const entityApprovalStatus = EntityApprovalStatus.create(entityUUID, entityType, approvalStatus, approvalStatusComment, false, entityTypeUuid);
+        const entityApprovalStatus = EntityApprovalStatus.create(entityUUID, entityType, approvalStatus, approvalStatusComment, false, entityTypeUuid, observations);
         const savedStatus = db.create(this.getSchema(), entityApprovalStatus);
         db.create(EntityQueue.schema.name, EntityQueue.create(savedStatus, this.getSchema()));
         return savedStatus;
@@ -108,12 +113,12 @@ class EntityApprovalStatusService extends BaseService {
         }
     }
 
-    approveEntity(entity, schema) {
-        this.saveEntityWithStatus(entity, schema, ApprovalStatus.statuses.Approved);
+    approveEntity(entity, schema, observations = []) {
+        this.saveEntityWithStatus(entity, schema, ApprovalStatus.statuses.Approved, null, observations);
     }
 
-    rejectEntity(entity, schema, comment) {
-        this.saveEntityWithStatus(entity, schema, ApprovalStatus.statuses.Rejected, comment);
+    rejectEntity(entity, schema, comment, observations = []) {
+        this.saveEntityWithStatus(entity, schema, ApprovalStatus.statuses.Rejected, comment, observations);
     }
 
     createPendingStatus(entity, schema, db, entityTypeUuid) {
@@ -121,12 +126,19 @@ class EntityApprovalStatusService extends BaseService {
         this._addUpdateApprovalStatus(entity, entityApprovalStatus);
     }
 
-    saveEntityWithStatus(entity, schema, status, comment) {
+    /**
+     * The single save path for both flows - the mapped form and the comment box. Keeping them converged
+     * here is deliberate: a separate path for the form case would drift from this one, and this is where
+     * the approval decision, the record, and both EntityQueue rows are written in one Realm transaction.
+     * An exception mid-write rolls all of it back, so a failed save looks like nothing happened rather
+     * than a partial sync.
+     */
+    saveEntityWithStatus(entity, schema, status, comment, observations = []) {
         const db = this.db;
         const entityTypeUuid = this._getEntityTypeUuid(entity, schema);
 
         this.db.write(() => {
-            this._addUpdateApprovalStatus(entity, this.saveStatus(entity.uuid, this._getEntityTypeForSchema(schema), status, db, comment, entityTypeUuid));
+            this._addUpdateApprovalStatus(entity, this.saveStatus(entity.uuid, this._getEntityTypeForSchema(schema), status, db, comment, entityTypeUuid, observations));
             db.create(schema, entity, true);
             db.create(EntityQueue.schema.name, EntityQueue.create(entity, schema));
         });
