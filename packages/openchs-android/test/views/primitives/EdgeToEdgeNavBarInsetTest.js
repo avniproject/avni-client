@@ -75,7 +75,12 @@ describe('edgeToEdgeStatusBarInset', () => {
 
     // A header rendered with no provider above it keeps the old status-bar height rather than colliding.
     it('falls back to the status bar height when there is no provider', () => {
+        const original = StatusBar.currentHeight;
         StatusBar.currentHeight = 24;
-        expect(onPlatform('android', 36, () => edgeToEdgeStatusBarInset(null))).toBe(24);
+        try {
+            expect(onPlatform('android', 36, () => edgeToEdgeStatusBarInset(null))).toBe(24);
+        } finally {
+            StatusBar.currentHeight = original;
+        }
     });
 });
