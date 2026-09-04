@@ -207,13 +207,19 @@ class SystemRecommendationView extends AbstractComponent {
         General.logDebug(this.viewName(), `render`);
         const displayScrollButton = this.doDisplayScrollButton();
         return (
-            <CHSContainer onLayout={(e) => this.setViewMeasurement('viewHeight', e.nativeEvent.layout.height)}>
+            <CHSContainer>
                 <CHSContent>
                     <AppHeader title={this.props.headerMessage}
                                func={() => this.onAppHeaderBack(this.props.isSaveDraftOn)}
                                displayHomePressWarning={!this.props.isSaveDraftOn}/>
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.props.entityApprovalStatus}/>
-                    <ScrollView ref={this.scrollRef}>
+                    {/* Measured here rather than on the container: doDisplayScrollButton compares this
+                        against the y of a marker inside the scroll content, so it has to be the scroll
+                        viewport. The container's height is the whole window — bigger by the header, the
+                        rejection message and the reserved navigation bar strip — which made the prompt
+                        appear later than the content actually needed it. */}
+                    <ScrollView ref={this.scrollRef}
+                                onLayout={(e) => this.setViewMeasurement('viewHeight', e.nativeEvent.layout.height)}>
                         <View style={{flexDirection: 'column'}}>
                             {!_.isNil(this.props.individual) && this.profile()}
                             <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>
