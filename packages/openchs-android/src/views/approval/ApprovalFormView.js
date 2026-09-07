@@ -78,6 +78,12 @@ class ApprovalFormView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'Render');
         const title = this.I18n.t(this.props.title || 'approval');
+        // The decision is read as a field rather than through getEntity(). AbstractComponent.refreshState
+        // hands the store's state to React's setState, which shallow-merges it into a fresh object - so
+        // this.state carries the fields but not the ApprovalFormState prototype, and any method on it is
+        // undefined here. TaskFormView reads this.state.task for the same reason. Methods are still fine
+        // on a state the action layer passes directly, such as the one handed to next()'s callback.
+        const decision = this.state.entityApprovalStatus;
         return (
             <CHSContainer>
                 <CHSContent>
@@ -85,12 +91,12 @@ class ApprovalFormView extends AbstractComponent {
                         <AppHeader title={title} func={() => this.onAppHeaderBack()} displayHomePressWarning={true}/>
                         <View style={{backgroundColor: '#ffffff', flexDirection: 'column'}}>
                             <FormElementGroup group={this.state.formElementGroup}
-                                              observationHolder={new ObservationsHolder(this.state.getEntity().observations)}
+                                              observationHolder={new ObservationsHolder(decision.observations)}
                                               actions={Actions}
                                               validationResults={this.state.validationResults}
                                               filteredFormElements={this.state.filteredFormElements}
                                               formElementsUserState={this.state.formElementsUserState}
-                                              dataEntryDate={this.state.getEntity().statusDateTime}
+                                              dataEntryDate={decision.statusDateTime}
                                               onValidationError={(x, y) => this.scrollToPosition(x, y)}
                             />
                             <WizardButtons
