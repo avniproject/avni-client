@@ -45,24 +45,31 @@ class ApprovalFormActions {
             return withContext(ApprovalFormState.createOnLoadStateForEmptyForm(decision, null));
         }
 
+        // Rules on these forms reach the subject only through entityContext - an EntityApprovalStatus
+        // carries just the UUID and type of the record being approved. ObservationsHolderActions passes
+        // state.getEntityContext() on every later cycle, but the state does not exist yet on load, so the
+        // same context is built from the entity here. Without it the first page evaluates with
+        // `individual` undefined and a registration-scoped rule silently matches nothing.
+        const entityContext = {individual: ApprovalFormState.approvedSubjectOf(entity)};
+
         const firstGroupWithAtLeastOneVisibleElement = _.find(
             _.sortBy(form.nonVoidedFormElementGroups(), (o) => o.displayOrder),
-            (formElementGroup) => ApprovalFormActions.filterFormElements(formElementGroup, context, decision).length !== 0);
+            (formElementGroup) => ApprovalFormActions.filterFormElements(formElementGroup, context, decision, entityContext).length !== 0);
 
         if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
             return withContext(ApprovalFormState.createOnLoadStateForEmptyForm(decision, form));
         }
 
         const formElementStatuses = context.get(RuleEvaluationService)
-            .getFormElementsStatuses(decision, EntityApprovalStatus.schema.name, firstGroupWithAtLeastOneVisibleElement);
+            .getFormElementsStatuses(decision, EntityApprovalStatus.schema.name, firstGroupWithAtLeastOneVisibleElement, entityContext);
         const filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
         return withContext(ApprovalFormState.createOnLoadState(decision, form,
             firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses));
     }
 
-    static filterFormElements(formElementGroup, context, decision) {
+    static filterFormElements(formElementGroup, context, decision, entityContext = {}) {
         const formElementStatuses = context.get(RuleEvaluationService)
-            .getFormElementsStatuses(decision, EntityApprovalStatus.schema.name, formElementGroup);
+            .getFormElementsStatuses(decision, EntityApprovalStatus.schema.name, formElementGroup, entityContext);
         return formElementGroup.filterElements(formElementStatuses);
     }
 

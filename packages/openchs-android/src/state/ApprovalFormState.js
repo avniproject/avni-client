@@ -1,6 +1,6 @@
 import AbstractDataEntryState from "./AbstractDataEntryState";
 import _ from "lodash";
-import {EntityApprovalStatus, ObservationsHolder, StaticFormElementGroup} from 'avni-models';
+import {EntityApprovalStatus, Individual, ObservationsHolder, StaticFormElementGroup} from 'avni-models';
 import Wizard from "./Wizard";
 
 /**
@@ -52,6 +52,32 @@ class ApprovalFormState extends AbstractDataEntryState {
 
     getEntityType() {
         return EntityApprovalStatus.schema.name;
+    }
+
+    /**
+     * The subject the decision is about, for rules to bind to.
+     *
+     * An EntityApprovalStatus holds only the UUID and type of the record being approved, so the subject
+     * cannot be reached from it by navigation the way it can from an encounter or an enrolment. The
+     * declarative rule generated for these form types binds
+     * `const individual = params.entityContext && params.entityContext.individual`
+     * (rules-config#41), so without this the base class's empty context leaves `individual` undefined and
+     * a rule written against the subject's registration answers matches nothing rather than failing -
+     * silent, and it reads in QA as "the rule does not work" with nothing in the logs.
+     *
+     * The subject is the approved entity itself when a registration is being approved, and its
+     * `individual` for an encounter, a programme encounter or an enrolment - the same shape
+     * FormMappingService.approvalCombinationFor switches on.
+     */
+    static approvedSubjectOf(approvedEntity) {
+        if (_.isNil(approvedEntity)) return null;
+        const isSubject = _.isFunction(approvedEntity.getSchemaName)
+            && approvedEntity.getSchemaName() === Individual.schema.name;
+        return isSubject ? approvedEntity : _.get(approvedEntity, 'individual', null);
+    }
+
+    getEntityContext() {
+        return {individual: ApprovalFormState.approvedSubjectOf(this.approvedEntity)};
     }
 
     /**
