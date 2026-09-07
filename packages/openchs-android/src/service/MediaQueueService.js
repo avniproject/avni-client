@@ -15,6 +15,8 @@ import * as mime from 'react-native-mime-types';
 import moment from "moment";
 import I18n from 'i18n-js';
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
+import MediaUploadError from "../framework/errorHandling/MediaUploadError";
+import AuthenticationError from "./AuthenticationError";
 const PARALLEL_UPLOAD_COUNT = 1;
 const UPLOAD_PROGRESS_TIMEOUT_MS = 60000;
 
@@ -126,6 +128,17 @@ class MediaQueueService extends BaseService {
         return fs.exists(this.getAbsoluteFileName(mediaQueueItem));
     }
 
+    async getMediaSizeBytes(mediaQueueItem) {
+        try {
+            const stat = await fs.stat(this.getAbsoluteFileName(mediaQueueItem));
+            const size = Number(stat.size);
+            return Number.isFinite(size) ? size : null;
+        } catch (e) {
+            // Size is diagnostic only — never let it turn one failure into two.
+            return null;
+        }
+    }
+
     uploadToUrl(url, mediaQueueItem) {
         General.logDebug("MediaQueueService", `Uploading media to ${url}`);
         const contentType = mime.lookup(mediaQueueItem.fileName);
@@ -134,12 +147,21 @@ class MediaQueueService extends BaseService {
                 "Content-Type": contentType,
             }, RNFetchBlob.wrap(this.getAbsoluteFileName(mediaQueueItem)));
 
+        // Kept so a failure can report how far the transfer actually got; #2067 showed a
+        // 118MB video losing 122MB of completed transfer with no record of it anywhere.
+        let bytesSent = null;
+
         let jobTimeoutHandler = this.cancelUploadIfNoProgress(new Date(), uploadTask, mediaQueueItem.fileName)
         const returnPromise = uploadTask
             .then((x) => checkUploadStatus(x, mediaQueueItem.getDisplayText()))
+            .catch((error) => {
+                if (error) error.bytesSent = bytesSent;
+                throw error;
+            })
             .finally(() => clearTimeout(jobTimeoutHandler));
 
         uploadTask.uploadProgress({interval: 1000},(sent, total) => {
+            bytesSent = sent;
             General.logDebug('MediaQueueService', `${mediaQueueItem.fileName} uploadProgress ${sent}/${total}`);
             clearTimeout(jobTimeoutHandler);
             jobTimeoutHandler = this.cancelUploadIfNoProgress(new Date(), uploadTask, mediaQueueItem.fileName);
@@ -255,9 +277,25 @@ class MediaQueueService extends BaseService {
                 }
                 return this.popItem(mediaQueueItem);
             })
-            .catch((error) => {
+            .catch(async (error) => {
                 General.logError("MediaQueueService", error);
-                return Promise.reject(error);
+                // An expired Cognito session must keep reaching SyncComponent's login-redirect
+                // branch; wrapping it here is what hid it before (#2097).
+                if (error instanceof AuthenticationError) return Promise.reject(error);
+
+                // Built here rather than in uploadMedia's catch: this is the only site with
+                // both the failing item and the error, and — because the chunk chain aborts on
+                // the first failure — the only one that runs exactly once per blocked sync.
+                const mediaUploadError = new MediaUploadError({
+                    fileName: mediaQueueItem.fileName,
+                    mediaType: mediaQueueItem.type,
+                    sizeBytes: await this.getMediaSizeBytes(mediaQueueItem),
+                    bytesSent: _.get(error, "bytesSent", null),
+                    cause: _.get(error, "message"),
+                    originalError: error
+                });
+                General.logInfo("MediaQueueService", MediaUploadError.logLine(mediaUploadError));
+                return Promise.reject(mediaUploadError);
             });
     }
 
@@ -289,8 +327,10 @@ class MediaQueueService extends BaseService {
                 return Promise.resolve();
             }).catch((error) => {
                 // notify bugsnag of the original underlying error, so we can check if there are multiple causes for failure
-                ErrorUtil.notifyBugsnag(error, "MediaQueueService");
-                return Promise.reject(new Error("syncTimeoutError"));
+                ErrorUtil.notifyBugsnag(_.get(error, "originalError", error), "MediaQueueService");
+                // Rejecting with Error("syncTimeoutError") here is what erased the file, the
+                // bytes and the cause before anything could report them (#2097).
+                return Promise.reject(error);
             })
         }
         current.then(() => { General.logInfo("MediaQueueService",`MediaUpload:Total time taken ${(moment.now() - startTime)}`)})
