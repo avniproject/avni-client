@@ -44,6 +44,13 @@ describe('MediaUploadError', () => {
             expect(MediaUploadError.causeCategory(anError({cause: 'Network request failed'}))).to.equal('storageUnreachable');
         });
 
+        it('classifies an Android connect failure to the storage host as unreachable', () => {
+            // Exact string produced on a device with the S3 host blocked, 7 Sep 2026
+            expect(MediaUploadError.causeCategory(anError({
+                cause: 'Failed to connect to s3.ap-south-1.amazonaws.com/3.5.211.40:443'
+            }))).to.equal('storageUnreachable');
+        });
+
         it('classifies the stall watchdog cancel as a stalled upload', () => {
             expect(MediaUploadError.causeCategory(anError({cause: 'ReactNativeBlobUtilCanceledFetch'}))).to.equal('uploadStalled');
         });

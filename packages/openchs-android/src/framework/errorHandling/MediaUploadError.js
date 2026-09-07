@@ -30,7 +30,7 @@ MediaUploadError.CauseCategory = {
 // Causes observed in the seven-week device log dump on #2067, in the order they must be
 // tested: a watchdog cancel can also carry network wording, and the cancel is the real cause.
 const STALLED = /canceled|cancelled|ReactNativeBlobUtilCanceledFetch/i;
-const UNREACHABLE = /Unable to resolve host|No address associated with hostname|Network request failed|Unable to connect|ENOTFOUND|ECONNREFUSED|ETIMEDOUT|timed out/i;
+const UNREACHABLE = /Unable to resolve host|No address associated with hostname|Failed to connect|Network request failed|Unable to connect|ENOTFOUND|ECONNREFUSED|ETIMEDOUT|timed out/i;
 
 MediaUploadError.causeCategory = function (error) {
     const cause = _.get(error, "cause", "") || "";
