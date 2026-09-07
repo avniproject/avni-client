@@ -135,6 +135,15 @@ class ApprovalDetailsView extends AbstractComponent {
      * live in the reducer, so the reducer decides and calls back here - the same shape onApprove/onReject
      * already use with their `cb`. When no form is mapped the callback is never invoked and the reducer
      * falls through to the comment box exactly as before.
+     *
+     * Both trailing calls matter, and TaskStatusPicker makes the same pair:
+     *
+     * - `to(..., true)` is isTyped. Router spreads queryParams onto the view only when it is set, and
+     *   otherwise nests them under a `params` prop - so without it ApprovalFormView receives no entity,
+     *   schema or form at all, and onFormLoad dereferences undefined.
+     * - `bookmark()` records where to come back to. ApprovalFormView#next pops to the bookmark once the
+     *   decision is saved, and popToBookmark does nothing when none was set, stranding the approver on
+     *   the form - or pops to a stale bookmark left by another screen.
      */
     navigateToApprovalForm(entity, status, titleKey) {
         return (form) => TypedTransition.from(this).with({
@@ -143,7 +152,7 @@ class ApprovalDetailsView extends AbstractComponent {
             form,
             status,
             title: titleKey
-        }).to(ApprovalFormView);
+        }).bookmark().to(ApprovalFormView, true);
     }
 
     renderApproveAndRejectButtons(entity, I18n) {
