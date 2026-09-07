@@ -10,6 +10,7 @@ import _ from "lodash";
 import SettingsService from '../service/SettingsService';
 import EnvironmentConfig from "../framework/EnvironmentConfig";
 import {SyncActionNames as SyncActions} from '../action/SyncActions';
+import {SyncTelemetryActionNames as SyncTelemetryActions} from '../action/SyncTelemetryActions';
 import moment from 'moment';
 import {getConnectionInfo} from "../utility/ConnectionInfo";
 
@@ -62,6 +63,9 @@ class Sync extends BaseTask {
                   }, connectionInfo, Date.now(), SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB, null)
                   .then(this.performPostBackgroundSyncActions(globalContext));
             } catch (e) {
+                // Without this a background sync blocked by media leaves no row at all — the
+                // failure is invisible until someone pulls the device log. #2097
+                dispatchAction(SyncTelemetryActions.SYNC_FAILED, {error: e});
                 ErrorHandler.postScheduledJobError(e);
             } finally {
                 syncService.releaseLock(lockId);

@@ -18,6 +18,7 @@ import ProgressBarView from "./ProgressBarView";
 import Reducers from "../reducer";
 import AsyncAlert from "./common/AsyncAlert";
 import AvniError from "../framework/errorHandling/AvniError";
+import MediaUploadError from "../framework/errorHandling/MediaUploadError";
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 import {IgnorableSyncError} from "openchs-models";
 import IssueUploadUtil from "../utility/IssueUploadUtil";
@@ -60,12 +61,14 @@ class SyncComponent extends AbstractComponent {
     _onError(error, ignoreBugsnag) {
         General.logError(`${this.viewName()}-Sync`, error);
         const isIgnorableSyncError = error instanceof IgnorableSyncError;
-        !isIgnorableSyncError && this.dispatchAction(SyncTelemetryActions.SYNC_FAILED);
+        !isIgnorableSyncError && this.dispatchAction(SyncTelemetryActions.SYNC_FAILED, {error});
         const isServerError = error instanceof ServerError;
         const isAvniError = error instanceof AvniError;
+        const isMediaUploadError = error instanceof MediaUploadError;
 
         //Do not notify bugsnag if it's a server error since it would have been notified on server bugsnag already.
-        if (!ignoreBugsnag && !isServerError && !isIgnorableSyncError && !isAvniError) {
+        //MediaQueueService already notified with the original underlying error.
+        if (!ignoreBugsnag && !isServerError && !isIgnorableSyncError && !isAvniError && !isMediaUploadError) {
             ErrorUtil.notifyBugsnag(error, "SyncComponent");
         }
 
@@ -86,6 +89,11 @@ class SyncComponent extends AbstractComponent {
             }));
         } else if (!this.state.isConnected) {
             this.ErrorAlert(AvniError.create(this.I18n.t('internetConnectionError')));
+        } else if (isMediaUploadError) {
+            // Below the isConnected branch on purpose: a genuinely offline device keeps the
+            // more accurate "No internet connection". Above the generic fallback, which is
+            // what used to print the raw "syncTimeoutError" key. #2097
+            this.ErrorAlert(AvniError.create(MediaUploadError.userMessage(error, this.I18n)));
         } else if (isServerError) {
             getAvniError(error, this.I18n).then((avniError) => this.ErrorAlert(avniError));
         } else if (error instanceof SyncError) {
