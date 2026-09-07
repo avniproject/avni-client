@@ -21,22 +21,33 @@ function MediaUploadError({fileName, mediaType, sizeBytes, bytesSent, cause, ori
     return instance;
 }
 
+// These are the diagnostic buckets, not the user-facing ones: this is the field to GROUP BY
+// when asking "why are devices blocked?" — the table #2067 had to rebuild by hand from a
+// seven-week log dump. DNS and connect failures are kept apart here even though they read
+// identically to the user (see REASON_KEYS below, which collapses them again).
 MediaUploadError.CauseCategory = {
-    StorageUnreachable: 'storageUnreachable',
+    DnsFailure: 'dnsFailure',
+    ConnectFailure: 'connectFailure',
     UploadStalled: 'uploadStalled',
-    UploadFailed: 'uploadFailed'
+    HttpError: 'httpError',
+    Unknown: 'unknown'
 };
 
-// Causes observed in the seven-week device log dump on #2067, in the order they must be
-// tested: a watchdog cancel can also carry network wording, and the cancel is the real cause.
+// Order matters: a watchdog cancel message can also carry network wording, and the cancel is
+// the real cause. DNS is tested before connect because a resolution failure never carries an
+// IP, whereas "Failed to connect to host/1.2.3.4:443" proves resolution already succeeded.
 const STALLED = /canceled|cancelled|ReactNativeBlobUtilCanceledFetch/i;
-const UNREACHABLE = /Unable to resolve host|No address associated with hostname|Failed to connect|Network request failed|Unable to connect|ENOTFOUND|ECONNREFUSED|ETIMEDOUT|timed out/i;
+const DNS = /Unable to resolve host|No address associated with hostname|UnknownHostException|ENOTFOUND|EAI_AGAIN/i;
+const CONNECT = /Failed to connect|Unable to connect|Connection refused|Network is unreachable|Network request failed|ECONNREFUSED|ECONNRESET|ETIMEDOUT|timed out/i;
+const HTTP = /HTTP Status:\s*\d+/i;
 
 MediaUploadError.causeCategory = function (error) {
     const cause = _.get(error, "cause", "") || "";
     if (STALLED.test(cause)) return MediaUploadError.CauseCategory.UploadStalled;
-    if (UNREACHABLE.test(cause)) return MediaUploadError.CauseCategory.StorageUnreachable;
-    return MediaUploadError.CauseCategory.UploadFailed;
+    if (DNS.test(cause)) return MediaUploadError.CauseCategory.DnsFailure;
+    if (CONNECT.test(cause)) return MediaUploadError.CauseCategory.ConnectFailure;
+    if (HTTP.test(cause)) return MediaUploadError.CauseCategory.HttpError;
+    return MediaUploadError.CauseCategory.Unknown;
 };
 
 const MEDIA_TYPE_KEYS = {
@@ -71,10 +82,15 @@ MediaUploadError.failureDetail = function (error) {
     };
 };
 
+// Several diagnostic categories collapse to one sentence on purpose. Neither "your DNS is
+// broken" nor "TCP connect refused" is something a field worker can act on, and the action is
+// the same either way. The distinction stays in the category and the raw cause.
 const REASON_KEYS = {
-    [MediaUploadError.CauseCategory.StorageUnreachable]: 'mediaUploadReasonStorageUnreachable',
+    [MediaUploadError.CauseCategory.DnsFailure]: 'mediaUploadReasonStorageUnreachable',
+    [MediaUploadError.CauseCategory.ConnectFailure]: 'mediaUploadReasonStorageUnreachable',
     [MediaUploadError.CauseCategory.UploadStalled]: 'mediaUploadReasonUploadStalled',
-    [MediaUploadError.CauseCategory.UploadFailed]: 'mediaUploadReasonUploadFailed'
+    [MediaUploadError.CauseCategory.HttpError]: 'mediaUploadReasonUploadFailed',
+    [MediaUploadError.CauseCategory.Unknown]: 'mediaUploadReasonUploadFailed'
 };
 
 // The filename is a UUID and the raw cause is a stack-trace fragment; neither helps a field

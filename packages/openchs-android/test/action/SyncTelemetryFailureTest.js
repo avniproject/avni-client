@@ -46,7 +46,7 @@ describe('SyncTelemetryActions.syncFailed', () => {
         expect(syncFailure.fileName).to.equal('abc-123.jpg');
         expect(syncFailure.sizeBytes).to.equal(1153024);
         expect(syncFailure.bytesSent).to.equal(1048576);
-        expect(syncFailure.category).to.equal('storageUnreachable');
+        expect(syncFailure.category).to.equal('dnsFailure');
     });
 
     it('keeps the appInfo the sync already recorded', () => {

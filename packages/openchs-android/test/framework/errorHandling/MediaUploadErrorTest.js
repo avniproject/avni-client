@@ -36,36 +36,55 @@ describe('MediaUploadError', () => {
     });
 
     describe('causeCategory', () => {
-        it('classifies a DNS resolution failure as the storage server being unreachable', () => {
-            expect(MediaUploadError.causeCategory(anError())).to.equal('storageUnreachable');
+        // The categories are the field someone GROUPs BY when asking "why are devices
+        // blocked?" — the table #2067 had to rebuild by hand from a seven-week log dump.
+        // So DNS and connect failures are kept apart here even though they read the same
+        // to the user; see the userMessage tests below for that collapse.
+
+        it('separates a DNS resolution failure from a connect failure', () => {
+            expect(MediaUploadError.causeCategory(anError())).to.equal('dnsFailure');
         });
 
-        it('classifies a generic network failure as the storage server being unreachable', () => {
-            expect(MediaUploadError.causeCategory(anError({cause: 'Network request failed'}))).to.equal('storageUnreachable');
+        it('classifies an unknown-host error as a DNS failure', () => {
+            expect(MediaUploadError.causeCategory(anError({
+                cause: 'java.net.UnknownHostException: s3.ap-south-1.amazonaws.com'
+            }))).to.equal('dnsFailure');
         });
 
-        it('classifies an Android connect failure to the storage host as unreachable', () => {
-            // Exact string produced on a device with the S3 host blocked, 7 Sep 2026
+        it('classifies an Android connect failure as a connect failure, not DNS', () => {
+            // Exact string produced on a device with the S3 host blocked, 7 Sep 2026.
+            // The resolved IP in the message is itself proof DNS succeeded.
             expect(MediaUploadError.causeCategory(anError({
                 cause: 'Failed to connect to s3.ap-south-1.amazonaws.com/3.5.211.40:443'
-            }))).to.equal('storageUnreachable');
+            }))).to.equal('connectFailure');
+        });
+
+        it('classifies a generic network failure as a connect failure', () => {
+            expect(MediaUploadError.causeCategory(anError({cause: 'Network request failed'}))).to.equal('connectFailure');
         });
 
         it('classifies the stall watchdog cancel as a stalled upload', () => {
             expect(MediaUploadError.causeCategory(anError({cause: 'ReactNativeBlobUtilCanceledFetch'}))).to.equal('uploadStalled');
         });
 
-        it('classifies a cancel that also mentions the network as stalled, not unreachable', () => {
+        it('classifies a cancel that also mentions the network as stalled, not connect', () => {
             // the watchdog cancel message can carry network wording; the cancel is the real cause
             expect(MediaUploadError.causeCategory(anError({cause: 'ReactNativeBlobUtilCanceledFetch: Network request failed'}))).to.equal('uploadStalled');
         });
 
-        it('falls back to a generic failure for anything unrecognised', () => {
-            expect(MediaUploadError.causeCategory(anError({cause: 'Media upload failed. HTTP Status:500.'}))).to.equal('uploadFailed');
+        it('classifies a rejection by the storage server as an HTTP error', () => {
+            // the message checkUploadStatus throws
+            expect(MediaUploadError.causeCategory(anError({
+                cause: 'Media upload failed. HTTP Status:403. EntityName: Individual, FileName: abc.jpg, '
+            }))).to.equal('httpError');
         });
 
-        it('falls back to a generic failure when there is no cause at all', () => {
-            expect(MediaUploadError.causeCategory(anError({cause: undefined}))).to.equal('uploadFailed');
+        it('falls back to unknown for anything unrecognised', () => {
+            expect(MediaUploadError.causeCategory(anError({cause: 'something nobody has seen before'}))).to.equal('unknown');
+        });
+
+        it('falls back to unknown when there is no cause at all', () => {
+            expect(MediaUploadError.causeCategory(anError({cause: undefined}))).to.equal('unknown');
         });
     });
 
@@ -115,7 +134,7 @@ describe('MediaUploadError', () => {
         it('records the stage, category and cause plus the media fields', () => {
             expect(MediaUploadError.failureDetail(anError())).to.deep.equal({
                 stage: 'mediaUpload',
-                category: 'storageUnreachable',
+                category: 'dnsFailure',
                 cause: 'Unable to resolve host "s3.ap-south-1.amazonaws.com": No address associated with hostname',
                 fileName: '6f1c0e2a-1111-4a3b-9d21-abc123def456.jpg',
                 mediaType: 'Image',
@@ -138,6 +157,32 @@ describe('MediaUploadError', () => {
 
         it('does not leak the raw cause into what the user reads', () => {
             expect(MediaUploadError.userMessage(anError(), i18n)).to.not.contain('s3.ap-south-1.amazonaws.com');
+        });
+
+        it('reads the same to the user whether DNS or the connection failed', () => {
+            // The diagnostic split must not reach the dialog: neither "your DNS is broken"
+            // nor "TCP connect refused" is a sentence a field worker can act on, and the
+            // action is identical either way.
+            const dns = MediaUploadError.userMessage(anError({
+                cause: 'Unable to resolve host "s3.ap-south-1.amazonaws.com": No address associated with hostname'
+            }), i18n);
+            const connect = MediaUploadError.userMessage(anError({
+                cause: 'Failed to connect to s3.ap-south-1.amazonaws.com/3.5.211.40:443'
+            }), i18n);
+            expect(dns).to.equal(connect);
+            expect(dns).to.contain('mediaUploadReasonStorageUnreachable');
+        });
+
+        it('gives an HTTP rejection and an unknown cause the same generic sentence', () => {
+            const http = MediaUploadError.userMessage(anError({cause: 'Media upload failed. HTTP Status:403.'}), i18n);
+            const unknown = MediaUploadError.userMessage(anError({cause: 'who knows'}), i18n);
+            expect(http).to.equal(unknown);
+            expect(http).to.contain('mediaUploadReasonUploadFailed');
+        });
+
+        it('still gives a stalled upload its own sentence', () => {
+            expect(MediaUploadError.userMessage(anError({cause: 'ReactNativeBlobUtilCanceledFetch'}), i18n))
+                .to.contain('mediaUploadReasonUploadStalled');
         });
     });
 });
