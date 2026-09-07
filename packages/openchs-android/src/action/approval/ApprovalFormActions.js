@@ -30,7 +30,7 @@ class ApprovalFormActions {
         const decision = new EntityApprovalStatus();
         decision.uuid = General.randomUUID();
         decision.entityUUID = entity.uuid;
-        decision.entityType = context.get(EntityApprovalStatusService)._getEntityTypeForSchema(schema);
+        decision.entityType = context.get(EntityApprovalStatusService).getEntityTypeForSchema(schema);
         decision.statusDateTime = new Date();
         decision.observations = [];
 

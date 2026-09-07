@@ -122,7 +122,7 @@ class EntityApprovalStatusService extends BaseService {
     }
 
     createPendingStatus(entity, schema, db, entityTypeUuid) {
-        const entityApprovalStatus = this.saveStatus(entity.uuid, this._getEntityTypeForSchema(schema), ApprovalStatus.statuses.Pending, db, null, entityTypeUuid);
+        const entityApprovalStatus = this.saveStatus(entity.uuid, this.getEntityTypeForSchema(schema), ApprovalStatus.statuses.Pending, db, null, entityTypeUuid);
         this._addUpdateApprovalStatus(entity, entityApprovalStatus);
     }
 
@@ -138,7 +138,7 @@ class EntityApprovalStatusService extends BaseService {
         const entityTypeUuid = this._getEntityTypeUuid(entity, schema);
 
         this.db.write(() => {
-            this._addUpdateApprovalStatus(entity, this.saveStatus(entity.uuid, this._getEntityTypeForSchema(schema), status, db, comment, entityTypeUuid, observations));
+            this._addUpdateApprovalStatus(entity, this.saveStatus(entity.uuid, this.getEntityTypeForSchema(schema), status, db, comment, entityTypeUuid, observations));
             db.create(schema, entity, true);
             db.create(EntityQueue.schema.name, EntityQueue.create(entity, schema));
         });
@@ -167,7 +167,10 @@ class EntityApprovalStatusService extends BaseService {
         }
     }
 
-    _getEntityTypeForSchema(passedSchema) {
+    // Public: ApprovalFormActions needs the same schema-to-entity-type mapping when it builds the
+    // unsaved decision behind an Approval or Rejection form, so this is part of the service's contract
+    // rather than an internal helper.
+    getEntityTypeForSchema(passedSchema) {
         return _.get(_.find(EntityApprovalStatus.getSchemaEntityTypeList(), ({schema}) => schema === passedSchema), 'entityType');
     }
 }
