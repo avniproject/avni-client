@@ -173,6 +173,58 @@ describe('ApprovalAnswersSave', () => {
      * two equal statusDateTimes picks arbitrarily, which is pre-existing behaviour and not this story's to
      * fix.
      */
+    /**
+     * An answer is an object until it is saved - a coded multi-select is a MultipleCodedValues, a
+     * primitive a PrimitiveValue - while Realm's valueJSON is a string. Every other service converts
+     * them before writing; this one did not, so saving a form with a coded answer failed with
+     * "Expected 'observations[0]' to be a string, got an instance of MultipleCodedValues".
+     *
+     * The tests above all built their answers with JSON.stringify already applied, which is why they
+     * passed while the real form could not save. These use the shape the form actually produces.
+     */
+    describe('answers that have not been stringified yet', () => {
+        function anUnsavedCodedAnswer(conceptUuid, answerUuids) {
+            const observation = new Observation();
+            observation.concept = aConcept(conceptUuid, 'Rejection checklist');
+            // Stands in for MultipleCodedValues: what matters is that it is not a string.
+            observation.valueJSON = {answer: answerUuids};
+            return observation;
+        }
+
+        it('stringifies a coded answer before writing it to realm', () => {
+            const subject = aSubject();
+
+            service.rejectEntity(subject, Individual.schema.name, null,
+                [anUnsavedCodedAnswer('checklist-concept', ['answer-1', 'answer-2'])]);
+
+            const saved = savedStatuses[0].observations[0];
+            assert.isString(saved.valueJSON,
+                'realm rejects the write unless valueJSON is a string');
+            assert.deepEqual({answer: ['answer-1', 'answer-2']}, JSON.parse(saved.valueJSON),
+                'the answer must survive the conversion intact');
+        });
+
+        it('leaves an answer that is already a string alone', () => {
+            const subject = aSubject();
+
+            service.rejectEntity(subject, Individual.schema.name, null,
+                [anAnswer('concept-1', 'Wrong address')]);
+
+            const saved = savedStatuses[0].observations[0];
+            assert.isString(saved.valueJSON);
+            assert.deepEqual({answer: 'Wrong address'}, JSON.parse(saved.valueJSON),
+                'an already-converted answer must not be stringified twice');
+        });
+
+        it('is harmless for a decision with no answers', () => {
+            const subject = aSubject();
+
+            service.approveEntity(subject, Individual.schema.name);
+
+            assert.equal(0, savedStatuses[0].observations.length);
+        });
+    });
+
     it('keeps both sets of answers when a record is rejected twice', () => {
         const subject = aSubject();
 

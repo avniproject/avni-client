@@ -9,6 +9,7 @@ import {
     EntityApprovalStatus,
     EntityQueue, Form,
     Individual,
+    ObservationsHolder,
     ProgramEncounter,
     ProgramEnrolment
 } from "openchs-models";
@@ -54,6 +55,11 @@ class EntityApprovalStatusService extends BaseService {
     saveStatus(entityUUID, entityType, status, db, approvalStatusComment, entityTypeUuid, observations = []) {
         const entityService = this.getService(EntityService);
         const approvalStatus = entityService.findByKey("status", status, ApprovalStatus.schema.name);
+        // An answer given on the form holds its value as an object until it is saved - a coded multi-select
+        // as MultipleCodedValues, a primitive as PrimitiveValue - while Realm's valueJSON is a string. Every
+        // other service that persists observations converts them first; without it Realm rejects the write
+        // with "Expected 'observations[0]' to be a string". Harmless for the callers that pass none.
+        ObservationsHolder.convertObsForSave(observations);
         const entityApprovalStatus = EntityApprovalStatus.create(entityUUID, entityType, approvalStatus, approvalStatusComment, false, entityTypeUuid, observations);
         const savedStatus = db.create(this.getSchema(), entityApprovalStatus);
         db.create(EntityQueue.schema.name, EntityQueue.create(savedStatus, this.getSchema()));
