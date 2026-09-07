@@ -134,10 +134,22 @@ class SyncTelemetryActions {
 
     static buildFailureDetail(error) {
         if (error instanceof MediaUploadError) return MediaUploadError.failureDetail(error);
-        return {stage: 'other', cause: _.get(error, "message", "unknown")};
+        // A bare string rejection has no .message — SyncService.sync rejects with one for the
+        // lock check, and losing it would discard the only diagnostic we have.
+        const cause = _.isString(error) ? error : (_.get(error, "message") || "unknown");
+        return {stage: 'other', cause};
     }
 
     static syncFailed(state, action, context) {
+        // Only a sync that actually started is ours to fail. This slice still holds the
+        // previous sync's telemetry between syncs and clone() keeps its uuid, so mutating a
+        // row that is already complete would overwrite that finished row by primary key —
+        // destroying the "last completed sync" the auto-sync rules depend on, and giving the
+        // server a second, contradictory row for the same uuid. Reachable both from
+        // SyncComponent.startSync's offline branch (no sync ever starts) and from
+        // SyncService.sync rejecting before it dispatches START_SYNC.
+        if (_.get(state, "syncTelemetry.syncStatus") !== "incomplete") return state;
+
         const newState = SyncTelemetryActions.clone(state);
         const syncTelemetry = newState.syncTelemetry;
         // "incomplete" keeps meaning "never finished, no error seen" — i.e. the user closed

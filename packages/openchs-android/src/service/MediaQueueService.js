@@ -325,15 +325,23 @@ class MediaQueueService extends BaseService {
                 count += PARALLEL_UPLOAD_COUNT
                 General.logInfo("MediaQueueService", `MediaUpload: Time taken ${(moment.now() - startTime)}`);
                 return Promise.resolve();
-            }).catch((error) => {
+            })
+        }
+        // One catch for the whole chain, not one per chunk. Attached inside the loop it fired
+        // once per remaining chunk on a single failure — with 50 queued items and a batch size
+        // of 1, that was 50 Bugsnag reports for one failure. Chaining the summary log through
+        // `current` also stops it dangling as an uncaught rejection when the upload fails.
+        current = current
+            .then(() => {
+                General.logInfo("MediaQueueService", `MediaUpload:Total time taken ${(moment.now() - startTime)}`);
+            })
+            .catch((error) => {
                 // notify bugsnag of the original underlying error, so we can check if there are multiple causes for failure
                 ErrorUtil.notifyBugsnag(_.get(error, "originalError", error), "MediaQueueService");
                 // Rejecting with Error("syncTimeoutError") here is what erased the file, the
                 // bytes and the cause before anything could report them (#2097).
                 return Promise.reject(error);
-            })
-        }
-        current.then(() => { General.logInfo("MediaQueueService",`MediaUpload:Total time taken ${(moment.now() - startTime)}`)})
+            });
         return current;
     }
 }

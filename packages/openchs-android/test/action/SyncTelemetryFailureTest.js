@@ -77,6 +77,51 @@ describe('SyncTelemetryActions.syncFailed', () => {
         expect(JSON.parse(newState.syncTelemetry.appInfo).syncFailure.stage).to.equal('mediaUpload');
     });
 
+    describe('when no sync is actually in flight', () => {
+        // The redux slice keeps the previous sync's telemetry between syncs and clone() keeps
+        // its uuid, so acting on it would overwrite a finished row by primary key. This is
+        // reachable: SyncComponent.startSync's offline branch calls _onError with no sync
+        // ever started, and SyncService.sync can reject before it dispatches START_SYNC.
+        const completedState = () => {
+            const state = stateWithAppInfo('{"dbSize":42}');
+            state.syncTelemetry.syncStatus = 'complete';
+            state.syncTelemetry.syncEndTime = new Date('2026-09-01T10:00:00Z');
+            return state;
+        };
+
+        it('does not flip a completed sync to failed', () => {
+            const newState = SyncTelemetryActions.syncFailed(completedState(), {error: mediaError()}, stubContext());
+            expect(newState.syncTelemetry.syncStatus).to.equal('complete');
+        });
+
+        it('does not stamp a failure reason onto the completed row', () => {
+            const newState = SyncTelemetryActions.syncFailed(completedState(), {error: mediaError()}, stubContext());
+            expect(JSON.parse(newState.syncTelemetry.appInfo).syncFailure).to.equal(undefined);
+        });
+
+        it('does not re-save the completed row, so the server gets no second copy of that uuid', () => {
+            const context = stubContext();
+            SyncTelemetryActions.syncFailed(completedState(), {error: mediaError()}, context);
+            expect(context.saved.length).to.equal(0);
+        });
+
+        it('does not overwrite a row already recorded as failed', () => {
+            const state = stateWithAppInfo('{}');
+            state.syncTelemetry.syncStatus = 'failed';
+            const context = stubContext();
+            SyncTelemetryActions.syncFailed(state, {error: mediaError()}, context);
+            expect(context.saved.length).to.equal(0);
+        });
+    });
+
+    it('records a rejection that is a bare string rather than an Error', () => {
+        // SyncService.sync rejects with the string "Use acquireLock before calling this function"
+        const newState = SyncTelemetryActions.syncFailed(
+            stateWithAppInfo('{}'), {error: 'Use acquireLock before calling this function'}, stubContext());
+        const syncFailure = JSON.parse(newState.syncTelemetry.appInfo).syncFailure;
+        expect(syncFailure.cause).to.equal('Use acquireLock before calling this function');
+    });
+
     it('saves the row to the entity queue so it reaches the server on the next successful sync', () => {
         const context = stubContext();
         SyncTelemetryActions.syncFailed(stateWithAppInfo('{}'), {error: mediaError()}, context);
