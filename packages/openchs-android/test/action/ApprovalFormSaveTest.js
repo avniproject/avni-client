@@ -83,6 +83,37 @@ describe('ApprovalFormSave', () => {
         assert.equal(0, saved.observations.length);
     });
 
+    /**
+     * The clone defect this story fixed made onSave see an undefined approvalStatusToApply, and the old
+     * "not Rejected means approve" else recorded those as approvals. These pin the guard that makes the
+     * same class of defect throw instead: nothing is written, and the approver's decision is never
+     * guessed. Pending is included because it is a real ApprovalStatus value that must never arrive here.
+     */
+    it('refuses to save when the decision was lost rather than approving by default', () => {
+        assert.throws(
+            () => ApprovalFormActions.onSave(aFormState(undefined, []), {cb: () => {}}, context()),
+            /Refusing to guess/);
+
+        assert.isUndefined(saved, 'nothing may be written when the decision is unknown');
+    });
+
+    it('refuses to save a Pending decision', () => {
+        assert.throws(
+            () => ApprovalFormActions.onSave(aFormState(ApprovalStatus.statuses.Pending, []), {cb: () => {}}, context()),
+            /Refusing to guess/);
+
+        assert.isUndefined(saved);
+    });
+
+    it('does not run the callback when it refuses to save', () => {
+        let calledBack = false;
+
+        assert.throws(() => ApprovalFormActions.onSave(
+            aFormState(undefined, []), {cb: () => calledBack = true}, context()));
+
+        assert.isFalse(calledBack, 'the screen must not proceed as though the decision was applied');
+    });
+
     // The modal path, which shares the service methods
 
     it('the comment box rejection passes the comment and no answers', () => {

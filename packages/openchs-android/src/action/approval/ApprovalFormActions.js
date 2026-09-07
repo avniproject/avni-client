@@ -84,15 +84,24 @@ class ApprovalFormActions {
      *
      * A rejection reached through a form has no typed comment: the comment box is what a form replaces,
      * and the organisation expresses "you must give a reason" through its own mandatory questions.
+     *
+     * Both statuses are matched explicitly and anything else throws, rather than letting a final else
+     * mean approve. A clone() that dropped approvalStatusToApply made this method see undefined and
+     * record every form-based rejection as an approval - silently, because "not Rejected" was enough to
+     * approve. The clone is fixed; this makes a repeat of that class of defect fail loudly at the point
+     * of decision instead of quietly writing the opposite of what the approver chose.
      */
     static onSave(state, action, context) {
         const newState = state.clone();
         const service = context.get(EntityApprovalStatusService);
         const observations = newState.getEntity().observations;
-        if (newState.approvalStatusToApply === ApprovalStatus.statuses.Rejected) {
+        const statusToApply = newState.approvalStatusToApply;
+        if (statusToApply === ApprovalStatus.statuses.Rejected) {
             service.rejectEntity(newState.approvedEntity, newState.approvedEntitySchema, null, observations);
-        } else {
+        } else if (statusToApply === ApprovalStatus.statuses.Approved) {
             service.approveEntity(newState.approvedEntity, newState.approvedEntitySchema, observations);
+        } else {
+            throw new Error(`Approval form save reached with approvalStatusToApply='${statusToApply}'; expected '${ApprovalStatus.statuses.Approved}' or '${ApprovalStatus.statuses.Rejected}'. Refusing to guess the approver's decision.`);
         }
         action.cb();
         return newState;
