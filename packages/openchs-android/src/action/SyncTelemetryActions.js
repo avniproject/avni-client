@@ -4,6 +4,7 @@ import EntityService from "../service/EntityService";
 import DeviceInfo from 'react-native-device-info';
 import moment from "moment";
 import {getUnknownConnectionInfo} from "../utility/ConnectionInfo";
+import MediaUploadError from "../framework/errorHandling/MediaUploadError";
 
 class SyncTelemetryActions {
     static getInitialState() {
@@ -122,9 +123,30 @@ class SyncTelemetryActions {
         return newState;
     }
 
+    static parseAppInfo(appInfo) {
+        try {
+            const parsed = JSON.parse(appInfo);
+            return _.isPlainObject(parsed) ? parsed : {};
+        } catch (e) {
+            return {};
+        }
+    }
+
+    static buildFailureDetail(error) {
+        if (error instanceof MediaUploadError) return MediaUploadError.failureDetail(error);
+        return {stage: 'other', cause: _.get(error, "message", "unknown")};
+    }
+
     static syncFailed(state, action, context) {
         const newState = SyncTelemetryActions.clone(state);
         const syncTelemetry = newState.syncTelemetry;
+        // "incomplete" keeps meaning "never finished, no error seen" — i.e. the user closed
+        // the app. A sync that failed with an error is a different thing and says why. #2097
+        syncTelemetry.syncStatus = "failed";
+        syncTelemetry.syncEndTime = new Date();
+        const appInfo = SyncTelemetryActions.parseAppInfo(syncTelemetry.appInfo);
+        appInfo.syncFailure = SyncTelemetryActions.buildFailureDetail(_.get(action, "error"));
+        syncTelemetry.appInfo = JSON.stringify(appInfo);
         const entityService = context.get(EntityService);
         entityService.saveAndPushToEntityQueue(syncTelemetry, SyncTelemetry.schema.name);
         return newState;
