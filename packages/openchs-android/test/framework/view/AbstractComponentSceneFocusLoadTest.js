@@ -237,6 +237,24 @@ describe("AbstractComponent load waits for the scene transition", () => {
         expect(order).toEqual(["load", "second"]);
     });
 
+    // The head-of-line rule can only defer, never strand: releasing a registration without firing it
+    // has to re-arm the pump, because fire() is the only other thing that does and it never ran. The
+    // evenIfUnmounted work is owned by ANOTHER screen, so dropping it leaves that screen stuck.
+    it("runs a queued registration when the one ahead of it is released without firing", () => {
+        const second = jest.fn();
+        const tr = mount(jest.fn(), makeContext(subscribe));
+        const instance = tr.root.findByType(TestScreen).instance;
+        act(() => instance.runAfterSceneTransition(second, {evenIfUnmounted: true}));
+
+        act(() => listeners[1]());          // only the later registration's trigger arrives
+        flushFrames();
+        expect(second).not.toHaveBeenCalled();
+
+        act(() => tr.unmount());            // the load registration is released, having never fired
+        flushFrames();
+        expect(second).toHaveBeenCalledTimes(1);
+    });
+
     it("does not load, and leaves no listener, after unmount", () => {
         const loadImpl = jest.fn();
         const tr = mount(loadImpl, makeContext(subscribe));

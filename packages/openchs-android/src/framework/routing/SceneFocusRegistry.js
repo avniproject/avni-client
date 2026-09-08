@@ -56,7 +56,8 @@ export default class SceneFocusRegistry {
      * frame callback, RN implements those as native timers, and Android holds them in a PriorityQueue
      * keyed only on target time - so two replays armed in the same millisecond can arrive in either
      * order. A component that subscribes twice on mount then runs its two loads inverted, which is how
-     * the programs tab's ON_LANDING landed after its ON_LOAD (avni-client#2101).
+     * the programs tab's ON_LANDING landed after its ON_LOAD and, on 18.x, cleared the `loaded` gate
+     * that ON_LOAD had just set (avni-client#2101).
      */
     scheduleReplay() {
         if (this.replayScheduled) return;

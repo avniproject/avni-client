@@ -181,6 +181,7 @@ class AbstractComponent extends Component {
         this._sceneTransitionRegistrations.push(reg);
 
         const release = () => {
+            const wasWaitingForTrigger = reg.triggerPending && !reg.fired;
             reg.triggerPending = false;
             if (reg.timer) {
                 clearTimeout(reg.timer);
@@ -190,11 +191,16 @@ class AbstractComponent extends Component {
                 reg.unsubscribe();
                 reg.unsubscribe = null;
             }
+            // This registration no longer holds back the ones behind it, and nothing else will
+            // re-arm the pump for them: fire() is the only other caller, and it has not run here.
+            // Without this an unmount that releases a never-fired load registration strands an
+            // evenIfUnmounted sibling queued behind it - exactly the work that option exists for.
+            if (wasWaitingForTrigger) this.scheduleSceneTransitionPump();
         };
 
         const fire = (source) => {
             if (reg.fired) return;
-            if (this._isUnmounted && !opts.evenIfUnmounted) return;
+            if (this._isUnmounted && !reg.evenIfUnmounted) return;
             reg.fired = true;
             reg.source = source;
             release();
@@ -221,12 +227,17 @@ class AbstractComponent extends Component {
     // requestAnimationFrame as a native timer, and Android keeps those in a PriorityQueue keyed only
     // on target time, so two callbacks armed in the same millisecond can be delivered in either
     // order. SubjectDashboardProgramsTab dispatches ON_LANDING from the base class's load
-    // registration and ON_LOAD from its own; when they inverted, ON_LANDING cleared the `loaded`
-    // flag ON_LOAD had just set and the tab sat on its spinner until the user left it
-    // (avni-client#2101). The double rAF itself stays - it is what lets the scene's final commit
-    // paint before the load blocks the JS thread (#2054).
+    // registration and ON_LOAD from its own. On 18.x - where #1892 added the `loaded` state gate this
+    // branch does not carry - inverting them let ON_LANDING clear the flag ON_LOAD had just set, and
+    // the tab sat on its spinner until the user left it (avni-client#2101, 3 of 50 tab mounts in the
+    // reported log). The double rAF itself stays - it is what lets the scene's final commit paint
+    // before the load blocks the JS thread (#2054).
     queueSceneTransitionRun(reg) {
         reg.queued = true;
+        this.scheduleSceneTransitionPump();
+    }
+
+    scheduleSceneTransitionPump() {
         if (this._sceneTransitionPumpScheduled) return;
         this._sceneTransitionPumpScheduled = true;
         requestAnimationFrame(() => requestAnimationFrame(() => {
