@@ -204,6 +204,21 @@ describe("AbstractComponent load waits for the scene transition", () => {
         expect(loadImpl).toHaveBeenCalledTimes(1);
     });
 
+    // Ordering is by registration, not by whose trigger happens to land first.
+    it("holds a later registration until the earlier one's trigger has arrived", () => {
+        const order = [];
+        const tr = mount(() => order.push("load"), makeContext(subscribe));
+        const instance = tr.root.findByType(TestScreen).instance;
+        act(() => instance.runAfterSceneTransition(() => order.push("second")));
+
+        act(() => listeners[1]());          // only the LATER registration hears the focus
+        flushFrames();
+        expect(order).toEqual([]);
+
+        runFallbackTimer();                 // the load's own safety net; it can defer, never stall
+        expect(order).toEqual(["load", "second"]);
+    });
+
     it("does not load, and leaves no listener, after unmount", () => {
         const loadImpl = jest.fn();
         const tr = mount(loadImpl, makeContext(subscribe));
@@ -213,5 +228,73 @@ describe("AbstractComponent load waits for the scene transition", () => {
 
         runFallbackTimer();
         expect(loadImpl).not.toHaveBeenCalled();
+    });
+});
+
+// The synchronous rAF above cannot express the defect this guards: on Android RN implements
+// requestAnimationFrame as a native timer and holds those in a PriorityQueue keyed only on target
+// time, so two callbacks armed in the same millisecond can be delivered in either order. Here the
+// frame queue is explicit and drained BACK TO FRONT to model that.
+describe("AbstractComponent orders its registrations independently of frame delivery order", () => {
+    let listeners;
+    let subscribe;
+    let frames;
+    let realRaf;
+
+    beforeEach(() => {
+        jest.useFakeTimers();
+        realRaf = global.requestAnimationFrame;
+        frames = [];
+        global.requestAnimationFrame = (cb) => frames.push(cb);
+        mockCapturedCallbacks = [];
+        listeners = [];
+        subscribe = (fn) => {
+            listeners.push(fn);
+            return () => {
+                listeners = listeners.filter((l) => l !== fn);
+            };
+        };
+    });
+
+    afterEach(() => {
+        global.requestAnimationFrame = realRaf;
+        jest.useRealTimers();
+    });
+
+    // Reverses the FIRST frame only. Reversing every frame would cancel itself out: the callbacks a
+    // reversed frame arms land in reversed order too, and the next reversal puts them back. The tie is
+    // resolved independently each time on device, so one inverted frame is the honest minimal model.
+    const runFrames = () => {
+        for (let round = 0; round < 4 && frames.length > 0; round++) {
+            const due = frames;
+            frames = [];
+            act(() => (round === 0 ? due.reverse() : due).forEach((cb) => cb()));
+        }
+    };
+
+    // With one double-rAF chain per registration, reversing delivery ran the SECOND registration
+    // first. On the programs tab that put ON_LOAD before ON_LANDING, and ON_LANDING then cleared the
+    // `loaded` flag ON_LOAD had just set - the tab stayed on its spinner until the user left it.
+    it("runs registrations in registration order when a frame is delivered out of order", () => {
+        const order = [];
+        const tr = mount(() => order.push("load"), makeContext(subscribe));
+        const instance = tr.root.findByType(TestScreen).instance;
+        act(() => instance.runAfterSceneTransition(() => order.push("second")));
+
+        act(() => listeners.slice().forEach((l) => l()));
+        runFrames();
+
+        expect(order).toEqual(["load", "second"]);
+    });
+
+    it("still paints a frame before running the load, rather than firing inline", () => {
+        const loadImpl = jest.fn();
+        mount(loadImpl, makeContext(subscribe));
+
+        act(() => listeners.slice().forEach((l) => l()));
+        expect(loadImpl).not.toHaveBeenCalled();
+
+        runFrames();
+        expect(loadImpl).toHaveBeenCalledTimes(1);
     });
 });

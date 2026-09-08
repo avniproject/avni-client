@@ -168,11 +168,20 @@ class AbstractComponent extends Component {
         // screen the user has already left. Unknown route => accept any focus, so a component outside
         // the Router's knowledge still loads rather than waiting for the timer.
         const armedForRoute = _.invoke(this.context, 'currentRoutePath');
-        const reg = {fired: false, unsubscribe: null, timer: null};
         this._sceneTransitionRegistrations = this._sceneTransitionRegistrations || [];
+        const reg = {
+            fired: false, unsubscribe: null, timer: null, fn, armedAt,
+            index: this._sceneTransitionRegistrations.length,
+            evenIfUnmounted: opts.evenIfUnmounted === true,
+            // Cleared by release(), so a registration that has fired - or was released without firing -
+            // no longer holds back the ones registered after it in the pump below.
+            triggerPending: true,
+            queued: false, ran: false, source: null
+        };
         this._sceneTransitionRegistrations.push(reg);
 
         const release = () => {
+            reg.triggerPending = false;
             if (reg.timer) {
                 clearTimeout(reg.timer);
                 reg.timer = null;
@@ -187,12 +196,9 @@ class AbstractComponent extends Component {
             if (reg.fired) return;
             if (this._isUnmounted && !opts.evenIfUnmounted) return;
             reg.fired = true;
+            reg.source = source;
             release();
-            requestAnimationFrame(() => requestAnimationFrame(() => {
-                if (this._isUnmounted && !opts.evenIfUnmounted) return;
-                Perf.mark("sceneTrigger.fired", () => ({view: this.viewName(), source, sinceArmedMs: Date.now() - armedAt}));
-                fn();
-            }));
+            this.queueSceneTransitionRun(reg);
         };
 
         if (_.isFunction(subscribeSceneDidFocus)) {
@@ -207,6 +213,52 @@ class AbstractComponent extends Component {
             deferPastInteractions(() => fire("interactions"));
         }
         reg.release = release;
+        return reg;
+    }
+
+    // Every registration on a component shares ONE double-rAF pump and runs in registration order.
+    // A pump per registration leaves their relative order to the platform: RN implements
+    // requestAnimationFrame as a native timer, and Android keeps those in a PriorityQueue keyed only
+    // on target time, so two callbacks armed in the same millisecond can be delivered in either
+    // order. SubjectDashboardProgramsTab dispatches ON_LANDING from the base class's load
+    // registration and ON_LOAD from its own; when they inverted, ON_LANDING cleared the `loaded`
+    // flag ON_LOAD had just set and the tab sat on its spinner until the user left it
+    // (avni-client#2101). The double rAF itself stays - it is what lets the scene's final commit
+    // paint before the load blocks the JS thread (#2054).
+    queueSceneTransitionRun(reg) {
+        reg.queued = true;
+        if (this._sceneTransitionPumpScheduled) return;
+        this._sceneTransitionPumpScheduled = true;
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            this._sceneTransitionPumpScheduled = false;
+            this.drainSceneTransitionRuns();
+        }));
+    }
+
+    drainSceneTransitionRuns() {
+        const registrations = this._sceneTransitionRegistrations || [];
+        for (let i = 0; i < registrations.length; i++) {
+            const reg = registrations[i];
+            if (reg.ran) continue;
+            if (!reg.queued) {
+                // Still waiting for its own trigger. Whatever it does is ordered before the later
+                // registrations, so they wait too - bounded by its LOAD_FALLBACK_MS timer (or the cap
+                // inside deferPastInteractions), which re-arms the pump. It can defer, never stall.
+                if (reg.triggerPending) return;
+                continue;
+            }
+            reg.ran = true;
+            if (this._isUnmounted && !reg.evenIfUnmounted) continue;
+            Perf.mark("sceneTrigger.fired", () => ({
+                view: this.viewName(), source: reg.source, index: reg.index, sinceArmedMs: Date.now() - reg.armedAt
+            }));
+            try {
+                reg.fn();
+            } catch (e) {
+                // One registration's failure must not strand the ones queued behind it.
+                General.logError(this.viewName(), e);
+            }
+        }
     }
 
     // Idempotent: whichever trigger arrives first wins, the rest no-op. _loadStarted is set only after
