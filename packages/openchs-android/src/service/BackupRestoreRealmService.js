@@ -270,6 +270,15 @@ export default class BackupRestoreRealmService extends BaseService {
                             cb(94, "restoringDb");
                         })
                         .then(() => entitySyncStatusService.setup())
+                        // A restored device is full, so isDatabaseNeverSynced() is false and the
+                        // fresh-device short-circuit in isResetSyncRequired() does not fire — any
+                        // reset the restored file still carries would wipe the file just restored.
+                        // The restore is itself a discard-and-re-pull under current scope, which is
+                        // what satisfies a reset, so those resets are already done. Same pattern as
+                        // SyncService._pullResetSyncsAndMarkMigratedBeforeRefData on the migration
+                        // path. Resolved by bean name: ResetSyncService imports this service, so
+                        // importing it back would be a cycle.
+                        .then(() => this.getService('ResetSyncService').markAllResetSyncsMigrated())
                         .then(() => cleanupDownloadedFiles())
                         .then(() => {
                             General.logDebug("BackupRestoreRealmService", "Personalising database");
