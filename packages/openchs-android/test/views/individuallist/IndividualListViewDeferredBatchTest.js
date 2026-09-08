@@ -70,11 +70,14 @@ const render = (dispatched, count, extraProps = {}) => (
     </ServiceContext.Provider>
 );
 
+const mounted = [];
+
 const mount = (dispatched, count, extraProps = {}) => {
     let tr;
     act(() => {
         tr = TestRenderer.create(render(dispatched, count, extraProps));
     });
+    mounted.push(tr);
     return tr;
 };
 
@@ -85,6 +88,14 @@ const cards = (tr) => _.uniq(JSON.stringify(tr.toJSON()).match(/i-\d+/g) || []);
 describe("IndividualListView deferred batch", () => {
     beforeEach(() => {
         mockCapturedCallbacks = [];
+    });
+
+    // The list's Batchinator holds a real 0ms timer. Left mounted, it fires after Jest has torn the
+    // environment down, which crashes the whole run with a non-zero exit even though every
+    // assertion passed. Unmounting cancels it.
+    afterEach(() => {
+        act(() => mounted.forEach((tr) => tr.unmount()));
+        mounted.length = 0;
     });
 
     it("renders the spinner and no cards during mount", () => {
