@@ -21,6 +21,8 @@ export default class SceneFocusRegistry {
         this.schedule = schedule;
         this.listeners = new Set();
         this.focusedRoute = null;
+        this.pendingReplays = [];
+        this.replayScheduled = false;
     }
 
     /** A scene has finished transitioning. Notifies current subscribers and arms replay for later ones. */
@@ -42,15 +44,34 @@ export default class SceneFocusRegistry {
     subscribe(listener) {
         this.listeners.add(listener);
         if (!_.isNil(this.focusedRoute)) {
-            const route = this.focusedRoute;
-            this.schedule(() => {
+            this.pendingReplays.push({listener, route: this.focusedRoute});
+            this.scheduleReplay();
+        }
+        return () => this.listeners.delete(listener);
+    }
+
+    /**
+     * One scheduled drain for every listener that subscribed after focus, replayed in subscription
+     * order. Scheduling per listener instead leaves that order to the platform: Router schedules on a
+     * frame callback, RN implements those as native timers, and Android holds them in a PriorityQueue
+     * keyed only on target time - so two replays armed in the same millisecond can arrive in either
+     * order. A component that subscribes twice on mount then runs its two loads inverted, which is how
+     * the programs tab's ON_LANDING landed after its ON_LOAD (avni-client#2101).
+     */
+    scheduleReplay() {
+        if (this.replayScheduled) return;
+        this.replayScheduled = true;
+        this.schedule(() => {
+            this.replayScheduled = false;
+            const due = this.pendingReplays;
+            this.pendingReplays = [];
+            _.forEach(due, ({listener, route}) => {
                 // Re-check: the listener may have unsubscribed between subscribe() and the replay, and
                 // the scene may have moved on.
                 if (!this.listeners.has(listener)) return;
                 this.notify(listener, route);
             });
-        }
-        return () => this.listeners.delete(listener);
+        });
     }
 
     notify(listener, route) {
