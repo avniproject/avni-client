@@ -52,14 +52,20 @@ class ApprovalDetailsCard extends AbstractComponent {
             <TouchableNativeFeedback onPress={() => onApprovalSelection(approvableEntity)}
                                      background={TouchableNativeFeedback.SelectableBackground()}>
                 <View style={[styles.container, {backgroundColor: "lightgrey", minHeight: cardHeight}]}>
-                    <View style={styles.leftContainer}>
-                        <Text style={styles.requestTextStyle}>{this.I18n.t('requestName', {entityName: approvableEntity.getEntityTypeName()})}</Text>
-                        {this.renderRejectionComment(approvableEntity)}
-                        <Text style={styles.auditTextStyle}>{this.I18n.t('addXHoursAgo', {hrs})}</Text>
+                    {/* The name and the entity type keep their original side-by-side arrangement. */}
+                    <View style={styles.headerRow}>
+                        <View style={styles.leftContainer}>
+                            <Text style={styles.requestTextStyle}>{this.I18n.t('requestName', {entityName: approvableEntity.getEntityTypeName()})}</Text>
+                        </View>
+                        <View style={styles.rightContainer}>
+                            <Text style={styles.entityTypeText}>{this.I18n.t(approvableEntity.getName())}</Text>
+                        </View>
                     </View>
-                    <View style={styles.rightContainer}>
-                        <Text style={styles.entityTypeText}>{this.I18n.t(approvableEntity.getName())}</Text>
-                    </View>
+                    {/* The reason spans the card. Observations renders a two-column table that fills its
+                        parent, and inside the half-width left column it collapsed into an unreadable
+                        vertical sliver - the comment branch was a single line of text and never showed it. */}
+                    {this.renderRejectionComment(approvableEntity)}
+                    <Text style={styles.auditTextStyle}>{this.I18n.t('addXHoursAgo', {hrs})}</Text>
                 </View>
             </TouchableNativeFeedback>
         );
@@ -68,9 +74,13 @@ class ApprovalDetailsCard extends AbstractComponent {
 
 const styles = StyleSheet.create({
     container: {
-        flexDirection: 'row',
+        flexDirection: 'column',
         paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge,
         paddingVertical: Styles.ContainerHorizontalDistanceFromEdge,
+    },
+    headerRow: {
+        flexDirection: 'row',
+        alignItems: 'flex-start'
     },
     leftContainer: {
         flexDirection: 'column',
