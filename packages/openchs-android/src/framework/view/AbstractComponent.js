@@ -132,7 +132,7 @@ class AbstractComponent extends Component {
         // The timer is the safety net for a route that never reports focus, and deferPastInteractions
         // covers components mounted outside the Router entirely.
         if (_.isFunction(this.loadData)) {
-            this.runAfterSceneTransition(() => this.runDeferredLoad());
+            this._loadRegistration = this.runAfterSceneTransition(() => this.runDeferredLoad());
         }
 
         // Call subclass hook if defined (Template Method Pattern)
@@ -267,7 +267,7 @@ class AbstractComponent extends Component {
     runDeferredLoad() {
         if (this._isUnmounted || this._loadStarted || !_.isNil(this._loadError)) return;
         if (!_.isFunction(this.loadData)) return;
-        this.clearDeferredLoadTriggers();
+        this.releaseLoadTriggers();
         try {
             this.loadData();
             this._loadStarted = true;
@@ -277,6 +277,16 @@ class AbstractComponent extends Component {
         }
         if (this._isUnmounted) return;   // loadData() can dispatch a reducer that navigates away
         this.forceUpdate();
+    }
+
+    // The load's remaining triggers only - didFocus and the fallback timer race each other, and the
+    // loser must not run a second time. Releasing every registration here instead took a sibling's
+    // listener and timer away before it had fired, silently dropping its work: that is the other way
+    // SubjectDashboardProgramsTab lost its ON_LOAD dispatch (avni-client#2101).
+    releaseLoadTriggers() {
+        if (this._loadRegistration && _.isFunction(this._loadRegistration.release)) {
+            this._loadRegistration.release();
+        }
     }
 
     clearDeferredLoadTriggers() {

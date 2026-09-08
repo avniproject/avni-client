@@ -204,6 +204,24 @@ describe("AbstractComponent load waits for the scene transition", () => {
         expect(loadImpl).toHaveBeenCalledTimes(1);
     });
 
+    // runDeferredLoad() used to release EVERY registration on the component, not just the load's own,
+    // taking a sibling's listener and fallback timer away before it had fired. That silently dropped
+    // the sibling's work - the second way SubjectDashboardProgramsTab lost its ON_LOAD dispatch and
+    // sat on the loader (avni-client#2101).
+    it("leaves a sibling registration's trigger alone when the load runs", () => {
+        const second = jest.fn();
+        const tr = mount(jest.fn(), makeContext(subscribe));
+        const instance = tr.root.findByType(TestScreen).instance;
+        act(() => instance.runAfterSceneTransition(second));
+
+        act(() => instance.runDeferredLoad());
+        flushFrames();
+        act(() => listeners.slice().forEach((l) => l()));
+        flushFrames();
+
+        expect(second).toHaveBeenCalledTimes(1);
+    });
+
     // Ordering is by registration, not by whose trigger happens to land first.
     it("holds a later registration until the earlier one's trigger has arrived", () => {
         const order = [];
