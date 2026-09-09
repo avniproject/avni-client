@@ -1,6 +1,7 @@
 import {ScrollView, StyleSheet, Vibration, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
+import {logTaskDuration} from "../../utility/Analytics";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
 import {Actions} from "../../action/individual/PersonRegisterActions";
@@ -96,8 +97,13 @@ class PersonRegisterFormView extends AbstractComponent {
     }
 
     onAppHeaderBack(saveDraftOn) {
-        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [PersonRegisterView, PersonRegisterFormView]);
-        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n);
+        const onYesPress = () => {
+            if (this.state.isNewEntity && this.state.registrationStartTime) {
+                logTaskDuration('registration', _.get(this.state, 'individualSubjectType.name'), Date.now() - this.state.registrationStartTime, 'abandoned');
+            }
+            CHSNavigator.navigateToFirstPage(this, [PersonRegisterView, PersonRegisterFormView]);
+        };
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n, undefined, {screen: this.viewName()});
     }
 
     shouldComponentUpdate(nextProps, nextState) {

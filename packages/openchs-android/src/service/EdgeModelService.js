@@ -3,6 +3,7 @@ import Service from "../framework/bean/Service";
 import {NativeModules} from "react-native";
 import fs from "react-native-fs";
 import General from "../utility/General";
+import {firebaseEvents, logEvent} from "../utility/Analytics";
 
 /**
  * EdgeModelService — JS surface for on-device inference.
@@ -130,19 +131,53 @@ class EdgeModelService extends BaseService {
      * layout-transpose, all driven by the resolved preprocessor plugin. `imagePath` is an
      * absolute path on the device (e.g. from react-native-image-picker, with `file://`
      * stripped).
+     *
+     * `labelMap` is optional (e.g. { 'Positive': 'Suspicious', 'Negative': 'Non Suspicious' } - see
+     * scheduleImageInference above) and only affects what's sent to analytics: the `label` on the
+     * model_inference_consolidated / model_inference_individual event is the mapped, user-facing verdict when a mapping is supplied and covers
+     * this result (falling back to the model's own raw label otherwise, e.g. for direct rule usage
+     * that doesn't pass one) - the RETURNED result always carries the raw label, unchanged.
+     *
+     * `ensembleModelKeys` is set ONLY by runEnsembleInferenceOnImage below, to the full list of
+     * fold model keys in that ensemble run - never by a caller. When set, this call is one fold of
+     * a larger ensemble run, and its reading is logged as model_inference_individual (a per-fold
+     * diagnostic, carrying ensemble_models so sibling folds of the same run can be grouped back
+     * together) instead of model_inference_consolidated. That keeps model_inference_consolidated at exactly ONE row per
+     * image scored - either a genuine standalone single-model call (ensemble=false) or the
+     * ensemble's combined verdict (ensemble=true) - so counting model_inference_consolidated rows always
+     * answers "how many images were scored" correctly, with no filtering required. Per-fold
+     * behaviour (e.g. debugging why the ensemble disagreed) lives in model_inference_individual instead.
      */
-    async runInferenceOnImage(modelKey, imagePath) {
+    async runInferenceOnImage(modelKey, imagePath, labelMap, ensembleModelKeys = null) {
         General.logDebug('EdgeModelSvc', `runInferenceOnImage: modelKey=${modelKey} imagePath=${imagePath}`);
         const t0 = Date.now();
         await this._ensureLoaded(modelKey);
+        const isFold = Array.isArray(ensembleModelKeys);
+        const eventName = isFold ? firebaseEvents.MODEL_INFERENCE_INDIVIDUAL : firebaseEvents.MODEL_INFERENCE_CONSOLIDATED;
+        const ensembleTag = isFold ? {ensemble_models: ensembleModelKeys.join(',')} : {ensemble: false};
         try {
             const result = await NativeModules.EdgeModelModule.runInferenceOnImage(modelKey, imagePath);
+            const durationMs = Date.now() - t0;
+            const rawLabel = result && result.label;
+            const mappedLabel = (labelMap && Object.prototype.hasOwnProperty.call(labelMap, rawLabel))
+                ? labelMap[rawLabel] : rawLabel;
             General.logDebug('EdgeModelSvc',
-                `runInferenceOnImage OK (${Date.now() - t0}ms): label=${result && result.label}`);
+                `runInferenceOnImage OK (${durationMs}ms): label=${rawLabel}`);
+            const eventParams = {
+                model_key: modelKey, ...ensembleTag, label: mappedLabel,
+                outcome: 'success', duration_ms: durationMs
+            };
+            if (mappedLabel !== rawLabel) eventParams.raw_label = rawLabel;
+            logEvent(eventName, eventParams);
             return result;
         } catch (e) {
+            const durationMs = Date.now() - t0;
             General.logError('EdgeModelSvc',
-                `runInferenceOnImage FAIL (${Date.now() - t0}ms) ${modelKey}: ${e && e.message}`);
+                `runInferenceOnImage FAIL (${durationMs}ms) ${modelKey}: ${e && e.message}`);
+            logEvent(eventName, {
+                model_key: modelKey, ...ensembleTag,
+                outcome: 'error', duration_ms: durationMs
+            });
             throw e;
         }
     }
@@ -168,37 +203,57 @@ class EdgeModelService extends BaseService {
         const combine = opts.combine ?? decoderParams.combine ?? 'unanimous-and';
         const threshold = opts.threshold ?? decoderParams.threshold ?? 0.5;
         const labels = opts.labels ?? decoderParams.labels ?? ['Negative', 'Positive'];
+        const labelMap = opts.labelMap;
         if (combine !== 'unanimous-and') {
             throw new Error(`EdgeModelService.runEnsembleInferenceOnImage: unsupported combine='${combine}' (only 'unanimous-and' is shipped)`);
         }
 
         const t0 = Date.now();
-        const results = await Promise.all(modelKeys.map(k => this.runInferenceOnImage(k, imagePath)));
-        // Fail loud on a fold with a non-finite logit rather than letting it silently count as a
-        // negative vote — sigmoid(NaN) > threshold is false below, so a malformed fold would
-        // masquerade as a confident negative, the worst outcome for a screening verdict. Throwing
-        // here follows the same contract as a fold that throws: no verdict is written, the target
-        // obs stays absent.
-        results.forEach((r, i) => {
-            if (!Number.isFinite(r.logit)) {
-                throw new Error(`EdgeModelService.runEnsembleInferenceOnImage: fold ${modelKeys[i]} returned a non-finite logit (${r.logit}); models=[${modelKeys.join(',')}]`);
-            }
-        });
-        const sigmoid = (x) => 1 / (1 + Math.exp(-x));
-        // Per-model positive is sigmoid(logit) > threshold — unambiguous, independent of how each
-        // fold result defines `confidence`. Unanimous AND: suspicious iff ALL folds are positive.
-        const perModel = results.map((r, i) => ({
-            modelKey: modelKeys[i], logit: r.logit, confidence: r.confidence, label: r.label,
-            positive: sigmoid(r.logit) > threshold
-        }));
-        const positive = perModel.every(p => p.positive);
-        // No single probability is meaningful for a hard-AND verdict; report the least-confident
-        // fold's confidence as a diagnostic (NOT a calibrated probability).
-        const confidence = Math.min(...perModel.map(p => p.confidence));
-        const label = positive ? labels[1] : labels[0];
-        General.logDebug('EdgeModelSvc',
-            `runEnsembleInferenceOnImage OK (${Date.now() - t0}ms): combine=unanimous-and positive=${positive} label=${label} models=[${modelKeys.join(',')}]`);
-        return {label, confidence, positive, modelKeys, perModel};
+        try {
+            const results = await Promise.all(modelKeys.map(k => this.runInferenceOnImage(k, imagePath, labelMap, modelKeys)));
+            // Fail loud on a fold with a non-finite logit rather than letting it silently count as a
+            // negative vote — sigmoid(NaN) > threshold is false below, so a malformed fold would
+            // masquerade as a confident negative, the worst outcome for a screening verdict. Throwing
+            // here follows the same contract as a fold that throws: no verdict is written, the target
+            // obs stays absent.
+            results.forEach((r, i) => {
+                if (!Number.isFinite(r.logit)) {
+                    throw new Error(`EdgeModelService.runEnsembleInferenceOnImage: fold ${modelKeys[i]} returned a non-finite logit (${r.logit}); models=[${modelKeys.join(',')}]`);
+                }
+            });
+            const sigmoid = (x) => 1 / (1 + Math.exp(-x));
+            // Per-model positive is sigmoid(logit) > threshold — unambiguous, independent of how each
+            // fold result defines `confidence`. Unanimous AND: suspicious iff ALL folds are positive.
+            const perModel = results.map((r, i) => ({
+                modelKey: modelKeys[i], logit: r.logit, confidence: r.confidence, label: r.label,
+                positive: sigmoid(r.logit) > threshold
+            }));
+            const positive = perModel.every(p => p.positive);
+            // No single probability is meaningful for a hard-AND verdict; report the least-confident
+            // fold's confidence as a diagnostic (NOT a calibrated probability).
+            const confidence = Math.min(...perModel.map(p => p.confidence));
+            const label = positive ? labels[1] : labels[0];
+            const mappedLabel = (labelMap && Object.prototype.hasOwnProperty.call(labelMap, label))
+                ? labelMap[label] : label;
+            const durationMs = Date.now() - t0;
+            General.logDebug('EdgeModelSvc',
+                `runEnsembleInferenceOnImage OK (${durationMs}ms): combine=unanimous-and positive=${positive} label=${label} models=[${modelKeys.join(',')}]`);
+            const eventParams = {
+                model_key: modelKeys.join(','), ensemble: true, label: mappedLabel,
+                outcome: 'success', duration_ms: durationMs
+            };
+            if (mappedLabel !== label) eventParams.raw_label = label;
+            logEvent(firebaseEvents.MODEL_INFERENCE_CONSOLIDATED, eventParams);
+            return {label, confidence, positive, modelKeys, perModel};
+        } catch (e) {
+            const durationMs = Date.now() - t0;
+            General.logError('EdgeModelSvc',
+                `runEnsembleInferenceOnImage FAIL (${durationMs}ms) models=[${modelKeys.join(',')}]: ${e && e.message}`);
+            logEvent(firebaseEvents.MODEL_INFERENCE_CONSOLIDATED, {
+                model_key: modelKeys.join(','), ensemble: true, outcome: 'error', duration_ms: durationMs
+            });
+            throw e;
+        }
     }
 
     /**
@@ -343,8 +398,8 @@ class EdgeModelService extends BaseService {
         if (invalidateStaleNow) queueClear();
 
         const runInference = () => Array.isArray(modelKey)
-            ? this.runEnsembleInferenceOnImage(modelKey, imagePath)
-            : this.runInferenceOnImage(modelKey, imagePath);
+            ? this.runEnsembleInferenceOnImage(modelKey, imagePath, {labelMap})
+            : this.runInferenceOnImage(modelKey, imagePath, labelMap);
         const SKIP_INFERENCE = {__skipInference: true};
         const inference = invalidateIfMediaPresent
             ? (async () => {

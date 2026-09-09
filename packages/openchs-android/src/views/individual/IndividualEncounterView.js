@@ -138,7 +138,7 @@ class IndividualEncounterView extends AbstractComponent {
             });
             CHSNavigator.navigateToFirstPage(this, [IndividualEncounterView]);
         }
-        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n);
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n, undefined, {screen: this.viewName()});
     }
 
     onStartTimer() {

@@ -30,7 +30,11 @@ class SyncActions {
         const errorTime = Date.now();
         const syncTime = errorTime - state.startTime;
         const params = {
-            time_taken: syncTime,
+            // This reducer is only reached from the manual sync button today (SyncComponent.js);
+            // the background-job sync path (src/task/Sync.js) doesn't dispatch ON_ERROR, so
+            // "manual" is correct for every case this fires in currently — not a hardcoded guess.
+            trigger: 'manual',
+            duration_ms: syncTime,
             sync_start_time: syncStartTime,
             error_time: moment(errorTime).format(dateTimeFormat)
         };

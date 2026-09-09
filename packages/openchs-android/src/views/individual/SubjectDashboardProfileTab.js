@@ -35,7 +35,7 @@ import AttendanceSheetView from "../attendance/AttendanceSheetView";
 import AttendanceTypeService from "../../service/AttendanceTypeService";
 import {AvniAlert} from "../common/AvniAlert";
 import _ from "lodash";
-import {firebaseEvents, logEvent} from "../../utility/Analytics";
+import {firebaseEvents, logEvent, logUserAction} from "../../utility/Analytics";
 import SubjectDashboardGeneralTab from "./SubjectDashboardGeneralTab";
 import SubjectProgramEligibilityWidget from "./SubjectProgramEligibilityWidget";
 import CustomActivityIndicator from "../CustomActivityIndicator";
@@ -130,7 +130,10 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         AvniAlert(this.I18n.t('deleteRelativeNoticeTitle'), this.I18n.t('deleteRelativeConfirmationMessage', {
             individualA: individualRelative.individual.name,
             individualB: individualRelative.relative.name
-        }), () => this.dispatchAction(Actions.ON_DELETE_RELATIVE, {individualRelative: individualRelative}), this.I18n, true)
+        }), () => {
+            logUserAction('delete', 'individual_relative');
+            this.dispatchAction(Actions.ON_DELETE_RELATIVE, {individualRelative: individualRelative});
+        }, this.I18n, true)
     }
 
     editProfile() {

@@ -4,6 +4,7 @@ import {Actions} from "../../action/subject/SubjectRegisterActions";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import {BaseEntity, WorkItem} from 'avni-models';
 import CHSNavigator from "../../utility/CHSNavigator";
+import {logTaskDuration} from "../../utility/Analytics";
 import _ from "lodash";
 
 class Mixin {
@@ -22,6 +23,9 @@ class Mixin {
                 });
                 const registrationTitle = view.I18n.t(view.registrationType) + view.I18n.t('registration');
                 const headerMessage = `${registrationTitle} - ${view.I18n.t('summaryAndRecommendations')}`;
+                if (state.isNewEntity && state.registrationStartTime) {
+                    logTaskDuration('registration', _.get(state, 'subjectType.name'), Date.now() - state.registrationStartTime);
+                }
                 CHSNavigator.navigateToSystemsRecommendationView(view, decisions, ruleValidationErrors, state.subject,
                     state.subject.observations, Actions.SAVE, onSaveCallback, headerMessage, null,
                     nextScheduledVisits, state.form, state.workListState, null, state.saveDrafts,

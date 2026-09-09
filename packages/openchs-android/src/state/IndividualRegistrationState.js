@@ -4,6 +4,7 @@ import _ from "lodash";
 import ConceptService from "../service/ConceptService";
 import {StaticFormElementGroup, Individual, ObservationsHolder, WorkLists, WorkList, WorkItem, Concept} from "avni-models";
 import General from "../utility/General";
+import {logTaskStarted} from "../utility/Analytics";
 import HouseholdState from "./HouseholdState";
 import IndividualService from "../service/IndividualService";
 import {ValidationResult} from "openchs-models";
@@ -52,6 +53,13 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         individualRegistrationState.minLevelTypeUUIDs = minLevelTypeUUIDs;
         individualRegistrationState.saveDrafts = saveDrafts;
         individualRegistrationState.groupAffiliation = groupAffiliationState;
+        // Telemetry: marks the start of the registration flow so we can time it end-to-end
+        // (see completed() in PersonRegisterViewsMixin.js). Only for genuinely new subjects -
+        // editing an existing one isn't "completing a registration".
+        individualRegistrationState.registrationStartTime = isNewEntity ? Date.now() : null;
+        if (isNewEntity) {
+            logTaskStarted('registration', _.get(individual, 'subjectType.name'));
+        }
         return individualRegistrationState;
     }
 
@@ -70,6 +78,7 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         newState.minLevelTypeUUIDs = this.minLevelTypeUUIDs;
         newState.saveDrafts = this.saveDrafts;
         newState.groupAffiliation = this.groupAffiliation;
+        newState.registrationStartTime = this.registrationStartTime;
         super.clone(newState);
         return newState;
     }

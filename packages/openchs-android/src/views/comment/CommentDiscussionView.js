@@ -14,6 +14,7 @@ import MCIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import Styles from "../primitives/Styles";
 import CommentThreadService from "../../service/comment/CommentThreadService";
 import {AvniAlert} from "../common/AvniAlert";
+import {logUserAction} from "../../utility/Analytics";
 
 @Path('/commentDiscussionView')
 class CommentDiscussionView extends AbstractComponent {
@@ -46,6 +47,7 @@ class CommentDiscussionView extends AbstractComponent {
 
     resolveThread() {
         const onYesPress = () => {
+            logUserAction('resolve', 'comment_thread');
             this.dispatchAction(Actions.ON_THREAD_RESOLVE, {threadUUID: this.props.threadUUID});
             this.goBack()
         };

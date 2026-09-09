@@ -136,10 +136,11 @@ class SyncService extends BaseService {
         const updatedSyncSource = this.getUpdatedSyncSource(syncSource);
         const appInfo = await this.metricsService.getAppInfo();
         this.dispatchAction(SyncTelemetryActions.START_SYNC, {connectionInfo, syncSource: updatedSyncSource, appInfo});
+        logEvent(firebaseEvents.SYNC_START, {trigger: updatedSyncSource});
         const syncCompleted = () => Promise.resolve(this.dispatchAction(SyncTelemetryActions.SYNC_COMPLETED))
             .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity))
             .then(() => Promise.resolve(progressBarStatus.onSyncComplete()))
-            .then(() => Promise.resolve(this.logSyncCompleteEvent(syncStartTime)))
+            .then(() => Promise.resolve(this.logSyncCompleteEvent(syncStartTime, updatedSyncSource)))
             .then(() => this.clearDataIn([RuleFailureTelemetry]))
             .then(() => this.downloadNewsImages())
             .then(() => pruneConceptMedia(this.db, FileSystem.getMetadataDir()))
@@ -176,9 +177,9 @@ class SyncService extends BaseService {
         return !_.isEmpty(lastSynced) && moment(lastSynced.syncEndTime).add(12, 'hours').isBefore(moment());
     }
 
-    logSyncCompleteEvent(syncStartTime) {
+    logSyncCompleteEvent(syncStartTime, syncSource) {
         const syncTime = Date.now() - syncStartTime;
-        logEvent(firebaseEvents.SYNC_COMPLETE, {time_taken: syncTime});
+        logEvent(firebaseEvents.SYNC_COMPLETE, {trigger: syncSource, duration_ms: syncTime});
     }
 
     mediaSync(statusMessageCallBack) {

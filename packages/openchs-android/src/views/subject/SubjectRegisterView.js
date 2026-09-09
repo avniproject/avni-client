@@ -2,6 +2,7 @@ import {ScrollView, StyleSheet, Text, TextInput, ToastAndroid, View} from "react
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
+import {logTaskDuration} from "../../utility/Analytics";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
 import AppHeader from "../common/AppHeader";
@@ -110,8 +111,16 @@ class SubjectRegisterView extends AbstractComponent {
     }
 
     onAppHeaderBack(saveDraftOn) {
-        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [SubjectRegisterView]);
-        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n);
+        const onYesPress = () => {
+            // Mirrors the completed-registration task_duration in SubjectRegisterViewsMixin.js,
+            // but for the path where the user backs out and confirms discarding the form instead
+            // of finishing it - completes the 'abandoned' outcome logTaskDuration always supported.
+            if (this.state.isNewEntity && this.state.registrationStartTime) {
+                logTaskDuration('registration', _.get(this.state, 'subjectType.name'), Date.now() - this.state.registrationStartTime, 'abandoned');
+            }
+            CHSNavigator.navigateToFirstPage(this, [SubjectRegisterView]);
+        };
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n, undefined, {screen: this.viewName()});
     }
 
     onHardwareBackPress() {

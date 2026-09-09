@@ -6,6 +6,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import _ from 'lodash';
 import Colors from '../primitives/Colors';
 import Distances from "../primitives/Distances";
+import {logUiClick} from "../../utility/Analytics";
 
 const BUTTON_RADIUS = 8;
 
@@ -44,7 +45,10 @@ class WizardButtons extends AbstractComponent {
                 style={this.appendedStyle({justifyContent: 'space-between', flexDirection: 'row', marginBottom: 12})}>
                 <Button primary
                         style={{flex: 1, justifyContent: "center", backgroundColor: Colors.BrandPrimaryDark, borderRadius: BUTTON_RADIUS, ...buttonHeightStyle}}
-                        onPress={() => nextAndMore.func()}>
+                        onPress={() => {
+                            logUiClick('next_and_more');
+                            nextAndMore.func();
+                        }}>
                     {nextAndMore.label}</Button>
             </View>
             }
@@ -62,7 +66,10 @@ class WizardButtons extends AbstractComponent {
                                 ...buttonHeightStyle
                             }}
                             _text={{color: Colors.BrandPrimary}}
-                            onPress={() => previousButton.func()}>
+                            onPress={() => {
+                                logUiClick('previous');
+                                previousButton.func();
+                            }}>
                         {previousButton.label}</Button> :
                     <View style={{flex: 0.5}}/>}
                 {nextButton.visible ?
@@ -78,7 +85,10 @@ class WizardButtons extends AbstractComponent {
                                 ...buttonHeightStyle
                             }}
                             _text={nextButton.ready === false ? {color: Colors.BrandPrimaryDark} : undefined}
-                            onPress={() => nextButton.func()}>{nextButton.label}
+                            onPress={() => {
+                                logUiClick('next', {ready: nextButton.ready !== false});
+                                nextButton.func();
+                            }}>{nextButton.label}
                     </Button> : <View style={{flex: 0.5}}/>}
             </View>
         </View>);

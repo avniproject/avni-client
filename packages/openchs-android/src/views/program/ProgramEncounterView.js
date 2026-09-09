@@ -35,6 +35,7 @@ import Timer from "../common/Timer";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 import CustomActivityIndicator from "../CustomActivityIndicator";
+import {logTaskDuration, logTaskStarted} from "../../utility/Analytics";
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
@@ -54,6 +55,13 @@ class ProgramEncounterView extends AbstractComponent {
     UNSAFE_componentWillMount() {
         const {encounterType, enrolmentUUID, programEncounter, workLists, pageNumber, editing} = this.props.params;
         if (programEncounter) {
+            // Mirrors the started/completed/abandoned parity used for registration and login -
+            // this view's own screenRenderStartTime (set by AbstractComponent) is the clock this
+            // pairs with. Note: this branch is also hit when the user backs up from the
+            // recommendation screen to edit an earlier answer (see the fromSDV/onPreviousCallback
+            // resetStack above), so a back-and-forth edit logs a fresh 'started' too - the same
+            // known limitation already called out where the completed/abandoned duration is logged.
+            logTaskStarted('encounter', programEncounter.name || _.get(programEncounter, 'encounterType.displayName'));
             this.dispatchAction(Actions.ON_LOAD, {programEncounter, workLists, pageNumber, editing});
             return super.UNSAFE_componentWillMount();
         }
@@ -61,6 +69,7 @@ class ProgramEncounterView extends AbstractComponent {
             .findDueEncounter({encounterTypeName: encounterType, enrolmentUUID})
             .cloneForEdit();
         programEncounterByType.encounterDateTime = moment().toDate();
+        logTaskStarted('encounter', programEncounterByType.name || _.get(programEncounterByType, 'encounterType.displayName'));
         this.dispatchAction(Actions.ON_LOAD, {programEncounter: programEncounterByType, editing});
         return super.UNSAFE_componentWillMount();
     }
@@ -123,6 +132,15 @@ class ProgramEncounterView extends AbstractComponent {
                 const headerMessage = `${this.I18n.t(programEnrolment.program.displayName)}, ${this.I18n.t(encounterName)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
                 const form = formMappingService.findFormForEncounterType(this.state.programEncounter.encounterType, Form.formTypes.ProgramEncounter, this.state.programEncounter.programEnrolment.individual.subjectType);
+                // Timed from this screen's mount (this.screenRenderStartTime, set by AbstractComponent
+                // since this view has a topLevelStateVariable) to the hand-off to the recommendation
+                // screen - same "excludes the recommendation screen" boundary used for registration.
+                // Note: if the user goes back from the recommendation screen to edit an answer (fromSDV
+                // above), this view remounts and the clock restarts, so a back-and-forth edit undercounts
+                // total time - a known limitation, not wired around in this pass.
+                if (this.screenRenderStartTime) {
+                    logTaskDuration('encounter', encounterName, Date.now() - this.screenRenderStartTime);
+                }
                 CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, programEnrolment.individual, programEncounter.observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState, null, state.saveDrafts, popVerificationVew, programEncounter.isRejectedEntity(), programEncounter.latestEntityApprovalStatus, onPreviousCallback, {}, programEnrolment.uuid);
             },
             popVerificationVewFunc : () => TypedTransition.from(this).popToBookmark(),
@@ -156,12 +174,20 @@ class ProgramEncounterView extends AbstractComponent {
 
     onAppHeaderBack(saveDraftOn) {
         const onYesPress = () => {
+            // Mirrors the completed-encounter task_duration logged just before the hand-off to
+            // SystemRecommendationView, but for the path where the user backs out instead of
+            // finishing - completes the 'abandoned' outcome logTaskDuration always supported.
+            if (this.screenRenderStartTime) {
+                const programEncounter = this.state.programEncounter;
+                const encounterName = programEncounter && (programEncounter.name || _.get(programEncounter, 'encounterType.displayName'));
+                logTaskDuration('encounter', encounterName, Date.now() - this.screenRenderStartTime, 'abandoned');
+            }
             if (saveDraftOn) {
                 this.dispatchAction(Actions.ON_BACK);
             }
             CHSNavigator.navigateToFirstPage(this, [ProgramEncounterView, NewVisitPageView]);
         };
-        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n);
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n, undefined, {screen: this.viewName()});
     }
     onStartTimer() {
         this.dispatchAction(Actions.ON_START_TIMER,

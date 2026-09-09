@@ -10,6 +10,7 @@ import _ from "lodash";
 import CHSNavigator from "../../utility/CHSNavigator";
 import {  ObservationsHolder  } from 'avni-models';
 import { AvniAlert } from "../common/AvniAlert";
+import {logUserAction} from "../../utility/Analytics";
 import CustomConfirmDialog from "../common/CustomConfirmDialog";
 
 class ChecklistItemDisplay extends AbstractComponent {
@@ -46,6 +47,7 @@ class ChecklistItemDisplay extends AbstractComponent {
             vaccinationName: checklistItem.detail.concept.name
         };
         return () => AvniAlert(this.I18n.t('undoChecklistItemConfirmTitle', placeholders), this.I18n.t('undoChecklistItemConfirmMessage'), () => {
+            logUserAction('undo', 'checklist_item');
             this.dispatchAction(this.props.undoAction, {checklistItem: checklistItem});
             reloadCallback();
         }, this.I18n, true)

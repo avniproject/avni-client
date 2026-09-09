@@ -3,6 +3,7 @@ import _ from "lodash";
 import General from "../../utility/General";
 import {Keyboard} from 'react-native';
 import {JSONStringify} from "../../utility/JsonStringify";
+import {logScreenNavigation} from "../../utility/Analytics";
 
 // navigator commands are async in their actual effect of their execution. so if you run more than one navigator action one after other the output is indeterminate
 export default class TypedTransition {
@@ -22,12 +23,20 @@ export default class TypedTransition {
         if (General.isDebugEnabled()) {
             General.logDebug('TypedTransition', `Route size: ${this.navigator.getCurrentRoutes().length}. To: ${route.path} Param Keys: ${JSONStringify(this.queryParams, 2)}`);
         }
+        logScreenNavigation(this.fromScreenName(), viewClass.name, replace ? 'replace' : 'push');
         if (replace) {
             this.navigator.replace(route);
         } else {
             this.navigator.push(route);
         }
         return this;
+    }
+
+    // this.view is the screen instance that called TypedTransition.from(view) - almost always an
+    // AbstractComponent subclass, which has viewName(); fall back to the raw constructor name for
+    // the rare caller that isn't (mirrors AbstractComponent.viewName()'s own implementation).
+    fromScreenName() {
+        return (this.view && _.isFunction(this.view.viewName)) ? this.view.viewName() : _.get(this.view, 'constructor.name');
     }
 
     static createRoute(viewClass, queryParams = {}, isTyped = false) {
@@ -40,6 +49,7 @@ export default class TypedTransition {
 
     goBack() {
         this.safeDismissKeyboard();
+        logScreenNavigation(this.fromScreenName(), undefined, 'back');
         //This is a quick fix until we upgrade
         try {
             this.navigator.pop();

@@ -14,6 +14,7 @@ import EnvironmentConfig from "../framework/EnvironmentConfig";
 import PrivilegeService from "../service/PrivilegeService";
 import {EncounterType, Privilege} from "openchs-models";
 import ProgramService from "../service/program/ProgramService";
+import {logFormPageDuration} from "../utility/Analytics";
 
 class AbstractDataEntryState {
     locationError;
@@ -38,6 +39,7 @@ class AbstractDataEntryState {
         newState.isFirstFlow = this.isFirstFlow;
         newState.isDraft = this.isDraft;
         newState.wizardCompletionInProgress = this.wizardCompletionInProgress;
+        newState.currentPageEnteredAt = this.currentPageEnteredAt;
         return newState;
     }
 
@@ -86,6 +88,11 @@ class AbstractDataEntryState {
     }
 
     moveNext() {
+        const now = Date.now();
+        if (this.currentPageEnteredAt && this.formElementGroup) {
+            logFormPageDuration(this.formElementGroup.name, now - this.currentPageEnteredAt);
+        }
+        this.currentPageEnteredAt = now;
         this.wizard.moveNext();
         this.formElementGroup = this.formElementGroup.next();
         if (this.isFirstFlow && !this.isDraft) {
@@ -102,6 +109,7 @@ class AbstractDataEntryState {
             if (this.timerState.isPreviousNotAllowed(this.formElementGroup)) return;
             else this.timerState.resetForPrevious();
         }
+        this.currentPageEnteredAt = Date.now();
         this.wizard.movePrevious();
         this.formElementGroup = this.formElementGroup.previous();
     }

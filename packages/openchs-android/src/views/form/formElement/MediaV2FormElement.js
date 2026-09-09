@@ -157,6 +157,15 @@ export default class MediaV2FormElement extends AbstractFormElement {
         DeviceLocation.getPosition(callback, true, null, this.context);
     }, 1000, {leading: true, trailing: false});
 
+    /**
+     * Camera capture funnel telemetry: logs camera_capture with outcome started/completed/
+     * cancelled/error/permission_denied, tagged with the target concept and a per-instance
+     * attempt count, on BOTH the native (TANUH) camera screen and the generic
+     * react-native-image-picker path — previously only a successful native capture logged
+     * anything (camera_photo_quality, unchanged below, still native-only), so cancellations,
+     * errors, permission denials, and the entire generic-picker path were invisible.
+     * this._cameraCaptureAttempt is instance-scoped (resets if this form element remounts).
+     */
     async launchCamera(onUpdateObservations) {
         this.setState(state => ({...state, mode: Mode.Camera}));
         const includeLocationInfoValue = this.includeLocationInfo();
@@ -174,6 +183,14 @@ export default class MediaV2FormElement extends AbstractFormElement {
             includeBase64: includeLocationInfoValue
         };
 
+        const conceptName = _.get(this.props, 'element.concept.name');
+        this._cameraCaptureAttempt = (this._cameraCaptureAttempt || 0) + 1;
+        const attempt = this._cameraCaptureAttempt;
+        const t0 = Date.now();
+        const logCapture = (outcome, extra) => logEvent(firebaseEvents.CAMERA_CAPTURE,
+            {concept_name: conceptName, attempt, outcome, duration_ms: Date.now() - t0, ...extra});
+        logCapture('started');
+
         if (await this.isPermissionGranted(includeLocationInfoValue)) {
             if (this.useNativeCameraScreen()) {
                 try {
@@ -189,16 +206,30 @@ export default class MediaV2FormElement extends AbstractFormElement {
                         if (result.quality) {
                             logEvent(firebaseEvents.CAMERA_PHOTO_QUALITY, result.quality);
                         }
+                        logCapture('completed');
+                    } else {
+                        // result is null when the user cancelled inside the native screen (closed
+                        // it, or denied the permission it separately re-checks).
+                        logCapture('cancelled');
                     }
-                    // result is null when the user cancelled inside the native screen (closed
-                    // it, or denied the permission it separately re-checks) — a no-op, matching
-                    // react-native-image-picker's didCancel behaviour in the branch below.
                 } catch (error) {
                     General.logError('MediaV2FormElement.launchCamera (native)', error);
+                    logCapture('error', {error_message: error && error.message});
                 }
             } else {
-                launchCamera(options, (response) => this.addMediaFromPicker(response, onUpdateObservations));
+                launchCamera(options, (response) => {
+                    if (response.didCancel) {
+                        logCapture('cancelled');
+                    } else if (response.errorCode) {
+                        logCapture('error', {error_code: response.errorCode});
+                    } else {
+                        logCapture('completed');
+                    }
+                    this.addMediaFromPicker(response, onUpdateObservations);
+                });
             }
+        } else {
+            logCapture('permission_denied');
         }
     }
 

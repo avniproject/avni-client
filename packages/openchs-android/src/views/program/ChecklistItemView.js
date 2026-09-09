@@ -69,7 +69,7 @@ class ChecklistItemView extends AbstractComponent {
 
     onAppHeaderBack() {
         const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [ChecklistItemView]);
-        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n, undefined, {screen: this.viewName()});
     }
 
     render() {

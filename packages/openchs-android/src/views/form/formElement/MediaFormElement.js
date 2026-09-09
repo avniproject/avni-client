@@ -263,10 +263,25 @@ export default class MediaFormElement extends AbstractFormElement {
         });
     }
 
+    /**
+     * Camera capture funnel telemetry — same fix as MediaV2FormElement.launchCamera: logs
+     * camera_capture (started/completed/cancelled/error/permission_denied) tagged with the
+     * target concept and a per-instance attempt count, on both the native and generic-picker
+     * paths. camera_photo_quality below is unchanged (still native-only, success-only).
+     */
     async launchCamera(onUpdateObservations) {
         this.setState({ mode: Mode.Camera });
         const options = { ...this.getDefaultOptions(),
             durationLimit: this.getFromKeyValue('durationLimitInSecs', DEFAULT_DURATION_LIMIT)};
+
+        const conceptName = _.get(this.props, 'element.concept.name');
+        this._cameraCaptureAttempt = (this._cameraCaptureAttempt || 0) + 1;
+        const attempt = this._cameraCaptureAttempt;
+        const t0 = Date.now();
+        const logCapture = (outcome, extra) => logEvent(firebaseEvents.CAMERA_CAPTURE,
+            {concept_name: conceptName, attempt, outcome, duration_ms: Date.now() - t0, ...extra});
+        logCapture('started');
+
         if (await this.isPermissionGranted()) {
             if (this.useNativeCameraScreen()) {
                 try {
@@ -279,16 +294,29 @@ export default class MediaFormElement extends AbstractFormElement {
                         if (result.quality) {
                             logEvent(firebaseEvents.CAMERA_PHOTO_QUALITY, result.quality);
                         }
+                        logCapture('completed');
+                    } else {
+                        // result is null when the user cancelled inside the native screen.
+                        logCapture('cancelled');
                     }
-                    // result is null when the user cancelled inside the native screen — a
-                    // no-op, matching react-native-image-picker's didCancel behaviour below.
                 } catch (error) {
                     General.logError('MediaFormElement.launchCamera (native)', error);
+                    logCapture('error', {error_message: error && error.message});
                 }
             } else {
-                launchCamera(options,
-                    (response) => this.addMediaFromPicker(response, onUpdateObservations));
+                launchCamera(options, (response) => {
+                    if (response.didCancel) {
+                        logCapture('cancelled');
+                    } else if (response.errorCode) {
+                        logCapture('error', {error_code: response.errorCode});
+                    } else {
+                        logCapture('completed');
+                    }
+                    this.addMediaFromPicker(response, onUpdateObservations);
+                });
             }
+        } else {
+            logCapture('permission_denied');
         }
     }
 

@@ -10,6 +10,7 @@ import Actions from "../groupSubject/Actions";
 import Reducers from "../../reducer";
 import {CommentActionNames as CommentActions} from "../../action/comment/CommentActions";
 import {AvniAlert} from "../common/AvniAlert";
+import {logUserAction} from "../../utility/Analytics";
 import {CommentThread} from 'avni-models';
 import UserInfoService from "../../service/UserInfoService";
 import _ from 'lodash';
@@ -37,7 +38,10 @@ class CommentCard extends AbstractComponent {
     }
 
     onCommentDelete(comment) {
-        AvniAlert(this.I18n.t('deleteMessageTitle'), this.I18n.t('deleteMessageDetails'), () => this.dispatchAction(CommentActions.ON_DELETE, {comment}), this.I18n, true)
+        AvniAlert(this.I18n.t('deleteMessageTitle'), this.I18n.t('deleteMessageDetails'), () => {
+            logUserAction('delete', 'comment');
+            this.dispatchAction(CommentActions.ON_DELETE, {comment});
+        }, this.I18n, true)
     }
 
     renderOptions(comment) {

@@ -10,6 +10,7 @@ import EntityService from "../service/EntityService";
 import ObservationHolderActions from "../action/common/ObservationsHolderActions";
 import TimerState from "./TimerState";
 import General from '../utility/General';
+import {logTaskStarted} from "../utility/Analytics";
 
 class SubjectRegistrationState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, subject, isNewEntity, filteredFormElements, subjectType, workLists, timerState, group) {
@@ -60,6 +61,13 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         state.minLevelTypeUUIDs = minLevelTypeUUIDs;
         state.saveDrafts = isNewEntity && isSaveDraftOn;
         state.groupAffiliation = groupAffiliationState;
+        // Telemetry: marks the start of the registration flow so we can time it end-to-end
+        // (see completed() in SubjectRegisterViewsMixin.js). Only for genuinely new subjects -
+        // editing an existing one isn't "completing a registration".
+        state.registrationStartTime = isNewEntity ? Date.now() : null;
+        if (isNewEntity) {
+            logTaskStarted('registration', _.get(subject, 'subjectType.name'));
+        }
         state.observationsHolder.updatePrimitiveCodedObs(filteredFormElements, formElementStatuses);
         if (ObservationHolderActions.hasQuestionGroupWithValueInElementStatus(formElementStatuses, formElementGroup.getFormElements())) {
             ObservationHolderActions.updateFormElements(formElementGroup, state, context);
@@ -84,6 +92,10 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         state.minLevelTypeUUIDs = minLevelTypeUUIDs;
         state.saveDrafts = isNewEntity && isSaveDraftOn;
         state.groupAffiliation = groupAffiliationState;
+        state.registrationStartTime = isNewEntity ? Date.now() : null;
+        if (isNewEntity) {
+            logTaskStarted('registration', _.get(subject, 'subjectType.name'));
+        }
         return state;
     }
 
@@ -100,6 +112,7 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         newState.saveDrafts = this.saveDrafts;
         newState.groupAffiliation = this.groupAffiliation;
         newState.group = this.group;
+        newState.registrationStartTime = this.registrationStartTime;
         super.clone(newState);
         return newState;
     }
