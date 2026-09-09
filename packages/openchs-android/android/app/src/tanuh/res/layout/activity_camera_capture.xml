@@ -184,7 +184,7 @@
             android:orientation="horizontal"
             android:layout_marginBottom="36dp"
             android:gravity="center"
-            android:weightSum="3"
+            android:weightSum="2"
             android:layout_marginTop="@dimen/camera_spacing_8">
 
             <LinearLayout
@@ -203,11 +203,16 @@
 
             </LinearLayout>
 
+            <!-- Zoom in/out control hidden per product decision (2026-09) — pinch/slider zoom
+                 is switched off "for now". Kept in the layout (visibility=gone) rather than
+                 deleted so it can be restored by flipping visibility back to visible and
+                 weightSum back to 3, without re-adding any markup. -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:gravity="center">
+                android:gravity="center"
+                android:visibility="gone">
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/zoomIv"
