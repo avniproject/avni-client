@@ -11,26 +11,33 @@ export default class DeviceLocation {
             return true;
         }
 
-        const hasPermission = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
+        // Approximate (COARSE) location is enough to geotag a photo, so it counts as granted just like FINE -
+        // requesting FINE again here when the user already granted COARSE would re-prompt for a permission
+        // they already declined.
+        const [hasFine, hasCoarse] = await Promise.all([
+            PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION),
+            PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION)
+        ]);
 
-        if (hasPermission) return true;
+        if (hasFine || hasCoarse) return true;
 
         try {
-            const status = await Promise.race([
-                PermissionsAndroid.request(
-                    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-                ),
+            const statuses = await Promise.race([
+                PermissionsAndroid.requestMultiple([
+                    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+                    PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION
+                ]),
                 new Promise((_, reject) => setTimeout(() => reject(new Error('Permission request timeout')), 10000))
             ]);
 
-            if (status === PermissionsAndroid.RESULTS.GRANTED) return true;
+            const fineStatus = statuses[PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION];
+            const coarseStatus = statuses[PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION];
 
-            if (status === PermissionsAndroid.RESULTS.DENIED) {
-                General.logWarn("DeviceLocation", "Location permission denied by user");
-            } else if (status === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
-                General.logWarn("DeviceLocation", "Location permission revoked by user");
+            if (fineStatus === PermissionsAndroid.RESULTS.GRANTED || coarseStatus === PermissionsAndroid.RESULTS.GRANTED) {
+                return true;
             }
 
+            General.logWarn("DeviceLocation", `Location permission denied by user (fine: ${fineStatus}, coarse: ${coarseStatus})`);
             return false;
         } catch (error) {
             General.logWarn("DeviceLocation", `Permission request failed: ${error.message}`);

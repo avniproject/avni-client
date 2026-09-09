@@ -22,8 +22,12 @@ export default class DevicePermissions {
         return false;
     }
 
-    static hasDeviceLocation() {
-        return PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
+    static async hasDeviceLocation() {
+        const [fine, coarse] = await Promise.all([
+            PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION),
+            PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION)
+        ]);
+        return fine || coarse;
     }
 
     static showPermissionDeniedAlert({titleKey, messageKey}) {
