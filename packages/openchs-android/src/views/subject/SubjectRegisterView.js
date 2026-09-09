@@ -28,7 +28,7 @@ import Colors from "../primitives/Colors";
 import DGS from "../primitives/DynamicGlobalStyles";
 import HouseholdState from "../../state/HouseholdState";
 import {AvniAlert} from "../common/AvniAlert";
-import {RejectionMessage} from "../approval/RejectionMessage";
+import {DecisionMessage} from "../approval/DecisionMessage";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import UserInfoService from "../../service/UserInfoService";
 import SingleSelectMediaFormElement from "../form/formElement/SingleSelectMediaFormElement";
@@ -147,7 +147,7 @@ class SubjectRegisterView extends AbstractComponent {
                     <AppHeader title={title}
                            func={() => this.onAppHeaderBack(this.state.saveDrafts)}
                            displayHomePressWarning={!this.state.saveDrafts}/>
-                        <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.subject.latestEntityApprovalStatus}/>
+                        <DecisionMessage I18n={this.I18n} entityApprovalStatus={this.state.subject.latestEntityApprovalStatus}/>
 
                         <GeolocationFormElement
                             actionName={Actions.SET_LOCATION}

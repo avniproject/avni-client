@@ -32,7 +32,12 @@ class ApprovalFormView extends AbstractComponent {
         schema: PropTypes.string.isRequired,
         form: PropTypes.object,
         status: PropTypes.string.isRequired,
-        title: PropTypes.string
+        title: PropTypes.string,
+        // avniproject/avni-client#2093. Both absent when a decision is being made, both present when a
+        // recorded one is being corrected: the decision whose answers are being replaced, and the page an
+        // Edit link named.
+        existingDecision: PropTypes.object,
+        pageNumber: PropTypes.number
     };
 
     constructor(props, context) {

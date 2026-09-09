@@ -21,7 +21,7 @@ import FormMappingService from "../../service/FormMappingService";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 import _ from "lodash";
 import TypedTransition from "../../framework/routing/TypedTransition";
-import {RejectionMessage} from "../approval/RejectionMessage";
+import {DecisionMessage} from "../approval/DecisionMessage";
 import SummaryButton from "../common/SummaryButton";
 import BackgroundTimer from "react-native-background-timer";
 import Timer from "../common/Timer";
@@ -108,7 +108,7 @@ class ProgramFormComponent extends AbstractComponent {
                     <Timer timerState={this.props.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.props.state.formElementGroup}/> : null}
                     {this.props.state.wizard.isFirstFormPage() ?
                     <View>
-                        <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.props.state.enrolment.latestEntityApprovalStatus}/>
+                        <DecisionMessage I18n={this.I18n} entityApprovalStatus={this.props.state.enrolment.latestEntityApprovalStatus}/>
                         <SummaryButton onPress={() => this.onGoToSummary()} styles={{marginRight: Distances.ScaledContentDistanceFromEdge}}/>
                         <GeolocationFormElement
                             location={enrol ? this.props.state.enrolment.enrolmentLocation : this.props.state.enrolment.exitLocation}

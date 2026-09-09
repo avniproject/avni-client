@@ -487,6 +487,8 @@
     "approve": "Approve",
     "commentCannotBeEmpty": "Comment Cannot Be Empty",
     "rejectionNote": "Rejection Note",
+    "approvalNote": "Approval Note",
+    "editDecisionAnswers": "Edit Answers",
     "changeStatusToPendingTitle": "Send the form for approval?",
     "changeStatusToPendingMsg": "An edit was made on the rejected form. Do you want to send it for the approval again?",
     "approveRequestTitle": "Approve {{entityName}} request?",

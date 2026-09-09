@@ -29,7 +29,7 @@ import ApprovalFormView from "./ApprovalFormView";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import {ApprovalStatus} from 'avni-models';
 import {ApprovalDialog} from "./ApprovalDialog";
-import {RejectionMessage} from "./RejectionMessage";
+import {DecisionMessage} from "./DecisionMessage";
 import _ from 'lodash';
 import Fonts from "../primitives/Fonts";
 import FormMappingService from "../../service/FormMappingService";
@@ -155,6 +155,33 @@ class ApprovalDetailsView extends AbstractComponent {
         }).bookmark().to(ApprovalFormView, true);
     }
 
+    /**
+     * Reopens the form a recorded decision was answered on, so the approver can correct what they put
+     * there (avniproject/avni-client#2093). The decision itself is not remade - ApprovalFormActions
+     * replaces the answers on this row.
+     *
+     * pageNumber is the page an Edit link on a heading named, and is left undefined by the single Edit
+     * button under the answers, which opens at the beginning.
+     *
+     * Nothing happens when the form the answers were given on is no longer attached: there is no form to
+     * open, and the answers stay readable. Silently doing nothing on a tap is poor, but it is only
+     * reachable by detaching a form from a combination that already has answers against it.
+     */
+    editDecisionAnswers(entity, pageNumber) {
+        const decision = entity.latestEntityApprovalStatus;
+        const form = this.getService(FormMappingService).findFormForDecision(decision);
+        if (_.isNil(form)) return;
+        TypedTransition.from(this).with({
+            entity,
+            schema: entity.getSchemaName(),
+            form,
+            status: decision.approvalStatus.status,
+            title: 'editDecisionAnswers',
+            existingDecision: decision,
+            pageNumber
+        }).bookmark().to(ApprovalFormView, true);
+    }
+
     renderApproveAndRejectButtons(entity, I18n) {
         return (<View style={styles.footerContainer}>
             <ApprovalButton
@@ -218,12 +245,19 @@ class ApprovalDetailsView extends AbstractComponent {
         const showEdit = approvalStatus.isRejected && this.state.showEditButton;
         const confirmActionName = this.state.showInputBox ? Actions.ON_REJECT : Actions.ON_APPROVE;
         const observations = _.isEmpty(entity.observations) ? this.getCancelOrExitObs(entity) : entity.observations;
+        // Correcting the answers is an approver's action, so it is gated on the same approve privilege the
+        // Approve and Reject buttons are. The record's own Edit button below is a different thing entirely
+        // - that is the field worker fixing the record that was sent back.
+        const canEditDecisionAnswers = this.state.showApprovalButtons;
         return (
             <CHSContainer>
                 <CHSContent>
                     <ScrollView ref={this.scrollRef} keyboardShouldPersistTaps="handled">
                         <AppHeader title={title} hideIcon={true}/>
-                        <RejectionMessage I18n={this.I18n} entityApprovalStatus={entity.latestEntityApprovalStatus}/>
+                        <DecisionMessage I18n={this.I18n}
+                                         entityApprovalStatus={entity.latestEntityApprovalStatus}
+                                         onEditPage={canEditDecisionAnswers ? (pageNumber) => this.editDecisionAnswers(entity, pageNumber) : undefined}
+                                         onEdit={canEditDecisionAnswers ? () => this.editDecisionAnswers(entity) : undefined}/>
                         <View style={styles.container}>
                             <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>
                                 {this.renderDetails(entity)}

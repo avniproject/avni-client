@@ -127,6 +127,34 @@ class EntityApprovalStatusService extends BaseService {
         this.saveEntityWithStatus(entity, schema, ApprovalStatus.statuses.Rejected, comment, observations);
     }
 
+    /**
+     * Replaces the answers on a decision that has already been recorded, leaving the decision itself
+     * alone (avniproject/avni-client#2093).
+     *
+     * The status and the moment it was taken do not move. An approver correcting a mistyped figure has
+     * not approved the record a second time, and writing a second Approved row would put two approvals in
+     * the record's history for one decision - and, because the current status is the latest row by
+     * statusDateTime, would silently re-date the approval as well.
+     *
+     * The row is pushed by uuid, which the server upserts, so the correction reaches every other device
+     * as an update to the same decision rather than as a new one.
+     */
+    updateDecisionAnswers(entityApprovalStatus, observations = []) {
+        const db = this.db;
+        ObservationsHolder.convertObsForSave(observations);
+        this.db.write(() => {
+            // The stored row is fetched and its answers assigned, rather than a partial object being
+            // upserted over it. Assignment cannot touch the status, its date, or the audit fields even by
+            // accident, and it needs no reasoning about which update mode allows a partial write.
+            const storedDecision = db.objectForPrimaryKey(this.getSchema(), entityApprovalStatus.uuid);
+            if (_.isNil(_.get(storedDecision, 'uuid'))) {
+                throw new Error(`No approval decision ${entityApprovalStatus.uuid} to correct. Refusing to write the answers somewhere else.`);
+            }
+            storedDecision.observations = observations;
+            db.create(EntityQueue.schema.name, EntityQueue.create(storedDecision, this.getSchema()));
+        });
+    }
+
     createPendingStatus(entity, schema, db, entityTypeUuid) {
         const entityApprovalStatus = this.saveStatus(entity.uuid, this.getEntityTypeForSchema(schema), ApprovalStatus.statuses.Pending, db, null, entityTypeUuid);
         this._addUpdateApprovalStatus(entity, entityApprovalStatus);

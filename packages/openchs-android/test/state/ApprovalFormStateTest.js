@@ -93,6 +93,19 @@ describe('ApprovalFormState', () => {
     });
 
     /**
+     * The same hazard pointed the other way. onSave clones before reading editingDecision, so a clone
+     * that drops it turns a correction into a fresh decision - a second Approved or Rejected row against
+     * the record, and the approval re-dated to today because the current status is the latest row.
+     */
+    it('clones without losing that a recorded decision is being corrected', () => {
+        const state = ApprovalFormState.createOnLoadStateForEmptyForm(entityApprovalStatus, aForm());
+        state.editingDecision = true;
+
+        assert.isTrue(state.clone().editingDecision,
+            'a correction must not become a second decision on the way through onSave');
+    });
+
+    /**
      * Backing out of the form must leave the record's approval status untouched. The state holds an
      * unsaved decision, so this asserts the state never writes - nothing here persists, and the save is
      * avni-client#2092's job.

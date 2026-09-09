@@ -31,7 +31,9 @@ describe('ApprovalFormSave', () => {
                         approveEntity: (entity, schema, observations) =>
                             saved = {action: 'approve', entity, schema, observations},
                         rejectEntity: (entity, schema, comment, observations) =>
-                            saved = {action: 'reject', entity, schema, comment, observations}
+                            saved = {action: 'reject', entity, schema, comment, observations},
+                        updateDecisionAnswers: (decision, observations) =>
+                            saved = {action: 'updateAnswers', decision, observations}
                     };
                 }
                 return {};
@@ -112,6 +114,46 @@ describe('ApprovalFormSave', () => {
             aFormState(undefined, []), {cb: () => calledBack = true}, context()));
 
         assert.isFalse(calledBack, 'the screen must not proceed as though the decision was applied');
+    });
+
+    /**
+     * Correcting a decision that is already recorded. The status is not re-applied - approveEntity would
+     * write a second Approved row and, because the current status is the latest row by statusDateTime,
+     * silently re-date the approval as well. Only the answers change.
+     */
+    it('replaces the answers on the decision being corrected instead of recording another one', () => {
+        const state = aFormState(ApprovalStatus.statuses.Approved, [anAnswer('concept-3')]);
+        state.editingDecision = true;
+
+        ApprovalFormActions.onSave(state, {cb: () => {}}, context());
+
+        assert.equal('updateAnswers', saved.action,
+            'a correction must not go through approveEntity - that writes a second decision');
+        assert.equal('concept-3', saved.observations[0].concept.uuid);
+        assert.equal(state.getEntity().uuid, saved.decision.uuid, 'the correction lands on the same row');
+    });
+
+    it('runs the callback after a correction, so the approver is returned to the record', () => {
+        const state = aFormState(ApprovalStatus.statuses.Rejected, []);
+        state.editingDecision = true;
+        let calledBack = false;
+
+        ApprovalFormActions.onSave(state, {cb: () => calledBack = true}, context());
+
+        assert.isTrue(calledBack);
+    });
+
+    /**
+     * The correction branch is reached before the status guard, so a correction with a lost status must
+     * still be safe rather than throwing - there is no decision being made for it to guess at.
+     */
+    it('corrects without needing the status, which a correction never applies', () => {
+        const state = aFormState(undefined, [anAnswer('concept-4')]);
+        state.editingDecision = true;
+
+        ApprovalFormActions.onSave(state, {cb: () => {}}, context());
+
+        assert.equal('updateAnswers', saved.action);
     });
 
     // The modal path, which shares the service methods

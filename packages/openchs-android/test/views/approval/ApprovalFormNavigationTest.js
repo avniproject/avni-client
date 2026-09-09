@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 
 // ApprovalDetailsView transitively imports AppHeader -> CHSNavigator -> the whole view layer, which
-// bottoms out in native modules that cannot load under jest. Same treatment RejectionMessageLoadTest
+// bottoms out in native modules that cannot load under jest. Same treatment DecisionMessageLoadTest
 // gives Observations: jest.mock still resolves the paths, so a wrong import path fails here rather than
 // at build time. Neither component takes part in the navigation call under test.
 jest.mock("../../../src/views/common/AppHeader", () => "AppHeader");

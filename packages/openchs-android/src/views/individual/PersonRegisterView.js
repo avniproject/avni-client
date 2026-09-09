@@ -26,7 +26,7 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import HouseholdState from "../../state/HouseholdState";
 import {AvniAlert} from "../common/AvniAlert";
-import {RejectionMessage} from "../approval/RejectionMessage";
+import {DecisionMessage} from "../approval/DecisionMessage";
 import SingleSelectMediaFormElement from "../form/formElement/SingleSelectMediaFormElement";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import EntityService from "../../service/EntityService";
@@ -123,7 +123,7 @@ class PersonRegisterView extends AbstractComponent {
                 <CHSContent>
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
-                    <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.individual.latestEntityApprovalStatus}/>
+                    <DecisionMessage I18n={this.I18n} entityApprovalStatus={this.state.individual.latestEntityApprovalStatus}/>
                     <ScrollView keyboardShouldPersistTaps="handled"
                         ref={this.scrollRef} style={{
                         marginTop: Distances.ScaledVerticalSpacingDisplaySections,

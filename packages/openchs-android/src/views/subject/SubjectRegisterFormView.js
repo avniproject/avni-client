@@ -18,7 +18,7 @@ import _ from "lodash";
 import SubjectRegisterView from "./SubjectRegisterView";
 import CHSNavigator from "../../utility/CHSNavigator";
 import {AvniAlert} from "../common/AvniAlert";
-import {RejectionMessage} from "../approval/RejectionMessage";
+import {DecisionMessage} from "../approval/DecisionMessage";
 import SummaryButton from "../common/SummaryButton";
 import UserInfoService from "../../service/UserInfoService";
 import Timer from "../common/Timer";
@@ -133,7 +133,7 @@ class SubjectRegisterFormView extends AbstractComponent {
                                func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
                     {displayTimer ?
                             <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.state.formElementGroup}/> : null}
-                        <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.subject.latestEntityApprovalStatus}/>
+                        <DecisionMessage I18n={this.I18n} entityApprovalStatus={this.state.subject.latestEntityApprovalStatus}/>
                         <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                             <SummaryButton onPress={() => SubjectRegisterViewsMixin.summary(this)}/>
                         </View>

@@ -219,6 +219,31 @@ class FormMappingService extends BaseService {
         return this.findDecisionForm(entity, Form.formTypes.Rejection);
     }
 
+    /**
+     * The form a recorded decision was answered on, resolved from the decision itself.
+     *
+     * Every screen that shows a decision's answers has the decision in hand but not always the record it
+     * was made about, so the record is looked up here rather than being threaded through eleven views. The
+     * form is what turns a flat list of answers into the page-by-page layout every other set of
+     * observations in the app is shown in.
+     *
+     * Null whenever the record is gone, the decision is still Pending, or the organisation has since
+     * detached the form. All three fall back to the flat list, which is what was shown before pages
+     * existed - a missing form must never blank out answers the approver did give.
+     */
+    findFormForDecision(entityApprovalStatus) {
+        // Read through _.get rather than the isRejected/isApproved getters, which dereference
+        // approvalStatus and throw on a decision that has none - reachable from a render path, where a
+        // throw takes the whole screen down rather than losing the page headings.
+        const isRejected = _.get(entityApprovalStatus, 'approvalStatus.isRejected');
+        const isApproved = _.get(entityApprovalStatus, 'approvalStatus.isApproved');
+        if (!isRejected && !isApproved) return null;
+        if (!_.isFunction(entityApprovalStatus.getApprovedEntitySchema)) return null;
+        const entity = this.findByUUID(entityApprovalStatus.entityUUID, entityApprovalStatus.getApprovedEntitySchema());
+        if (_.isNil(entity)) return null;
+        return isRejected ? this.findRejectionFormFor(entity) : this.findApprovalFormFor(entity);
+    }
+
     findDecisionForm(entity, formType) {
         const triple = this.approvalCombinationFor(entity);
         if (_.isNil(triple)) return null;

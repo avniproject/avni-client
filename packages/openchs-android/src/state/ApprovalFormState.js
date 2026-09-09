@@ -81,9 +81,13 @@ class ApprovalFormState extends AbstractDataEntryState {
     }
 
     /**
-     * The three fields below are load-bearing and easy to lose. onSave clones before reading
+     * The four fields below are load-bearing and easy to lose. onSave clones before reading
      * approvalStatusToApply, so dropping it here silently turns every rejection into an approval - the
      * status reads undefined and falls to the approve branch. Caught by ApprovalFormSaveTest.
+     *
+     * editingDecision (avniproject/avni-client#2093) is the same hazard pointed the other way: dropped, a
+     * correction reads as a fresh decision and writes a second Approved or Rejected row instead of
+     * replacing the answers on the one being corrected.
      */
     clone() {
         const newState = new ApprovalFormState();
@@ -92,6 +96,7 @@ class ApprovalFormState extends AbstractDataEntryState {
         newState.approvalStatusToApply = this.approvalStatusToApply;
         newState.approvedEntity = this.approvedEntity;
         newState.approvedEntitySchema = this.approvedEntitySchema;
+        newState.editingDecision = this.editingDecision;
         super.clone(newState);
         return newState;
     }

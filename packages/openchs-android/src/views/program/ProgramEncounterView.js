@@ -26,7 +26,7 @@ import OrganisationConfigService from "../../service/OrganisationConfigService";
 import moment from "moment";
 import NewVisitPageView from "./NewVisitPageView";
 import {AvniAlert} from "../common/AvniAlert";
-import {RejectionMessage} from "../approval/RejectionMessage";
+import {DecisionMessage} from "../approval/DecisionMessage";
 import SummaryButton from "../common/SummaryButton";
 import BackgroundTimer from "react-native-background-timer";
 import Timer from "../common/Timer";
@@ -222,7 +222,7 @@ class ProgramEncounterView extends AbstractComponent {
                                displayHomePressWarning={!this.state.saveDrafts}/>
                     {displayTimer ?
                         <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.state.formElementGroup}/> : null}
-                    <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.programEncounter.latestEntityApprovalStatus}/>
+                    <DecisionMessage I18n={this.I18n} entityApprovalStatus={this.state.programEncounter.latestEntityApprovalStatus}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstFormPage() ?
                             <View>
