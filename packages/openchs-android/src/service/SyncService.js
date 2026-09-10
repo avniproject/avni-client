@@ -234,7 +234,7 @@ class SyncService extends BaseService {
     /*
      * If isOnlyUploadRequired = true, then only perform upload of data to Backend server
      */
-    async dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isSyncResetRequired, userConfirmation, isOnlyUploadRequired) {
+    async dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isManualSync, userConfirmation, isOnlyUploadRequired) {
         const allTxEntityMetaData = this.getMetadataByType(allEntitiesMetaData, "tx");
         const resetSyncMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "ResetSync");
         const uploadData = Promise.resolve(statusMessageCallBack("uploadLocallySavedData"))
@@ -248,7 +248,7 @@ class SyncService extends BaseService {
             .then(() => this.getResetSyncData(resetSyncMetadata, onProgressPerEntity))
             .then(async () => {
                 const isResetSyncRequired = this.getService(ResetSyncService).isResetSyncRequired();
-                return await isResetSyncRequired && isSyncResetRequired && this.confirmUserAndResetSync(userConfirmation);
+                return await isResetSyncRequired && isManualSync && this.confirmUserAndResetSync(userConfirmation);
             });
 
         let {syncDetails, endDateTime, now} = await this.getSyncDetails();
@@ -293,7 +293,7 @@ class SyncService extends BaseService {
             .then(() => this.getRefData(migrationDecisionMetadata, onProgressPerEntity, now, endDateTime))
             .then(async () => {
                 const result = await this._switchBackendAndResyncRefDataIfNeeded(
-                    statusMessageCallBack, onProgressPerEntity, allEntitiesMetaData);
+                    statusMessageCallBack, onProgressPerEntity, allEntitiesMetaData, isManualSync);
                 if (result) {
                     syncDetails = result.syncDetails;
                     endDateTime = result.endDateTime;
@@ -758,8 +758,8 @@ class SyncService extends BaseService {
      * @returns {{ syncDetails, endDateTime }} if switched, null otherwise.
      *     Callers must update their local sync state with the returned values.
      */
-    async _switchBackendAndResyncRefDataIfNeeded(statusMessageCallBack, onProgressPerEntity, allEntitiesMetaData) {
-        const switched = await this._checkAndSwitchBackendMidSync(statusMessageCallBack);
+    async _switchBackendAndResyncRefDataIfNeeded(statusMessageCallBack, onProgressPerEntity, allEntitiesMetaData, isManualSync) {
+        const switched = await this._checkAndSwitchBackendMidSync(statusMessageCallBack, isManualSync);
         if (!switched) return null;
 
         // Re-sync reference data + UserInfo on the new SQLite backend.
@@ -822,7 +822,7 @@ class SyncService extends BaseService {
      *
      * @returns {boolean} true if the backend was switched
      */
-    async _checkAndSwitchBackendMidSync(statusMessageCallBack) {
+    async _checkAndSwitchBackendMidSync(statusMessageCallBack, isManualSync) {
         const GlobalContext = require('../GlobalContext').default;
 
         const migrationService = this.getService('sqliteMigrationService');
@@ -832,6 +832,16 @@ class SyncService extends BaseService {
         const globalContext = GlobalContext.getInstance();
 
         if (desired !== 'sqlite' || globalContext.getActiveBackend() === 'sqlite') {
+            return false;
+        }
+
+        // A background sync has no screen, no progress and a ten-minute ceiling imposed
+        // by the phone, so a switch started here is usually cut off and leaves a
+        // half-filled database. Complete as a normal sync on the current backend; the
+        // next sync the user starts does the switch.
+        if (!isManualSync) {
+            General.logInfo("SyncService",
+                "Backend migration is due but this is a background sync; deferring to the next manual sync");
             return false;
         }
 
