@@ -69,3 +69,48 @@ describe("SqliteProxy.recomputeLatestEntityApprovalStatus", () => {
         expect(() => proxy.recomputeLatestEntityApprovalStatus("NoSuchSchema", ["x"])).toThrow(/No table metadata/);
     });
 });
+
+// A hydrated entity carries lazy list properties (EntityHydrator._defineLazyList), so
+// reading a property can cost a query. The mandatory-property check must not read every
+// key being saved — that would fire each unresolved list inside the caller's write
+// transaction, on the UI thread.
+describe("SqliteProxy.create mandatory-property validation", () => {
+    function createSaveProxy(mandatoryProps) {
+        const proxy = createProxy();
+        proxy.entityMappingConfig = {
+            getEntityClass: () => function Individual(that) { this.that = that; },
+            getMandatoryObjectSchemaProperties: () => mandatoryProps,
+        };
+        proxy.hydrator = {flatten: (_schema, {that}) => ({uuid: that.uuid})};
+        proxy._presentColumns = () => ["uuid"];
+        return proxy;
+    }
+
+    // uuid is mandatory and set; encounters is an unresolved lazy list.
+    function subjectWithLazyList(reads) {
+        const subject = {uuid: "i1", firstName: "Phulwari"};
+        Object.defineProperty(subject, "encounters", {
+            enumerable: true,
+            configurable: true,
+            get: () => { reads.count++; return []; }
+        });
+        return subject;
+    }
+
+    it("does not read a non-mandatory property while validating", () => {
+        const proxy = createSaveProxy(["uuid"]);
+        const reads = {count: 0};
+
+        proxy.create("Individual", subjectWithLazyList(reads), "never", {skipHydration: true});
+
+        expect(reads.count).toBe(0);
+    });
+
+    it("still rejects a nil mandatory property", () => {
+        const proxy = createSaveProxy(["uuid", "firstName"]);
+        const subject = {uuid: "i1", firstName: null};
+
+        expect(() => proxy.create("Individual", subject, "never", {skipHydration: true}))
+            .toThrow(/firstName are mandatory for Individual/);
+    });
+});

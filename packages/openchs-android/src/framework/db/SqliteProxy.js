@@ -352,8 +352,11 @@ class SqliteProxy {
             _.intersection(mandatoryProps, saveKeys).length > 0;
 
         if (shouldValidate) {
+            // Mandatory check first: reading a property fires any lazy list getter behind
+            // it (EntityHydrator._defineLazyList), and doing that for every saved key would
+            // put a query per unresolved list inside the caller's write transaction.
             const emptyMandatory = saveKeys.filter(key =>
-                _.isNil(rawObject[key]) && mandatoryProps.includes(key)
+                mandatoryProps.includes(key) && _.isNil(rawObject[key])
             );
             if (emptyMandatory.length > 0) {
                 throw new Error(
