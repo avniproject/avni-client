@@ -190,6 +190,8 @@ describe('unsynced data across a mid-sync backend switch (#2006)', () => {
     });
 });
 
+// The switch runs only in a sync the user started (#2118), so these pass isManualSync=true
+// to reach the outbox guard they exist to pin.
 describe('backend switch is deferred while local data is unsynced (#2006)', () => {
     function buildSwitchCandidate(pendingFieldDataCount) {
         const svc = Object.create(SyncService.prototype);
@@ -221,7 +223,7 @@ describe('backend switch is deferred while local data is unsynced (#2006)', () =
     it('does not switch while the outbox still holds field data', async () => {
         const svc = buildSwitchCandidate(3);
 
-        const switched = await svc._checkAndSwitchBackendMidSync(() => {});
+        const switched = await svc._checkAndSwitchBackendMidSync(() => {}, true);
 
         expect(switched).toBe(false);
         expect(mockGlobalContext.switchBackend).not.toHaveBeenCalled();
@@ -231,7 +233,7 @@ describe('backend switch is deferred while local data is unsynced (#2006)', () =
     it('switches once the outbox is empty', async () => {
         const svc = buildSwitchCandidate(0);
 
-        const switched = await svc._checkAndSwitchBackendMidSync(() => {});
+        const switched = await svc._checkAndSwitchBackendMidSync(() => {}, true);
 
         expect(switched).toBe(true);
         expect(mockGlobalContext.switchBackend).toHaveBeenCalledWith('sqlite');
@@ -242,7 +244,7 @@ describe('backend switch is deferred while local data is unsynced (#2006)', () =
     it('empties the target backend after switching to it', async () => {
         const svc = buildSwitchCandidate(0);
 
-        await svc._checkAndSwitchBackendMidSync(() => {});
+        await svc._checkAndSwitchBackendMidSync(() => {}, true);
 
         expect(migrationService._resetTargetBackend).toHaveBeenCalled();
     });
@@ -250,7 +252,7 @@ describe('backend switch is deferred while local data is unsynced (#2006)', () =
     it('does not touch the target backend when the switch is deferred', async () => {
         const svc = buildSwitchCandidate(3);
 
-        await svc._checkAndSwitchBackendMidSync(() => {});
+        await svc._checkAndSwitchBackendMidSync(() => {}, true);
 
         expect(migrationService._resetTargetBackend).not.toHaveBeenCalled();
     });
