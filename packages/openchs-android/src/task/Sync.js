@@ -37,6 +37,12 @@ class Sync extends BaseTask {
             }
             await this.initDependencies();
 
+            const migrationService = globalContext.beanRegistry.getService("sqliteMigrationService");
+            if (migrationService && await migrationService.isMigrationPending()) {
+                General.logInfo("Sync", "Skipping auto-sync since a backend migration is pending (desired != active)");
+                return false;
+            }
+
             if (!this.wasLastCompletedSyncDoneMoreThanHalfAnHourAgo(globalContext)) {
                 General.logInfo("Sync", 'Skipping auto-sync since we had recently synced within the last half an hour');
                 return false;

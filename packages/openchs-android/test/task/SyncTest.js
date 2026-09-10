@@ -2,7 +2,7 @@ import {expect} from "chai";
 
 const MOCK_LOCK_ID = 'test-lock-id';
 
-const createSyncModule = ({syncImpl, connectionInfoImpl} = {}) => {
+const createSyncModule = ({syncImpl, connectionInfoImpl, migrationPending = false, migrationServiceAvailable = true} = {}) => {
     jest.resetModules();
 
     const mockSettingsService = {
@@ -20,6 +20,9 @@ const createSyncModule = ({syncImpl, connectionInfoImpl} = {}) => {
         sync: syncImpl || jest.fn().mockResolvedValue('syncSource'),
         resetServicesAfterFullSyncCompletion: jest.fn()
     };
+    const mockSqliteMigrationService = {
+        isMigrationPending: jest.fn().mockResolvedValue(migrationPending)
+    };
 
     jest.doMock('../../src/GlobalContext', () => ({
         __esModule: true,
@@ -28,6 +31,7 @@ const createSyncModule = ({syncImpl, connectionInfoImpl} = {}) => {
                 isInitialised: jest.fn().mockReturnValue(true),
                 beanRegistry: {
                     getService: jest.fn().mockImplementation((service) => {
+                        if (service === 'sqliteMigrationService') return migrationServiceAvailable ? mockSqliteMigrationService : undefined;
                         if (service === 'syncService') return mockSyncService;
                         if (service === 'syncTelemetryService') return mockSyncTelemetryService;
                         if (typeof service === 'function' && service.name === 'SettingsService') return mockSettingsService;
@@ -88,7 +92,7 @@ const createSyncModule = ({syncImpl, connectionInfoImpl} = {}) => {
     const Sync = require('../../src/task/Sync').default;
     const ErrorHandler = require('../../src/utility/ErrorHandler').default;
 
-    return {Sync, mockSyncService, ErrorHandler};
+    return {Sync, mockSyncService, mockSqliteMigrationService, ErrorHandler};
 };
 
 describe('SyncTest', () => {
@@ -144,6 +148,39 @@ describe('SyncTest', () => {
             expect(mockSyncService.releaseLock.mock.calls.length).to.equal(1);
             expect(mockSyncService.releaseLock.mock.calls[0][0]).to.equal(MOCK_LOCK_ID);
             expect(ErrorHandler.postScheduledJobError.mock.calls.length).to.equal(1);
+        });
+    });
+
+    describe('migration gate', () => {
+        it('does nothing at all while a backend switch is pending — no lock, no sync', async () => {
+            const {Sync, mockSyncService, mockSqliteMigrationService, ErrorHandler} = createSyncModule({
+                migrationPending: true
+            });
+
+            const result = await Sync.execute();
+
+            expect(result).to.equal(false);
+            expect(mockSqliteMigrationService.isMigrationPending.mock.calls.length).to.equal(1);
+            expect(mockSyncService.acquireLock.mock.calls.length).to.equal(0, 'a skipped job must not take the sync lock');
+            expect(mockSyncService.sync.mock.calls.length).to.equal(0, 'no upload and no download while a switch is pending');
+            expect(ErrorHandler.postScheduledJobError.mock.calls.length).to.equal(0, 'skipping is not an error');
+        });
+
+        it('syncs as usual when no backend switch is pending', async () => {
+            const {Sync, mockSyncService} = createSyncModule({migrationPending: false});
+
+            await Sync.execute();
+
+            expect(mockSyncService.acquireLock.mock.calls.length).to.equal(1);
+            expect(mockSyncService.sync.mock.calls.length).to.equal(1);
+        });
+
+        it('syncs as usual when the migration service is not registered', async () => {
+            const {Sync, mockSyncService} = createSyncModule({migrationServiceAvailable: false});
+
+            await Sync.execute();
+
+            expect(mockSyncService.sync.mock.calls.length).to.equal(1);
         });
     });
 });
