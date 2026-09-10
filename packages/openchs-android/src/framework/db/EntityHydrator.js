@@ -145,8 +145,13 @@ class EntityHydrator {
 
         const depth = options.depth != null ? options.depth : 2;
         const skipLists = options.skipLists || false;
-        // Child lists kept even when skipLists is on (e.g. search needs enrolments).
+        // Child lists kept even when skipLists is on (e.g. search needs enrolments). Keys are
+        // schema-qualified ("Individual.enrolments") — Individual.encounters and
+        // ProgramEnrolment.encounters share a name, and a bare key would match both.
         const listsToInclude = options.listsToInclude || null;
+        // Referenced entities and included lists inherit this shape. Without it a caller asking
+        // for shallow hydration still got the full subtree of everything its row points at.
+        const childOptions = {skipLists, listsToInclude};
 
         const result = {};
 
@@ -184,11 +189,11 @@ class EntityHydrator {
                     if (_.isNil(fkValue)) {
                         result[propName] = null;
                     } else if (refFloor > 0) {
-                        result[propName] = this.resolveReference(objectType, fkValue, Math.max(depth - 1, refFloor));
+                        result[propName] = this.resolveReference(objectType, fkValue, Math.max(depth - 1, refFloor), childOptions);
                     } else if (depth <= 0) {
-                        result[propName] = this._resolveCachedReference(objectType, fkValue);
+                        result[propName] = this._resolveCachedReference(objectType, fkValue, childOptions);
                     } else {
-                        result[propName] = this.resolveReference(objectType, fkValue, depth - 1);
+                        result[propName] = this.resolveReference(objectType, fkValue, depth - 1, childOptions);
                     }
                 }
             } else if (resolvedType === "list") {
@@ -200,9 +205,9 @@ class EntityHydrator {
                     if (!childType) {
                         result[propName] = parsed; // scalar array stored verbatim
                     } else if (depth > 0) {
-                        result[propName] = parsed.map(uuid => this.resolveReference(childType, uuid, depth - 1)).filter(ref => !isUnresolvedReference(ref));
+                        result[propName] = parsed.map(uuid => this.resolveReference(childType, uuid, depth - 1, childOptions)).filter(ref => !isUnresolvedReference(ref));
                     } else {
-                        result[propName] = parsed.map(uuid => this._resolveCachedReference(childType, uuid)).filter(ref => !isUnresolvedReference(ref));
+                        result[propName] = parsed.map(uuid => this._resolveCachedReference(childType, uuid, childOptions)).filter(ref => !isUnresolvedReference(ref));
                     }
                 } else if (objectType && EMBEDDED_SCHEMA_NAMES.has(objectType)) {
                     // Embedded list stored as JSON — resolve eagerly (no DB query)
@@ -211,13 +216,13 @@ class EntityHydrator {
                     const parsed = parseJsonSafe(jsonVal) || [];
                     if (this._profileCounters) { this._profileCounters.jsonParseCalls++; this._profileCounters.jsonParseMs += Date.now() - _jt1; }
                     result[propName] = parsed.map(item => item != null ? this._hydrateEmbedded(item, objectType) : null);
-                } else if (objectType && depth > 0 && (!skipLists || (listsToInclude && listsToInclude.has(propName)))) {
+                } else if (objectType && depth > 0 && (!skipLists || (listsToInclude && listsToInclude.has(`${schemaName}.${propName}`)))) {
                     // Referenced list — query child table
-                    result[propName] = this.resolveList(schemaName, propName, objectType, row.uuid, depth - 1);
+                    result[propName] = this.resolveList(schemaName, propName, objectType, row.uuid, depth - 1, childOptions);
                 } else if (objectType && !this._shallowMode) {
                     // Below the prefetch budget, or skipped by the caller. Resolve on access
                     // rather than reporting [] — an unloaded list must not read as an empty one.
-                    this._defineLazyList(result, propName, schemaName, objectType, row.uuid);
+                    this._defineLazyList(result, propName, schemaName, objectType, row.uuid, childOptions);
                 } else {
                     result[propName] = [];
                 }
@@ -235,7 +240,7 @@ class EntityHydrator {
     // (avni-models General.pick, via Individual.associateChild) for each synced child —
     // lazy accessors there would fire a query per list per entity. Shallow mode keeps
     // returning [] until #2019's element-level proxies make the spread cheap again.
-    _defineLazyList(target, propName, parentSchemaName, childSchemaName, parentUuid) {
+    _defineLazyList(target, propName, parentSchemaName, childSchemaName, parentUuid, options = {}) {
         let resolved = false;
         let value;
         Object.defineProperty(target, propName, {
@@ -246,7 +251,7 @@ class EntityHydrator {
                     resolved = true;
                     this.beginHydrationSession();
                     try {
-                        value = this.resolveList(parentSchemaName, propName, childSchemaName, parentUuid, 1);
+                        value = this.resolveList(parentSchemaName, propName, childSchemaName, parentUuid, 1, options);
                     } finally {
                         this.endHydrationSession();
                     }
@@ -263,7 +268,7 @@ class EntityHydrator {
     /**
      * Resolve a FK reference to a full nested object.
      */
-    resolveReference(targetSchemaName, uuid, depth) {
+    resolveReference(targetSchemaName, uuid, depth, options = {}) {
         if (this._profileCounters) this._profileCounters.resolveRefCalls++;
 
         // Try reference data cache first
@@ -305,7 +310,7 @@ class EntityHydrator {
             return {uuid};
         }
 
-        const hydrated = this.hydrate(targetSchemaName, rows[0], {depth, skipLists: false});
+        const hydrated = this.hydrate(targetSchemaName, rows[0], {depth, skipLists: !!options.skipLists, listsToInclude: options.listsToInclude});
 
         // Cache in session if hydrated at meaningful depth (has FK refs resolved)
         if (this._hydrationCache && depth >= 1 && hydrated.uuid) {
@@ -329,7 +334,7 @@ class EntityHydrator {
      * skips lists, and uses this same method for its own FKs (which will hit the
      * session cache since the parent is pre-registered before processing children).
      */
-    _resolveCachedReference(targetSchemaName, uuid) {
+    _resolveCachedReference(targetSchemaName, uuid, options = {}) {
         // Check reference data cache (reference entities like Program, SubjectType, etc.)
         const refCache = this.referenceDataCache[targetSchemaName];
         if (refCache) {
@@ -348,7 +353,7 @@ class EntityHydrator {
         // This ensures FK-referenced entities at depth 0 have their scalar
         // fields populated (e.g., Concept.datatype, Program.name) instead
         // of returning bare {uuid} stubs.
-        return this.resolveReference(targetSchemaName, uuid, 0);
+        return this.resolveReference(targetSchemaName, uuid, 0, options);
     }
 
     /**
@@ -411,7 +416,7 @@ class EntityHydrator {
     /**
      * Resolve a list property by querying the child table for matching FK.
      */
-    resolveList(parentSchemaName, propName, childSchemaName, parentUuid, depth) {
+    resolveList(parentSchemaName, propName, childSchemaName, parentUuid, depth, options = {}) {
         if (this._profileCounters) this._profileCounters.resolveListCalls++;
         if (_.isNil(parentUuid)) return [];
 
@@ -440,7 +445,7 @@ class EntityHydrator {
         if (rows.length === 0) return [];
 
         if (this._profileCounters) this._profileCounters.resolveListHydrations += rows.length;
-        return rows.map(row => this.hydrate(childSchemaName, row, {depth, skipLists: false}));
+        return rows.map(row => this.hydrate(childSchemaName, row, {depth, skipLists: !!options.skipLists, listsToInclude: options.listsToInclude}));
     }
 
     /**

@@ -7,6 +7,10 @@
  * Since #2061, skipping a list defers it rather than emptying it: an opted-in list
  * is prefetched into a plain array, a skipped one resolves on access.
  *
+ * Keys are schema-qualified. Individual.encounters and ProgramEnrolment.encounters share a
+ * property name, so a bare "encounters" would opt both in — and since #2105 the options carry
+ * down to referenced entities, where that would re-expand the subtree the caller declined.
+ *
  * Tracking issue: avniproject/avni-client#1955.
  *   npx jest --selectProjects integration --testPathPattern SearchHydrationTest
  */
@@ -45,7 +49,7 @@ describe('search hydration: listsToInclude opts enrolments back in (#1955)', () 
             {uuid: 'sh-enc-1', individual: {uuid: ind}, voided: false},
         ]);
 
-        const opts = {skipLists: true, depth: 1, listsToInclude: new Set(['enrolments'])};
+        const opts = {skipLists: true, depth: 1, listsToInclude: new Set(['Individual.enrolments'])};
         const result = proxy.objects('Individual').withHydration(opts).filtered(`uuid = "${ind}"`)[0];
 
         expect(result).toBeTruthy();
