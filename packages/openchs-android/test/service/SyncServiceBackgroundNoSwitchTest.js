@@ -120,3 +120,126 @@ describe('_checkAndSwitchBackendMidSync — manual sync only', () => {
         expect(svc._checkAndSwitchBackendMidSync).toHaveBeenCalledWith(expect.any(Function), false);
     });
 });
+
+// MyGroups is the entity the migration decision reads; the rest stand in for the bulk
+// reference dataset. Shapes copied from SyncServiceRefDataDoublePullTest, which drives
+// the same method.
+const REFERENCE_ENTITIES = ['MyGroups', 'Concept', 'ConceptAnswer', 'FormElement', 'Groups'];
+const BULK_REFERENCE = REFERENCE_ENTITIES.filter(n => n !== 'MyGroups');
+
+const ALL_ENTITIES_META_DATA = [
+    ...REFERENCE_ENTITIES.map(entityName => ({entityName, type: 'reference'})),
+    {entityName: 'ProgramEnrolment', type: 'tx'},
+    {entityName: 'Encounter', type: 'tx'},
+    {entityName: 'UserInfo', type: 'tx'},
+    {entityName: 'ResetSync', type: 'tx'},
+    {entityName: 'SubjectMigration', type: 'tx'},
+];
+
+const SYNC_DETAILS = ALL_ENTITIES_META_DATA
+    .filter(({entityName}) => !['ResetSync', 'SubjectMigration'].includes(entityName))
+    .map(({entityName}) => ({entityName, entityTypeUuid: `${entityName}-uuid`, loadedSince: '2024-12-03T11:44:51.008Z'}));
+
+/**
+ * A full sync whose user is in the migration group and whose device is still on Realm,
+ * with the REAL _switchBackendAndResyncRefDataIfNeeded and _checkAndSwitchBackendMidSync
+ * in place — so the sync source is what decides whether the switch happens.
+ */
+function buildMigrationDueSyncService() {
+    const svc = Object.create(SyncService.prototype);
+    const noop = () => {};
+    const resolved = () => Promise.resolve();
+
+    svc.entitySyncStatusService = {
+        updateAsPerSyncDetails: jest.fn(),
+        removeRevokedPrivileges: jest.fn((_meta, syncDetails) => syncDetails),
+        setup: jest.fn(),
+    };
+    svc.entityQueueService = {
+        getPendingFieldDataCount: jest.fn(() => 0),
+        getPendingFieldDataSummary: jest.fn(() => ''),
+    };
+
+    svc.pushData = jest.fn(resolved);
+    svc.getResetSyncData = jest.fn(resolved);
+    svc.getRefData = jest.fn(resolved);
+    svc.getTxData = jest.fn(resolved);
+    svc.getSyncDetails = jest.fn(async () => ({
+        syncDetails: SYNC_DETAILS, endDateTime: 'end', now: 'now',
+    }));
+    svc.updateAsPerNewPrivilege = jest.fn((_all, _ups, syncDetails) => syncDetails);
+    svc._catchUpTxDataAfterMigration = jest.fn(resolved);
+
+    svc._disableForeignKeysIfSqlite = noop;
+    svc._enableForeignKeysIfSqlite = noop;
+    svc._enableShallowHydrationIfSqlite = noop;
+    svc._disableShallowHydrationIfSqlite = noop;
+    svc._checkForeignKeyIntegrityIfSqlite = noop;
+    svc._buildReferenceCacheIfSqlite = jest.fn(resolved);
+    svc._finalizeMigrationState = jest.fn(resolved);
+    svc.downloadNewsImages = jest.fn(resolved);
+    svc.downloadExtensions = jest.fn(resolved);
+    svc.downloadCustomCardHtmlFiles = jest.fn(resolved);
+    svc.downloadFormShareTemplates = jest.fn(resolved);
+    svc.downloadIcons = jest.fn(resolved);
+    svc.downloadContent = jest.fn(resolved);
+
+    svc.getService = jest.fn((arg) => arg === 'sqliteMigrationService' ? migrationService : ({
+        isResetSyncRequired: () => false,
+        encryptOrDecryptDbIfRequired: resolved,
+        migrateSubjects: resolved,
+        markAllResetSyncsMigrated: jest.fn(),
+    }));
+
+    return svc;
+}
+
+/** Every reference entity dataServerSync asked getRefData to pull, in order. */
+const refPulled = (svc) => svc.getRefData.mock.calls
+    .flatMap(([entitiesMetadata]) => entitiesMetadata.map(e => e.entityName));
+
+describe('a background full sync finishes on the current backend', () => {
+    beforeEach(() => {
+        mockGlobalContext.switchBackend.mockClear();
+        mockGlobalContext.getActiveBackend.mockReturnValue('realm');
+        migrationService.persistState.mockClear();
+        migrationService._resetTargetBackend.mockClear();
+    });
+
+    it('does not switch, and still pulls the bulk reference data on the backend it is already on', async () => {
+        const svc = buildMigrationDueSyncService();
+        const noop = () => {};
+
+        await svc.dataServerSync(
+            ALL_ENTITIES_META_DATA,
+            noop, noop, noop, noop,
+            false,      // isManualSync — this is the twelve-hour background download
+            undefined,  // userConfirmation
+            false,      // isOnlyUploadRequired
+        );
+
+        // The switch is due, and did not happen.
+        expect(migrationService.computeDesiredBackend).toHaveBeenCalled();
+        expect(mockGlobalContext.switchBackend).not.toHaveBeenCalled();
+        expect(migrationService._resetTargetBackend).not.toHaveBeenCalled();
+
+        // The sync completed as a normal sync: MyGroups first, then the deferred bulk,
+        // each exactly once, on Realm.
+        expect(refPulled(svc)).toEqual(['MyGroups', ...BULK_REFERENCE]);
+    });
+
+    it('switches when the very same sync is one the user started', async () => {
+        const svc = buildMigrationDueSyncService();
+        const noop = () => {};
+
+        await svc.dataServerSync(
+            ALL_ENTITIES_META_DATA,
+            noop, noop, noop, noop,
+            true,       // isManualSync
+            undefined,
+            false,
+        );
+
+        expect(mockGlobalContext.switchBackend).toHaveBeenCalledWith('sqlite');
+    });
+});
