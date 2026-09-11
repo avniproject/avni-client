@@ -762,6 +762,7 @@ class SyncService extends BaseService {
     async _switchBackendAndResyncRefDataIfNeeded(statusMessageCallBack, onProgressPerEntity, allEntitiesMetaData, isManualSync) {
         const leg = await this._checkAndSwitchBackendMidSync(statusMessageCallBack, isManualSync);
         if (!leg) return null;
+        await this._restartTargetIfResetSinceAttempt(leg, allEntitiesMetaData, onProgressPerEntity);
 
         // On a first attempt the target's checkpoints sit at REALLY_OLD_DATE, so every
         // reference entity is fetched; on re-entry the pull carries on from them.
@@ -791,6 +792,19 @@ class SyncService extends BaseService {
         this.getService(ResetSyncService).markAllResetSyncsMigrated();
     }
 
+    // A re-entered target carries on from its own checkpoints, but the leg marks every
+    // ResetSync migrated without applying it, so a reset issued since the attempt began would
+    // never reach the data already pulled. Pull the target's new resets first; if there are
+    // any, start the target over so the pull fetches everything the reset intends.
+    async _restartTargetIfResetSinceAttempt(leg, allEntitiesMetaData, onProgressPerEntity) {
+        if (!leg.reentry) return;
+        const resetSyncMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "ResetSync");
+        await this.getResetSyncData(resetSyncMetadata, onProgressPerEntity);
+        if (_.isEmpty(this.getService(ResetSyncService).getNotMigratedResetSyncs())) return;
+        General.logInfo("SyncService", "A reset was issued since this migration began; starting the target over");
+        await this.getService('sqliteMigrationService').restartTarget(leg);
+    }
+
     /**
      * Records the backend the server group names and, if it differs from the committed one,
      * opens a migration leg and moves the runtime to the target — in either direction.
@@ -807,6 +821,12 @@ class SyncService extends BaseService {
 
         const desired = migrationService.computeDesiredBackend();
         const state = await migrationService.recordDesiredBackend(desired);
+        // Launch opens the committed backend but swallows a failure to do so. Syncing on the
+        // other database would pull this sync's data where the next launch will not look.
+        const runtimeBackend = GlobalContext.getInstance().getActiveBackend();
+        if (runtimeBackend !== state.activeBackend) {
+            throw new Error(`Running on ${runtimeBackend} but the committed backend is ${state.activeBackend}; not syncing into the wrong database`);
+        }
         if (desired === state.activeBackend) return null;
 
         // A background sync has no screen, no progress and a ten-minute ceiling imposed
@@ -841,7 +861,7 @@ class SyncService extends BaseService {
         this._disableShallowHydrationIfSqlite();
         this._enableForeignKeysIfSqlite();
         GlobalContext.getInstance().switchBackend(desired);
-        await migrationService.prepareTarget(leg);
+        leg.reentry = await migrationService.prepareTarget(leg);
         await migrationService._bootstrapTargetSettings(authState);
 
         General.logInfo("SyncService", `Mid-sync migration switch complete — continuing sync on ${desired}`);

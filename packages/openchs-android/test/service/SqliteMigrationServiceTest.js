@@ -318,7 +318,7 @@ describe('SqliteMigrationService', () => {
         it('first attempt wipes the target before seeding checkpoints, then records it as prepared', async () => {
             const leg = await service.beginLeg(BACKENDS.SQLITE);
 
-            await service.prepareTarget(leg);
+            expect(await service.prepareTarget(leg)).toBe(false);
 
             expect(mockEntityService.clearDataIn).toHaveBeenCalled();
             expect(mockEntitySyncStatusService.setup).toHaveBeenCalled();
@@ -332,9 +332,20 @@ describe('SqliteMigrationService', () => {
             await persisted({desiredBackend: BACKENDS.SQLITE, preparedTarget: BACKENDS.SQLITE, attemptCount: 1});
             const leg = await service.beginLeg(BACKENDS.SQLITE);
 
-            await service.prepareTarget(leg);
+            expect(await service.prepareTarget(leg)).toBe(true);
 
             expect(mockEntityService.clearDataIn).not.toHaveBeenCalled();
+            expect((await service.getState()).preparedTarget).toBe(BACKENDS.SQLITE);
+        });
+
+        it('starting a re-entered target over wipes and seeds it again, keeping the marker', async () => {
+            await persisted({desiredBackend: BACKENDS.SQLITE, preparedTarget: BACKENDS.SQLITE, attemptCount: 1});
+            const leg = await service.beginLeg(BACKENDS.SQLITE);
+
+            await service.restartTarget(leg);
+
+            expect(mockEntityService.clearDataIn).toHaveBeenCalled();
+            expect(mockEntitySyncStatusService.setup).toHaveBeenCalled();
             expect((await service.getState()).preparedTarget).toBe(BACKENDS.SQLITE);
         });
 
@@ -397,6 +408,21 @@ describe('SqliteMigrationService', () => {
             expect(state.lastError).toBe('pull failed');
             const ErrorUtil = require('../../src/framework/errorHandling/ErrorUtil').default;
             expect(ErrorUtil.notifyBugsnag).toHaveBeenCalled();
+        });
+
+        // A failed read returns defaults, which name Realm; the leg already knows its source.
+        it('abandoning a leg goes back to where it started even when the state record cannot be read', async () => {
+            await persisted({activeBackend: BACKENDS.SQLITE, desiredBackend: BACKENDS.REALM});
+            const leg = await service.beginLeg(BACKENDS.REALM);
+            mockGlobalContext.switchBackend.mockClear();
+            AsyncStorage.getItem.mockImplementationOnce(async () => { throw new Error('storage unavailable'); });
+
+            await service.abandonOpenLeg(new Error('pull failed'));
+
+            expect(mockGlobalContext.switchBackend).toHaveBeenCalledWith(BACKENDS.SQLITE);
+            const state = await service.getState();
+            expect(state.activeBackend).toBe(BACKENDS.SQLITE);
+            expect(state.desiredBackend).toBe(BACKENDS.REALM);
         });
 
         it('abandoning with no open leg does nothing', async () => {

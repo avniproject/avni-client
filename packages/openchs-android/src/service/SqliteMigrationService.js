@@ -339,14 +339,21 @@ class SqliteMigrationService extends BaseService {
      */
     async prepareTarget(leg) {
         const state = await SqliteMigrationService.readStateForUser(leg.username);
-        const entitySyncStatusService = this.getService('entitySyncStatusService');
         if (state.preparedTarget === leg.target) {
             General.logInfo("SqliteMigrationService",
                 `Re-entering the migration to ${leg.target}: carrying on from its checkpoints`);
             // Only inserts rows that are missing, e.g. entities added by an app update.
-            entitySyncStatusService.setup();
-            return;
+            this.getService('entitySyncStatusService').setup();
+            return true;
         }
+        await this.restartTarget(leg);
+        return false;
+    }
+
+    // Empties the target, seeds every checkpoint at REALLY_OLD_DATE, and marks it prepared. A
+    // first attempt does this; so does a re-entry that finds a reset issued since the attempt
+    // began, because the leg marks resets migrated without applying them.
+    async restartTarget(leg) {
         // Every backend is left with an empty outbox — the switch refuses otherwise — so
         // unsynced records here mean an invariant broke, and the wipe would take the only copy.
         const pendingOnTarget = this._getPendingFieldDataCount();
@@ -356,7 +363,8 @@ class SqliteMigrationService extends BaseService {
         const {EntityMetaData} = require('openchs-models');
         General.logInfo("SqliteMigrationService", `Clearing and seeding ${leg.target} for a full pull`);
         this.getService('entityService').clearDataIn(EntityMetaData.entitiesLoadedFromServer());
-        entitySyncStatusService.setup();
+        this.getService('entitySyncStatusService').setup();
+        const state = await SqliteMigrationService.readStateForUser(leg.username);
         await SqliteMigrationService.persistStateForUser(leg.username, {...state, preparedTarget: leg.target});
     }
 
@@ -378,23 +386,28 @@ class SqliteMigrationService extends BaseService {
             `Migration to ${leg.target} committed after ${state.attemptCount} attempt(s)`);
     }
 
-    // Failure anywhere in the leg: put the runtime back on the backend the state record
-    // names — the one the next launch opens — and record diagnostics only. Never throws;
-    // the caller rethrows its own error so the sync fails.
+    // Failure anywhere in the leg: put the runtime back on the backend the leg started from,
+    // and record diagnostics only. That source is still the committed backend — only
+    // commitLeg writes activeBackend, and a failed commit wrote nothing — and it comes from the
+    // leg rather than a fresh read, because a failed read returns defaults that name Realm.
+    // Never throws; the caller rethrows its own error so the sync fails.
     async abandonOpenLeg(error) {
         const leg = this._openLeg;
         if (!leg) return;
         this._openLeg = null;
         const message = error && error.message ? error.message : String(error);
         try {
-            const state = await SqliteMigrationService.readStateForUser(leg.username);
             const GlobalContext = require('../GlobalContext').default;
-            GlobalContext.getInstance().switchBackend(state.activeBackend);
-            await SqliteMigrationService.persistStateForUser(leg.username, {...state, lastError: message});
+            GlobalContext.getInstance().switchBackend(leg.source);
             General.logError("SqliteMigrationService",
-                `Migration to ${leg.target} failed at attempt=${state.attemptCount}; back on ${state.activeBackend}: ${message}`);
+                `Migration to ${leg.target} failed; back on ${leg.source}: ${message}`);
             ErrorUtil.notifyBugsnag(error instanceof Error ? error : new Error(message),
-                `SqliteMigrationService::leg::attempt${state.attemptCount}`);
+                `SqliteMigrationService::leg::${leg.source}->${leg.target}`);
+            // Only over a record we could actually read; never write defaults back.
+            const raw = await AsyncStorage.getItem(asyncStorageKey(leg.username));
+            if (raw) {
+                await SqliteMigrationService.persistStateForUser(leg.username, {...JSON.parse(raw), lastError: message});
+            }
         } catch (e) {
             General.logError("SqliteMigrationService", `Failed to abandon the migration leg: ${e.message}`);
         }

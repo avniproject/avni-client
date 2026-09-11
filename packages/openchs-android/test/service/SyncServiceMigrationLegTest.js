@@ -65,13 +65,16 @@ function buildMigrationService({activeBackend, groupsName}) {
         beginLeg: jest.fn(async (target) => ({username: 'test-user', source: service.state.activeBackend, target})),
         prepareTarget: jest.fn(async () => {}),
         _bootstrapTargetSettings: jest.fn(async () => {}),
+        restartTarget: jest.fn(async () => {}),
         commitLeg: jest.fn(async (leg) => { service.state.activeBackend = leg.target; }),
         abandonOpenLeg: jest.fn(async () => {}),
     };
+    // The app runs on the committed backend unless a test says otherwise.
+    mockGlobalContext.getActiveBackend.mockReturnValue(activeBackend);
     return service;
 }
 
-function buildSyncService(migrationService) {
+function buildSyncService(migrationService, {pendingResets = []} = {}) {
     const svc = Object.create(SyncService.prototype);
     const resolved = () => Promise.resolve();
 
@@ -110,6 +113,7 @@ function buildSyncService(migrationService) {
         encryptOrDecryptDbIfRequired: resolved,
         migrateSubjects: resolved,
         markAllResetSyncsMigrated: jest.fn(),
+        getNotMigratedResetSyncs: jest.fn(() => pendingResets),
     }));
 
     return svc;
@@ -231,6 +235,57 @@ describe('the switch commits once, after the whole sync (#2120)', () => {
         expect(migrationService.beginLeg).not.toHaveBeenCalled();
         expect(mockGlobalContext.switchBackend).not.toHaveBeenCalled();
         expect(migrationService.commitLeg).not.toHaveBeenCalled();
+    });
+
+    // A re-entered target keeps its checkpoints, and the leg marks every ResetSync migrated
+    // without applying it — so a reset issued since the attempt began would never reach it.
+    it('starts a re-entered target over when a reset was issued since the migration began', async () => {
+        const migrationService = buildMigrationService({activeBackend: 'realm', groupsName: 'sqlite'});
+        migrationService.prepareTarget = jest.fn(async () => true);
+        const svc = buildSyncService(migrationService, {pendingResets: [{uuid: 'reset-issued-between-attempts'}]});
+
+        await manualSync(svc);
+
+        expect(migrationService.restartTarget).toHaveBeenCalledTimes(1);
+        // Before the post-switch checkpoints are read, so the pull uses the reseeded ones.
+        expect(migrationService.restartTarget.mock.invocationCallOrder[0])
+            .toBeLessThan(svc.getSyncDetails.mock.invocationCallOrder[1]);
+        expect(migrationService.commitLeg).toHaveBeenCalledTimes(1);
+    });
+
+    it('carries a re-entered target on when no reset was issued since the migration began', async () => {
+        const migrationService = buildMigrationService({activeBackend: 'realm', groupsName: 'sqlite'});
+        migrationService.prepareTarget = jest.fn(async () => true);
+        const svc = buildSyncService(migrationService, {pendingResets: []});
+
+        await manualSync(svc);
+
+        expect(migrationService.restartTarget).not.toHaveBeenCalled();
+        expect(migrationService.commitLeg).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not look for resets on a first attempt, which already starts from a wipe', async () => {
+        const migrationService = buildMigrationService({activeBackend: 'realm', groupsName: 'sqlite'});
+        migrationService.prepareTarget = jest.fn(async () => false);
+        const svc = buildSyncService(migrationService, {pendingResets: [{uuid: 'reset'}]});
+
+        await manualSync(svc);
+
+        expect(migrationService.restartTarget).not.toHaveBeenCalled();
+    });
+
+    // Launch swallows a failure to open the committed backend, so the app can be left on the
+    // other database. Syncing there would pull into a database the next launch will not open.
+    it('refuses to sync when the app runs on a database other than the committed one', async () => {
+        const migrationService = buildMigrationService({activeBackend: 'sqlite', groupsName: 'sqlite'});
+        mockGlobalContext.getActiveBackend.mockReturnValue('realm');
+        const svc = buildSyncService(migrationService);
+
+        await expect(manualSync(svc)).rejects.toThrow('committed backend is sqlite');
+
+        const txPulls = svc.getTxData.mock.calls.filter(([meta]) => carries('ProgramEnrolment')(meta));
+        expect(txPulls).toHaveLength(0);
+        expect(migrationService.beginLeg).not.toHaveBeenCalled();
     });
 
     it('a failed sync with no migration owed still fails with its own error', async () => {
