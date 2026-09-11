@@ -145,15 +145,17 @@ describe("EntityHydrator lazy list hydration", () => {
             .toEqual(["gs-0", "gs-1", "gs-2", "gs-3", "gs-4"]);
     });
 
-    it("returns an empty list without querying while shallow mode is on", () => {
+    it("defers a list while shallow mode is on, but still resolves it on read", () => {
         hydrator.setShallowMode(true);
 
         const encounter = hydrator.hydrate("Encounter", encounterRow, {depth: 1});
-        const groupSubjectQueriesBefore = groupSubjectQueryCount();
+        // Shallow mode defers (no eager query) without freezing the list to [].
+        expect(groupSubjectQueryCount()).toBe(0);
+
         const members = encounter.individual.groupSubjects;
 
-        expect(members).toEqual([]);
-        expect(groupSubjectQueryCount()).toBe(groupSubjectQueriesBefore);
+        expect(members.map(gs => gs.uuid)).toEqual(["gs-0", "gs-1", "gs-2", "gs-3", "gs-4"]);
+        expect(groupSubjectQueryCount()).toBe(1);
     });
 
     it("queries once however many times a lazy list is read", () => {

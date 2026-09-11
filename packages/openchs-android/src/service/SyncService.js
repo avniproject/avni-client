@@ -887,18 +887,8 @@ class SyncService extends BaseService {
         }
     }
 
-    /**
-     * During sync, openchs-models' fromResource calls findByKey("uuid", parentUuid,
-     * ParentSchema) for every synced child entity. Without shallow mode, each call
-     * triggers SqliteResultsProxy's deep batchPreload — fetching the parent's
-     * entire 3-level subtree (e.g., an Individual's 400 encounters + their concept
-     * refs) on every sync entity, when only the uuid reaches the FK column via
-     * bulkCreate.
-     *
-     * The parent is not read for its uuid alone: Individual.associateChild spreads
-     * every list property through General.pick. Shallow mode is what keeps those
-     * lists empty and that spread cheap — see EntityHydrator._defineLazyList.
-     */
+    // fromResource does a findByKey per synced child; shallow mode keeps that lookup
+    // from deep-loading the parent's whole subtree (its lists stay lazy, unread by sync).
     _enableShallowHydrationIfSqlite() {
         if (this.context.getRepositoryFactory().setShallowHydrationMode(true)) {
             General.logDebug("SyncService", "SQLite shallow hydration enabled");

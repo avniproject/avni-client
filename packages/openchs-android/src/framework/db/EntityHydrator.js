@@ -108,14 +108,9 @@ class EntityHydrator {
         // self-referential FK in the schemas — recurses until the stack blows.
         this._inProgress = new Map();
 
-        // When true, hydration paths that would normally deep-load (lists +
-        // recursive FK preload) instead return shallow entities (scalar fields
-        // + depth-0 cached refs, lists empty). Toggled by SyncService for the
-        // duration of a sync, since openchs-models' fromResource calls
-        // findByKey("uuid", ...) per child entity — and during sync only the
-        // parent's uuid reaches the FK column, not its full subtree. It is also
-        // the one mode where lists stay eagerly empty rather than lazy; see
-        // _defineLazyList.
+        // Sync sets this so per-child findByKey("uuid", ...) lookups don't deep-load
+        // the parent's whole subtree. Lists stay lazy (never eager, never frozen []),
+        // so a retained shallow entity still resolves them on read.
         this._shallowMode = false;
     }
 
@@ -238,9 +233,9 @@ class EntityHydrator {
                     } else if (objectType && depth > 0 && (!skipLists || (listsToInclude && listsToInclude.has(`${schemaName}.${propName}`)))) {
                         // Referenced list — query child table
                         result[propName] = this.resolveList(schemaName, propName, objectType, row.uuid, depth - 1, childOptions);
-                    } else if (objectType && !this._shallowMode) {
-                        // Below the prefetch budget, or skipped by the caller. Resolve on access
-                        // rather than reporting [] — an unloaded list must not read as an empty one.
+                    } else if (objectType) {
+                        // Not prefetched (below budget, skipped, or shallow) — resolve on access
+                        // so an unloaded list never reads as an empty one.
                         this._defineLazyList(result, propName, schemaName, objectType, row.uuid, childOptions);
                     } else {
                         result[propName] = [];
@@ -258,15 +253,8 @@ class EntityHydrator {
         return result;
     }
 
-    // Sync sets shallow mode and then spreads every list property of the parent
-    // (avni-models General.pick, via Individual.associateChild) for each synced child —
-    // lazy accessors there would fire a query per list per entity. Shallow mode keeps
-    // returning [] until #2019's element-level proxies make the spread cheap again.
-    //
-    // The children come back at depth 0, so their own lists are lazy in turn and a first
-    // access costs one query. Resolving them any deeper would be an N+1 at the wrong
-    // level — this getter runs outside any batch preload, so a 400-encounter individual
-    // would fire a query per encounter per list, on the UI thread.
+    // Resolves at depth 0 (children's own lists stay lazy): a deeper resolve here runs
+    // outside any batch preload, so it would be an N+1 — a query per child per list.
     _defineLazyList(target, propName, parentSchemaName, childSchemaName, parentUuid, options = {}) {
         let resolved = false;
         let value;
