@@ -107,6 +107,16 @@ const {
     BACKENDS,
 } = SqliteMigrationServiceModule;
 
+const persisted = (state) => SqliteMigrationService.persistStateForUser('test-user', {
+    activeBackend: BACKENDS.REALM,
+    desiredBackend: BACKENDS.REALM,
+    preparedTarget: null,
+    startedAt: null,
+    attemptCount: 0,
+    lastError: null,
+    ...state,
+});
+
 describe('SqliteMigrationService', () => {
     let service;
     let mockSyncService;
@@ -402,6 +412,192 @@ describe('SqliteMigrationService', () => {
             const pending = await service.isMigrationPending();
             expect(pending).toBe(true);
         });
+
+        it('returns true when the stored target differs from the committed backend, whatever the active database says', async () => {
+            await persisted({desiredBackend: BACKENDS.SQLITE});
+            mockPrivilegeService.ownedGroups.mockReturnValue([]);
+
+            expect(await service.isMigrationPending()).toBe(true);
+        });
+    });
+
+    describe('recording the desired backend', () => {
+        it('stores the target the group names without touching the committed backend', async () => {
+            await service.recordDesiredBackend(BACKENDS.SQLITE);
+
+            const state = await service.getState();
+            expect(state.desiredBackend).toBe(BACKENDS.SQLITE);
+            expect(state.activeBackend).toBe(BACKENDS.REALM);
+        });
+
+        it('abandons a prepared attempt once the target matches the committed backend again', async () => {
+            await persisted({desiredBackend: BACKENDS.SQLITE, preparedTarget: BACKENDS.SQLITE});
+
+            await service.recordDesiredBackend(BACKENDS.REALM);
+
+            const state = await service.getState();
+            expect(state.desiredBackend).toBe(BACKENDS.REALM);
+            expect(state.preparedTarget).toBeNull();
+        });
+
+        it('keeps a prepared attempt while the target still differs', async () => {
+            await persisted({desiredBackend: BACKENDS.SQLITE, preparedTarget: BACKENDS.SQLITE});
+
+            await service.recordDesiredBackend(BACKENDS.SQLITE);
+
+            expect((await service.getState()).preparedTarget).toBe(BACKENDS.SQLITE);
+        });
+    });
+
+    describe('migration leg', () => {
+        it('opens a leg without committing anything', async () => {
+            const leg = await service.beginLeg(BACKENDS.SQLITE);
+
+            expect(leg).toEqual({username: 'test-user', source: BACKENDS.REALM, target: BACKENDS.SQLITE});
+            const state = await service.getState();
+            expect(state.activeBackend).toBe(BACKENDS.REALM);
+            expect(state.desiredBackend).toBe(BACKENDS.SQLITE);
+            expect(state.attemptCount).toBe(1);
+        });
+
+        it('refuses to open a second leg while one is open', async () => {
+            await service.beginLeg(BACKENDS.SQLITE);
+
+            await expect(service.beginLeg(BACKENDS.SQLITE)).rejects.toThrow('already open');
+        });
+
+        it('opens a leg again once the previous one is abandoned', async () => {
+            await service.beginLeg(BACKENDS.SQLITE);
+            await service.abandonOpenLeg(new Error('pull failed'));
+
+            await expect(service.beginLeg(BACKENDS.SQLITE)).resolves.toMatchObject({target: BACKENDS.SQLITE});
+        });
+
+        it('first attempt wipes the target before seeding checkpoints, then records it as prepared', async () => {
+            const leg = await service.beginLeg(BACKENDS.SQLITE);
+
+            await service.prepareTarget(leg);
+
+            expect(mockEntityService.clearDataIn).toHaveBeenCalled();
+            expect(mockEntitySyncStatusService.setup).toHaveBeenCalled();
+            expect(mockEntityService.clearDataIn.mock.invocationCallOrder[0])
+                .toBeLessThan(mockEntitySyncStatusService.setup.mock.invocationCallOrder[0]);
+            expect((await service.getState()).preparedTarget).toBe(BACKENDS.SQLITE);
+        });
+
+        // The target's checkpoints are this attempt's own progress record; the pull carries on from them.
+        it('re-entry leaves the target alone', async () => {
+            await persisted({desiredBackend: BACKENDS.SQLITE, preparedTarget: BACKENDS.SQLITE, attemptCount: 1});
+            const leg = await service.beginLeg(BACKENDS.SQLITE);
+
+            await service.prepareTarget(leg);
+
+            expect(mockEntityService.clearDataIn).not.toHaveBeenCalled();
+            expect((await service.getState()).preparedTarget).toBe(BACKENDS.SQLITE);
+        });
+
+        it('wipes a target whose marker names the other backend', async () => {
+            await persisted({desiredBackend: BACKENDS.SQLITE, preparedTarget: BACKENDS.REALM});
+            const leg = await service.beginLeg(BACKENDS.SQLITE);
+
+            await service.prepareTarget(leg);
+
+            expect(mockEntityService.clearDataIn).toHaveBeenCalled();
+            expect((await service.getState()).preparedTarget).toBe(BACKENDS.SQLITE);
+        });
+
+        // Every backend is left with an empty outbox, so this cannot happen unless an
+        // invariant broke — and then the wipe would destroy the only copy.
+        it('refuses to wipe a target that holds unsynced records', async () => {
+            const leg = await service.beginLeg(BACKENDS.SQLITE);
+            mockEntityQueueService.getPendingFieldDataCount.mockReturnValue(2);
+
+            await expect(service.prepareTarget(leg)).rejects.toThrow('unsynced');
+
+            expect(mockEntityService.clearDataIn).not.toHaveBeenCalled();
+            expect((await service.getState()).preparedTarget).toBeNull();
+        });
+
+        it('commits the target as the active backend and clears the attempt', async () => {
+            const leg = await service.beginLeg(BACKENDS.SQLITE);
+            await service.prepareTarget(leg);
+
+            await service.commitLeg(leg);
+
+            expect(await service.getState()).toMatchObject({
+                activeBackend: BACKENDS.SQLITE,
+                desiredBackend: BACKENDS.SQLITE,
+                preparedTarget: null,
+                lastError: null,
+            });
+        });
+
+        it('fails the commit when the state record cannot be written', async () => {
+            const leg = await service.beginLeg(BACKENDS.SQLITE);
+            AsyncStorage.setItem.mockImplementationOnce(async () => { throw new Error('disk full'); });
+
+            await expect(service.commitLeg(leg)).rejects.toThrow('disk full');
+
+            expect((await service.getState()).activeBackend).toBe(BACKENDS.REALM);
+        });
+
+        it('abandoning a leg puts the runtime back on the committed backend and records only diagnostics', async () => {
+            const leg = await service.beginLeg(BACKENDS.SQLITE);
+            await service.prepareTarget(leg);
+            mockGlobalContext.switchBackend.mockClear();
+
+            await service.abandonOpenLeg(new Error('pull failed'));
+
+            expect(mockGlobalContext.switchBackend).toHaveBeenCalledWith(BACKENDS.REALM);
+            const state = await service.getState();
+            expect(state.activeBackend).toBe(BACKENDS.REALM);
+            expect(state.preparedTarget).toBe(BACKENDS.SQLITE);
+            expect(state.lastError).toBe('pull failed');
+            const ErrorUtil = require('../../src/framework/errorHandling/ErrorUtil').default;
+            expect(ErrorUtil.notifyBugsnag).toHaveBeenCalled();
+        });
+
+        it('abandoning with no open leg does nothing', async () => {
+            await service.abandonOpenLeg(new Error('an ordinary sync failure'));
+
+            expect(mockGlobalContext.switchBackend).not.toHaveBeenCalled();
+            expect(AsyncStorage.setItem).not.toHaveBeenCalled();
+        });
+
+        it('runs SQLite → Realm reverse migration', async () => {
+            await persisted({activeBackend: BACKENDS.SQLITE, desiredBackend: BACKENDS.SQLITE});
+            await service.recordDesiredBackend(BACKENDS.REALM);
+
+            const leg = await service.beginLeg(BACKENDS.REALM);
+            await service.prepareTarget(leg);
+            await service.commitLeg(leg);
+
+            expect(leg.source).toBe(BACKENDS.SQLITE);
+            expect(mockEntityService.clearDataIn).toHaveBeenCalled();
+            expect((await service.getState()).activeBackend).toBe(BACKENDS.REALM);
+        });
+    });
+
+    describe('launch', () => {
+        it('opens the committed backend without wiping', async () => {
+            await persisted({activeBackend: BACKENDS.SQLITE, desiredBackend: BACKENDS.SQLITE});
+
+            await service.reconcileBackendOnLaunch();
+
+            expect(mockGlobalContext.switchBackend).toHaveBeenCalledWith(BACKENDS.SQLITE);
+            expect(mockEntityService.clearDataIn).not.toHaveBeenCalled();
+            expect(mockEntitySyncStatusService.setup).not.toHaveBeenCalled();
+        });
+
+        it('stays on the complete source backend after an interrupted migration', async () => {
+            await persisted({desiredBackend: BACKENDS.SQLITE, preparedTarget: BACKENDS.SQLITE, attemptCount: 1});
+
+            await service.reconcileBackendOnLaunch();
+
+            expect(mockGlobalContext.switchBackend).not.toHaveBeenCalled();
+            expect(mockEntityService.clearDataIn).not.toHaveBeenCalled();
+            expect(mockSyncService.sync).not.toHaveBeenCalled();
+        });
     });
 
     describe('failure handling', () => {
@@ -544,6 +740,7 @@ describe('SqliteMigrationService', () => {
                 activeBackend: BACKENDS.SQLITE,
                 desiredBackend: BACKENDS.SQLITE,
                 phase: MIGRATION_PHASES.IDLE,
+                preparedTarget: null,
                 startedAt: 12345,
                 attemptCount: 3,
                 lastError: 'something',

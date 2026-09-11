@@ -53,6 +53,7 @@ function defaultState() {
         activeBackend: BACKENDS.REALM,
         desiredBackend: BACKENDS.REALM,
         phase: MIGRATION_PHASES.IDLE,
+        preparedTarget: null,
         startedAt: null,
         attemptCount: 0,
         lastError: null,
@@ -64,6 +65,7 @@ class SqliteMigrationService extends BaseService {
     constructor(db, beanStore) {
         super(db, beanStore);
         this._migrationInProgress = false;
+        this._openLeg = null;
     }
 
     init() {
@@ -157,20 +159,36 @@ class SqliteMigrationService extends BaseService {
     }
 
     /**
-     * Lightweight check used by callers (e.g., SyncComponent._postSync) to decide
-     * whether to surface a "switching backend" UI before invoking the migration.
-     * Returns true if a migration is currently in-progress (resumable) OR if the
-     * desired backend (per group membership) differs from the active backend.
+     * Whether a switch is owed: the stored target, or the group membership the active
+     * database holds, differs from the committed backend. The background job (#2118)
+     * stays idle while this is true.
      */
     async isMigrationPending() {
         try {
             const state = await this.getState();
-            if (state.phase !== MIGRATION_PHASES.IDLE) return true;
-            const desired = this.computeDesiredBackend();
-            return desired !== state.activeBackend;
+            return state.desiredBackend !== state.activeBackend
+                || this.computeDesiredBackend() !== state.activeBackend;
         } catch (e) {
             return false;
         }
+    }
+
+    // Every full sync records the target the server group names, so the decision survives
+    // a crash and never has to be re-derived from a target whose MyGroups has not arrived.
+    // A target that matches the committed backend again abandons any attempt in progress,
+    // so a later attempt starts from a wipe rather than from that attempt's checkpoints.
+    async recordDesiredBackend(desired) {
+        const username = await this._getCurrentUsername();
+        const state = await SqliteMigrationService.readStateForUser(username);
+        const abandonsAttempt = desired === state.activeBackend && !_.isNil(state.preparedTarget);
+        if (state.desiredBackend === desired && !abandonsAttempt) return state;
+        const updated = {
+            ...state,
+            desiredBackend: desired,
+            preparedTarget: abandonsAttempt ? null : state.preparedTarget,
+        };
+        await SqliteMigrationService.persistStateForUser(username, updated);
+        return updated;
     }
 
     /**
@@ -230,6 +248,20 @@ class SqliteMigrationService extends BaseService {
         General.logInfo("SqliteMigrationService",
             `Resuming pending migration on launch: phase=${state.phase} active=${state.activeBackend} desired=${state.desiredBackend}`);
         return this.resume(state);
+    }
+
+    // Boot opens the backend the state record commits to. An unfinished leg committed
+    // nothing, so an interrupted migration boots on the complete source backend and waits
+    // for the next sync the user starts. Never wipes, never syncs.
+    async reconcileBackendOnLaunch() {
+        const state = await this.getState();
+        const GlobalContext = require('../GlobalContext').default;
+        const globalContext = GlobalContext.getInstance();
+        if (globalContext.getActiveBackend() !== state.activeBackend) {
+            General.logInfo("SqliteMigrationService",
+                `Opening the committed backend on launch: ${state.activeBackend}`);
+            globalContext.switchBackend(state.activeBackend);
+        }
     }
 
     /**
@@ -422,6 +454,104 @@ class SqliteMigrationService extends BaseService {
     _getPendingFieldDataCount() {
         const entityQueueService = this.getService('entityQueueService');
         return entityQueueService ? entityQueueService.getPendingFieldDataCount() : 0;
+    }
+
+    // Opens a migration leg. The username is resolved here, while the committed backend is
+    // still active, because the target's UserInfo is empty or wiped once the runtime moves.
+    // Writes diagnostics and the target only; activeBackend waits for commitLeg.
+    async beginLeg(target) {
+        if (this._openLeg) {
+            throw new Error(`A migration leg to ${this._openLeg.target} is already open`);
+        }
+        const username = await this._getCurrentUsername();
+        const state = await SqliteMigrationService.readStateForUser(username);
+        const attemptCount = (state.attemptCount || 0) + 1;
+        await SqliteMigrationService.persistStateForUser(username, {
+            ...state,
+            desiredBackend: target,
+            startedAt: state.startedAt || Date.now(),
+            attemptCount,
+        });
+        const leg = {username, source: state.activeBackend, target};
+        this._openLeg = leg;
+        General.logInfo("SqliteMigrationService",
+            `Migration leg opened: ${leg.source} → ${target}, attempt=${attemptCount}`);
+        return leg;
+    }
+
+    /**
+     * Called once the runtime is on the leg's target. A first attempt empties what the
+     * file's previous occupant left, seeds every checkpoint at REALLY_OLD_DATE, and records
+     * the target as prepared. Re-entry — the record already names this target — leaves the
+     * target and its checkpoints alone, so the pull carries on from where it stopped.
+     *
+     * The marker decides, not the presence of checkpoint rows. A backend this user left
+     * after an earlier completed move still holds rows at their old values, and a delta pull
+     * from them — with the leg marking every ResetSync migrated (#2057) — would skip resets
+     * issued since. The marker is written only after the wipe and seed succeed and cleared
+     * by the commit, so it names exactly an attempt whose target was rebuilt from empty.
+     */
+    async prepareTarget(leg) {
+        const state = await SqliteMigrationService.readStateForUser(leg.username);
+        const entitySyncStatusService = this.getService('entitySyncStatusService');
+        if (state.preparedTarget === leg.target) {
+            General.logInfo("SqliteMigrationService",
+                `Re-entering the migration to ${leg.target}: carrying on from its checkpoints`);
+            // Only inserts rows that are missing, e.g. entities added by an app update.
+            entitySyncStatusService.setup();
+            return;
+        }
+        // Every backend is left with an empty outbox — the switch refuses otherwise — so
+        // unsynced records here mean an invariant broke, and the wipe would take the only copy.
+        const pendingOnTarget = this._getPendingFieldDataCount();
+        if (pendingOnTarget > 0) {
+            throw new Error(`Target backend ${leg.target} holds ${pendingOnTarget} unsynced local changes; refusing to wipe it`);
+        }
+        const {EntityMetaData} = require('openchs-models');
+        General.logInfo("SqliteMigrationService", `Clearing and seeding ${leg.target} for a full pull`);
+        this.getService('entityService').clearDataIn(EntityMetaData.entitiesLoadedFromServer());
+        entitySyncStatusService.setup();
+        await SqliteMigrationService.persistStateForUser(leg.username, {...state, preparedTarget: leg.target});
+    }
+
+    // The single writer of activeBackend. Throws when the write fails: a leg that cannot
+    // record its completion must fail, so the runtime returns to what the next launch opens.
+    async commitLeg(leg) {
+        const state = await SqliteMigrationService.readStateForUser(leg.username);
+        await AsyncStorage.setItem(asyncStorageKey(leg.username), JSON.stringify({
+            ...state,
+            activeBackend: leg.target,
+            desiredBackend: leg.target,
+            preparedTarget: null,
+            startedAt: null,
+            attemptCount: 0,
+            lastError: null,
+        }));
+        this._openLeg = null;
+        General.logInfo("SqliteMigrationService",
+            `Migration to ${leg.target} committed after ${state.attemptCount} attempt(s)`);
+    }
+
+    // Failure anywhere in the leg: put the runtime back on the backend the state record
+    // names — the one the next launch opens — and record diagnostics only. Never throws;
+    // the caller rethrows its own error so the sync fails.
+    async abandonOpenLeg(error) {
+        const leg = this._openLeg;
+        if (!leg) return;
+        this._openLeg = null;
+        const message = error && error.message ? error.message : String(error);
+        try {
+            const state = await SqliteMigrationService.readStateForUser(leg.username);
+            const GlobalContext = require('../GlobalContext').default;
+            GlobalContext.getInstance().switchBackend(state.activeBackend);
+            await SqliteMigrationService.persistStateForUser(leg.username, {...state, lastError: message});
+            General.logError("SqliteMigrationService",
+                `Migration to ${leg.target} failed at attempt=${state.attemptCount}; back on ${state.activeBackend}: ${message}`);
+            ErrorUtil.notifyBugsnag(error instanceof Error ? error : new Error(message),
+                `SqliteMigrationService::leg::attempt${state.attemptCount}`);
+        } catch (e) {
+            General.logError("SqliteMigrationService", `Failed to abandon the migration leg: ${e.message}`);
+        }
     }
 
     async _runSync(syncSource, callbacks) {
