@@ -1,6 +1,6 @@
 /**
- * Tests for SqliteMigrationService — the state machine that drives dynamic
- * Realm ↔ SQLite backend switching based on user group membership.
+ * Tests for SqliteMigrationService — the per-user state record and the migration
+ * leg that drive Realm ↔ SQLite backend switching based on user group membership.
  *
  * Run: npx jest test/service/SqliteMigrationServiceTest.js --verbose
  */
@@ -23,26 +23,11 @@ jest.mock('@react-native-async-storage/async-storage', () => {
 const mockGlobalContext = {
     switchBackend: jest.fn(),
     getActiveBackend: jest.fn(() => 'realm'),
-    beanRegistry: {
-        getService: jest.fn(),
-    },
 };
 jest.mock('../../src/GlobalContext', () => ({
     __esModule: true,
     default: {
         getInstance: () => mockGlobalContext,
-    },
-}));
-
-// Mock SyncService import
-jest.mock('../../src/service/SyncService', () => ({
-    __esModule: true,
-    default: {
-        syncSources: {
-            ONLY_UPLOAD_BACKGROUND_JOB: 'automatic-upload-only',
-            BACKGROUND_JOB: 'automatic',
-            SYNC_BUTTON: 'manual',
-        },
     },
 }));
 
@@ -103,7 +88,6 @@ const SqliteMigrationService = SqliteMigrationServiceModule.default;
 const {
     SQLITE_MIGRATION_GROUP_UUID,
     SQLITE_MIGRATION_GROUP_NAME,
-    MIGRATION_PHASES,
     BACKENDS,
 } = SqliteMigrationServiceModule;
 
@@ -119,7 +103,6 @@ const persisted = (state) => SqliteMigrationService.persistStateForUser('test-us
 
 describe('SqliteMigrationService', () => {
     let service;
-    let mockSyncService;
     let mockPrivilegeService;
     let mockEntitySyncStatusService;
     let mockEntityQueueService;
@@ -133,11 +116,6 @@ describe('SqliteMigrationService', () => {
         AsyncStorage.__store.clear();
         jest.clearAllMocks();
 
-        mockSyncService = {
-            sync: jest.fn(async () => undefined),
-            acquireLock: jest.fn(() => 'test-lock'),
-            releaseLock: jest.fn(),
-        };
         mockPrivilegeService = {
             ownedGroups: jest.fn(() => []),
         };
@@ -173,7 +151,6 @@ describe('SqliteMigrationService', () => {
         mockBeanStore = {
             getService: jest.fn((name) => {
                 switch (name) {
-                    case 'syncService': return mockSyncService;
                     case 'PrivilegeService': return mockPrivilegeService;
                     case 'entitySyncStatusService': return mockEntitySyncStatusService;
                     case 'entityQueueService': return mockEntityQueueService;
@@ -185,11 +162,6 @@ describe('SqliteMigrationService', () => {
             }),
         };
 
-        // Wire up the GlobalContext mock to also return syncService via beanRegistry
-        mockGlobalContext.beanRegistry.getService.mockImplementation((name) => {
-            if (name === 'syncService') return mockSyncService;
-            return null;
-        });
         mockGlobalContext.switchBackend.mockClear();
         mockGlobalContext.getActiveBackend.mockReturnValue('realm');
 
@@ -225,127 +197,14 @@ describe('SqliteMigrationService', () => {
         });
     });
 
-    describe('checkAndMaybeMigrate', () => {
-        it('is a no-op when desired backend matches active backend', async () => {
-            // No groups → desired = realm. Default state has activeBackend = realm.
-            await service.checkAndMaybeMigrate();
-            expect(mockSyncService.sync).not.toHaveBeenCalled();
-            expect(mockGlobalContext.switchBackend).not.toHaveBeenCalled();
-        });
-
-        it('runs full Realm → SQLite migration on first launch (no pending uploads)', async () => {
-            mockPrivilegeService.ownedGroups.mockReturnValue([
-                {groupUuid: SQLITE_MIGRATION_GROUP_UUID, groupName: SQLITE_MIGRATION_GROUP_NAME},
-            ]);
-            mockEntityQueueService.getPendingFieldDataCount.mockReturnValue(0);
-
-            await service.checkAndMaybeMigrate();
-
-            // Upload phase skipped because nothing pending
-            // Then backend switch
-            expect(mockGlobalContext.switchBackend).toHaveBeenCalledWith(BACKENDS.SQLITE);
-            // Baseline entity sync status seeded on target backend
-            expect(mockEntitySyncStatusService.setup).toHaveBeenCalled();
-            // Then target sync
-            expect(mockSyncService.sync).toHaveBeenCalledTimes(1);
-            // Final state: idle on sqlite
-            const state = await service.getState();
-            expect(state.phase).toBe(MIGRATION_PHASES.IDLE);
-            expect(state.activeBackend).toBe(BACKENDS.SQLITE);
-        });
-
-        it('uploads pending entities and defers the switch to the next sync', async () => {
-            mockPrivilegeService.ownedGroups.mockReturnValue([
-                {groupUuid: SQLITE_MIGRATION_GROUP_UUID, groupName: SQLITE_MIGRATION_GROUP_NAME},
-            ]);
-            mockEntityQueueService.getPendingFieldDataCount.mockReturnValue(5);
-
-            await service.checkAndMaybeMigrate();
-
-            // Upload-only sync, and nothing more. Switching now would run the target sync
-            // seconds after the upload, inside the server's `now - 10s` blind window, so
-            // the records just uploaded would not come back on the new backend (#2006).
-            expect(mockSyncService.sync).toHaveBeenCalledTimes(1);
-            expect(mockGlobalContext.switchBackend).not.toHaveBeenCalled();
-            const state = await service.getState();
-            expect(state.phase).toBe(MIGRATION_PHASES.PENDING_UPLOAD);
-        });
-
-        it('does not clobber state when the upload sync completes the migration itself', async () => {
-            mockPrivilegeService.ownedGroups.mockReturnValue([
-                {groupUuid: SQLITE_MIGRATION_GROUP_UUID, groupName: SQLITE_MIGRATION_GROUP_NAME},
-            ]);
-            mockEntityQueueService.getPendingFieldDataCount.mockReturnValue(5);
-            // getUpdatedSyncSource escalates an upload-only sync to a full one after 12h,
-            // which switches the backend mid-sync and finalises the migration.
-            mockSyncService.sync.mockImplementationOnce(async () => {
-                await SqliteMigrationService.persistStateForUser('test-user', {
-                    activeBackend: BACKENDS.SQLITE,
-                    desiredBackend: BACKENDS.SQLITE,
-                    phase: MIGRATION_PHASES.IDLE,
-                    attemptCount: 1,
-                    lastError: null,
-                });
-            });
-
-            await service.checkAndMaybeMigrate();
-
-            const state = await service.getState();
-            expect(state.phase).toBe(MIGRATION_PHASES.IDLE);
-            expect(state.activeBackend).toBe(BACKENDS.SQLITE);
-        });
-
-        it('completes the migration on the next sync once the outbox is empty', async () => {
-            mockPrivilegeService.ownedGroups.mockReturnValue([
-                {groupUuid: SQLITE_MIGRATION_GROUP_UUID, groupName: SQLITE_MIGRATION_GROUP_NAME},
-            ]);
-            mockEntityQueueService.getPendingFieldDataCount.mockReturnValue(5);
-            await service.checkAndMaybeMigrate();
-
-            mockEntityQueueService.getPendingFieldDataCount.mockReturnValue(0);
-            await service.resumeIfPending();
-
-            expect(mockGlobalContext.switchBackend).toHaveBeenCalledWith(BACKENDS.SQLITE);
-            const state = await service.getState();
-            expect(state.phase).toBe(MIGRATION_PHASES.IDLE);
-            expect(state.activeBackend).toBe(BACKENDS.SQLITE);
-        });
-
-        it('runs SQLite → Realm reverse migration', async () => {
-            // Start in SQLite state
-            await SqliteMigrationService.persistStateForUser('test-user', {
-                activeBackend: BACKENDS.SQLITE,
-                desiredBackend: BACKENDS.SQLITE,
-                phase: MIGRATION_PHASES.IDLE,
-                attemptCount: 0,
-                lastError: null,
-            });
-            // User no longer in group
-            mockPrivilegeService.ownedGroups.mockReturnValue([]);
-
-            await service.checkAndMaybeMigrate();
-
-            expect(mockGlobalContext.switchBackend).toHaveBeenCalledWith(BACKENDS.REALM);
-            const state = await service.getState();
-            expect(state.activeBackend).toBe(BACKENDS.REALM);
-            expect(state.phase).toBe(MIGRATION_PHASES.IDLE);
-        });
-    });
-
     describe('target backend bootstrap', () => {
         it('runs SettingsService.init() on the target backend', async () => {
-            mockPrivilegeService.ownedGroups.mockReturnValue([
-                {groupUuid: SQLITE_MIGRATION_GROUP_UUID, groupName: SQLITE_MIGRATION_GROUP_NAME},
-            ]);
-            await service.checkAndMaybeMigrate();
+            await service._bootstrapTargetSettings(service._captureAuthState());
+
             expect(mockSettingsService.init).toHaveBeenCalled();
         });
 
         it('overlays captured auth state (idpType, userId, tokens) on target Settings', async () => {
-            mockPrivilegeService.ownedGroups.mockReturnValue([
-                {groupUuid: SQLITE_MIGRATION_GROUP_UUID, groupName: SQLITE_MIGRATION_GROUP_NAME},
-            ]);
-            // Source has a Keycloak user with tokens
             mockSettingsService.getSettings.mockReturnValue({
                 idpType: 'keycloak',
                 userId: 'kc-user',
@@ -361,12 +220,10 @@ describe('SqliteMigrationService', () => {
                 clone: function() { return {...this, clone: this.clone}; },
             });
 
-            await service.checkAndMaybeMigrate();
+            await service._bootstrapTargetSettings(service._captureAuthState());
 
-            // saveOrUpdate should have been called with merged settings carrying the auth fields
-            expect(mockSettingsService.saveOrUpdate).toHaveBeenCalled();
-            const lastCall = mockSettingsService.saveOrUpdate.mock.calls[mockSettingsService.saveOrUpdate.mock.calls.length - 1];
-            const savedSettings = lastCall[0];
+            const calls = mockSettingsService.saveOrUpdate.mock.calls;
+            const savedSettings = calls[calls.length - 1][0];
             expect(savedSettings.idpType).toBe('keycloak');
             expect(savedSettings.userId).toBe('kc-user');
             expect(savedSettings.accessToken).toBe('jwt-abc');
@@ -374,13 +231,10 @@ describe('SqliteMigrationService', () => {
         });
 
         it('does not copy LocaleMapping or UserInfo (they come from sync)', async () => {
-            mockPrivilegeService.ownedGroups.mockReturnValue([
-                {groupUuid: SQLITE_MIGRATION_GROUP_UUID, groupName: SQLITE_MIGRATION_GROUP_NAME},
-            ]);
             const userInfoSaveOrUpdateSpy = jest.fn();
             mockUserInfoService.saveOrUpdate = userInfoSaveOrUpdateSpy;
 
-            await service.checkAndMaybeMigrate();
+            await service._bootstrapTargetSettings(service._captureAuthState());
 
             expect(userInfoSaveOrUpdateSpy).not.toHaveBeenCalled();
         });
@@ -397,18 +251,6 @@ describe('SqliteMigrationService', () => {
             mockPrivilegeService.ownedGroups.mockReturnValue([
                 {groupUuid: SQLITE_MIGRATION_GROUP_UUID, groupName: SQLITE_MIGRATION_GROUP_NAME},
             ]);
-            const pending = await service.isMigrationPending();
-            expect(pending).toBe(true);
-        });
-
-        it('returns true when phase is non-idle (resumable migration)', async () => {
-            await SqliteMigrationService.persistStateForUser('test-user', {
-                activeBackend: BACKENDS.REALM,
-                desiredBackend: BACKENDS.SQLITE,
-                phase: MIGRATION_PHASES.PENDING_TARGET_SYNC,
-                attemptCount: 1,
-                lastError: null,
-            });
             const pending = await service.isMigrationPending();
             expect(pending).toBe(true);
         });
@@ -596,134 +438,6 @@ describe('SqliteMigrationService', () => {
 
             expect(mockGlobalContext.switchBackend).not.toHaveBeenCalled();
             expect(mockEntityService.clearDataIn).not.toHaveBeenCalled();
-            expect(mockSyncService.sync).not.toHaveBeenCalled();
-        });
-    });
-
-    describe('failure handling', () => {
-        it('upload phase failure leaves state at pending_upload and notifies Bugsnag and logs', async () => {
-            mockPrivilegeService.ownedGroups.mockReturnValue([
-                {groupUuid: SQLITE_MIGRATION_GROUP_UUID, groupName: SQLITE_MIGRATION_GROUP_NAME},
-            ]);
-            mockEntityQueueService.getPendingFieldDataCount.mockReturnValue(3);
-            mockSyncService.sync.mockImplementationOnce(async () => {
-                throw new Error('upload failed');
-            });
-
-            await expect(service.checkAndMaybeMigrate()).rejects.toThrow('upload failed');
-
-            const state = await service.getState();
-            expect(state.phase).toBe(MIGRATION_PHASES.PENDING_UPLOAD);
-            expect(state.lastError).toBe('upload failed');
-            expect(mockGlobalContext.switchBackend).not.toHaveBeenCalled();
-
-            const ErrorUtil = require('../../src/framework/errorHandling/ErrorUtil').default;
-            expect(ErrorUtil.notifyBugsnag).toHaveBeenCalled();
-            const General = require('../../src/utility/General').default;
-            expect(General.logError).toHaveBeenCalled();
-        });
-
-        it('target sync failure leaves state at pending_target_sync', async () => {
-            mockPrivilegeService.ownedGroups.mockReturnValue([
-                {groupUuid: SQLITE_MIGRATION_GROUP_UUID, groupName: SQLITE_MIGRATION_GROUP_NAME},
-            ]);
-            mockEntityQueueService.getPendingFieldDataCount.mockReturnValue(0);
-            // First sync (target full sync) fails
-            mockSyncService.sync.mockImplementationOnce(async () => {
-                throw new Error('target sync failed');
-            });
-
-            await expect(service.checkAndMaybeMigrate()).rejects.toThrow('target sync failed');
-
-            const state = await service.getState();
-            expect(state.phase).toBe(MIGRATION_PHASES.PENDING_TARGET_SYNC);
-            // Backend was switched (we always switch into target before running sync)
-            expect(mockGlobalContext.switchBackend).toHaveBeenCalledWith(BACKENDS.SQLITE);
-        });
-    });
-
-    describe('resume', () => {
-        it('resumeIfPending is no-op when state is idle', async () => {
-            await service.resumeIfPending();
-            expect(mockSyncService.sync).not.toHaveBeenCalled();
-            expect(mockGlobalContext.switchBackend).not.toHaveBeenCalled();
-        });
-
-        it('resumes from pending_upload phase', async () => {
-            await SqliteMigrationService.persistStateForUser('test-user', {
-                activeBackend: BACKENDS.REALM,
-                desiredBackend: BACKENDS.SQLITE,
-                phase: MIGRATION_PHASES.PENDING_UPLOAD,
-                attemptCount: 1,
-                lastError: 'previous failure',
-            });
-            mockEntityQueueService.getPendingFieldDataCount.mockReturnValue(2);
-
-            await service.resumeIfPending();
-
-            // Re-runs the upload and stops there — the switch waits for the next sync.
-            expect(mockSyncService.sync).toHaveBeenCalledTimes(1);
-            expect(mockGlobalContext.switchBackend).not.toHaveBeenCalled();
-            const state = await service.getState();
-            expect(state.phase).toBe(MIGRATION_PHASES.PENDING_UPLOAD);
-            expect(state.attemptCount).toBe(2);
-        });
-
-        it('resumes from pending_target_sync phase (entity checkpoints handle resume)', async () => {
-            await SqliteMigrationService.persistStateForUser('test-user', {
-                activeBackend: BACKENDS.REALM, // app booted into source backend after crash
-                desiredBackend: BACKENDS.SQLITE,
-                phase: MIGRATION_PHASES.PENDING_TARGET_SYNC,
-                attemptCount: 1,
-                lastError: null,
-            });
-            mockGlobalContext.getActiveBackend.mockReturnValue('realm');
-
-            await service.resumeIfPending();
-
-            // Should ensure backend is switched to target before running sync
-            expect(mockGlobalContext.switchBackend).toHaveBeenCalledWith(BACKENDS.SQLITE);
-            // Only the target sync runs (upload phase is skipped)
-            expect(mockSyncService.sync).toHaveBeenCalledTimes(1);
-            const state = await service.getState();
-            expect(state.phase).toBe(MIGRATION_PHASES.IDLE);
-            expect(state.activeBackend).toBe(BACKENDS.SQLITE);
-        });
-
-        it('resumes from completing phase (just flips activeBackend to idle)', async () => {
-            await SqliteMigrationService.persistStateForUser('test-user', {
-                activeBackend: BACKENDS.SQLITE,
-                desiredBackend: BACKENDS.SQLITE,
-                phase: MIGRATION_PHASES.COMPLETING,
-                attemptCount: 1,
-                lastError: null,
-            });
-
-            await service.resumeIfPending();
-
-            expect(mockSyncService.sync).not.toHaveBeenCalled();
-            const state = await service.getState();
-            expect(state.phase).toBe(MIGRATION_PHASES.IDLE);
-        });
-    });
-
-    describe('re-entrancy', () => {
-        it('concurrent calls do not double-trigger migration', async () => {
-            mockPrivilegeService.ownedGroups.mockReturnValue([
-                {groupUuid: SQLITE_MIGRATION_GROUP_UUID, groupName: SQLITE_MIGRATION_GROUP_NAME},
-            ]);
-            mockEntityQueueService.getPendingFieldDataCount.mockReturnValue(0);
-
-            // Make sync take a tick so concurrent calls overlap
-            mockSyncService.sync.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 10)));
-
-            const p1 = service.checkAndMaybeMigrate();
-            const p2 = service.checkAndMaybeMigrate(); // should be no-op due to in-progress flag
-
-            await Promise.all([p1, p2]);
-
-            // Only one migration ran (1 sync = target sync, no upload)
-            expect(mockSyncService.sync).toHaveBeenCalledTimes(1);
         });
     });
 
@@ -731,7 +445,7 @@ describe('SqliteMigrationService', () => {
         it('readStateForUser returns default state when nothing persisted', async () => {
             const state = await SqliteMigrationService.readStateForUser('new-user');
             expect(state.activeBackend).toBe(BACKENDS.REALM);
-            expect(state.phase).toBe(MIGRATION_PHASES.IDLE);
+            expect(state.preparedTarget).toBeNull();
             expect(state.attemptCount).toBe(0);
         });
 
@@ -739,7 +453,6 @@ describe('SqliteMigrationService', () => {
             const original = {
                 activeBackend: BACKENDS.SQLITE,
                 desiredBackend: BACKENDS.SQLITE,
-                phase: MIGRATION_PHASES.IDLE,
                 preparedTarget: null,
                 startedAt: 12345,
                 attemptCount: 3,
@@ -757,7 +470,6 @@ describe('SqliteMigrationService', () => {
             await SqliteMigrationService.persistStateForUser('anjali@phulwari', {
                 activeBackend: BACKENDS.SQLITE,
                 desiredBackend: BACKENDS.SQLITE,
-                phase: MIGRATION_PHASES.IDLE,
             });
 
             const state = await service.getState();
@@ -770,7 +482,6 @@ describe('SqliteMigrationService', () => {
             await SqliteMigrationService.persistStateForUser('legacy-user', {
                 activeBackend: BACKENDS.SQLITE,
                 desiredBackend: BACKENDS.SQLITE,
-                phase: MIGRATION_PHASES.IDLE,
             });
 
             const state = await service.getState();
@@ -785,7 +496,6 @@ describe('SqliteMigrationService', () => {
             await service.persistState({
                 activeBackend: BACKENDS.SQLITE,
                 desiredBackend: BACKENDS.SQLITE,
-                phase: MIGRATION_PHASES.IDLE,
             });
 
             const written = await SqliteMigrationService.readStateForUser('nupoork@ntest');
@@ -810,7 +520,6 @@ describe('SqliteMigrationService', () => {
             await SqliteMigrationService.persistStateForUser('alice', {
                 activeBackend: BACKENDS.SQLITE,
                 desiredBackend: BACKENDS.SQLITE,
-                phase: MIGRATION_PHASES.IDLE,
                 startedAt: null, attemptCount: 0, lastError: null,
             });
             const aliceState = await SqliteMigrationService.readStateForUser('alice');
@@ -818,71 +527,5 @@ describe('SqliteMigrationService', () => {
             expect(aliceState.activeBackend).toBe(BACKENDS.SQLITE);
             expect(bobState.activeBackend).toBe(BACKENDS.REALM); // default
         });
-    });
-
-    describe('target backend reset', () => {
-        it('wipes server-loaded entities before seeding checkpoints', () => {
-            service._resetTargetBackend();
-
-            expect(mockEntityService.clearDataIn).toHaveBeenCalled();
-            expect(mockEntitySyncStatusService.setup).toHaveBeenCalled();
-            const clearOrder = mockEntityService.clearDataIn.mock.invocationCallOrder[0];
-            const setupOrder = mockEntitySyncStatusService.setup.mock.invocationCallOrder[0];
-            expect(clearOrder).toBeLessThan(setupOrder);
-        });
-
-        it('clears the target backend during a Realm to SQLite migration', async () => {
-            mockPrivilegeService.ownedGroups.mockReturnValue([{groupUuid: SQLITE_MIGRATION_GROUP_UUID}]);
-
-            await service.checkAndMaybeMigrate();
-
-            expect(mockGlobalContext.switchBackend).toHaveBeenCalledWith(BACKENDS.SQLITE);
-            expect(mockEntityService.clearDataIn).toHaveBeenCalled();
-        });
-
-        // The callers check the SOURCE outbox before switching; the wipe lands on the target,
-        // whose EntityQueue is in entitiesLoadedFromServer().
-        it('does not wipe a target that holds unsynced local changes', () => {
-            mockEntityQueueService.getPendingFieldDataCount.mockReturnValue(4);
-
-            service._resetTargetBackend();
-
-            expect(mockEntityService.clearDataIn).not.toHaveBeenCalled();
-            expect(mockEntitySyncStatusService.setup).toHaveBeenCalled();
-        });
-
-        it('preserves unsynced target data across a resume that switches backends', async () => {
-            await SessionUsername.set('test-user');
-            await SqliteMigrationService.persistStateForUser('test-user', {
-                activeBackend: BACKENDS.SQLITE,
-                desiredBackend: BACKENDS.SQLITE,
-                phase: MIGRATION_PHASES.PENDING_TARGET_SYNC,
-            });
-            // Source outbox empty, target outbox is not — the count flips after the switch.
-            mockGlobalContext.getActiveBackend.mockReturnValue(BACKENDS.REALM);
-            mockEntityQueueService.getPendingFieldDataCount
-                .mockReturnValueOnce(0)
-                .mockReturnValue(2);
-
-            await service.resumeIfPending();
-
-            expect(mockGlobalContext.switchBackend).toHaveBeenCalledWith(BACKENDS.SQLITE);
-            expect(mockEntityService.clearDataIn).not.toHaveBeenCalled();
-        });
-
-        it('does not wipe anything on the launch-time reconcile', async () => {
-            await SessionUsername.set('test-user');
-            await SqliteMigrationService.persistStateForUser('test-user', {
-                activeBackend: BACKENDS.SQLITE,
-                desiredBackend: BACKENDS.SQLITE,
-                phase: MIGRATION_PHASES.IDLE,
-            });
-
-            await service.resumeIfPending();
-
-            expect(mockGlobalContext.switchBackend).toHaveBeenCalledWith(BACKENDS.SQLITE);
-            expect(mockEntityService.clearDataIn).not.toHaveBeenCalled();
-        });
-
     });
 });

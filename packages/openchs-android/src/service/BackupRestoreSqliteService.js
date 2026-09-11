@@ -11,10 +11,7 @@ import EntitySyncStatusService from './EntitySyncStatusService';
 import {get} from '../framework/http/requests';
 import General from '../utility/General';
 import SqliteFactory from '../framework/db/SqliteFactory';
-import SqliteMigrationService, {
-    BACKENDS,
-    MIGRATION_PHASES,
-} from './SqliteMigrationService';
+import SqliteMigrationService, {BACKENDS} from './SqliteMigrationService';
 
 /**
  * SQLite parallel to BackupRestoreRealmService for the fast-sync apply path.
@@ -29,9 +26,9 @@ import SqliteMigrationService, {
  *      compare to Settings.userId. Reject on mismatch — defence-in-depth against
  *      a snapshot misrouting.
  *   5. Backup the live SQLite file, move the downloaded .db into place.
- *   6. Persist SqliteMigrationService state as {activeBackend: SQLITE, phase: IDLE}
- *      so resumeIfPending() on the next launch immediately switches the bean
- *      registry to SQLite without trying a Realm→SQLite migration.
+ *   6. Persist SqliteMigrationService state as {activeBackend: SQLITE} so the next
+ *      launch's reconcileBackendOnLaunch() opens SQLite directly, without a
+ *      Realm→SQLite migration.
  *   7. Callback to GlobalContext.onSqliteDatabaseRestored → reopen SQLite from
  *      the swapped file, flip _activeBackend, update bean registry.
  *   8. On any failure after step 5: restore the SQLite backup, notify
@@ -127,7 +124,7 @@ export default class BackupRestoreSqliteService extends BaseService {
             await SqliteMigrationService.persistStateForUser(expectedUsername, {
                 activeBackend: BACKENDS.SQLITE,
                 desiredBackend: BACKENDS.SQLITE,
-                phase: MIGRATION_PHASES.IDLE,
+                preparedTarget: null,
                 startedAt: null,
                 attemptCount: 0,
                 lastError: null,
@@ -139,7 +136,7 @@ export default class BackupRestoreSqliteService extends BaseService {
             }
 
             // Beans are now wired to SQLite. Two post-switch steps that mirror
-            // SqliteMigrationService.resume() after switchBackend():
+            // the migration leg after it moves the runtime:
             // (1) seed baseline entity_sync_status rows for any
             //     entities-to-be-pulled that aren't already in the snapshot
             //     (idempotent — setup() only inserts when get() returns nil),
@@ -163,7 +160,7 @@ export default class BackupRestoreSqliteService extends BaseService {
         }
     }
 
-    // Mirrors the seeding half of SqliteMigrationService._resetTargetBackend — but NOT
+    // Mirrors the seeding half of SqliteMigrationService.prepareTarget — but NOT
     // the wipe: the snapshot file is intentionally pre-populated.
     // Idempotent: setup() only inserts REALLY_OLD_DATE rows for entities the
     // user can pull (no privilegeParam) AND that don't already have a row.

@@ -10,9 +10,7 @@ let singleton;
 class GlobalContext {
     // INVARIANT: `this.db` is always the Realm instance and is never reassigned by
     // switchBackend(). The active database handed to the bean registry is selected
-    // via _activeBackend + sqliteDb. Code that needs the Realm instance directly
-    // (e.g., SqliteMigrationService._captureAuthStateFromSource during resume)
-    // relies on this invariant.
+    // via _activeBackend + sqliteDb.
     db;
     sqliteDb;
     beanRegistry;
