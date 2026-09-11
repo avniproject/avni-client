@@ -49,7 +49,7 @@ jest.mock('../../src/framework/db/SqliteFactory', () => ({
 }));
 jest.mock('../../src/service/SqliteMigrationService', () => ({
     __esModule: true,
-    default: {persistStateForUser: jest.fn(async () => {})},
+    default: {persistStateForUser: jest.fn(async () => {}), commitStateForUser: jest.fn(async () => {})},
     BACKENDS: {REALM: 'realm', SQLITE: 'sqlite'},
 }));
 
@@ -99,11 +99,12 @@ describe('SQLite fast-sync restore commits the backend last (#2120)', () => {
         await service.restore(cb);
 
         expect(cb).toHaveBeenLastCalledWith(100, 'restoreComplete');
-        expect(SqliteMigrationService.persistStateForUser).toHaveBeenCalledTimes(1);
-        const [username, state] = SqliteMigrationService.persistStateForUser.mock.calls[0];
+        expect(SqliteMigrationService.persistStateForUser).not.toHaveBeenCalled();
+        expect(SqliteMigrationService.commitStateForUser).toHaveBeenCalledTimes(1);
+        const [username, state] = SqliteMigrationService.commitStateForUser.mock.calls[0];
         expect(username).toBe('test-user');
         expect(state).toMatchObject({activeBackend: 'sqlite', desiredBackend: 'sqlite', preparedTarget: null});
-        const persistOrder = SqliteMigrationService.persistStateForUser.mock.invocationCallOrder[0];
+        const persistOrder = SqliteMigrationService.commitStateForUser.mock.invocationCallOrder[0];
         expect(onRestoreCompleted.mock.invocationCallOrder[0]).toBeLessThan(persistOrder);
         expect(settingsService.saveOrUpdate.mock.invocationCallOrder[0]).toBeLessThan(persistOrder);
     });
@@ -116,8 +117,21 @@ describe('SQLite fast-sync restore commits the backend last (#2120)', () => {
         await service.restore(cb);
 
         expect(onRestoreCompleted).toHaveBeenCalled();
-        expect(SqliteMigrationService.persistStateForUser).not.toHaveBeenCalled();
+        expect(SqliteMigrationService.commitStateForUser).not.toHaveBeenCalled();
         expect(onRestoreFailure).toHaveBeenCalled();
         expect(cb).toHaveBeenLastCalledWith(100, 'restoreFailed', true, bootstrapFailed);
+    });
+
+    // A restore reported complete with no record would open empty Realm at the next launch
+    // and later wipe and re-pull the snapshot. Failing here takes the failure path instead.
+    it('fails the restore when the record naming SQLite cannot be written', async () => {
+        const {service, onRestoreFailure, cb} = build();
+        const diskFull = new Error('disk full');
+        SqliteMigrationService.commitStateForUser.mockImplementationOnce(async () => { throw diskFull; });
+
+        await service.restore(cb);
+
+        expect(onRestoreFailure).toHaveBeenCalled();
+        expect(cb).toHaveBeenLastCalledWith(100, 'restoreFailed', true, diskFull);
     });
 });

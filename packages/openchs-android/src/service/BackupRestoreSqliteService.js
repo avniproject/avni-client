@@ -29,13 +29,13 @@ import SqliteMigrationService, {BACKENDS} from './SqliteMigrationService';
  *   6. Callback to GlobalContext.onSqliteDatabaseRestored → reopen SQLite from
  *      the swapped file, flip _activeBackend, update bean registry.
  *   7. Seed missing checkpoints and bootstrap Settings on SQLite.
- *   8. Only then persist SqliteMigrationService state as {activeBackend: SQLITE}, so the
- *      next launch's reconcileBackendOnLaunch() opens SQLite directly. Written last, like
- *      the migration leg's commit: a restore that fails before this point leaves nothing
- *      naming a database it never finished.
+ *   8. Only then commit SqliteMigrationService state as {activeBackend: SQLITE}, so the
+ *      next launch's openCommittedBackend() opens SQLite directly. Written last, like the
+ *      migration leg's commit, and a failed write fails the restore: a restore that fails
+ *      before this point leaves nothing naming a database it never finished.
  *   9. On any failure after step 5: restore the SQLite backup, notify GlobalContext,
- *      which puts the runtime back on Realm, and surface "restoreFailed" so the UI can
- *      offer Retry / Slow Sync.
+ *      which opens the backend the record still commits to, and surface "restoreFailed"
+ *      so the UI can offer Retry / Slow Sync.
  *
  * Unlike the Realm flow, this DOES NOT reset entity_sync_status to
  * REALLY_OLD_DATE — the whole value of the SQLite snapshot is its populated
@@ -139,9 +139,10 @@ export default class BackupRestoreSqliteService extends BaseService {
             this._seedEntitySyncStatusBaseline();
             await this._bootstrapTargetSettings(authState);
 
-            // Recorded last, once the restored database is usable (step 8 above).
+            // Recorded last, once the restored database is usable (step 8 above). Throws if
+            // the write fails, which takes the failure path below.
             cb(96, 'restoringDb');
-            await SqliteMigrationService.persistStateForUser(expectedUsername, {
+            await SqliteMigrationService.commitStateForUser(expectedUsername, {
                 activeBackend: BACKENDS.SQLITE,
                 desiredBackend: BACKENDS.SQLITE,
                 preparedTarget: null,

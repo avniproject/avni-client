@@ -98,7 +98,7 @@ class GlobalContext {
         try {
             const migrationService = this.beanRegistry.getService('sqliteMigrationService');
             if (migrationService) {
-                await migrationService.reconcileBackendOnLaunch();
+                await migrationService.openCommittedBackend();
             }
         } catch (e) {
             General.logError("GlobalContext", `Opening the committed backend failed: ${e.message}`);
@@ -112,8 +112,8 @@ class GlobalContext {
 
         // SQLite fast-sync apply: on success, reopen the (now-replaced) SQLite
         // file and flip the bean registry to SQLite as the primary backend.
-        // On failure, go back to Realm and reinitialize (BackupRestoreSqliteService has
-        // already restored the .backup file before invoking this callback).
+        // On failure, reinitialize and open the committed backend (BackupRestoreSqliteService
+        // has already restored the .backup file before invoking this callback).
         const restoreSqliteService = this.beanRegistry.getService("backupRestoreSqliteService");
         if (restoreSqliteService) {
             restoreSqliteService.subscribeOnRestore(async () => await this.onSqliteDatabaseRestored(realmFactory));
@@ -153,13 +153,20 @@ class GlobalContext {
         await this.reinitializeDatabase(realmFactory);
     }
 
-    // A restore starts on Realm — it runs only on a never-synced device — and records SQLite
-    // as active only once it succeeds. So a failure, even one after the file swap flipped the
-    // runtime, goes back to Realm: the backend the state record still names.
+    // The restore records SQLite as active only once it succeeds, so after a failure — even
+    // one after the file swap flipped the runtime — the record still names the backend the
+    // device was committed to before the restore began. Usually that is Realm on a fresh
+    // install, but a SQLite user whose data a full reset wiped also reads as never synced.
     async onSqliteRestoreFailed(realmFactory) {
-        this._activeBackend = BACKENDS.REALM;
-        General.logInfo("GlobalContext", "SQLite snapshot restore failed — back on Realm");
         await this.reinitializeDatabase(realmFactory);
+        try {
+            const migrationService = this.beanRegistry.getService('sqliteMigrationService');
+            if (migrationService) {
+                await migrationService.openCommittedBackend();
+            }
+        } catch (e) {
+            General.logError("GlobalContext", `Opening the committed backend after a failed restore failed: ${e.message}`);
+        }
     }
 
     async reinitializeDatabase(realmFactory) {

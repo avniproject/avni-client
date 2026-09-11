@@ -450,7 +450,7 @@ describe('SqliteMigrationService', () => {
         it('opens the committed backend without wiping', async () => {
             await persisted({activeBackend: BACKENDS.SQLITE, desiredBackend: BACKENDS.SQLITE});
 
-            await service.reconcileBackendOnLaunch();
+            await service.openCommittedBackend();
 
             expect(mockGlobalContext.switchBackend).toHaveBeenCalledWith(BACKENDS.SQLITE);
             expect(mockEntityService.clearDataIn).not.toHaveBeenCalled();
@@ -460,7 +460,7 @@ describe('SqliteMigrationService', () => {
         it('stays on the complete source backend after an interrupted migration', async () => {
             await persisted({desiredBackend: BACKENDS.SQLITE, preparedTarget: BACKENDS.SQLITE, attemptCount: 1});
 
-            await service.reconcileBackendOnLaunch();
+            await service.openCommittedBackend();
 
             expect(mockGlobalContext.switchBackend).not.toHaveBeenCalled();
             expect(mockEntityService.clearDataIn).not.toHaveBeenCalled();

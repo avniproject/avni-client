@@ -101,6 +101,12 @@ class SqliteMigrationService extends BaseService {
         }
     }
 
+    // For writes that change the committed backend. Unlike persistStateForUser it throws, so
+    // a caller whose commit did not land fails instead of carrying on as if it had.
+    static async commitStateForUser(username, state) {
+        await AsyncStorage.setItem(asyncStorageKey(username), JSON.stringify(state));
+    }
+
     // UserInfo lives in whichever database is active, which at launch is Realm — and
     // Realm's row belongs to whoever last used Realm, not necessarily the session user.
     // Prefer the username recorded at login, outside both databases.
@@ -182,16 +188,17 @@ class SqliteMigrationService extends BaseService {
         return updated;
     }
 
-    // Boot opens the backend the state record commits to. An unfinished leg committed
-    // nothing, so an interrupted migration boots on the complete source backend and waits
-    // for the next sync the user starts. Never wipes, never syncs.
-    async reconcileBackendOnLaunch() {
+    // Opens the backend the state record commits to: at launch, and after a failed SQLite
+    // restore. An unfinished leg or restore committed nothing, so the device opens the
+    // complete backend it was on and waits for the next sync the user starts. Never wipes,
+    // never syncs.
+    async openCommittedBackend() {
         const state = await this.getState();
         const GlobalContext = require('../GlobalContext').default;
         const globalContext = GlobalContext.getInstance();
         if (globalContext.getActiveBackend() !== state.activeBackend) {
             General.logInfo("SqliteMigrationService",
-                `Opening the committed backend on launch: ${state.activeBackend}`);
+                `Opening the committed backend: ${state.activeBackend}`);
             globalContext.switchBackend(state.activeBackend);
         }
     }
@@ -372,7 +379,7 @@ class SqliteMigrationService extends BaseService {
     // record its completion must fail, so the runtime returns to what the next launch opens.
     async commitLeg(leg) {
         const state = await SqliteMigrationService.readStateForUser(leg.username);
-        await AsyncStorage.setItem(asyncStorageKey(leg.username), JSON.stringify({
+        await SqliteMigrationService.commitStateForUser(leg.username, {
             ...state,
             activeBackend: leg.target,
             desiredBackend: leg.target,
@@ -380,7 +387,7 @@ class SqliteMigrationService extends BaseService {
             startedAt: null,
             attemptCount: 0,
             lastError: null,
-        }));
+        });
         this._openLeg = null;
         General.logInfo("SqliteMigrationService",
             `Migration to ${leg.target} committed after ${state.attemptCount} attempt(s)`);
