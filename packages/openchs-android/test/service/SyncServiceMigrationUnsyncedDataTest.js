@@ -200,24 +200,27 @@ describe('backend switch is deferred while local data is unsynced (#2006)', () =
             getPendingFieldDataSummary: jest.fn(() => `Individual=${pendingFieldDataCount}`),
         };
         svc.entitySyncStatusService = {setup: jest.fn()};
+        // The switch resets the sync modes on the backend it leaves; this bare prototype has no context.
+        svc._disableShallowHydrationIfSqlite = () => {};
+        svc._enableForeignKeysIfSqlite = () => {};
         svc.getService = jest.fn((name) => name === 'sqliteMigrationService' ? migrationService : undefined);
         return svc;
     }
 
     const migrationService = {
         computeDesiredBackend: jest.fn(() => 'sqlite'),
+        recordDesiredBackend: jest.fn(async (desired) => ({activeBackend: 'realm', desiredBackend: desired})),
         _captureAuthState: jest.fn(() => ({idpType: 'keycloak'})),
-        getState: jest.fn(async () => ({phase: 'idle'})),
-        persistState: jest.fn(async () => {}),
+        beginLeg: jest.fn(async (target) => ({username: 'test-user', source: 'realm', target})),
+        prepareTarget: jest.fn(async () => {}),
         _bootstrapTargetSettings: jest.fn(async () => {}),
-        _resetTargetBackend: jest.fn(),
     };
 
     beforeEach(() => {
         mockGlobalContext.switchBackend.mockClear();
         mockGlobalContext.getActiveBackend.mockReturnValue('realm');
-        migrationService.persistState.mockClear();
-        migrationService._resetTargetBackend.mockClear();
+        migrationService.beginLeg.mockClear();
+        migrationService.prepareTarget.mockClear();
     });
 
     it('does not switch while the outbox still holds field data', async () => {
@@ -225,9 +228,9 @@ describe('backend switch is deferred while local data is unsynced (#2006)', () =
 
         const switched = await svc._checkAndSwitchBackendMidSync(() => {}, true);
 
-        expect(switched).toBe(false);
+        expect(switched).toBeNull();
         expect(mockGlobalContext.switchBackend).not.toHaveBeenCalled();
-        expect(migrationService.persistState).not.toHaveBeenCalled();
+        expect(migrationService.beginLeg).not.toHaveBeenCalled();
     });
 
     it('switches once the outbox is empty', async () => {
@@ -235,18 +238,18 @@ describe('backend switch is deferred while local data is unsynced (#2006)', () =
 
         const switched = await svc._checkAndSwitchBackendMidSync(() => {}, true);
 
-        expect(switched).toBe(true);
+        expect(switched).toMatchObject({target: 'sqlite'});
         expect(mockGlobalContext.switchBackend).toHaveBeenCalledWith('sqlite');
     });
 
     // The target file is shared across users and holds whatever the last one left, so
     // migrating into it without a wipe merges the two (#2083).
-    it('empties the target backend after switching to it', async () => {
+    it('prepares the target backend after switching to it', async () => {
         const svc = buildSwitchCandidate(0);
 
         await svc._checkAndSwitchBackendMidSync(() => {}, true);
 
-        expect(migrationService._resetTargetBackend).toHaveBeenCalled();
+        expect(migrationService.prepareTarget).toHaveBeenCalled();
     });
 
     it('does not touch the target backend when the switch is deferred', async () => {
@@ -254,7 +257,7 @@ describe('backend switch is deferred while local data is unsynced (#2006)', () =
 
         await svc._checkAndSwitchBackendMidSync(() => {}, true);
 
-        expect(migrationService._resetTargetBackend).not.toHaveBeenCalled();
+        expect(migrationService.prepareTarget).not.toHaveBeenCalled();
     });
 });
 

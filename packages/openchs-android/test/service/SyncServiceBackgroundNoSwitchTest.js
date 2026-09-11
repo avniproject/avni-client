@@ -44,11 +44,11 @@ const General = require('../../src/utility/General').default;
 
 const migrationService = {
     computeDesiredBackend: jest.fn(() => 'sqlite'),
+    recordDesiredBackend: jest.fn(async (desired) => ({activeBackend: 'realm', desiredBackend: desired})),
     _captureAuthState: jest.fn(() => ({idpType: 'keycloak'})),
-    getState: jest.fn(async () => ({phase: 'idle'})),
-    persistState: jest.fn(async () => {}),
+    beginLeg: jest.fn(async (target) => ({username: 'test-user', source: 'realm', target})),
+    prepareTarget: jest.fn(async () => {}),
     _bootstrapTargetSettings: jest.fn(async () => {}),
-    _resetTargetBackend: jest.fn(),
 };
 
 /** A service that is due to switch: desired sqlite, active realm, empty outbox. */
@@ -58,6 +58,9 @@ function buildSwitchCandidate() {
         getPendingFieldDataCount: jest.fn(() => 0),
         getPendingFieldDataSummary: jest.fn(() => ''),
     };
+    // The switch resets the sync modes on the backend it leaves; this bare prototype has no context.
+    svc._disableShallowHydrationIfSqlite = () => {};
+    svc._enableForeignKeysIfSqlite = () => {};
     svc.getService = jest.fn((name) => name === 'sqliteMigrationService' ? migrationService : undefined);
     return svc;
 }
@@ -66,8 +69,8 @@ describe('_checkAndSwitchBackendMidSync — manual sync only', () => {
     beforeEach(() => {
         mockGlobalContext.switchBackend.mockClear();
         mockGlobalContext.getActiveBackend.mockReturnValue('realm');
-        migrationService.persistState.mockClear();
-        migrationService._resetTargetBackend.mockClear();
+        migrationService.beginLeg.mockClear();
+        migrationService.prepareTarget.mockClear();
         General.logInfo.mockClear();
     });
 
@@ -76,10 +79,10 @@ describe('_checkAndSwitchBackendMidSync — manual sync only', () => {
 
         const switched = await svc._checkAndSwitchBackendMidSync(() => {}, false);
 
-        expect(switched).toBe(false);
+        expect(switched).toBeNull();
         expect(mockGlobalContext.switchBackend).not.toHaveBeenCalled();
-        expect(migrationService.persistState).not.toHaveBeenCalled();
-        expect(migrationService._resetTargetBackend).not.toHaveBeenCalled();
+        expect(migrationService.beginLeg).not.toHaveBeenCalled();
+        expect(migrationService.prepareTarget).not.toHaveBeenCalled();
     });
 
     it('leaves one log line saying the switch is waiting for a manual sync', async () => {
@@ -106,7 +109,7 @@ describe('_checkAndSwitchBackendMidSync — manual sync only', () => {
 
         const switched = await svc._checkAndSwitchBackendMidSync(() => {}, true);
 
-        expect(switched).toBe(true);
+        expect(switched).toMatchObject({target: 'sqlite'});
         expect(mockGlobalContext.switchBackend).toHaveBeenCalledWith('sqlite');
     });
 
@@ -202,8 +205,8 @@ describe('a background full sync finishes on the current backend', () => {
     beforeEach(() => {
         mockGlobalContext.switchBackend.mockClear();
         mockGlobalContext.getActiveBackend.mockReturnValue('realm');
-        migrationService.persistState.mockClear();
-        migrationService._resetTargetBackend.mockClear();
+        migrationService.beginLeg.mockClear();
+        migrationService.prepareTarget.mockClear();
     });
 
     it('does not switch, and still pulls the bulk reference data on the backend it is already on', async () => {
@@ -221,7 +224,7 @@ describe('a background full sync finishes on the current backend', () => {
         // The switch is due, and did not happen.
         expect(migrationService.computeDesiredBackend).toHaveBeenCalled();
         expect(mockGlobalContext.switchBackend).not.toHaveBeenCalled();
-        expect(migrationService._resetTargetBackend).not.toHaveBeenCalled();
+        expect(migrationService.prepareTarget).not.toHaveBeenCalled();
 
         // The sync completed as a normal sync: MyGroups first, then the deferred bulk,
         // each exactly once, on Realm.

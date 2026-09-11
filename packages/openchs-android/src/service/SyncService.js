@@ -279,12 +279,13 @@ class SyncService extends BaseService {
         this.entitySyncStatusService.updateAsPerSyncDetails(currentVersionEntitySyncDetails);
 
         let syncDetailsWithPrivileges;
-        // Tracks whether a mid-sync backend switch happened in this sync, and whether
-        // the download pipeline finished successfully. Both are read in the final .then
-        // (to flip migration state to IDLE) and the .finally (to gate the FK integrity
-        // check on a successful sync — a half-populated DB after a network drop would
-        // otherwise produce spurious FK violation reports).
+        // Set when this sync opens a migration leg. The leg commits in the final .then, after
+        // the pull, the catch-up and every download; any failure before that is caught after
+        // .finally, which puts the runtime back on the committed backend. syncSucceeded gates
+        // the FK integrity check — a half-populated DB after a network drop would otherwise
+        // produce spurious FK violation reports.
         let migrationSwitched = false;
+        let migrationLeg = null;
         let syncSucceeded = false;
         this._disableForeignKeysIfSqlite();
         this._enableShallowHydrationIfSqlite();
@@ -297,13 +298,13 @@ class SyncService extends BaseService {
                 if (result) {
                     syncDetails = result.syncDetails;
                     endDateTime = result.endDateTime;
+                    migrationLeg = result.leg;
                     migrationSwitched = true;
                     // Rebuild the transactional entity list + sync details from the POST-switch
-                    // syncDetails. _switchBackendAndResyncRefDataIfNeeded re-seeded the new backend's
-                    // entity_sync_status to REALLY_OLD_DATE, so these carry "never synced" checkpoints;
-                    // the pre-switch values were computed against the already-synced Realm backend and
-                    // would make the tx pull fetch only rows changed since the Realm sync — leaving the
-                    // new SQLite DB near-empty.
+                    // syncDetails. The target's entity_sync_status carries its own checkpoints —
+                    // REALLY_OLD_DATE on a first attempt, this migration's progress on re-entry;
+                    // the pre-switch values belong to the backend the sync started on and would
+                    // make the tx pull fetch only rows changed since that backend's last sync.
                     const postSwitchFilteredMetadata = _.filter(entitiesWithoutSubjectMigrationAndResetSync,
                         ({entityName}) => _.find(syncDetails, sd => sd.entityName === entityName));
                     filteredTxData = this.getMetadataByType(postSwitchFilteredMetadata, "tx");
@@ -347,21 +348,25 @@ class SyncService extends BaseService {
             .then(() => this.downloadIcons())
             .then(() => this.downloadContent(statusMessageCallBack))
             .then(async () => {
-                syncSucceeded = true;
-                // Only now is it safe to record the migration as complete. If we persisted
-                // phase=idle earlier (e.g. immediately after the switchBackend call), a crash
-                // between then and here would leave AsyncStorage saying the migration finished
-                // while the SQLite DB is only partially populated — and resumeIfPending would
-                // not re-enter because phase is IDLE.
+                // The single commit. Until this line the state record still names the backend
+                // the sync started on, so a crash anywhere above boots that complete backend
+                // and the next sync the user starts carries the migration on.
                 if (migrationSwitched) {
-                    await this._finalizeMigrationState();
+                    await this._finalizeMigrationState(migrationLeg);
                 }
+                syncSucceeded = true;
             })
             .finally(() => {
                 this._disableShallowHydrationIfSqlite();
                 this._enableForeignKeysIfSqlite();
                 if (syncSucceeded) this._checkForeignKeyIntegrityIfSqlite();
             })
+            // After .finally, so the sync modes are reset on the backend they were applied to
+            // before the runtime moves back.
+            .catch(async (error) => {
+                await this._abandonMigrationLegIfOpen(error);
+                throw error;
+            });
     }
 
     // The tx pull's upper bound is the server's `now - 10s`, so records THIS sync uploaded
@@ -394,24 +399,19 @@ class SyncService extends BaseService {
         return this.getTxData(txMetadata, _.noop, syncDetailsWithPrivileges, endDateTime);
     }
 
-    /**
-     * Flip migration state from PENDING_TARGET_SYNC to IDLE after the full download
-     * pipeline completes successfully. Called from the final .then of downloadSyncData
-     * when a mid-sync switch happened in this sync.
-     */
-    async _finalizeMigrationState() {
-        try {
-            const migrationService = this.getService('sqliteMigrationService');
-            if (!migrationService) return;
-            const state = await migrationService.getState();
-            state.activeBackend = 'sqlite';
-            state.desiredBackend = 'sqlite';
-            state.phase = 'idle';
-            state.lastError = null;
-            await migrationService.persistState(state);
-            General.logInfo("SyncService", "Mid-sync migration finalised — state=idle, activeBackend=sqlite");
-        } catch (e) {
-            General.logWarn("SyncService", `Finalise migration state failed: ${e.message}`);
+    // Records the migration complete. Called only from the final .then of dataServerSync,
+    // after the pull, the catch-up and every download. Errors propagate: a leg whose
+    // completion cannot be recorded fails, and the runtime returns to the committed backend.
+    async _finalizeMigrationState(leg) {
+        await this.getService('sqliteMigrationService').commitLeg(leg);
+    }
+
+    // A no-op unless this sync opened a migration leg. Never throws, so the caller's own
+    // error is what fails the sync.
+    async _abandonMigrationLegIfOpen(error) {
+        const migrationService = this.getService('sqliteMigrationService');
+        if (migrationService && typeof migrationService.abandonOpenLeg === 'function') {
+            await migrationService.abandonOpenLeg(error);
         }
     }
 
@@ -751,20 +751,20 @@ class SyncService extends BaseService {
     }
 
     /**
-     * After reference data sync, check if the user should be migrated to SQLite.
-     * If yes, switch backend and re-sync reference data + UserInfo on the new
-     * backend so the heavy transactional data goes directly to SQLite.
+     * After MyGroups is pulled, open a migration leg if one is owed: move the runtime to the
+     * target, then pull ResetSync, UserInfo and all reference data onto it, so the
+     * transactional pull that follows goes straight to the target.
      *
-     * @returns {{ syncDetails, endDateTime }} if switched, null otherwise.
-     *     Callers must update their local sync state with the returned values.
+     * @returns {{syncDetails, endDateTime, leg}} if a leg opened, null otherwise. Callers
+     *     must update their local sync state with the returned values, and commit the leg
+     *     only once the rest of the sync has succeeded.
      */
     async _switchBackendAndResyncRefDataIfNeeded(statusMessageCallBack, onProgressPerEntity, allEntitiesMetaData, isManualSync) {
-        const switched = await this._checkAndSwitchBackendMidSync(statusMessageCallBack, isManualSync);
-        if (!switched) return null;
+        const leg = await this._checkAndSwitchBackendMidSync(statusMessageCallBack, isManualSync);
+        if (!leg) return null;
 
-        // Re-sync reference data + UserInfo on the new SQLite backend.
-        // entitySyncStatus was seeded with REALLY_OLD_DATE so all reference
-        // entities will be re-fetched from the server.
+        // On a first attempt the target's checkpoints sit at REALLY_OLD_DATE, so every
+        // reference entity is fetched; on re-entry the pull carries on from them.
         statusMessageCallBack("downloadForms");
         const {syncDetails, endDateTime, now} = await this.getSyncDetails();
         const filtered = _.filter(allEntitiesMetaData, ({entityName}) =>
@@ -781,29 +781,7 @@ class SyncService extends BaseService {
         await this.getRefData(refMetadata, onProgressPerEntity, now, endDateTime);
         this._buildReferenceCacheIfSqlite();
 
-        // Re-persist migration state now that UserInfo is available on SQLite so
-        // subsequent reads find the state under the SQLite-backed username key
-        // (which should match the Realm-backed key, but this write is cheap insurance
-        // against any drift). Phase stays at PENDING_TARGET_SYNC — the final flip to
-        // IDLE happens in downloadSyncData's success .then after the tx data sync
-        // completes. Persisting IDLE here would re-introduce the crash window the
-        // PENDING_TARGET_SYNC state exists to close.
-        try {
-            const migrationService = this.getService('sqliteMigrationService');
-            if (migrationService) {
-                const state = await migrationService.getState();
-                state.activeBackend = 'sqlite';
-
-                state.desiredBackend = 'sqlite';
-                state.phase = 'pending_target_sync';
-                state.lastError = null;
-                await migrationService.persistState(state);
-            }
-        } catch (e) {
-            General.logWarn("SyncService", `Re-persist migration state failed: ${e.message}`);
-        }
-
-        return {syncDetails, endDateTime};
+        return {syncDetails, endDateTime, leg};
     }
 
     // Must run before getRefData, else a failure mid-refdata leaves unmigrated ResetSyncs and triggers a spurious reset
@@ -814,26 +792,22 @@ class SyncService extends BaseService {
     }
 
     /**
-     * Mid-sync migration check. Called after reference data sync (which includes
-     * MyGroups) but before the heavy transactional data sync. If the user is in
-     * the SQLite Migration group and the current backend is Realm, switches to
-     * SQLite immediately so the transactional data goes directly to SQLite —
-     * avoiding a full double sync on fresh installs.
+     * Records the backend the server group names and, if it differs from the committed one,
+     * opens a migration leg and moves the runtime to the target — in either direction.
+     * Declines on a background sync (#2118) and while the outbox holds field data (#2006).
+     * Nothing here writes activeBackend.
      *
-     * @returns {boolean} true if the backend was switched
+     * @returns {Object|null} the open leg ({username, source, target}) if the runtime moved
      */
     async _checkAndSwitchBackendMidSync(statusMessageCallBack, isManualSync) {
         const GlobalContext = require('../GlobalContext').default;
 
         const migrationService = this.getService('sqliteMigrationService');
-        if (!migrationService) return false;
+        if (!migrationService) return null;
 
         const desired = migrationService.computeDesiredBackend();
-        const globalContext = GlobalContext.getInstance();
-
-        if (desired !== 'sqlite' || globalContext.getActiveBackend() === 'sqlite') {
-            return false;
-        }
+        const state = await migrationService.recordDesiredBackend(desired);
+        if (desired === state.activeBackend) return null;
 
         // A background sync has no screen, no progress and a ten-minute ceiling imposed
         // by the phone, so a switch started here is usually cut off and leaves a
@@ -842,7 +816,7 @@ class SyncService extends BaseService {
         if (!isManualSync) {
             General.logInfo("SyncService",
                 "Backend migration is due but this is a background sync; deferring to the next manual sync");
-            return false;
+            return null;
         }
 
         // Migrating abandons the source DB and rebuilds the target from the server, so
@@ -851,49 +825,27 @@ class SyncService extends BaseService {
         const pendingFieldData = this.entityQueueService.getPendingFieldDataCount();
         if (pendingFieldData > 0) {
             General.logWarn("SyncService",
-                `Deferring SQLite migration: ${pendingFieldData} local changes still awaiting upload (${this.entityQueueService.getPendingFieldDataSummary()})`);
-            return false;
+                `Deferring backend migration: ${pendingFieldData} local changes still awaiting upload (${this.entityQueueService.getPendingFieldDataSummary()})`);
+            return null;
         }
 
         General.logInfo("SyncService",
-            "Mid-sync migration: switching to SQLite before transactional data sync");
+            `Mid-sync migration: switching ${state.activeBackend} → ${desired} before transactional data sync`);
         statusMessageCallBack('switchingBackendMessage');
 
-        // Capture auth state from Realm Settings BEFORE the switch, and persist
-        // migration state BEFORE switching. Persisting pre-switch uses the Realm
-        // UserInfo (the real username) for the AsyncStorage key, so a resume after
-        // any mid-switch failure finds the correct per-user state. The phase stays
-        // at PENDING_TARGET_SYNC until downloadSyncData's final .then — until then,
-        // any crash/failure is recoverable by resumeIfPending/resume().
+        // Auth lives only in the source's Settings; read it before the runtime moves.
         const authState = migrationService._captureAuthState();
-        const state = await migrationService.getState();
-        state.activeBackend = 'sqlite';
-        state.desiredBackend = 'sqlite';
-        state.phase = 'pending_target_sync';
-        state.lastError = null;
-        await migrationService.persistState(state);
+        const leg = await migrationService.beginLeg(desired);
+        // The sync modes were applied to the backend this sync started on; reset them there
+        // before leaving it. The target gets them in _switchBackendAndResyncRefDataIfNeeded.
+        this._disableShallowHydrationIfSqlite();
+        this._enableForeignKeysIfSqlite();
+        GlobalContext.getInstance().switchBackend(desired);
+        await migrationService.prepareTarget(leg);
+        await migrationService._bootstrapTargetSettings(authState);
 
-        try {
-            globalContext.switchBackend('sqlite');
-            // Wipes the target and reseeds every checkpoint at REALLY_OLD_DATE. The file
-            // is shared across users and holds whatever the last occupant left, so
-            // without this the pull below merges into their rows against their
-            // checkpoints — see _resetTargetBackend.
-            migrationService._resetTargetBackend();
-            await migrationService._bootstrapTargetSettings(authState);
-        } catch (e) {
-            // The backend has already been switched to SQLite, so "continue on current
-            // backend" would mean continuing on SQLite without seeded sync status or
-            // auth — not safe. Propagate the failure so the sync fails visibly; state
-            // is already PENDING_TARGET_SYNC so resume() can retry from here.
-            General.logError("SyncService",
-                `Mid-sync migration switch failed after backend swap: ${e.message}`);
-            throw e;
-        }
-
-        General.logInfo("SyncService",
-            "Mid-sync migration switch complete — continuing sync on SQLite");
-        return true;
+        General.logInfo("SyncService", `Mid-sync migration switch complete — continuing sync on ${desired}`);
+        return leg;
     }
 
     _disableForeignKeysIfSqlite() {
