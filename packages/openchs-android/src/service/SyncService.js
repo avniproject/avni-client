@@ -777,7 +777,7 @@ class SyncService extends BaseService {
         this.entitySyncStatusService.updateAsPerSyncDetails(currentVersionDetails);
         this._disableForeignKeysIfSqlite();
         this._enableShallowHydrationIfSqlite();
-        await this._pullResetSyncsAndMarkMigratedBeforeRefData(allEntitiesMetaData, onProgressPerEntity);
+        await this._pullResetSyncsAndMarkMigratedBeforeRefData(allEntitiesMetaData, onProgressPerEntity, leg);
         await this.getTxData(userInfoData, onProgressPerEntity, syncDetails, endDateTime);
         await this.getRefData(refMetadata, onProgressPerEntity, now, endDateTime);
         this._buildReferenceCacheIfSqlite();
@@ -786,9 +786,14 @@ class SyncService extends BaseService {
     }
 
     // Must run before getRefData, else a failure mid-refdata leaves unmigrated ResetSyncs and triggers a spurious reset
-    async _pullResetSyncsAndMarkMigratedBeforeRefData(allEntitiesMetaData, onProgressPerEntity) {
-        const resetSyncMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "ResetSync");
-        await this.getResetSyncData(resetSyncMetadata, onProgressPerEntity);
+    async _pullResetSyncsAndMarkMigratedBeforeRefData(allEntitiesMetaData, onProgressPerEntity, leg) {
+        // A carried-on re-entry already pulled its resets when deciding not to start over. A
+        // second pull could fetch one issued in between and mark it without applying it; left
+        // unpulled, the next sync on the committed target applies it.
+        if (!(leg && leg.reentry)) {
+            const resetSyncMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "ResetSync");
+            await this.getResetSyncData(resetSyncMetadata, onProgressPerEntity);
+        }
         this.getService(ResetSyncService).markAllResetSyncsMigrated();
     }
 
@@ -803,6 +808,8 @@ class SyncService extends BaseService {
         if (_.isEmpty(this.getService(ResetSyncService).getNotMigratedResetSyncs())) return;
         General.logInfo("SyncService", "A reset was issued since this migration began; starting the target over");
         await this.getService('sqliteMigrationService').restartTarget(leg);
+        // The target now starts from empty, like a first attempt.
+        leg.reentry = false;
     }
 
     /**

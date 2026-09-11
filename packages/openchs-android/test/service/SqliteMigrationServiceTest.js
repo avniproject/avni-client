@@ -101,6 +101,17 @@ const persisted = (state) => SqliteMigrationService.persistStateForUser('test-us
     ...state,
 });
 
+// Makes every read of a migration state record fail, as an AsyncStorage error would, while
+// other keys still read normally. Returns a function that restores normal reads.
+function failStateRecordReads() {
+    const original = AsyncStorage.getItem.getMockImplementation();
+    AsyncStorage.getItem.mockImplementation(async (key) => {
+        if (key.startsWith('avni.sqliteMigration.')) throw new Error('storage unavailable');
+        return original(key);
+    });
+    return () => AsyncStorage.getItem.mockImplementation(original);
+}
+
 describe('SqliteMigrationService', () => {
     let service;
     let mockPrivilegeService;
@@ -288,6 +299,49 @@ describe('SqliteMigrationService', () => {
             await service.recordDesiredBackend(BACKENDS.SQLITE);
 
             expect((await service.getState()).preparedTarget).toBe(BACKENDS.SQLITE);
+        });
+    });
+
+    // A failed read falls back to defaults that name Realm. Every read-then-write must fail
+    // instead, or it writes those defaults over a record that commits to SQLite.
+    describe('a state record that cannot be read', () => {
+        it('recording the desired backend fails rather than overwrite a SQLite record', async () => {
+            await persisted({activeBackend: BACKENDS.SQLITE, desiredBackend: BACKENDS.SQLITE});
+            const restoreReads = failStateRecordReads();
+            try {
+                await expect(service.recordDesiredBackend(BACKENDS.SQLITE)).rejects.toThrow('storage unavailable');
+            } finally {
+                restoreReads();
+            }
+
+            expect(await service.getState()).toMatchObject({activeBackend: BACKENDS.SQLITE, desiredBackend: BACKENDS.SQLITE});
+        });
+
+        it('opening a leg fails and leaves no leg open', async () => {
+            await persisted({activeBackend: BACKENDS.SQLITE, desiredBackend: BACKENDS.REALM});
+            const restoreReads = failStateRecordReads();
+            try {
+                await expect(service.beginLeg(BACKENDS.REALM)).rejects.toThrow('storage unavailable');
+            } finally {
+                restoreReads();
+            }
+
+            expect(await service.getState()).toMatchObject({activeBackend: BACKENDS.SQLITE, attemptCount: 0});
+            await expect(service.beginLeg(BACKENDS.REALM)).resolves.toMatchObject({source: BACKENDS.SQLITE});
+        });
+
+        it('starting a target over fails before it wipes anything', async () => {
+            await persisted({activeBackend: BACKENDS.SQLITE, desiredBackend: BACKENDS.REALM});
+            const leg = await service.beginLeg(BACKENDS.REALM);
+            const restoreReads = failStateRecordReads();
+            try {
+                await expect(service.restartTarget(leg)).rejects.toThrow('storage unavailable');
+            } finally {
+                restoreReads();
+            }
+
+            expect(mockEntityService.clearDataIn).not.toHaveBeenCalled();
+            expect(await service.getState()).toMatchObject({activeBackend: BACKENDS.SQLITE, preparedTarget: null});
         });
     });
 

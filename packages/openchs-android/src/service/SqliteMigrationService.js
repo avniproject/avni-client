@@ -77,6 +77,15 @@ class SqliteMigrationService extends BaseService {
         }
     }
 
+    // For a read that is followed by a write. Unlike readStateForUser it does not fall back to
+    // defaults when the read fails: those name Realm, and writing them back would replace a
+    // record that commits to SQLite. A missing record is not a failure — that user has never
+    // migrated.
+    static async _readStateForWrite(username) {
+        const raw = await AsyncStorage.getItem(asyncStorageKey(username));
+        return raw ? {...defaultState(), ...JSON.parse(raw)} : defaultState();
+    }
+
     // Called when the device's data is wiped (Delete Data, or a different user logging
     // in). Leaving these behind means the next launch reconciles the backend from a
     // user who no longer has data here.
@@ -176,7 +185,7 @@ class SqliteMigrationService extends BaseService {
     // so a later attempt starts from a wipe rather than from that attempt's checkpoints.
     async recordDesiredBackend(desired) {
         const username = await this._getCurrentUsername();
-        const state = await SqliteMigrationService.readStateForUser(username);
+        const state = await SqliteMigrationService._readStateForWrite(username);
         const abandonsAttempt = desired === state.activeBackend && !_.isNil(state.preparedTarget);
         if (state.desiredBackend === desired && !abandonsAttempt) return state;
         const updated = {
@@ -317,7 +326,7 @@ class SqliteMigrationService extends BaseService {
             throw new Error(`A migration leg to ${this._openLeg.target} is already open`);
         }
         const username = await this._getCurrentUsername();
-        const state = await SqliteMigrationService.readStateForUser(username);
+        const state = await SqliteMigrationService._readStateForWrite(username);
         const attemptCount = (state.attemptCount || 0) + 1;
         await SqliteMigrationService.persistStateForUser(username, {
             ...state,
@@ -345,7 +354,7 @@ class SqliteMigrationService extends BaseService {
      * by the commit, so it names exactly an attempt whose target was rebuilt from empty.
      */
     async prepareTarget(leg) {
-        const state = await SqliteMigrationService.readStateForUser(leg.username);
+        const state = await SqliteMigrationService._readStateForWrite(leg.username);
         if (state.preparedTarget === leg.target) {
             General.logInfo("SqliteMigrationService",
                 `Re-entering the migration to ${leg.target}: carrying on from its checkpoints`);
@@ -361,6 +370,8 @@ class SqliteMigrationService extends BaseService {
     // first attempt does this; so does a re-entry that finds a reset issued since the attempt
     // began, because the leg marks resets migrated without applying them.
     async restartTarget(leg) {
+        // Read before anything is wiped, so a record that cannot be read fails the leg first.
+        const state = await SqliteMigrationService._readStateForWrite(leg.username);
         // Every backend is left with an empty outbox — the switch refuses otherwise — so
         // unsynced records here mean an invariant broke, and the wipe would take the only copy.
         const pendingOnTarget = this._getPendingFieldDataCount();
@@ -371,14 +382,13 @@ class SqliteMigrationService extends BaseService {
         General.logInfo("SqliteMigrationService", `Clearing and seeding ${leg.target} for a full pull`);
         this.getService('entityService').clearDataIn(EntityMetaData.entitiesLoadedFromServer());
         this.getService('entitySyncStatusService').setup();
-        const state = await SqliteMigrationService.readStateForUser(leg.username);
         await SqliteMigrationService.persistStateForUser(leg.username, {...state, preparedTarget: leg.target});
     }
 
     // The single writer of activeBackend. Throws when the write fails: a leg that cannot
     // record its completion must fail, so the runtime returns to what the next launch opens.
     async commitLeg(leg) {
-        const state = await SqliteMigrationService.readStateForUser(leg.username);
+        const state = await SqliteMigrationService._readStateForWrite(leg.username);
         await SqliteMigrationService.commitStateForUser(leg.username, {
             ...state,
             activeBackend: leg.target,

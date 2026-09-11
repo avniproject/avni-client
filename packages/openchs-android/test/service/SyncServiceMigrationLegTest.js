@@ -124,6 +124,14 @@ const manualSync = (svc) => svc.dataServerSync(ALL_ENTITIES_META_DATA, noop, noo
 
 const carries = (entityName) => (entitiesMetadata) => entitiesMetadata.some(e => e.entityName === entityName);
 
+// ResetSync pulls made on the target, i.e. after the runtime moved there.
+function resetPullsAfterSwitch(svc) {
+    const switchOrder = mockGlobalContext.switchBackend.mock.invocationCallOrder[0];
+    return svc.getResetSyncData.mock.calls
+        .filter(([meta], i) => carries('ResetSync')(meta) && svc.getResetSyncData.mock.invocationCallOrder[i] > switchOrder)
+        .length;
+}
+
 function failWhenPulling(entityName, error) {
     return jest.fn(async (entitiesMetadata) => {
         if (carries(entityName)(entitiesMetadata)) throw error;
@@ -262,6 +270,30 @@ describe('the switch commits once, after the whole sync (#2120)', () => {
 
         expect(migrationService.restartTarget).not.toHaveBeenCalled();
         expect(migrationService.commitLeg).toHaveBeenCalledTimes(1);
+    });
+
+    // The pull the restart decision saw is the only one a carried-on re-entry should mark. A
+    // second pull could fetch a reset issued in between and mark it without applying it; left
+    // unpulled, the next sync on the committed target applies it.
+    it('pulls resets once on a carried-on re-entry, so none issued mid-leg is marked without being applied', async () => {
+        const migrationService = buildMigrationService({activeBackend: 'realm', groupsName: 'sqlite'});
+        migrationService.prepareTarget = jest.fn(async () => true);
+        const svc = buildSyncService(migrationService, {pendingResets: []});
+
+        await manualSync(svc);
+
+        expect(resetPullsAfterSwitch(svc)).toBe(1);
+    });
+
+    it('pulls resets again after starting a re-entered target over, as for a fresh target', async () => {
+        const migrationService = buildMigrationService({activeBackend: 'realm', groupsName: 'sqlite'});
+        migrationService.prepareTarget = jest.fn(async () => true);
+        const svc = buildSyncService(migrationService, {pendingResets: [{uuid: 'reset-issued-between-attempts'}]});
+
+        await manualSync(svc);
+
+        expect(migrationService.restartTarget).toHaveBeenCalledTimes(1);
+        expect(resetPullsAfterSwitch(svc)).toBe(2);
     });
 
     it('does not look for resets on a first attempt, which already starts from a wipe', async () => {
