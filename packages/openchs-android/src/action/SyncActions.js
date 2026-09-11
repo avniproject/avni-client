@@ -27,12 +27,11 @@ class SyncActions {
     }
 
     // NOTE: setShowOkButton and POST_SYNC must stay paired.
-    // During a migration sync, the OK button is decoupled from progress=100% so the
-    // regular-sync → "Switching backend" → migration-sync flow reads as one continuous
-    // operation. SyncComponent._runMigrationIfNeeded dispatches SET_SHOW_OK_BUTTON only
-    // after the migration sync completes; the user then taps OK, which dispatches
-    // POST_SYNC and clears the flag here. If either side is refactored in isolation,
-    // the OK button can reappear mid-flight or never appear at all.
+    // The OK button is decoupled from progress=100%: SyncComponent.startSync dispatches
+    // SET_SHOW_OK_BUTTON only after syncService.sync resolves, including any backend switch
+    // inside it; the user then taps OK, which dispatches POST_SYNC and clears the flag here.
+    // If either side is refactored in isolation, the OK button can reappear mid-flight or
+    // never appear at all.
     static setShowOkButton(state, action) {
         return {...state, showOkButton: !!action.show};
     }
