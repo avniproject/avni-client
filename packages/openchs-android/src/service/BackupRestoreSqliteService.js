@@ -26,13 +26,15 @@ import SqliteMigrationService, {BACKENDS} from './SqliteMigrationService';
  *      compare to Settings.userId. Reject on mismatch — defence-in-depth against
  *      a snapshot misrouting.
  *   5. Backup the live SQLite file, move the downloaded .db into place.
- *   6. Persist SqliteMigrationService state as {activeBackend: SQLITE} so the next
- *      launch's reconcileBackendOnLaunch() opens SQLite directly, without a
- *      Realm→SQLite migration.
- *   7. Callback to GlobalContext.onSqliteDatabaseRestored → reopen SQLite from
+ *   6. Callback to GlobalContext.onSqliteDatabaseRestored → reopen SQLite from
  *      the swapped file, flip _activeBackend, update bean registry.
- *   8. On any failure after step 5: restore the SQLite backup, notify
- *      GlobalContext to reinitialize, surface "restoreFailed" so the UI can
+ *   7. Seed missing checkpoints and bootstrap Settings on SQLite.
+ *   8. Only then persist SqliteMigrationService state as {activeBackend: SQLITE}, so the
+ *      next launch's reconcileBackendOnLaunch() opens SQLite directly. Written last, like
+ *      the migration leg's commit: a restore that fails before this point leaves nothing
+ *      naming a database it never finished.
+ *   9. On any failure after step 5: restore the SQLite backup, notify GlobalContext,
+ *      which puts the runtime back on Realm, and surface "restoreFailed" so the UI can
  *      offer Retry / Slow Sync.
  *
  * Unlike the Realm flow, this DOES NOT reset entity_sync_status to
@@ -121,16 +123,6 @@ export default class BackupRestoreSqliteService extends BaseService {
             await fs.copyFile(dbEntry.path, liveDbPath);
 
             cb(92, 'restoringDb');
-            await SqliteMigrationService.persistStateForUser(expectedUsername, {
-                activeBackend: BACKENDS.SQLITE,
-                desiredBackend: BACKENDS.SQLITE,
-                preparedTarget: null,
-                startedAt: null,
-                attemptCount: 0,
-                lastError: null,
-            });
-
-            cb(94, 'restoringDb');
             if (this.onRestoreCompleted) {
                 await this.onRestoreCompleted();
             }
@@ -146,6 +138,17 @@ export default class BackupRestoreSqliteService extends BaseService {
             //     overlay the captured auth state.
             this._seedEntitySyncStatusBaseline();
             await this._bootstrapTargetSettings(authState);
+
+            // Recorded last, once the restored database is usable (step 8 above).
+            cb(96, 'restoringDb');
+            await SqliteMigrationService.persistStateForUser(expectedUsername, {
+                activeBackend: BACKENDS.SQLITE,
+                desiredBackend: BACKENDS.SQLITE,
+                preparedTarget: null,
+                startedAt: null,
+                attemptCount: 0,
+                lastError: null,
+            });
 
             await this._cleanup(downloadedZip, unzipDir, backupPath);
             cb(100, 'restoreComplete');

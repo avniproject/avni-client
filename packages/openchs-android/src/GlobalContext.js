@@ -112,12 +112,12 @@ class GlobalContext {
 
         // SQLite fast-sync apply: on success, reopen the (now-replaced) SQLite
         // file and flip the bean registry to SQLite as the primary backend.
-        // On failure, just reinitialize (BackupRestoreSqliteService has already
-        // restored the .backup file before invoking this callback).
+        // On failure, go back to Realm and reinitialize (BackupRestoreSqliteService has
+        // already restored the .backup file before invoking this callback).
         const restoreSqliteService = this.beanRegistry.getService("backupRestoreSqliteService");
         if (restoreSqliteService) {
             restoreSqliteService.subscribeOnRestore(async () => await this.onSqliteDatabaseRestored(realmFactory));
-            restoreSqliteService.subscribeOnRestoreFailure(async () => await this.reinitializeDatabase(realmFactory));
+            restoreSqliteService.subscribeOnRestoreFailure(async () => await this.onSqliteRestoreFailed(realmFactory));
         }
         await initAnalytics(this.db);
     }
@@ -150,6 +150,15 @@ class GlobalContext {
     async onSqliteDatabaseRestored(realmFactory) {
         this._activeBackend = BACKENDS.SQLITE;
         General.logInfo("GlobalContext", "SQLite snapshot restored — switching active backend to SQLite");
+        await this.reinitializeDatabase(realmFactory);
+    }
+
+    // A restore starts on Realm — it runs only on a never-synced device — and records SQLite
+    // as active only once it succeeds. So a failure, even one after the file swap flipped the
+    // runtime, goes back to Realm: the backend the state record still names.
+    async onSqliteRestoreFailed(realmFactory) {
+        this._activeBackend = BACKENDS.REALM;
+        General.logInfo("GlobalContext", "SQLite snapshot restore failed — back on Realm");
         await this.reinitializeDatabase(realmFactory);
     }
 
