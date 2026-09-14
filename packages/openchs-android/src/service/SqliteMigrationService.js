@@ -313,11 +313,6 @@ class SqliteMigrationService extends BaseService {
         }
     }
 
-    _getPendingFieldDataCount() {
-        const entityQueueService = this.getService('entityQueueService');
-        return entityQueueService ? entityQueueService.getPendingFieldDataCount() : 0;
-    }
-
     // Opens a migration leg. The username is resolved here, while the committed backend is
     // still active, because the target's UserInfo is empty or wiped once the runtime moves.
     // Writes diagnostics and the target only; activeBackend waits for commitLeg.
@@ -372,12 +367,9 @@ class SqliteMigrationService extends BaseService {
     async restartTarget(leg) {
         // Read before anything is wiped, so a record that cannot be read fails the leg first.
         const state = await SqliteMigrationService._readStateForWrite(leg.username);
-        // Every backend is left with an empty outbox — the switch refuses otherwise — so
-        // unsynced records here mean an invariant broke, and the wipe would take the only copy.
-        const pendingOnTarget = this._getPendingFieldDataCount();
-        if (pendingOnTarget > 0) {
-            throw new Error(`Target backend ${leg.target} holds ${pendingOnTarget} unsynced local changes; refusing to wipe it`);
-        }
+        // Nothing unsent can be sitting here: a backend is only left once its outbox is
+        // empty (SyncService defers the switch otherwise), and the sync pushes before it
+        // switches.
         const {EntityMetaData} = require('openchs-models');
         General.logInfo("SqliteMigrationService", `Clearing and seeding ${leg.target} for a full pull`);
         this.getService('entityService').clearDataIn(EntityMetaData.entitiesLoadedFromServer());

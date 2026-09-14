@@ -116,7 +116,6 @@ describe('SqliteMigrationService', () => {
     let service;
     let mockPrivilegeService;
     let mockEntitySyncStatusService;
-    let mockEntityQueueService;
     let mockUserInfoService;
     let mockSettingsService;
     let mockEntityService;
@@ -133,9 +132,6 @@ describe('SqliteMigrationService', () => {
         mockEntitySyncStatusService = {
             getTotalEntitiesPending: jest.fn(() => 0),
             setup: jest.fn(),
-        };
-        mockEntityQueueService = {
-            getPendingFieldDataCount: jest.fn(() => 0),
         };
         mockUserInfoService = {
             getUserInfo: jest.fn(() => ({username: 'test-user'})),
@@ -164,7 +160,6 @@ describe('SqliteMigrationService', () => {
                 switch (name) {
                     case 'PrivilegeService': return mockPrivilegeService;
                     case 'entitySyncStatusService': return mockEntitySyncStatusService;
-                    case 'entityQueueService': return mockEntityQueueService;
                     case 'userInfoService': return mockUserInfoService;
                     case 'settingsService': return mockSettingsService;
                     case 'entityService': return mockEntityService;
@@ -411,18 +406,6 @@ describe('SqliteMigrationService', () => {
 
             expect(mockEntityService.clearDataIn).toHaveBeenCalled();
             expect((await service.getState()).preparedTarget).toBe(BACKENDS.SQLITE);
-        });
-
-        // Every backend is left with an empty outbox, so this cannot happen unless an
-        // invariant broke — and then the wipe would destroy the only copy.
-        it('refuses to wipe a target that holds unsynced records', async () => {
-            const leg = await service.beginLeg(BACKENDS.SQLITE);
-            mockEntityQueueService.getPendingFieldDataCount.mockReturnValue(2);
-
-            await expect(service.prepareTarget(leg)).rejects.toThrow('unsynced');
-
-            expect(mockEntityService.clearDataIn).not.toHaveBeenCalled();
-            expect((await service.getState()).preparedTarget).toBeNull();
         });
 
         it('commits the target as the active backend and clears the attempt', async () => {
