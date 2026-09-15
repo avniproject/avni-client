@@ -123,13 +123,18 @@ class PersonRegisterView extends AbstractComponent {
                 <CHSContent>
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
-                    <DecisionMessage I18n={this.I18n} entityApprovalStatus={this.state.individual.latestEntityApprovalStatus}/>
                     <ScrollView keyboardShouldPersistTaps="handled"
                         ref={this.scrollRef} style={{
                         marginTop: Distances.ScaledVerticalSpacingDisplaySections,
                         flexDirection: 'column',
                         paddingHorizontal: Distances.ScaledContentDistanceFromEdge
                     }}>
+                        {/* Inside the ScrollView, as SubjectRegisterView has it. Outside it this was a
+                            fixed header, which was harmless while it rendered a two-line rejection
+                            comment and became unusable once it rendered a decision's full answer table -
+                            the answers filled the screen, could not be scrolled past, and the
+                            registration form below them was unreachable. */}
+                        <DecisionMessage I18n={this.I18n} entityApprovalStatus={this.state.individual.latestEntityApprovalStatus}/>
                         <GeolocationFormElement
                             actionName={Actions.REGISTRATION_SET_LOCATION}
                             errorActionName={Actions.SET_LOCATION_ERROR}
