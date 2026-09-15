@@ -78,9 +78,22 @@ jobs:
           ts="$(date +%Y%m%d-%H%M%S)"
           dest="$OUTPUT_DIR/$ts"
           mkdir -p "$dest"
-          cp packages/openchs-android/android/app/build/outputs/bundle/tanuhRelease/app-tanuh-release.aab "$dest/"
-          cp tanuh-universal.apks "$dest/"
-          unzip -p tanuh-universal.apks universal.apk > "$dest/tanuh-universal.apk"
+
+          aab_src="packages/openchs-android/android/app/build/outputs/bundle/tanuhRelease/app-tanuh-release.aab"
+
+          # Read the versionName actually baked into the AAB (via bundletool,
+          # already present after the build step) rather than trusting the
+          # workflow's optional input verbatim, so the filename is correct
+          # even if versionName was left blank and Gradle fell back to its
+          # own default.
+          version_name="$(java -jar bundletool.jar dump manifest --bundle="$aab_src" | grep -o 'versionName="[^"]*"' | head -1 | cut -d'"' -f2)"
+          base="tanuh_${version_name}_production"
+
+          cp "$aab_src" "$dest/${base}.aab"
+          cp tanuh-universal.apks "$dest/${base}.apks"
+          unzip -p tanuh-universal.apks universal.apk > "$dest/${base}.apk"
+
           echo "### TANUH build output" >> "$GITHUB_STEP_SUMMARY"
+          echo "versionName: $version_name" >> "$GITHUB_STEP_SUMMARY"
           echo "Saved to: \`$dest\`" >> "$GITHUB_STEP_SUMMARY"
           ls -la "$dest" >> "$GITHUB_STEP_SUMMARY"
