@@ -2,6 +2,7 @@ import _ from "lodash";
 import {ApprovalStatus, EntityApprovalStatus, ObservationsHolder} from 'avni-models';
 import ApprovalFormState from "../../state/ApprovalFormState";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
+import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import EntityApprovalStatusService from "../../service/EntityApprovalStatusService";
 import General from "../../utility/General";
@@ -192,6 +193,11 @@ const ApprovalFormActionNames = {
     DATE_DURATION_CHANGE: `${ActionPrefix}.DATE_DURATION_CHANGE`,
     DURATION_CHANGE: `${ActionPrefix}.DURATION_CHANGE`,
     PHONE_NUMBER_CHANGE: `${ActionPrefix}.PHONE_NUMBER_CHANGE`,
+    // PhoneNumberFormElement dispatches the skip-verification action as it mounts, before the approver
+    // has touched anything, so both names have to exist for a form carrying a phone-number question to
+    // open at all - without them the dispatch carries an undefined type and the screen dies on arrival.
+    ON_SUCCESS_OTP_VERIFICATION: `${ActionPrefix}.ON_SUCCESS_OTP_VERIFICATION`,
+    ON_SKIP_VERIFICATION: `${ActionPrefix}.ON_SKIP_VERIFICATION`,
     GROUP_QUESTION_VALUE_CHANGE: `${ActionPrefix}.GROUP_QUESTION_VALUE_CHANGE`,
     REPEATABLE_GROUP_QUESTION_VALUE_CHANGE: `${ActionPrefix}.REPEATABLE_GROUP_QUESTION_VALUE_CHANGE`,
 };
@@ -208,6 +214,8 @@ const ApprovalFormActionMap = new Map([
     [ApprovalFormActionNames.DATE_DURATION_CHANGE, ObservationsHolderActions.onDateDurationChange],
     [ApprovalFormActionNames.DURATION_CHANGE, ObservationsHolderActions.onDurationChange],
     [ApprovalFormActionNames.PHONE_NUMBER_CHANGE, ObservationsHolderActions.onPhoneNumberChange],
+    [ApprovalFormActionNames.ON_SUCCESS_OTP_VERIFICATION, PhoneNumberVerificationActions.onSuccessVerification],
+    [ApprovalFormActionNames.ON_SKIP_VERIFICATION, PhoneNumberVerificationActions.onSkipVerification],
     [ApprovalFormActionNames.GROUP_QUESTION_VALUE_CHANGE, ObservationsHolderActions.onGroupQuestionChange],
     [ApprovalFormActionNames.REPEATABLE_GROUP_QUESTION_VALUE_CHANGE, ObservationsHolderActions.onRepeatableGroupQuestionChange],
 ]);
