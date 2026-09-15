@@ -26,7 +26,6 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import HouseholdState from "../../state/HouseholdState";
 import {AvniAlert} from "../common/AvniAlert";
-import {DecisionMessage} from "../approval/DecisionMessage";
 import SingleSelectMediaFormElement from "../form/formElement/SingleSelectMediaFormElement";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import EntityService from "../../service/EntityService";
@@ -129,12 +128,6 @@ class PersonRegisterView extends AbstractComponent {
                         flexDirection: 'column',
                         paddingHorizontal: Distances.ScaledContentDistanceFromEdge
                     }}>
-                        {/* Inside the ScrollView, as SubjectRegisterView has it. Outside it this was a
-                            fixed header, which was harmless while it rendered a two-line rejection
-                            comment and became unusable once it rendered a decision's full answer table -
-                            the answers filled the screen, could not be scrolled past, and the
-                            registration form below them was unreachable. */}
-                        <DecisionMessage I18n={this.I18n} entityApprovalStatus={this.state.individual.latestEntityApprovalStatus}/>
                         <GeolocationFormElement
                             actionName={Actions.REGISTRATION_SET_LOCATION}
                             errorActionName={Actions.SET_LOCATION_ERROR}
