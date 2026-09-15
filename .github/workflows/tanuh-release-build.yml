@@ -125,17 +125,18 @@ jobs:
           # Make these available to the Firebase distribution step below,
           # since each `run:` step is its own shell and doesn't inherit
           # local shell variables from this one.
-          echo "TANUH_BUILD_AAB=$dest/${base}.aab" >> "$GITHUB_ENV"
+          echo "TANUH_BUILD_APK=$dest/${base}.apk" >> "$GITHUB_ENV"
           echo "TANUH_BUILD_VERSION_NAME=$version_name" >> "$GITHUB_ENV"
 
-      - name: Distribute AAB to internal testers via Firebase App Distribution
-        # Uploading the AAB directly (rather than the universal APK) roughly
-        # halves the upload size/time on the runner's connection — Firebase
-        # generates an installable APK from the bundle server-side for
-        # testers automatically. The same upload also becomes this build's
-        # durable record in Firebase's release history (e.g. for a future
-        # Play Store submission), so we don't need a second, separate
-        # archive-only upload.
+      - name: Distribute APK to internal testers via Firebase App Distribution
+        # Distributing the AAB directly was tried and reverted: Firebase App
+        # Distribution refuses AAB uploads ("This project is not linked to a
+        # Google Play account") unless the Firebase project is linked to a
+        # Play Console account, which this one isn't. APK distribution has
+        # no such requirement, so we upload the universal APK here; the
+        # signed AAB still lands in $OUTPUT_DIR locally for whenever it's
+        # actually needed (e.g. a real Play Store submission, which would
+        # go through Play Console directly rather than App Distribution).
         #
         # Auth is FIREBASE_TOKEN from the runner's own .env (generated once
         # via `npx firebase-tools login:ci` on this Mac) — never a GitHub
@@ -144,7 +145,7 @@ jobs:
         # repo, unlike a GitHub Release or actions/upload-artifact, both of
         # which would make the signed build publicly downloadable.
         run: |
-          npx --yes firebase-tools@latest appdistribution:distribute "$TANUH_BUILD_AAB" \
+          npx --yes firebase-tools@latest appdistribution:distribute "$TANUH_BUILD_APK" \
             --app "1:392718917375:android:bb18f1a968028ae287f6ca" \
             --groups "TANUH_SAMVIT" \
             --release-notes "versionName $TANUH_BUILD_VERSION_NAME" \
