@@ -12,6 +12,8 @@ import Colors from "./primitives/Colors";
 import General from "../utility/General";
 import CHSContent from "./common/CHSContent";
 import CHSContainer from "./common/CHSContainer";
+import AppHeader from "./common/AppHeader";
+import TypedTransition from "../framework/routing/TypedTransition";
 
 @Path('/forgotPasswordView')
 class ForgotPasswordView extends AbstractComponent {
@@ -92,10 +94,16 @@ class ForgotPasswordView extends AbstractComponent {
         return "ForgotPasswordView";
     }
 
+    onHardwareBackPress() {
+        TypedTransition.from(this).goBack();
+        return true;
+    }
+
     render() {
         General.logDebug(this.viewName(), 'render');
         const errorMessage = this.errorMessage();
         return <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
+            <AppHeader title={this.I18n.t('forgotPassword')} hideIcon={true}/>
             <CHSContent>
                 <View style={this.containerStyle}>
                     <View style={styles.card}>

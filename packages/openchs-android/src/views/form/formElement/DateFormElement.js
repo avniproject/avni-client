@@ -11,6 +11,7 @@ import Colors from "../../primitives/Colors";
 import {Concept} from "avni-models";
 import UserInfoService from "../../../service/UserInfoService";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
+import ValidationErrorMessage from "../ValidationErrorMessage";
 
 class DateFormElement extends AbstractFormElement {
     static propTypes = {
@@ -31,33 +32,45 @@ class DateFormElement extends AbstractFormElement {
         return (
             <View style={this.appendedStyle({paddingVertical: Distances.VerticalSpacingBetweenFormElements})}>
                 <View style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
                     backgroundColor: Colors.BrandLight,
                     borderRadius: 8,
                     paddingHorizontal: 14,
                     paddingVertical: 10
                 }}>
-                    <View style={{flex: 1, marginRight: 12}}>
-                        <FormElementLabelWithDocumentation element={this.props.element} labelColor={Colors.BrandPrimaryDark}/>
+                    <View style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-between'
+                    }}>
+                        <View style={{flex: 1, marginRight: 12}}>
+                            <FormElementLabelWithDocumentation element={this.props.element} labelColor={Colors.BrandPrimaryDark}/>
+                        </View>
+                        {
+                            this.props.element.editable === false ?
+                                 <Text  style={[{
+                                     marginVertical: 0,
+                                     paddingVertical: 5
+                                 }, Styles.formBodyText]}>{_.isNil(this.props.dateValue.getValue()) ? this.I18n.t('Not Known Yet') :this.props.dateValue.asDisplayDate()}</Text>:
+                                <DatePicker dateValue={this.props.dateValue.getValue()}
+                                            validationResult={this.props.validationResult}
+                                            transparent={true}
+                                            hideValidationMessage={true}
+                                            datePickerMode={_.isNil(this.props.element.datePickerMode)
+                                                ? this.userSettings.datePickerMode
+                                                : this.props.element.datePickerMode
+                                            }
+                                            timePickerMode={this.userSettings.timePickerMode}
+                                            pickTime={concept && concept.datatype === Concept.dataType.DateTime}
+                                            actionObject={{formElement: this.props.element, parentFormElement: this.props.parentElement, questionGroupIndex: this.props.questionGroupIndex}} actionName={this.props.actionName}/>
+                        }
                     </View>
-                    {
-                        this.props.element.editable === false ?
-                             <Text  style={[{
-                                 marginVertical: 0,
-                                 paddingVertical: 5
-                             }, Styles.formBodyText]}>{_.isNil(this.props.dateValue.getValue()) ? this.I18n.t('Not Known Yet') :this.props.dateValue.asDisplayDate()}</Text>:
-                            <DatePicker dateValue={this.props.dateValue.getValue()}
-                                        validationResult={this.props.validationResult}
-                                        transparent={true}
-                                        datePickerMode={_.isNil(this.props.element.datePickerMode)
-                                            ? this.userSettings.datePickerMode
-                                            : this.props.element.datePickerMode
-                                        }
-                                        timePickerMode={this.userSettings.timePickerMode}
-                                        pickTime={concept && concept.datatype === Concept.dataType.DateTime}
-                                        actionObject={{formElement: this.props.element, parentFormElement: this.props.parentElement, questionGroupIndex: this.props.questionGroupIndex}} actionName={this.props.actionName}/>
+                    {/* Rendered here (full container width) instead of inside DatePicker's own narrow
+                        column, so a long validation message always gets its own complete line below
+                        the label+date row instead of squeezing the label sideways. */}
+                    {this.props.element.editable !== false &&
+                        <View style={{marginTop: 4, alignItems: 'flex-end'}}>
+                            <ValidationErrorMessage validationResult={this.props.validationResult}/>
+                        </View>
                     }
                 </View>
             </View>);

@@ -11,6 +11,7 @@ import WizardButtons from "../common/WizardButtons";
 import SubjectRegisterViewsMixin from "./SubjectRegisterViewsMixin";
 import {ObservationsHolder} from 'avni-models';
 import General from "../../utility/General";
+import {getCurrentPageValidationResults} from "../../utility/FormPageReadiness";
 import Distances from "../primitives/Distances";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
@@ -78,7 +79,7 @@ class SubjectRegisterFormView extends AbstractComponent {
     }
 
     onHardwareBackPress() {
-        !this.state.wizard.isFirstPage() ? this.previous() : TypedTransition.from(this).goBack();
+        this.onAppHeaderBack(this.state.saveDrafts);
         return true;
     }
 
@@ -124,6 +125,9 @@ class SubjectRegisterFormView extends AbstractComponent {
         const subjectType = this.state.subject.subjectType;
         const userInfoService = this.context.getService(UserInfoService);
         const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);
+        const observationHolder = new ObservationsHolder(this.state.subject.observations);
+        const filteredFormElements = this.state.filteredFormElements || this.state.formElementGroup.getFormElements();
+        const isCurrentPageComplete = _.every(getCurrentPageValidationResults(this.state.formElementGroup, filteredFormElements, observationHolder), validationResult => validationResult.success);
         return (
             <CHSContainer>
                 <CHSContent>
@@ -138,9 +142,9 @@ class SubjectRegisterFormView extends AbstractComponent {
                         <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                             <SummaryButton onPress={() => SubjectRegisterViewsMixin.summary(this)}/>
                         </View>
-                        <View style={{backgroundColor: '#ffffff', flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
+                        <View style={{backgroundColor: '#ffffff', flexDirection: 'column'}}>
                             {_.get(this.state, 'timerState.displayQuestions', true) &&
-                              <FormElementGroup observationHolder={new ObservationsHolder(this.state.subject.observations)}
+                              <FormElementGroup observationHolder={observationHolder}
                                             group={this.state.formElementGroup}
                                             actions={Actions}
                                             filteredFormElements={this.state.filteredFormElements}
@@ -167,7 +171,8 @@ class SubjectRegisterFormView extends AbstractComponent {
                             }}
                             next={{
                                 func: () => SubjectRegisterViewsMixin.next(this),
-                                label: this.I18n.t('next')
+                                label: this.I18n.t('next'),
+                                ready: isCurrentPageComplete
                             }}
                         />
                     </View>}

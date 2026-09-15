@@ -25,7 +25,10 @@ class DatePicker extends AbstractComponent {
         overridingStyle: PropTypes.object,
         maximumDate: PropTypes.object,
         minimumDate: PropTypes.object,
-        transparent: PropTypes.bool
+        transparent: PropTypes.bool,
+        // Lets a caller (e.g. DateFormElement) render the validation message itself, full-width,
+        // below a label+date row instead of confined to this component's own narrow column.
+        hideValidationMessage: PropTypes.bool
     };
 
     static defaultProps = {
@@ -146,9 +149,10 @@ class DatePicker extends AbstractComponent {
                     </TouchableNativeFeedback>
                     {!transparent && this.renderRemoveButton()}
                 </View>
+                {!this.props.hideValidationMessage &&
                 <View>
                     <ValidationErrorMessage validationResult={this.props.validationResult}/>
-                </View>
+                </View>}
             </View>
         );
     }

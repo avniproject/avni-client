@@ -16,7 +16,11 @@ class SelectFormElement extends AbstractFormElement {
         actionName: PropTypes.string.isRequired,
         isSelected: PropTypes.func.isRequired,
         validationResult: PropTypes.object,
-        allowedValues: PropTypes.array
+        allowedValues: PropTypes.array,
+        // Set by the last question inside a repeatable card - that card already has its own
+        // border, so this element's usual divider-from-next-question line would sit redundantly
+        // inside it.
+        hideBottomBorder: PropTypes.bool
     };
 
     constructor(props, context) {
@@ -51,7 +55,7 @@ class SelectFormElement extends AbstractFormElement {
             <View style={{
                 flexDirection: 'column',
                 paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
-                borderBottomWidth: 1,
+                borderBottomWidth: this.props.hideBottomBorder ? 0 : 1,
                 borderBottomColor: Colors.InputBorderNormal
             }}>
                 <FormElementLabelWithDocumentation element={this.props.element} />

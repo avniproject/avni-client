@@ -3,12 +3,20 @@ import {Dimensions} from "react-native";
 import {StatusBar} from 'react-native';
 
 class Distances {
+    // Fixed rather than scaled off DGS.resizeWidth(windowWidth) - that scaling is proportional to
+    // each device's own reported width, so the same code rendered visibly different edge margins
+    // across devices (e.g. looked right on a Pixel emulator, off on a OnePlus Nord). A flat value
+    // matching the dashboard's own edge margin (SubjectDashboardGeneralTab's marginHorizontal: 10)
+    // keeps this consistent across devices and across screens.
     static get ScaledContentDistanceFromEdge() {
-        return DGS.resizeWidth(Distances.ContentDistanceFromEdge);
+        return 15;
     }
 
+    // Same fixed-not-scaled reasoning as ScaledContentDistanceFromEdge above - this is the
+    // constant that actually controls the edge margin of form question/answer content
+    // (FormElementGroup), separate from the outer page wrapper.
     static get ScaledContainerHorizontalDistanceFromEdge() {
-        return DGS.resizeWidth(Distances.ContainerHorizontalDistanceFromEdge);
+        return 15;
     }
 
     static get ScaledVerticalSpacingBetweenOptionItems() {
