@@ -494,6 +494,18 @@ describe('SqliteMigrationService', () => {
             expect(mockEntitySyncStatusService.setup).not.toHaveBeenCalled();
         });
 
+        // Fast sync restores a SQLite snapshot on a device that never synced, so Realm holds
+        // no UserInfo row to fall back to. Only the session username can find the record.
+        it('opens SQLite after a fast-sync restore, where Realm has no UserInfo row', async () => {
+            mockUserInfoService.getUserInfo.mockReturnValue({});
+            await SessionUsername.set('test-user');
+            await persisted({activeBackend: BACKENDS.SQLITE, desiredBackend: BACKENDS.SQLITE});
+
+            await service.openCommittedBackend();
+
+            expect(mockGlobalContext.switchBackend).toHaveBeenCalledWith(BACKENDS.SQLITE);
+        });
+
         it('stays on the complete source backend after an interrupted migration', async () => {
             await persisted({desiredBackend: BACKENDS.SQLITE, preparedTarget: BACKENDS.SQLITE, attemptCount: 1});
 
