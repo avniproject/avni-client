@@ -125,3 +125,11 @@ tanuh-universal.apk
 
 # Claude Code local session files
 .claude/
+
+# Stray local build/debug leftovers that keep showing up as untracked files
+# on this Mac while running the tanuh CI/local build scripts — never meant
+# to be committed.
+/TANUH_RELEASE
+packages/openchs-android/cli-config.log
+tanuh-build.log
+packages/openchs-android/local.properties.save*
