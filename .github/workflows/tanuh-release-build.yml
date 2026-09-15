@@ -1,0 +1,77 @@
+name: TANUH release build (self-hosted)
+
+# Manual trigger ONLY. This repo is public and the runner below is a personal
+# machine with the TANUH signing key and proprietary ONNX models on it — it must
+# never be reachable from pull_request/pull_request_target, which would let any
+# forked-repo PR execute arbitrary code on that machine. Do not add those triggers
+# here without re-reading tools/edge-model/README.md's threat-model section first.
+on:
+  workflow_dispatch:
+    inputs:
+      versionCode:
+        description: "Android versionCode (optional, defaults per build.gradle)"
+        required: false
+        default: ""
+      versionName:
+        description: "Android versionName (optional, defaults per build.gradle)"
+        required: false
+        default: ""
+
+concurrency:
+  group: tanuh-release-build
+  cancel-in-progress: false
+
+jobs:
+  build:
+    # Custom label so this can only ever land on the intended self-hosted Mac,
+    # never accidentally on a GitHub-hosted runner.
+    runs-on: [self-hosted, macOS, tanuh]
+    timeout-minutes: 120
+    env:
+      # Fixed, outside-the-checkout locations on the runner. Never inside
+      # $GITHUB_WORKSPACE, so a `git clean` / fresh checkout can't touch them.
+      TANUH_KEYSTORE_DIR: /Users/jiteshupadhyay/Desktop/tanuh/ci/keystore
+      TANUH_MODELS_DIR: /Users/jiteshupadhyay/Desktop/tanuh/ci/models
+      OUTPUT_DIR: /Users/jiteshupadhyay/build/output
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preflight — verify signing key, models, and CI-only secrets are present
+        run: |
+          set -e
+          test -f "$TANUH_KEYSTORE_DIR/tanuh-release-key.keystore" || { echo "::error::keystore missing at $TANUH_KEYSTORE_DIR"; exit 1; }
+          test -f "$TANUH_MODELS_DIR/model6.onnx"   || { echo "::error::model6.onnx missing at $TANUH_MODELS_DIR"; exit 1; }
+          test -f "$TANUH_MODELS_DIR/model8.onnx"   || { echo "::error::model8.onnx missing at $TANUH_MODELS_DIR"; exit 1; }
+          test -f "$TANUH_MODELS_DIR/model8-2.onnx" || { echo "::error::model8-2.onnx missing at $TANUH_MODELS_DIR"; exit 1; }
+          # tanuh_KEYSTORE_PASSWORD / tanuh_KEY_ALIAS must come from the runner's
+          # own .env (see repo docs) — never from GitHub secrets — so just confirm
+          # they made it into this job's environment; never print their values.
+          test -n "$tanuh_KEYSTORE_PASSWORD" || { echo "::error::tanuh_KEYSTORE_PASSWORD not set in the runner's own environment (.env)"; exit 1; }
+          test -n "$tanuh_KEY_ALIAS" || { echo "::error::tanuh_KEY_ALIAS not set in the runner's own environment (.env)"; exit 1; }
+          echo "Preflight OK."
+
+      - name: Install JS dependencies
+        run: make deps_ci
+
+      - name: Build signed AAB + universal APK (3-fold ONNX ensemble)
+        run: |
+          make tanuh-universal-apk \
+            TANUH_ENSEMBLE_SRC_DIR="$TANUH_MODELS_DIR" \
+            versionCode="${{ inputs.versionCode }}" \
+            versionName="${{ inputs.versionName }}"
+        env:
+          KEY_STORE_PREFIX: "${{ env.TANUH_KEYSTORE_DIR }}/"
+
+      - name: Copy build outputs to the build folder
+        run: |
+          set -e
+          mkdir -p "$OUTPUT_DIR"
+          ts="$(date +%Y%m%d-%H%M%S)"
+          dest="$OUTPUT_DIR/$ts"
+          mkdir -p "$dest"
+          cp packages/openchs-android/android/app/build/outputs/bundle/tanuhRelease/app-tanuh-release.aab "$dest/"
+          cp tanuh-universal.apks "$dest/"
+          unzip -p tanuh-universal.apks universal.apk > "$dest/tanuh-universal.apk"
+          echo "### TANUH build output" >> "$GITHUB_STEP_SUMMARY"
+          echo "Saved to: \`$dest\`" >> "$GITHUB_STEP_SUMMARY"
+          ls -la "$dest" >> "$GITHUB_STEP_SUMMARY"
