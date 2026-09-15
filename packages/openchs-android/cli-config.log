@@ -1,0 +1,1463 @@
+{
+  "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android",
+  "reactNativePath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native",
+  "reactNativeVersion": "0.77",
+  "dependencies": {
+    "@bugsnag/react-native": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@bugsnag/react-native",
+      "name": "@bugsnag/react-native",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@bugsnag/react-native/BugsnagReactNative.podspec",
+          "version": "8.0.0",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@bugsnag/react-native/android",
+          "packageImportPath": "import com.bugsnag.android.BugsnagPackage;",
+          "packageInstance": "new BugsnagPackage()",
+          "buildTypes": [],
+          "libraryName": "BugsnagReactNativeSpec",
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@bugsnag/react-native/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "@react-native-async-storage/async-storage": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-async-storage/async-storage",
+      "name": "@react-native-async-storage/async-storage",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-async-storage/async-storage/RNCAsyncStorage.podspec",
+          "version": "2.1.2",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-async-storage/async-storage/android",
+          "packageImportPath": "import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;",
+          "packageInstance": "new AsyncStoragePackage()",
+          "buildTypes": [],
+          "libraryName": "rnasyncstorage",
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-async-storage/async-storage/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "@react-native-clipboard/clipboard": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-clipboard/clipboard",
+      "name": "@react-native-clipboard/clipboard",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-clipboard/clipboard/RNCClipboard.podspec",
+          "version": "1.16.0",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-clipboard/clipboard/android",
+          "packageImportPath": "import com.reactnativecommunity.clipboard.ClipboardPackage;",
+          "packageInstance": "new ClipboardPackage()",
+          "buildTypes": [],
+          "libraryName": "rnclipboard",
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-clipboard/clipboard/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "@react-native-community/datetimepicker": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-community/datetimepicker",
+      "name": "@react-native-community/datetimepicker",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-community/datetimepicker/RNDateTimePicker.podspec",
+          "version": "8.4.5",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-community/datetimepicker/android",
+          "packageImportPath": "import com.reactcommunity.rndatetimepicker.RNDateTimePickerPackage;",
+          "packageInstance": "new RNDateTimePickerPackage()",
+          "buildTypes": [],
+          "libraryName": "RNDateTimePickerCGen",
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-community/datetimepicker/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "@react-native-community/netinfo": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-community/netinfo",
+      "name": "@react-native-community/netinfo",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-community/netinfo/react-native-netinfo.podspec",
+          "version": "11.4.1",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-community/netinfo/android",
+          "packageImportPath": "import com.reactnativecommunity.netinfo.NetInfoPackage;",
+          "packageInstance": "new NetInfoPackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-community/netinfo/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "@react-native-community/progress-bar-android": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-community/progress-bar-android",
+      "name": "@react-native-community/progress-bar-android",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-community/progress-bar-android/react-native-progress-bar-android.podspec",
+          "version": "1.0.5",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-community/progress-bar-android/android",
+          "packageImportPath": "import com.reactnativecommunity.androidprogressbar.RNCProgressBarPackage;",
+          "packageInstance": "new RNCProgressBarPackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-community/progress-bar-android/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "@react-native-cookies/cookies": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-cookies/cookies",
+      "name": "@react-native-cookies/cookies",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-cookies/cookies/react-native-cookies.podspec",
+          "version": "6.2.1",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-cookies/cookies/android",
+          "packageImportPath": "import com.reactnativecommunity.cookies.CookieManagerPackage;",
+          "packageInstance": "new CookieManagerPackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-cookies/cookies/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "@react-native-documents/picker": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-documents/picker",
+      "name": "@react-native-documents/picker",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-documents/picker/react-native-document-picker.podspec",
+          "version": "10.1.7",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-documents/picker/android",
+          "packageImportPath": "import com.reactnativedocumentpicker.RNDocumentPickerPackage;",
+          "packageInstance": "new RNDocumentPickerPackage()",
+          "buildTypes": [],
+          "libraryName": "rndocumentpickerCGen",
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-documents/picker/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "@react-native-firebase/analytics": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-firebase/analytics",
+      "name": "@react-native-firebase/analytics",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-firebase/analytics/RNFBAnalytics.podspec",
+          "version": "20.4.0",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-firebase/analytics/android",
+          "packageImportPath": "import io.invertase.firebase.analytics.ReactNativeFirebaseAnalyticsPackage;",
+          "packageInstance": "new ReactNativeFirebaseAnalyticsPackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-firebase/analytics/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "@react-native-firebase/app": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-firebase/app",
+      "name": "@react-native-firebase/app",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-firebase/app/RNFBApp.podspec",
+          "version": "20.4.0",
+          "configurations": [],
+          "scriptPhases": [
+            {
+              "name": "[RNFB] Core Configuration",
+              "path": "./ios_config.sh",
+              "execution_position": "after_compile",
+              "input_files": [
+                "$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)"
+              ]
+            }
+          ]
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-firebase/app/android",
+          "packageImportPath": "import io.invertase.firebase.app.ReactNativeFirebaseAppPackage;",
+          "packageInstance": "new ReactNativeFirebaseAppPackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-firebase/app/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "amazon-cognito-identity-js": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/amazon-cognito-identity-js",
+      "name": "amazon-cognito-identity-js",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/amazon-cognito-identity-js/RNAWSCognito.podspec",
+          "version": "6.3.12",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/amazon-cognito-identity-js/android",
+          "packageImportPath": "import com.amazonaws.RNAWSCognitoPackage;",
+          "packageInstance": "new RNAWSCognitoPackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/amazon-cognito-identity-js/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "jail-monkey": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/jail-monkey",
+      "name": "jail-monkey",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/jail-monkey/jail-monkey.podspec",
+          "version": "2.8.4",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/jail-monkey/android",
+          "packageImportPath": "import com.gantix.JailMonkey.JailMonkeyPackage;",
+          "packageInstance": "new JailMonkeyPackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/jail-monkey/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-audio-recorder-player": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-audio-recorder-player",
+      "name": "react-native-audio-recorder-player",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-audio-recorder-player/RNAudioRecorderPlayer.podspec",
+          "version": "3.6.14",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-audio-recorder-player/android",
+          "packageImportPath": "import com.dooboolab.audiorecorderplayer.RNAudioRecorderPlayerPackage;",
+          "packageInstance": "new RNAudioRecorderPlayerPackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-audio-recorder-player/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-background-timer": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-background-timer",
+      "name": "react-native-background-timer",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-background-timer/react-native-background-timer.podspec",
+          "version": "2.4.1",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-background-timer/android",
+          "packageImportPath": "import com.ocetnik.timer.BackgroundTimerPackage;",
+          "packageInstance": "new BackgroundTimerPackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-background-timer/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-background-worker": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-background-worker",
+      "name": "react-native-background-worker",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-background-worker/react-native-background-worker.podspec",
+          "version": "0.0.5",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-background-worker/android",
+          "packageImportPath": "import com.backgroundworker.BackgroundWorkerPackage;",
+          "packageInstance": "new BackgroundWorkerPackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-background-worker/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-blob-util": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-blob-util",
+      "name": "react-native-blob-util",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-blob-util/react-native-blob-util.podspec",
+          "version": "0.19.11",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-blob-util/android",
+          "packageImportPath": "import com.ReactNativeBlobUtil.ReactNativeBlobUtilPackage;",
+          "packageInstance": "new ReactNativeBlobUtilPackage()",
+          "buildTypes": [],
+          "libraryName": "ReactNativeBlobUtilSpec",
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-blob-util/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-charts-wrapper": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-charts-wrapper",
+      "name": "react-native-charts-wrapper",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-charts-wrapper/react-native-charts-wrapper.podspec",
+          "version": "0.5.9",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-charts-wrapper/android",
+          "packageImportPath": "import com.github.wuxudong.rncharts.MPAndroidChartPackage;",
+          "packageInstance": "new MPAndroidChartPackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-charts-wrapper/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-device-info": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-device-info",
+      "name": "react-native-device-info",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-device-info/RNDeviceInfo.podspec",
+          "version": "14.1.1",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-device-info/android",
+          "packageImportPath": "import com.learnium.RNDeviceInfo.RNDeviceInfo;",
+          "packageInstance": "new RNDeviceInfo()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-device-info/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-exception-handler": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-exception-handler",
+      "name": "react-native-exception-handler",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-exception-handler/ReactNativeExceptionHandler.podspec",
+          "version": "2.10.10",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-exception-handler/android",
+          "packageImportPath": "import com.masteratul.exceptionhandler.ReactNativeExceptionHandlerPackage;",
+          "packageInstance": "new ReactNativeExceptionHandlerPackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-exception-handler/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-file-viewer": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-file-viewer",
+      "name": "react-native-file-viewer",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-file-viewer/RNFileViewer.podspec",
+          "version": "2.1.5",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-file-viewer/android",
+          "packageImportPath": "import com.vinzscam.reactnativefileviewer.RNFileViewerPackage;",
+          "packageInstance": "new RNFileViewerPackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-file-viewer/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-fs": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-fs",
+      "name": "react-native-fs",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-fs/RNFS.podspec",
+          "version": "2.20.0",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-fs/android",
+          "packageImportPath": "import com.rnfs.RNFSPackage;",
+          "packageInstance": "new RNFSPackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-fs/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-geolocation-service": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-geolocation-service",
+      "name": "react-native-geolocation-service",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-geolocation-service/react-native-geolocation-service.podspec",
+          "version": "5.3.0",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-geolocation-service/android",
+          "packageImportPath": "import com.agontuk.RNFusedLocation.RNFusedLocationPackage;",
+          "packageInstance": "new RNFusedLocationPackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-geolocation-service/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-get-random-values": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-get-random-values",
+      "name": "react-native-get-random-values",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-get-random-values/react-native-get-random-values.podspec",
+          "version": "1.11.0",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-get-random-values/android",
+          "packageImportPath": "import org.linusu.RNGetRandomValuesPackage;",
+          "packageInstance": "new RNGetRandomValuesPackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-get-random-values/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-html-to-pdf": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-html-to-pdf",
+      "name": "react-native-html-to-pdf",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-html-to-pdf/react-native-html-to-pdf.podspec",
+          "version": "0.12.0",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-html-to-pdf/android",
+          "packageImportPath": "import com.christopherdro.htmltopdf.RNHTMLtoPDFPackage;",
+          "packageInstance": "new RNHTMLtoPDFPackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-html-to-pdf/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-i18n": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-i18n",
+      "name": "react-native-i18n",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-i18n/RNI18n.podspec",
+          "version": "0.1.1",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-i18n/android",
+          "packageImportPath": "import com.i18n.reactnativei18n.ReactNativeI18n;",
+          "packageInstance": "new ReactNativeI18n()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-i18n/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-image-picker": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-image-picker",
+      "name": "react-native-image-picker",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-image-picker/react-native-image-picker.podspec",
+          "version": "8.2.1",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-image-picker/android",
+          "packageImportPath": "import com.imagepicker.ImagePickerPackage;",
+          "packageInstance": "new ImagePickerPackage()",
+          "buildTypes": [],
+          "libraryName": "RNImagePickerSpec",
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-image-picker/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-immediate-phone-call": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-immediate-phone-call",
+      "name": "react-native-immediate-phone-call",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-immediate-phone-call/react-native-immediate-phone-call.podspec",
+          "version": "2.0.0",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-immediate-phone-call/android",
+          "packageImportPath": "import com.github.wumke.RNImmediatePhoneCall.RNImmediatePhoneCallPackage;",
+          "packageInstance": "new RNImmediatePhoneCallPackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-immediate-phone-call/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-keep-awake": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-keep-awake",
+      "name": "react-native-keep-awake",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-keep-awake/react-native-keep-awake.podspec",
+          "version": "4.0.0",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-keep-awake/android",
+          "packageImportPath": "import com.corbt.keepawake.KCKeepAwakePackage;",
+          "packageInstance": "new KCKeepAwakePackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-keep-awake/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-keychain": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-keychain",
+      "name": "react-native-keychain",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-keychain/RNKeychain.podspec",
+          "version": "10.0.0",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-keychain/android",
+          "packageImportPath": "import com.oblador.keychain.KeychainPackage;",
+          "packageInstance": "new KeychainPackage()",
+          "buildTypes": [],
+          "libraryName": "RNKeychainSpec",
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-keychain/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-randombytes": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-randombytes",
+      "name": "react-native-randombytes",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-randombytes/react-native-randombytes.podspec",
+          "version": "3.6.2",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-randombytes/android",
+          "packageImportPath": "import com.bitgo.randombytes.RandomBytesPackage;",
+          "packageInstance": "new RandomBytesPackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-randombytes/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-restart": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-restart",
+      "name": "react-native-restart",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-restart/react-native-restart.podspec",
+          "version": "0.0.24",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-restart/android",
+          "packageImportPath": "import com.reactnativerestart.RestartPackage;",
+          "packageInstance": "new RestartPackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-restart/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-safe-area-context": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-safe-area-context",
+      "name": "react-native-safe-area-context",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-safe-area-context/react-native-safe-area-context.podspec",
+          "version": "5.6.1",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-safe-area-context/android",
+          "packageImportPath": "import com.th3rdwave.safeareacontext.SafeAreaContextPackage;",
+          "packageInstance": "new SafeAreaContextPackage()",
+          "buildTypes": [],
+          "libraryName": "safeareacontext",
+          "componentDescriptors": [
+            "RNCSafeAreaProviderComponentDescriptor",
+            "RNCSafeAreaViewComponentDescriptor"
+          ],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-safe-area-context/android/src/main/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-share": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-share",
+      "name": "react-native-share",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-share/RNShare.podspec",
+          "version": "12.2.0",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-share/android",
+          "packageImportPath": "import cl.json.RNSharePackage;",
+          "packageInstance": "new RNSharePackage()",
+          "buildTypes": [],
+          "libraryName": "RNShareSpec",
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-share/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-svg": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-svg",
+      "name": "react-native-svg",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-svg/RNSVG.podspec",
+          "version": "15.14.0",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-svg/android",
+          "packageImportPath": "import com.horcrux.svg.SvgPackage;",
+          "packageInstance": "new SvgPackage()",
+          "buildTypes": [],
+          "libraryName": "rnsvg",
+          "componentDescriptors": [
+            "RNSVGCircleComponentDescriptor",
+            "RNSVGClipPathComponentDescriptor",
+            "RNSVGDefsComponentDescriptor",
+            "RNSVGFeBlendComponentDescriptor",
+            "RNSVGFeColorMatrixComponentDescriptor",
+            "RNSVGFeCompositeComponentDescriptor",
+            "RNSVGFeFloodComponentDescriptor",
+            "RNSVGFeGaussianBlurComponentDescriptor",
+            "RNSVGFeMergeComponentDescriptor",
+            "RNSVGFeOffsetComponentDescriptor",
+            "RNSVGFilterComponentDescriptor",
+            "RNSVGEllipseComponentDescriptor",
+            "RNSVGForeignObjectComponentDescriptor",
+            "RNSVGGroupComponentDescriptor",
+            "RNSVGImageComponentDescriptor",
+            "RNSVGLinearGradientComponentDescriptor",
+            "RNSVGLineComponentDescriptor",
+            "RNSVGMarkerComponentDescriptor",
+            "RNSVGMaskComponentDescriptor",
+            "RNSVGPathComponentDescriptor",
+            "RNSVGPatternComponentDescriptor",
+            "RNSVGRadialGradientComponentDescriptor",
+            "RNSVGRectComponentDescriptor",
+            "RNSVGSvgViewAndroidComponentDescriptor",
+            "RNSVGSymbolComponentDescriptor",
+            "RNSVGTextComponentDescriptor",
+            "RNSVGTextPathComponentDescriptor",
+            "RNSVGTSpanComponentDescriptor",
+            "RNSVGUseComponentDescriptor"
+          ],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-svg/android/src/main/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-vector-icons": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-vector-icons",
+      "name": "react-native-vector-icons",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-vector-icons/RNVectorIcons.podspec",
+          "version": "10.2.0",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-vector-icons/android",
+          "packageImportPath": "import com.oblador.vectoricons.VectorIconsPackage;",
+          "packageInstance": "new VectorIconsPackage()",
+          "buildTypes": [],
+          "libraryName": "RNVectorIconsSpec",
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-vector-icons/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-video": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-video",
+      "name": "react-native-video",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-video/react-native-video.podspec",
+          "version": "6.16.1",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-video/android",
+          "packageImportPath": "import com.brentvatne.react.ReactVideoPackage;",
+          "packageInstance": "new ReactVideoPackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-video/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-webview": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-webview",
+      "name": "react-native-webview",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-webview/react-native-webview.podspec",
+          "version": "13.16.0",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-webview/android",
+          "packageImportPath": "import com.reactnativecommunity.webview.RNCWebViewPackage;",
+          "packageInstance": "new RNCWebViewPackage()",
+          "buildTypes": [],
+          "libraryName": "RNCWebViewSpec",
+          "componentDescriptors": [
+            "RNCWebViewComponentDescriptor"
+          ],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-webview/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-zip-archive": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-zip-archive",
+      "name": "react-native-zip-archive",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-zip-archive/RNZipArchive.podspec",
+          "version": "6.0.8",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-zip-archive/android",
+          "packageImportPath": "import com.rnziparchive.RNZipArchivePackage;",
+          "packageInstance": "new RNZipArchivePackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-zip-archive/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "realm": {
+      "root": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/realm",
+      "name": "realm",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/realm/RealmJS.podspec",
+          "version": "12.14.2",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/realm/binding/android",
+          "packageImportPath": "import io.realm.react.RealmReactPackage;",
+          "packageInstance": "new RealmReactPackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/realm/binding/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    }
+  },
+  "commands": [
+    {
+      "name": "bundle",
+      "description": "Build the bundle for the provided JavaScript entry file.",
+      "options": [
+        {
+          "name": "--entry-file <path>",
+          "description": "Path to the root JS file, either absolute or relative to JS root"
+        },
+        {
+          "name": "--platform <string>",
+          "description": "Either \"ios\" or \"android\"",
+          "default": "ios"
+        },
+        {
+          "name": "--transformer <string>",
+          "description": "Specify a custom transformer to be used"
+        },
+        {
+          "name": "--dev [boolean]",
+          "description": "If false, warnings are disabled and the bundle is minified",
+          "default": true
+        },
+        {
+          "name": "--minify [boolean]",
+          "description": "Allows overriding whether bundle is minified. This defaults to false if dev is true, and true if dev is false. Disabling minification can be useful for speeding up production builds for testing purposes."
+        },
+        {
+          "name": "--bundle-output <string>",
+          "description": "File name where to store the resulting bundle, ex. /tmp/groups.bundle"
+        },
+        {
+          "name": "--bundle-encoding <string>",
+          "description": "Encoding the bundle should be written in (https://nodejs.org/api/buffer.html#buffer_buffer).",
+          "default": "utf8"
+        },
+        {
+          "name": "--max-workers <number>",
+          "description": "Specifies the maximum number of workers the worker-pool will spawn for transforming files. This defaults to the number of the cores available on your machine."
+        },
+        {
+          "name": "--sourcemap-output <string>",
+          "description": "File name where to store the sourcemap file for resulting bundle, ex. /tmp/groups.map"
+        },
+        {
+          "name": "--sourcemap-sources-root <string>",
+          "description": "Path to make sourcemap's sources entries relative to, ex. /root/dir"
+        },
+        {
+          "name": "--sourcemap-use-absolute-path",
+          "description": "Report SourceMapURL using its full path",
+          "default": false
+        },
+        {
+          "name": "--assets-dest <string>",
+          "description": "Directory name where to store assets referenced in the bundle"
+        },
+        {
+          "name": "--unstable-transform-profile <string>",
+          "description": "Experimental, transform JS for a specific JS engine. Currently supported: hermes, hermes-canary, default",
+          "default": "default"
+        },
+        {
+          "name": "--asset-catalog-dest [string]",
+          "description": "Path where to create an iOS Asset Catalog for images"
+        },
+        {
+          "name": "--reset-cache",
+          "description": "Removes cached files",
+          "default": false
+        },
+        {
+          "name": "--read-global-cache",
+          "description": "Try to fetch transformed JS code from the global cache, if configured.",
+          "default": false
+        },
+        {
+          "name": "--config <string>",
+          "description": "Path to the CLI configuration file"
+        },
+        {
+          "name": "--resolver-option <string...>",
+          "description": "Custom resolver options of the form key=value. URL-encoded. May be specified multiple times."
+        }
+      ]
+    },
+    {
+      "name": "start",
+      "description": "Start the React Native development server.",
+      "options": [
+        {
+          "name": "--port <number>"
+        },
+        {
+          "name": "--host <string>",
+          "default": ""
+        },
+        {
+          "name": "--projectRoot <path>",
+          "description": "Path to a custom project root"
+        },
+        {
+          "name": "--watchFolders <list>",
+          "description": "Specify any additional folders to be added to the watch list"
+        },
+        {
+          "name": "--assetPlugins <list>",
+          "description": "Specify any additional asset plugins to be used by the packager by full filepath"
+        },
+        {
+          "name": "--sourceExts <list>",
+          "description": "Specify any additional source extensions to be used by the packager"
+        },
+        {
+          "name": "--max-workers <number>",
+          "description": "Specifies the maximum number of workers the worker-pool will spawn for transforming files. This defaults to the number of the cores available on your machine."
+        },
+        {
+          "name": "--transformer <string>",
+          "description": "Specify a custom transformer to be used"
+        },
+        {
+          "name": "--reset-cache, --resetCache",
+          "description": "Removes cached files"
+        },
+        {
+          "name": "--custom-log-reporter-path, --customLogReporterPath <string>",
+          "description": "Path to a JavaScript file that exports a log reporter as a replacement for TerminalReporter"
+        },
+        {
+          "name": "--https",
+          "description": "Enables https connections to the server"
+        },
+        {
+          "name": "--key <path>",
+          "description": "Path to custom SSL key"
+        },
+        {
+          "name": "--cert <path>",
+          "description": "Path to custom SSL cert"
+        },
+        {
+          "name": "--config <string>",
+          "description": "Path to the CLI configuration file"
+        },
+        {
+          "name": "--no-interactive",
+          "description": "Disables interactive mode"
+        },
+        {
+          "name": "--client-logs",
+          "description": "[Deprecated] Enable plain text JavaScript log streaming for all connected apps. This feature is deprecated and will be removed in future.",
+          "default": false
+        }
+      ]
+    },
+    {
+      "name": "codegen",
+      "options": [
+        {
+          "name": "--path <path>",
+          "description": "Path to the React Native project root.",
+          "default": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android"
+        },
+        {
+          "name": "--platform <string>",
+          "description": "Target platform. Supported values: \"android\", \"ios\", \"all\".",
+          "default": "all"
+        },
+        {
+          "name": "--outputPath <path>",
+          "description": "Path where generated artifacts will be output to."
+        },
+        {
+          "name": "--source <string>",
+          "description": "Whether the script is invoked from an `app` or a `library`",
+          "default": "app"
+        }
+      ]
+    },
+    {
+      "name": "log-ios",
+      "description": "starts iOS device syslog tail",
+      "options": [
+        {
+          "name": "-i --interactive",
+          "description": "Explicitly select simulator to tail logs from. By default it will tail logs from the first booted and available simulator."
+        }
+      ]
+    },
+    {
+      "name": "run-ios",
+      "description": "builds your app and starts it on iOS simulator",
+      "examples": [
+        {
+          "desc": "Run on a different simulator, e.g. iPhone SE (2nd generation)",
+          "cmd": "npx react-native run-ios --simulator \"iPhone SE (2nd generation)\""
+        },
+        {
+          "desc": "Run on a connected device, e.g. Max's iPhone",
+          "cmd": "npx react-native run-ios --device \"Max's iPhone\""
+        },
+        {
+          "desc": "Run on the AppleTV simulator",
+          "cmd": "npx react-native run-ios --simulator \"Apple TV\"  --scheme \"helloworld-tvOS\""
+        }
+      ],
+      "options": [
+        {
+          "name": "--no-packager",
+          "description": "Do not launch packager while running the app"
+        },
+        {
+          "name": "--port <number>",
+          "default": 8081
+        },
+        {
+          "name": "--terminal <string>",
+          "description": "Launches the Metro Bundler in a new window using the specified terminal path.",
+          "default": "Apple_Terminal"
+        },
+        {
+          "name": "--binary-path <string>",
+          "description": "Path relative to project root where pre-built .app binary lives."
+        },
+        {
+          "name": "--list-devices",
+          "description": "List all available iOS devices and simulators and let you choose one to run the app. "
+        },
+        {
+          "name": "--udid <string>",
+          "description": "Explicitly set the device to use by UDID"
+        },
+        {
+          "name": "--simulator <string>",
+          "description": "Explicitly set the simulator to use. Optionally set the iOS version between parentheses at the end to match an exact version: \"iPhone 15 (17.0)\""
+        },
+        {
+          "name": "--mode <string>",
+          "description": "Explicitly set the scheme configuration to use. This option is case sensitive."
+        },
+        {
+          "name": "--scheme <string>",
+          "description": "Explicitly set Xcode scheme to use"
+        },
+        {
+          "name": "--destination <string>",
+          "description": "Explicitly extend destination e.g. \"arch=x86_64\""
+        },
+        {
+          "name": "--verbose",
+          "description": "Do not use xcbeautify or xcpretty even if installed"
+        },
+        {
+          "name": "--xcconfig [string]",
+          "description": "Explicitly set xcconfig to use"
+        },
+        {
+          "name": "--buildFolder <string>",
+          "description": "Location for iOS build artifacts. Corresponds to Xcode's \"-derivedDataPath\"."
+        },
+        {
+          "name": "--extra-params <string>",
+          "description": "Custom params that will be passed to xcodebuild command."
+        },
+        {
+          "name": "--target <string>",
+          "description": "Explicitly set Xcode target to use."
+        },
+        {
+          "name": "-i --interactive",
+          "description": "Explicitly select which scheme and configuration to use before running a build"
+        },
+        {
+          "name": "--force-pods",
+          "description": "Force CocoaPods installation"
+        },
+        {
+          "name": "--device [string]",
+          "description": "Explicitly set the device to use by name or by unique device identifier . If the value is not provided,the app will run on the first available physical device."
+        }
+      ]
+    },
+    {
+      "name": "build-ios",
+      "description": "builds your app for iOS platform",
+      "examples": [
+        {
+          "desc": "Build the app for all iOS devices in Release mode",
+          "cmd": "npx react-native build-ios --mode \"Release\""
+        }
+      ],
+      "options": [
+        {
+          "name": "--mode <string>",
+          "description": "Explicitly set the scheme configuration to use. This option is case sensitive."
+        },
+        {
+          "name": "--scheme <string>",
+          "description": "Explicitly set Xcode scheme to use"
+        },
+        {
+          "name": "--destination <string>",
+          "description": "Explicitly extend destination e.g. \"arch=x86_64\""
+        },
+        {
+          "name": "--verbose",
+          "description": "Do not use xcbeautify or xcpretty even if installed"
+        },
+        {
+          "name": "--xcconfig [string]",
+          "description": "Explicitly set xcconfig to use"
+        },
+        {
+          "name": "--buildFolder <string>",
+          "description": "Location for iOS build artifacts. Corresponds to Xcode's \"-derivedDataPath\"."
+        },
+        {
+          "name": "--extra-params <string>",
+          "description": "Custom params that will be passed to xcodebuild command."
+        },
+        {
+          "name": "--target <string>",
+          "description": "Explicitly set Xcode target to use."
+        },
+        {
+          "name": "-i --interactive",
+          "description": "Explicitly select which scheme and configuration to use before running a build"
+        },
+        {
+          "name": "--force-pods",
+          "description": "Force CocoaPods installation"
+        },
+        {
+          "name": "--device [string]",
+          "description": "Explicitly set the device to use by name or by unique device identifier . If the value is not provided,the app will run on the first available physical device."
+        }
+      ]
+    },
+    {
+      "name": "log-android",
+      "description": "starts logkitty"
+    },
+    {
+      "name": "run-android",
+      "description": "builds your app and starts it on a connected Android emulator or device",
+      "options": [
+        {
+          "name": "--mode <string>",
+          "description": "Specify your app's build variant"
+        },
+        {
+          "name": "--tasks <list>",
+          "description": "Run custom Gradle tasks. By default it's \"assembleDebug\". Will override passed mode and variant arguments."
+        },
+        {
+          "name": "--active-arch-only",
+          "description": "Build native libraries only for the current device architecture for debug builds.",
+          "default": false
+        },
+        {
+          "name": "--extra-params <string>",
+          "description": "Custom params passed to gradle build command"
+        },
+        {
+          "name": "-i --interactive",
+          "description": "Explicitly select build type and flavour to use before running a build"
+        },
+        {
+          "name": "--no-packager",
+          "description": "Do not launch packager while running the app"
+        },
+        {
+          "name": "--port <number>",
+          "default": 8081
+        },
+        {
+          "name": "--terminal <string>",
+          "description": "Launches the Metro Bundler in a new window using the specified terminal path.",
+          "default": "Apple_Terminal"
+        },
+        {
+          "name": "--appId <string>",
+          "description": "Specify an applicationId to launch after build. If not specified, `package` from AndroidManifest.xml will be used.",
+          "default": ""
+        },
+        {
+          "name": "--appIdSuffix <string>",
+          "description": "Specify an applicationIdSuffix to launch after build.",
+          "default": ""
+        },
+        {
+          "name": "--main-activity <string>",
+          "description": "Name of the activity to start"
+        },
+        {
+          "name": "--device <string>",
+          "description": "Explicitly set the device to use by name. The value is not required if you have a single device connected."
+        },
+        {
+          "name": "--deviceId <string>",
+          "description": "**DEPRECATED** Builds your app and starts it on a specific device/simulator with the given device id (listed by running \"adb devices\" on the command line)."
+        },
+        {
+          "name": "--list-devices",
+          "description": "Lists all available Android devices and simulators and let you choose one to run the app",
+          "default": false
+        },
+        {
+          "name": "--binary-path <string>",
+          "description": "Path relative to project root where pre-built .apk binary lives."
+        },
+        {
+          "name": "--user <number>",
+          "description": "Id of the User Profile you want to install the app on."
+        }
+      ]
+    },
+    {
+      "name": "build-android",
+      "description": "builds your app",
+      "options": [
+        {
+          "name": "--mode <string>",
+          "description": "Specify your app's build variant"
+        },
+        {
+          "name": "--tasks <list>",
+          "description": "Run custom Gradle tasks. By default it's \"assembleDebug\". Will override passed mode and variant arguments."
+        },
+        {
+          "name": "--active-arch-only",
+          "description": "Build native libraries only for the current device architecture for debug builds.",
+          "default": false
+        },
+        {
+          "name": "--extra-params <string>",
+          "description": "Custom params passed to gradle build command"
+        },
+        {
+          "name": "-i --interactive",
+          "description": "Explicitly select build type and flavour to use before running a build"
+        }
+      ]
+    }
+  ],
+  "healthChecks": [],
+  "platforms": {
+    "ios": {},
+    "android": {}
+  },
+  "assets": [],
+  "project": {
+    "ios": null,
+    "android": {
+      "sourceDir": "/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android",
+      "appName": "app",
+      "packageName": "com.openchsclient",
+      "applicationId": "com.openchsclient",
+      "mainActivity": ".MainActivity",
+      "assets": []
+    }
+  }
+}

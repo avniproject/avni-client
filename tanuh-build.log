@@ -1,0 +1,1696 @@
+/Library/Developer/CommandLineTools/usr/bin/make tanuh-clean
+rm -f packages/openchs-android/android/app/src/tanuh/assets/models/*.bin packages/openchs-android/android/app/src/tanuh/assets/models/registry.json
+Cleared packages/openchs-android/android/app/src/tanuh/assets/models/
+[encrypt] in=/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/tools/edge-model/source/mvit2_fold1_6.onnx (17697798 bytes)
+[encrypt] wrote /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/src/tanuh/assets/models/mvit2_fold1_6.bin (17697826 bytes)
+[encrypt] wrote /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/src/tanuh/assets/models/registry.json
+[encrypt] modelKey=mvit2_fold1_6 sha256=fe9d24c0c971950d0bb4951a89114c658d326cdf4ddb25a221bb0051098a5060
+[encrypt] base64Key (now stored in registry.json) = qikhZLrM3OPY+clWXdlpu4EuwfJxT0QwGNLp6RUg+I8=
+[encrypt] done.
+[encrypt] in=/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/tools/edge-model/source/mvit2_fold1_8.onnx (17697798 bytes)
+[encrypt] wrote /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/src/tanuh/assets/models/mvit2_fold1_8.bin (17697826 bytes)
+[encrypt] wrote /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/src/tanuh/assets/models/registry.json
+[encrypt] modelKey=mvit2_fold1_8 sha256=86620db32f317cc975baae457b6adb14a8e80ea358415e5870c6239d8c097a2a
+[encrypt] base64Key (now stored in registry.json) = T2ZetscGQRJarBJu5MHtD1QAZRS4qhUKqk0ixdJm12c=
+[encrypt] done.
+[encrypt] in=/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/tools/edge-model/source/mvit2_fold2_8.onnx (17697798 bytes)
+[encrypt] wrote /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/src/tanuh/assets/models/mvit2_fold2_8.bin (17697826 bytes)
+[encrypt] wrote /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/src/tanuh/assets/models/registry.json
+[encrypt] modelKey=mvit2_fold2_8 sha256=a168d74b1281a8825be4c251422cab53c25797b09d717349ce537d4011e48e31
+[encrypt] base64Key (now stored in registry.json) = 8QiAwWe87RPeWphpUZELxDfoJ2ngWcM9BF2A3p5N0JQ=
+[encrypt] done.
+
+Encrypted 3 folds into packages/openchs-android/android/app/src/tanuh/assets/models/registry.json: mvit2_fold1_6, mvit2_fold1_8, mvit2_fold2_8
+From a form-element rule (soft-vote ensemble → one verdict):
+  services.edgeModelService.scheduleImageInference(
+    ['mvit2_fold1_6','mvit2_fold1_8','mvit2_fold2_8'], imagePath, entity,
+    'AI Suspicion Result', {Positive:'Suspicious', Negative:'Non Suspicious'})
+/Library/Developer/CommandLineTools/usr/bin/make as_prod flavor=tanuh
+Creating config for prod
+/Library/Developer/CommandLineTools/usr/bin/make metro_config flavor=tanuh
+make[1]: `metro_config' is up to date.
+cd packages/openchs-android/android; KEY_STORE_PREFIX="/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/" GRADLE_OPTS="-Xmx1024m -Xms1024m" ./gradlew bundleTanuhRelease --stacktrace
+🔗 Including React Native native modules from autolinking.json...
+  ✓ Included: :bugsnag_react-native -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/@bugsnag/react-native/android
+  ✓ Included: :react-native-async-storage_async-storage -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/@react-native-async-storage/async-storage/android
+  ✓ Included: :react-native-clipboard_clipboard -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/@react-native-clipboard/clipboard/android
+  ✓ Included: :react-native-community_datetimepicker -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/@react-native-community/datetimepicker/android
+  ✓ Included: :react-native-community_netinfo -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/@react-native-community/netinfo/android
+  ✓ Included: :react-native-community_progress-bar-android -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/@react-native-community/progress-bar-android/android
+  ✓ Included: :react-native-cookies_cookies -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/@react-native-cookies/cookies/android
+  ✓ Included: :react-native-documents_picker -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/@react-native-documents/picker/android
+  ✓ Included: :react-native-firebase_analytics -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/@react-native-firebase/analytics/android
+  ✓ Included: :react-native-firebase_app -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/@react-native-firebase/app/android
+  ✓ Included: :amazon-cognito-identity-js -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/amazon-cognito-identity-js/android
+  ✓ Included: :jail-monkey -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/jail-monkey/android
+  ✓ Included: :react-native-audio-recorder-player -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/react-native-audio-recorder-player/android
+  ✓ Included: :react-native-background-timer -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/react-native-background-timer/android
+  ✓ Included: :react-native-background-worker -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/react-native-background-worker/android
+  ✓ Included: :react-native-blob-util -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/react-native-blob-util/android
+  ✓ Included: :react-native-charts-wrapper -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/react-native-charts-wrapper/android
+  ✓ Included: :react-native-device-info -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/react-native-device-info/android
+  ✓ Included: :react-native-exception-handler -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/react-native-exception-handler/android
+  ✓ Included: :react-native-file-viewer -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/react-native-file-viewer/android
+  ✓ Included: :react-native-fs -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/react-native-fs/android
+  ✓ Included: :react-native-geolocation-service -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/react-native-geolocation-service/android
+  ✓ Included: :react-native-get-random-values -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/react-native-get-random-values/android
+  ✓ Included: :react-native-html-to-pdf -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/react-native-html-to-pdf/android
+  ✓ Included: :react-native-i18n -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/react-native-i18n/android
+  ✓ Included: :react-native-image-picker -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/react-native-image-picker/android
+  ✓ Included: :react-native-immediate-phone-call -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/react-native-immediate-phone-call/android
+  ✓ Included: :react-native-keep-awake -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/react-native-keep-awake/android
+  ✓ Included: :react-native-keychain -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/react-native-keychain/android
+  ✓ Included: :react-native-randombytes -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/react-native-randombytes/android
+  ✓ Included: :react-native-restart -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/react-native-restart/android
+  ✓ Included: :react-native-safe-area-context -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/react-native-safe-area-context/android
+  ✓ Included: :react-native-share -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/react-native-share/android
+  ✓ Included: :react-native-svg -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/react-native-svg/android
+  ✓ Included: :react-native-vector-icons -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/react-native-vector-icons/android
+  ✓ Included: :react-native-video -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/react-native-video/android
+  ✓ Included: :react-native-webview -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/react-native-webview/android
+  ✓ Included: :react-native-zip-archive -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/react-native-zip-archive/android
+  ✓ Included: :realm -> /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/../node_modules/realm/binding/android
+✅ React Native module inclusion complete
+> Task :gradle-plugin:react-native-gradle-plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :gradle-plugin:shared:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :gradle-plugin:shared:compileKotlin UP-TO-DATE
+> Task :gradle-plugin:shared:compileJava NO-SOURCE
+> Task :gradle-plugin:shared:processResources NO-SOURCE
+> Task :gradle-plugin:shared:classes UP-TO-DATE
+> Task :gradle-plugin:shared:jar UP-TO-DATE
+> Task :gradle-plugin:react-native-gradle-plugin:compileKotlin UP-TO-DATE
+> Task :gradle-plugin:react-native-gradle-plugin:compileJava NO-SOURCE
+> Task :gradle-plugin:react-native-gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :gradle-plugin:react-native-gradle-plugin:processResources UP-TO-DATE
+> Task :gradle-plugin:react-native-gradle-plugin:classes UP-TO-DATE
+> Task :gradle-plugin:react-native-gradle-plugin:jar UP-TO-DATE
+
+> Configure project :app
+WARNING: The option setting 'android.defaults.buildfeatures.buildconfig=true' is deprecated.
+The current default is 'false'.
+It will be removed in version 9.0 of the Android Gradle plugin.
+To keep using this feature, add the following to your module-level build.gradle files:
+    android.buildFeatures.buildConfig = true
+or from Android Studio, click: `Refactor` > `Migrate BuildConfig to Gradle Build Files`.
+bugsnagAPIKey=null
+
+> Configure project :react-native-charts-wrapper
+WARNING: Using flatDir should be avoided because it doesn't support any meta-data formats.
+
+> Configure project :react-native-firebase_analytics
+:react-native-firebase_analytics package.json found at /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-firebase/analytics/package.json
+:react-native-firebase_app package.json found at /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-firebase/app/package.json
+:react-native-firebase_analytics:firebase.bom using default value: 33.1.2
+:react-native-firebase_analytics package.json found at /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-firebase/analytics/package.json
+:react-native-firebase_analytics:version set from package.json: 20.4.0 (20,4,0 - 20004000)
+:react-native-firebase_analytics:android.compileSdk using custom value: 35
+:react-native-firebase_analytics:android.targetSdk using custom value: 35
+:react-native-firebase_analytics:android.minSdk using custom value: 24
+:react-native-firebase_analytics:reactNativeAndroidDir /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native/android
+
+> Configure project :react-native-firebase_app
+:react-native-firebase_app package.json found at /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-firebase/app/package.json
+:react-native-firebase_app:firebase.bom using default value: 33.1.2
+:react-native-firebase_app:play.play-services-auth using default value: 21.2.0
+:react-native-firebase_app package.json found at /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-firebase/app/package.json
+:react-native-firebase_app:version set from package.json: 20.4.0 (20,4,0 - 20004000)
+:react-native-firebase_app:android.compileSdk using custom value: 35
+:react-native-firebase_app:android.targetSdk using custom value: 35
+:react-native-firebase_app:android.minSdk using custom value: 24
+:react-native-firebase_app:reactNativeAndroidDir /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native/android
+
+> Configure project :react-native-video
+Kotlin version is correct: 2.0.21
+AndroidX version is correct: 1.9.3
+useExoplayerIMA: false
+useExoplayerSmoothStreaming: true
+useExoplayerDash: true
+useExoplayerHls: true
+useExoplayerRtsp: false
+buildFromSource: false
+WARNING: The specified Android SDK Build Tools version (23.0.1) is ignored, as it is below the minimum supported version (34.0.0) for Android Gradle Plugin 8.7.2.
+Android SDK Build Tools 34.0.0 will be used.
+To suppress this warning, remove "buildToolsVersion '23.0.1'" from your build.gradle file, as each version of the Android Gradle Plugin now has a default version of the build tools.
+
+> Task :app:generateAutolinkingPackageList UP-TO-DATE
+> Task :app:generateCodegenSchemaFromJavaScript SKIPPED
+> Task :app:generateCodegenArtifactsFromSchema SKIPPED
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preTanuhReleaseBuild UP-TO-DATE
+> Task :app:generateTanuhReleaseFeatureMetadata UP-TO-DATE
+> Task :react-native-async-storage_async-storage:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :react-native-async-storage_async-storage:preBuild UP-TO-DATE
+> Task :react-native-async-storage_async-storage:preReleaseBuild UP-TO-DATE
+> Task :react-native-async-storage_async-storage:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-async-storage_async-storage:generateReleaseResValues UP-TO-DATE
+> Task :react-native-async-storage_async-storage:generateReleaseResources UP-TO-DATE
+> Task :react-native-async-storage_async-storage:packageReleaseResources UP-TO-DATE
+> Task :react-native-async-storage_async-storage:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-community_datetimepicker:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :react-native-community_datetimepicker:preBuild UP-TO-DATE
+> Task :react-native-community_datetimepicker:preReleaseBuild UP-TO-DATE
+> Task :react-native-community_datetimepicker:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-community_datetimepicker:generateReleaseResValues UP-TO-DATE
+> Task :react-native-community_datetimepicker:generateReleaseResources UP-TO-DATE
+> Task :react-native-community_datetimepicker:packageReleaseResources UP-TO-DATE
+> Task :react-native-async-storage_async-storage:parseReleaseLocalResources
+> Task :react-native-community_datetimepicker:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-documents_picker:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :react-native-documents_picker:preBuild UP-TO-DATE
+> Task :react-native-documents_picker:preReleaseBuild UP-TO-DATE
+> Task :react-native-documents_picker:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-documents_picker:generateReleaseResValues UP-TO-DATE
+> Task :react-native-documents_picker:generateReleaseResources UP-TO-DATE
+> Task :react-native-community_datetimepicker:parseReleaseLocalResources
+> Task :react-native-documents_picker:packageReleaseResources UP-TO-DATE
+> Task :react-native-documents_picker:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-keychain:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :react-native-keychain:preBuild UP-TO-DATE
+> Task :react-native-keychain:preReleaseBuild UP-TO-DATE
+> Task :react-native-documents_picker:parseReleaseLocalResources
+> Task :react-native-keychain:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-keychain:generateReleaseResValues UP-TO-DATE
+> Task :react-native-keychain:generateReleaseResources UP-TO-DATE
+> Task :react-native-keychain:packageReleaseResources UP-TO-DATE
+> Task :react-native-keychain:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-safe-area-context:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :react-native-safe-area-context:preBuild UP-TO-DATE
+> Task :react-native-safe-area-context:preReleaseBuild UP-TO-DATE
+> Task :react-native-safe-area-context:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-keychain:parseReleaseLocalResources
+> Task :react-native-safe-area-context:generateReleaseResValues UP-TO-DATE
+> Task :react-native-safe-area-context:generateReleaseResources UP-TO-DATE
+> Task :react-native-safe-area-context:packageReleaseResources UP-TO-DATE
+> Task :react-native-safe-area-context:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-video:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :react-native-video:preBuild UP-TO-DATE
+> Task :react-native-video:preReleaseBuild UP-TO-DATE
+> Task :react-native-safe-area-context:parseReleaseLocalResources
+> Task :react-native-video:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-video:generateReleaseResValues UP-TO-DATE
+> Task :react-native-video:generateReleaseResources UP-TO-DATE
+> Task :react-native-video:packageReleaseResources UP-TO-DATE
+> Task :react-native-video:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-webview:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :react-native-webview:preBuild UP-TO-DATE
+> Task :react-native-webview:preReleaseBuild UP-TO-DATE
+> Task :react-native-webview:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-webview:generateReleaseResValues UP-TO-DATE
+> Task :react-native-webview:generateReleaseResources UP-TO-DATE
+> Task :react-native-video:parseReleaseLocalResources
+> Task :react-native-webview:packageReleaseResources UP-TO-DATE
+> Task :react-native-async-storage_async-storage:generateReleaseRFile
+> Task :react-native-documents_picker:generateReleaseRFile
+> Task :react-native-safe-area-context:generateReleaseRFile
+> Task :react-native-keychain:generateReleaseRFile
+> Task :react-native-video:generateReleaseRFile
+> Task :react-native-community_datetimepicker:generateReleaseRFile
+> Task :react-native-webview:javaPreCompileRelease UP-TO-DATE
+> Task :bugsnag_react-native:preBuild UP-TO-DATE
+> Task :bugsnag_react-native:preReleaseBuild UP-TO-DATE
+> Task :bugsnag_react-native:generateReleaseBuildConfig UP-TO-DATE
+> Task :bugsnag_react-native:generateReleaseResValues UP-TO-DATE
+> Task :react-native-webview:parseReleaseLocalResources
+> Task :bugsnag_react-native:generateReleaseResources UP-TO-DATE
+> Task :bugsnag_react-native:packageReleaseResources UP-TO-DATE
+> Task :bugsnag_react-native:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-clipboard_clipboard:preBuild UP-TO-DATE
+> Task :react-native-clipboard_clipboard:preReleaseBuild UP-TO-DATE
+> Task :bugsnag_react-native:parseReleaseLocalResources
+> Task :react-native-clipboard_clipboard:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-webview:generateReleaseRFile
+> Task :bugsnag_react-native:generateReleaseRFile
+
+> Task :bugsnag_react-native:compileReleaseJavaWithJavac
+Note: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@bugsnag/react-native/android/src/main/java/com/bugsnag/android/ReactNativeCompat.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :bugsnag_react-native:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :bugsnag_react-native:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-clipboard_clipboard:generateReleaseResValues UP-TO-DATE
+> Task :react-native-clipboard_clipboard:generateReleaseResources UP-TO-DATE
+> Task :react-native-clipboard_clipboard:packageReleaseResources UP-TO-DATE
+> Task :react-native-clipboard_clipboard:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-community_netinfo:preBuild UP-TO-DATE
+> Task :react-native-community_netinfo:preReleaseBuild UP-TO-DATE
+> Task :react-native-clipboard_clipboard:parseReleaseLocalResources
+> Task :react-native-community_netinfo:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-community_netinfo:generateReleaseResValues UP-TO-DATE
+> Task :react-native-community_netinfo:generateReleaseResources UP-TO-DATE
+> Task :react-native-community_netinfo:packageReleaseResources UP-TO-DATE
+> Task :react-native-community_netinfo:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-community_progress-bar-android:preBuild UP-TO-DATE
+> Task :react-native-community_progress-bar-android:preReleaseBuild UP-TO-DATE
+> Task :react-native-community_netinfo:parseReleaseLocalResources
+> Task :react-native-community_progress-bar-android:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-clipboard_clipboard:generateReleaseRFile
+> Task :react-native-community_netinfo:generateReleaseRFile
+
+> Task :react-native-clipboard_clipboard:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-clipboard/clipboard/android/src/main/java/com/reactnativecommunity/clipboard/ClipboardPackage.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :react-native-clipboard_clipboard:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-clipboard_clipboard:exportReleaseConsumerProguardFiles UP-TO-DATE
+
+> Task :react-native-community_netinfo:compileReleaseJavaWithJavac
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-community/netinfo/android/src/main/java/com/reactnativecommunity/netinfo/NetInfoModule.java:47: warning: [removal] onCatalystInstanceDestroy() in NativeModule has been deprecated and marked for removal
+    public void onCatalystInstanceDestroy() {
+                ^
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+1 warning
+
+> Task :react-native-community_netinfo:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-community_netinfo:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-community_progress-bar-android:generateReleaseResValues UP-TO-DATE
+> Task :react-native-community_progress-bar-android:generateReleaseResources UP-TO-DATE
+> Task :react-native-community_progress-bar-android:packageReleaseResources UP-TO-DATE
+> Task :react-native-community_progress-bar-android:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-cookies_cookies:preBuild UP-TO-DATE
+> Task :react-native-cookies_cookies:preReleaseBuild UP-TO-DATE
+> Task :react-native-community_progress-bar-android:parseReleaseLocalResources
+> Task :react-native-cookies_cookies:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-cookies_cookies:generateReleaseResValues UP-TO-DATE
+> Task :react-native-cookies_cookies:generateReleaseResources UP-TO-DATE
+> Task :react-native-cookies_cookies:packageReleaseResources UP-TO-DATE
+> Task :react-native-cookies_cookies:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-firebase_analytics:preBuild UP-TO-DATE
+> Task :react-native-firebase_analytics:preReleaseBuild UP-TO-DATE
+> Task :react-native-cookies_cookies:parseReleaseLocalResources
+> Task :react-native-community_progress-bar-android:generateReleaseRFile
+> Task :react-native-firebase_analytics:generateReleaseBuildConfig UP-TO-DATE
+
+> Task :react-native-community_progress-bar-android:compileReleaseJavaWithJavac
+Note: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-community/progress-bar-android/android/src/main/java/com/reactnativecommunity/androidprogressbar/ProgressBarContainerView.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-community_progress-bar-android:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-community_progress-bar-android:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-firebase_analytics:generateReleaseResValues UP-TO-DATE
+> Task :react-native-firebase_analytics:generateReleaseResources UP-TO-DATE
+> Task :react-native-firebase_analytics:packageReleaseResources UP-TO-DATE
+> Task :react-native-firebase_app:preBuild UP-TO-DATE
+> Task :react-native-firebase_app:preReleaseBuild UP-TO-DATE
+> Task :react-native-cookies_cookies:generateReleaseRFile
+> Task :react-native-firebase_app:generateReleaseResValues UP-TO-DATE
+> Task :react-native-firebase_analytics:parseReleaseLocalResources
+
+> Task :react-native-cookies_cookies:compileReleaseJavaWithJavac
+Note: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-cookies/cookies/android/src/main/java/com/reactnativecommunity/cookies/CookieManagerModule.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-cookies_cookies:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-cookies_cookies:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-firebase_app:generateReleaseResources UP-TO-DATE
+> Task :react-native-firebase_app:packageReleaseResources UP-TO-DATE
+> Task :react-native-firebase_analytics:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-firebase_app:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-firebase_app:javaPreCompileRelease UP-TO-DATE
+> Task :amazon-cognito-identity-js:preBuild UP-TO-DATE
+> Task :react-native-firebase_app:parseReleaseLocalResources
+> Task :amazon-cognito-identity-js:preReleaseBuild UP-TO-DATE
+> Task :amazon-cognito-identity-js:generateReleaseBuildConfig UP-TO-DATE
+> Task :amazon-cognito-identity-js:generateReleaseResValues UP-TO-DATE
+> Task :amazon-cognito-identity-js:generateReleaseResources UP-TO-DATE
+> Task :amazon-cognito-identity-js:packageReleaseResources UP-TO-DATE
+> Task :amazon-cognito-identity-js:javaPreCompileRelease UP-TO-DATE
+> Task :jail-monkey:preBuild UP-TO-DATE
+> Task :jail-monkey:preReleaseBuild UP-TO-DATE
+> Task :jail-monkey:generateReleaseBuildConfig UP-TO-DATE
+> Task :amazon-cognito-identity-js:parseReleaseLocalResources
+> Task :jail-monkey:generateReleaseResValues UP-TO-DATE
+> Task :react-native-firebase_app:generateReleaseRFile
+> Task :amazon-cognito-identity-js:generateReleaseRFile
+> Task :react-native-firebase_analytics:generateReleaseRFile
+
+> Task :react-native-firebase_app:compileReleaseJavaWithJavac
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-firebase/app/android/src/reactnative/java/io/invertase/firebase/common/ReactNativeFirebaseModule.java:97: warning: [removal] onCatalystInstanceDestroy() in NativeModule has been deprecated and marked for removal
+  public void onCatalystInstanceDestroy() {
+              ^
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+1 warning
+
+> Task :react-native-firebase_app:bundleLibCompileToJarRelease UP-TO-DATE
+
+> Task :react-native-firebase_analytics:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-firebase_analytics:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-firebase_analytics:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-firebase_app:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-firebase_app:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :amazon-cognito-identity-js:compileReleaseJavaWithJavac
+> Task :amazon-cognito-identity-js:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :amazon-cognito-identity-js:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :jail-monkey:generateReleaseResources UP-TO-DATE
+> Task :jail-monkey:packageReleaseResources UP-TO-DATE
+> Task :jail-monkey:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-audio-recorder-player:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :react-native-audio-recorder-player:preBuild UP-TO-DATE
+> Task :react-native-audio-recorder-player:preReleaseBuild UP-TO-DATE
+> Task :jail-monkey:parseReleaseLocalResources
+> Task :react-native-audio-recorder-player:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-audio-recorder-player:generateReleaseResValues UP-TO-DATE
+> Task :react-native-audio-recorder-player:generateReleaseResources UP-TO-DATE
+> Task :react-native-audio-recorder-player:packageReleaseResources UP-TO-DATE
+> Task :react-native-audio-recorder-player:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-background-timer:preBuild UP-TO-DATE
+> Task :react-native-background-timer:preReleaseBuild UP-TO-DATE
+> Task :react-native-audio-recorder-player:parseReleaseLocalResources
+> Task :react-native-background-timer:generateReleaseBuildConfig UP-TO-DATE
+> Task :jail-monkey:generateReleaseRFile
+> Task :react-native-audio-recorder-player:generateReleaseRFile
+> Task :react-native-community_datetimepicker:compileReleaseKotlin
+
+> Task :jail-monkey:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-webview:compileReleaseKotlin
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:22:8 'class MapBuilder : Any' is deprecated. Deprecated in Java.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:82:18 'var allowFileAccessFromFileURLs: Boolean' is deprecated. Deprecated in Java.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:83:18 'var allowUniversalAccessFromFileURLs: Boolean' is deprecated. Deprecated in Java.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:124:21 'fun allowScanningByMediaScanner(): Unit' is deprecated. Deprecated in Java.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:161:36 'var systemUiVisibility: Int' is deprecated. Deprecated in Java.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:300:14 'class MapBuilder : Any' is deprecated. Deprecated in Java.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:350:34 Condition is always 'true'.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:369:38 'var allowUniversalAccessFromFileURLs: Boolean' is deprecated. Deprecated in Java.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:430:51 Unchecked cast of 'kotlin.Any?' to 'java.util.HashMap<kotlin.String, kotlin.String>'.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:486:23 'var savePassword: Boolean' is deprecated. Deprecated in Java.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:487:23 'var saveFormData: Boolean' is deprecated. Deprecated in Java.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:557:23 'var allowFileAccessFromFileURLs: Boolean' is deprecated. Deprecated in Java.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:602:52 'static field FORCE_DARK_ON: Int' is deprecated. Deprecated in Java.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:602:89 'static field FORCE_DARK_OFF: Int' is deprecated. Deprecated in Java.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:603:35 'static fun setForceDark(p0: @NonNull() WebSettings!, p1: Int): Unit' is deprecated. Deprecated in Java.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:612:35 'static fun setForceDarkStrategy(p0: @NonNull() WebSettings!, p1: Int): Unit' is deprecated. Deprecated in Java.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:614:39 'static field DARK_STRATEGY_PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING: Int' is deprecated. Deprecated in Java.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:658:65 Unchecked cast of 'java.util.ArrayList<kotlin.Any?>' to 'kotlin.collections.List<kotlin.collections.Map<kotlin.String, kotlin.String>>'.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:679:23 'var saveFormData: Boolean' is deprecated. Deprecated in Java.
+
+> Task :react-native-async-storage_async-storage:kspReleaseKotlin
+> Task :react-native-documents_picker:compileReleaseKotlin
+
+> Task :react-native-safe-area-context:compileReleaseKotlin
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-safe-area-context/android/src/main/java/com/th3rdwave/safeareacontext/SafeAreaView.kt:59:23 'val uiImplementation: UIImplementation!' is deprecated. Deprecated in Java.
+
+> Task :react-native-keychain:compileReleaseKotlin
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-keychain/android/src/main/java/com/oblador/keychain/cipherStorage/CipherStorageBase.kt:256:40 'val isInsideSecureHardware: Boolean' is deprecated. Deprecated in Java.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-keychain/android/src/main/java/com/oblador/keychain/cipherStorage/CipherStorageKeystoreAesGcm.kt:175:44 'fun setUserAuthenticationValidityDurationSeconds(p0: Int): KeyGenParameterSpec.Builder' is deprecated. Deprecated in Java.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-keychain/android/src/main/java/com/oblador/keychain/cipherStorage/CipherStorageKeystoreRsaEcb.kt:200:40 'fun setUserAuthenticationValidityDurationSeconds(p0: Int): KeyGenParameterSpec.Builder' is deprecated. Deprecated in Java.
+
+> Task :react-native-community_datetimepicker:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-community_datetimepicker:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-community_datetimepicker:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-documents_picker:compileReleaseJavaWithJavac
+> Task :react-native-documents_picker:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-documents_picker:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-keychain:compileReleaseJavaWithJavac
+> Task :react-native-keychain:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-keychain:exportReleaseConsumerProguardFiles UP-TO-DATE
+
+> Task :react-native-safe-area-context:compileReleaseJavaWithJavac
+Note: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-safe-area-context/android/src/paper/java/com/th3rdwave/safeareacontext/NativeSafeAreaContextSpec.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-safe-area-context:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-safe-area-context:exportReleaseConsumerProguardFiles UP-TO-DATE
+
+> Task :react-native-async-storage_async-storage:compileReleaseKotlin
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-async-storage/async-storage/android/src/kotlinPackage/java/com/reactnativecommunity/asyncstorage/AsyncStoragePackage.kt:3:8 'class TurboReactPackage : BaseReactPackage' is deprecated. Use BaseReactPackage instead.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-async-storage/async-storage/android/src/kotlinPackage/java/com/reactnativecommunity/asyncstorage/AsyncStoragePackage.kt:18:29 'class TurboReactPackage : BaseReactPackage' is deprecated. Use BaseReactPackage instead.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-async-storage/async-storage/android/src/kotlinPackage/java/com/reactnativecommunity/asyncstorage/AsyncStoragePackage.kt:28:49 'fun newInstance(): CapturedType(*)!' is deprecated. Deprecated in Java.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-async-storage/async-storage/android/src/kotlinPackage/java/com/reactnativecommunity/asyncstorage/AsyncStoragePackage.kt:36:43 'constructor(name: String, className: String, canOverrideExistingModule: Boolean, needsEagerInit: Boolean, hasConstants: Boolean, isCxxModule: Boolean, isTurboModule: Boolean): ReactModuleInfo' is deprecated. This constructor is deprecated and will be removed in the future. Use ReactModuleInfo(String, String, boolean, boolean, boolean, boolean)].
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-async-storage/async-storage/android/src/kotlinPackage/java/com/reactnativecommunity/asyncstorage/AsyncStoragePackage.kt:41:37 'val hasConstants: Boolean' is deprecated. This property is unused and it's planning to be removed in a future version of
+        React Native. Please refrain from using it.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-async-storage/async-storage/android/src/main/java/com/reactnativecommunity/asyncstorage/next/ArgumentHelpers.kt:41:17 Unchecked cast of 'java.util.ArrayList<kotlin.Any?>' to 'kotlin.collections.List<kotlin.String>'.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-async-storage/async-storage/android/src/main/java/com/reactnativecommunity/asyncstorage/next/StorageSupplier.kt:61:69 Java type mismatch: inferred type is 'kotlin.String?', but 'kotlin.String' was expected.
+
+> Task :react-native-video:compileReleaseKotlin
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-video/android/src/main/java/com/brentvatne/exoplayer/ExoPlayerView.kt:49:9 'fun setUseArtwork(p0: Boolean): Unit' is deprecated. Deprecated in Java.
+
+> Task :react-native-webview:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-async-storage_async-storage:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-async-storage_async-storage:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-async-storage_async-storage:exportReleaseConsumerProguardFiles UP-TO-DATE
+
+> Task :react-native-video:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-video/android/src/main/java/com/brentvatne/exoplayer/ReactExoplayerView.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :react-native-video:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-video:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-webview:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-webview:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :jail-monkey:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :jail-monkey:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-background-timer:generateReleaseResValues UP-TO-DATE
+> Task :react-native-background-timer:generateReleaseResources UP-TO-DATE
+> Task :react-native-background-timer:packageReleaseResources UP-TO-DATE
+> Task :react-native-background-timer:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-background-worker:preBuild UP-TO-DATE
+> Task :react-native-background-worker:preReleaseBuild UP-TO-DATE
+> Task :react-native-background-timer:parseReleaseLocalResources
+> Task :react-native-background-worker:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-background-worker:generateReleaseResValues UP-TO-DATE
+> Task :react-native-background-worker:generateReleaseResources UP-TO-DATE
+> Task :react-native-background-worker:packageReleaseResources UP-TO-DATE
+> Task :react-native-background-timer:generateReleaseRFile
+> Task :react-native-background-worker:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-background-worker:parseReleaseLocalResources
+
+> Task :react-native-background-timer:compileReleaseJavaWithJavac
+Note: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-background-timer/android/src/main/java/com/ocetnik/timer/BackgroundTimerModule.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-background-timer:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-background-timer:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-blob-util:preBuild UP-TO-DATE
+> Task :react-native-blob-util:preReleaseBuild UP-TO-DATE
+> Task :react-native-blob-util:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-blob-util:generateReleaseResValues UP-TO-DATE
+> Task :react-native-blob-util:generateReleaseResources UP-TO-DATE
+> Task :react-native-blob-util:packageReleaseResources UP-TO-DATE
+> Task :react-native-blob-util:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-charts-wrapper:preBuild UP-TO-DATE
+> Task :react-native-charts-wrapper:preReleaseBuild UP-TO-DATE
+> Task :react-native-charts-wrapper:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-charts-wrapper:generateReleaseResValues UP-TO-DATE
+> Task :react-native-blob-util:parseReleaseLocalResources
+> Task :react-native-background-worker:generateReleaseRFile
+> Task :react-native-charts-wrapper:generateReleaseResources UP-TO-DATE
+
+> Task :react-native-background-worker:compileReleaseJavaWithJavac
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/BackgroundWorkerModule.java:62: warning: [removal] onCatalystInstanceDestroy() in NativeModule has been deprecated and marked for removal
+    public void onCatalystInstanceDestroy() {
+                ^
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/BackgroundWorkerModule.java:64: warning: [removal] onCatalystInstanceDestroy() in NativeModule has been deprecated and marked for removal
+        super.onCatalystInstanceDestroy();
+             ^
+2 warnings
+
+> Task :react-native-background-worker:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-background-worker:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-charts-wrapper:packageReleaseResources UP-TO-DATE
+> Task :react-native-charts-wrapper:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-device-info:preBuild UP-TO-DATE
+> Task :react-native-device-info:preReleaseBuild UP-TO-DATE
+> Task :react-native-device-info:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-device-info:generateReleaseResValues UP-TO-DATE
+> Task :react-native-device-info:generateReleaseResources UP-TO-DATE
+> Task :react-native-blob-util:generateReleaseRFile
+> Task :react-native-charts-wrapper:parseReleaseLocalResources
+> Task :react-native-device-info:packageReleaseResources UP-TO-DATE
+
+> Task :react-native-audio-recorder-player:compileReleaseKotlin
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-audio-recorder-player/android/src/main/java/com/dooboolab.audiorecorderplayer/RNAudioRecorderPlayerModule.kt:80:13 'constructor(): MediaRecorder' is deprecated. Deprecated in Java.
+
+> Task :react-native-blob-util:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-audio-recorder-player:compileReleaseJavaWithJavac
+> Task :react-native-audio-recorder-player:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-audio-recorder-player:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-blob-util:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-blob-util:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-device-info:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-exception-handler:preBuild UP-TO-DATE
+> Task :react-native-exception-handler:preReleaseBuild UP-TO-DATE
+> Task :react-native-device-info:parseReleaseLocalResources
+> Task :react-native-exception-handler:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-charts-wrapper:generateReleaseRFile
+> Task :react-native-exception-handler:generateReleaseResValues UP-TO-DATE
+> Task :react-native-device-info:generateReleaseRFile
+
+> Task :react-native-charts-wrapper:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :react-native-charts-wrapper:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-charts-wrapper:exportReleaseConsumerProguardFiles UP-TO-DATE
+
+> Task :react-native-device-info:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-device-info:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-device-info:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-exception-handler:generateReleaseResources UP-TO-DATE
+> Task :react-native-exception-handler:packageReleaseResources UP-TO-DATE
+> Task :react-native-exception-handler:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-file-viewer:preBuild UP-TO-DATE
+> Task :react-native-file-viewer:preReleaseBuild UP-TO-DATE
+> Task :react-native-file-viewer:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-file-viewer:generateReleaseResValues UP-TO-DATE
+> Task :react-native-exception-handler:parseReleaseLocalResources
+> Task :react-native-file-viewer:generateReleaseResources UP-TO-DATE
+> Task :react-native-file-viewer:packageReleaseResources UP-TO-DATE
+> Task :react-native-file-viewer:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-fs:preBuild UP-TO-DATE
+> Task :react-native-fs:preReleaseBuild UP-TO-DATE
+> Task :react-native-exception-handler:generateReleaseRFile
+> Task :react-native-file-viewer:parseReleaseLocalResources
+> Task :react-native-fs:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-exception-handler:compileReleaseJavaWithJavac
+> Task :react-native-exception-handler:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-exception-handler:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-fs:generateReleaseResValues UP-TO-DATE
+> Task :react-native-fs:generateReleaseResources UP-TO-DATE
+> Task :react-native-fs:packageReleaseResources UP-TO-DATE
+> Task :react-native-fs:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-geolocation-service:preBuild UP-TO-DATE
+> Task :react-native-geolocation-service:preReleaseBuild UP-TO-DATE
+> Task :react-native-geolocation-service:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-fs:parseReleaseLocalResources
+> Task :react-native-geolocation-service:generateReleaseResValues UP-TO-DATE
+> Task :react-native-file-viewer:generateReleaseRFile
+> Task :react-native-fs:generateReleaseRFile
+> Task :react-native-file-viewer:compileReleaseJavaWithJavac
+> Task :react-native-file-viewer:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-file-viewer:exportReleaseConsumerProguardFiles UP-TO-DATE
+
+> Task :react-native-fs:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-fs:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-fs:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-geolocation-service:generateReleaseResources UP-TO-DATE
+> Task :react-native-geolocation-service:packageReleaseResources UP-TO-DATE
+> Task :react-native-geolocation-service:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-get-random-values:preBuild UP-TO-DATE
+> Task :react-native-get-random-values:preReleaseBuild UP-TO-DATE
+> Task :react-native-geolocation-service:parseReleaseLocalResources
+> Task :react-native-get-random-values:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-get-random-values:generateReleaseResValues UP-TO-DATE
+> Task :react-native-get-random-values:generateReleaseResources UP-TO-DATE
+> Task :react-native-get-random-values:packageReleaseResources UP-TO-DATE
+> Task :react-native-get-random-values:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-get-random-values:parseReleaseLocalResources
+> Task :react-native-html-to-pdf:preBuild UP-TO-DATE
+> Task :react-native-html-to-pdf:preReleaseBuild UP-TO-DATE
+> Task :react-native-html-to-pdf:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-geolocation-service:generateReleaseRFile
+> Task :react-native-html-to-pdf:generateReleaseResValues UP-TO-DATE
+> Task :react-native-get-random-values:generateReleaseRFile
+
+> Task :react-native-geolocation-service:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-geolocation-service:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-geolocation-service:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-get-random-values:compileReleaseJavaWithJavac
+> Task :react-native-get-random-values:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-get-random-values:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-html-to-pdf:generateReleaseResources UP-TO-DATE
+> Task :react-native-html-to-pdf:packageReleaseResources UP-TO-DATE
+> Task :react-native-html-to-pdf:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-i18n:preBuild UP-TO-DATE
+> Task :react-native-i18n:preReleaseBuild UP-TO-DATE
+> Task :react-native-html-to-pdf:parseReleaseLocalResources
+> Task :react-native-i18n:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-i18n:generateReleaseResValues UP-TO-DATE
+> Task :react-native-i18n:generateReleaseResources UP-TO-DATE
+> Task :react-native-i18n:packageReleaseResources UP-TO-DATE
+> Task :react-native-i18n:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-html-to-pdf:generateReleaseRFile
+> Task :react-native-i18n:parseReleaseLocalResources
+
+> Task :react-native-html-to-pdf:compileReleaseJavaWithJavac
+Note: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-html-to-pdf/android/src/main/java/android/print/PdfConverter.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-html-to-pdf:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-html-to-pdf:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-image-picker:preBuild UP-TO-DATE
+> Task :react-native-image-picker:preReleaseBuild UP-TO-DATE
+> Task :react-native-image-picker:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-image-picker:generateReleaseResValues UP-TO-DATE
+> Task :react-native-image-picker:generateReleaseResources UP-TO-DATE
+> Task :react-native-image-picker:packageReleaseResources UP-TO-DATE
+> Task :react-native-i18n:generateReleaseRFile
+> Task :react-native-image-picker:parseReleaseLocalResources
+
+> Task :react-native-i18n:compileReleaseJavaWithJavac
+Note: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-i18n/android/src/main/java/com/i18n/reactnativei18n/ReactNativeI18nLocale.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-i18n:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-i18n:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-image-picker:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-immediate-phone-call:preBuild UP-TO-DATE
+> Task :react-native-immediate-phone-call:preReleaseBuild UP-TO-DATE
+> Task :react-native-immediate-phone-call:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-immediate-phone-call:generateReleaseResValues UP-TO-DATE
+> Task :react-native-immediate-phone-call:generateReleaseResources UP-TO-DATE
+> Task :react-native-immediate-phone-call:packageReleaseResources UP-TO-DATE
+> Task :react-native-image-picker:generateReleaseRFile
+> Task :react-native-immediate-phone-call:parseReleaseLocalResources
+
+> Task :react-native-image-picker:compileReleaseJavaWithJavac
+Note: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-image-picker/android/src/main/java/com/imagepicker/ImagePickerPackage.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-image-picker:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-image-picker:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-immediate-phone-call:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-keep-awake:preBuild UP-TO-DATE
+> Task :react-native-keep-awake:preReleaseBuild UP-TO-DATE
+> Task :react-native-keep-awake:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-keep-awake:generateReleaseResValues UP-TO-DATE
+> Task :react-native-keep-awake:generateReleaseResources UP-TO-DATE
+> Task :react-native-keep-awake:packageReleaseResources UP-TO-DATE
+> Task :react-native-immediate-phone-call:generateReleaseRFile
+> Task :react-native-keep-awake:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-keep-awake:parseReleaseLocalResources
+> Task :react-native-immediate-phone-call:compileReleaseJavaWithJavac
+> Task :react-native-immediate-phone-call:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-immediate-phone-call:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-randombytes:preBuild UP-TO-DATE
+> Task :react-native-randombytes:preReleaseBuild UP-TO-DATE
+> Task :react-native-randombytes:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-randombytes:generateReleaseResValues UP-TO-DATE
+> Task :react-native-randombytes:generateReleaseResources UP-TO-DATE
+> Task :react-native-randombytes:packageReleaseResources UP-TO-DATE
+> Task :react-native-keep-awake:generateReleaseRFile
+> Task :react-native-randombytes:parseReleaseLocalResources
+> Task :react-native-keep-awake:compileReleaseJavaWithJavac
+> Task :react-native-keep-awake:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-keep-awake:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-randombytes:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-restart:preBuild UP-TO-DATE
+> Task :react-native-restart:preReleaseBuild UP-TO-DATE
+> Task :react-native-restart:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-restart:generateReleaseResValues UP-TO-DATE
+> Task :react-native-restart:generateReleaseResources UP-TO-DATE
+> Task :react-native-restart:packageReleaseResources UP-TO-DATE
+> Task :react-native-restart:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-randombytes:generateReleaseRFile
+> Task :react-native-share:preBuild UP-TO-DATE
+> Task :react-native-restart:parseReleaseLocalResources
+> Task :react-native-randombytes:compileReleaseJavaWithJavac
+> Task :react-native-randombytes:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-randombytes:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-share:preReleaseBuild UP-TO-DATE
+> Task :react-native-share:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-share:generateReleaseResValues UP-TO-DATE
+> Task :react-native-share:generateReleaseResources UP-TO-DATE
+> Task :react-native-share:packageReleaseResources UP-TO-DATE
+> Task :react-native-share:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-svg:preBuild UP-TO-DATE
+> Task :react-native-svg:preReleaseBuild UP-TO-DATE
+> Task :react-native-share:parseReleaseLocalResources
+> Task :react-native-svg:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-restart:generateReleaseRFile
+> Task :react-native-share:generateReleaseRFile
+> Task :react-native-restart:compileReleaseJavaWithJavac
+> Task :react-native-restart:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-restart:exportReleaseConsumerProguardFiles UP-TO-DATE
+
+> Task :react-native-share:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-share:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-share:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-svg:generateReleaseResValues UP-TO-DATE
+> Task :react-native-svg:generateReleaseResources UP-TO-DATE
+> Task :react-native-svg:packageReleaseResources UP-TO-DATE
+> Task :react-native-svg:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-vector-icons:preBuild UP-TO-DATE
+> Task :react-native-vector-icons:preReleaseBuild UP-TO-DATE
+> Task :react-native-svg:parseReleaseLocalResources
+> Task :react-native-vector-icons:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-vector-icons:generateReleaseResValues UP-TO-DATE
+> Task :react-native-vector-icons:generateReleaseResources UP-TO-DATE
+> Task :react-native-vector-icons:packageReleaseResources UP-TO-DATE
+> Task :react-native-vector-icons:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-zip-archive:preBuild UP-TO-DATE
+> Task :react-native-zip-archive:preReleaseBuild UP-TO-DATE
+> Task :react-native-vector-icons:parseReleaseLocalResources
+> Task :react-native-zip-archive:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-svg:generateReleaseRFile
+> Task :react-native-vector-icons:generateReleaseRFile
+
+> Task :react-native-svg:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :react-native-svg:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-svg:exportReleaseConsumerProguardFiles UP-TO-DATE
+
+> Task :react-native-vector-icons:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-vector-icons:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-vector-icons:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-zip-archive:generateReleaseResValues UP-TO-DATE
+> Task :react-native-zip-archive:generateReleaseResources UP-TO-DATE
+> Task :react-native-zip-archive:packageReleaseResources UP-TO-DATE
+> Task :react-native-zip-archive:javaPreCompileRelease UP-TO-DATE
+> Task :realm:preBuild UP-TO-DATE
+> Task :realm:preReleaseBuild UP-TO-DATE
+> Task :react-native-zip-archive:parseReleaseLocalResources
+> Task :realm:generateReleaseBuildConfig UP-TO-DATE
+> Task :realm:generateReleaseResValues UP-TO-DATE
+> Task :realm:generateReleaseResources UP-TO-DATE
+> Task :realm:packageReleaseResources UP-TO-DATE
+> Task :realm:javaPreCompileRelease UP-TO-DATE
+> Task :amazon-cognito-identity-js:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :realm:parseReleaseLocalResources
+> Task :amazon-cognito-identity-js:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-zip-archive:generateReleaseRFile
+> Task :realm:generateReleaseRFile
+
+> Task :react-native-zip-archive:compileReleaseJavaWithJavac
+Note: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-zip-archive/android/src/main/java/com/rnziparchive/RNZipArchiveModule.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :react-native-zip-archive:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-zip-archive:exportReleaseConsumerProguardFiles UP-TO-DATE
+
+> Task :realm:compileReleaseJavaWithJavac
+Note: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/realm/binding/android/src/main/java/io/realm/react/RealmReactModule.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :realm:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :realm:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :app:buildKotlinToolingMetadata UP-TO-DATE
+> Task :app:checkTanuhReleaseDuplicateClasses UP-TO-DATE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:generateTanuhReleaseBuildConfig UP-TO-DATE
+> Task :amazon-cognito-identity-js:writeReleaseAarMetadata UP-TO-DATE
+> Task :bugsnag_react-native:writeReleaseAarMetadata UP-TO-DATE
+> Task :jail-monkey:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-async-storage_async-storage:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-audio-recorder-player:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-background-timer:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-background-worker:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-blob-util:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-charts-wrapper:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-clipboard_clipboard:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-community_datetimepicker:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-community_netinfo:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-community_progress-bar-android:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-cookies_cookies:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-device-info:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-documents_picker:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-exception-handler:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-file-viewer:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-firebase_analytics:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-firebase_app:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-fs:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-geolocation-service:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-get-random-values:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-html-to-pdf:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-i18n:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-image-picker:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-immediate-phone-call:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-keep-awake:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-keychain:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-randombytes:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-restart:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-safe-area-context:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-share:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-svg:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-vector-icons:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-video:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-webview:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-zip-archive:writeReleaseAarMetadata UP-TO-DATE
+> Task :realm:writeReleaseAarMetadata UP-TO-DATE
+> Task :app:checkTanuhReleaseAarMetadata
+
+> Task :app:createBundleTanuhReleaseJsAndAssets
+ WARN  the transform cache was reset.
+                Welcome to Metro v0.81.5
+              Fast - Scalable - Integrated
+
+
+Writing bundle output to: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle
+Writing sourcemap output to: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/intermediates/sourcemaps/react/tanuhRelease/index.android.bundle.packager.map
+Done writing bundle output
+Done writing sourcemap output
+Copying 8 asset files
+Done copying assets
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:1243:23: warning: the variable "DebuggerInternal" was not declared in function "__shouldPauseOnThrow"
+        return typeof DebuggerInternal !== 'undefined' && DebuggerInternal.sh...
+                      ^~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:5626:7: warning: the variable "setTimeout" was not declared in function "logCapturedError"
+      setTimeout(function () {
+      ^~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:3860:31: warning: the variable "nativeFabricUIManager" was not declared in anonymous function " 141#"
+  var _nativeFabricUIManage = nativeFabricUIManager,
+                              ^~~~~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:3888:21: warning: the variable "clearTimeout" was not declared in anonymous function " 141#"
+    cancelTimeout = clearTimeout;
+                    ^~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:3901:51: warning: the variable "RN$enableMicrotasksInReact" was not declared in anonymous function " 141#"
+... "undefined" !== typeof RN$enableMicrotasksInReact && !!RN$enableMicrotask...
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:3902:47: warning: the variable "queueMicrotask" was not declared in anonymous function " 141#"
+...otask = "function" === typeof queueMicrotask ? queueMicrotask : scheduleTi...
+                                 ^~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:8323:30: warning: the variable "__REACT_DEVTOOLS_GLOBAL_HOOK__" was not declared in anonymous function " 141#"
+  if ("undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__) {
+                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:10265:5: warning: the variable "setImmediate" was not declared in function "handleResolved"
+    setImmediate(function () {
+    ^~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:14015:12: warning: the variable "fetch" was not declared in anonymous function " 393#"
+    fetch: fetch,
+           ^~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:14016:14: warning: the variable "Headers" was not declared in anonymous function " 393#"
+    Headers: Headers,
+             ^~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:14017:14: warning: the variable "Request" was not declared in anonymous function " 393#"
+    Request: Request,
+             ^~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:14018:15: warning: the variable "Response" was not declared in anonymous function " 393#"
+    Response: Response
+              ^~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:14175:24: warning: the variable "FileReader" was not declared in function "readBlobAsArrayBuffer"
+      var reader = new FileReader();
+                       ^~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:14226:36: warning: the variable "Blob" was not declared in anonymous function " 404#"
+        } else if (support.blob && Blob.prototype.isPrototypeOf(body)) {
+                                   ^~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:14228:40: warning: the variable "FormData" was not declared in anonymous function " 404#"
+        } else if (support.formData && FormData.prototype.isPrototypeOf(body)) {
+                                       ^~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:14230:44: warning: the variable "URLSearchParams" was not declared in anonymous function " 404#"
+...e if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body...
+                                 ^~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:14349:26: warning: the variable "AbortController" was not declared in anonymous function " 410#"
+          var ctrl = new AbortController();
+                         ^~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:14483:23: warning: the variable "XMLHttpRequest" was not declared in anonymous function " 414#"
+        var xhr = new XMLHttpRequest();
+                      ^~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:14028:71: warning: the variable "self" was not declared in anonymous function " 396#"
+...undefined' && globalThis || typeof self !== 'undefined' && self ||
+                                      ^~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:22033:26: warning: the variable "navigator" was not declared in anonymous function " 703#"
+  "undefined" !== typeof navigator && undefined !== navigator.scheduling && u...
+                         ^~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:22143:37: warning: the variable "MessageChannel" was not declared in anonymous function " 703#"
+  };else if ("undefined" !== typeof MessageChannel) {
+                                    ^~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:22158:34: warning: the variable "nativeRuntimeScheduler" was not declared in anonymous function " 703#"
+... = "undefined" !== typeof nativeRuntimeScheduler ? nativeRuntimeScheduler....
+                             ^~~~~~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:75475:32: warning: the variable "crypto" was not declared in function "rng"
+      getRandomValues = typeof crypto !== 'undefined' && crypto.getRandomValu...
+                               ^~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:87361:50: warning: the variable "form" was not declared in function "associateChild 11#"
+          _BaseEntity.default.addNewChild(child, form.formElementGroups);
+                                                 ^~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:89276:26: warning: the variable "ConfigFile" was not declared in anonymous function " 2602#"
+            newDB.create(ConfigFile.schema.name, ConfigFile.create(decisionCo...
+                         ^~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:123885:16: warning: Direct call to eval(), but lexical scope is not supported.
+        return eval(globalRuleDependency.code);
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:123986:30: warning: Direct call to eval(), but lexical scope is not supported.
+              var ruleFunc = eval(form.decisionRule);
+                             ^~~~~~~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:124089:28: warning: Direct call to eval(), but lexical scope is not supported.
+            var ruleFunc = eval(worklistUpdationRule);
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:124144:26: warning: Direct call to eval(), but lexical scope is not supported.
+          var ruleFunc = eval(form.shareRule);
+                         ^~~~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:124164:26: warning: Direct call to eval(), but lexical scope is not supported.
+          var ruleFunc = eval(shareRuleString);
+                         ^~~~~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:124189:28: warning: Direct call to eval(), but lexical scope is not supported.
+            var ruleFunc = eval(form.editFormRule);
+                           ^~~~~~~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:124291:28: warning: Direct call to eval(), but lexical scope is not supported.
+            var ruleFunc = eval(subjectType.subjectSummaryRule);
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:124332:26: warning: Direct call to eval(), but lexical scope is not supported.
+          var ruleFunc = eval(subjectType.memberAdditionEligibilityCheckRule);
+                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:124356:28: warning: Direct call to eval(), but lexical scope is not supported.
+            var ruleFunc = eval(subjectType.programEligibilityCheckRule);
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:124404:26: warning: Direct call to eval(), but lexical scope is not supported.
+          var ruleFunc = eval(program.enrolmentSummaryRule);
+                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:124465:26: warning: Direct call to eval(), but lexical scope is not supported.
+          var ruleFunc = eval(form.validationRule);
+                         ^~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:124508:28: warning: Direct call to eval(), but lexical scope is not supported.
+            var ruleFunc = eval(form.validationRule);
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:124552:28: warning: Direct call to eval(), but lexical scope is not supported.
+            var ruleFunc = eval(form.visitScheduleRule);
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:124710:28: warning: Direct call to eval(), but lexical scope is not supported.
+            var ruleFunc = eval(form.checklistsRule);
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:124756:26: warning: Direct call to eval(), but lexical scope is not supported.
+          var ruleFunc = eval(formElementGroup.rule);
+                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:124887:26: warning: Direct call to eval(), but lexical scope is not supported.
+          var ruleFunc = eval(formElement.rule);
+                         ^~~~~~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:124941:28: warning: Direct call to eval(), but lexical scope is not supported.
+            var ruleFunc = eval(encounterType.encounterEligibilityCheckRule);
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:124968:28: warning: Direct call to eval(), but lexical scope is not supported.
+            var ruleFunc = eval(program.enrolmentEligibilityCheckRule);
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:124994:28: warning: Direct call to eval(), but lexical scope is not supported.
+            var ruleFunc = eval(program.manualEnrolmentEligibilityCheckRule);
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:125016:26: warning: Direct call to eval(), but lexical scope is not supported.
+          var ruleFunc = eval(customCardConfig.dataRule);
+                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:125039:26: warning: Direct call to eval(), but lexical scope is not supported.
+          var ruleFunc = eval(reportCard.query);
+                         ^~~~~~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:125170:26: warning: Direct call to eval(), but lexical scope is not supported.
+          var ruleFunc = eval(linkFunction);
+                         ^~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:141462:23: warning: Direct call to eval(), but lexical scope is not supported.
+        rulesConfig = eval(this.trimRuleDependencyCode(ruleDependency));
+                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:189591:19: warning: the variable "ruleServiceLibraryInterfaceForSharingModules" was not declared in function "get ruleServiceLibraryInterfaceForSharingModules"
+              if (ruleServiceLibraryInterfaceForSharingModules) return ruleSe...
+                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:206871:10: warning: the variable "_" was not declared in function "summaryForObservation"
+    if (!_.isNil(observationValue)) {
+         ^
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:215976:25: warning: the variable "Buffer" was not declared in anonymous function " 5749#"
+  var fromUtf8 = typeof Buffer !== "undefined" && Buffer.from ? function (inp...
+                        ^~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:216000:19: warning: the variable "TextEncoder" was not declared in function "fromUtf8"
+    return typeof TextEncoder === "function" ? (0, _$$_REQUIRE(_dependencyMap...
+                  ^~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:216004:19: warning: the variable "TextDecoder" was not declared in function "toUtf8"
+    return typeof TextDecoder === "function" ? (0, _$$_REQUIRE(_dependencyMap...
+                  ^~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:230181:21: warning: the variable "expo" was not declared in function "isExpoGo"
+      return typeof expo === "object" && ((_expo$modules = expo.modules) == n...
+                    ^~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:234327:147: warning: the variable "babelHelpers" was not declared in function "from 6#"
+...like Object. Received type " + babelHelpers["typeof"](value));
+                                  ^~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:234332:20: warning: the variable "SharedArrayBuffer" was not declared in function "from 6#"
+        if (typeof SharedArrayBuffer !== 'undefined' && (isInstance(value, Sh...
+                   ^~~~~~~~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:236521:18: warning: the variable "WebAssembly" was not declared in anonymous function " 6248#"
+      wasm = new WebAssembly.Instance(new WebAssembly.Module(
+                 ^~~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:366066:31: warning: the variable "Node" was not declared in anonymous function " 10519#"
+        if (node.nodeType === Node.ELEMENT_NODE) {
+                              ^~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:366073:20: warning: the variable "NodeFilter" was not declared in anonymous function " 10519#"
+            return NodeFilter.FILTER_ACCEPT;
+                   ^~~~~~~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:369149:37: warning: the variable "MSApp" was not declared in anonymous function " 10744#"
+      return "undefined" !== typeof MSApp && MSApp.execUnsafeLocalFunction ? ...
+                                    ^~~~~
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleTanuhReleaseJsAndAssets/index.android.bundle:375447:34: warning: the variable "reportError" was not declared in anonymous function " 10711#"
+  var kl = "function" === typeof reportError ? reportError : function (a) {
+                                 ^~~~~~~~~~~
+
+> Task :app:generateTanuhReleaseResValues UP-TO-DATE
+> Task :app:processTanuhReleaseGoogleServices UP-TO-DATE
+> Task :app:mapTanuhReleaseSourceSetPaths UP-TO-DATE
+> Task :app:generateTanuhReleaseResources UP-TO-DATE
+> Task :app:mergeTanuhReleaseResources UP-TO-DATE
+> Task :app:createTanuhReleaseCompatibleScreenManifests UP-TO-DATE
+> Task :amazon-cognito-identity-js:extractDeepLinksRelease UP-TO-DATE
+> Task :app:extractDeepLinksTanuhRelease UP-TO-DATE
+> Task :bugsnag_react-native:extractDeepLinksRelease UP-TO-DATE
+> Task :jail-monkey:extractDeepLinksRelease UP-TO-DATE
+> Task :react-native-async-storage_async-storage:extractDeepLinksRelease UP-TO-DATE
+
+> Task :bugsnag_react-native:processReleaseManifest
+package="com.bugsnag.reactnative" found in source AndroidManifest.xml: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@bugsnag/react-native/android/src/main/AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.bugsnag.reactnative" from the source AndroidManifest.xml: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@bugsnag/react-native/android/src/main/AndroidManifest.xml.
+
+> Task :amazon-cognito-identity-js:processReleaseManifest
+> Task :jail-monkey:processReleaseManifest
+> Task :react-native-audio-recorder-player:extractDeepLinksRelease UP-TO-DATE
+
+> Task :react-native-async-storage_async-storage:processReleaseManifest
+package="com.reactnativecommunity.asyncstorage" found in source AndroidManifest.xml: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-async-storage/async-storage/android/src/main/AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.reactnativecommunity.asyncstorage" from the source AndroidManifest.xml: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-async-storage/async-storage/android/src/main/AndroidManifest.xml.
+
+> Task :react-native-background-timer:extractDeepLinksRelease UP-TO-DATE
+
+> Task :react-native-audio-recorder-player:processReleaseManifest
+package="com.dooboolab.audiorecorderplayer" found in source AndroidManifest.xml: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-audio-recorder-player/android/src/main/AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.dooboolab.audiorecorderplayer" from the source AndroidManifest.xml: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-audio-recorder-player/android/src/main/AndroidManifest.xml.
+
+> Task :react-native-background-worker:extractDeepLinksRelease UP-TO-DATE
+> Task :react-native-background-timer:processReleaseManifest
+> Task :react-native-blob-util:extractDeepLinksRelease UP-TO-DATE
+> Task :react-native-charts-wrapper:extractDeepLinksRelease UP-TO-DATE
+> Task :react-native-background-worker:processReleaseManifest
+> Task :react-native-clipboard_clipboard:extractDeepLinksRelease UP-TO-DATE
+
+> Task :react-native-blob-util:processReleaseManifest
+package="com.ReactNativeBlobUtil" found in source AndroidManifest.xml: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-blob-util/android/src/main/AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.ReactNativeBlobUtil" from the source AndroidManifest.xml: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-blob-util/android/src/main/AndroidManifest.xml.
+
+> Task :react-native-charts-wrapper:processReleaseManifest
+> Task :react-native-community_datetimepicker:extractDeepLinksRelease UP-TO-DATE
+> Task :react-native-clipboard_clipboard:processReleaseManifest
+> Task :react-native-community_netinfo:extractDeepLinksRelease UP-TO-DATE
+> Task :react-native-community_datetimepicker:processReleaseManifest
+> Task :react-native-community_progress-bar-android:extractDeepLinksRelease UP-TO-DATE
+
+> Task :react-native-community_netinfo:processReleaseManifest
+package="com.reactnativecommunity.netinfo" found in source AndroidManifest.xml: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-community/netinfo/android/src/main/AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.reactnativecommunity.netinfo" from the source AndroidManifest.xml: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-community/netinfo/android/src/main/AndroidManifest.xml.
+
+> Task :react-native-cookies_cookies:extractDeepLinksRelease UP-TO-DATE
+> Task :react-native-community_progress-bar-android:processReleaseManifest
+> Task :react-native-device-info:extractDeepLinksRelease UP-TO-DATE
+> Task :react-native-cookies_cookies:processReleaseManifest
+> Task :react-native-documents_picker:extractDeepLinksRelease UP-TO-DATE
+
+> Task :react-native-device-info:processReleaseManifest
+package="com.learnium.RNDeviceInfo" found in source AndroidManifest.xml: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-device-info/android/src/main/AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.learnium.RNDeviceInfo" from the source AndroidManifest.xml: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-device-info/android/src/main/AndroidManifest.xml.
+
+> Task :react-native-exception-handler:extractDeepLinksRelease UP-TO-DATE
+
+> Task :react-native-documents_picker:processReleaseManifest
+package="com.reactnativedocumentpicker" found in source AndroidManifest.xml: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-documents/picker/android/src/main/AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.reactnativedocumentpicker" from the source AndroidManifest.xml: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-documents/picker/android/src/main/AndroidManifest.xml.
+
+> Task :react-native-file-viewer:extractDeepLinksRelease UP-TO-DATE
+> Task :react-native-exception-handler:processReleaseManifest
+> Task :react-native-firebase_analytics:extractDeepLinksRelease UP-TO-DATE
+> Task :react-native-file-viewer:processReleaseManifest
+> Task :react-native-firebase_app:extractDeepLinksRelease UP-TO-DATE
+
+> Task :react-native-firebase_analytics:processReleaseManifest
+package="io.invertase.firebase.analytics" found in source AndroidManifest.xml: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-firebase/analytics/android/src/main/AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="io.invertase.firebase.analytics" from the source AndroidManifest.xml: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-firebase/analytics/android/src/main/AndroidManifest.xml.
+
+> Task :react-native-fs:extractDeepLinksRelease UP-TO-DATE
+
+> Task :react-native-firebase_app:processReleaseManifest
+package="io.invertase.firebase" found in source AndroidManifest.xml: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-firebase/app/android/src/main/AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="io.invertase.firebase" from the source AndroidManifest.xml: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/@react-native-firebase/app/android/src/main/AndroidManifest.xml.
+
+> Task :react-native-geolocation-service:extractDeepLinksRelease UP-TO-DATE
+> Task :react-native-fs:processReleaseManifest
+> Task :react-native-get-random-values:extractDeepLinksRelease UP-TO-DATE
+> Task :react-native-geolocation-service:processReleaseManifest
+> Task :react-native-html-to-pdf:extractDeepLinksRelease UP-TO-DATE
+> Task :react-native-get-random-values:processReleaseManifest
+> Task :react-native-i18n:extractDeepLinksRelease UP-TO-DATE
+> Task :react-native-i18n:processReleaseManifest UP-TO-DATE
+> Task :react-native-html-to-pdf:processReleaseManifest
+> Task :react-native-image-picker:extractDeepLinksRelease UP-TO-DATE
+> Task :react-native-image-picker:processReleaseManifest UP-TO-DATE
+> Task :react-native-immediate-phone-call:extractDeepLinksRelease UP-TO-DATE
+> Task :react-native-keep-awake:extractDeepLinksRelease UP-TO-DATE
+> Task :react-native-immediate-phone-call:processReleaseManifest
+> Task :react-native-keychain:extractDeepLinksRelease UP-TO-DATE
+> Task :react-native-keep-awake:processReleaseManifest
+> Task :react-native-randombytes:extractDeepLinksRelease UP-TO-DATE
+
+> Task :react-native-keychain:processReleaseManifest
+package="com.oblador.keychain" found in source AndroidManifest.xml: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-keychain/android/src/main/AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.oblador.keychain" from the source AndroidManifest.xml: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-keychain/android/src/main/AndroidManifest.xml.
+
+> Task :react-native-restart:extractDeepLinksRelease UP-TO-DATE
+> Task :react-native-randombytes:processReleaseManifest
+> Task :react-native-safe-area-context:extractDeepLinksRelease UP-TO-DATE
+> Task :react-native-restart:processReleaseManifest
+> Task :react-native-share:extractDeepLinksRelease UP-TO-DATE
+
+> Task :react-native-safe-area-context:processReleaseManifest
+package="com.th3rdwave.safeareacontext" found in source AndroidManifest.xml: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-safe-area-context/android/src/main/AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.th3rdwave.safeareacontext" from the source AndroidManifest.xml: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-safe-area-context/android/src/main/AndroidManifest.xml.
+
+> Task :react-native-svg:extractDeepLinksRelease UP-TO-DATE
+
+> Task :react-native-share:processReleaseManifest
+package="cl.json" found in source AndroidManifest.xml: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-share/android/src/main/AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="cl.json" from the source AndroidManifest.xml: /Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/node_modules/react-native-share/android/src/main/AndroidManifest.xml.
+
+> Task :react-native-vector-icons:extractDeepLinksRelease UP-TO-DATE
+> Task :react-native-svg:processReleaseManifest
+> Task :react-native-video:extractDeepLinksRelease UP-TO-DATE
+> Task :react-native-vector-icons:processReleaseManifest
+> Task :react-native-webview:extractDeepLinksRelease UP-TO-DATE
+> Task :react-native-video:processReleaseManifest
+> Task :react-native-zip-archive:extractDeepLinksRelease UP-TO-DATE
+> Task :react-native-webview:processReleaseManifest
+> Task :realm:extractDeepLinksRelease UP-TO-DATE
+> Task :react-native-zip-archive:processReleaseManifest
+> Task :bugsnag_react-native:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :jail-monkey:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :realm:processReleaseManifest
+> Task :react-native-async-storage_async-storage:bundleLibCompileToJarRelease UP-TO-DATE
+
+> Task :app:processTanuhReleaseMainManifest
+/Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/src/main/AndroidManifest.xml:15:5-95 Warning:
+	uses-permission#android.permission.READ_PHONE_STATE was tagged at AndroidManifest.xml:15 to remove other declarations but no other declaration present
+
+> Task :app:processTanuhReleaseManifest
+> Task :react-native-audio-recorder-player:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-background-timer:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-background-worker:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-blob-util:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-charts-wrapper:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-clipboard_clipboard:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-community_datetimepicker:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-community_netinfo:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-community_progress-bar-android:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-cookies_cookies:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-device-info:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-documents_picker:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-exception-handler:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-file-viewer:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-firebase_analytics:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-fs:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-geolocation-service:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-get-random-values:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-html-to-pdf:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-i18n:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-image-picker:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-immediate-phone-call:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-keep-awake:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-keychain:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-randombytes:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-restart:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-safe-area-context:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-share:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-svg:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-vector-icons:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-video:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-webview:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :react-native-zip-archive:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :realm:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :app:javaPreCompileTanuhRelease UP-TO-DATE
+> Task :amazon-cognito-identity-js:prepareReleaseArtProfile UP-TO-DATE
+> Task :bugsnag_react-native:prepareReleaseArtProfile UP-TO-DATE
+> Task :jail-monkey:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-async-storage_async-storage:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-audio-recorder-player:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-background-timer:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-background-worker:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-blob-util:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-charts-wrapper:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-clipboard_clipboard:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-community_datetimepicker:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-community_netinfo:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-community_progress-bar-android:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-cookies_cookies:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-device-info:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-documents_picker:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-exception-handler:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-file-viewer:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-firebase_analytics:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-firebase_app:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-fs:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-geolocation-service:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-get-random-values:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-html-to-pdf:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-i18n:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-image-picker:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-immediate-phone-call:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-keep-awake:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-keychain:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-randombytes:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-restart:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-safe-area-context:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-share:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-svg:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-vector-icons:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-video:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-webview:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-zip-archive:prepareReleaseArtProfile UP-TO-DATE
+> Task :realm:prepareReleaseArtProfile UP-TO-DATE
+> Task :app:mergeTanuhReleaseArtProfile UP-TO-DATE
+> Task :bugsnag_react-native:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :jail-monkey:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-async-storage_async-storage:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-audio-recorder-player:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-background-timer:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-background-worker:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-blob-util:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-charts-wrapper:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-clipboard_clipboard:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-community_datetimepicker:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-community_netinfo:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-community_progress-bar-android:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-cookies_cookies:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-device-info:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-documents_picker:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-exception-handler:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-file-viewer:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-firebase_analytics:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-firebase_app:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-fs:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-geolocation-service:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-get-random-values:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-html-to-pdf:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-i18n:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-image-picker:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-immediate-phone-call:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-keep-awake:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-keychain:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-randombytes:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-restart:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-safe-area-context:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-share:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-svg:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-vector-icons:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-video:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-webview:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-zip-archive:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :realm:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :app:extractProguardFiles UP-TO-DATE
+> Task :amazon-cognito-identity-js:processReleaseJavaRes NO-SOURCE
+> Task :bugsnag_react-native:processReleaseJavaRes NO-SOURCE
+> Task :jail-monkey:processReleaseJavaRes NO-SOURCE
+> Task :react-native-async-storage_async-storage:processReleaseJavaRes UP-TO-DATE
+> Task :react-native-audio-recorder-player:processReleaseJavaRes UP-TO-DATE
+> Task :react-native-background-timer:processReleaseJavaRes NO-SOURCE
+> Task :react-native-background-worker:processReleaseJavaRes NO-SOURCE
+> Task :react-native-blob-util:processReleaseJavaRes NO-SOURCE
+> Task :react-native-charts-wrapper:processReleaseJavaRes NO-SOURCE
+> Task :react-native-clipboard_clipboard:processReleaseJavaRes NO-SOURCE
+> Task :react-native-community_datetimepicker:processReleaseJavaRes UP-TO-DATE
+> Task :react-native-community_netinfo:processReleaseJavaRes NO-SOURCE
+> Task :react-native-community_progress-bar-android:processReleaseJavaRes NO-SOURCE
+> Task :react-native-cookies_cookies:processReleaseJavaRes NO-SOURCE
+> Task :react-native-device-info:processReleaseJavaRes NO-SOURCE
+> Task :react-native-documents_picker:processReleaseJavaRes UP-TO-DATE
+> Task :react-native-exception-handler:processReleaseJavaRes NO-SOURCE
+> Task :react-native-file-viewer:processReleaseJavaRes NO-SOURCE
+> Task :react-native-firebase_analytics:processReleaseJavaRes NO-SOURCE
+> Task :react-native-firebase_app:processReleaseJavaRes NO-SOURCE
+> Task :react-native-fs:processReleaseJavaRes NO-SOURCE
+> Task :react-native-geolocation-service:processReleaseJavaRes NO-SOURCE
+> Task :react-native-get-random-values:processReleaseJavaRes NO-SOURCE
+> Task :react-native-html-to-pdf:processReleaseJavaRes NO-SOURCE
+> Task :react-native-i18n:processReleaseJavaRes NO-SOURCE
+> Task :react-native-image-picker:processReleaseJavaRes NO-SOURCE
+> Task :react-native-immediate-phone-call:processReleaseJavaRes NO-SOURCE
+> Task :react-native-keep-awake:processReleaseJavaRes NO-SOURCE
+> Task :react-native-keychain:processReleaseJavaRes UP-TO-DATE
+> Task :react-native-randombytes:processReleaseJavaRes NO-SOURCE
+> Task :react-native-restart:processReleaseJavaRes NO-SOURCE
+> Task :react-native-safe-area-context:processReleaseJavaRes UP-TO-DATE
+> Task :react-native-share:processReleaseJavaRes NO-SOURCE
+> Task :react-native-svg:processReleaseJavaRes NO-SOURCE
+> Task :react-native-vector-icons:processReleaseJavaRes NO-SOURCE
+> Task :react-native-video:processReleaseJavaRes UP-TO-DATE
+> Task :react-native-webview:processReleaseJavaRes UP-TO-DATE
+> Task :react-native-zip-archive:processReleaseJavaRes NO-SOURCE
+> Task :realm:processReleaseJavaRes NO-SOURCE
+> Task :app:mergeTanuhReleaseStartupProfile UP-TO-DATE
+> Task :app:processApplicationManifestTanuhReleaseForBundle
+> Task :app:extractTanuhReleaseVersionControlInfo UP-TO-DATE
+> Task :amazon-cognito-identity-js:mergeReleaseShaders UP-TO-DATE
+> Task :amazon-cognito-identity-js:compileReleaseShaders NO-SOURCE
+> Task :amazon-cognito-identity-js:generateReleaseAssets UP-TO-DATE
+> Task :amazon-cognito-identity-js:packageReleaseAssets UP-TO-DATE
+> Task :app:mergeTanuhReleaseShaders UP-TO-DATE
+> Task :app:compileTanuhReleaseShaders NO-SOURCE
+> Task :app:copyReactNativeVectorIconFonts UP-TO-DATE
+> Task :app:generateTanuhReleaseAssets UP-TO-DATE
+> Task :bugsnag_react-native:mergeReleaseShaders UP-TO-DATE
+> Task :bugsnag_react-native:compileReleaseShaders NO-SOURCE
+> Task :bugsnag_react-native:generateReleaseAssets UP-TO-DATE
+> Task :bugsnag_react-native:packageReleaseAssets UP-TO-DATE
+> Task :jail-monkey:mergeReleaseShaders UP-TO-DATE
+> Task :jail-monkey:compileReleaseShaders NO-SOURCE
+> Task :jail-monkey:generateReleaseAssets UP-TO-DATE
+> Task :jail-monkey:packageReleaseAssets UP-TO-DATE
+> Task :react-native-async-storage_async-storage:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-async-storage_async-storage:compileReleaseShaders NO-SOURCE
+> Task :react-native-async-storage_async-storage:generateReleaseAssets UP-TO-DATE
+> Task :react-native-async-storage_async-storage:packageReleaseAssets UP-TO-DATE
+> Task :react-native-audio-recorder-player:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-audio-recorder-player:compileReleaseShaders NO-SOURCE
+> Task :react-native-audio-recorder-player:generateReleaseAssets UP-TO-DATE
+> Task :react-native-audio-recorder-player:packageReleaseAssets UP-TO-DATE
+> Task :react-native-background-timer:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-background-timer:compileReleaseShaders NO-SOURCE
+> Task :react-native-background-timer:generateReleaseAssets UP-TO-DATE
+> Task :react-native-background-timer:packageReleaseAssets UP-TO-DATE
+> Task :react-native-background-worker:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-background-worker:compileReleaseShaders NO-SOURCE
+> Task :react-native-background-worker:generateReleaseAssets UP-TO-DATE
+> Task :react-native-background-worker:packageReleaseAssets UP-TO-DATE
+> Task :react-native-blob-util:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-blob-util:compileReleaseShaders NO-SOURCE
+> Task :react-native-blob-util:generateReleaseAssets UP-TO-DATE
+> Task :react-native-blob-util:packageReleaseAssets UP-TO-DATE
+> Task :react-native-charts-wrapper:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-charts-wrapper:compileReleaseShaders NO-SOURCE
+> Task :react-native-charts-wrapper:generateReleaseAssets UP-TO-DATE
+> Task :react-native-charts-wrapper:packageReleaseAssets UP-TO-DATE
+> Task :react-native-clipboard_clipboard:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-clipboard_clipboard:compileReleaseShaders NO-SOURCE
+> Task :react-native-clipboard_clipboard:generateReleaseAssets UP-TO-DATE
+> Task :react-native-clipboard_clipboard:packageReleaseAssets UP-TO-DATE
+> Task :react-native-community_datetimepicker:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-community_datetimepicker:compileReleaseShaders NO-SOURCE
+> Task :react-native-community_datetimepicker:generateReleaseAssets UP-TO-DATE
+> Task :react-native-community_datetimepicker:packageReleaseAssets UP-TO-DATE
+> Task :react-native-community_netinfo:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-community_netinfo:compileReleaseShaders NO-SOURCE
+> Task :react-native-community_netinfo:generateReleaseAssets UP-TO-DATE
+> Task :react-native-community_netinfo:packageReleaseAssets UP-TO-DATE
+> Task :react-native-community_progress-bar-android:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-community_progress-bar-android:compileReleaseShaders NO-SOURCE
+> Task :react-native-community_progress-bar-android:generateReleaseAssets UP-TO-DATE
+> Task :react-native-community_progress-bar-android:packageReleaseAssets UP-TO-DATE
+> Task :react-native-cookies_cookies:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-cookies_cookies:compileReleaseShaders NO-SOURCE
+> Task :react-native-cookies_cookies:generateReleaseAssets UP-TO-DATE
+> Task :react-native-cookies_cookies:packageReleaseAssets UP-TO-DATE
+> Task :react-native-device-info:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-device-info:compileReleaseShaders NO-SOURCE
+> Task :react-native-device-info:generateReleaseAssets UP-TO-DATE
+> Task :react-native-device-info:packageReleaseAssets UP-TO-DATE
+> Task :react-native-documents_picker:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-documents_picker:compileReleaseShaders NO-SOURCE
+> Task :react-native-documents_picker:generateReleaseAssets UP-TO-DATE
+> Task :react-native-documents_picker:packageReleaseAssets UP-TO-DATE
+> Task :react-native-exception-handler:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-exception-handler:compileReleaseShaders NO-SOURCE
+> Task :react-native-exception-handler:generateReleaseAssets UP-TO-DATE
+> Task :react-native-exception-handler:packageReleaseAssets UP-TO-DATE
+> Task :react-native-file-viewer:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-file-viewer:compileReleaseShaders NO-SOURCE
+> Task :react-native-file-viewer:generateReleaseAssets UP-TO-DATE
+> Task :react-native-file-viewer:packageReleaseAssets UP-TO-DATE
+> Task :react-native-firebase_analytics:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-firebase_analytics:compileReleaseShaders NO-SOURCE
+> Task :react-native-firebase_analytics:generateReleaseAssets UP-TO-DATE
+> Task :react-native-firebase_analytics:packageReleaseAssets UP-TO-DATE
+> Task :react-native-firebase_app:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-firebase_app:compileReleaseShaders NO-SOURCE
+> Task :react-native-firebase_app:generateReleaseAssets UP-TO-DATE
+> Task :react-native-firebase_app:packageReleaseAssets UP-TO-DATE
+> Task :react-native-fs:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-fs:compileReleaseShaders NO-SOURCE
+> Task :react-native-fs:generateReleaseAssets UP-TO-DATE
+> Task :react-native-fs:packageReleaseAssets UP-TO-DATE
+> Task :react-native-geolocation-service:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-geolocation-service:compileReleaseShaders NO-SOURCE
+> Task :react-native-geolocation-service:generateReleaseAssets UP-TO-DATE
+> Task :react-native-geolocation-service:packageReleaseAssets UP-TO-DATE
+> Task :react-native-get-random-values:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-get-random-values:compileReleaseShaders NO-SOURCE
+> Task :react-native-get-random-values:generateReleaseAssets UP-TO-DATE
+> Task :react-native-get-random-values:packageReleaseAssets UP-TO-DATE
+> Task :react-native-html-to-pdf:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-html-to-pdf:compileReleaseShaders NO-SOURCE
+> Task :react-native-html-to-pdf:generateReleaseAssets UP-TO-DATE
+> Task :react-native-html-to-pdf:packageReleaseAssets UP-TO-DATE
+> Task :react-native-i18n:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-i18n:compileReleaseShaders NO-SOURCE
+> Task :react-native-i18n:generateReleaseAssets UP-TO-DATE
+> Task :react-native-i18n:packageReleaseAssets UP-TO-DATE
+> Task :react-native-image-picker:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-image-picker:compileReleaseShaders NO-SOURCE
+> Task :react-native-image-picker:generateReleaseAssets UP-TO-DATE
+> Task :react-native-image-picker:packageReleaseAssets UP-TO-DATE
+> Task :react-native-immediate-phone-call:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-immediate-phone-call:compileReleaseShaders NO-SOURCE
+> Task :react-native-immediate-phone-call:generateReleaseAssets UP-TO-DATE
+> Task :react-native-immediate-phone-call:packageReleaseAssets UP-TO-DATE
+> Task :react-native-keep-awake:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-keep-awake:compileReleaseShaders NO-SOURCE
+> Task :react-native-keep-awake:generateReleaseAssets UP-TO-DATE
+> Task :react-native-keep-awake:packageReleaseAssets UP-TO-DATE
+> Task :react-native-keychain:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-keychain:compileReleaseShaders NO-SOURCE
+> Task :react-native-keychain:generateReleaseAssets UP-TO-DATE
+> Task :react-native-keychain:packageReleaseAssets UP-TO-DATE
+> Task :react-native-randombytes:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-randombytes:compileReleaseShaders NO-SOURCE
+> Task :react-native-randombytes:generateReleaseAssets UP-TO-DATE
+> Task :react-native-randombytes:packageReleaseAssets UP-TO-DATE
+> Task :react-native-restart:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-restart:compileReleaseShaders NO-SOURCE
+> Task :react-native-restart:generateReleaseAssets UP-TO-DATE
+> Task :react-native-restart:packageReleaseAssets UP-TO-DATE
+> Task :react-native-safe-area-context:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-safe-area-context:compileReleaseShaders NO-SOURCE
+> Task :react-native-safe-area-context:generateReleaseAssets UP-TO-DATE
+> Task :react-native-safe-area-context:packageReleaseAssets UP-TO-DATE
+> Task :react-native-share:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-share:compileReleaseShaders NO-SOURCE
+> Task :react-native-share:generateReleaseAssets UP-TO-DATE
+> Task :react-native-share:packageReleaseAssets UP-TO-DATE
+> Task :react-native-svg:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-svg:compileReleaseShaders NO-SOURCE
+> Task :react-native-svg:generateReleaseAssets UP-TO-DATE
+> Task :react-native-svg:packageReleaseAssets UP-TO-DATE
+> Task :react-native-vector-icons:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-vector-icons:compileReleaseShaders NO-SOURCE
+> Task :react-native-vector-icons:generateReleaseAssets UP-TO-DATE
+> Task :react-native-vector-icons:packageReleaseAssets UP-TO-DATE
+> Task :react-native-video:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-video:compileReleaseShaders NO-SOURCE
+> Task :react-native-video:generateReleaseAssets UP-TO-DATE
+> Task :react-native-video:packageReleaseAssets UP-TO-DATE
+> Task :react-native-webview:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-webview:compileReleaseShaders NO-SOURCE
+> Task :react-native-webview:generateReleaseAssets UP-TO-DATE
+> Task :react-native-webview:packageReleaseAssets UP-TO-DATE
+> Task :react-native-zip-archive:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-zip-archive:compileReleaseShaders NO-SOURCE
+> Task :react-native-zip-archive:generateReleaseAssets UP-TO-DATE
+> Task :react-native-zip-archive:packageReleaseAssets UP-TO-DATE
+> Task :realm:mergeReleaseShaders UP-TO-DATE
+> Task :realm:compileReleaseShaders NO-SOURCE
+> Task :realm:generateReleaseAssets UP-TO-DATE
+> Task :realm:packageReleaseAssets UP-TO-DATE
+> Task :app:mergeTanuhReleaseAssets
+> Task :amazon-cognito-identity-js:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :amazon-cognito-identity-js:mergeReleaseNativeLibs NO-SOURCE
+> Task :amazon-cognito-identity-js:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :app:mergeTanuhReleaseJniLibFolders UP-TO-DATE
+> Task :bugsnag_react-native:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :bugsnag_react-native:mergeReleaseNativeLibs NO-SOURCE
+> Task :bugsnag_react-native:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :jail-monkey:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :jail-monkey:mergeReleaseNativeLibs NO-SOURCE
+> Task :jail-monkey:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-async-storage_async-storage:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-async-storage_async-storage:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-async-storage_async-storage:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-audio-recorder-player:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-audio-recorder-player:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-audio-recorder-player:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-background-timer:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-background-timer:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-background-timer:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-background-worker:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-background-worker:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-background-worker:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-blob-util:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-blob-util:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-blob-util:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-charts-wrapper:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-charts-wrapper:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-charts-wrapper:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-clipboard_clipboard:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-clipboard_clipboard:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-clipboard_clipboard:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-community_datetimepicker:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-community_datetimepicker:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-community_datetimepicker:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-community_netinfo:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-community_netinfo:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-community_netinfo:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-community_progress-bar-android:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-community_progress-bar-android:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-community_progress-bar-android:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-cookies_cookies:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-cookies_cookies:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-cookies_cookies:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-device-info:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-device-info:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-device-info:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-documents_picker:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-documents_picker:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-documents_picker:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-exception-handler:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-exception-handler:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-exception-handler:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-file-viewer:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-file-viewer:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-file-viewer:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-firebase_analytics:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-firebase_analytics:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-firebase_analytics:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-firebase_app:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-firebase_app:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-firebase_app:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-fs:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-fs:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-fs:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-geolocation-service:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-geolocation-service:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-geolocation-service:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-get-random-values:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-get-random-values:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-get-random-values:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-html-to-pdf:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-html-to-pdf:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-html-to-pdf:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-i18n:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-i18n:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-i18n:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-image-picker:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-image-picker:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-image-picker:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-immediate-phone-call:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-immediate-phone-call:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-immediate-phone-call:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-keep-awake:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-keep-awake:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-keep-awake:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-keychain:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-keychain:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-keychain:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-randombytes:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-randombytes:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-randombytes:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-restart:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-restart:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-restart:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-safe-area-context:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-safe-area-context:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-safe-area-context:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-share:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-share:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-share:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-svg:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-svg:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-svg:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-vector-icons:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-vector-icons:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-vector-icons:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-video:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-video:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-video:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-webview:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-webview:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-webview:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-zip-archive:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-zip-archive:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-zip-archive:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :realm:configureCMakeRelease[arm64-v8a]
+> Task :realm:buildCMakeRelease[arm64-v8a][realm-js-android-binding]
+> Task :realm:configureCMakeRelease[armeabi-v7a]
+> Task :realm:buildCMakeRelease[armeabi-v7a][realm-js-android-binding]
+> Task :realm:configureCMakeRelease[x86]
+> Task :realm:buildCMakeRelease[x86][realm-js-android-binding]
+> Task :realm:configureCMakeRelease[x86_64]
+> Task :realm:buildCMakeRelease[x86_64][realm-js-android-binding]
+> Task :realm:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :app:writeTanuhReleaseAppMetadata UP-TO-DATE
+> Task :app:collectTanuhReleaseDependencies UP-TO-DATE
+> Task :app:configureTanuhReleaseDependencies UP-TO-DATE
+> Task :app:parseTanuhReleaseIntegrityConfig UP-TO-DATE
+> Task :app:validateSigningTanuhRelease UP-TO-DATE
+> Task :app:processTanuhReleaseManifestForPackage
+> Task :realm:mergeReleaseNativeLibs
+> Task :realm:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :app:mergeTanuhReleaseNativeLibs
+> Task :app:stripTanuhReleaseDebugSymbols UP-TO-DATE
+> Task :app:extractTanuhReleaseNativeSymbolTables UP-TO-DATE
+> Task :app:processTanuhReleaseResources
+> Task :app:kaptGenerateStubsTanuhReleaseKotlin
+> Task :app:kaptTanuhReleaseKotlin SKIPPED
+> Task :app:bundleTanuhReleaseResources
+
+> Task :app:compileTanuhReleaseKotlin
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/src/main/java/com/openchsclient/EdgeModelModule.kt:345:41 'static field TRIM_MEMORY_RUNNING_LOW: Int' is deprecated. Deprecated in Java.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/src/main/java/com/openchsclient/EdgeModelModule.kt:363:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Please add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/src/main/java/com/openchsclient/EdgeModelModule.kt:365:42 'static field TRIM_MEMORY_COMPLETE: Int' is deprecated. Deprecated in Java.
+w: file:///Users/jiteshupadhyay/workspace/tanuh_review/avni-client/packages/openchs-android/android/app/src/main/java/com/openchsclient/EdgeModelModule.kt:370:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Please add the '@Deprecated' annotation or suppress the diagnostic.
+
+> Task :app:compileTanuhReleaseJavaWithJavac
+> Task :app:expandTanuhReleaseArtProfileWildcards UP-TO-DATE
+> Task :app:mergeTanuhReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :app:processTanuhReleaseJavaRes UP-TO-DATE
+> Task :app:mergeTanuhReleaseJavaResource UP-TO-DATE
+> Task :app:minifyTanuhReleaseWithR8
+> Task :app:buildTanuhReleasePreBundle
+> Task :app:compileTanuhReleaseArtProfile
+> Task :app:packageTanuhReleaseBundle
+> Task :app:shrinkBundleTanuhReleaseResources
+> Task :app:signTanuhReleaseBundle
+> Task :app:produceTanuhReleaseBundleIdeListingFile
+> Task :app:createTanuhReleaseBundleListingFileRedirect UP-TO-DATE
+> Task :app:bundleTanuhRelease
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.10.2/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 54s
+864 actionable tasks: 192 executed, 672 up-to-date
+
+Signed AAB: packages/openchs-android/android/app/build/outputs/bundle/tanuhRelease/app-tanuh-release.aab
+  versionCode env=100015  versionName env=1.0.15
+rm -f tanuh-universal.apks
+java -jar bundletool.jar build-apks \
+		--bundle=packages/openchs-android/android/app/build/outputs/bundle/tanuhRelease/app-tanuh-release.aab \
+		--output=tanuh-universal.apks \
+		--mode=universal \
+		--ks=tanuh-release-key.keystore \
+		--ks-pass=pass:$tanuh_KEYSTORE_PASSWORD \
+		--ks-key-alias=$tanuh_KEY_ALIAS \
+		--key-pass=pass:${tanuh_KEY_PASSWORD:-$tanuh_KEYSTORE_PASSWORD}
+
+Signed AAB:           packages/openchs-android/android/app/build/outputs/bundle/tanuhRelease/app-tanuh-release.aab
+Universal apks (zip): tanuh-universal.apks
+Extract installable APK: unzip -p tanuh-universal.apks universal.apk > tanuh-universal.apk
