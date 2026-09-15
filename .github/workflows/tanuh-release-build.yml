@@ -50,6 +50,17 @@ jobs:
           test -n "$tanuh_KEY_ALIAS" || { echo "::error::tanuh_KEY_ALIAS not set in the runner's own environment (.env)"; exit 1; }
           echo "Preflight OK."
 
+      - name: Place signing keystore at repo root
+        # makefiles/tanuh.mk's TANUH_KEYSTORE is the literal relative path
+        # "tanuh-release-key.keystore", checked (and handed to gradlew as
+        # KEY_STORE_PREFIX="$(CURDIR)/") relative to wherever `make` runs —
+        # i.e. the repo root. It does NOT read KEY_STORE_PREFIX from the
+        # outer environment for this target chain, so the file has to
+        # physically exist at $GITHUB_WORKSPACE/tanuh-release-key.keystore
+        # on every fresh checkout. This copy is gitignored at that path, so
+        # it never gets committed.
+        run: cp "$TANUH_KEYSTORE_DIR/tanuh-release-key.keystore" ./tanuh-release-key.keystore
+
       - name: Install JS dependencies
         run: make deps_ci
 
@@ -59,8 +70,6 @@ jobs:
             TANUH_ENSEMBLE_SRC_DIR="$TANUH_MODELS_DIR" \
             versionCode="${{ inputs.versionCode }}" \
             versionName="${{ inputs.versionName }}"
-        env:
-          KEY_STORE_PREFIX: "${{ env.TANUH_KEYSTORE_DIR }}/"
 
       - name: Copy build outputs to the build folder
         run: |
