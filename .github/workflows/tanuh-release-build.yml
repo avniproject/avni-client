@@ -64,6 +64,17 @@ jobs:
       - name: Install JS dependencies
         run: make deps_ci
 
+      - name: Reset Watchman
+        # This self-hosted runner reuses the same checkout directory across
+        # every run instead of starting fresh each time. Watchman is a
+        # long-running daemon on the Mac that keeps a persistent index of
+        # that path; a hard checkout/reset between runs (especially across
+        # branches, changing many files at once) can leave its crawl stale
+        # ("Recrawled this watch N times" in the Metro log), causing Metro
+        # to report real, on-disk files as unresolvable modules. Wiping all
+        # watches before bundling forces a clean re-crawl.
+        run: watchman watch-del-all || true
+
       - name: Build signed AAB + universal APK (3-fold ONNX ensemble)
         run: |
           make tanuh-universal-apk \
