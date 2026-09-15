@@ -698,6 +698,16 @@ class SyncService extends BaseService {
         this.entitySyncStatusService.setup();
     }
 
+    // Each backend is wiped on its own so a failure on one cannot skip the other, and the
+    // error names the backend it actually came from.
+    _clearBackend(backend) {
+        try {
+            this._clearServerLoadedEntities();
+        } catch (e) {
+            General.logError("SyncService", `Clearing the ${backend} backend failed: ${e.message}`);
+        }
+    }
+
     // Clearing only the active backend leaves the other one holding the previous
     // occupant's rows, and it is still one switchBackend() away from being read — which
     // is how a user ends up looking at someone else's data. Wipe both, drop the per-user
@@ -709,14 +719,23 @@ class SyncService extends BaseService {
         const startingBackend = globalContext.getActiveBackend();
         const otherBackend = startingBackend === BACKENDS.SQLITE ? BACKENDS.REALM : BACKENDS.SQLITE;
 
+        // Before the wipes, not after. A record that outlives a half-finished run points the
+        // next launch at a backend that may still hold the previous user's rows; with it gone
+        // the next launch opens Realm, and anything left behind stays unreachable until a
+        // migration leg wipes that target on its way in. Cleared here rather than on logout:
+        // plain logout leaves both databases intact, and dropping the only backend-independent
+        // record of who owns them sends the next launch back to reading a UserInfo row.
+        const SqliteMigrationService = require('./SqliteMigrationService').default;
+        const SessionUsername = require('./SessionUsername').default;
+        await SqliteMigrationService.clearAllMigrationState();
+        await SessionUsername.clear();
+
+        this._clearBackend(startingBackend);
         try {
-            this._clearServerLoadedEntities();
             globalContext.switchBackend(otherBackend);
-            this._clearServerLoadedEntities();
+            this._clearBackend(otherBackend);
         } catch (e) {
-            // A half-finished wipe is the state this method exists to prevent, so carry on
-            // to the backend reset and the state cleanup rather than rejecting out of here.
-            General.logError("SyncService", `Clearing ${otherBackend} backend failed: ${e.message}`);
+            General.logError("SyncService", `Could not open the ${otherBackend} backend to clear it: ${e.message}`);
         } finally {
             globalContext.switchBackend(BACKENDS.REALM);
         }
@@ -724,14 +743,6 @@ class SyncService extends BaseService {
         this.ruleEvaluationService.init();
         this.messageService.init();
         this.ruleService.init();
-
-        // Cleared here rather than on logout: plain logout leaves both databases intact,
-        // and dropping the only backend-independent record of who owns them sends the next
-        // launch back to reading the active backend's UserInfo row.
-        const SqliteMigrationService = require('./SqliteMigrationService').default;
-        const SessionUsername = require('./SessionUsername').default;
-        await SqliteMigrationService.clearAllMigrationState();
-        await SessionUsername.clear();
     }
 
     resetServicesAfterFullSyncCompletion(updatedSyncSource) {
