@@ -18,5 +18,9 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         paddingHorizontal: 12,
         borderRadius: 5,
+        // Callers that fix a width - ApprovalDialog sets 90 - otherwise leave the label against the
+        // left edge with the rest of the button an empty block of colour.
+        alignItems: 'center',
+        justifyContent: 'center',
     }
 });
