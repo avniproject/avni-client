@@ -61,7 +61,7 @@ class SyncComponent extends AbstractComponent {
     _onError(error, ignoreBugsnag) {
         General.logError(`${this.viewName()}-Sync`, error);
         const isIgnorableSyncError = error instanceof IgnorableSyncError;
-        !isIgnorableSyncError && this.dispatchAction(SyncTelemetryActions.SYNC_FAILED, {error});
+        !isIgnorableSyncError && this.dispatchAction(SyncTelemetryActions.SYNC_FAILED);
         const isServerError = error instanceof ServerError;
         const isAvniError = error instanceof AvniError;
         const isMediaUploadError = error instanceof MediaUploadError;
@@ -93,7 +93,7 @@ class SyncComponent extends AbstractComponent {
             // Below the isConnected branch on purpose: a genuinely offline device keeps the
             // more accurate "No internet connection". Above the generic fallback, which is
             // what used to print the raw "syncTimeoutError" key. #2097
-            this.ErrorAlert(AvniError.create(MediaUploadError.userMessage(error, this.I18n)));
+            this.ErrorAlert(AvniError.create(this.I18n.t('mediaUploadBlockedSync')));
         } else if (isServerError) {
             getAvniError(error, this.I18n).then((avniError) => this.ErrorAlert(avniError));
         } else if (error instanceof SyncError) {

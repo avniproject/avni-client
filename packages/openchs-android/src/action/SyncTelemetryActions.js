@@ -4,7 +4,6 @@ import EntityService from "../service/EntityService";
 import DeviceInfo from 'react-native-device-info';
 import moment from "moment";
 import {getUnknownConnectionInfo} from "../utility/ConnectionInfo";
-import MediaUploadError from "../framework/errorHandling/MediaUploadError";
 
 class SyncTelemetryActions {
     static getInitialState() {
@@ -123,23 +122,6 @@ class SyncTelemetryActions {
         return newState;
     }
 
-    static parseAppInfo(appInfo) {
-        try {
-            const parsed = JSON.parse(appInfo);
-            return _.isPlainObject(parsed) ? parsed : {};
-        } catch (e) {
-            return {};
-        }
-    }
-
-    static buildFailureDetail(error) {
-        if (error instanceof MediaUploadError) return MediaUploadError.failureDetail(error);
-        // A bare string rejection has no .message — SyncService.sync rejects with one for the
-        // lock check, and losing it would discard the only diagnostic we have.
-        const cause = _.isString(error) ? error : (_.get(error, "message") || "unknown");
-        return {stage: 'other', cause};
-    }
-
     static syncFailed(state, action, context) {
         // Only a sync that actually started is ours to fail. This slice still holds the
         // previous sync's telemetry between syncs and clone() keeps its uuid, so mutating a
@@ -153,12 +135,9 @@ class SyncTelemetryActions {
         const newState = SyncTelemetryActions.clone(state);
         const syncTelemetry = newState.syncTelemetry;
         // "incomplete" keeps meaning "never finished, no error seen" — i.e. the user closed
-        // the app. A sync that failed with an error is a different thing and says why. #2097
+        // the app. A sync that failed with an error is marked as such. #2097
         syncTelemetry.syncStatus = "failed";
         syncTelemetry.syncEndTime = new Date();
-        const appInfo = SyncTelemetryActions.parseAppInfo(syncTelemetry.appInfo);
-        appInfo.syncFailure = SyncTelemetryActions.buildFailureDetail(_.get(action, "error"));
-        syncTelemetry.appInfo = JSON.stringify(appInfo);
         const entityService = context.get(EntityService);
         entityService.saveAndPushToEntityQueue(syncTelemetry, SyncTelemetry.schema.name);
         return newState;

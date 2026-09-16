@@ -65,7 +65,7 @@ class Sync extends BaseTask {
             } catch (e) {
                 // Without this a background sync blocked by media leaves no row at all — the
                 // failure is invisible until someone pulls the device log. #2097
-                dispatchAction(SyncTelemetryActions.SYNC_FAILED, {error: e});
+                dispatchAction(SyncTelemetryActions.SYNC_FAILED);
                 ErrorHandler.postScheduledJobError(e);
             } finally {
                 syncService.releaseLock(lockId);

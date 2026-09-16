@@ -153,7 +153,6 @@ describe('SyncTest', () => {
                 .map(call => call[0])
                 .filter(action => action.type === 'SyncTelemetryActions.SYNC_FAILED');
             expect(failedDispatches.length).to.equal(1);
-            expect(failedDispatches[0].error).to.equal(syncError);
         });
 
         it('does not record a failed row when the sync succeeds', async () => {
