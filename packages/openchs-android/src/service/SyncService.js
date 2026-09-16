@@ -190,7 +190,9 @@ class SyncService extends BaseService {
 
     telemetrySync(allEntitiesMetaData, onProgressPerEntity) {
         const telemetryMetadata = allEntitiesMetaData.filter(entityMetadata => entityMetadata.schemaName === SyncTelemetry.schema.name);
-        const onCompleteOfIndividualPost = (entityMetadata, entityUUID) => this.entityQueueService.popItem(entityUUID)();
+        // Must return the callback, not run it: an expression body here popped the row before the
+        // post was even attempted, losing the telemetry whenever that post failed.
+        const onCompleteOfIndividualPost = (entityMetadata, entityUUID) => () => this.entityQueueService.popItem(entityUUID)();
         const entitiesToPost = telemetryMetadata.reverse()
             .map(this.entityQueueService.getAllQueuedItems)
             .filter((entities) => !_.isEmpty(entities.entities));
@@ -408,10 +410,11 @@ class SyncService extends BaseService {
     }
 
     getData(entitiesMetaDataWithSyncStatus, afterEachPagePulled, now) {
-        const onGetOfFirstPage = (entityName, page) =>
+        const onGetOfFirstPage = (entityName, page, entityTypeUuid) =>
             this.dispatchAction(SyncTelemetryActions.RECORD_FIRST_PAGE_OF_PULL, {
                 entityName,
-                totalElements: page.totalElements
+                totalElements: page.totalElements,
+                entityTypeUuid
             });
 
         return this.conventionalRestClient.getAll(entitiesMetaDataWithSyncStatus, this.persistAll, onGetOfFirstPage, afterEachPagePulled, now, this.deviceId);
@@ -430,8 +433,19 @@ class SyncService extends BaseService {
         return _.values(_.groupBy(parentEntities, 'uuid')).map(entities => entityMetaData.parent.entityClass.mergeMultipleParents(entityMetaData.entityClass.schema.name, entities));
     }
 
-    persistAll(entityMetaData, entityResources) {
-        if (_.isEmpty(entityResources)) return;
+    persistAll(entityMetaData, entityResources, timings) {
+        const persistStart = performance.now();
+        // Every entity costs a round trip even when it has nothing to pull, so an empty page is
+        // still reported - otherwise that time is missing from the telemetry entirely.
+        if (_.isEmpty(entityResources)) {
+            this.dispatchAction(SyncTelemetryActions.ENTITY_PULL_COMPLETED, {
+                entityName: entityMetaData.entityName,
+                numberOfPulledEntities: 0,
+                durations: {...timings, persistMs: General.elapsedMs(persistStart)},
+                entityTypeUuid: _.get(entityMetaData, 'syncStatus.entityTypeUuid')
+            });
+            return;
+        }
         entityResources = _.sortBy(entityResources, 'lastModifiedDateTime');
         const loadedSince = _.last(entityResources).lastModifiedDateTime;
 
@@ -480,21 +494,34 @@ class SyncService extends BaseService {
         this.bulkSaveOrUpdate(entitiesToCreateFns.concat(this.getCreateEntityFunctions(EntitySyncStatus.schema.name, [entitySyncStatus])));
         this.dispatchAction(SyncTelemetryActions.ENTITY_PULL_COMPLETED, {
             entityName: entityMetaData.entityName,
-            numberOfPulledEntities: entities.length
+            numberOfPulledEntities: entities.length,
+            durations: {...timings, persistMs: General.elapsedMs(persistStart)},
+            entityTypeUuid: _.get(entityMetaData, 'syncStatus.entityTypeUuid')
         });
     }
 
     pushData(allTxEntityMetaData, afterEachEntityTypePushed) {
+        const readDurations = {};
         const entitiesToPost = allTxEntityMetaData.reverse()
-            .map(this.entityQueueService.getAllQueuedItems)
+            .map((entityMetaData) => {
+                const readStart = performance.now();
+                const queued = this.entityQueueService.getAllQueuedItems(entityMetaData);
+                readDurations[entityMetaData.entityName] = General.elapsedMs(readStart);
+                return queued;
+            })
             .filter((entities) => !_.isEmpty(entities.entities));
 
-        this.dispatchAction(SyncTelemetryActions.RECORD_PUSH_TODO_TELEMETRY, {entitiesToPost});
+        this.dispatchAction(SyncTelemetryActions.RECORD_PUSH_TODO_TELEMETRY, {entitiesToPost, readDurations});
 
         const onCompleteOfIndividualPost = (entityMetadata, entityUUID) => {
-            return () => {
-                this.dispatchAction(SyncTelemetryActions.ENTITY_PUSH_COMPLETED, {entityMetadata});
-                return this.entityQueueService.popItem(entityUUID)();
+            return (timings) => {
+                const persistStart = performance.now();
+                const result = this.entityQueueService.popItem(entityUUID)();
+                this.dispatchAction(SyncTelemetryActions.ENTITY_PUSH_COMPLETED, {
+                    entityMetadata,
+                    durations: {...timings, persistMs: General.elapsedMs(persistStart)}
+                });
+                return result;
             }
         };
 

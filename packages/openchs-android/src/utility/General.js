@@ -200,6 +200,12 @@ class General {
         return moment(General.dateWithoutTime(a)).isBefore(General.dateWithoutTime(b));
     }
 
+    // performance.now, not Date.now: at 1ms resolution every sub-millisecond phase truncates to
+    // zero, and always downwards, so the bias accumulates instead of cancelling out.
+    static elapsedMs(since) {
+        return Math.round((performance.now() - since) * 10) / 10;
+    }
+
     static logDebug(source, ...messages) {
         log(source, messages, General.LogLevel.Debug);
     }

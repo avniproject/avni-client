@@ -114,7 +114,44 @@ const _put = (endpoint, body, fetchWithoutTimeout, bypassAuth = false) => {
     })
 };
 
+// Sync telemetry needs the phases separated; every other caller keeps the untimed helpers below.
+const _getJSONTimed = (endpoint) => {
+    General.logDebug('Requests', `GET: ${endpoint}`);
+    const start = performance.now();
+    return _addAuthIfRequired(makeHeader("json"), false)
+        .then((headers) => fetchFactory(endpoint, "GET", headers))
+        // The Promise.reject handler is _get's, kept so this path fails identically. It replaces
+        // the error with a TypeError; correcting that changes how a 401 mid-sync is handled, so
+        // it belongs in a fix that covers every caller rather than only this one.
+        .then((response) => {
+            const networkMs = General.elapsedMs(start);
+            const afterNetwork = performance.now();
+            return response.json().then((body) => ({
+                body,
+                timings: {networkMs, parseMs: General.elapsedMs(afterNetwork)}
+            }));
+        }, Promise.reject);
+};
+
+const _postTimed = (endpoint, file) => {
+    General.logDebug('Requests', `POST: ${endpoint}`);
+    const start = performance.now();
+    const request = makeRequest("json", {body: JSON.stringify(file)});
+    const serializeMs = General.elapsedMs(start);
+    const afterSerialize = performance.now();
+    return _addAuthIfRequired(request, false)
+        .then((headers) => fetchFactory(endpoint, "POST", headers))
+        .then((response) => ({
+            response,
+            timings: {serializeMs, networkMs: General.elapsedMs(afterSerialize)}
+        }));
+};
+
 export const post = _post;
+
+export const getJSONTimed = _getJSONTimed;
+
+export const postTimed = _postTimed;
 
 export const get = (endpoint, bypassAuth = false, fetchWithoutTimeout = true) => {
     return _getText(endpoint, bypassAuth, fetchWithoutTimeout);
