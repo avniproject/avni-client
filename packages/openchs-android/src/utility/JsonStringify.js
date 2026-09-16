@@ -34,6 +34,21 @@ const removeComma = function (str) {
     return tempArr.join('');
 };
 
+// Redact any string value under a secret-looking key. Substring match (not exact) so it
+// covers camelCase/snake_case/plural variants: accessToken, refresh_token, tokens, jwtToken, etc.
+// The string-value check keeps non-secret flags like showPassword (a boolean) visible.
+const sensitiveKeyPatterns = ['password', 'token'];
+
+const isSensitiveKey = function (key) {
+    if (typeof key !== 'string') return false;
+    const lower = key.toLowerCase();
+    return sensitiveKeyPatterns.some((pattern) => lower.includes(pattern));
+};
+
+const shouldRedact = function (key, value) {
+    return isSensitiveKey(key) && isString(value);
+};
+
 const duckCheckNativeRealmCollection = function (obj) {
     return (typeof obj === "object"
         && !_.isNil(_.get(obj, "removeAllListeners"))
@@ -86,7 +101,8 @@ const JSONStringifyInternal = function (obj, depth, objectMap, arrayWidth, objec
         const objKeys = Object.keys(obj);
         objKeys.forEach((eachKey) => {
             const eachValue = obj[eachKey];
-            objStr += `"${eachKey}":${JSONStringifyInternal(eachValue, depth - 1, objectMap, arrayWidth, eachKey)},`;
+            const serialisedValue = shouldRedact(eachKey, eachValue) ? '"<redacted>"' : JSONStringifyInternal(eachValue, depth - 1, objectMap, arrayWidth, eachKey);
+            objStr += `"${eachKey}":${serialisedValue},`;
         });
         if (duckCheckForError(obj)) {
             objStr += `message:${obj.message},`;
