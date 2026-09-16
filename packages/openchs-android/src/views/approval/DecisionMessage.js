@@ -33,6 +33,10 @@ import {ApprovalButton} from "./ApprovalButton";
  * onEditPage and onEdit are supplied only where the approver works - the approval details screen. A field
  * worker opening their own rejected registration must not be able to rewrite the approver's answers, so
  * every other render site leaves them out and gets a read-only panel.
+ *
+ * Being allowed to edit is not the same as having somewhere to edit. The answers stay readable whatever the
+ * configuration does afterwards, but the button and the per-heading Edit links go grey once no form resolves
+ * for the decision, because there is nothing to open.
  */
 export const DecisionMessage = ({entityApprovalStatus, I18n, onEditPage, onEdit}) => {
 
@@ -44,6 +48,12 @@ export const DecisionMessage = ({entityApprovalStatus, I18n, onEditPage, onEdit}
     const form = hasAnswers
         ? serviceContext.getService(FormMappingService).findFormForDecision(entityApprovalStatus)
         : null;
+    // Answers outlive the mapping that produced them. Void a decision form, or remap it to a different
+    // subject type / programme / visit type shape, and every decision already recorded against it keeps its
+    // answers with no form left to reopen them in - which is ordinary form editing, not a corner case.
+    // Editing is therefore offered only while a form still resolves. Without this the button rendered on the
+    // approve privilege alone and the tap hit a bare return, so it did nothing and logged nothing.
+    const canEdit = !!form;
     return (
         <View style={styles.container}>
             <Text style={styles.headerTextStyle}>{I18n.t(DecisionContentHelper.headerKey(entityApprovalStatus))}</Text>
@@ -51,8 +61,8 @@ export const DecisionMessage = ({entityApprovalStatus, I18n, onEditPage, onEdit}
                 <Observations observations={entityApprovalStatus.observations}
                               form={form}
                               style={styles.observationsStyle}
-                              quickFormEdit={!!onEditPage}
-                              onFormElementGroupEdit={onEditPage}/> :
+                              quickFormEdit={!!onEditPage && canEdit}
+                              onFormElementGroupEdit={canEdit ? onEditPage : undefined}/> :
                 <Text style={styles.commentTextStyle}>{entityApprovalStatus.approvalStatusComment}</Text>}
             {hasAnswers && onEdit &&
             <View style={styles.editRow}>
@@ -61,6 +71,7 @@ export const DecisionMessage = ({entityApprovalStatus, I18n, onEditPage, onEdit}
                     textColor={Colors.TextOnPrimaryColor}
                     buttonColor={Colors.DarkPrimaryColor}
                     onPress={onEdit}
+                    disabled={!canEdit}
                     extraStyle={{paddingHorizontal: 20}}/>
             </View>}
         </View>
