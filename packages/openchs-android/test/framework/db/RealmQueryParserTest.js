@@ -655,9 +655,27 @@ describe("RealmQueryParser", () => {
             expect(r.where).toMatch(/t0\."voided" = \?/);   // the trailing clause survives
         });
 
-        it("lowercase 'and' after the SUBQUERY count comparison also survives", () => {
+        it("a SUBQUERY with a single bare-column condition keeps its trailing clause", () => {
             const r = RealmQueryParser.parse(
                 "SUBQUERY(enrolments, $e, $e.voided = false).@count > 0 and voided = false",
+                [], "Individual", schemaMap);
+            expect(r.unsupported).toBe(false);
+            expect(r.where).toMatch(/t0\."voided" = \?/);
+        });
+
+        // Both spellings must translate; several production cards use uppercase AND.
+        it("uppercase 'AND' after the SUBQUERY count comparison also survives", () => {
+            const r = RealmQueryParser.parse(
+                "SUBQUERY(enrolments, $e, $e.program.name = 'Child' and $e.voided = false).@count > 0 AND voided = false",
+                [], "Individual", schemaMap);
+            expect(r.unsupported).toBe(false);
+            expect(r.where).toContain('t0."uuid" IN (SELECT "individual_uuid" FROM program_enrolment');
+            expect(r.where).toMatch(/t0\."voided" = \?/);
+        });
+
+        it("'&&' after the SUBQUERY count comparison also survives", () => {
+            const r = RealmQueryParser.parse(
+                "SUBQUERY(enrolments, $e, $e.voided = false).@count > 0 && voided = false",
                 [], "Individual", schemaMap);
             expect(r.unsupported).toBe(false);
             expect(r.where).toMatch(/t0\."voided" = \?/);
