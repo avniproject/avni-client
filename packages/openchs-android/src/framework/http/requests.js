@@ -120,17 +120,15 @@ const _getJSONTimed = (endpoint) => {
     const start = performance.now();
     return _addAuthIfRequired(makeHeader("json"), false)
         .then((headers) => fetchFactory(endpoint, "GET", headers))
-        // The Promise.reject handler is _get's, kept so this path fails identically. It replaces
-        // the error with a TypeError; correcting that changes how a 401 mid-sync is handled, so
-        // it belongs in a fix that covers every caller rather than only this one.
-        .then((response) => {
+        // text() then JSON.parse rather than json(), so parseMs is the parse and nothing else.
+        // The Promise.reject handler is _get's, kept so this path fails identically: it replaces
+        // the error with a TypeError, and correcting that belongs in a fix covering every caller.
+        .then((response) => response.text().then((text) => {
             const networkMs = General.elapsedMs(start);
-            const afterNetwork = performance.now();
-            return response.json().then((body) => ({
-                body,
-                timings: {networkMs, parseMs: General.elapsedMs(afterNetwork)}
-            }));
-        }, Promise.reject);
+            const parseStart = performance.now();
+            const body = JSON.parse(text);
+            return {body, timings: {networkMs, parseMs: General.elapsedMs(parseStart)}};
+        }), Promise.reject);
 };
 
 const _postTimed = (endpoint, file) => {
