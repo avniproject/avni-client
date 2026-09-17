@@ -210,6 +210,32 @@ describe("#2024 dashboard card counts are people, not rows", () => {
         assert.equal(privilegeLookups, 0);
     });
 
+    it("counts skip a visit table exactly when the drill-down skips it", () => {
+        programEncounter(enrolment(subject("Program only")), dueToday);
+        generalEncounter(subject("General only"), dueToday);
+        const programOnly = {queryProgramEncounter: true, queryGeneralEncounter: false};
+        const generalOnly = {queryProgramEncounter: false, queryGeneralEncounter: true};
+
+        assert.equal(service.allScheduledVisitsIn(TODAY, [], "", "", true, false).length, 1);
+        assert.equal(service.countScheduledVisits(TODAY, [], "", "", programOnly), 1);
+        assert.equal(service.allScheduledVisitsIn(TODAY, [], "", "", false, true).length, 1);
+        assert.equal(service.countScheduledVisits(TODAY, [], "", "", generalOnly), 1);
+        assert.equal(service.countScheduledVisits(TODAY, [], "", "", {queryProgramEncounter: false, queryGeneralEncounter: false}), 0);
+    });
+
+    it("overdue and recently completed counts honour the same table flags", () => {
+        programEncounter(enrolment(subject("A")), overdue);
+        generalEncounter(subject("B"), overdue);
+        programEncounter(enrolment(subject("C")), {...dueToday, encounterDateTime: TODAY});
+        generalEncounter(subject("D"), {...dueToday, encounterDateTime: TODAY});
+
+        assert.equal(service.countOverdueVisits(TODAY, [], "", "", {queryGeneralEncounter: false}), 1);
+        assert.equal(service.countOverdueVisits(TODAY, [], "", ""), 2);
+        assert.equal(service.recentlyCompletedVisitsIn(TODAY, [], "", "", false, true).length, 1);
+        assert.equal(service.countRecentlyCompletedVisits(TODAY, [], "", "", undefined, {queryProgramEncounter: false}), 1);
+        assert.equal(service.countRecentlyCompletedVisits(TODAY, [], "", ""), 2);
+    });
+
     it("fixture 4 — one subject with two enrolments in the window counts as one person", () => {
         const ind = subject("Tts");
         enrolment(ind, TODAY);

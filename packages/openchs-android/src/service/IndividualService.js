@@ -242,10 +242,14 @@ class IndividualService extends BaseService {
         };
     }
 
-    countSubjectsAcross(queries, reportFilters) {
+    // options.queryProgramEncounter / options.queryGeneralEncounter drop a visit table, exactly as
+    // the drill-down's flags do, so a card never counts visits its list will not show.
+    countSubjectsAcross(queries, reportFilters, options = {}) {
         const customFilterService = this.getService(CustomFilterService);
         const subjectUuids = new Set();
-        queries.forEach(({entities, criteria, schema, allowedEncounterTypeUuids}) => {
+        const queriedTables = queries.filter(({schema}) => schema === ProgramEncounter.schema.name ?
+            options.queryProgramEncounter !== false : options.queryGeneralEncounter !== false);
+        queriedTables.forEach(({entities, criteria, schema, allowedEncounterTypeUuids}) => {
             subjectUuidsAfterFilters(entities, criteria, reportFilters, schema, customFilterService, allowedEncounterTypeUuids)
                 .forEach(subjectUuid => subjectUuids.add(subjectUuid));
         });
@@ -266,7 +270,7 @@ class IndividualService extends BaseService {
         return this.countSubjectsAcross([
             {entities: peQuery, criteria: programEncounterCriteria, schema: ProgramEncounter.schema.name, allowedEncounterTypeUuids: allowed.programEncounterTypes},
             {entities: encQuery, criteria: encounterCriteria, schema: Encounter.schema.name, allowedEncounterTypeUuids: allowed.encounterTypes}
-        ], reportFilters);
+        ], reportFilters, options);
     }
 
     countOverdueVisits(date, reportFilters, programEncounterCriteria, encounterCriteria, options = {}) {
@@ -283,7 +287,7 @@ class IndividualService extends BaseService {
         return this.countSubjectsAcross([
             {entities: peQuery, criteria: programEncounterCriteria, schema: ProgramEncounter.schema.name, allowedEncounterTypeUuids: allowed.programEncounterTypes},
             {entities: encQuery, criteria: encounterCriteria, schema: Encounter.schema.name, allowedEncounterTypeUuids: allowed.encounterTypes}
-        ], reportFilters);
+        ], reportFilters, options);
     }
 
     countAllIn(date, reportFilters, subjectCriteria) {
@@ -309,7 +313,7 @@ class IndividualService extends BaseService {
         return countDistinctSubjects(enrolments, ProgramEnrolment.schema.name);
     }
 
-    countRecentlyCompletedVisits(date, reportFilters, programEncounterCriteria, encounterCriteria, duration = new Duration(1, Duration.Day)) {
+    countRecentlyCompletedVisits(date, reportFilters, programEncounterCriteria, encounterCriteria, duration = new Duration(1, Duration.Day), options = {}) {
         const {fromDate, tillDate} = getDateRange(date, duration);
 
         const peQuery = this.getRepository(ProgramEncounter.schema.name).findAll()
@@ -323,7 +327,7 @@ class IndividualService extends BaseService {
         return this.countSubjectsAcross([
             {entities: peQuery, criteria: programEncounterCriteria, schema: ProgramEncounter.schema.name},
             {entities: encQuery, criteria: encounterCriteria, schema: Encounter.schema.name}
-        ], reportFilters);
+        ], reportFilters, options);
     }
 
     search(criteria, individualUUIDs) {
