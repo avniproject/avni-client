@@ -15,7 +15,9 @@ class SyncTelemetryActions {
         syncTelemetry.appInfo = "{}";
         // Phase keys are written only onto entities that did something. An absent key reads as
         // zero; whether the row reports phases at all is settled by app_info, not by this object.
-        return {syncTelemetry, entityStatus: syncTelemetry.getEntityStatus()};
+        // syncStarted is set only by START_SYNC. A fresh row is also "incomplete", so status alone
+        // cannot tell a sync that ran from one that never started. #2097
+        return {syncTelemetry, entityStatus: syncTelemetry.getEntityStatus(), syncStarted: false};
     }
 
     static onSyncStart(state, action, context) {
@@ -28,6 +30,7 @@ class SyncTelemetryActions {
         syncTelemetry.deviceInfo = JSON.stringify(deviceInfo);
         syncTelemetry.appInfo = JSON.stringify(action.appInfo);
         syncTelemetry.syncSource = action.syncSource
+        newState.syncStarted = true;
         return newState;
     }
 
@@ -53,7 +56,7 @@ class SyncTelemetryActions {
     static clone(state) {
         // entityStatus is carried by reference and mutated in place: ENTITY_PUSH_COMPLETED fires
         // once per pushed record, so it is stringified only at the two points that persist the row.
-        return {syncTelemetry: state.syncTelemetry.clone(), entityStatus: state.entityStatus};
+        return {syncTelemetry: state.syncTelemetry.clone(), entityStatus: state.entityStatus, syncStarted: state.syncStarted};
     }
 
     // countKey names the unit the phases were sampled in - pages on pull, posts on push - so a
@@ -151,19 +154,19 @@ class SyncTelemetryActions {
         syncTelemetry.setEntityStatus(entityStatus);
 
         entityService.saveAndPushToEntityQueue(syncTelemetry, SyncTelemetry.schema.name);
+        newState.syncStarted = false;
 
         return newState;
     }
 
     static syncFailed(state, action, context) {
-        // Only a sync that actually started is ours to fail. This slice still holds the
-        // previous sync's telemetry between syncs and clone() keeps its uuid, so mutating a
-        // row that is already complete would overwrite that finished row by primary key —
-        // destroying the "last completed sync" the auto-sync rules depend on, and giving the
-        // server a second, contradictory row for the same uuid. Reachable both from
-        // SyncComponent.startSync's offline branch (no sync ever starts) and from
+        // Only a sync that actually started is ours to fail. Between syncs this slice holds
+        // either the previous sync's row (clone() keeps its uuid, so saving it would overwrite
+        // that finished row by primary key) or a fresh row that no sync ever used (saving it
+        // sends the server a "failed" sync that never happened, with empty device and app
+        // info). Both are reachable from SyncComponent.startSync's offline branch and from
         // SyncService.sync rejecting before it dispatches START_SYNC.
-        if (_.get(state, "syncTelemetry.syncStatus") !== "incomplete") return state;
+        if (!_.get(state, "syncStarted")) return state;
 
         const newState = SyncTelemetryActions.clone(state);
         const syncTelemetry = newState.syncTelemetry;
@@ -176,6 +179,7 @@ class SyncTelemetryActions {
         syncTelemetry.setEntityStatus(newState.entityStatus);
         const entityService = context.get(EntityService);
         entityService.saveAndPushToEntityQueue(syncTelemetry, SyncTelemetry.schema.name);
+        newState.syncStarted = false;
         return newState;
     }
 }

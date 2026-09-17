@@ -195,7 +195,7 @@ describe('SyncTelemetryActions entityStatus serialisation', () => {
     let state, pulledEntity;
 
     beforeEach(() => {
-        state = SyncTelemetryActions.getInitialState();
+        state = SyncTelemetryActions.onSyncStart(SyncTelemetryActions.getInitialState(), {appInfo: {}, syncSource: 'test'}, {});
         pulledEntity = state.entityStatus.pull[0].entity;
         state = SyncTelemetryActions.entityPullCompleted(state,
             {entityName: pulledEntity, numberOfPulledEntities: 42, durations: {networkMs: 300, parseMs: 20, persistMs: 90}}, {});

@@ -58,10 +58,10 @@ class SyncComponent extends AbstractComponent {
         General.logInfo(this.viewName(), 'Sync completed dispatching reset');
     }
 
-    _onError(error, ignoreBugsnag) {
+    _onError(error, ignoreBugsnag, syncStarted = true) {
         General.logError(`${this.viewName()}-Sync`, error);
         const isIgnorableSyncError = error instanceof IgnorableSyncError;
-        !isIgnorableSyncError && this.dispatchAction(SyncTelemetryActions.SYNC_FAILED);
+        syncStarted && !isIgnorableSyncError && this.dispatchAction(SyncTelemetryActions.SYNC_FAILED);
         const isServerError = error instanceof ServerError;
         const isAvniError = error instanceof AvniError;
         const isMediaUploadError = error instanceof MediaUploadError;
@@ -212,7 +212,9 @@ class SyncComponent extends AbstractComponent {
             }
         } else {
             const ignoreBugsnag = true;
-            this._onError(new Error('internetConnectionError'), ignoreBugsnag);
+            // No sync starts while offline, so there is no telemetry row to mark failed. #2097
+            const syncStarted = false;
+            this._onError(new Error('internetConnectionError'), ignoreBugsnag, syncStarted);
         }
     }
 

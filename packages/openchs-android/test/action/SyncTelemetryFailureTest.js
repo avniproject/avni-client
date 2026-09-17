@@ -12,9 +12,11 @@ const stubContext = () => {
     };
 };
 
+// A sync in flight: START_SYNC has run and nothing has ended it yet.
 const stateWithAppInfo = (appInfo) => {
     const state = SyncTelemetryActions.getInitialState();
     state.syncTelemetry.appInfo = appInfo;
+    state.syncStarted = true;
     return state;
 };
 
@@ -44,6 +46,7 @@ describe('SyncTelemetryActions.syncFailed', () => {
             const state = stateWithAppInfo('{"dbSize":42}');
             state.syncTelemetry.syncStatus = 'complete';
             state.syncTelemetry.syncEndTime = new Date('2026-09-01T10:00:00Z');
+            state.syncStarted = false;
             return state;
         };
 
@@ -59,10 +62,27 @@ describe('SyncTelemetryActions.syncFailed', () => {
         });
 
         it('does not overwrite a row already recorded as failed', () => {
-            const state = stateWithAppInfo('{}');
-            state.syncTelemetry.syncStatus = 'failed';
+            const failed = SyncTelemetryActions.syncFailed(stateWithAppInfo('{}'), {}, stubContext());
             const context = stubContext();
-            SyncTelemetryActions.syncFailed(state, {}, context);
+            SyncTelemetryActions.syncFailed(failed, {}, context);
+            expect(context.saved.length).to.equal(0);
+        });
+
+        it('does not save a fresh row that no sync ever used, as at app start', () => {
+            // A fresh row is also "incomplete". Saving it sent the server a failed sync with
+            // empty device and app info for every Sync tap while offline. BUG-2097-01
+            const context = stubContext();
+            const newState = SyncTelemetryActions.syncFailed(SyncTelemetryActions.getInitialState(), {}, context);
+            expect(context.saved.length).to.equal(0);
+            expect(newState.syncTelemetry.syncStatus).to.equal('incomplete');
+        });
+
+        it('does not save anything when the sync before it completed', () => {
+            const completed = SyncTelemetryActions.syncCompleted(stateWithAppInfo('{}'), {}, {
+                get: () => ({saveAndPushToEntityQueue: () => {}, getCount: () => 0})
+            });
+            const context = stubContext();
+            SyncTelemetryActions.syncFailed(completed, {}, context);
             expect(context.saved.length).to.equal(0);
         });
     });
