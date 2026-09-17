@@ -150,11 +150,14 @@ const subjectUuidQueries = {
     [Individual.schema.name]: "uuid"
 };
 
-function applyUserFilters(entities, reportFilters, schema, customFilterService) {
+// The custom-filter scan depends only on the filters, so a caller querying several tables can
+// resolve it once and pass it in.
+function applyUserFilters(entities, reportFilters, schema, customFilterService,
+                          customFilterSubjects = getSubjectUUIDsForCustomFilters(customFilterService, reportFilters)) {
     const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
     const genders = DashboardReportFilter.getGenderFilterValues(reportFilters);
 
-    const {uniqueSubjects, filterApplied} = getSubjectUUIDsForCustomFilters(customFilterService, reportFilters);
+    const {uniqueSubjects, filterApplied} = customFilterSubjects;
     General.logDebug("IndividualService", `uniqueSubjects: ${uniqueSubjects.length}, filterApplied: ${filterApplied}`);
 
     let filteredEntities = entities;
@@ -195,9 +198,9 @@ function countDistinctSubjects(entities, schema) {
     return entities.filtered(`TRUEPREDICATE DISTINCT(${subjectUuidPath})`).length;
 }
 
-function subjectUuidsAfterFilters(entities, criteria, reportFilters, schema, customFilterService, allowedEncounterTypeUuids) {
+function subjectUuidsAfterFilters(entities, criteria, reportFilters, schema, customFilterService, customFilterSubjects, allowedEncounterTypeUuids) {
     entities = applyConfiguredFilters(entities, criteria);
-    entities = applyUserFilters(entities, reportFilters, schema, customFilterService);
+    entities = applyUserFilters(entities, reportFilters, schema, customFilterService, customFilterSubjects);
     entities = applyPerformVisitPrivilege(entities, allowedEncounterTypeUuids);
     return _.isNil(entities) ? [] : distinctSubjectUuids(entities, schema);
 }
@@ -246,11 +249,12 @@ class IndividualService extends BaseService {
     // the drill-down's flags do, so a card never counts visits its list will not show.
     countSubjectsAcross(queries, reportFilters, options = {}) {
         const customFilterService = this.getService(CustomFilterService);
+        const customFilterSubjects = getSubjectUUIDsForCustomFilters(customFilterService, reportFilters);
         const subjectUuids = new Set();
         const queriedTables = queries.filter(({schema}) => schema === ProgramEncounter.schema.name ?
             options.queryProgramEncounter !== false : options.queryGeneralEncounter !== false);
         queriedTables.forEach(({entities, criteria, schema, allowedEncounterTypeUuids}) => {
-            subjectUuidsAfterFilters(entities, criteria, reportFilters, schema, customFilterService, allowedEncounterTypeUuids)
+            subjectUuidsAfterFilters(entities, criteria, reportFilters, schema, customFilterService, customFilterSubjects, allowedEncounterTypeUuids)
                 .forEach(subjectUuid => subjectUuids.add(subjectUuid));
         });
         return subjectUuids.size;
