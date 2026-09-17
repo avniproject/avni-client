@@ -352,8 +352,11 @@ class SqliteProxy {
             _.intersection(mandatoryProps, saveKeys).length > 0;
 
         if (shouldValidate) {
+            // Mandatory check first: reading a property fires any lazy list getter behind
+            // it (EntityHydrator._defineLazyList), and doing that for every saved key would
+            // put a query per unresolved list inside the caller's write transaction.
             const emptyMandatory = saveKeys.filter(key =>
-                _.isNil(rawObject[key]) && mandatoryProps.includes(key)
+                mandatoryProps.includes(key) && _.isNil(rawObject[key])
             );
             if (emptyMandatory.length > 0) {
                 throw new Error(
@@ -716,15 +719,17 @@ class SqliteProxy {
         const tableMeta = this.tableMetaMap.get(parentSchemaName);
         if (!tableMeta) throw new Error(`SqliteProxy.recomputeLatestEntityApprovalStatus: No table metadata for "${parentSchemaName}"`);
         if (!tableMeta.getColumn("latest_entity_approval_status_uuid")) return;
-        _.chunk(parentUuids, 500).forEach(chunk => {
-            const placeholders = chunk.map(() => "?").join(", ");
-            this._executeRaw(
-                `UPDATE ${tableMeta.tableName} SET latest_entity_approval_status_uuid = (
-                    SELECT uuid FROM entity_approval_status
-                    WHERE entity_uuid = ${tableMeta.tableName}.uuid
-                    ORDER BY status_date_time DESC LIMIT 1
-                ) WHERE uuid IN (${placeholders})`,
-                chunk);
+        this.write(() => {
+            _.chunk(parentUuids, 500).forEach(chunk => {
+                const placeholders = chunk.map(() => "?").join(", ");
+                this._executeRaw(
+                    `UPDATE ${tableMeta.tableName} SET latest_entity_approval_status_uuid = (
+                        SELECT uuid FROM entity_approval_status
+                        WHERE entity_uuid = ${tableMeta.tableName}.uuid
+                        ORDER BY status_date_time DESC LIMIT 1
+                    ) WHERE uuid IN (${placeholders})`,
+                    chunk);
+            });
         });
     }
 

@@ -21,6 +21,7 @@ import AvniIcon from '../common/AvniIcon';
 import _ from 'lodash';
 import OrganisationConfigService from '../../service/OrganisationConfigService';
 import PropTypes from "prop-types";
+import Perf from "../../utility/perf";
 
 @Path('/MyDashboard')
 class MyDashboardView extends AbstractComponent {
@@ -46,11 +47,19 @@ class MyDashboardView extends AbstractComponent {
         super.UNSAFE_componentWillMount();
     }
 
+    // Dispatches on mount with no runAfterSceneTransition - UNSAFE_componentWillMount only calls super,
+    // which is why #2054 left this screen alone. MyDashboardActions.onLoad runs 7 materializing queries,
+    // so this is a named suspect for both the home-press delay (#2087) and the post-paint half of the
+    // slow cold start (#2084). Timed at the view because dispatchAction runs the reducer synchronously,
+    // and because it keeps the edit off MyDashboardActions.js - the one file here that differs between
+    // 17.3 and 18.0.
     onViewDidMount() {
         if (this.state.fetchFromDB) {
             this.dispatchAction(Actions.LOAD_INDICATOR, {status: true});
         }
-        this.dispatchAction(Actions.ON_LOAD, {fetchFromDB: this.props.startSync});
+        Perf.time("MyDashboardView.onLoadDispatch",
+            () => this.dispatchAction(Actions.ON_LOAD, {fetchFromDB: this.props.startSync}),
+            () => ({startSync: !!this.props.startSync}));
     }
 
     onBackCallback() {

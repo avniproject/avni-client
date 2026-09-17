@@ -24,6 +24,7 @@ import FloatingButton from "../primitives/FloatingButton";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import SubjectRegisterFromTaskView from "./SubjectRegisterFromTaskView";
 import deferPastInteractions from "../../utility/deferPastInteractions";
+import Perf from "../../utility/perf";
 import _ from "lodash";
 
 @Path('/individualSearchResultPaginatedView')
@@ -92,8 +93,14 @@ export const PaginatedView = ({results, onIndividualSelection, currentPage, titl
     // dashboard. The spinner below covers the wait.
     useEffect(() => {
         let cancelled = false;
+        // Still on the pre-#2054 trigger. This sits in a FUNCTION component, so the class contract's
+        // runAfterSceneTransition cannot reach it - migrating needs either a hook over the scene-focus
+        // registry or the work lifted to the class above. Marked so the timeline shows it. (#2089)
+        const _tArmed = Date.now();
         deferPastInteractions(() => {
-            if (!cancelled) updateDataSource();
+            if (cancelled) return;
+            Perf.mark("legacyDefer.fired", () => ({view: "PaginatedView", sinceArmedMs: Date.now() - _tArmed}));
+            Perf.time("PaginatedView.firstChunk", () => updateDataSource(), () => ({totalCount}));
         });
         return () => {
             cancelled = true;

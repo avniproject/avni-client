@@ -6,6 +6,7 @@ import {MyDashboardActionNames as Actions} from "../../action/mydashboard/MyDash
 import General from "../../utility/General";
 import CHSNavigator from "../../utility/CHSNavigator";
 import IndividualListView from "./IndividualListView";
+import Perf from "../../utility/perf";
 
 @Path('/IndividualList')
 class IndividualList extends AbstractComponent {
@@ -26,9 +27,13 @@ class IndividualList extends AbstractComponent {
     // renderLoadError() if it throws - which the hand-rolled deferral did not. (avni-client#2054)
     loadData() {
         General.logDebug("IndividualList", "loadData");
-        this.dispatchAction(Actions.RESET_LIST);
+        // RESET_LIST was measured at ~1.2s, five times in one session, and is the plausible mechanism
+        // behind the residual back-press judder - #2054 moved entry work clear of the FORWARD slide, but
+        // the BACK transition is a separate animation nothing waits on. Timed rather than assumed, since
+        // three hypotheses were wrong during #2054 before instrumentation settled it. (avni-client#2089)
+        Perf.time("MyD.RESET_LIST", () => this.dispatchAction(Actions.RESET_LIST));
         this.listLoaded = true;
-        this.dispatchAction(Actions.ON_LIST_LOAD, {...this.props.params});
+        Perf.time("MyD.ON_LIST_LOAD", () => this.dispatchAction(Actions.ON_LIST_LOAD, {...this.props.params}));
     }
 
     onHardwareBackPress() {

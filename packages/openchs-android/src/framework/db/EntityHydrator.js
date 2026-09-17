@@ -99,14 +99,18 @@ class EntityHydrator {
         // Keyed by "${childSchemaName}:${fkColumnName}" -> Map<parentUuid, rows[]>.
         this._listBatchCache = null;
 
-        // When true, hydration paths that would normally deep-load (lists +
-        // recursive FK preload) instead return shallow entities (scalar fields
-        // + depth-0 cached refs, lists empty). Toggled by SyncService for the
-        // duration of a sync, since openchs-models' fromResource calls
-        // findByKey("uuid", ...) per child entity — and during sync only the
-        // parent's uuid reaches the FK column, not its full subtree. It is also
-        // the one mode where lists stay eagerly empty rather than lazy; see
-        // _defineLazyList.
+        // Entities currently being hydrated, keyed "${schemaName}:${uuid}". Breaks FK
+        // cycles at depth 0, which _hydrationCache cannot: it only registers entities
+        // hydrated at depth >= 1, because caching a depth-0 result would hand a later,
+        // deeper read a shallow object (see _batchPreloadFkReferences). Entries live
+        // only while their hydrate() call is on the stack, so this is a recursion guard
+        // rather than a cache. Without it ChecklistItemDetail.dependentOn — the one
+        // self-referential FK in the schemas — recurses until the stack blows.
+        this._inProgress = new Map();
+
+        // Sync sets this so per-child findByKey("uuid", ...) lookups don't deep-load
+        // the parent's whole subtree. Lists stay lazy (never eager, never frozen []),
+        // so a retained shallow entity still resolves them on read.
         this._shallowMode = false;
     }
 
@@ -145,8 +149,13 @@ class EntityHydrator {
 
         const depth = options.depth != null ? options.depth : 2;
         const skipLists = options.skipLists || false;
-        // Child lists kept even when skipLists is on (e.g. search needs enrolments).
+        // Child lists kept even when skipLists is on (e.g. search needs enrolments). Keys are
+        // schema-qualified ("Individual.enrolments") — Individual.encounters and
+        // ProgramEnrolment.encounters share a name, and a bare key would match both.
         const listsToInclude = options.listsToInclude || null;
+        // Referenced entities and included lists inherit this shape. Without it a caller asking
+        // for shallow hydration still got the full subtree of everything its row points at.
+        const childOptions = {skipLists, listsToInclude};
 
         const result = {};
 
@@ -160,82 +169,93 @@ class EntityHydrator {
             }
         }
 
+        // Cycle break at every depth, including 0 where the session cache registers
+        // nothing. Entry is dropped as this call returns — see _inProgress.
+        const cycleKey = rowUuid ? `${schemaName}:${rowUuid}` : null;
+        if (cycleKey) {
+            const alreadyHydrating = this._inProgress.get(cycleKey);
+            if (alreadyHydrating) return alreadyHydrating;
+            this._inProgress.set(cycleKey, result);
+        }
+
         const properties = realmSchema.properties || {};
 
-        Object.keys(properties).forEach(propName => {
-            const propDef = properties[propName];
-            const resolvedType = normalizeRealmType(typeof propDef === "string" ? propDef : propDef.type);
-            const objectType = typeof propDef === "object" ? propDef.objectType : null;
-            const snakeName = camelToSnake(propName);
+        try {
+            Object.keys(properties).forEach(propName => {
+                const propDef = properties[propName];
+                const resolvedType = normalizeRealmType(typeof propDef === "string" ? propDef : propDef.type);
+                const objectType = typeof propDef === "object" ? propDef.objectType : null;
+                const snakeName = camelToSnake(propName);
 
-            if (resolvedType === "object" && objectType) {
-                if (EMBEDDED_SCHEMA_NAMES.has(objectType)) {
-                    // Embedded object stored as JSON — resolve eagerly (no DB query)
-                    const jsonVal = row[snakeName];
-                    const _jt0 = this._profileCounters ? Date.now() : 0;
-                    const parsed = parseJsonSafe(jsonVal);
-                    if (this._profileCounters) { this._profileCounters.jsonParseCalls++; this._profileCounters.jsonParseMs += Date.now() - _jt0; }
-                    result[propName] = parsed != null ? this._hydrateEmbedded(parsed, objectType) : null;
-                } else {
-                    // Referenced entity — FK column is propName_uuid
-                    const fkColName = `${snakeName}_uuid`;
-                    const fkValue = row[fkColName];
-                    const refFloor = MIN_REFERENCE_DEPTH[objectType] || 0;
-                    if (_.isNil(fkValue)) {
-                        result[propName] = null;
-                    } else if (refFloor > 0) {
-                        result[propName] = this.resolveReference(objectType, fkValue, Math.max(depth - 1, refFloor));
-                    } else if (depth <= 0) {
-                        result[propName] = this._resolveCachedReference(objectType, fkValue);
+                if (resolvedType === "object" && objectType) {
+                    if (EMBEDDED_SCHEMA_NAMES.has(objectType)) {
+                        // Embedded object stored as JSON — resolve eagerly (no DB query)
+                        const jsonVal = row[snakeName];
+                        const _jt0 = this._profileCounters ? Date.now() : 0;
+                        const parsed = parseJsonSafe(jsonVal);
+                        if (this._profileCounters) { this._profileCounters.jsonParseCalls++; this._profileCounters.jsonParseMs += Date.now() - _jt0; }
+                        result[propName] = parsed != null ? this._hydrateEmbedded(parsed, objectType) : null;
                     } else {
-                        result[propName] = this.resolveReference(objectType, fkValue, depth - 1);
+                        // Referenced entity — FK column is propName_uuid
+                        const fkColName = `${snakeName}_uuid`;
+                        const fkValue = row[fkColName];
+                        const refFloor = MIN_REFERENCE_DEPTH[objectType] || 0;
+                        if (_.isNil(fkValue)) {
+                            result[propName] = null;
+                        } else if (refFloor > 0) {
+                            result[propName] = this.resolveReference(objectType, fkValue, Math.max(depth - 1, refFloor), childOptions);
+                        } else if (depth <= 0) {
+                            result[propName] = this._resolveCachedReference(objectType, fkValue, childOptions);
+                        } else {
+                            result[propName] = this.resolveReference(objectType, fkValue, depth - 1, childOptions);
+                        }
                     }
-                }
-            } else if (resolvedType === "list") {
-                const jsonArrayKey = `${schemaName}.${propName}`;
-                if (Object.prototype.hasOwnProperty.call(JSON_UUID_ARRAY_LIST_PROPERTIES, jsonArrayKey)) {
-                    // JSON array of child UUIDs (or raw scalars) stored on this row.
-                    const childType = JSON_UUID_ARRAY_LIST_PROPERTIES[jsonArrayKey];
-                    const parsed = parseJsonSafe(row[snakeName]) || [];
-                    if (!childType) {
-                        result[propName] = parsed; // scalar array stored verbatim
-                    } else if (depth > 0) {
-                        result[propName] = parsed.map(uuid => this.resolveReference(childType, uuid, depth - 1)).filter(ref => !isUnresolvedReference(ref));
+                } else if (resolvedType === "list") {
+                    const jsonArrayKey = `${schemaName}.${propName}`;
+                    if (Object.prototype.hasOwnProperty.call(JSON_UUID_ARRAY_LIST_PROPERTIES, jsonArrayKey)) {
+                        // JSON array of child UUIDs (or raw scalars) stored on this row.
+                        const childType = JSON_UUID_ARRAY_LIST_PROPERTIES[jsonArrayKey];
+                        const parsed = parseJsonSafe(row[snakeName]) || [];
+                        if (!childType) {
+                            result[propName] = parsed; // scalar array stored verbatim
+                        } else if (depth > 0) {
+                            result[propName] = parsed.map(uuid => this.resolveReference(childType, uuid, depth - 1, childOptions)).filter(ref => !isUnresolvedReference(ref));
+                        } else {
+                            result[propName] = parsed.map(uuid => this._resolveCachedReference(childType, uuid, childOptions)).filter(ref => !isUnresolvedReference(ref));
+                        }
+                    } else if (objectType && EMBEDDED_SCHEMA_NAMES.has(objectType)) {
+                        // Embedded list stored as JSON — resolve eagerly (no DB query)
+                        const jsonVal = row[snakeName];
+                        const _jt1 = this._profileCounters ? Date.now() : 0;
+                        const parsed = parseJsonSafe(jsonVal) || [];
+                        if (this._profileCounters) { this._profileCounters.jsonParseCalls++; this._profileCounters.jsonParseMs += Date.now() - _jt1; }
+                        result[propName] = parsed.map(item => item != null ? this._hydrateEmbedded(item, objectType) : null);
+                    } else if (objectType && depth > 0 && (!skipLists || (listsToInclude && listsToInclude.has(`${schemaName}.${propName}`)))) {
+                        // Referenced list — query child table
+                        result[propName] = this.resolveList(schemaName, propName, objectType, row.uuid, depth - 1, childOptions);
+                    } else if (objectType) {
+                        // Not prefetched (below budget, skipped, or shallow) — resolve on access
+                        // so an unloaded list never reads as an empty one.
+                        this._defineLazyList(result, propName, schemaName, objectType, row.uuid, childOptions);
                     } else {
-                        result[propName] = parsed.map(uuid => this._resolveCachedReference(childType, uuid)).filter(ref => !isUnresolvedReference(ref));
+                        result[propName] = [];
                     }
-                } else if (objectType && EMBEDDED_SCHEMA_NAMES.has(objectType)) {
-                    // Embedded list stored as JSON — resolve eagerly (no DB query)
-                    const jsonVal = row[snakeName];
-                    const _jt1 = this._profileCounters ? Date.now() : 0;
-                    const parsed = parseJsonSafe(jsonVal) || [];
-                    if (this._profileCounters) { this._profileCounters.jsonParseCalls++; this._profileCounters.jsonParseMs += Date.now() - _jt1; }
-                    result[propName] = parsed.map(item => item != null ? this._hydrateEmbedded(item, objectType) : null);
-                } else if (objectType && depth > 0 && (!skipLists || (listsToInclude && listsToInclude.has(propName)))) {
-                    // Referenced list — query child table
-                    result[propName] = this.resolveList(schemaName, propName, objectType, row.uuid, depth - 1);
-                } else if (objectType && !this._shallowMode) {
-                    // Below the prefetch budget, or skipped by the caller. Resolve on access
-                    // rather than reporting [] — an unloaded list must not read as an empty one.
-                    this._defineLazyList(result, propName, schemaName, objectType, row.uuid);
                 } else {
-                    result[propName] = [];
+                    // Scalar property
+                    const value = row[snakeName];
+                    result[propName] = convertSqliteValue(resolvedType, value);
                 }
-            } else {
-                // Scalar property
-                const value = row[snakeName];
-                result[propName] = convertSqliteValue(resolvedType, value);
-            }
-        });
+            });
+        } finally {
+            if (cycleKey) this._inProgress.delete(cycleKey);
+        }
 
         return result;
     }
 
-    // Sync sets shallow mode and then spreads every list property of the parent
-    // (avni-models General.pick, via Individual.associateChild) for each synced child —
-    // lazy accessors there would fire a query per list per entity. Shallow mode keeps
-    // returning [] until #2019's element-level proxies make the spread cheap again.
-    _defineLazyList(target, propName, parentSchemaName, childSchemaName, parentUuid) {
+    // Resolves at depth 0 (children's own lists stay lazy): a deeper resolve here runs
+    // outside any batch preload, so it would be an N+1 — a query per child per list.
+    _defineLazyList(target, propName, parentSchemaName, childSchemaName, parentUuid, options = {}) {
         let resolved = false;
         let value;
         Object.defineProperty(target, propName, {
@@ -243,10 +263,22 @@ class EntityHydrator {
             configurable: true,
             get: () => {
                 if (!resolved) {
-                    resolved = true;
                     this.beginHydrationSession();
                     try {
-                        value = this.resolveList(parentSchemaName, propName, childSchemaName, parentUuid, 1);
+                        // Seed the session with the parent so a child's back-reference to it
+                        // (Encounter.individual and the like) resolves from the cache rather
+                        // than re-reading the parent row once per child. Guarded like
+                        // hydrate()'s own pre-registration: if this getter ever fires inside
+                        // an already-open session, a deeper hydration of the same entity
+                        // already there must win.
+                        const parentKey = `${parentSchemaName}:${parentUuid}`;
+                        if (parentUuid && !this._hydrationCache.has(parentKey)) {
+                            this._hydrationCache.set(parentKey, target);
+                        }
+                        value = this.resolveList(parentSchemaName, propName, childSchemaName, parentUuid, 0, options);
+                        // Only now — a throw must leave the list unresolved so the next read
+                        // retries, rather than latching undefined and failing far from here.
+                        resolved = true;
                     } finally {
                         this.endHydrationSession();
                     }
@@ -263,7 +295,7 @@ class EntityHydrator {
     /**
      * Resolve a FK reference to a full nested object.
      */
-    resolveReference(targetSchemaName, uuid, depth) {
+    resolveReference(targetSchemaName, uuid, depth, options = {}) {
         if (this._profileCounters) this._profileCounters.resolveRefCalls++;
 
         // Try reference data cache first
@@ -288,6 +320,15 @@ class EntityHydrator {
             }
         }
 
+        // A reference back to an entity still being hydrated further up the stack.
+        // Return the in-progress object rather than reading its row again, which at
+        // depth 0 would recurse forever around an FK cycle.
+        const inProgress = this._inProgress.get(cacheKey);
+        if (inProgress) {
+            if (this._profileCounters) this._profileCounters.resolveRefCacheHits++;
+            return inProgress;
+        }
+
         if (this._profileCounters) this._profileCounters.resolveRefDbQueries++;
 
         // Query the database
@@ -305,7 +346,7 @@ class EntityHydrator {
             return {uuid};
         }
 
-        const hydrated = this.hydrate(targetSchemaName, rows[0], {depth, skipLists: false});
+        const hydrated = this.hydrate(targetSchemaName, rows[0], {depth, skipLists: !!options.skipLists, listsToInclude: options.listsToInclude});
 
         // Cache in session if hydrated at meaningful depth (has FK refs resolved)
         if (this._hydrationCache && depth >= 1 && hydrated.uuid) {
@@ -329,7 +370,7 @@ class EntityHydrator {
      * skips lists, and uses this same method for its own FKs (which will hit the
      * session cache since the parent is pre-registered before processing children).
      */
-    _resolveCachedReference(targetSchemaName, uuid) {
+    _resolveCachedReference(targetSchemaName, uuid, options = {}) {
         // Check reference data cache (reference entities like Program, SubjectType, etc.)
         const refCache = this.referenceDataCache[targetSchemaName];
         if (refCache) {
@@ -348,7 +389,7 @@ class EntityHydrator {
         // This ensures FK-referenced entities at depth 0 have their scalar
         // fields populated (e.g., Concept.datatype, Program.name) instead
         // of returning bare {uuid} stubs.
-        return this.resolveReference(targetSchemaName, uuid, 0);
+        return this.resolveReference(targetSchemaName, uuid, 0, options);
     }
 
     /**
@@ -411,7 +452,7 @@ class EntityHydrator {
     /**
      * Resolve a list property by querying the child table for matching FK.
      */
-    resolveList(parentSchemaName, propName, childSchemaName, parentUuid, depth) {
+    resolveList(parentSchemaName, propName, childSchemaName, parentUuid, depth, options = {}) {
         if (this._profileCounters) this._profileCounters.resolveListCalls++;
         if (_.isNil(parentUuid)) return [];
 
@@ -440,7 +481,7 @@ class EntityHydrator {
         if (rows.length === 0) return [];
 
         if (this._profileCounters) this._profileCounters.resolveListHydrations += rows.length;
-        return rows.map(row => this.hydrate(childSchemaName, row, {depth, skipLists: false}));
+        return rows.map(row => this.hydrate(childSchemaName, row, {depth, skipLists: !!options.skipLists, listsToInclude: options.listsToInclude}));
     }
 
     /**

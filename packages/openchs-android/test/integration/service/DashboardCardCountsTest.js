@@ -1,6 +1,6 @@
 /**
- * #2024 — a dashboard card must count people, not rows, and must equal the number of
- * rows in its own drill-down. Fixtures are the ones enumerated on the card.
+ * A dashboard card must count people, not rows, and must equal the number of rows in its
+ * own drill-down. Each fixture gives at least one subject two or more qualifying rows.
  *
  * Run: npx jest --selectProjects integration test/integration/service/DashboardCardCountsTest.js
  */
@@ -9,7 +9,7 @@ import moment from "moment";
 
 jest.mock("../../../src/framework/bean/Service", () => () => (target) => target);
 
-import {EntityMappingConfig, Encounter, Individual, ProgramEncounter, ProgramEnrolment} from "openchs-models";
+import {CustomFilter, EntityMappingConfig, Encounter, Individual, ProgramEncounter, ProgramEnrolment} from "openchs-models";
 import SchemaGenerator from "../../../src/framework/db/SchemaGenerator";
 import SqliteProxy from "../../../src/framework/db/SqliteProxy";
 import RepositoryFactory from "../../../src/repository/RepositoryFactory";
@@ -31,8 +31,8 @@ const PROGRAM_ENC_TYPE_A = "pet-a";
 const PROGRAM_ENC_TYPE_B = "pet-b";
 const GENERAL_ENC_TYPE = "get-a";
 
-describe("#2024 dashboard card counts are people, not rows", () => {
-    let rawDb, proxy, service, privileges;
+describe("dashboard card counts are people, not rows", () => {
+    let rawDb, proxy, service, privileges, privilegeLookups, conceptScan;
 
     beforeEach(() => {
         rawDb = open({});
@@ -59,12 +59,19 @@ describe("#2024 dashboard card counts are people, not rows", () => {
 
         // Default: user holds every privilege, so the privilege filter is a no-op.
         privileges = {allowAll: true, programEncounterTypes: [], generalEncounterTypes: []};
+        privilegeLookups = 0;
         const privilegeService = {
-            hasAllPrivileges: () => privileges.allowAll,
+            hasAllPrivileges: () => (privilegeLookups += 1, privileges.allowAll),
             allowedEntityTypeUUIDListForCriteria: (ignored, param) =>
                 param === "programEncounterTypeUuid" ? privileges.programEncounterTypes : privileges.generalEncounterTypes
         };
-        const stubs = new Map([[CustomFilterService, {}], [PrivilegeService, privilegeService]]);
+        // A concept filter's subject scan is the expensive step, so the stub counts how often it runs.
+        conceptScan = {calls: 0, matches: []};
+        const customFilterService = {
+            getFilterQueryByTypeFunctionV2: () => null,
+            getSubjects: () => (conceptScan.calls += 1, conceptScan.matches)
+        };
+        const stubs = new Map([[CustomFilterService, customFilterService], [PrivilegeService, privilegeService]]);
         const repositoryFactory = new RepositoryFactory(proxy);
         const context = {
             getRepositoryFactory: () => repositoryFactory,
@@ -184,6 +191,72 @@ describe("#2024 dashboard card counts are people, not rows", () => {
 
         assert.equal(scheduledList().length, 2);
         assert.equal(scheduledCount(), 2);
+    });
+
+    it("the drill-down resolves the performVisit rule once, not per row", () => {
+        privileges = {allowAll: false, programEncounterTypes: [PROGRAM_ENC_TYPE_A], generalEncounterTypes: [GENERAL_ENC_TYPE]};
+        const enr = enrolment(subject("A"));
+        programEncounter(enr, {...dueToday, encounterType: PROGRAM_ENC_TYPE_A});
+        programEncounter(enr, {...dueToday, encounterType: PROGRAM_ENC_TYPE_B});
+        generalEncounter(subject("B"), dueToday);
+        privilegeLookups = 0;
+
+        assert.equal(scheduledList().length, 2);
+        assert.equal(privilegeLookups, 1);
+    });
+
+    it("scheduled and overdue counts use a privilege lookup passed in rather than repeating it", () => {
+        programEncounter(enrolment(subject("A")), dueToday);
+        generalEncounter(subject("B"), overdue);
+        const nothingAllowed = {allowedEncounterTypeUuids: {programEncounterTypes: [], encounterTypes: []}};
+        privilegeLookups = 0;
+
+        assert.equal(service.countScheduledVisits(TODAY, [], "", "", nothingAllowed), 0);
+        assert.equal(service.countOverdueVisits(TODAY, [], "", "", nothingAllowed), 0);
+        assert.equal(privilegeLookups, 0);
+    });
+
+    it("counts skip a visit table exactly when the drill-down skips it", () => {
+        programEncounter(enrolment(subject("Program only")), dueToday);
+        generalEncounter(subject("General only"), dueToday);
+        const programOnly = {queryProgramEncounter: true, queryGeneralEncounter: false};
+        const generalOnly = {queryProgramEncounter: false, queryGeneralEncounter: true};
+
+        assert.equal(service.allScheduledVisitsIn(TODAY, [], "", "", true, false).length, 1);
+        assert.equal(service.countScheduledVisits(TODAY, [], "", "", programOnly), 1);
+        assert.equal(service.allScheduledVisitsIn(TODAY, [], "", "", false, true).length, 1);
+        assert.equal(service.countScheduledVisits(TODAY, [], "", "", generalOnly), 1);
+        assert.equal(service.countScheduledVisits(TODAY, [], "", "", {queryProgramEncounter: false, queryGeneralEncounter: false}), 0);
+    });
+
+    it("overdue and recently completed counts honour the same table flags", () => {
+        programEncounter(enrolment(subject("A")), overdue);
+        generalEncounter(subject("B"), overdue);
+        programEncounter(enrolment(subject("C")), {...dueToday, encounterDateTime: TODAY});
+        generalEncounter(subject("D"), {...dueToday, encounterDateTime: TODAY});
+
+        assert.equal(service.countOverdueVisits(TODAY, [], "", "", {queryGeneralEncounter: false}), 1);
+        assert.equal(service.countOverdueVisits(TODAY, [], "", ""), 2);
+        assert.equal(service.recentlyCompletedVisitsIn(TODAY, [], "", "", false, true).length, 1);
+        assert.equal(service.countRecentlyCompletedVisits(TODAY, [], "", "", undefined, {queryProgramEncounter: false}), 1);
+        assert.equal(service.countRecentlyCompletedVisits(TODAY, [], "", ""), 2);
+    });
+
+    it("a card runs the concept filter scan once, not once per visit table", () => {
+        const matching = subject("Matches");
+        programEncounter(enrolment(matching), dueToday);
+        generalEncounter(matching, dueToday);
+        const other = subject("Does not match");
+        programEncounter(enrolment(other), dueToday);
+        generalEncounter(other, dueToday);
+        conceptScan.matches = [matching];
+        const conceptFilter = {
+            type: CustomFilter.type.Concept, dataType: "Text", filterValue: "x",
+            toDisplayText: () => "Concept", getScope: () => null, getConceptUUID: () => "concept-1", getScopeParameters: () => null
+        };
+
+        assert.equal(service.countScheduledVisits(TODAY, [conceptFilter], "", ""), 1);
+        assert.equal(conceptScan.calls, 1);
     });
 
     it("fixture 4 — one subject with two enrolments in the window counts as one person", () => {

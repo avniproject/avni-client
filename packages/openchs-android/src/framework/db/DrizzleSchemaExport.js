@@ -56,6 +56,7 @@ const ADDITIONAL_INDEXES = {
     individual: ["registration_date"],
     encounter: ["encounter_date_time"],
     program_enrolment: ["enrolment_date_time"],
+    entity_approval_status: ["entity_uuid"],
 };
 
 // Keep in sync with JSON_UUID_ARRAY_LIST_PROPERTIES in SchemaGenerator.js.

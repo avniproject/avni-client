@@ -132,7 +132,7 @@ class AbstractComponent extends Component {
         // The timer is the safety net for a route that never reports focus, and deferPastInteractions
         // covers components mounted outside the Router entirely.
         if (_.isFunction(this.loadData)) {
-            this.runAfterSceneTransition(() => this.runDeferredLoad());
+            this._loadRegistration = this.runAfterSceneTransition(() => this.runDeferredLoad());
         }
 
         // Call subclass hook if defined (Template Method Pattern)
@@ -168,11 +168,21 @@ class AbstractComponent extends Component {
         // screen the user has already left. Unknown route => accept any focus, so a component outside
         // the Router's knowledge still loads rather than waiting for the timer.
         const armedForRoute = _.invoke(this.context, 'currentRoutePath');
-        const reg = {fired: false, unsubscribe: null, timer: null};
         this._sceneTransitionRegistrations = this._sceneTransitionRegistrations || [];
+        const reg = {
+            fired: false, unsubscribe: null, timer: null, fn, armedAt,
+            index: this._sceneTransitionRegistrations.length,
+            evenIfUnmounted: opts.evenIfUnmounted === true,
+            // Cleared by release(), so a registration that has fired - or was released without firing -
+            // no longer holds back the ones registered after it in the pump below.
+            triggerPending: true,
+            queued: false, ran: false, source: null
+        };
         this._sceneTransitionRegistrations.push(reg);
 
         const release = () => {
+            const wasWaitingForTrigger = reg.triggerPending && !reg.fired;
+            reg.triggerPending = false;
             if (reg.timer) {
                 clearTimeout(reg.timer);
                 reg.timer = null;
@@ -181,18 +191,20 @@ class AbstractComponent extends Component {
                 reg.unsubscribe();
                 reg.unsubscribe = null;
             }
+            // This registration no longer holds back the ones behind it, and nothing else will
+            // re-arm the pump for them: fire() is the only other caller, and it has not run here.
+            // Without this an unmount that releases a never-fired load registration strands an
+            // evenIfUnmounted sibling queued behind it - exactly the work that option exists for.
+            if (wasWaitingForTrigger) this.scheduleSceneTransitionPump();
         };
 
         const fire = (source) => {
             if (reg.fired) return;
-            if (this._isUnmounted && !opts.evenIfUnmounted) return;
+            if (this._isUnmounted && !reg.evenIfUnmounted) return;
             reg.fired = true;
+            reg.source = source;
             release();
-            requestAnimationFrame(() => requestAnimationFrame(() => {
-                if (this._isUnmounted && !opts.evenIfUnmounted) return;
-                Perf.mark("sceneTrigger.fired", () => ({view: this.viewName(), source, sinceArmedMs: Date.now() - armedAt}));
-                fn();
-            }));
+            this.queueSceneTransitionRun(reg);
         };
 
         if (_.isFunction(subscribeSceneDidFocus)) {
@@ -207,6 +219,57 @@ class AbstractComponent extends Component {
             deferPastInteractions(() => fire("interactions"));
         }
         reg.release = release;
+        return reg;
+    }
+
+    // Every registration on a component shares ONE double-rAF pump and runs in registration order.
+    // A pump per registration leaves their relative order to the platform: RN implements
+    // requestAnimationFrame as a native timer, and Android keeps those in a PriorityQueue keyed only
+    // on target time, so two callbacks armed in the same millisecond can be delivered in either
+    // order. SubjectDashboardProgramsTab dispatches ON_LANDING from the base class's load
+    // registration and ON_LOAD from its own. On 18.x - where #1892 added the `loaded` state gate this
+    // branch does not carry - inverting them let ON_LANDING clear the flag ON_LOAD had just set, and
+    // the tab sat on its spinner until the user left it (avni-client#2101, 3 of 50 tab mounts in the
+    // reported log). The double rAF itself stays - it is what lets the scene's final commit paint
+    // before the load blocks the JS thread (#2054).
+    queueSceneTransitionRun(reg) {
+        reg.queued = true;
+        this.scheduleSceneTransitionPump();
+    }
+
+    scheduleSceneTransitionPump() {
+        if (this._sceneTransitionPumpScheduled) return;
+        this._sceneTransitionPumpScheduled = true;
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            this._sceneTransitionPumpScheduled = false;
+            this.drainSceneTransitionRuns();
+        }));
+    }
+
+    drainSceneTransitionRuns() {
+        const registrations = this._sceneTransitionRegistrations || [];
+        for (let i = 0; i < registrations.length; i++) {
+            const reg = registrations[i];
+            if (reg.ran) continue;
+            if (!reg.queued) {
+                // Still waiting for its own trigger. Whatever it does is ordered before the later
+                // registrations, so they wait too - bounded by its LOAD_FALLBACK_MS timer (or the cap
+                // inside deferPastInteractions), which re-arms the pump. It can defer, never stall.
+                if (reg.triggerPending) return;
+                continue;
+            }
+            reg.ran = true;
+            if (this._isUnmounted && !reg.evenIfUnmounted) continue;
+            Perf.mark("sceneTrigger.fired", () => ({
+                view: this.viewName(), source: reg.source, index: reg.index, sinceArmedMs: Date.now() - reg.armedAt
+            }));
+            try {
+                reg.fn();
+            } catch (e) {
+                // One registration's failure must not strand the ones queued behind it.
+                General.logError(this.viewName(), e);
+            }
+        }
     }
 
     // Idempotent: whichever trigger arrives first wins, the rest no-op. _loadStarted is set only after
@@ -215,7 +278,7 @@ class AbstractComponent extends Component {
     runDeferredLoad() {
         if (this._isUnmounted || this._loadStarted || !_.isNil(this._loadError)) return;
         if (!_.isFunction(this.loadData)) return;
-        this.clearDeferredLoadTriggers();
+        this.releaseLoadTriggers();
         try {
             this.loadData();
             this._loadStarted = true;
@@ -225,6 +288,16 @@ class AbstractComponent extends Component {
         }
         if (this._isUnmounted) return;   // loadData() can dispatch a reducer that navigates away
         this.forceUpdate();
+    }
+
+    // The load's remaining triggers only - didFocus and the fallback timer race each other, and the
+    // loser must not run a second time. Releasing every registration here instead took a sibling's
+    // listener and timer away before it had fired, silently dropping its work: that is the other way
+    // SubjectDashboardProgramsTab lost its ON_LOAD dispatch (avni-client#2101).
+    releaseLoadTriggers() {
+        if (this._loadRegistration && _.isFunction(this._loadRegistration.release)) {
+            this._loadRegistration.release();
+        }
     }
 
     clearDeferredLoadTriggers() {

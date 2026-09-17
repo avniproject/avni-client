@@ -29,3 +29,14 @@ it('should stringify', function () {
         assert.equal(JSONStringify(selfReferencing, 4), `{"name":"Sid","friends":[<object_repeated>],"me":<object_repeated>}`);
     }
 );
+
+it('should redact sensitive keys', function () {
+    assert.equal(JSONStringify({userId: "u", password: "secret"}), `{"userId":"u","password":"<redacted>"}`);
+    // covers camelCase, snake_case and plural token-shaped keys, case-insensitively
+    assert.equal(JSONStringify({accessToken: "a", refresh_token: "r"}), `{"accessToken":"<redacted>","refresh_token":"<redacted>"}`);
+    assert.equal(JSONStringify({tokens: "t", jwtToken: "j"}), `{"tokens":"<redacted>","jwtToken":"<redacted>"}`);
+    // nested slices are redacted too
+    assert.equal(JSONStringify({login: {userId: "u", password: "secret"}}), `{"login":{"userId":"u","password":"<redacted>"}}`);
+    // only string values are redacted, so non-secret flags like showPassword stay visible
+    assert.equal(JSONStringify({showPassword: true, password: "secret"}), `{"showPassword":true,"password":"<redacted>"}`);
+});

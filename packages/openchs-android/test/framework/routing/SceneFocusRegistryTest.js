@@ -88,6 +88,37 @@ describe("SceneFocusRegistry", () => {
         expect(listener).not.toHaveBeenCalled();
     });
 
+    // Two listeners that subscribe after focus must be replayed in subscription order, from ONE
+    // scheduled drain. A schedule() per listener left the order to the platform: Router schedules on a
+    // frame callback, RN implements those as native timers, and Android holds them in a PriorityQueue
+    // keyed only on target time - two armed in the same millisecond can arrive in either order. A
+    // component that subscribes twice on mount then ran its two loads inverted (avni-client#2101).
+    it("replays post-focus subscribers in subscription order, from a single scheduled drain", () => {
+        registry.markFocused({path: "/A"});
+        const order = [];
+        registry.subscribe(() => order.push("first"));
+        registry.subscribe(() => order.push("second"));
+
+        expect(scheduled.length).toBe(1);
+        runScheduled();
+        expect(order).toEqual(["first", "second"]);
+    });
+
+    it("schedules a fresh drain for a listener that subscribes after the last one ran", () => {
+        registry.markFocused({path: "/A"});
+        const first = jest.fn();
+        registry.subscribe(first);
+        runScheduled();
+
+        const late = jest.fn();
+        registry.subscribe(late);
+        expect(late).not.toHaveBeenCalled();
+
+        runScheduled();
+        expect(late).toHaveBeenCalledWith({path: "/A"});
+        expect(first).toHaveBeenCalledTimes(1);
+    });
+
     it("a throwing listener does not stop the others", () => {
         const boom = () => { throw new Error("boom"); };
         const after = jest.fn();

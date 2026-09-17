@@ -33,12 +33,13 @@ import ChecklistItemView from "../program/ChecklistItemView";
 import SubjectRegisterView from "../subject/SubjectRegisterView";
 import NextScheduledVisitsForOtherSubjects from "../common/NextScheduledVisitsForOtherSubjects";
 import {ApprovalDialog} from "../approval/ApprovalDialog";
-import {RejectionMessage} from "../approval/RejectionMessage";
+import {DecisionMessage} from "../approval/DecisionMessage";
 import GroupAffiliationInformation from "../common/GroupAffiliationInformation";
 import _ from 'lodash'
 import AvniIcon from "../common/AvniIcon";
 import {Actions as IGHActions} from "../../action/individual/IndividualGeneralHistoryActions";
 import {ProgramEnrolmentDashboardActionsNames as PEDActions} from "../../action/program/ProgramEnrolmentDashboardActions";
+import Perf from "../../utility/perf";
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -203,6 +204,22 @@ class SystemRecommendationView extends AbstractComponent {
         }
     }
 
+    // avni-client#2086 (C): this view renders four times over ~3.6s after arrival, recomputing decisions
+    // each pass. Those renders are NOT store-driven - the constructor calls super(props, context) with
+    // no reducer key, so it never subscribes and refreshState never fires for it (which is why the
+    // #2054 refreshState instrumentation showed nothing). That leaves exactly two possibilities, and
+    // this names which, per render, instead of inferring it:
+    //   props=none state=none   -> a parent re-rendered and forced this one
+    //   state=viewHeight|bottom -> the onLayout -> setViewMeasurement -> setState path
+    // Prior: setViewMeasurement above is guarded on a rounded comparison, so the layout path can fire
+    // at most twice (once per key) and cannot by itself account for four renders.
+    componentDidUpdate(prevProps, prevState) {
+        Perf.mark("SRV.update", () => ({
+            props: Object.keys(this.props).filter(k => this.props[k] !== prevProps[k]).join(",") || "none",
+            state: Object.keys(this.state).filter(k => this.state[k] !== prevState[k]).join(",") || "none"
+        }));
+    }
+
     render() {
         General.logDebug(this.viewName(), `render`);
         const displayScrollButton = this.doDisplayScrollButton();
@@ -212,7 +229,7 @@ class SystemRecommendationView extends AbstractComponent {
                     <AppHeader title={this.props.headerMessage}
                                func={() => this.onAppHeaderBack(this.props.isSaveDraftOn)}
                                displayHomePressWarning={!this.props.isSaveDraftOn}/>
-                    <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.props.entityApprovalStatus}/>
+                    <DecisionMessage I18n={this.I18n} entityApprovalStatus={this.props.entityApprovalStatus}/>
                     {/* Measured here rather than on the container: doDisplayScrollButton compares this
                         against the y of a marker inside the scroll content, so it has to be the scroll
                         viewport. The container's height is the whole window — bigger by the header, the
@@ -241,8 +258,12 @@ class SystemRecommendationView extends AbstractComponent {
                                             );
                                         })
                                     }
+                                    {/* Recomputed on every render - the RC1 "work in render()" pattern,
+                                        and the `+ ConceptService decisions` seen on all four passes in
+                                        #2086. Timed so (C)'s COST is separable from its COUNT. */}
                                     <Observations highlight
-                                                  observations={this.context.getService(ConceptService).getObservationsFromDecisions(this.props.decisions)}
+                                                  observations={Perf.time("SRV.decisionsFromRender",
+                                                      () => this.context.getService(ConceptService).getObservationsFromDecisions(this.props.decisions))}
                                                   title={this.I18n.t('systemRecommendations')}/>
                                 </View>
                                 <NextScheduledVisits nextScheduledVisits={this.props.nextScheduledVisits.filter(nsv => _.isNil(nsv.subject))}

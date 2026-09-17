@@ -8,6 +8,7 @@ import {assert} from "chai";
 import _ from "lodash";
 
 jest.mock("../../../src/framework/bean/Service", () => () => (target) => target);
+jest.mock("../../../src/utility/Analytics", () => ({logEvent: () => {}, firebaseEvents: {MY_DASHBOARD_FILTER: "my_dashboard_filter"}}));
 
 import {MyDashboardActions} from "../../../src/action/mydashboard/MyDashboardActions";
 
@@ -21,6 +22,8 @@ const UNFILTERED = {
     recentlyCompletedEnrolment: 2,
     total: 2
 };
+
+const ALLOWED_VISIT_TYPES = {programEncounterTypes: ["pet-1"], encounterTypes: []};
 
 const ALL_ZERO = _.mapValues(UNFILTERED, () => 0);
 
@@ -36,7 +39,15 @@ function makeIndividualService(counts = UNFILTERED) {
         countRecentlyRegistered: (...args) => (record("countRecentlyRegistered", args), counts.recentlyCompletedRegistration),
         countRecentlyEnrolled: (...args) => (record("countRecentlyEnrolled", args), counts.recentlyCompletedEnrolment),
         countAllIn: (...args) => (record("countAllIn", args), counts.total),
-        dueChecklistForDefaultDashboard: () => ({individual: [], checklistItemNames: []})
+        performVisitEncounterTypeUuids: (...args) => (record("performVisitEncounterTypeUuids", args), ALLOWED_VISIT_TYPES),
+        dueChecklistForDefaultDashboard: () => ({individual: [], checklistItemNames: []}),
+        // Entity lists, used by onListLoad when filters are applied from the list screen.
+        allScheduledVisitsIn: () => [],
+        allOverdueVisitsIn: () => [],
+        recentlyCompletedVisitsIn: () => [],
+        recentlyRegistered: () => [],
+        recentlyEnrolled: (...args) => (record("recentlyEnrolled", args), []),
+        allIn: () => []
     };
 }
 
@@ -77,6 +88,20 @@ function countsOf(state) {
 }
 
 const noCustomFilters = () => ({isDashboardFiltersEmpty: () => true, applyCustomFilters: () => []});
+
+// Resolving a custom filter scans observations (tens of seconds on a large org), so track how
+// often it actually runs.
+function makeCustomFilterService(matched) {
+    const service = {
+        resolutions: 0,
+        isDashboardFiltersEmpty: (filters) => _.isEmpty(filters) || _.every(filters, _.isEmpty),
+        applyCustomFilters: () => {
+            service.resolutions += 1;
+            return matched;
+        }
+    };
+    return service;
+}
 
 describe("MyDashboardActions.onLoad card counts", () => {
     it("keeps the numbers when the screen is re-entered without a fresh fetch", () => {
@@ -173,12 +198,176 @@ describe("MyDashboardActions.onLoad card counts", () => {
         const scheduledCalls = individualService.calls.filter((c) => c.name === "countScheduledVisits");
         assert.equal(scheduledCalls.length, 3, "1200 subjects must be counted over three chunks of 500");
         scheduledCalls.forEach(({args}) => {
-            args.slice(2).forEach((criteria) => assert.isAtMost((criteria.match(/ OR /g) || []).length, 499));
+            args.slice(2, 4).forEach((criteria) => assert.isAtMost((criteria.match(/ OR /g) || []).length, 499));
         });
         // Every row belongs to exactly one subject, so the chunk counts sum without double counting.
         assert.equal(countsOf(state).scheduled, 3);
         assert.equal(countsOf(state).total, 3);
         assert.deepEqual(_.uniq(subjectUUIDs.map((uuid) => scheduledCalls.some(({args}) => args[2].includes(`"${uuid}"`)))), [true]);
+    });
+
+    it("looks up the performVisit privilege once per refresh, however many chunks are counted", () => {
+        const individualService = makeIndividualService();
+        const dashboardCacheService = makeDashboardCacheService();
+        dashboardCacheService.setSelectedCustomFilters({Age: [{uuid: "opt-1"}]});
+        const context = buildContext({
+            individualService,
+            dashboardCacheService,
+            customFilterService: {isDashboardFiltersEmpty: () => false, applyCustomFilters: () => _.times(1200, (i) => `subject-${i}`)}
+        });
+
+        MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
+
+        assert.equal(individualService.calls.filter((c) => c.name === "performVisitEncounterTypeUuids").length, 1);
+        const visitCalls = individualService.calls.filter((c) => ["countScheduledVisits", "countOverdueVisits"].includes(c.name));
+        assert.equal(visitCalls.length, 6);
+        visitCalls.forEach(({args}) => assert.strictEqual(args[4].allowedEncounterTypeUuids, ALLOWED_VISIT_TYPES));
+    });
+
+    it("counts only the visit tables the drill-down will read for the selected filters", () => {
+        const individualService = makeIndividualService();
+        const dashboardCacheService = makeDashboardCacheService();
+        const context = buildContext({individualService, dashboardCacheService, customFilterService: noCustomFilters()});
+        const tables = (name) => _.pick(_.last(individualService.calls.filter((c) => c.name === name).map(({args}) => name === "countRecentlyCompletedVisits" ? args[5] : args[4])),
+            ["queryProgramEncounter", "queryGeneralEncounter"]);
+
+        MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
+        assert.deepEqual(tables("countScheduledVisits"), {queryProgramEncounter: true, queryGeneralEncounter: true});
+
+        dashboardCacheService.updateFilter({selectedCustomFilters: {}, selectedPrograms: [{uuid: "prog-1"}]});
+        MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
+        const programOnly = {queryProgramEncounter: true, queryGeneralEncounter: false};
+        assert.deepEqual(tables("countScheduledVisits"), programOnly);
+        assert.deepEqual(tables("countOverdueVisits"), programOnly);
+        assert.deepEqual(tables("countRecentlyCompletedVisits"), programOnly);
+        assert.isUndefined(individualService.callTo("countRecentlyCompletedVisits").args[4], "the recent-visits window stays at its default");
+
+        dashboardCacheService.updateFilter({selectedCustomFilters: {}, selectedGeneralEncounterTypes: [{uuid: "get-1"}]});
+        MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
+        assert.deepEqual(tables("countScheduledVisits"), {queryProgramEncounter: false, queryGeneralEncounter: true});
+    });
+
+    it("builds the recent enrolments list with the same filters its count uses", () => {
+        const individualService = makeIndividualService();
+        const context = buildContext({individualService, dashboardCacheService: makeDashboardCacheService(), customFilterService: noCustomFilters()});
+        const enrolmentFilters = 'individual.subjectType.uuid = "st-1"';
+        const state = {...MyDashboardActions.getInitialState(context), enrolmentFilters, date: {value: new Date("2026-08-24T00:00:00.000Z")}};
+
+        MyDashboardActions.onListLoad(state, {listType: "recentlyCompletedEnrolment"}, context);
+
+        const {args} = individualService.callTo("recentlyEnrolled");
+        assert.deepEqual(args[1], []);
+        assert.equal(args[2], enrolmentFilters);
+    });
+
+    it("reuses the resolved subjects only where data cannot have changed the answer", () => {
+        const dashboardCacheService = makeDashboardCacheService();
+        dashboardCacheService.setSelectedCustomFilters({Age: [{uuid: "opt-1"}]});
+        const customFilterService = makeCustomFilterService(["subject-1"]);
+        const context = buildContext({
+            individualService: makeIndividualService(),
+            dashboardCacheService,
+            customFilterService
+        });
+
+        let state = MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
+        assert.equal(customFilterService.resolutions, 1);
+
+        // applyCustomFilters takes no date, so Today/Tomorrow cannot change which subjects match.
+        state = MyDashboardActions.onDate(state, {value: new Date("2026-08-26T00:00:00.000Z")}, context);
+        assert.equal(customFilterService.resolutions, 1, "a date change cannot alter the matched subjects");
+
+        // A plain re-entry does not recompute the counts at all.
+        state = MyDashboardActions.onLoad(state, {fetchFromDB: false}, context);
+        assert.equal(customFilterService.resolutions, 1, "no counts recomputed, nothing to resolve for");
+        assert.deepEqual(countsOf(state), UNFILTERED);
+
+        // A refresh must see subjects that became matches since the filter was applied.
+        state = MyDashboardActions.onLoad(state, {fetchFromDB: true}, context);
+        assert.equal(customFilterService.resolutions, 2);
+
+        // Changing the filter re-resolves it.
+        dashboardCacheService.setSelectedCustomFilters({Age: [{uuid: "opt-2"}]});
+        state = MyDashboardActions.onLoad(state, {fetchFromDB: true}, context);
+        assert.equal(customFilterService.resolutions, 3);
+
+        // Clearing it needs no scan at all.
+        dashboardCacheService.setSelectedCustomFilters({});
+        state = MyDashboardActions.onLoad(state, {fetchFromDB: true}, context);
+        assert.equal(customFilterService.resolutions, 3, "an empty filter needs no scan");
+        assert.isNull(state.individualUUIDs);
+    });
+
+    it("counts subjects that became matches after the filter was applied", () => {
+        // The worker registers a matching person offline, then refreshes. An upload-only
+        // background sync would not have reset reducer state, so nothing else invalidates this.
+        let matched = ["subject-1"];
+        const individualService = makeIndividualService();
+        const dashboardCacheService = makeDashboardCacheService();
+        dashboardCacheService.setSelectedCustomFilters({Age: [{uuid: "opt-1"}]});
+        const context = buildContext({
+            individualService,
+            dashboardCacheService,
+            customFilterService: {isDashboardFiltersEmpty: () => false, applyCustomFilters: () => matched}
+        });
+
+        const state = MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
+        assert.notInclude(individualService.callTo("countAllIn").args[2], '"subject-2"');
+
+        matched = ["subject-1", "subject-2"];
+        MyDashboardActions.onLoad(state, {fetchFromDB: true}, context);
+        assert.include(individualService.callTo("countAllIn").args[2], '"subject-2"',
+            "the newly matching subject must reach the counts without an app restart");
+    });
+
+    it("re-resolves after a sync, since RESET clears the memo", () => {
+        const dashboardCacheService = makeDashboardCacheService();
+        dashboardCacheService.setSelectedCustomFilters({Age: [{uuid: "opt-1"}]});
+        const customFilterService = makeCustomFilterService(["subject-1"]);
+        const context = buildContext({individualService: makeIndividualService(), dashboardCacheService, customFilterService});
+
+        MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
+        assert.equal(customFilterService.resolutions, 1);
+
+        // SyncService.reset() dispatches RESET, which returns the reducer to its initial state.
+        MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
+        assert.equal(customFilterService.resolutions, 2, "freshly synced data must be re-filtered");
+    });
+
+    it("leaves the memo key and the resolved subjects describing the same filter on the list branch", () => {
+        const dashboardCacheService = makeDashboardCacheService();
+        const customFilterService = makeCustomFilterService(["subject-1"]);
+        const context = buildContext({
+            individualService: makeIndividualService(),
+            dashboardCacheService,
+            customFilterService
+        });
+
+        const selectedCustomFilters = {Age: [{uuid: "opt-1", subjectTypeUUID: SUBJECT_TYPE.uuid}]};
+        const applyAction = {
+            filters: new Map(),
+            locationSearchCriteria: {clone: () => ({getAllAddressLevelUUIDs: () => []})},
+            addressLevelState: {clone: () => ({levels: new Map(), anyActiveTypesArray: []}), anyActiveTypesArray: []},
+            filterDate: new Date("2026-08-24T00:00:00.000Z"),
+            programs: [], selectedPrograms: [], encounterTypes: [], selectedEncounterTypes: [],
+            generalEncounterTypes: [], selectedGeneralEncounterTypes: [], selectedGenders: [],
+            selectedLocations: [], selectedSubjectType: SUBJECT_TYPE,
+            selectedCustomFilters,
+            // FiltersView passes listType when filters are applied from the individual-list screen.
+            listType: "total"
+        };
+
+        const afterList = MyDashboardActions.assignFilters(MyDashboardActions.getInitialState(context), applyAction, context);
+
+        assert.deepEqual(afterList.individualUUIDs, ["subject-1"]);
+        assert.equal(afterList.customFilterResolvedAgainst, JSON.stringify({Age: selectedCustomFilters.Age}),
+            "key must describe the filter individualUUIDs was resolved from");
+
+        // Once the counts have been recomputed, a later re-entry reuses that answer rather than
+        // scanning again — which it can only do if the key describes the filter behind it.
+        const resolutionsAfterApply = customFilterService.resolutions;
+        MyDashboardActions.onLoad({...afterList, fetchFromDB: false}, {}, context);
+        assert.equal(customFilterService.resolutions, resolutionsAfterApply, "no wasted re-scan");
     });
 
     it("zeroes the cards for a custom filter that matches nothing, and restores them when it is cleared", () => {

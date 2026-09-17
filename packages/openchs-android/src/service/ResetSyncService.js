@@ -55,7 +55,15 @@ class ResetSyncService extends BaseService {
                   return !(entity.schema.embedded ||
                     _.includes([Settings.schema.name, UserInfo.schema.name, ResetSync.schema.name], entity.schema.name));
               });
+            // ResetSync rows survive the wipe but their checkpoint does not: EntitySyncStatus
+            // is inside allEntities, and setup() re-seeds every missing checkpoint at
+            // REALLY_OLD_DATE. That makes every later sync re-pull the user's whole reset
+            // history — the reset we have just honoured included. Read the checkpoint's
+            // values out now, while the row is still alive, and put them back before setup()
+            // so it finds a row and leaves it alone, keeping the original uuid.
+            const resetSyncCheckpoint = this._copyOfCheckpointFor(ResetSync.schema.name);
             this.clearDataIn(allEntities);
+            if (resetSyncCheckpoint) this.entitySyncStatusService.updateAsPerSyncDetails([resetSyncCheckpoint]);
             this.entitySyncStatusService.setup();
             this.markAllResetSyncsMigrated();
         } else {
@@ -69,6 +77,19 @@ class ResetSyncService extends BaseService {
                 this._updateHasMigrated(resetSync);
             });
         }
+    }
+
+    // Plain values, not the live row — clearDataIn deletes it a moment later and reading
+    // a deleted Realm object throws.
+    _copyOfCheckpointFor(entityName) {
+        const checkpoint = this.entitySyncStatusService.get(entityName);
+        if (_.isNil(checkpoint)) return null;
+        return {
+            uuid: checkpoint.uuid,
+            entityName: checkpoint.entityName,
+            entityTypeUuid: checkpoint.entityTypeUuid,
+            loadedSince: checkpoint.loadedSince
+        };
     }
 
     _updateHasMigrated(resetSync) {

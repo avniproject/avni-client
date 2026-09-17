@@ -29,6 +29,7 @@ import CustomActivityIndicator from "../CustomActivityIndicator";
 import AvniIcon from "../common/AvniIcon";
 import GlificScheduledAndSentMsgsView from '../glific/GlificScheduledAndSentMsgsView';
 import deferPastInteractions from "../../utility/deferPastInteractions";
+import Perf from "../../utility/perf";
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
@@ -162,9 +163,16 @@ class IndividualProfile extends AbstractComponent {
             ])));
         };
         // A fixed 300ms timer used to fire into the tail of the navigation slide; wait for it to finish.
+        // Still on the pre-#2054 trigger: deferPastInteractions settles when InteractionManager judges
+        // interactions done, which is BEFORE the slide's final commit - the root cause #2054 replaced
+        // with runAfterSceneTransition everywhere else. Comparing this sinceArmedMs against
+        // sceneTrigger.fired's on the same transition is the evidence for that. (avni-client#2089)
+        const _tArmed = Date.now();
         deferPastInteractions(() => {
             if (this._isUnmounted) return;
-            this.dispatchAction(Actions.INDIVIDUAL_SELECTED, {individual, programEnrolmentCallback});
+            Perf.mark("legacyDefer.fired", () => ({view: "IndividualProfile", sinceArmedMs: Date.now() - _tArmed}));
+            Perf.time("IndividualProfile.individualSelected",
+                () => this.dispatchAction(Actions.INDIVIDUAL_SELECTED, {individual, programEnrolmentCallback}));
         });
     }
 

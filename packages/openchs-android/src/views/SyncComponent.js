@@ -18,6 +18,7 @@ import ProgressBarView from "./ProgressBarView";
 import Reducers from "../reducer";
 import AsyncAlert from "./common/AsyncAlert";
 import AvniError from "../framework/errorHandling/AvniError";
+import MediaUploadError from "../framework/errorHandling/MediaUploadError";
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 import {IgnorableSyncError} from "openchs-models";
 import IssueUploadUtil from "../utility/IssueUploadUtil";
@@ -51,67 +52,23 @@ class SyncComponent extends AbstractComponent {
         this.dispatchAction(SyncActions.ON_MESSAGE_CALLBACK, {message})
     }
 
-    /**
-     * Called automatically after the regular sync completes (chained as .then on
-     * syncService.sync()). If the user has been moved into the SQLite Migration
-     * group on the server, runs the migration to completion BEFORE the "Sync Complete + OK"
-     * button is shown. The user sees one continuous sync experience: regular sync
-     * progress → "Switching backend" → migration sync progress → OK button.
-     *
-     * The OK button visibility is decoupled from progress: it is controlled by the
-     * SET_SHOW_OK_BUTTON action which we dispatch only once at the very end of this
-     * method, AFTER the migration sync (if any) has completed. The progress bar can
-     * legitimately reach 100% multiple times without ever surfacing the OK button.
-     */
-    async _runMigrationIfNeeded() {
-        try {
-            const migrationService = this.context.getService('sqliteMigrationService');
-            if (migrationService && typeof migrationService.checkAndMaybeMigrate === 'function') {
-                const isMigrationPending = await migrationService.isMigrationPending();
-                if (isMigrationPending) {
-                    General.logInfo(this.viewName(),
-                        'SQLite migration pending — running automatically before showing Sync Complete dialog');
-                    // Reset progress to 0 and swap the message so the modal continues
-                    // showing as a sync-in-progress for the migration phase.
-                    this.dispatchAction(SyncActions.ON_UPDATE, {
-                        progress: 0,
-                        numberOfPagesProcessedForCurrentEntity: 0,
-                        totalNumberOfPagesForCurrentEntity: 0,
-                    });
-                    this.dispatchAction(SyncActions.ON_MESSAGE_CALLBACK,
-                        {message: this.I18n.t('switchingBackendMessage') || 'Switching backend, please wait...'});
-                    await migrationService.checkAndMaybeMigrate({
-                        onProgress: (progress, currentPage, totalPages) =>
-                            this.progressBarUpdate(progress, currentPage, totalPages),
-                        onMessage: (message) => this.messageCallBack(message),
-                    });
-                }
-            }
-        } catch (e) {
-            General.logError(this.viewName(), `Migration error after sync: ${e.message || e}`);
-            this._onError(e);
-            return;
-        }
-        // Surface the OK button. This is the single, explicit trigger for OK button
-        // visibility — independent of the progress bar value.
-        this.dispatchAction(SyncActions.SET_SHOW_OK_BUTTON, {show: true});
-    }
-
     _postSync() {
         this.context.getService(SyncService).resetServicesAfterFullSyncCompletion(SyncService.syncSources.SYNC_BUTTON);
         this.dispatchAction(SyncActions.POST_SYNC);
         General.logInfo(this.viewName(), 'Sync completed dispatching reset');
     }
 
-    _onError(error, ignoreBugsnag) {
+    _onError(error, ignoreBugsnag, syncStarted = true) {
         General.logError(`${this.viewName()}-Sync`, error);
         const isIgnorableSyncError = error instanceof IgnorableSyncError;
-        !isIgnorableSyncError && this.dispatchAction(SyncTelemetryActions.SYNC_FAILED);
+        syncStarted && !isIgnorableSyncError && this.dispatchAction(SyncTelemetryActions.SYNC_FAILED);
         const isServerError = error instanceof ServerError;
         const isAvniError = error instanceof AvniError;
+        const isMediaUploadError = error instanceof MediaUploadError;
 
         //Do not notify bugsnag if it's a server error since it would have been notified on server bugsnag already.
-        if (!ignoreBugsnag && !isServerError && !isIgnorableSyncError && !isAvniError) {
+        //MediaQueueService already notified with the original underlying error.
+        if (!ignoreBugsnag && !isServerError && !isIgnorableSyncError && !isAvniError && !isMediaUploadError) {
             ErrorUtil.notifyBugsnag(error, "SyncComponent");
         }
 
@@ -132,6 +89,11 @@ class SyncComponent extends AbstractComponent {
             }));
         } else if (!this.state.isConnected) {
             this.ErrorAlert(AvniError.create(this.I18n.t('internetConnectionError')));
+        } else if (isMediaUploadError) {
+            // Below the isConnected branch on purpose: a genuinely offline device keeps the
+            // more accurate "No internet connection". Above the generic fallback, which is
+            // what used to print the raw "syncTimeoutError" key. #2097
+            this.ErrorAlert(AvniError.create(this.I18n.t('mediaUploadBlockedSync')));
         } else if (isServerError) {
             getAvniError(error, this.I18n).then((avniError) => this.ErrorAlert(avniError));
         } else if (error instanceof SyncError) {
@@ -251,14 +213,16 @@ class SyncComponent extends AbstractComponent {
             } finally {
                 syncService.releaseLock(lockId);
             }
-            // Outside the lock scope — the migration's own sync acquires the lock
-            // itself, which would deadlock against ours if run before release
+            // The OK button is surfaced explicitly, once the whole sync has resolved —
+            // independent of the progress bar reaching 100%.
             if (syncSucceeded) {
-                await this._runMigrationIfNeeded();
+                this.dispatchAction(SyncActions.SET_SHOW_OK_BUTTON, {show: true});
             }
         } else {
             const ignoreBugsnag = true;
-            this._onError(new Error('internetConnectionError'), ignoreBugsnag);
+            // No sync starts while offline, so there is no telemetry row to mark failed. #2097
+            const syncStarted = false;
+            this._onError(new Error('internetConnectionError'), ignoreBugsnag, syncStarted);
         }
     }
 

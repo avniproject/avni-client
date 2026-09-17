@@ -4,6 +4,9 @@ import PropTypes from 'prop-types';
 import {StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
 import Styles from "../primitives/Styles";
 import moment from "moment";
+import Observations from "../common/Observations";
+import DecisionContentHelper from "./DecisionContentHelper";
+import FormMappingService from "../../service/FormMappingService";
 
 class ApprovalDetailsCard extends AbstractComponent {
     static propTypes = {
@@ -19,30 +22,57 @@ class ApprovalDetailsCard extends AbstractComponent {
         return TouchableNativeFeedback.SelectableBackground();
     }
 
-    renderRejectionComment(approvableEntity) {
-        return (approvableEntity.isRejectedEntity() ?
-            <View style={{height: 30, marginTop: 6}}>
-                <Text numberOfLines={2}
-                      style={styles.commentTextStyle}>{approvableEntity.latestEntityApprovalStatus.approvalStatusComment}</Text>
-            </View> : null)
+    /**
+     * The same per-row fallback the detail views use: this card shows whatever this decision holds, not
+     * whatever the organisation has configured today. A rejection shows its reason either way; an
+     * approval shows the approver's answers, and nothing at all when there are none.
+     *
+     * The height is a minimum rather than fixed, because answers run taller than the single line of text
+     * this used to show. The comment branch keeps numberOfLines={2} - it has always clipped a long typed
+     * reason, and silently, so leaving that alone avoids changing a behaviour this story is not about.
+     *
+     * The form is passed so a decision form with more than one page shows its page headings here too,
+     * rather than collapsing into one list on the card and separating into pages on the screen behind it.
+     */
+    renderDecisionAnswers(approvableEntity) {
+        const entityApprovalStatus = approvableEntity.latestEntityApprovalStatus;
+        if (!DecisionContentHelper.shouldRender(entityApprovalStatus)) return null;
+
+        const hasAnswers = DecisionContentHelper.hasAnswers(entityApprovalStatus);
+        return (
+            <View style={{minHeight: 30, marginTop: 6}}>
+                {hasAnswers ?
+                    <Observations observations={entityApprovalStatus.observations}
+                                  form={this.getService(FormMappingService).findFormForDecision(entityApprovalStatus)}/> :
+                    <Text numberOfLines={2}
+                          style={styles.commentTextStyle}>{entityApprovalStatus.approvalStatusComment}</Text>}
+            </View>
+        );
     }
 
     render() {
         const {approvableEntity, onApprovalSelection} = this.props;
         const hrs = moment().diff(approvableEntity.latestEntityApprovalStatus.statusDateTime, 'hours');
-        const cardHeight = approvableEntity.isRejectedEntity() ? 100 : 50;
+        // A minimum, not a fixed height - a decision carrying answers is taller than one line of text.
+        const cardHeight = DecisionContentHelper.shouldRender(approvableEntity.latestEntityApprovalStatus) ? 100 : 50;
         return (
             <TouchableNativeFeedback onPress={() => onApprovalSelection(approvableEntity)}
                                      background={TouchableNativeFeedback.SelectableBackground()}>
                 <View style={[styles.container, {backgroundColor: "lightgrey", minHeight: cardHeight}]}>
-                    <View style={styles.leftContainer}>
-                        <Text style={styles.requestTextStyle}>{this.I18n.t('requestName', {entityName: approvableEntity.getEntityTypeName()})}</Text>
-                        {this.renderRejectionComment(approvableEntity)}
-                        <Text style={styles.auditTextStyle}>{this.I18n.t('addXHoursAgo', {hrs})}</Text>
+                    {/* The name and the entity type keep their original side-by-side arrangement. */}
+                    <View style={styles.headerRow}>
+                        <View style={styles.leftContainer}>
+                            <Text style={styles.requestTextStyle}>{this.I18n.t('requestName', {entityName: approvableEntity.getEntityTypeName()})}</Text>
+                        </View>
+                        <View style={styles.rightContainer}>
+                            <Text style={styles.entityTypeText}>{this.I18n.t(approvableEntity.getName())}</Text>
+                        </View>
                     </View>
-                    <View style={styles.rightContainer}>
-                        <Text style={styles.entityTypeText}>{this.I18n.t(approvableEntity.getName())}</Text>
-                    </View>
+                    {/* The reason spans the card. Observations renders a two-column table that fills its
+                        parent, and inside the half-width left column it collapsed into an unreadable
+                        vertical sliver - the comment branch was a single line of text and never showed it. */}
+                    {this.renderDecisionAnswers(approvableEntity)}
+                    <Text style={styles.auditTextStyle}>{this.I18n.t('addXHoursAgo', {hrs})}</Text>
                 </View>
             </TouchableNativeFeedback>
         );
@@ -51,9 +81,13 @@ class ApprovalDetailsCard extends AbstractComponent {
 
 const styles = StyleSheet.create({
     container: {
-        flexDirection: 'row',
+        flexDirection: 'column',
         paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge,
         paddingVertical: Styles.ContainerHorizontalDistanceFromEdge,
+    },
+    headerRow: {
+        flexDirection: 'row',
+        alignItems: 'flex-start'
     },
     leftContainer: {
         flexDirection: 'column',

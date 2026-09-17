@@ -134,6 +134,20 @@ function getSubjectUUIDsForCustomFilters(customFilterService, reportFilters, ent
     return {uniqueSubjects, filterApplied};
 }
 
+// A subject-list row shows a name, an address and one visit line — never the encounter history
+// hanging off each enrolment and subject. Depth counts the hops to the subject; cards that show
+// enrolment badges need one hop more and that one list kept eager. Skipped lists still resolve
+// if something reads them.
+const SUBJECT_VIA_ENROLMENT = {skipLists: true, depth: 2};
+const SUBJECT_DIRECT = {skipLists: true, depth: 1};
+const SUBJECT_VIA_ENROLMENT_WITH_BADGES = {skipLists: true, depth: 3, listsToInclude: new Set(['Individual.enrolments'])};
+const SUBJECT_DIRECT_WITH_BADGES = {skipLists: true, depth: 2, listsToInclude: new Set(['Individual.enrolments'])};
+
+// withHydration exists only on the SQLite backend; Realm collections are left exactly as they were.
+function forListDisplay(results, hydrationOptions) {
+    return results.withHydration ? results.withHydration(hydrationOptions) : results;
+}
+
 function applyConfiguredFilters(entities, criteria) {
     let filteredEntities = entities;
     if (!_.isEmpty(criteria)) {
@@ -150,11 +164,14 @@ const subjectUuidQueries = {
     [Individual.schema.name]: "uuid"
 };
 
-function applyUserFilters(entities, reportFilters, schema, customFilterService) {
+// The custom-filter scan depends only on the filters, so a caller querying several tables can
+// resolve it once and pass it in.
+function applyUserFilters(entities, reportFilters, schema, customFilterService,
+                          customFilterSubjects = getSubjectUUIDsForCustomFilters(customFilterService, reportFilters)) {
     const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
     const genders = DashboardReportFilter.getGenderFilterValues(reportFilters);
 
-    const {uniqueSubjects, filterApplied} = getSubjectUUIDsForCustomFilters(customFilterService, reportFilters);
+    const {uniqueSubjects, filterApplied} = customFilterSubjects;
     General.logDebug("IndividualService", `uniqueSubjects: ${uniqueSubjects.length}, filterApplied: ${filterApplied}`);
 
     let filteredEntities = entities;
@@ -171,11 +188,15 @@ function applyUserFilters(entities, reportFilters, schema, customFilterService) 
 }
 
 // The drill-down drops a subject whose every qualifying visit is of a type the user
-// cannot performVisit on, so the count has to apply the same filter (#2024).
+// cannot performVisit on, so the count has to apply the same filter.
 function applyPerformVisitPrivilege(entities, allowedEncounterTypeUuids) {
     if (_.isNil(allowedEncounterTypeUuids)) return entities;
     if (_.isEmpty(allowedEncounterTypeUuids)) return null;
     return entities.filtered(RealmQueryService.orKeyValueQuery('encounterType.uuid', allowedEncounterTypeUuids));
+}
+
+function mayPerformVisit(allowedEncounterTypeUuids, encounterTypeUuid) {
+    return _.isNil(allowedEncounterTypeUuids) || _.includes(allowedEncounterTypeUuids, encounterTypeUuid);
 }
 
 // One row per subject, projected in the database so the count stays hydration-free.
@@ -191,9 +212,9 @@ function countDistinctSubjects(entities, schema) {
     return entities.filtered(`TRUEPREDICATE DISTINCT(${subjectUuidPath})`).length;
 }
 
-function subjectUuidsAfterFilters(entities, criteria, reportFilters, schema, customFilterService, allowedEncounterTypeUuids) {
+function subjectUuidsAfterFilters(entities, criteria, reportFilters, schema, customFilterService, customFilterSubjects, allowedEncounterTypeUuids) {
     entities = applyConfiguredFilters(entities, criteria);
-    entities = applyUserFilters(entities, reportFilters, schema, customFilterService);
+    entities = applyUserFilters(entities, reportFilters, schema, customFilterService, customFilterSubjects);
     entities = applyPerformVisitPrivilege(entities, allowedEncounterTypeUuids);
     return _.isNil(entities) ? [] : distinctSubjectUuids(entities, schema);
 }
@@ -238,19 +259,24 @@ class IndividualService extends BaseService {
         };
     }
 
-    countSubjectsAcross(queries, reportFilters) {
+    // options.queryProgramEncounter / options.queryGeneralEncounter drop a visit table, exactly as
+    // the drill-down's flags do, so a card never counts visits its list will not show.
+    countSubjectsAcross(queries, reportFilters, options = {}) {
         const customFilterService = this.getService(CustomFilterService);
+        const customFilterSubjects = getSubjectUUIDsForCustomFilters(customFilterService, reportFilters);
         const subjectUuids = new Set();
-        queries.forEach(({entities, criteria, schema, allowedEncounterTypeUuids}) => {
-            subjectUuidsAfterFilters(entities, criteria, reportFilters, schema, customFilterService, allowedEncounterTypeUuids)
+        const queriedTables = queries.filter(({schema}) => schema === ProgramEncounter.schema.name ?
+            options.queryProgramEncounter !== false : options.queryGeneralEncounter !== false);
+        queriedTables.forEach(({entities, criteria, schema, allowedEncounterTypeUuids}) => {
+            subjectUuidsAfterFilters(entities, criteria, reportFilters, schema, customFilterService, customFilterSubjects, allowedEncounterTypeUuids)
                 .forEach(subjectUuid => subjectUuids.add(subjectUuid));
         });
         return subjectUuids.size;
     }
 
-    countScheduledVisits(date, reportFilters, programEncounterCriteria, encounterCriteria) {
+    countScheduledVisits(date, reportFilters, programEncounterCriteria, encounterCriteria, options = {}) {
         const {dateMidnight, dateMorning} = get24HoursDateRange(date);
-        const allowed = this.performVisitEncounterTypeUuids();
+        const allowed = options.allowedEncounterTypeUuids || this.performVisitEncounterTypeUuids();
 
         const peQuery = this.getRepository(ProgramEncounter.schema.name).findAll()
             .filtered('earliestVisitDateTime <= $0 AND maxVisitDateTime >= $1 AND encounterDateTime = null AND cancelDateTime = null AND programEnrolment.programExitDateTime = null AND programEnrolment.voided = false AND programEnrolment.individual.voided = false AND voided = false',
@@ -262,12 +288,12 @@ class IndividualService extends BaseService {
         return this.countSubjectsAcross([
             {entities: peQuery, criteria: programEncounterCriteria, schema: ProgramEncounter.schema.name, allowedEncounterTypeUuids: allowed.programEncounterTypes},
             {entities: encQuery, criteria: encounterCriteria, schema: Encounter.schema.name, allowedEncounterTypeUuids: allowed.encounterTypes}
-        ], reportFilters);
+        ], reportFilters, options);
     }
 
-    countOverdueVisits(date, reportFilters, programEncounterCriteria, encounterCriteria) {
+    countOverdueVisits(date, reportFilters, programEncounterCriteria, encounterCriteria, options = {}) {
         const {dateMorning} = get24HoursDateRange(date);
-        const allowed = this.performVisitEncounterTypeUuids();
+        const allowed = options.allowedEncounterTypeUuids || this.performVisitEncounterTypeUuids();
 
         const peQuery = this.getRepository(ProgramEncounter.schema.name).findAll()
             .filtered('maxVisitDateTime < $0 AND cancelDateTime = null AND encounterDateTime = null AND programEnrolment.programExitDateTime = null AND programEnrolment.voided = false AND programEnrolment.individual.voided = false AND voided = false',
@@ -279,7 +305,7 @@ class IndividualService extends BaseService {
         return this.countSubjectsAcross([
             {entities: peQuery, criteria: programEncounterCriteria, schema: ProgramEncounter.schema.name, allowedEncounterTypeUuids: allowed.programEncounterTypes},
             {entities: encQuery, criteria: encounterCriteria, schema: Encounter.schema.name, allowedEncounterTypeUuids: allowed.encounterTypes}
-        ], reportFilters);
+        ], reportFilters, options);
     }
 
     countAllIn(date, reportFilters, subjectCriteria) {
@@ -305,7 +331,7 @@ class IndividualService extends BaseService {
         return countDistinctSubjects(enrolments, ProgramEnrolment.schema.name);
     }
 
-    countRecentlyCompletedVisits(date, reportFilters, programEncounterCriteria, encounterCriteria, duration = new Duration(1, Duration.Day)) {
+    countRecentlyCompletedVisits(date, reportFilters, programEncounterCriteria, encounterCriteria, duration = new Duration(1, Duration.Day), options = {}) {
         const {fromDate, tillDate} = getDateRange(date, duration);
 
         const peQuery = this.getRepository(ProgramEncounter.schema.name).findAll()
@@ -319,7 +345,7 @@ class IndividualService extends BaseService {
         return this.countSubjectsAcross([
             {entities: peQuery, criteria: programEncounterCriteria, schema: ProgramEncounter.schema.name},
             {entities: encQuery, criteria: encounterCriteria, schema: Encounter.schema.name}
-        ], reportFilters);
+        ], reportFilters, options);
     }
 
     search(criteria, individualUUIDs) {
@@ -327,7 +353,7 @@ class IndividualService extends BaseService {
         let searchResults, finalSearchResults = [];
 
         // Shallow, but keep enrolments — the result card shows active-program badges.
-        const shallowOpts = {skipLists: true, depth: 1, listsToInclude: new Set(['enrolments'])};
+        const shallowOpts = {skipLists: true, depth: 1, listsToInclude: new Set(['Individual.enrolments'])};
         const allResults = this.repository.findAll();
         const base = allResults.withHydration ? allResults.withHydration(shallowOpts) : allResults;
 
@@ -442,14 +468,12 @@ class IndividualService extends BaseService {
     }
 
     allScheduledVisitsIn(date, reportFilters, programEncounterCriteria, encounterCriteria, queryProgramEncounter = true, queryGeneralEncounter = true) {
-        const performProgramVisitCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}'`;
-        const privilegeService = this.getService(PrivilegeService);
-        const allowedProgramEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'programEncounterTypeUuid');
+        const allowed = this.performVisitEncounterTypeUuids();
         const {dateMidnight, dateMorning} = get24HoursDateRange(date);
 
         let programEncounters = [];
         if (queryProgramEncounter) {
-            programEncounters = this.getRepository(ProgramEncounter.schema.name).findAll()
+            programEncounters = forListDisplay(this.getRepository(ProgramEncounter.schema.name).findAll(), SUBJECT_VIA_ENROLMENT)
                 .filtered('earliestVisitDateTime <= $0 ' +
                     'AND maxVisitDateTime >= $1 ' +
                     'AND encounterDateTime = null ' +
@@ -480,16 +504,15 @@ class IndividualService extends BaseService {
                         }],
                         groupingBy: General.formatDate(earliestVisitDateTime),
                         sortingBy: earliestVisitDateTime,
-                        allow: privilegeService.hasAllPrivileges() || _.includes(allowedProgramEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
+                        allow: mayPerformVisit(allowed.programEncounterTypes, enc.encounterType.uuid)
                     }
                 };
             });
         }
 
-        const allowedGeneralEncounterTypeUuidsForPerformVisit = this.getService(PrivilegeService).allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'encounterTypeUuid');
         let encounters = [];
         if (queryGeneralEncounter) {
-            encounters = this.getRepository(Encounter.schema.name).findAll()
+            encounters = forListDisplay(this.getRepository(Encounter.schema.name).findAll(), SUBJECT_DIRECT)
                 .filtered('earliestVisitDateTime <= $0 ' +
                     'AND maxVisitDateTime >= $1 ' +
                     'AND encounterDateTime = null ' +
@@ -517,7 +540,7 @@ class IndividualService extends BaseService {
                         }],
                         groupingBy: General.formatDate(earliestVisitDateTime),
                         sortingBy: earliestVisitDateTime,
-                        allow: privilegeService.hasAllPrivileges() || _.includes(allowedGeneralEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
+                        allow: mayPerformVisit(allowed.encounterTypes, enc.encounterType.uuid)
                     }
                 };
             });
@@ -531,14 +554,12 @@ class IndividualService extends BaseService {
     }
 
     allOverdueVisitsIn(date, reportFilters, programEncounterCriteria, encounterCriteria, queryProgramEncounter = true, queryGeneralEncounter = true) {
-        const privilegeService = this.getService(PrivilegeService);
-        const performProgramVisitCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}'`;
-        const allowedProgramEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'programEncounterTypeUuid');
+        const allowed = this.performVisitEncounterTypeUuids();
         const dateMorning = moment(date).startOf('day').toDate();
 
         let programEncounters = [];
         if (queryProgramEncounter) {
-            programEncounters = this.getRepository(ProgramEncounter.schema.name).findAll()
+            programEncounters = forListDisplay(this.getRepository(ProgramEncounter.schema.name).findAll(), SUBJECT_VIA_ENROLMENT)
                 .filtered('maxVisitDateTime < $0 ' +
                     'AND cancelDateTime = null ' +
                     'AND encounterDateTime = null ' +
@@ -567,16 +588,15 @@ class IndividualService extends BaseService {
                         }],
                         groupingBy: General.formatDate(maxVisitDateTime),
                         sortingBy: maxVisitDateTime,
-                        allow: privilegeService.hasAllPrivileges() || _.includes(allowedProgramEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
+                        allow: mayPerformVisit(allowed.programEncounterTypes, enc.encounterType.uuid)
                     }
                 };
             });
         }
 
-        const allowedGeneralEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'encounterTypeUuid');
         let encounters = [];
         if (queryGeneralEncounter) {
-            encounters = this.getRepository(Encounter.schema.name).findAll()
+            encounters = forListDisplay(this.getRepository(Encounter.schema.name).findAll(), SUBJECT_DIRECT)
                 .filtered('maxVisitDateTime < $0 ' +
                     'AND cancelDateTime = null ' +
                     'AND encounterDateTime = null ' +
@@ -602,7 +622,7 @@ class IndividualService extends BaseService {
                         }],
                         groupingBy: General.formatDate(maxVisitDateTime),
                         sortingBy: maxVisitDateTime,
-                        allow: privilegeService.hasAllPrivileges() || _.includes(allowedGeneralEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
+                        allow: mayPerformVisit(allowed.encounterTypes, enc.encounterType.uuid)
                     }
                 };
             })
@@ -636,7 +656,7 @@ class IndividualService extends BaseService {
 
         let programEncounters = [];
         if (queryProgramEncounter) {
-            programEncounters = this.getRepository(ProgramEncounter.schema.name).findAll()
+            programEncounters = forListDisplay(this.getRepository(ProgramEncounter.schema.name).findAll(), SUBJECT_VIA_ENROLMENT_WITH_BADGES)
                 .filtered('voided = false ' +
                     'AND programEnrolment.voided = false ' +
                     'AND programEnrolment.individual.voided = false ' +
@@ -666,7 +686,7 @@ class IndividualService extends BaseService {
 
         let encounters = [];
         if (queryGeneralEncounter) {
-            encounters = this.getRepository(Encounter.schema.name).findAll()
+            encounters = forListDisplay(this.getRepository(Encounter.schema.name).findAll(), SUBJECT_DIRECT_WITH_BADGES)
                 .filtered('voided = false ' +
                     'AND individual.voided = false ' +
                     'AND encounterDateTime <= $0 ' +
