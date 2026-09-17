@@ -65,6 +65,21 @@ describe("SqliteResultsProxy distinct projections", () => {
         assert.deepEqual(uuids, ["ind-1"]);
     });
 
+    it("reuses joins the filter already added instead of joining the same tables again", () => {
+        const query = proxy.objects("ProgramEncounter").filtered("programEnrolment.individual.voided = false");
+        const {sql} = query._buildDistinctSql("programEnrolment.individual.uuid", true);
+        assert.equal((sql.match(/LEFT JOIN/g) || []).length, 2, sql);
+        assert.equal(query.countDistinct("programEnrolment.individual.uuid"), 2);
+        assert.deepEqual(query.distinctValues("programEnrolment.individual.uuid").slice().sort(), ["ind-1", "ind-2"]);
+    });
+
+    it("adds only the joins a projection needs beyond those already present", () => {
+        const query = proxy.objects("ProgramEncounter").filtered("programEnrolment.voided = false");
+        const {sql} = query._buildDistinctSql("programEnrolment.individual.uuid", true);
+        assert.equal((sql.match(/LEFT JOIN/g) || []).length, 2, sql);
+        assert.equal(query.countDistinct("programEnrolment.individual.uuid"), 2);
+    });
+
     it("projects a plain column on the base table", () => {
         assert.deepEqual(proxy.objects("Individual").distinctValues("uuid").slice().sort(), ["ind-1", "ind-2"]);
     });
