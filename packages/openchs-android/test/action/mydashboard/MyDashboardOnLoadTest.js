@@ -23,6 +23,8 @@ const UNFILTERED = {
     total: 2
 };
 
+const ALLOWED_VISIT_TYPES = {programEncounterTypes: ["pet-1"], encounterTypes: []};
+
 const ALL_ZERO = _.mapValues(UNFILTERED, () => 0);
 
 function makeIndividualService(counts = UNFILTERED) {
@@ -37,6 +39,7 @@ function makeIndividualService(counts = UNFILTERED) {
         countRecentlyRegistered: (...args) => (record("countRecentlyRegistered", args), counts.recentlyCompletedRegistration),
         countRecentlyEnrolled: (...args) => (record("countRecentlyEnrolled", args), counts.recentlyCompletedEnrolment),
         countAllIn: (...args) => (record("countAllIn", args), counts.total),
+        performVisitEncounterTypeUuids: (...args) => (record("performVisitEncounterTypeUuids", args), ALLOWED_VISIT_TYPES),
         dueChecklistForDefaultDashboard: () => ({individual: [], checklistItemNames: []}),
         // Entity lists, used by onListLoad when filters are applied from the list screen.
         allScheduledVisitsIn: () => [],
@@ -195,12 +198,30 @@ describe("MyDashboardActions.onLoad card counts", () => {
         const scheduledCalls = individualService.calls.filter((c) => c.name === "countScheduledVisits");
         assert.equal(scheduledCalls.length, 3, "1200 subjects must be counted over three chunks of 500");
         scheduledCalls.forEach(({args}) => {
-            args.slice(2).forEach((criteria) => assert.isAtMost((criteria.match(/ OR /g) || []).length, 499));
+            args.slice(2, 4).forEach((criteria) => assert.isAtMost((criteria.match(/ OR /g) || []).length, 499));
         });
         // Every row belongs to exactly one subject, so the chunk counts sum without double counting.
         assert.equal(countsOf(state).scheduled, 3);
         assert.equal(countsOf(state).total, 3);
         assert.deepEqual(_.uniq(subjectUUIDs.map((uuid) => scheduledCalls.some(({args}) => args[2].includes(`"${uuid}"`)))), [true]);
+    });
+
+    it("looks up the performVisit privilege once per refresh, however many chunks are counted", () => {
+        const individualService = makeIndividualService();
+        const dashboardCacheService = makeDashboardCacheService();
+        dashboardCacheService.setSelectedCustomFilters({Age: [{uuid: "opt-1"}]});
+        const context = buildContext({
+            individualService,
+            dashboardCacheService,
+            customFilterService: {isDashboardFiltersEmpty: () => false, applyCustomFilters: () => _.times(1200, (i) => `subject-${i}`)}
+        });
+
+        MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
+
+        assert.equal(individualService.calls.filter((c) => c.name === "performVisitEncounterTypeUuids").length, 1);
+        const visitCalls = individualService.calls.filter((c) => ["countScheduledVisits", "countOverdueVisits"].includes(c.name));
+        assert.equal(visitCalls.length, 6);
+        visitCalls.forEach(({args}) => assert.strictEqual(args[4].allowedEncounterTypeUuids, ALLOWED_VISIT_TYPES));
     });
 
     it("reuses the resolved subjects only where data cannot have changed the answer", () => {
