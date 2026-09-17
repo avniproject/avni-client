@@ -46,7 +46,7 @@ function makeIndividualService(counts = UNFILTERED) {
         allOverdueVisitsIn: () => [],
         recentlyCompletedVisitsIn: () => [],
         recentlyRegistered: () => [],
-        recentlyEnrolled: () => [],
+        recentlyEnrolled: (...args) => (record("recentlyEnrolled", args), []),
         allIn: () => []
     };
 }
@@ -245,6 +245,19 @@ describe("MyDashboardActions.onLoad card counts", () => {
         dashboardCacheService.updateFilter({selectedCustomFilters: {}, selectedGeneralEncounterTypes: [{uuid: "get-1"}]});
         MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
         assert.deepEqual(tables("countScheduledVisits"), {queryProgramEncounter: false, queryGeneralEncounter: true});
+    });
+
+    it("builds the recent enrolments list with the same filters its count uses", () => {
+        const individualService = makeIndividualService();
+        const context = buildContext({individualService, dashboardCacheService: makeDashboardCacheService(), customFilterService: noCustomFilters()});
+        const enrolmentFilters = 'individual.subjectType.uuid = "st-1"';
+        const state = {...MyDashboardActions.getInitialState(context), enrolmentFilters, date: {value: new Date("2026-08-24T00:00:00.000Z")}};
+
+        MyDashboardActions.onListLoad(state, {listType: "recentlyCompletedEnrolment"}, context);
+
+        const {args} = individualService.callTo("recentlyEnrolled");
+        assert.deepEqual(args[1], []);
+        assert.equal(args[2], enrolmentFilters);
     });
 
     it("reuses the resolved subjects only where data cannot have changed the answer", () => {
