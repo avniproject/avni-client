@@ -252,9 +252,9 @@ class IndividualService extends BaseService {
         return subjectUuids.size;
     }
 
-    countScheduledVisits(date, reportFilters, programEncounterCriteria, encounterCriteria) {
+    countScheduledVisits(date, reportFilters, programEncounterCriteria, encounterCriteria, options = {}) {
         const {dateMidnight, dateMorning} = get24HoursDateRange(date);
-        const allowed = this.performVisitEncounterTypeUuids();
+        const allowed = options.allowedEncounterTypeUuids || this.performVisitEncounterTypeUuids();
 
         const peQuery = this.getRepository(ProgramEncounter.schema.name).findAll()
             .filtered('earliestVisitDateTime <= $0 AND maxVisitDateTime >= $1 AND encounterDateTime = null AND cancelDateTime = null AND programEnrolment.programExitDateTime = null AND programEnrolment.voided = false AND programEnrolment.individual.voided = false AND voided = false',
@@ -269,9 +269,9 @@ class IndividualService extends BaseService {
         ], reportFilters);
     }
 
-    countOverdueVisits(date, reportFilters, programEncounterCriteria, encounterCriteria) {
+    countOverdueVisits(date, reportFilters, programEncounterCriteria, encounterCriteria, options = {}) {
         const {dateMorning} = get24HoursDateRange(date);
-        const allowed = this.performVisitEncounterTypeUuids();
+        const allowed = options.allowedEncounterTypeUuids || this.performVisitEncounterTypeUuids();
 
         const peQuery = this.getRepository(ProgramEncounter.schema.name).findAll()
             .filtered('maxVisitDateTime < $0 AND cancelDateTime = null AND encounterDateTime = null AND programEnrolment.programExitDateTime = null AND programEnrolment.voided = false AND programEnrolment.individual.voided = false AND voided = false',

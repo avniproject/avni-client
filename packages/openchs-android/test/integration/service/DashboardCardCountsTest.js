@@ -199,6 +199,17 @@ describe("#2024 dashboard card counts are people, not rows", () => {
         assert.equal(privilegeLookups, 1);
     });
 
+    it("scheduled and overdue counts use a privilege lookup passed in rather than repeating it", () => {
+        programEncounter(enrolment(subject("A")), dueToday);
+        generalEncounter(subject("B"), overdue);
+        const nothingAllowed = {allowedEncounterTypeUuids: {programEncounterTypes: [], encounterTypes: []}};
+        privilegeLookups = 0;
+
+        assert.equal(service.countScheduledVisits(TODAY, [], "", "", nothingAllowed), 0);
+        assert.equal(service.countOverdueVisits(TODAY, [], "", "", nothingAllowed), 0);
+        assert.equal(privilegeLookups, 0);
+    });
+
     it("fixture 4 — one subject with two enrolments in the window counts as one person", () => {
         const ind = subject("Tts");
         enrolment(ind, TODAY);
