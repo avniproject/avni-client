@@ -32,7 +32,7 @@ const PROGRAM_ENC_TYPE_B = "pet-b";
 const GENERAL_ENC_TYPE = "get-a";
 
 describe("#2024 dashboard card counts are people, not rows", () => {
-    let rawDb, proxy, service, privileges;
+    let rawDb, proxy, service, privileges, privilegeLookups;
 
     beforeEach(() => {
         rawDb = open({});
@@ -59,8 +59,9 @@ describe("#2024 dashboard card counts are people, not rows", () => {
 
         // Default: user holds every privilege, so the privilege filter is a no-op.
         privileges = {allowAll: true, programEncounterTypes: [], generalEncounterTypes: []};
+        privilegeLookups = 0;
         const privilegeService = {
-            hasAllPrivileges: () => privileges.allowAll,
+            hasAllPrivileges: () => (privilegeLookups += 1, privileges.allowAll),
             allowedEntityTypeUUIDListForCriteria: (ignored, param) =>
                 param === "programEncounterTypeUuid" ? privileges.programEncounterTypes : privileges.generalEncounterTypes
         };
@@ -184,6 +185,18 @@ describe("#2024 dashboard card counts are people, not rows", () => {
 
         assert.equal(scheduledList().length, 2);
         assert.equal(scheduledCount(), 2);
+    });
+
+    it("the drill-down resolves the performVisit rule once, not per row", () => {
+        privileges = {allowAll: false, programEncounterTypes: [PROGRAM_ENC_TYPE_A], generalEncounterTypes: [GENERAL_ENC_TYPE]};
+        const enr = enrolment(subject("A"));
+        programEncounter(enr, {...dueToday, encounterType: PROGRAM_ENC_TYPE_A});
+        programEncounter(enr, {...dueToday, encounterType: PROGRAM_ENC_TYPE_B});
+        generalEncounter(subject("B"), dueToday);
+        privilegeLookups = 0;
+
+        assert.equal(scheduledList().length, 2);
+        assert.equal(privilegeLookups, 1);
     });
 
     it("fixture 4 — one subject with two enrolments in the window counts as one person", () => {
