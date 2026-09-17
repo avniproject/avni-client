@@ -9,7 +9,7 @@ import moment from "moment";
 
 jest.mock("../../../src/framework/bean/Service", () => () => (target) => target);
 
-import {EntityMappingConfig, Encounter, Individual, ProgramEncounter, ProgramEnrolment} from "openchs-models";
+import {CustomFilter, EntityMappingConfig, Encounter, Individual, ProgramEncounter, ProgramEnrolment} from "openchs-models";
 import SchemaGenerator from "../../../src/framework/db/SchemaGenerator";
 import SqliteProxy from "../../../src/framework/db/SqliteProxy";
 import RepositoryFactory from "../../../src/repository/RepositoryFactory";
@@ -32,7 +32,7 @@ const PROGRAM_ENC_TYPE_B = "pet-b";
 const GENERAL_ENC_TYPE = "get-a";
 
 describe("#2024 dashboard card counts are people, not rows", () => {
-    let rawDb, proxy, service, privileges, privilegeLookups;
+    let rawDb, proxy, service, privileges, privilegeLookups, conceptScan;
 
     beforeEach(() => {
         rawDb = open({});
@@ -65,7 +65,13 @@ describe("#2024 dashboard card counts are people, not rows", () => {
             allowedEntityTypeUUIDListForCriteria: (ignored, param) =>
                 param === "programEncounterTypeUuid" ? privileges.programEncounterTypes : privileges.generalEncounterTypes
         };
-        const stubs = new Map([[CustomFilterService, {}], [PrivilegeService, privilegeService]]);
+        // A concept filter's subject scan is the expensive step, so the stub counts how often it runs.
+        conceptScan = {calls: 0, matches: []};
+        const customFilterService = {
+            getFilterQueryByTypeFunctionV2: () => null,
+            getSubjects: () => (conceptScan.calls += 1, conceptScan.matches)
+        };
+        const stubs = new Map([[CustomFilterService, customFilterService], [PrivilegeService, privilegeService]]);
         const repositoryFactory = new RepositoryFactory(proxy);
         const context = {
             getRepositoryFactory: () => repositoryFactory,
@@ -234,6 +240,23 @@ describe("#2024 dashboard card counts are people, not rows", () => {
         assert.equal(service.recentlyCompletedVisitsIn(TODAY, [], "", "", false, true).length, 1);
         assert.equal(service.countRecentlyCompletedVisits(TODAY, [], "", "", undefined, {queryProgramEncounter: false}), 1);
         assert.equal(service.countRecentlyCompletedVisits(TODAY, [], "", ""), 2);
+    });
+
+    it("a card runs the concept filter scan once, not once per visit table", () => {
+        const matching = subject("Matches");
+        programEncounter(enrolment(matching), dueToday);
+        generalEncounter(matching, dueToday);
+        const other = subject("Does not match");
+        programEncounter(enrolment(other), dueToday);
+        generalEncounter(other, dueToday);
+        conceptScan.matches = [matching];
+        const conceptFilter = {
+            type: CustomFilter.type.Concept, dataType: "Text", filterValue: "x",
+            toDisplayText: () => "Concept", getScope: () => null, getConceptUUID: () => "concept-1", getScopeParameters: () => null
+        };
+
+        assert.equal(service.countScheduledVisits(TODAY, [conceptFilter], "", ""), 1);
+        assert.equal(conceptScan.calls, 1);
     });
 
     it("fixture 4 — one subject with two enrolments in the window counts as one person", () => {
