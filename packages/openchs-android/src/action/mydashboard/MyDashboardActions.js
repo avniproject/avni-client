@@ -127,8 +127,13 @@ function countCards(individualService, dashboardCacheFilter, customFilterSubject
     const filterDate = dashboardCacheFilter.filterDate;
     const card = {...emptyCard};
     const subjectChunks = _.isEmpty(customFilterSubjectUUIDs) ? [null] : _.chunk(customFilterSubjectUUIDs, customFilterChunkSize);
-    // The privilege lookup cannot change mid-refresh, so it is not repeated per chunk.
-    const visitCountOptions = {allowedEncounterTypeUuids: individualService.performVisitEncounterTypeUuids()};
+    // The drill-down skips a visit table when the program and visit filters leave it out, so the
+    // counts skip it too. The privilege lookup cannot change mid-refresh, so it is not repeated per chunk.
+    const visitTables = {
+        queryProgramEncounter: MyDashboardActions.shouldQueryProgramEncounter(dashboardCacheFilter),
+        queryGeneralEncounter: MyDashboardActions.shouldQueryGeneralEncounter(dashboardCacheFilter)
+    };
+    const visitCountOptions = {...visitTables, allowedEncounterTypeUuids: individualService.performVisitEncounterTypeUuids()};
 
     subjectChunks.forEach((subjectUUIDs) => {
         const restrictedTo = (field) => _.isEmpty(subjectUUIDs) ? dashboardCacheFilter[field] :
@@ -139,7 +144,7 @@ function countCards(individualService, dashboardCacheFilter, customFilterSubject
 
         card.scheduled += individualService.countScheduledVisits(filterDate, [], encounterCriteria, generalEncounterCriteria, visitCountOptions);
         card.overdue += individualService.countOverdueVisits(filterDate, [], encounterCriteria, generalEncounterCriteria, visitCountOptions);
-        card.recentlyCompletedVisits += individualService.countRecentlyCompletedVisits(filterDate, [], encounterCriteria, generalEncounterCriteria);
+        card.recentlyCompletedVisits += individualService.countRecentlyCompletedVisits(filterDate, [], encounterCriteria, generalEncounterCriteria, undefined, visitTables);
         card.recentlyCompletedRegistration += individualService.countRecentlyRegistered(filterDate, [], subjectCriteria);
         card.recentlyCompletedEnrolment += individualService.countRecentlyEnrolled(filterDate, [], restrictedTo('enrolmentFilters'));
         card.total += individualService.countAllIn(filterDate, [], subjectCriteria);

@@ -224,6 +224,29 @@ describe("MyDashboardActions.onLoad card counts", () => {
         visitCalls.forEach(({args}) => assert.strictEqual(args[4].allowedEncounterTypeUuids, ALLOWED_VISIT_TYPES));
     });
 
+    it("counts only the visit tables the drill-down will read for the selected filters", () => {
+        const individualService = makeIndividualService();
+        const dashboardCacheService = makeDashboardCacheService();
+        const context = buildContext({individualService, dashboardCacheService, customFilterService: noCustomFilters()});
+        const tables = (name) => _.pick(_.last(individualService.calls.filter((c) => c.name === name).map(({args}) => name === "countRecentlyCompletedVisits" ? args[5] : args[4])),
+            ["queryProgramEncounter", "queryGeneralEncounter"]);
+
+        MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
+        assert.deepEqual(tables("countScheduledVisits"), {queryProgramEncounter: true, queryGeneralEncounter: true});
+
+        dashboardCacheService.updateFilter({selectedCustomFilters: {}, selectedPrograms: [{uuid: "prog-1"}]});
+        MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
+        const programOnly = {queryProgramEncounter: true, queryGeneralEncounter: false};
+        assert.deepEqual(tables("countScheduledVisits"), programOnly);
+        assert.deepEqual(tables("countOverdueVisits"), programOnly);
+        assert.deepEqual(tables("countRecentlyCompletedVisits"), programOnly);
+        assert.isUndefined(individualService.callTo("countRecentlyCompletedVisits").args[4], "the recent-visits window stays at its default");
+
+        dashboardCacheService.updateFilter({selectedCustomFilters: {}, selectedGeneralEncounterTypes: [{uuid: "get-1"}]});
+        MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
+        assert.deepEqual(tables("countScheduledVisits"), {queryProgramEncounter: false, queryGeneralEncounter: true});
+    });
+
     it("reuses the resolved subjects only where data cannot have changed the answer", () => {
         const dashboardCacheService = makeDashboardCacheService();
         dashboardCacheService.setSelectedCustomFilters({Age: [{uuid: "opt-1"}]});
