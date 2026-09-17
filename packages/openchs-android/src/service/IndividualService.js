@@ -188,7 +188,7 @@ function applyUserFilters(entities, reportFilters, schema, customFilterService,
 }
 
 // The drill-down drops a subject whose every qualifying visit is of a type the user
-// cannot performVisit on, so the count has to apply the same filter (#2024).
+// cannot performVisit on, so the count has to apply the same filter.
 function applyPerformVisitPrivilege(entities, allowedEncounterTypeUuids) {
     if (_.isNil(allowedEncounterTypeUuids)) return entities;
     if (_.isEmpty(allowedEncounterTypeUuids)) return null;
