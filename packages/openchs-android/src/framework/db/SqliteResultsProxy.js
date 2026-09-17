@@ -256,11 +256,23 @@ class SqliteResultsProxy {
             const targetSchema = typeof propSchema === "object" ? propSchema.objectType : null;
             if (!targetSchema) return {expr: `${currentAlias}."${camelToSnake(partName)}"`, joins, aliasCounter};
 
+            const table = schemaNameToTableName(targetSchema);
+            const fkColumn = `${currentAlias}."${camelToSnake(partName)}_uuid"`;
+            // A filter on the same path has usually joined this table already. Each hop follows a
+            // reference to one row, so joining it again only repeats the same row under a new alias.
+            const existing = [...this.joinClauses, ...joins].find(join =>
+                join.table === table && join.on === `${fkColumn} = ${join.alias}."uuid"`);
+            if (existing) {
+                currentAlias = existing.alias;
+                currentSchema = targetSchema;
+                continue;
+            }
+
             const newAlias = `t${++aliasCounter}`;
             joins.push({
-                table: schemaNameToTableName(targetSchema),
+                table,
                 alias: newAlias,
-                on: `${currentAlias}."${camelToSnake(partName)}_uuid" = ${newAlias}."uuid"`,
+                on: `${fkColumn} = ${newAlias}."uuid"`,
             });
 
             currentAlias = newAlias;
