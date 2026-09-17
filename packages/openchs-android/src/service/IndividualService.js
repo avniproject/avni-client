@@ -178,6 +178,10 @@ function applyPerformVisitPrivilege(entities, allowedEncounterTypeUuids) {
     return entities.filtered(RealmQueryService.orKeyValueQuery('encounterType.uuid', allowedEncounterTypeUuids));
 }
 
+function mayPerformVisit(allowedEncounterTypeUuids, encounterTypeUuid) {
+    return _.isNil(allowedEncounterTypeUuids) || _.includes(allowedEncounterTypeUuids, encounterTypeUuid);
+}
+
 // One row per subject, projected in the database so the count stays hydration-free.
 function distinctSubjectUuids(entities, schema) {
     const subjectUuidPath = subjectUuidQueries[schema];
@@ -442,9 +446,7 @@ class IndividualService extends BaseService {
     }
 
     allScheduledVisitsIn(date, reportFilters, programEncounterCriteria, encounterCriteria, queryProgramEncounter = true, queryGeneralEncounter = true) {
-        const performProgramVisitCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}'`;
-        const privilegeService = this.getService(PrivilegeService);
-        const allowedProgramEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'programEncounterTypeUuid');
+        const allowed = this.performVisitEncounterTypeUuids();
         const {dateMidnight, dateMorning} = get24HoursDateRange(date);
 
         let programEncounters = [];
@@ -480,13 +482,12 @@ class IndividualService extends BaseService {
                         }],
                         groupingBy: General.formatDate(earliestVisitDateTime),
                         sortingBy: earliestVisitDateTime,
-                        allow: privilegeService.hasAllPrivileges() || _.includes(allowedProgramEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
+                        allow: mayPerformVisit(allowed.programEncounterTypes, enc.encounterType.uuid)
                     }
                 };
             });
         }
 
-        const allowedGeneralEncounterTypeUuidsForPerformVisit = this.getService(PrivilegeService).allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'encounterTypeUuid');
         let encounters = [];
         if (queryGeneralEncounter) {
             encounters = this.getRepository(Encounter.schema.name).findAll()
@@ -517,7 +518,7 @@ class IndividualService extends BaseService {
                         }],
                         groupingBy: General.formatDate(earliestVisitDateTime),
                         sortingBy: earliestVisitDateTime,
-                        allow: privilegeService.hasAllPrivileges() || _.includes(allowedGeneralEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
+                        allow: mayPerformVisit(allowed.encounterTypes, enc.encounterType.uuid)
                     }
                 };
             });
@@ -531,9 +532,7 @@ class IndividualService extends BaseService {
     }
 
     allOverdueVisitsIn(date, reportFilters, programEncounterCriteria, encounterCriteria, queryProgramEncounter = true, queryGeneralEncounter = true) {
-        const privilegeService = this.getService(PrivilegeService);
-        const performProgramVisitCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}'`;
-        const allowedProgramEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'programEncounterTypeUuid');
+        const allowed = this.performVisitEncounterTypeUuids();
         const dateMorning = moment(date).startOf('day').toDate();
 
         let programEncounters = [];
@@ -567,13 +566,12 @@ class IndividualService extends BaseService {
                         }],
                         groupingBy: General.formatDate(maxVisitDateTime),
                         sortingBy: maxVisitDateTime,
-                        allow: privilegeService.hasAllPrivileges() || _.includes(allowedProgramEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
+                        allow: mayPerformVisit(allowed.programEncounterTypes, enc.encounterType.uuid)
                     }
                 };
             });
         }
 
-        const allowedGeneralEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'encounterTypeUuid');
         let encounters = [];
         if (queryGeneralEncounter) {
             encounters = this.getRepository(Encounter.schema.name).findAll()
@@ -602,7 +600,7 @@ class IndividualService extends BaseService {
                         }],
                         groupingBy: General.formatDate(maxVisitDateTime),
                         sortingBy: maxVisitDateTime,
-                        allow: privilegeService.hasAllPrivileges() || _.includes(allowedGeneralEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
+                        allow: mayPerformVisit(allowed.encounterTypes, enc.encounterType.uuid)
                     }
                 };
             })
