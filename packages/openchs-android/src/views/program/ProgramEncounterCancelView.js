@@ -146,7 +146,7 @@ class ProgramEncounterCancelView extends AbstractComponent {
                                displayHomePressWarning={true}/>
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.programEncounter.latestEntityApprovalStatus}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
-                        {this.state.wizard.isFirstPage() ?
+                        {this.state.wizard.isFirstFormPage() ?
                             <View>
                                 <SummaryButton onPress={() => this.onGoToSummary()}/>
                                 <GeolocationFormElement
