@@ -9,6 +9,7 @@ import {
     EntityApprovalStatus,
     EntityQueue, Form,
     Individual,
+    ObservationsHolder,
     ProgramEncounter,
     ProgramEnrolment
 } from "openchs-models";
@@ -46,10 +47,20 @@ class EntityApprovalStatusService extends BaseService {
         return EntityApprovalStatus.schema.name;
     }
 
-    saveStatus(entityUUID, entityType, status, approvalStatusComment, entityTypeUuid) {
+    /**
+     * observations carries the answers given on the Approval or Rejection form, and is trailing and
+     * defaulted so every existing caller is unaffected - createPendingStatus in particular, which runs on
+     * every registration and encounter in an approval-enabled organisation and never has answers.
+     */
+    saveStatus(entityUUID, entityType, status, approvalStatusComment, entityTypeUuid, observations = []) {
         const entityService = this.getService(EntityService);
         const approvalStatus = entityService.findByKey("status", status, ApprovalStatus.schema.name);
-        const entityApprovalStatus = EntityApprovalStatus.create(entityUUID, entityType, approvalStatus, approvalStatusComment, false, entityTypeUuid);
+        // An answer given on the form holds its value as an object until it is saved - a coded multi-select
+        // as MultipleCodedValues, a primitive as PrimitiveValue - while Realm's valueJSON is a string. Every
+        // other service that persists observations converts them first; without it Realm rejects the write
+        // with "Expected 'observations[0]' to be a string". Harmless for the callers that pass none.
+        ObservationsHolder.convertObsForSave(observations);
+        const entityApprovalStatus = EntityApprovalStatus.create(entityUUID, entityType, approvalStatus, approvalStatusComment, false, entityTypeUuid, observations);
         const savedStatus = this.repository.create(entityApprovalStatus);
         this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(savedStatus, this.getSchema()));
         return savedStatus;
@@ -108,24 +119,60 @@ class EntityApprovalStatusService extends BaseService {
         }
     }
 
-    approveEntity(entity, schema) {
-        this.saveEntityWithStatus(entity, schema, ApprovalStatus.statuses.Approved);
+    approveEntity(entity, schema, observations = []) {
+        this.saveEntityWithStatus(entity, schema, ApprovalStatus.statuses.Approved, null, observations);
     }
 
-    rejectEntity(entity, schema, comment) {
-        this.saveEntityWithStatus(entity, schema, ApprovalStatus.statuses.Rejected, comment);
+    rejectEntity(entity, schema, comment, observations = []) {
+        this.saveEntityWithStatus(entity, schema, ApprovalStatus.statuses.Rejected, comment, observations);
+    }
+
+    /**
+     * Replaces the answers on a decision that has already been recorded, leaving the decision itself
+     * alone (avniproject/avni-client#2093).
+     *
+     * The status and the moment it was taken do not move. An approver correcting a mistyped figure has
+     * not approved the record a second time, and writing a second Approved row would put two approvals in
+     * the record's history for one decision - and, because the current status is the latest row by
+     * statusDateTime, would silently re-date the approval as well.
+     *
+     * The row is pushed by uuid, which the server upserts, so the correction reaches every other device
+     * as an update to the same decision rather than as a new one.
+     */
+    updateDecisionAnswers(entityApprovalStatus, observations = []) {
+        ObservationsHolder.convertObsForSave(observations);
+        this.transactionManager.write(() => {
+            // The stored row is fetched and its answers assigned, rather than a partial object being
+            // upserted over it. Assignment cannot touch the status, its date, or the audit fields even by
+            // accident, and it needs no reasoning about which update mode allows a partial write.
+            const storedDecision = this.repository.objectForPrimaryKey(entityApprovalStatus.uuid);
+            if (_.isNil(_.get(storedDecision, 'uuid'))) {
+                throw new Error(`No approval decision ${entityApprovalStatus.uuid} to correct. Refusing to write the answers somewhere else.`);
+            }
+            storedDecision.observations = observations;
+            // A no-op on Realm, whose live object already took the assignment; SQLite's is a plain copy.
+            this.repository.persistMutations(storedDecision);
+            this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(storedDecision, this.getSchema()));
+        });
     }
 
     createPendingStatus(entity, schema, entityTypeUuid) {
-        const entityApprovalStatus = this.saveStatus(entity.uuid, this._getEntityTypeForSchema(schema), ApprovalStatus.statuses.Pending, null, entityTypeUuid);
+        const entityApprovalStatus = this.saveStatus(entity.uuid, this.getEntityTypeForSchema(schema), ApprovalStatus.statuses.Pending, null, entityTypeUuid);
         this._addUpdateApprovalStatus(entity, entityApprovalStatus);
     }
 
-    saveEntityWithStatus(entity, schema, status, comment) {
+    /**
+     * The single save path for both flows - the mapped form and the comment box. Keeping them converged
+     * here is deliberate: a separate path for the form case would drift from this one, and this is where
+     * the approval decision, the record, and both EntityQueue rows are written in one transaction.
+     * An exception mid-write rolls all of it back, so a failed save looks like nothing happened rather
+     * than a partial sync.
+     */
+    saveEntityWithStatus(entity, schema, status, comment, observations = []) {
         const entityTypeUuid = this._getEntityTypeUuid(entity, schema);
 
         this.transactionManager.write(() => {
-            this._addUpdateApprovalStatus(entity, this.saveStatus(entity.uuid, this._getEntityTypeForSchema(schema), status, comment, entityTypeUuid));
+            this._addUpdateApprovalStatus(entity, this.saveStatus(entity.uuid, this.getEntityTypeForSchema(schema), status, comment, entityTypeUuid, observations));
             this.getRepository(schema).create(entity, true);
             this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(entity, schema));
         });
@@ -154,7 +201,10 @@ class EntityApprovalStatusService extends BaseService {
         }
     }
 
-    _getEntityTypeForSchema(passedSchema) {
+    // Public: ApprovalFormActions needs the same schema-to-entity-type mapping when it builds the
+    // unsaved decision behind an Approval or Rejection form, so this is part of the service's contract
+    // rather than an internal helper.
+    getEntityTypeForSchema(passedSchema) {
         return _.get(_.find(EntityApprovalStatus.getSchemaEntityTypeList(), ({schema}) => schema === passedSchema), 'entityType');
     }
 }

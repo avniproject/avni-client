@@ -5,6 +5,7 @@ const MOCK_LOCK_ID = 'test-lock-id';
 const createSyncModule = ({syncImpl, connectionInfoImpl, migrationPending = false, migrationServiceAvailable = true} = {}) => {
     jest.resetModules();
 
+    const mockDispatch = jest.fn();
     const mockSettingsService = {
         getSettings: jest.fn().mockReturnValue({userId: 'user-1'})
     };
@@ -39,7 +40,7 @@ const createSyncModule = ({syncImpl, connectionInfoImpl, migrationPending = fals
                         return mockSyncService; // fallback for SyncService class reference
                     })
                 },
-                reduxStore: {dispatch: jest.fn()}
+                reduxStore: {dispatch: mockDispatch}
             })
         }
     }));
@@ -64,6 +65,13 @@ const createSyncModule = ({syncImpl, connectionInfoImpl, migrationPending = fals
     jest.doMock('../../src/action/SyncActions', () => ({
         __esModule: true,
         SyncActionNames: {ON_BACKGROUND_SYNC_STATUS_CHANGE: 'ON_BACKGROUND_SYNC_STATUS_CHANGE'}
+    }));
+
+    // Kept light for the same reason as SyncActions above: the real module reaches
+    // EntityService -> RealmQueryService -> avni-models, which is stubbed here.
+    jest.doMock('../../src/action/SyncTelemetryActions', () => ({
+        __esModule: true,
+        SyncTelemetryActionNames: {SYNC_FAILED: 'SyncTelemetryActions.SYNC_FAILED'}
     }));
 
     jest.doMock('../../src/framework/EnvironmentConfig', () => ({
@@ -92,7 +100,7 @@ const createSyncModule = ({syncImpl, connectionInfoImpl, migrationPending = fals
     const Sync = require('../../src/task/Sync').default;
     const ErrorHandler = require('../../src/utility/ErrorHandler').default;
 
-    return {Sync, mockSyncService, mockSqliteMigrationService, ErrorHandler};
+    return {Sync, mockSyncService, mockSqliteMigrationService, ErrorHandler, mockDispatch};
 };
 
 describe('SyncTest', () => {
@@ -135,6 +143,31 @@ describe('SyncTest', () => {
             expect(mockSyncService.releaseLock.mock.calls.length).to.equal(1);
             expect(mockSyncService.releaseLock.mock.calls[0][0]).to.equal(MOCK_LOCK_ID);
             expect(ErrorHandler.postScheduledJobError.mock.calls.length).to.equal(1);
+        });
+
+        it('records a failed sync telemetry row when the sync rejects, so a blocked background sync is not invisible', async () => {
+            const syncError = new Error('sync failed');
+            const {Sync, mockDispatch} = createSyncModule({
+                syncImpl: jest.fn().mockRejectedValue(syncError)
+            });
+
+            await Sync.execute();
+
+            const failedDispatches = mockDispatch.mock.calls
+                .map(call => call[0])
+                .filter(action => action.type === 'SyncTelemetryActions.SYNC_FAILED');
+            expect(failedDispatches.length).to.equal(1);
+        });
+
+        it('does not record a failed row when the sync succeeds', async () => {
+            const {Sync, mockDispatch} = createSyncModule();
+
+            await Sync.execute();
+
+            const failedDispatches = mockDispatch.mock.calls
+                .map(call => call[0])
+                .filter(action => action.type === 'SyncTelemetryActions.SYNC_FAILED');
+            expect(failedDispatches.length).to.equal(0);
         });
 
         it('releases the lock when getConnectionInfo fails before sync starts', async () => {

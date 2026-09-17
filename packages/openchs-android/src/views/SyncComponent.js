@@ -18,6 +18,7 @@ import ProgressBarView from "./ProgressBarView";
 import Reducers from "../reducer";
 import AsyncAlert from "./common/AsyncAlert";
 import AvniError from "../framework/errorHandling/AvniError";
+import MediaUploadError from "../framework/errorHandling/MediaUploadError";
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 import {IgnorableSyncError} from "openchs-models";
 import IssueUploadUtil from "../utility/IssueUploadUtil";
@@ -57,15 +58,17 @@ class SyncComponent extends AbstractComponent {
         General.logInfo(this.viewName(), 'Sync completed dispatching reset');
     }
 
-    _onError(error, ignoreBugsnag) {
+    _onError(error, ignoreBugsnag, syncStarted = true) {
         General.logError(`${this.viewName()}-Sync`, error);
         const isIgnorableSyncError = error instanceof IgnorableSyncError;
-        !isIgnorableSyncError && this.dispatchAction(SyncTelemetryActions.SYNC_FAILED);
+        syncStarted && !isIgnorableSyncError && this.dispatchAction(SyncTelemetryActions.SYNC_FAILED);
         const isServerError = error instanceof ServerError;
         const isAvniError = error instanceof AvniError;
+        const isMediaUploadError = error instanceof MediaUploadError;
 
         //Do not notify bugsnag if it's a server error since it would have been notified on server bugsnag already.
-        if (!ignoreBugsnag && !isServerError && !isIgnorableSyncError && !isAvniError) {
+        //MediaQueueService already notified with the original underlying error.
+        if (!ignoreBugsnag && !isServerError && !isIgnorableSyncError && !isAvniError && !isMediaUploadError) {
             ErrorUtil.notifyBugsnag(error, "SyncComponent");
         }
 
@@ -86,6 +89,11 @@ class SyncComponent extends AbstractComponent {
             }));
         } else if (!this.state.isConnected) {
             this.ErrorAlert(AvniError.create(this.I18n.t('internetConnectionError')));
+        } else if (isMediaUploadError) {
+            // Below the isConnected branch on purpose: a genuinely offline device keeps the
+            // more accurate "No internet connection". Above the generic fallback, which is
+            // what used to print the raw "syncTimeoutError" key. #2097
+            this.ErrorAlert(AvniError.create(this.I18n.t('mediaUploadBlockedSync')));
         } else if (isServerError) {
             getAvniError(error, this.I18n).then((avniError) => this.ErrorAlert(avniError));
         } else if (error instanceof SyncError) {
@@ -212,7 +220,9 @@ class SyncComponent extends AbstractComponent {
             }
         } else {
             const ignoreBugsnag = true;
-            this._onError(new Error('internetConnectionError'), ignoreBugsnag);
+            // No sync starts while offline, so there is no telemetry row to mark failed. #2097
+            const syncStarted = false;
+            this._onError(new Error('internetConnectionError'), ignoreBugsnag, syncStarted);
         }
     }
 

@@ -13,7 +13,11 @@ class SyncTelemetryActions {
         syncTelemetry.deviceName = DeviceInfo.getDeviceId();
         syncTelemetry.deviceInfo = "{}";
         syncTelemetry.appInfo = "{}";
-        return {syncTelemetry};
+        // Phase keys are written only onto entities that did something. An absent key reads as
+        // zero; whether the row reports phases at all is settled by app_info, not by this object.
+        // syncStarted is set only by START_SYNC. A fresh row is also "incomplete", so status alone
+        // cannot tell a sync that ran from one that never started. #2097
+        return {syncTelemetry, entityStatus: syncTelemetry.getEntityStatus(), syncStarted: false};
     }
 
     static onSyncStart(state, action, context) {
@@ -26,6 +30,7 @@ class SyncTelemetryActions {
         syncTelemetry.deviceInfo = JSON.stringify(deviceInfo);
         syncTelemetry.appInfo = JSON.stringify(action.appInfo);
         syncTelemetry.syncSource = action.syncSource
+        newState.syncStarted = true;
         return newState;
     }
 
@@ -49,53 +54,84 @@ class SyncTelemetryActions {
     }
 
     static clone(state) {
-        return {syncTelemetry: state.syncTelemetry.clone()};
+        // entityStatus is carried by reference and mutated in place: ENTITY_PUSH_COMPLETED fires
+        // once per pushed record, so it is stringified only at the two points that persist the row.
+        return {syncTelemetry: state.syncTelemetry.clone(), entityStatus: state.entityStatus, syncStarted: state.syncStarted};
     }
 
-    static recordPushTodoTelemetry(state, {entitiesToPost}, context) {
+    // countKey names the unit the phases were sampled in - pages on pull, posts on push - so a
+    // mean is only ever taken over one rail's own unit. It counts completed round trips: a post
+    // that dropOnFailure abandoned reports only its pop, and must not deflate ms per post.
+    static addDurations(entityEntry, durations, countKey) {
+        _.forEach(durations, (ms, phase) => {
+            if (!_.isFinite(ms)) return;
+            // Re-rounded on every add: summing one-decimal floats otherwise trails binary noise
+            // into the stored JSON.
+            entityEntry[phase] = Math.round(((entityEntry[phase] || 0) + ms) * 10) / 10;
+        });
+        if (countKey && _.isFinite(_.get(durations, 'networkMs'))) {
+            entityEntry[countKey] = (entityEntry[countKey] || 0) + 1;
+        }
+    }
+
+    // Encounters and subjects are pulled once per type, so the split already exists at dispatch
+    // time; only the aggregate was being kept. Entities with no subtype carry an empty uuid.
+    static typeEntry(entityEntry, entityTypeUuid) {
+        if (_.isEmpty(entityTypeUuid)) return undefined;
+        entityEntry.byType = entityEntry.byType || {};
+        entityEntry.byType[entityTypeUuid] = entityEntry.byType[entityTypeUuid] || {todo: 0, done: 0};
+        return entityEntry.byType[entityTypeUuid];
+    }
+
+    static recordPushTodoTelemetry(state, {entitiesToPost, readDurations}, context) {
         const newState = SyncTelemetryActions.clone(state);
-        const syncTelemetry = newState.syncTelemetry;
-        const entityStatus = syncTelemetry.getEntityStatus();
         entitiesToPost.forEach(entityCollectionOfAType => {
-            const pushEntity = _.find(entityStatus.push, e => e.entity === entityCollectionOfAType.metaData.entityName);
+            const pushEntity = _.find(newState.entityStatus.push, e => e.entity === entityCollectionOfAType.metaData.entityName);
             pushEntity.todo = pushEntity.todo + entityCollectionOfAType.entities.length;
         });
-        syncTelemetry.setEntityStatus(entityStatus);
+        // Reading the queue converts every record to its resource up front, which on a large push
+        // costs more than the posts do. It happens once per entity type, so it carries no count.
+        _.forEach(readDurations, (ms, entityName) => {
+            const pushEntity = _.find(newState.entityStatus.push, e => e.entity === entityName);
+            SyncTelemetryActions.addDurations(pushEntity, {readMs: ms});
+        });
         return newState;
     }
 
     static entityPushCompleted(state, action, context) {
         const newState = SyncTelemetryActions.clone(state);
-        const syncTelemetry = newState.syncTelemetry;
 
-        const entityStatus = syncTelemetry.getEntityStatus();
-        const pushEntity = _.find(entityStatus.push, e => e.entity === action.entityMetadata.entityName);
+        const pushEntity = _.find(newState.entityStatus.push, e => e.entity === action.entityMetadata.entityName);
         pushEntity.done = pushEntity.done + 1;
-        syncTelemetry.setEntityStatus(entityStatus);
+        SyncTelemetryActions.addDurations(pushEntity, action.durations, 'posts');
 
         return newState;
     }
 
     static recordFirstPageOfPull(state, action, context) {
         const newState = SyncTelemetryActions.clone(state);
-        const syncTelemetry = newState.syncTelemetry;
 
-        const entityStatus = syncTelemetry.getEntityStatus();
-        const pullEntity = _.find(entityStatus.pull, e => e.entity === action.entityName);
+        const pullEntity = _.find(newState.entityStatus.pull, e => e.entity === action.entityName);
         pullEntity.todo = pullEntity.todo + action.totalElements;
-        syncTelemetry.setEntityStatus(entityStatus);
+
+        const typeEntry = SyncTelemetryActions.typeEntry(pullEntity, action.entityTypeUuid);
+        if (typeEntry) typeEntry.todo = typeEntry.todo + action.totalElements;
 
         return newState;
     }
 
-    static entityPullCompleted(state, {entityName, numberOfPulledEntities}, context) {
+    static entityPullCompleted(state, {entityName, numberOfPulledEntities, durations, entityTypeUuid}, context) {
         const newState = SyncTelemetryActions.clone(state);
-        const syncTelemetry = newState.syncTelemetry;
 
-        const entityStatus = syncTelemetry.getEntityStatus();
-        const pullEntity = _.find(entityStatus.pull, e => e.entity === entityName);
+        const pullEntity = _.find(newState.entityStatus.pull, e => e.entity === entityName);
         pullEntity.done = pullEntity.done + numberOfPulledEntities;
-        syncTelemetry.setEntityStatus(entityStatus);
+        SyncTelemetryActions.addDurations(pullEntity, durations, 'pages');
+
+        const typeEntry = SyncTelemetryActions.typeEntry(pullEntity, entityTypeUuid);
+        if (typeEntry) {
+            typeEntry.done = typeEntry.done + numberOfPulledEntities;
+            SyncTelemetryActions.addDurations(typeEntry, durations, 'pages');
+        }
 
         return newState;
     }
@@ -124,7 +160,7 @@ class SyncTelemetryActions {
             return (typeof all.count === 'function') ? all.count() : all.length;
         };
 
-        const entityStatus = syncTelemetry.getEntityStatus();
+        const entityStatus = newState.entityStatus;
         entityStatus.totalCounts = {
             subjects: countFor(Individual.schema.name),
             programEnrolments: countFor(ProgramEnrolment.schema.name),
@@ -134,15 +170,32 @@ class SyncTelemetryActions {
         syncTelemetry.setEntityStatus(entityStatus);
 
         entityService.saveAndPushToEntityQueue(syncTelemetry, SyncTelemetry.schema.name);
+        newState.syncStarted = false;
 
         return newState;
     }
 
     static syncFailed(state, action, context) {
+        // Only a sync that actually started is ours to fail. Between syncs this slice holds
+        // either the previous sync's row (clone() keeps its uuid, so saving it would overwrite
+        // that finished row by primary key) or a fresh row that no sync ever used (saving it
+        // sends the server a "failed" sync that never happened, with empty device and app
+        // info). Both are reachable from SyncComponent.startSync's offline branch and from
+        // SyncService.sync rejecting before it dispatches START_SYNC.
+        if (!_.get(state, "syncStarted")) return state;
+
         const newState = SyncTelemetryActions.clone(state);
         const syncTelemetry = newState.syncTelemetry;
+        // "incomplete" keeps meaning "never finished, no error seen" — i.e. the user closed
+        // the app. A sync that failed with an error is marked as such. #2097
+        syncTelemetry.syncStatus = "failed";
+        syncTelemetry.syncEndTime = new Date();
+        // Nothing wrote entityStatus through during the sync, and a failed sync is exactly where
+        // the per-entity counts and durations matter.
+        syncTelemetry.setEntityStatus(newState.entityStatus);
         const entityService = context.get(EntityService);
         entityService.saveAndPushToEntityQueue(syncTelemetry, SyncTelemetry.schema.name);
+        newState.syncStarted = false;
         return newState;
     }
 }

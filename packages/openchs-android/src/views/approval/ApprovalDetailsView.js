@@ -25,8 +25,11 @@ import {
 import Reducers from "../../reducer";
 import {ApprovalActionNames as Actions} from "../../action/approval/ApprovalActions";
 import {ApprovalButton} from "./ApprovalButton";
+import ApprovalFormView from "./ApprovalFormView";
+import TypedTransition from "../../framework/routing/TypedTransition";
+import {ApprovalStatus} from 'avni-models';
 import {ApprovalDialog} from "./ApprovalDialog";
-import {RejectionMessage} from "./RejectionMessage";
+import {DecisionMessage} from "./DecisionMessage";
 import _ from 'lodash';
 import Fonts from "../primitives/Fonts";
 import FormMappingService from "../../service/FormMappingService";
@@ -127,19 +130,77 @@ class ApprovalDetailsView extends AbstractComponent {
             });
     }
 
+    /**
+     * Handed to the press actions so a mapped Approval or Rejection form can be opened. Navigation cannot
+     * live in the reducer, so the reducer decides and calls back here - the same shape onApprove/onReject
+     * already use with their `cb`. When no form is mapped the callback is never invoked and the reducer
+     * falls through to the comment box exactly as before.
+     *
+     * Both trailing calls matter, and TaskStatusPicker makes the same pair:
+     *
+     * - `to(..., true)` is isTyped. Router spreads queryParams onto the view only when it is set, and
+     *   otherwise nests them under a `params` prop - so without it ApprovalFormView receives no entity,
+     *   schema or form at all, and onFormLoad dereferences undefined.
+     * - `bookmark()` records where to come back to. ApprovalFormView#next pops to the bookmark once the
+     *   decision is saved, and popToBookmark does nothing when none was set, stranding the approver on
+     *   the form - or pops to a stale bookmark left by another screen.
+     */
+    navigateToApprovalForm(entity, status, titleKey) {
+        return (form) => TypedTransition.from(this).with({
+            entity,
+            schema: entity.getSchemaName(),
+            form,
+            status,
+            title: titleKey
+        }).bookmark().to(ApprovalFormView, true);
+    }
+
+    /**
+     * Reopens the form a recorded decision was answered on, so the approver can correct what they put
+     * there (avniproject/avni-client#2093). The decision itself is not remade - ApprovalFormActions
+     * replaces the answers on this row.
+     *
+     * pageNumber is the page an Edit link on a heading named, and is left undefined by the single Edit
+     * button under the answers, which opens at the beginning.
+     *
+     * Nothing happens when the form the answers were given on is no longer attached: there is no form to
+     * open, and the answers stay readable. Silently doing nothing on a tap is poor, but it is only
+     * reachable by detaching a form from a combination that already has answers against it.
+     */
+    editDecisionAnswers(entity, pageNumber) {
+        const decision = entity.latestEntityApprovalStatus;
+        const form = this.getService(FormMappingService).findFormForDecision(decision);
+        if (_.isNil(form)) return;
+        TypedTransition.from(this).with({
+            entity,
+            schema: entity.getSchemaName(),
+            form,
+            status: decision.approvalStatus.status,
+            title: 'editDecisionAnswers',
+            existingDecision: decision,
+            pageNumber
+        }).bookmark().to(ApprovalFormView, true);
+    }
+
     renderApproveAndRejectButtons(entity, I18n) {
         return (<View style={styles.footerContainer}>
             <ApprovalButton
                 name={I18n.t('reject')}
                 textColor={Colors.TextOnPrimaryColor}
                 buttonColor={Colors.NegativeActionButtonColor}
-                onPress={() => this.dispatchAction(Actions.ON_REJECT_PRESS, {entity, I18n})}
+                onPress={() => this.dispatchAction(Actions.ON_REJECT_PRESS, {
+                    entity, I18n,
+                    navigateToForm: this.navigateToApprovalForm(entity, ApprovalStatus.statuses.Rejected, 'reject')
+                })}
                 extraStyle={{paddingHorizontal: 20}}/>
             <ApprovalButton
                 name={I18n.t('approve')}
                 textColor={Colors.TextOnPrimaryColor}
                 buttonColor={Colors.DarkPrimaryColor}
-                onPress={() => this.dispatchAction(Actions.ON_APPROVE_PRESS, {entity, I18n})}
+                onPress={() => this.dispatchAction(Actions.ON_APPROVE_PRESS, {
+                    entity, I18n,
+                    navigateToForm: this.navigateToApprovalForm(entity, ApprovalStatus.statuses.Approved, 'approve')
+                })}
                 extraStyle={{paddingHorizontal: 20}}/>
         </View>)
     }
@@ -184,12 +245,19 @@ class ApprovalDetailsView extends AbstractComponent {
         const showEdit = approvalStatus.isRejected && this.state.showEditButton;
         const confirmActionName = this.state.showInputBox ? Actions.ON_REJECT : Actions.ON_APPROVE;
         const observations = _.isEmpty(entity.observations) ? this.getCancelOrExitObs(entity) : entity.observations;
+        // Correcting the answers is an approver's action, so it is gated on the same approve privilege the
+        // Approve and Reject buttons are. The record's own Edit button below is a different thing entirely
+        // - that is the field worker fixing the record that was sent back.
+        const canEditDecisionAnswers = this.state.showApprovalButtons;
         return (
             <CHSContainer>
                 <CHSContent>
                     <ScrollView ref={this.scrollRef} keyboardShouldPersistTaps="handled">
                         <AppHeader title={title} hideIcon={true}/>
-                        <RejectionMessage I18n={this.I18n} entityApprovalStatus={entity.latestEntityApprovalStatus}/>
+                        <DecisionMessage I18n={this.I18n}
+                                         entityApprovalStatus={entity.latestEntityApprovalStatus}
+                                         onEditPage={canEditDecisionAnswers ? (pageNumber) => this.editDecisionAnswers(entity, pageNumber) : undefined}
+                                         onEdit={canEditDecisionAnswers ? () => this.editDecisionAnswers(entity) : undefined}/>
                         <View style={styles.container}>
                             <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>
                                 {this.renderDetails(entity)}

@@ -18,7 +18,6 @@ import _ from "lodash";
 import PersonRegisterView from "./PersonRegisterView";
 import CHSNavigator from "../../utility/CHSNavigator";
 import {AvniAlert} from "../common/AvniAlert";
-import {RejectionMessage} from "../approval/RejectionMessage";
 import SummaryButton from "../common/SummaryButton";
 import UserInfoService from "../../service/UserInfoService";
 import Timer from "../common/Timer";
@@ -136,7 +135,6 @@ class PersonRegisterFormView extends AbstractComponent {
                                    func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
                         {displayTimer ?
                             <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.state.formElementGroup}/> : null}
-                        <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.individual.latestEntityApprovalStatus}/>
                         <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                             <SummaryButton onPress={() => PersonRegisterViewsMixin.summary(this)}/>
                         </View>

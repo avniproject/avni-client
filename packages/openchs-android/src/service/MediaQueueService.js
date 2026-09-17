@@ -15,6 +15,8 @@ import * as mime from 'react-native-mime-types';
 import moment from "moment";
 import I18n from 'i18n-js';
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
+import MediaUploadError from "../framework/errorHandling/MediaUploadError";
+import AuthenticationError from "./AuthenticationError";
 const PARALLEL_UPLOAD_COUNT = 1;
 const UPLOAD_PROGRESS_TIMEOUT_MS = 60000;
 
@@ -287,13 +289,26 @@ class MediaQueueService extends BaseService {
                 count += PARALLEL_UPLOAD_COUNT
                 General.logInfo("MediaQueueService", `MediaUpload: Time taken ${(moment.now() - startTime)}`);
                 return Promise.resolve();
-            }).catch((error) => {
-                // notify bugsnag of the original underlying error, so we can check if there are multiple causes for failure
-                ErrorUtil.notifyBugsnag(error, "MediaQueueService");
-                return Promise.reject(new Error("syncTimeoutError"));
             })
         }
-        current.then(() => { General.logInfo("MediaQueueService",`MediaUpload:Total time taken ${(moment.now() - startTime)}`)})
+        // One catch for the whole chain, not one per chunk. Attached inside the loop it fired
+        // once per remaining chunk on a single failure — with 50 queued items and a batch size
+        // of 1, that was 50 Bugsnag reports for one failure. Chaining the summary log through
+        // `current` also stops it dangling as an uncaught rejection when the upload fails.
+        current = current
+            .then(() => {
+                General.logInfo("MediaQueueService", `MediaUpload:Total time taken ${(moment.now() - startTime)}`);
+            })
+            .catch((error) => {
+                // notify bugsnag of the original underlying error, so we can check if there are multiple causes for failure
+                ErrorUtil.notifyBugsnag(error, "MediaQueueService");
+                // An expired Cognito session must keep reaching SyncComponent's login-redirect
+                // branch; wrapping it is what made a dead session read as a network problem.
+                if (error instanceof AuthenticationError) return Promise.reject(error);
+                // Wrapped so the sync dialog can say a media file is stuck, instead of the raw
+                // "syncTimeoutError" key this used to reject with. #2097
+                return Promise.reject(new MediaUploadError(error));
+            });
         return current;
     }
 }

@@ -33,7 +33,7 @@ import ChecklistItemView from "../program/ChecklistItemView";
 import SubjectRegisterView from "../subject/SubjectRegisterView";
 import NextScheduledVisitsForOtherSubjects from "../common/NextScheduledVisitsForOtherSubjects";
 import {ApprovalDialog} from "../approval/ApprovalDialog";
-import {RejectionMessage} from "../approval/RejectionMessage";
+import {DecisionMessage} from "../approval/DecisionMessage";
 import GroupAffiliationInformation from "../common/GroupAffiliationInformation";
 import _ from 'lodash'
 import AvniIcon from "../common/AvniIcon";
@@ -229,7 +229,7 @@ class SystemRecommendationView extends AbstractComponent {
                     <AppHeader title={this.props.headerMessage}
                                func={() => this.onAppHeaderBack(this.props.isSaveDraftOn)}
                                displayHomePressWarning={!this.props.isSaveDraftOn}/>
-                    <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.props.entityApprovalStatus}/>
+                    <DecisionMessage I18n={this.I18n} entityApprovalStatus={this.props.entityApprovalStatus}/>
                     {/* Measured here rather than on the container: doDisplayScrollButton compares this
                         against the y of a marker inside the scroll content, so it has to be the scroll
                         viewport. The container's height is the whole window — bigger by the header, the
