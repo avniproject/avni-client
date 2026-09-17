@@ -18,6 +18,7 @@
  * full or empty set (#1981).
  */
 import {UnsupportedRealmQueryError} from "./RealmQueryParser";
+import {extractCall, parseSortKeys, parseDistinctFields} from "./SortDistinctGrammar";
 
 class JsFallbackFilterEvaluator {
     /**
@@ -158,14 +159,8 @@ class JsFallbackFilterEvaluator {
     // ──── SORT(field dir, …) ────
 
     static _applySort(entities, sortBody, schemaName) {
-        const keys = sortBody.split(",")
-            .map(k => k.trim())
-            .filter(Boolean)
-            .map(k => {
-                const m = k.match(/^([\w.]+)(?:\s+(asc|desc|ascending|descending))?$/i);
-                return m ? {field: m[1], desc: (m[2] || "").toUpperCase().startsWith("DESC")} : null;
-            });
-        if (keys.length === 0 || keys.some(k => k === null)) {
+        const keys = parseSortKeys(sortBody);
+        if (!keys) {
             throw new UnsupportedRealmQueryError(sortBody, `could not parse SORT keys for ${schemaName}`);
         }
         return [...entities].sort((a, b) => {
@@ -182,49 +177,41 @@ class JsFallbackFilterEvaluator {
         });
     }
 
-    // ──── TRUEPREDICATE DISTINCT(field) ────
+    // ──── TRUEPREDICATE DISTINCT(field, …) ────
 
     static _applyDistinct(entities, query, args, schemaName) {
-        // Extract DISTINCT(field) — field may contain dots
-        const distinctMatch = query.match(/DISTINCT\s*\(\s*([\w.]+)\s*\)/i);
-        if (!distinctMatch) {
-            // Recognized as DISTINCT but the field didn't parse — fail loud rather than return the
-            // full unfiltered set (silent-wrong is the failure #1981 kills, in any branch).
+        const distinctCall = extractCall(query, "distinct");
+        const fields = distinctCall && parseDistinctFields(distinctCall.body);
+        if (!fields) {
+            // Recognized as DISTINCT but the field(s) didn't parse — fail loud rather than return
+            // the full unfiltered set (silent-wrong is the failure #1981 kills, in any branch).
             throw new UnsupportedRealmQueryError(query, `could not parse DISTINCT field for ${schemaName}`);
         }
-        const field = distinctMatch[1];
+        // A NUL separator can't appear in a resolved field value, so joining on it can't let
+        // two different field-value combinations collide onto the same composite key.
+        const distinctKey = entity => fields.map(f => {
+            const v = this._resolveFieldValue(entity, f);
+            return v == null ? "__null__" : String(v);
+        }).join("\u0000");
 
-        // Check for embedded SORT(field dir) — used in some queries
-        const sortMatch = query.match(/SORT\s*\(\s*([\w.]+)(?:\s+(ASC|DESC|ASCENDING|DESCENDING))?\s*\)/i);
+        // Check for an embedded SORT(...) — used in some queries
+        const sortCall = extractCall(query, "sort");
 
         // Realm applies descriptors in written order: a SORT after the DISTINCT dedupes
         // first (keeping each key's first row in table order) and only then orders.
-        if (sortMatch && distinctMatch.index < sortMatch.index) {
-            const deduped = this._applyDistinct(entities, query.replace(sortMatch[0], ""), args, schemaName);
-            return this._applySort(deduped, `${sortMatch[1]}${sortMatch[2] ? " " + sortMatch[2] : ""}`, schemaName);
+        if (sortCall && distinctCall.index < sortCall.index) {
+            const deduped = this._applyDistinct(entities, sortCall.rest, args, schemaName);
+            return this._applySort(deduped, sortCall.body, schemaName);
         }
 
-        if (sortMatch) {
-            const sortField = sortMatch[1];
-            const sortDesc = (sortMatch[2] || "").toUpperCase().startsWith("DESC");
-
+        if (sortCall) {
             // Sort a copy to determine winners per distinct value
-            const sorted = [...entities].sort((a, b) => {
-                const va = this._resolveFieldValue(a, sortField);
-                const vb = this._resolveFieldValue(b, sortField);
-                if (va == null && vb == null) return 0;
-                if (va == null) return sortDesc ? 1 : -1;
-                if (vb == null) return sortDesc ? -1 : 1;
-                if (va < vb) return sortDesc ? 1 : -1;
-                if (va > vb) return sortDesc ? -1 : 1;
-                return 0;
-            });
+            const sorted = this._applySort(entities, sortCall.body, schemaName);
 
             // Pick first occurrence per distinct value from sorted copy
             const winners = new Map();
             for (const entity of sorted) {
-                const val = this._resolveFieldValue(entity, field);
-                const key = val == null ? "__null__" : String(val);
+                const key = distinctKey(entity);
                 if (!winners.has(key)) {
                     winners.set(key, entity);
                 }
@@ -235,11 +222,10 @@ class JsFallbackFilterEvaluator {
             return entities.filter(e => winnerSet.has(e));
         }
 
-        // Simple dedup — keep first occurrence per unique field value
+        // Simple dedup — keep first occurrence per unique key
         const seen = new Set();
         return entities.filter(entity => {
-            const val = this._resolveFieldValue(entity, field);
-            const key = val == null ? "__null__" : String(val);
+            const key = distinctKey(entity);
             if (seen.has(key)) return false;
             seen.add(key);
             return true;

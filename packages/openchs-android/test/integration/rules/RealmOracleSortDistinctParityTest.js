@@ -1,5 +1,5 @@
 /**
- * #1977 — row-sequence parity for TRUEPREDICATE sort/Distinct against real Realm.
+ * Row-sequence parity for TRUEPREDICATE sort/Distinct against real Realm.
  *
  * Expectations are Realm 12.14.2's own answers, derived by running the same queries
  * against a live Realm in plain node (jest mocks realm, so the oracle cannot run here).
@@ -9,10 +9,6 @@
  *   - partition-key order (xxx < yyy < zzz) is the REVERSE of rowid order, so a missing
  *     outer ORDER BY leaks the window's partition order and fails here;
  *   - level values are tied in pairs, so a missing rowid tiebreaker is detectable.
- * Verified to fail on 91a7e92 (4 of 6) and pass on 90f5fad.
- *
- * The limit(1) case is the one that matters in production: before the fix it returned a
- * DIFFERENT ROW, not merely a different order — the GroupDashboard reorder after migration.
  *
  * Run: npx jest --selectProjects integration --testPathPattern RealmOracleSortDistinctParity
  */
@@ -39,7 +35,7 @@ const REALM = {
     tiedSortKey:        [1, 2, 3, 4],
 };
 
-describe('#1977 parity vs live Realm oracle (discriminating fixture)', () => {
+describe('sort/Distinct row-sequence parity vs live Realm oracle', () => {
     let rawDb, proxy;
     beforeAll(async () => {
         rawDb = open({name: `oracle_parity_b_${Date.now()}.db`});

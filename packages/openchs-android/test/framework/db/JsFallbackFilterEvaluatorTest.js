@@ -495,6 +495,40 @@ describe("JsFallbackFilterEvaluator", () => {
             // Same dedupe-then-sort order; Realm 12.14.2 returns 1,2 for this data.
             expect(result.map(e => e.uuid)).toEqual(["1", "2"]);
         });
+
+        it("should deduplicate by multiple fields (composite key)", () => {
+            const entities = [
+                makeEntity({uuid: "1", typeUuid: "t1", level: 1}),
+                makeEntity({uuid: "2", typeUuid: "t1", level: 2}),
+                makeEntity({uuid: "3", typeUuid: "t1", level: 1}), // same (typeUuid, level) as #1
+                makeEntity({uuid: "4", typeUuid: "t2", level: 1}),
+            ];
+            const result = JsFallbackFilterEvaluator.apply(
+                entities,
+                [{query: "TRUEPREDICATE DISTINCT(typeUuid, level)", args: []}],
+                "AddressLevel"
+            );
+            expect(result).toHaveLength(3);
+            expect(result.map(e => e.uuid)).toEqual(["1", "2", "4"]);
+        });
+
+        it("SORT before DISTINCT: a multi-key SORT decides which row wins each group", () => {
+            // Both t1 rows tie on `level`; only the second sort key (order) decides which
+            // one sorts first and so wins the typeUuid group. A single-key sort would leave
+            // the tie unresolved and (being a stable sort) pick uuid 1 over uuid 2.
+            const entities = [
+                makeEntity({uuid: "1", typeUuid: "t1", level: 5, order: 2}),
+                makeEntity({uuid: "2", typeUuid: "t1", level: 5, order: 1}),
+                makeEntity({uuid: "3", typeUuid: "t2", level: 3, order: 1}),
+            ];
+            const result = JsFallbackFilterEvaluator.apply(
+                entities,
+                [{query: "TRUEPREDICATE SORT(level ASC, order ASC) DISTINCT(typeUuid)", args: []}],
+                "AddressLevel"
+            );
+            expect(result).toHaveLength(2);
+            expect(result.map(e => e.uuid)).toEqual(["2", "3"]);
+        });
     });
 
     // ──── Pattern C: listProp.@count ────

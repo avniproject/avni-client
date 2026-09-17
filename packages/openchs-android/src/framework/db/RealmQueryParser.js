@@ -27,6 +27,8 @@
 import _ from "lodash";
 import {camelToSnake, schemaNameToTableName, normalizeRealmType} from "./SqliteUtils";
 import {EMBEDDED_SCHEMA_NAMES} from "./SchemaGenerator";
+import General from "../../utility/General";
+import {extractCall, parseSortKeys, parseDistinctFields} from "./SortDistinctGrammar";
 
 const TOKEN_TYPES = {
     STRING: "STRING",
@@ -484,6 +486,14 @@ class SqlGenerator {
                 return {column: `${currentAlias}."${camelToSnake(propName)}"`, needsJoin: false};
             }
 
+            // A path ending "<link>.uuid" reads a value already sitting on this row as the
+            // link's own FK column — joining to the target table just to read its uuid back
+            // is wasted work, and it costs the caller the index on the local FK column (a
+            // dedupe/sort keyed on the joined table's uuid can't use it).
+            if (propSchema.type === "object" && i === parts.length - 2 && parts[parts.length - 1] === "uuid") {
+                return {column: `${currentAlias}."${camelToSnake(propName)}_uuid"`, needsJoin: i > 0};
+            }
+
             const newAlias = `t${++this.aliasCounter}`;
             const targetTableName = schemaNameToTableName(targetSchema);
 
@@ -782,6 +792,11 @@ class RealmQueryParser {
                 try {
                     tpResult = this._tryTranslateTruePredicate(trimmed, args, rootSchemaName, schemaMap, aliasOffset);
                 } catch (e) {
+                    // Every expected out-of-grammar shape returns null instead of throwing (see
+                    // _tryTranslateTruePredicate), so anything caught here is a genuine bug —
+                    // log it, or a future regression degrades every affected query to the JS
+                    // fallback with no signal that it happened.
+                    General.logError("RealmQueryParser", `TRUEPREDICATE translation failed for "${trimmed}": ${e.message}`);
                     tpResult = null;
                 }
                 if (tpResult) {
@@ -1122,23 +1137,15 @@ class RealmQueryParser {
         const distinctPos = rest.search(/distinct\s*\(/i);
         if (sortPos >= 0 && distinctPos >= 0 && distinctPos < sortPos) return null;
 
-        let sortBody = null;
-        const sortMatch = rest.match(/sort\s*\(([^)]*)\)/i);
-        if (sortMatch) {
-            sortBody = sortMatch[1];
-            rest = (rest.slice(0, sortMatch.index) + rest.slice(sortMatch.index + sortMatch[0].length)).trim();
-        }
+        const sortCall = extractCall(rest, "sort");
+        if (sortCall) rest = sortCall.rest;
 
-        let distinctBody = null;
-        const distinctMatch = rest.match(/distinct\s*\(([^)]*)\)/i);
-        if (distinctMatch) {
-            distinctBody = distinctMatch[1];
-            rest = (rest.slice(0, distinctMatch.index) + rest.slice(distinctMatch.index + distinctMatch[0].length)).trim();
-        }
+        const distinctCall = extractCall(rest, "distinct");
+        if (distinctCall) rest = distinctCall.rest;
 
         // Anything left over (extra predicate, reversed order, junk) → not our grammar.
         if (rest.length > 0) return null;
-        if (sortBody == null && distinctBody == null) return null;
+        if (!sortCall && !distinctCall) return null;
 
         // Shared generator so sort + distinct reuse the same JOIN aliases.
         const gen = new SqlGenerator(schemaMap, rootSchemaName, args);
@@ -1148,22 +1155,22 @@ class RealmQueryParser {
         // reverse and re-emit them for the windowed-DISTINCT path, and re-parsing its own
         // SQL string to do that is how the two ends drift apart.
         let orderByTerms = null;
-        if (sortBody != null) {
-            const keys = sortBody.split(",").map(s => s.trim()).filter(Boolean);
-            if (keys.length === 0) return null;
-            orderByTerms = keys.map(k => {
-                // Realm accepts the long spelling of the direction as well as asc/desc.
-                const mk = k.match(/^([\w.]+)(?:\s+(asc|desc|ascending|descending))?$/i);
-                if (!mk) throw new Error(`Unparseable sort key: "${k}"`);
-                const {column} = gen.resolveField(mk[1]);
-                return {expr: column, dir: mk[2] && mk[2].toUpperCase().startsWith("DESC") ? "DESC" : "ASC"};
+        if (sortCall) {
+            // An unparseable key is out-of-grammar, not a bug — parseSortKeys returns null so
+            // the caller falls back to JS rather than throwing, which would otherwise reach the
+            // catch in parse() and get logged as if it were one.
+            const keys = parseSortKeys(sortCall.body);
+            if (!keys) return null;
+            orderByTerms = keys.map(({field, desc}) => {
+                const {column} = gen.resolveField(field);
+                return {expr: column, dir: desc ? "DESC" : "ASC"};
             });
         }
 
         let distinct = null;
-        if (distinctBody != null) {
-            const fields = distinctBody.split(",").map(s => s.trim()).filter(Boolean);
-            if (fields.length === 0) return null;
+        if (distinctCall) {
+            const fields = parseDistinctFields(distinctCall.body);
+            if (!fields) return null;
             const columns = fields.map(f => gen.resolveField(f).column);
             distinct = {columns, orderByTerms};
         }
