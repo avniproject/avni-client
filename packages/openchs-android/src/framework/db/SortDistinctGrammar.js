@@ -17,7 +17,8 @@ const SORT_KEY = /^([\w.]+)(?:\s+(asc|desc|ascending|descending))?$/i;
  * keyword isn't present.
  */
 function extractCall(str, keyword) {
-    const match = str.match(new RegExp(`${keyword}\\s*\\(([^)]*)\\)`, "i"));
+    const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const match = str.match(new RegExp(`\\b${escaped}\\s*\\(([^)]*)\\)`, "i"));
     if (!match) return null;
     const rest = (str.slice(0, match.index) + str.slice(match.index + match[0].length)).trim();
     return {body: match[1], index: match.index, rest};

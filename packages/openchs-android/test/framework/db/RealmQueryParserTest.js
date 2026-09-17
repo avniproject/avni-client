@@ -717,6 +717,18 @@ describe("RealmQueryParser", () => {
             expect(r.where).toMatch(/"program_exit_date_time" IS NULL/);
         });
 
+        it("a link's .uuid inside a SUBQUERY leaf translates without a JOIN (resolveField FK shortcut)", () => {
+            // `= null` isn't in the FK dot-ref regex's literal alternation (quoted | $N | number),
+            // so this leaf falls to the scalar/AST path — which, since the FK-column shortcut in
+            // resolveField, now resolves in 0 joins instead of 1 and so clears the "JOIN can't
+            // live in a bare subquery" guard that used to send this shape to JS fallback.
+            const r = RealmQueryParser.parse(
+                "SUBQUERY(enrolments, $e, $e.program.uuid = null).@count > 0",
+                [], "Individual", schemaMap);
+            expect(r.unsupported).toBe(false);
+            expect(r.where).toBe('t0."uuid" IN (SELECT "individual_uuid" FROM program_enrolment WHERE "program_uuid" IS NULL)');
+        });
+
         it("guard also fires for unknown field inside && / || / NOT compounds", () => {
             for (const q of [
                 "SUBQUERY(enrolments, $e, nonExistentField = false && voided = true).@count > 0",
