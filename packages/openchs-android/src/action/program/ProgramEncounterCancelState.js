@@ -22,7 +22,7 @@ class ProgramEncounterCancelState extends AbstractDataEntryState {
     }
 
     get staticFormElementIds() {
-        return this.wizard.isFirstPage() ? [ProgramEncounter.validationKeys.CANCEL_LOCATION] : [];
+        return this.wizard.isFirstFormPage() ? [ProgramEncounter.validationKeys.CANCEL_LOCATION] : [];
     }
 
     static createOnLoad(programEncounter, form, formElementGroup, filteredFormElements, workLists) {
