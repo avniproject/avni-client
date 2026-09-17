@@ -1,7 +1,6 @@
 /**
- * #2024 restored subject-counting on the dashboard cards; #1865's win — counting without
- * hydrating rows — has to survive it. At 10k scale the count path must stay far below the
- * drill-down that hydrates the same rows.
+ * Dashboard cards count subjects, and must still do it without hydrating rows. At 10k scale
+ * the count path must stay far below the drill-down that hydrates the same rows.
  *
  * Run: npx jest --selectProjects integration --testPathPattern DashboardCountBenchmark
  */

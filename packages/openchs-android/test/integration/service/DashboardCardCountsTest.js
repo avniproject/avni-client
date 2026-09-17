@@ -1,6 +1,6 @@
 /**
- * #2024 — a dashboard card must count people, not rows, and must equal the number of
- * rows in its own drill-down. Fixtures are the ones enumerated on the card.
+ * A dashboard card must count people, not rows, and must equal the number of rows in its
+ * own drill-down. Each fixture gives at least one subject two or more qualifying rows.
  *
  * Run: npx jest --selectProjects integration test/integration/service/DashboardCardCountsTest.js
  */
@@ -31,7 +31,7 @@ const PROGRAM_ENC_TYPE_A = "pet-a";
 const PROGRAM_ENC_TYPE_B = "pet-b";
 const GENERAL_ENC_TYPE = "get-a";
 
-describe("#2024 dashboard card counts are people, not rows", () => {
+describe("dashboard card counts are people, not rows", () => {
     let rawDb, proxy, service, privileges, privilegeLookups, conceptScan;
 
     beforeEach(() => {
