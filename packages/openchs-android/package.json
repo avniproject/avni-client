@@ -103,7 +103,7 @@
     "lodash": "4.17.21",
     "moment": "2.29.4",
     "native-base": "3.4.9",
-    "openchs-models": "1.33.83",
+    "openchs-models": "1.33.84",
     "prop-types": "15.8.1",
     "react": "18.3.1",
     "react-native": "0.77.3",
@@ -145,7 +145,7 @@
     "react-native-zip-archive": "6.0.8",
     "realm": "12.14.2",
     "redux": "4.2.0",
-    "rules-config": "github:openchs/rules-config#6c6a590c22ae45902cd733dbeace3861da01c249",
+    "rules-config": "github:openchs/rules-config#f5f651905ac26dc98b9259245a2c3802bb59f3fe",
     "stacktrace-js": "2.0.2",
     "transducers-js": "0.4.174",
     "uuid": "^9.0.1"
