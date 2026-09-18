@@ -1,0 +1,1 @@
+CREATE INDEX `idx_program_encounter_pending_visits` ON `program_encounter` (`voided`,`encounter_date_time`,`cancel_date_time`,`max_visit_date_time`);

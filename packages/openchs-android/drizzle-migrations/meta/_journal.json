@@ -57,6 +57,13 @@
       "when": 1789706853655,
       "tag": "0007_entity_approval_status_observations",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1789706854499,
+      "tag": "0008_program_encounter_pending_visits",
+      "breakpoints": true
     }
   ]
 }

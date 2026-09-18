@@ -35,6 +35,7 @@ function open(options = {}) {
         executeSync(sql, params = []) {
             const trimmed = sql.trim();
             const isSelect = /^SELECT\b/i.test(trimmed)
+                || /^EXPLAIN\b/i.test(trimmed)
                 || /^PRAGMA\s+table_info/i.test(trimmed)
                 || /^PRAGMA\s+index_list/i.test(trimmed);
 

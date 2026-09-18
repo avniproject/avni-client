@@ -142,6 +142,7 @@ const SUBJECT_VIA_ENROLMENT = {skipLists: true, depth: 2};
 const SUBJECT_DIRECT = {skipLists: true, depth: 1};
 const SUBJECT_VIA_ENROLMENT_WITH_BADGES = {skipLists: true, depth: 3, listsToInclude: new Set(['Individual.enrolments'])};
 const SUBJECT_DIRECT_WITH_BADGES = {skipLists: true, depth: 2, listsToInclude: new Set(['Individual.enrolments'])};
+const SUBJECT_WITH_BADGES = {skipLists: true, depth: 1, listsToInclude: new Set(['Individual.enrolments'])};
 
 // withHydration exists only on the SQLite backend; Realm collections are left exactly as they were.
 function forListDisplay(results, hydrationOptions) {
@@ -721,7 +722,7 @@ class IndividualService extends BaseService {
         const {fromDate, tillDate} = getDateRange(date, new Duration(1, Duration.Day));
         const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
 
-        let individuals = this.repository.findAll()
+        let individuals = forListDisplay(this.repository.findAll(), SUBJECT_WITH_BADGES)
             .filtered('voided = false ' +
                 'AND registrationDate <= $0 ' +
                 'AND registrationDate >= $1 ',
