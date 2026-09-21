@@ -32,7 +32,7 @@ jobs:
       # $GITHUB_WORKSPACE, so a `git clean` / fresh checkout can't touch them.
       TANUH_KEYSTORE_DIR: /Users/jiteshupadhyay/Desktop/tanuh/ci/keystore
       TANUH_MODELS_DIR: /Users/jiteshupadhyay/Desktop/tanuh/ci/models
-      TANUH_OPENCV_AAR: /Users/jiteshupadhyay/Desktop/tanuh/ci/opencv/opencv-4110-android-trimmed.aar
+      TANUH_OPENCV_AAR: /Users/jiteshupadhyay/Desktop/tanuh/ci/opencv/opencv-4140-android-trimmed.aar
       OUTPUT_DIR: /Users/jiteshupadhyay/build/output
     steps:
       - uses: actions/checkout@v4
@@ -72,7 +72,7 @@ jobs:
         # newmodel_CameraEnhancements actually reference it.
         run: |
           mkdir -p packages/openchs-android/android/app/libs
-          cp "$TANUH_OPENCV_AAR" packages/openchs-android/android/app/libs/opencv-4110-android-trimmed.aar
+          cp "$TANUH_OPENCV_AAR" packages/openchs-android/android/app/libs/opencv-4140-android-trimmed.aar
 
       - name: Install JS dependencies
         run: make deps_ci
