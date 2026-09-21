@@ -529,6 +529,15 @@ describe("JsFallbackFilterEvaluator", () => {
             expect(result).toHaveLength(2);
             expect(result.map(e => e.uuid)).toEqual(["2", "3"]);
         });
+
+        it("a repeated descriptor fails loud rather than applying the first one", () => {
+            const entities = [makeEntity({uuid: "1", typeUuid: "t1", level: 1})];
+            expect(() => JsFallbackFilterEvaluator.apply(
+                entities,
+                [{query: "TRUEPREDICATE DISTINCT(typeUuid) DISTINCT(level)", args: []}],
+                "AddressLevel"
+            )).toThrow(/repeated sort\/DISTINCT descriptor/);
+        });
     });
 
     // ──── Pattern C: listProp.@count ────

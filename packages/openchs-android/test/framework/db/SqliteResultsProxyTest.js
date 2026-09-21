@@ -274,12 +274,14 @@ describe("SqliteResultsProxy — supported query types", () => {
             expect(getExecutedParams(executeQuery)).toEqual(["Person"]);
         });
 
-        it("single dot-path ending in .uuid reads the link's FK column, no JOIN", () => {
+        it("single dot-path ending in .uuid still JOINs rather than reading the FK column", () => {
+            // The LEFT JOIN reads NULL for a row whose parent is missing, matching Realm's
+            // null link; t0."subject_type_uuid" would read the orphaned uuid instead.
             const {proxy, executeQuery} = createProxy();
             proxy.filtered("subjectType.uuid = $0", "st-uuid").length;
             const sql = getExecutedSql(executeQuery);
-            expect(sql).not.toContain("JOIN");
-            expect(sql).toContain('t0."subject_type_uuid" = ?');
+            expect(sql).toContain("LEFT JOIN subject_type AS t1");
+            expect(sql).toContain('t1."uuid" = ?');
             expect(getExecutedParams(executeQuery)).toEqual(["st-uuid"]);
         });
 
@@ -292,13 +294,13 @@ describe("SqliteResultsProxy — supported query types", () => {
             expect(sql).toContain('t2."name" = ?');
         });
 
-        it("multi-level dot-path ending in .uuid stops one hop short of the last link", () => {
+        it("multi-level dot-path ending in .uuid JOINs all the way to the last link", () => {
             const {proxy, executeQuery} = createProxy({schemaName: "Encounter", tableName: "encounter"});
             proxy.filtered("individual.subjectType.uuid = $0", "st-uuid").length;
             const sql = getExecutedSql(executeQuery);
             expect(sql).toContain("LEFT JOIN individual AS t1");
-            expect(sql).not.toContain("LEFT JOIN subject_type");
-            expect(sql).toContain('t1."subject_type_uuid" = ?');
+            expect(sql).toContain("LEFT JOIN subject_type AS t2");
+            expect(sql).toContain('t2."uuid" = ?');
         });
 
         it("should use DISTINCT when JOINs are present", () => {

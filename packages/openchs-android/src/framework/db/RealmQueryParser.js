@@ -28,7 +28,12 @@ import _ from "lodash";
 import {camelToSnake, schemaNameToTableName, normalizeRealmType} from "./SqliteUtils";
 import {EMBEDDED_SCHEMA_NAMES} from "./SchemaGenerator";
 import General from "../../utility/General";
-import {extractCall, parseSortKeys, parseDistinctFields} from "./SortDistinctGrammar";
+import {parseDescriptors, parseSortKeys, parseDistinctFields} from "./SortDistinctGrammar";
+
+// Query strings whose TRUEPREDICATE translation has already been reported this session. One
+// dashboard render runs the same failing query on every card that uses it, and each render
+// repeats the set, so reporting per call would bury the signal in duplicates.
+const reportedTranslationFailures = new Set();
 
 const TOKEN_TYPES = {
     STRING: "STRING",
@@ -486,13 +491,17 @@ class SqlGenerator {
                 return {column: `${currentAlias}."${camelToSnake(propName)}"`, needsJoin: false};
             }
 
-            // A path ending "<link>.uuid" reads a value already sitting on this row as the
-            // link's own FK column — joining to the target table just to read its uuid back
-            // is wasted work, and it costs the caller the index on the local FK column (a
-            // dedupe/sort keyed on the joined table's uuid can't use it).
-            if (propSchema.type === "object" && i === parts.length - 2 && parts[parts.length - 1] === "uuid") {
-                return {column: `${currentAlias}."${camelToSnake(propName)}_uuid"`, needsJoin: i > 0};
-            }
+            // A path ending "<link>.uuid" looks like it could skip the JOIN and read the
+            // link's own FK column instead — same value, one fewer join. It isn't the same
+            // value when the FK dangles: the JOIN is a LEFT JOIN, so a row whose parent is
+            // missing reads NULL, which is what Realm gives for a link to an absent object,
+            // while the FK column still holds the orphaned uuid. Those rows exist — FK
+            // enforcement is off for the whole of a sync (SyncService._disableForeignKeysIfSqlite),
+            // sync-time deletes don't walk every referencing table (Task.subject survives
+            // SubjectMigrationService.deleteSubjectAndChildren), and the post-sync
+            // PRAGMA foreign_key_check only reports what it finds. Reading the FK column
+            // would split one NULL Distinct partition into one per orphan and flip
+            // "link.uuid = null" the wrong way. Keep the JOIN.
 
             const newAlias = `t${++this.aliasCounter}`;
             const targetTableName = schemaNameToTableName(targetSchema);
@@ -793,10 +802,11 @@ class RealmQueryParser {
                     tpResult = this._tryTranslateTruePredicate(trimmed, args, rootSchemaName, schemaMap, aliasOffset);
                 } catch (e) {
                     // Every expected out-of-grammar shape returns null instead of throwing (see
-                    // _tryTranslateTruePredicate), so anything caught here is a genuine bug —
-                    // log it, or a future regression degrades every affected query to the JS
-                    // fallback with no signal that it happened.
-                    General.logError("RealmQueryParser", `TRUEPREDICATE translation failed for "${trimmed}": ${e.message}`);
+                    // _tryTranslateTruePredicate), so anything caught here is a genuine bug — report
+                    // it, or a future regression degrades every affected query to the JS fallback
+                    // with no signal that it happened. The console line alone doesn't reach a
+                    // release build, which is where the silent slowdown would show up.
+                    this._reportTranslationFailure(trimmed, e);
                     tpResult = null;
                 }
                 if (tpResult) {
@@ -1122,6 +1132,29 @@ class RealmQueryParser {
     }
 
     /**
+     * A TRUEPREDICATE translation that throws is a bug, not a shape we don't handle, and its
+     * only user-visible effect is that the query gets slower. Console logging keeps the stack
+     * for a developer; Bugsnag is what makes it visible on a release build. Once per distinct
+     * query string per session.
+     */
+    static _reportTranslationFailure(query, error) {
+        General.logError(`RealmQueryParser: TRUEPREDICATE translation failed for "${query}"`, error);
+        if (reportedTranslationFailures.has(query)) return;
+        reportedTranslationFailures.add(query);
+        try {
+            // Required here rather than imported: the parser runs on every .filtered() call and
+            // shouldn't pull the Bugsnag client into its module graph for a path that, if the
+            // code is correct, never runs.
+            const ErrorUtil = require("../errorHandling/ErrorUtil").default;
+            const failure = new Error(`TRUEPREDICATE translation failed for "${query}": ${error && error.message}`);
+            failure.stack = error && error.stack;
+            ErrorUtil.notifyBugsnag(failure, "RealmQueryParser::TruePredicateTranslation");
+        } catch (e) {
+            General.logWarn("RealmQueryParser", `could not report translation failure: ${e.message}`);
+        }
+    }
+
+    /**
      * Translate `TRUEPREDICATE [sort(...)] [Distinct(...)]` to a SQL window descriptor.
      * TRUEPREDICATE contributes no row filter (where stays null); sort → ORDER BY,
      * Distinct → ROW_NUMBER() partition. Returns null when the string isn't a pure
@@ -1130,22 +1163,22 @@ class RealmQueryParser {
     static _tryTranslateTruePredicate(query, args, rootSchemaName, schemaMap, aliasOffset = 0) {
         const head = query.match(/^TRUEPREDICATE\b(.*)$/is);
         if (!head) return null;
-        let rest = head[1].trim();
 
-        // Spec: sort precedes Distinct. Reversed order is out-of-grammar → JS fallback.
-        const sortPos = rest.search(/sort\s*\(/i);
-        const distinctPos = rest.search(/distinct\s*\(/i);
-        if (sortPos >= 0 && distinctPos >= 0 && distinctPos < sortPos) return null;
+        const {descriptors, rest} = parseDescriptors(head[1].trim());
 
-        const sortCall = extractCall(rest, "sort");
-        if (sortCall) rest = sortCall.rest;
-
-        const distinctCall = extractCall(rest, "distinct");
-        if (distinctCall) rest = distinctCall.rest;
-
-        // Anything left over (extra predicate, reversed order, junk) → not our grammar.
+        // Anything left over (extra predicate, junk) → not our grammar.
         if (rest.length > 0) return null;
-        if (!sortCall && !distinctCall) return null;
+        if (descriptors.length === 0) return null;
+        // One of each at most; a repeated descriptor is out-of-grammar rather than something to
+        // apply once and drop the rest of.
+        if (new Set(descriptors.map(d => d.keyword)).size !== descriptors.length) return null;
+
+        const sortCall = descriptors.find(d => d.keyword === "sort");
+        const distinctCall = descriptors.find(d => d.keyword === "distinct");
+
+        // Spec: sort precedes Distinct. Written the other way round it dedupes first and orders
+        // after, which this translation doesn't express — out-of-grammar → JS fallback.
+        if (sortCall && distinctCall && distinctCall.index < sortCall.index) return null;
 
         // Shared generator so sort + distinct reuse the same JOIN aliases.
         const gen = new SqlGenerator(schemaMap, rootSchemaName, args);

@@ -4,24 +4,52 @@
  *
  * Single source so RealmQueryParser (SQL translation) and JsFallbackFilterEvaluator (JS
  * fallback) can't drift — they did, more than once: the SQL side understood multi-key sorts
- * and multi-field Distinct while the fallback side only ever parsed one of each, and a fix
- * for the long "ascending"/"descending" spelling had to be applied to three separate regexes
- * in the same commit to keep them agreeing.
+ * and multi-field Distinct while the fallback side only ever parsed one of each; a fix for the
+ * long "ascending"/"descending" spelling had to be applied to three separate regexes in the
+ * same commit to keep them agreeing; and the two engines decided "Distinct written before
+ * sort" — which changes the rows, not just their order — by two different mechanisms, one of
+ * which had already lost the word boundary the other had gained.
  */
 
 const SORT_KEY = /^([\w.]+)(?:\s+(asc|desc|ascending|descending))?$/i;
 
+// The descriptors Realm allows in the tail: sort(...) and Distinct(...), in either case, with
+// a body that runs to the first ")". Kept as one pattern so a caller can't recognise a call
+// the others don't.
+const DESCRIPTOR_CALL = "\\b(sort|distinct)\\s*\\(([^)]*)\\)";
+
 /**
- * Pull the first `keyword(...)` invocation (case-insensitive) out of `str` — e.g. "sort" or
- * "distinct". Returns {body, rest} with the invocation removed from `rest`, or null if the
- * keyword isn't present.
+ * Split a descriptor tail into its sort(...)/Distinct(...) calls **in written order**, which
+ * is the order Realm applies them in.
+ *
+ * @param str the text after TRUEPREDICATE (or any tail to inspect)
+ * @returns {{descriptors: Array<{keyword: string, body: string, index: number}>, rest: string}}
+ *          `rest` is what is left once every recognised call is removed — non-empty means the
+ *          string carries something outside this grammar.
  */
-function extractCall(str, keyword) {
+function parseDescriptors(str) {
+    const re = new RegExp(DESCRIPTOR_CALL, "gi");
+    const descriptors = [];
+    let rest = "";
+    let lastIndex = 0;
+    let match;
+    while ((match = re.exec(str)) !== null) {
+        descriptors.push({keyword: match[1].toLowerCase(), body: match[2], index: match.index});
+        rest += str.slice(lastIndex, match.index);
+        lastIndex = match.index + match[0].length;
+    }
+    return {descriptors, rest: (rest + str.slice(lastIndex)).trim()};
+}
+
+/**
+ * Pull a trailing `keyword(...)` — one anchored at the end of `str`, so the text before it is
+ * still an intact predicate. Returns {body, rest} or null.
+ */
+function extractTrailingCall(str, keyword) {
     const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const match = str.match(new RegExp(`\\b${escaped}\\s*\\(([^)]*)\\)`, "i"));
+    const match = str.match(new RegExp(`\\b${escaped}\\s*\\(([^)]*)\\)\\s*$`, "i"));
     if (!match) return null;
-    const rest = (str.slice(0, match.index) + str.slice(match.index + match[0].length)).trim();
-    return {body: match[1], index: match.index, rest};
+    return {body: match[1], index: match.index, rest: str.slice(0, match.index).trim()};
 }
 
 /**
@@ -46,4 +74,4 @@ function parseDistinctFields(body) {
     return fields.length === 0 ? null : fields;
 }
 
-export {extractCall, parseSortKeys, parseDistinctFields};
+export {parseDescriptors, extractTrailingCall, parseSortKeys, parseDistinctFields};
