@@ -871,6 +871,7 @@ class SyncService extends BaseService {
         // other database would pull this sync's data where the next launch will not look.
         const runtimeBackend = GlobalContext.getInstance().getActiveBackend();
         if (runtimeBackend !== state.activeBackend) {
+            await this._reopenCommittedBackendIfSafe(migrationService, isManualSync, runtimeBackend);
             throw new Error(`Running on ${runtimeBackend} but the committed backend is ${state.activeBackend}; not syncing into the wrong database`);
         }
         if (desired === state.activeBackend) return null;
@@ -912,6 +913,26 @@ class SyncService extends BaseService {
 
         General.logInfo("SyncService", `Mid-sync migration switch complete — continuing sync on ${desired}`);
         return leg;
+    }
+
+    // Nothing else reopens the committed backend after launch fails to, so the user's own sync
+    // tries. This sync still fails: its checkpoints and first pulls came from the database it
+    // started on. The next one runs on the committed backend. Only once the upload has emptied
+    // the outbox here, so nothing saved on this database is left behind; never in the
+    // background, which would move the database under a screen the user is looking at.
+    async _reopenCommittedBackendIfSafe(migrationService, isManualSync, runtimeBackend) {
+        if (!isManualSync) return;
+        const pendingFieldData = this.entityQueueService.getPendingFieldDataCount();
+        if (pendingFieldData > 0) {
+            General.logWarn("SyncService",
+                `Not reopening the committed backend: ${pendingFieldData} local changes on ${runtimeBackend} still awaiting upload`);
+            return;
+        }
+        try {
+            await migrationService.openCommittedBackend();
+        } catch (e) {
+            General.logError("SyncService", `Reopening the committed backend failed: ${e.message}`);
+        }
     }
 
     _disableForeignKeysIfSqlite() {

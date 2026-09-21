@@ -134,4 +134,16 @@ describe('SQLite fast-sync restore commits the backend last (#2120)', () => {
         expect(onRestoreFailure).toHaveBeenCalled();
         expect(cb).toHaveBeenLastCalledWith(100, 'restoreFailed', true, diskFull);
     });
+
+    // Login waits on cb and has no catch on restore()'s promise.
+    it('still reports the failure when the failure handler itself throws', async () => {
+        const {service, onRestoreFailure, cb} = build();
+        const diskFull = new Error('disk full');
+        SqliteMigrationService.commitStateForUser.mockImplementationOnce(async () => { throw diskFull; });
+        onRestoreFailure.mockImplementationOnce(async () => { throw new Error('realm reopen failed'); });
+
+        await service.restore(cb);
+
+        expect(cb).toHaveBeenLastCalledWith(100, 'restoreFailed', true, diskFull);
+    });
 });

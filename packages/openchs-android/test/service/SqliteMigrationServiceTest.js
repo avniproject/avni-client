@@ -23,6 +23,7 @@ jest.mock('@react-native-async-storage/async-storage', () => {
 const mockGlobalContext = {
     switchBackend: jest.fn(),
     getActiveBackend: jest.fn(() => 'realm'),
+    openSqliteIfMissing: jest.fn(async () => true),
 };
 jest.mock('../../src/GlobalContext', () => ({
     __esModule: true,
@@ -267,6 +268,18 @@ describe('SqliteMigrationService', () => {
 
             expect(await service.isMigrationPending()).toBe(true);
         });
+
+        // Launch failed to open the committed backend. A background sync would only fail on
+        // the wrong database; the next sync the user starts reopens it.
+        it('returns true when the app is running on a database other than the committed one', async () => {
+            await persisted({activeBackend: BACKENDS.SQLITE, desiredBackend: BACKENDS.SQLITE});
+            mockPrivilegeService.ownedGroups.mockReturnValue([
+                {groupUuid: SQLITE_MIGRATION_GROUP_UUID, groupName: SQLITE_MIGRATION_GROUP_NAME},
+            ]);
+            mockGlobalContext.getActiveBackend.mockReturnValue(BACKENDS.REALM);
+
+            expect(await service.isMigrationPending()).toBe(true);
+        });
     });
 
     describe('recording the desired backend', () => {
@@ -492,6 +505,17 @@ describe('SqliteMigrationService', () => {
             expect(mockGlobalContext.switchBackend).toHaveBeenCalledWith(BACKENDS.SQLITE);
             expect(mockEntityService.clearDataIn).not.toHaveBeenCalled();
             expect(mockEntitySyncStatusService.setup).not.toHaveBeenCalled();
+        });
+
+        // SQLite may have failed to open at launch; switching without it only throws again.
+        it('opens SQLite first when the committed backend is SQLite', async () => {
+            await persisted({activeBackend: BACKENDS.SQLITE, desiredBackend: BACKENDS.SQLITE});
+            mockGlobalContext.openSqliteIfMissing.mockClear();
+
+            await service.openCommittedBackend();
+
+            expect(mockGlobalContext.openSqliteIfMissing.mock.invocationCallOrder[0])
+                .toBeLessThan(mockGlobalContext.switchBackend.mock.invocationCallOrder[0]);
         });
 
         // Fast sync restores a SQLite snapshot on a device that never synced, so Realm holds

@@ -165,15 +165,18 @@ class SqliteMigrationService extends BaseService {
     }
 
     /**
-     * Whether a switch is owed: the stored target, or the group membership the active
-     * database holds, differs from the committed backend. The background job (#2118)
-     * stays idle while this is true.
+     * Whether a switch is owed: the stored target, the group membership the active
+     * database holds, or the database the app is actually running on differs from the
+     * committed backend. The background job (#2118) stays idle while this is true; the
+     * last case is repaired by the next sync the user starts.
      */
     async isMigrationPending() {
         try {
             const state = await this.getState();
+            const GlobalContext = require('../GlobalContext').default;
             return state.desiredBackend !== state.activeBackend
-                || this.computeDesiredBackend() !== state.activeBackend;
+                || this.computeDesiredBackend() !== state.activeBackend
+                || GlobalContext.getInstance().getActiveBackend() !== state.activeBackend;
         } catch (e) {
             return false;
         }
@@ -208,6 +211,9 @@ class SqliteMigrationService extends BaseService {
         if (globalContext.getActiveBackend() !== state.activeBackend) {
             General.logInfo("SqliteMigrationService",
                 `Opening the committed backend: ${state.activeBackend}`);
+            if (state.activeBackend === BACKENDS.SQLITE) {
+                await globalContext.openSqliteIfMissing();
+            }
             globalContext.switchBackend(state.activeBackend);
         }
     }

@@ -142,6 +142,21 @@ class GlobalContext {
         return this._activeBackend;
     }
 
+    // switchBackend() refuses SQLite while sqliteDb is missing, and nothing else reopens it
+    // after a failed open at launch. Callers that must reach SQLite try again here first.
+    async openSqliteIfMissing() {
+        if (this.sqliteDb) return true;
+        try {
+            const SqliteFactory = require("./framework/db/SqliteFactory").default;
+            this.sqliteDb = await SqliteFactory.createSqliteProxy();
+            General.logInfo("GlobalContext", "SQLite database opened on retry");
+            return true;
+        } catch (e) {
+            General.logWarn("GlobalContext", `SQLite open retry failed: ${e.message}`);
+            return false;
+        }
+    }
+
     async onDatabaseRecreated(realmFactory) {
         this.db.close();
         await this.reinitializeDatabase(realmFactory);
@@ -169,9 +184,15 @@ class GlobalContext {
         }
     }
 
+    // Never throws. Both restore-failure callbacks run through here with nothing around them,
+    // and a throw strands the login screen on its restore spinner with no callback fired.
     async reinitializeDatabase(realmFactory) {
-        this.db = await realmFactory.createRealm();
-        updateAnalyticsDatabase(this.db);
+        try {
+            this.db = await realmFactory.createRealm();
+            updateAnalyticsDatabase(this.db);
+        } catch (e) {
+            General.logError("GlobalContext", `Realm reinit failed: ${e.message}`);
+        }
 
         // Recreate SQLite DB
         if (this.sqliteDb) {
@@ -185,12 +206,18 @@ class GlobalContext {
             const SqliteFactory = require("./framework/db/SqliteFactory").default;
             this.sqliteDb = await SqliteFactory.createSqliteProxy();
         } catch (e) {
+            // The handle above is closed; leaving it bound would hand the registry a dead database.
+            this.sqliteDb = null;
             General.logWarn("GlobalContext", `SQLite reinit skipped: ${e.message}`);
         }
 
-        // Re-apply the previously active backend choice (preserved across re-init)
-        const activeDb = (this._activeBackend === BACKENDS.SQLITE && this.sqliteDb) ? this.sqliteDb : this.db;
-        this.beanRegistry.updateDatabase(activeDb);
+        // Re-apply the previously active backend choice (preserved across re-init). Without
+        // SQLite the runtime is on Realm, and _activeBackend says so, so the sync guard sees
+        // the mismatch with the committed backend rather than a runtime that claims SQLite.
+        if (this._activeBackend === BACKENDS.SQLITE && !this.sqliteDb) {
+            this._activeBackend = BACKENDS.REALM;
+        }
+        this.beanRegistry.updateDatabase(this._activeBackend === BACKENDS.SQLITE ? this.sqliteDb : this.db);
     }
 }
 

@@ -158,7 +158,12 @@ export default class BackupRestoreSqliteService extends BaseService {
             await this._restoreBackup(liveDbPath, backupPath);
             await this._cleanup(downloadedZip, unzipDir);
             if (this.onRestoreFailure) {
-                await this.onRestoreFailure();
+                // cb must fire whatever happens here, or login waits on the restore forever.
+                try {
+                    await this.onRestoreFailure();
+                } catch (e) {
+                    General.logError('BackupRestoreSqliteService', `Restore-failure handler failed: ${e.message}`);
+                }
             }
             cb(100, 'restoreFailed', true, error);
         }

@@ -120,3 +120,57 @@ describe('a failed SQLite restore (#2120)', () => {
         expect(context.getActiveBackend()).toBe('sqlite');
     });
 });
+
+describe('reopening the databases after a restore never throws (#2120)', () => {
+    const SqliteFactory = require('../src/framework/db/SqliteFactory').default;
+
+    async function booted(committedBackend) {
+        const context = new GlobalContext();
+        wireBeans({openCommittedBackend: jest.fn(async () => context.switchBackend(committedBackend))});
+        await context.initialiseGlobalContext({create: jest.fn(() => ({}))}, realmFactory);
+        const sqliteRestoreService = mockBeans.get('backupRestoreSqliteService');
+        return {
+            context,
+            onRestored: sqliteRestoreService.subscribeOnRestore.mock.calls[0][0],
+            onRestoreFailed: sqliteRestoreService.subscribeOnRestoreFailure.mock.calls[0][0],
+        };
+    }
+
+    afterEach(() => {
+        realmFactory.createRealm.mockImplementation(async () => ({kind: 'realm'}));
+        SqliteFactory.createSqliteProxy.mockImplementation(async () => ({kind: 'sqlite', close: jest.fn()}));
+    });
+
+    // Otherwise the restore's failure callback never reaches login, which waits on it forever.
+    it('finishes a failed restore when Realm cannot be reopened', async () => {
+        const {context, onRestoreFailed} = await booted('sqlite');
+        realmFactory.createRealm.mockImplementation(async () => { throw new Error('realm locked'); });
+
+        await expect(onRestoreFailed()).resolves.toBeUndefined();
+
+        expect(context.getActiveBackend()).toBe('sqlite');
+        expect(mockUpdateDatabase).toHaveBeenLastCalledWith(expect.objectContaining({kind: 'sqlite'}));
+    });
+
+    it('drops a SQLite handle it could not reopen, and says the runtime is on Realm', async () => {
+        const {context, onRestored} = await booted('realm');
+        SqliteFactory.createSqliteProxy.mockImplementation(async () => { throw new Error('file locked'); });
+
+        await onRestored();
+
+        expect(context.sqliteDb).toBeNull();
+        expect(context.getActiveBackend()).toBe('realm');
+        expect(mockUpdateDatabase).toHaveBeenLastCalledWith(expect.objectContaining({kind: 'realm'}));
+    });
+
+    it('opens SQLite on a later try when it failed to open at launch', async () => {
+        SqliteFactory.createSqliteProxy.mockImplementationOnce(async () => { throw new Error('file locked'); });
+        const {context} = await booted('realm');
+        expect(() => context.switchBackend('sqlite')).toThrow('sqliteDb not initialised');
+
+        expect(await context.openSqliteIfMissing()).toBe(true);
+        context.switchBackend('sqlite');
+
+        expect(context.getActiveBackend()).toBe('sqlite');
+    });
+});
