@@ -10,9 +10,15 @@
 import {assert} from "chai";
 import moment from "moment";
 
+jest.mock("../../../../src/framework/bean/Service", () => () => (target) => target);
+
 import {EntityMappingConfig} from "openchs-models";
 import SchemaGenerator from "../../../../src/framework/db/SchemaGenerator";
 import SqliteProxy from "../../../../src/framework/db/SqliteProxy";
+import RepositoryFactory from "../../../../src/repository/RepositoryFactory";
+import IndividualService from "../../../../src/service/IndividualService";
+import CustomFilterService from "../../../../src/service/CustomFilterService";
+import PrivilegeService from "../../../../src/service/PrivilegeService";
 import {open} from "@op-engineering/op-sqlite";
 
 const INDEX = "idx_program_encounter_pending_visits";
@@ -89,5 +95,69 @@ describe("pending visit index (#2105)", () => {
         assert.deepEqual(overdue().map(e => e.uuid).sort(), overdueBefore);
         assert.equal(scheduledBefore.length, PENDING);
         assert.equal(overdueBefore.length, PENDING);
+    });
+
+    // The cards do not run the bare query above. They join the enrolment and the subject to drop
+    // exited and voided ones, and a change to that join can move the planner off the index. So
+    // run the card's own method, catch the SQL it sends, and ask for the plan of that.
+    describe("the query each card actually runs", () => {
+        let service;
+
+        beforeAll(() => {
+            const repositoryFactory = new RepositoryFactory(proxy);
+            const stubs = new Map([
+                [CustomFilterService, {}],
+                [PrivilegeService, {hasAllPrivileges: () => true, allowedEntityTypeUUIDListForCriteria: () => []}]
+            ]);
+            service = new IndividualService(proxy, {
+                getRepositoryFactory: () => repositoryFactory,
+                getService: (klass) => stubs.get(klass)
+            });
+        });
+
+        // The card's own filter is the only program_encounter query that reads visit dates;
+        // the row lookups that follow it are by uuid.
+        const cardQuery = (runCard) => {
+            const executeSync = rawDb.executeSync;
+            const sent = [];
+            rawDb.executeSync = (sql, params) => {
+                if (/FROM\s+"?program_encounter"?/i.test(sql) && /max_visit_date_time/.test(sql)) sent.push({sql, params});
+                return executeSync.call(rawDb, sql, params);
+            };
+            let rows;
+            try {
+                rows = runCard();
+            } finally {
+                rawDb.executeSync = executeSync;
+            }
+            assert.lengthOf(sent, 1, "expected the card to send one visit query");
+            return {...sent[0], rows};
+        };
+        const planOf = ({sql, params}) => {
+            const result = rawDb.executeSync(`EXPLAIN QUERY PLAN ${sql}`, params);
+            return (result.rows?._array || result.rows || []).map(r => r.detail).join(" | ");
+        };
+        const programVisitsOnly = [[], null, null, true, false];
+
+        it("joins the enrolment and the subject, as the bare query above does not", () => {
+            const {sql} = cardQuery(() => service.allScheduledVisitsIn(TODAY, ...programVisitsOnly));
+
+            assert.match(sql, /JOIN\s+"?program_enrolment"?/i);
+            assert.match(sql, /JOIN\s+"?individual"?/i);
+        });
+
+        it("uses it for the scheduled card's own query", () => {
+            const query = cardQuery(() => service.allScheduledVisitsIn(TODAY, ...programVisitsOnly));
+
+            assert.include(planOf(query), INDEX);
+            assert.lengthOf(query.rows, PENDING);
+        });
+
+        it("uses it for the overdue card's own query", () => {
+            const query = cardQuery(() => service.allOverdueVisitsIn(TODAY, ...programVisitsOnly));
+
+            assert.include(planOf(query), INDEX);
+            assert.lengthOf(query.rows, PENDING);
+        });
     });
 });
