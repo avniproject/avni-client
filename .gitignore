@@ -124,3 +124,5 @@ tanuh-size-report.csv
 
 # Claude Code local session files
 .claude/
+packages/openchs-android/android/app/libs/opencv-4110-android-trimmed.aar
+packages/openchs-android/android/app/libs/opencv-4140-android-trimmed.aar
