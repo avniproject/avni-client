@@ -500,7 +500,7 @@ class CustomDashboardView extends AbstractComponent {
                 />
                 {(_.isNil(customDashboardType) || customDashboardType === CustomDashboardType.None) &&
                     this.renderDashboardPicker()}
-                <ScrollView>
+                <ScrollView contentContainerStyle={{paddingBottom: Distances.BottomTabBarClearance}}>
                     {hasDashboards && <>
                         <View style={{display: "flex", flexDirection: "row", flex: 1, justifyContent: "space-between"}}>
                             <View style={{flex: 0.65}}>

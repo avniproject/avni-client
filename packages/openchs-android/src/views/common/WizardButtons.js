@@ -37,7 +37,11 @@ class WizardButtons extends AbstractComponent {
         const previousButton = this.getButtonProps(this.props.previous);
         const nextButton = this.getButtonProps(this.props.next);
         const nextAndMore = this.getButtonProps(this.props.nextAndMore);
-        const containerStyle = this.props.containerStyle || {marginVertical: 30, paddingHorizontal: Distances.ScaledContentDistanceFromEdge};
+        const baseContainerStyle = this.props.containerStyle || {marginVertical: 30, paddingHorizontal: Distances.ScaledContentDistanceFromEdge};
+        // Android 16+ edge-to-edge draws content behind the bottom gesture/nav bar; add the same
+        // inset the app bar already reserves at the top (Distances.EdgeToEdgeStatusBarInset), here
+        // for the bottom, on top of whatever paddingBottom a caller's own containerStyle already has.
+        const containerStyle = {...baseContainerStyle, paddingBottom: (baseContainerStyle.paddingBottom || 0) + Distances.EdgeToEdgeNavigationBarInset};
         const buttonHeightStyle = _.isNil(this.props.buttonHeight) ? {} : {height: this.props.buttonHeight};
         return (<View style={containerStyle}>
             {nextAndMore.visible &&

@@ -377,7 +377,11 @@ class MenuView extends AbstractComponent {
                             marginRight: Distances.ScaledContentDistanceFromEdge,
                             marginLeft: Distances.ScaledContentDistanceFromEdge,
                             marginTop: Distances.ScaledContentDistanceFromEdge,
-                            paddingBottom: 100
+                            // This screen renders behind LandingView's absolute bottom tab bar (same as
+                            // CustomDashboardView's home tab) - reserve the same shared clearance instead of
+                            // the old flat 100, which fell short of the bar's Android 16+ gesture-inset height.
+                            // Plus a bit of extra breathing room below the last card, past the bar itself.
+                            paddingBottom: Distances.BottomTabBarClearance + Distances.ScaledContentDistanceFromEdge
                         }}
                         ListHeaderComponent={() => (
                             <View>

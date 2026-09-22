@@ -43,7 +43,7 @@ class FamilyFolderView extends AbstractComponent {
                 alignItems: 'center',
                 justifyContent: 'center',
                 right: 30,
-                bottom: 30,
+                bottom: 30 + Distances.EdgeToEdgeNavigationBarInset,
                 borderRadius: 8,
                 backgroundColor:Colors.AccentColor
             },

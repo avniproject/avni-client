@@ -18,6 +18,7 @@ import AppHeader from "../common/AppHeader";
 import CHSContainer from "../common/CHSContainer";
 import Separator from "../primitives/Separator";
 import Colors from "../primitives/Colors";
+import Distances from "../primitives/Distances";
 import SingleSelectFilter from '../filter/SingleSelectFilter';
 import CustomFilters from "../filter/CustomFilters";
 import CustomFilterService from "../../service/CustomFilterService";
@@ -195,7 +196,7 @@ class IndividualSearchView extends AbstractComponent {
                     </ScrollView>
                 </CHSContent>
 
-                <View style={{height: buttonHeight, position: 'absolute', bottom: 36, right: 20}}>
+                <View style={{height: buttonHeight, position: 'absolute', bottom: 36 + Distances.EdgeToEdgeNavigationBarInset, right: 20}}>
                     <TouchableOpacity activeOpacity={0.8}
                                       onPress={() => this.searchIndividual()}
                                       style={styles.submitButton}>

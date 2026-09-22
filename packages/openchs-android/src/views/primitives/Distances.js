@@ -1,6 +1,7 @@
 import DGS from "./DynamicGlobalStyles";
 import {Dimensions} from "react-native";
 import {Platform, StatusBar} from 'react-native';
+import {initialWindowMetrics} from 'react-native-safe-area-context';
 
 class Distances {
     // Fixed rather than scaled off DGS.resizeWidth(windowWidth) - that scaling is proportional to
@@ -50,6 +51,23 @@ class Distances {
     // Android 16+ (API 36) forces edge-to-edge; the windowOptOutEdgeToEdgeEnforcement opt-out only works on API <= 35, so on 36+ the app must reserve status-bar space itself. Older OSes already inset content.
     static get EdgeToEdgeStatusBarInset() {
         return (Platform.OS === 'android' && Platform.Version >= 36) ? (StatusBar.currentHeight || 0) : 0;
+    }
+
+    // Same Android 16+ (API 36) edge-to-edge enforcement, but for the bottom/gesture nav bar.
+    // StatusBar.currentHeight has no bottom-inset counterpart, so this reads react-native-safe-area-context's
+    // initialWindowMetrics — a plain native constant populated before JS runs, same "just read a constant,
+    // no provider/hook needed" shape as EdgeToEdgeStatusBarInset above.
+    static get EdgeToEdgeNavigationBarInset() {
+        return (Platform.OS === 'android' && Platform.Version >= 36) ? (initialWindowMetrics?.insets?.bottom || 0) : 0;
+    }
+
+    // LandingView's absolute bottom tab bar (Home/Register/More) sits on top of whatever screen renders
+    // behind it - its height is LandingView.layoutConstants.bottomBarHeight (80, duplicated here rather than
+    // imported to avoid a circular import: LandingView imports the dashboard screens that need this value)
+    // plus the same edge-to-edge inset added to that bar. Screens whose scrollable content can render behind
+    // it (the home dashboard tabs) reserve this much bottom padding so their last row isn't hidden under it.
+    static get BottomTabBarClearance() {
+        return 80 + Distances.EdgeToEdgeNavigationBarInset;
     }
 
     static ContentDistanceFromEdge = 16;

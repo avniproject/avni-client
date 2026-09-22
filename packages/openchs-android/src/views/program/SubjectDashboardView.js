@@ -18,6 +18,7 @@ import MCIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import OIcon from "react-native-vector-icons/Octicons";
 import _ from "lodash";
 import NewFormButton from "../common/NewFormButton";
+import Distances from "../primitives/Distances";
 import {logScreenEvent} from "../../utility/Analytics";
 
 class SubjectDashboardView extends AbstractComponent {
@@ -123,7 +124,7 @@ class SubjectDashboardView extends AbstractComponent {
                 </CHSContent>
                 <NewFormButton
                     display={(this.state.individualProfile && this.state.displayGeneralInfoInProfileTab) || this.state.history}
-                    style={this.state.displayProgramTab ? {bottom: 24 + 55} : {}}
+                    style={this.state.displayProgramTab ? {bottom: 24 + 55 + Distances.EdgeToEdgeNavigationBarInset} : {}}
                 />
                 {this.state.displayProgramTab &&
                 <View style={styles.tabContainer}>
@@ -142,10 +143,15 @@ const styles = StyleSheet.create({
     tabContainer: {
         flexDirection: 'row',
         justifyContent: 'space-around',
-        height: 55,
+        // Same bar-stays-flush, grows-taller-by-the-inset treatment as LandingView.js's main bottom bar:
+        // height grows by the Android 16+ gesture-nav inset, paddingBottom reserves that same amount inside
+        // the box, so alignItems: 'center' still centers the option icons within the original 55px zone -
+        // same gaps as before, just sitting `inset` px above the gesture bar instead of under it.
+        height: 55 + Distances.EdgeToEdgeNavigationBarInset,
         width: '100%',
         position: 'absolute',
         bottom: 0,
+        paddingBottom: Distances.EdgeToEdgeNavigationBarInset,
         backgroundColor: Colors.programEnrolmentBottomBarColor,
         elevation: 3,
         alignItems: 'center',

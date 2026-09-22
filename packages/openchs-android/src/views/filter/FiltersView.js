@@ -50,7 +50,7 @@ class FilterView extends AbstractComponent {
             alignSelf: 'stretch',
             alignItems: 'center',
             justifyContent: 'center',
-            bottom: 0,
+            bottom: Distances.EdgeToEdgeNavigationBarInset,
             backgroundColor: Colors.AccentColor,
             borderRadius: 8
         },

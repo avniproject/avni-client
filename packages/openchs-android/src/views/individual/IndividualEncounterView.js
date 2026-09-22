@@ -276,7 +276,12 @@ const styles = StyleSheet.create({
         flexDirection: 'column'
     },
     fixedButtonBar: {
-        height: 84,
+        // Explicit padding, not height/minHeight+centering: (84 - buttonHeight(56)) / 2 = 14, the original visual
+        // gap above and below the button row. Centering math collapsed this gap once the box grew to fit
+        // WizardButtons' own added bottom inset (API 36+ gesture/nav bar clearance) - explicit padding keeps
+        // this 14px gap guaranteed regardless of content height, while that inset adds further space below it.
+        paddingTop: 14,
+        paddingBottom: 14,
         justifyContent: 'center',
         backgroundColor: '#ffffff',
         shadowColor: '#000',
