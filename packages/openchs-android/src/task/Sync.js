@@ -68,7 +68,7 @@ class Sync extends BaseTask {
             }
 
         } catch (e) {
-            if (e instanceof AuthenticationError && e.code === NO_USER) {
+            if (e instanceof AuthenticationError && e.authErrCode === NO_USER) {
                 return;
             }
             ErrorHandler.postScheduledJobError(e);

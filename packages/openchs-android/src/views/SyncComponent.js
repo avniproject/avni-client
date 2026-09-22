@@ -3,7 +3,7 @@ import Colors from "./primitives/Colors";
 import {SyncActionNames as SyncActions} from "../action/SyncActions";
 import General from "../utility/General";
 import {SyncTelemetryActionNames as SyncTelemetryActions} from "../action/SyncTelemetryActions";
-import AuthenticationError from "../service/AuthenticationError";
+import AuthenticationError, {HTTP_403, NETWORK_ERROR, requiresReLogin} from "../service/AuthenticationError";
 import CHSNavigator from "../utility/CHSNavigator";
 import ServerError, {getAvniError} from "../service/ServerError";
 import {Alert, Text, ToastAndroid, TouchableNativeFeedback, View} from "react-native";
@@ -122,7 +122,7 @@ class SyncComponent extends AbstractComponent {
         if (isAvniError) {
             General.logDebug(this.viewName(), "Handling AvniError with user message: " + error.userMessage);
             this.ErrorAlert(error);
-        } else if (error instanceof AuthenticationError && error.authErrCode !== 'NetworkingError') {
+        } else if (error instanceof AuthenticationError && requiresReLogin(error)) {
             General.logError(this.viewName(), "Could not authenticate");
             General.logError(this.viewName(), error);
             General.logError(this.viewName(), "Redirecting to login view");
@@ -130,6 +130,12 @@ class SyncComponent extends AbstractComponent {
                 tabIndex: 1,
                 menuProps: {startSync: true}
             }));
+        } else if (error instanceof AuthenticationError && error.authErrCode === NETWORK_ERROR) {
+            // Sits above the isConnected branch because NetInfo still reports connected when the
+            // token refresh cannot reach Cognito; without this the raw SDK string reaches the user.
+            this.ErrorAlert(AvniError.create(this.I18n.t('internetConnectionError')));
+        } else if (error instanceof AuthenticationError && error.authErrCode === HTTP_403) {
+            this.ErrorAlert(AvniError.create(this.I18n.t('serverRefusedRequest')));
         } else if (!this.state.isConnected) {
             this.ErrorAlert(AvniError.create(this.I18n.t('internetConnectionError')));
         } else if (isServerError) {
