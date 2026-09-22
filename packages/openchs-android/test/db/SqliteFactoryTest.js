@@ -119,4 +119,30 @@ describe("SqliteFactory", () => {
             expect(SqliteFactory.getDbPath()).toBe("avni_sqlite.db");
         });
     });
+
+    describe("getCodeSchemaVersion", () => {
+        it("returns the highest idx in the bundled migration journal", () => {
+            const {journal} = require("../../src/framework/db/migrations/drizzleMigrations");
+            const highestIdx = Math.max(...journal.entries.map(e => e.idx));
+
+            expect(SqliteFactory.getCodeSchemaVersion()).toBe(highestIdx);
+        });
+
+        it("matches the version a freshly migrated database reports", () => {
+            const {journal, sqlFiles} = require("../../src/framework/db/migrations/drizzleMigrations");
+            const MigrationRunner = require("../../src/framework/db/MigrationRunner").default;
+            const versions = [];
+            const runner = new MigrationRunner({
+                executeSync: (sql, params) => {
+                    if (sql.startsWith("INSERT INTO schema_version")) versions.push(params[0]);
+                    if (sql.includes("MAX(version)")) return {rows: [{version: null}]};
+                    return {rows: []};
+                }
+            });
+
+            runner.runMigrations(journal, sqlFiles);
+
+            expect(SqliteFactory.getCodeSchemaVersion()).toBe(versions[versions.length - 1]);
+        });
+    });
 });

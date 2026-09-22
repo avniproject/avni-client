@@ -39,6 +39,7 @@ import AvniIcon from "./common/AvniIcon";
 import EntityService from "../service/EntityService";
 import EnvironmentConfig from "../framework/EnvironmentConfig";
 import GlobalContext from "../GlobalContext";
+import SqliteFactory from "../framework/db/SqliteFactory";
 import { getAvniError } from "../service/ServerError";
 import { AlertMessage } from "./common/AlertMessage";
 import MessageService from "../service/MessageService";
@@ -402,6 +403,9 @@ class MenuView extends AbstractComponent {
                                         const dbSchemaValue = isSqlite
                                             ? (migration ? migration.idx : 'unknown')
                                             : this.getService(EntityService).getActualSchemaVersion();
+                                        const codeSchemaValue = isSqlite
+                                            ? SqliteFactory.getCodeSchemaVersion()
+                                            : EntityMappingConfig.getInstance().getSchemaVersion();
                                         return (
                                             <>
                                                 <Text style={Styles.textList}>Backend: <Text
@@ -414,12 +418,12 @@ class MenuView extends AbstractComponent {
                                                         color: 'black',
                                                         fontSize: Styles.normalTextSize
                                                     }}>{dbSchemaValue}</Text></Text>
-                                                {!isSqlite && !EnvironmentConfig.isProd() && (
+                                                {!EnvironmentConfig.isProd() && (
                                                     <Text style={Styles.textList}>Code Schema Version: <Text
                                                         style={{
                                                             color: 'black',
                                                             fontSize: Styles.normalTextSize
-                                                        }}>{EntityMappingConfig.getInstance().getSchemaVersion()}</Text></Text>
+                                                        }}>{codeSchemaValue}</Text></Text>
                                                 )}
                                             </>
                                         );
