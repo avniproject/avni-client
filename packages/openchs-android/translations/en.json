@@ -242,6 +242,7 @@
     "percentageDone": "Percentage Done",
     "syncComplete": "Sync Complete ",
     "internetConnectionError": "No internet connection. Please connect to internet.",
+    "serverRefusedRequest": "The server would not allow this request. You are still signed in. Please contact your Avni administrator.",
     "syncServerError": "An error has occurred. Please try after sometime.",
     "syncTimeoutError": "Sorry it's taking too long. Please check your internet connection.",
     "mediaUploadBlockedSync": "Sync stopped because a saved media file could not be uploaded.",
