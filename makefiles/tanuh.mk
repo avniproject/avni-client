@@ -172,6 +172,15 @@ TANUH_SIZE_GATE_APKS   := tanuh-size-gate.apks
 TANUH_SIZE_REPORT      := tanuh-size-report.csv
 TANUH_SIZE_LIMIT_BYTES ?= 209715200
 
+# NOTE: enableSeparateBuildPerCPUArchitecture=false is forced here (overriding app/build.gradle's
+# own default of true) because bundleTanuhRelease builds an AAB, and bundletool (see
+# tanuh-universal-apk below) is what derives per-ABI/universal APKs from that AAB — Gradle's own
+# splits.abi mechanism is never used for this path. Leaving it enabled here triggers a known AGP
+# bug (https://issuetracker.google.com/402800800): with shrinkResources true (release buildType)
+# AND splits.abi enabled, bundleTanuhRelease's buildTanuhReleasePreBundle task fails with
+# "Multiple shrunk-resources files found" because resource shrinking produces one file per ABI
+# split but the bundle-packaging task expects exactly one. The plain `tanuh-apk` target below
+# (assembleTanuhRelease, for local per-ABI installs) is untouched and still gets real ABI splits.
 tanuh-aab: tanuh-ensemble tanuh-verify-no-model ## Build signed model-free tanuh release AAB (+ provisioning artefacts). Pass versionCode=N versionName=X to set them.
 	@if [ ! -f "$(TANUH_KEYSTORE)" ]; then \
 		echo "ERROR: $(TANUH_KEYSTORE) not found. Run 'make tanuh-setup' first."; \
@@ -183,7 +192,7 @@ tanuh-aab: tanuh-ensemble tanuh-verify-no-model ## Build signed model-free tanuh
 	fi
 	$(MAKE) as_prod flavor=tanuh
 	$(MAKE) metro_config flavor=tanuh
-	cd packages/openchs-android/android; KEY_STORE_PREFIX="$(CURDIR)/" GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew bundleTanuhRelease --stacktrace
+	cd packages/openchs-android/android; KEY_STORE_PREFIX="$(CURDIR)/" GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" enableSeparateBuildPerCPUArchitecture=false ./gradlew bundleTanuhRelease --stacktrace
 	@echo ""
 	@echo "Signed AAB (model-free): $(TANUH_AAB)"
 	@echo "  versionCode env=$${versionCode:-<unset, defaults to 1>}  versionName env=$${versionName:-<unset, defaults to 1>}"
@@ -222,7 +231,7 @@ tanuh-aab-no-model: tanuh-verify-no-model ## Build signed model-free tanuh relea
 	fi
 	$(MAKE) as_prod flavor=tanuh
 	$(MAKE) metro_config flavor=tanuh
-	cd packages/openchs-android/android; KEY_STORE_PREFIX="$(CURDIR)/" GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew bundleTanuhRelease --stacktrace
+	cd packages/openchs-android/android; KEY_STORE_PREFIX="$(CURDIR)/" GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" enableSeparateBuildPerCPUArchitecture=false ./gradlew bundleTanuhRelease --stacktrace
 	@echo ""
 	@echo "Signed AAB (model-free): $(TANUH_AAB)"
 	@echo "  versionCode env=$${versionCode:-<unset, defaults to 1>}  versionName env=$${versionName:-<unset, defaults to 1>}"
