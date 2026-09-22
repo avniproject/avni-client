@@ -1,10 +1,17 @@
 name: TANUH release build (self-hosted)
 
 # Manual trigger ONLY. This repo is public and the runner below is a personal
-# machine with the TANUH signing key and proprietary ONNX models on it — it must
-# never be reachable from pull_request/pull_request_target, which would let any
-# forked-repo PR execute arbitrary code on that machine. Do not add those triggers
-# here without re-reading tools/edge-model/README.md's threat-model section first.
+# machine with the TANUH signing key on it — it must never be reachable from
+# pull_request/pull_request_target, which would let any forked-repo PR execute
+# arbitrary code on that machine. Do not add those triggers here without
+# re-reading tools/edge-model/README.md's threat-model section first.
+#
+# Model-free build: the edge model is delivered to devices via sync (synced
+# DownloadableContent), not bundled in the APK/AAB, so this workflow does not
+# need — and must not require — any model file. Provisioning the model to the
+# server (encrypting it and uploading it) is a separate, currently-manual step
+# (see tools/edge-model/README.md); this workflow only builds and distributes
+# the model-free production (release) binary.
 on:
   workflow_dispatch:
     inputs:
@@ -31,19 +38,15 @@ jobs:
       # Fixed, outside-the-checkout locations on the runner. Never inside
       # $GITHUB_WORKSPACE, so a `git clean` / fresh checkout can't touch them.
       TANUH_KEYSTORE_DIR: /Users/jiteshupadhyay/Desktop/tanuh/ci/keystore
-      TANUH_MODELS_DIR: /Users/jiteshupadhyay/Desktop/tanuh/ci/models
       TANUH_OPENCV_AAR: /Users/jiteshupadhyay/Desktop/tanuh/ci/opencv/opencv-4140-android-trimmed.aar
       OUTPUT_DIR: /Users/jiteshupadhyay/build/output
     steps:
       - uses: actions/checkout@v4
 
-      - name: Preflight — verify signing key, models, and CI-only secrets are present
+      - name: Preflight — verify signing key and CI-only secrets are present
         run: |
           set -e
           test -f "$TANUH_KEYSTORE_DIR/tanuh-release-key.keystore" || { echo "::error::keystore missing at $TANUH_KEYSTORE_DIR"; exit 1; }
-          test -f "$TANUH_MODELS_DIR/model6.onnx"   || { echo "::error::model6.onnx missing at $TANUH_MODELS_DIR"; exit 1; }
-          test -f "$TANUH_MODELS_DIR/model8.onnx"   || { echo "::error::model8.onnx missing at $TANUH_MODELS_DIR"; exit 1; }
-          test -f "$TANUH_MODELS_DIR/model8-2.onnx" || { echo "::error::model8-2.onnx missing at $TANUH_MODELS_DIR"; exit 1; }
           # tanuh_KEYSTORE_PASSWORD / tanuh_KEY_ALIAS must come from the runner's
           # own .env (see repo docs) — never from GitHub secrets — so just confirm
           # they made it into this job's environment; never print their values.
@@ -88,10 +91,13 @@ jobs:
         # watches before bundling forces a clean re-crawl.
         run: watchman watch-del-all || true
 
-      - name: Build signed AAB + universal APK (3-fold ONNX ensemble)
+      - name: Build signed model-free AAB + universal APK
+        # No model is placed or encrypted here — tanuh-universal-apk-no-model builds straight
+        # from source, guarded by `tanuh-verify-no-model` (fails if a stale model blob is left
+        # in the flavour assets). This intentionally skips `tanuh-ensemble` (the provisioning
+        # encryption step) — see tools/edge-model/README.md for that separate, manual flow.
         run: |
-          make tanuh-universal-apk \
-            TANUH_ENSEMBLE_SRC_DIR="$TANUH_MODELS_DIR" \
+          make tanuh-universal-apk-no-model \
             versionCode="${{ inputs.versionCode }}" \
             versionName="${{ inputs.versionName }}"
 
