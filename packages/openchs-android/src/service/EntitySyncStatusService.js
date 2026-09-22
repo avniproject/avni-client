@@ -21,6 +21,8 @@ import PrivilegeService from "./PrivilegeService";
 import FormMappingService from "./FormMappingService";
 import ChecklistService from "./ChecklistService";
 
+export const SYNC_TIMESTAMP_FORMAT = "DD-MM-YYYY HH:mm:ss";
+
 @Service("entitySyncStatusService")
 class EntitySyncStatusService extends BaseService {
     constructor(db, beanStore) {
@@ -61,7 +63,7 @@ class EntitySyncStatusService extends BaseService {
             const emd = EntityMetaData.findByName(entityName);
             return {
                 entityName: entityName,
-                loadedSince: isNeverSynced ? 'Never or Not Applicable' : moment(loadedSince).format("DD-MM-YYYY HH:MM:SS"),
+                loadedSince: isNeverSynced ? 'Never or Not Applicable' : moment(loadedSince).format(SYNC_TIMESTAMP_FORMAT),
                 queuedCount: queuedItemCount,
                 type: emd && emd.type
             }
@@ -80,7 +82,7 @@ class EntitySyncStatusService extends BaseService {
 
     getLastLoaded() {
         return moment(_.max(this.findAll(EntitySyncStatus.schema.name)
-            .map((entitySyncStatus) => entitySyncStatus.loadedSince))).format("DD-MM-YYYY HH:MM:SS");
+            .map((entitySyncStatus) => entitySyncStatus.loadedSince))).format(SYNC_TIMESTAMP_FORMAT);
     }
 
     setup() {
