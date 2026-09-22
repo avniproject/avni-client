@@ -60,7 +60,15 @@ android {
     defaultConfig {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode System.getenv("versionCode") ? 8 * 1048576 + System.getenv("versionCode").toInteger() : 1
+        // versionCode is now exactly whatever the `versionCode` env var/build input carries - no
+        // hidden offset. It previously had a flat `8 * 1048576 +` (8388608) base added, likely a
+        // leftover from an older per-ABI-APK build setup (Play needed distinct versionCodes per
+        // ABI split before this app shipped a single AAB, which Play now splits internally). That
+        // offset is gone, but Play/Firebase still require every new versionCode to be strictly
+        // greater than the highest one ever actually published - the last known published value
+        // was 8388624 (from versionCode input 16, i.e. 8388608 + 16, for versionName 1.0.16), so
+        // the next build's versionCode input must be greater than that, e.g. 8388625 or higher.
+        versionCode System.getenv("versionCode") ? System.getenv("versionCode").toInteger() : 1
         //Our convention of versionCode from now in is to form the number from digits in versionName. E.g. for versionName 2.6.1, the versionCode should be 261. This is to avoid conflicts of versionCodes between different branches.
         // Major.Minor.Patch. We should not change major version every release, just change the minor. Each number allows for two digits
         // https://medium.com/@maxirosson/versioning-android-apps-d6ec171cfd82
