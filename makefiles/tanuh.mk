@@ -154,10 +154,13 @@ tanuh-clean: ## Remove the staging artefacts (blobs, manifest.json, keys.json).
 #
 # Both targets honour `versionCode` / `versionName` env vars. build.gradle:63-67 reads
 # them from the environment; without them, versionCode defaults to 1 and versionName
-# defaults to "1". versionCode is passed through as-is (no offset applied any more) but
-# Play/Firebase require every new versionCode to be strictly greater than the highest one
-# ever actually published - last known published value was 8388624, so pass something
-# greater than that, e.g. 8388625 or higher, for the next release.
+# defaults to "1". versionCode is passed through as-is (no offset applied any more).
+# tanuh-release-build.yml's CI workflow computes versionCode automatically (from its own
+# run number - see that workflow's "Compute versionCode" step) so it never needs to be
+# typed by hand there. For any other caller (local builds, other CI), Play/Firebase still
+# require every new versionCode to be strictly greater than the highest one ever actually
+# published - last known published value, confirmed from a tester's installed app, was
+# 8488624 (versionName 1.0.16) - so pass something greater than that.
 
 BUNDLETOOL_VERSION ?= 1.15.1
 BUNDLETOOL_JAR     := bundletool.jar

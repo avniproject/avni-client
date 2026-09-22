@@ -91,12 +91,19 @@ jobs:
         # Auto-generated from this workflow's own run number (github.run_number), which GitHub
         # guarantees always increases on every run of this workflow file - never manually typed,
         # never at risk of someone passing a too-low value and breaking Play/Firebase's "must
-        # strictly increase over the last published versionCode" rule again. 8400000 is a seed
-        # base picked with generous headroom above the last known published versionCode (8388624,
-        # from before this workflow computed it automatically) - this workflow would need to run
-        # roughly another 1.6 million times before that headroom is even a concern.
+        # strictly increase over the last published versionCode" rule again.
+        #
+        # Seed base is 9000000. IMPORTANT: the previous seed used here (8400000) was picked from
+        # an incorrect assumption about the last published versionCode and was WRONG - it produced
+        # 8400011-8400014 on the first few runs of this scheme, which are LOWER than the actual
+        # last distributed versionCode, confirmed directly from a tester's installed app: 1.0.16
+        # was (8488624), not the previously assumed 8388624. Any build already sent out with a
+        # versionCode below 8488624 cannot correctly update devices that already have 1.0.16
+        # installed (Android blocks the install as a downgrade). 9000000 gives real headroom
+        # (500k+) above the confirmed 8488624, this time verified from an actual installed
+        # device rather than computed from an assumed input value.
         id: version
-        run: echo "code=$((8400000 + ${{ github.run_number }}))" >> "$GITHUB_OUTPUT"
+        run: echo "code=$((9000000 + ${{ github.run_number }}))" >> "$GITHUB_OUTPUT"
 
       - name: Build signed model-free AAB + universal APK
         # No model is placed or encrypted here — tanuh-universal-apk-no-model builds straight
