@@ -15,10 +15,6 @@ name: TANUH release build (self-hosted)
 on:
   workflow_dispatch:
     inputs:
-      versionCode:
-        description: "Android versionCode (optional, defaults per build.gradle)"
-        required: false
-        default: ""
       versionName:
         description: "Android versionName (optional, defaults per build.gradle)"
         required: false
@@ -91,6 +87,17 @@ jobs:
         # watches before bundling forces a clean re-crawl.
         run: watchman watch-del-all || true
 
+      - name: Compute versionCode
+        # Auto-generated from this workflow's own run number (github.run_number), which GitHub
+        # guarantees always increases on every run of this workflow file - never manually typed,
+        # never at risk of someone passing a too-low value and breaking Play/Firebase's "must
+        # strictly increase over the last published versionCode" rule again. 8400000 is a seed
+        # base picked with generous headroom above the last known published versionCode (8388624,
+        # from before this workflow computed it automatically) - this workflow would need to run
+        # roughly another 1.6 million times before that headroom is even a concern.
+        id: version
+        run: echo "code=$((8400000 + ${{ github.run_number }}))" >> "$GITHUB_OUTPUT"
+
       - name: Build signed model-free AAB + universal APK
         # No model is placed or encrypted here — tanuh-universal-apk-no-model builds straight
         # from source, guarded by `tanuh-verify-no-model` (fails if a stale model blob is left
@@ -98,7 +105,7 @@ jobs:
         # encryption step) — see tools/edge-model/README.md for that separate, manual flow.
         run: |
           make tanuh-universal-apk-no-model \
-            versionCode="${{ inputs.versionCode }}" \
+            versionCode="${{ steps.version.outputs.code }}" \
             versionName="${{ inputs.versionName }}"
 
       - name: Copy build outputs to the build folder
@@ -125,6 +132,7 @@ jobs:
 
           echo "### TANUH build output" >> "$GITHUB_STEP_SUMMARY"
           echo "versionName: $version_name" >> "$GITHUB_STEP_SUMMARY"
+          echo "versionCode: ${{ steps.version.outputs.code }}" >> "$GITHUB_STEP_SUMMARY"
           echo "Saved to: \`$dest\`" >> "$GITHUB_STEP_SUMMARY"
           ls -la "$dest" >> "$GITHUB_STEP_SUMMARY"
 
