@@ -32,6 +32,18 @@ jest.mock('react-native', () => ({
 // The @Service decorator needs a no-op so the module loads outside the app container.
 jest.mock('../../src/framework/bean/Service', () => () => (target) => target);
 
+// The global jest setup mocks utility/Analytics as a bare no-op (() => {} returns undefined,
+// not {}), which breaks any code that reads firebaseEvents or calls logEvent. EdgeModelService
+// now logs model_inference_consolidated/model_inference_individual events (ported from the
+// pre-model-fetch service), so give this suite a real firebaseEvents map plus a spy logEvent.
+jest.mock('../../src/utility/Analytics', () => ({
+    firebaseEvents: {
+        MODEL_INFERENCE_CONSOLIDATED: 'model_inference_consolidated',
+        MODEL_INFERENCE_INDIVIDUAL: 'model_inference_individual'
+    },
+    logEvent: jest.fn()
+}));
+
 import {NativeModules} from 'react-native';
 import fs from 'react-native-fs';
 import EdgeModelService from '../../src/service/EdgeModelService';

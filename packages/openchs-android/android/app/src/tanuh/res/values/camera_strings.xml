@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="camera_retake">Retake</string>
+    <string name="camera_done">Done</string>
+    <string name="camera_permissions_denied">Camera permission is required to take a photo.</string>
+    <!-- Camera usability enhancement (Phase 2) — soft retake prompt (camera master doc, Section 8
+         decision #1): a dismissible warning, not a hard block. -->
+    <string name="camera_quality_warning_message">Photo may be blurry or too dark.</string>
+    <string name="camera_quality_use_anyway">Use anyway</string>
+</resources>

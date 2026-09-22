@@ -24,7 +24,12 @@ class NewVisitPageView extends AbstractComponent {
 
     onAppHeaderBack() {
         const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [NewVisitPageView]);
-        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n, undefined, {screen: this.viewName()});
+    }
+
+    onHardwareBackPress() {
+        this.onAppHeaderBack();
+        return true;
     }
 
     render() {
@@ -34,7 +39,7 @@ class NewVisitPageView extends AbstractComponent {
             <CHSContainer>
                 <CHSContent>
                     <AppHeader title={this.I18n.t("chooseVisit")}
-                               backFunction={() => this.onAppHeaderBack()}
+                               func={() => this.onAppHeaderBack()}
                                displayHomePressWarning={true}
                     />
                     <ScrollView>

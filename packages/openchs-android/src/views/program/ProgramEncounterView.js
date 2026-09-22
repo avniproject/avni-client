@@ -16,6 +16,7 @@ import DateFormElement from "../../views/form/formElement/DateFormElement";
 import _ from "lodash";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import General from "../../utility/General";
+import {getCurrentPageValidationResults} from "../../utility/FormPageReadiness";
 import Distances from "../primitives/Distances";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
@@ -35,6 +36,7 @@ import Timer from "../common/Timer";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 import CustomActivityIndicator from "../CustomActivityIndicator";
+import {logTaskDuration, logTaskStarted} from "../../utility/Analytics";
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
@@ -61,6 +63,13 @@ class ProgramEncounterView extends AbstractComponent {
                 encounterToLoad = programEncounter.cloneForEdit();
                 encounterToLoad.encounterDateTime = new Date();
             }
+            // Mirrors the started/completed/abandoned parity used for registration and login -
+            // this view's own screenRenderStartTime (set by AbstractComponent) is the clock this
+            // pairs with. Note: this branch is also hit when the user backs up from the
+            // recommendation screen to edit an earlier answer (see the fromSDV/onPreviousCallback
+            // resetStack above), so a back-and-forth edit logs a fresh 'started' too - the same
+            // known limitation already called out where the completed/abandoned duration is logged.
+            logTaskStarted('encounter', encounterToLoad.name || _.get(encounterToLoad, 'encounterType.displayName'));
             this.dispatchAction(Actions.ON_LOAD, {programEncounter: encounterToLoad, workLists, pageNumber, editing});
             return super.UNSAFE_componentWillMount();
         }
@@ -68,12 +77,13 @@ class ProgramEncounterView extends AbstractComponent {
             .findDueEncounter({encounterTypeName: encounterType, enrolmentUUID})
             .cloneForEdit();
         programEncounterByType.encounterDateTime = moment().toDate();
+        logTaskStarted('encounter', programEncounterByType.name || _.get(programEncounterByType, 'encounterType.displayName'));
         this.dispatchAction(Actions.ON_LOAD, {programEncounter: programEncounterByType, editing});
         return super.UNSAFE_componentWillMount();
     }
 
     onHardwareBackPress() {
-        this.previous();
+        this.onAppHeaderBack(this.state.saveDrafts);
         return true;
     }
 
@@ -130,6 +140,15 @@ class ProgramEncounterView extends AbstractComponent {
                 const headerMessage = `${this.I18n.t(programEnrolment.program.displayName)}, ${this.I18n.t(encounterName)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
                 const form = formMappingService.findFormForEncounterType(this.state.programEncounter.encounterType, Form.formTypes.ProgramEncounter, this.state.programEncounter.programEnrolment.individual.subjectType);
+                // Timed from this screen's mount (this.screenRenderStartTime, set by AbstractComponent
+                // since this view has a topLevelStateVariable) to the hand-off to the recommendation
+                // screen - same "excludes the recommendation screen" boundary used for registration.
+                // Note: if the user goes back from the recommendation screen to edit an answer (fromSDV
+                // above), this view remounts and the clock restarts, so a back-and-forth edit undercounts
+                // total time - a known limitation, not wired around in this pass.
+                if (this.screenRenderStartTime) {
+                    logTaskDuration('encounter', encounterName, Date.now() - this.screenRenderStartTime);
+                }
                 CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, programEnrolment.individual, programEncounter.observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState, null, state.saveDrafts, popVerificationVew, programEncounter.isRejectedEntity(), programEncounter.latestEntityApprovalStatus, onPreviousCallback, {}, programEnrolment.uuid);
             },
             popVerificationVewFunc : () => TypedTransition.from(this).popToBookmark(),
@@ -163,12 +182,20 @@ class ProgramEncounterView extends AbstractComponent {
 
     onAppHeaderBack(saveDraftOn) {
         const onYesPress = () => {
+            // Mirrors the completed-encounter task_duration logged just before the hand-off to
+            // SystemRecommendationView, but for the path where the user backs out instead of
+            // finishing - completes the 'abandoned' outcome logTaskDuration always supported.
+            if (this.screenRenderStartTime) {
+                const programEncounter = this.state.programEncounter;
+                const encounterName = programEncounter && (programEncounter.name || _.get(programEncounter, 'encounterType.displayName'));
+                logTaskDuration('encounter', encounterName, Date.now() - this.screenRenderStartTime, 'abandoned');
+            }
             if (saveDraftOn) {
                 this.dispatchAction(Actions.ON_BACK);
             }
             CHSNavigator.navigateToFirstPage(this, [ProgramEncounterView, NewVisitPageView]);
         };
-        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n);
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n, undefined, {screen: this.viewName()});
     }
     onStartTimer() {
         this.dispatchAction(Actions.ON_START_TIMER,
@@ -197,13 +224,23 @@ class ProgramEncounterView extends AbstractComponent {
         this.displayMessage(this.props.params.message);
         const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);
         const hideVisitDate = this.context.getService(OrganisationConfigService).isVisitDateHidden() && !_.isNil(this.state.programEncounter.encounterDateTime);
+        const observationHolder = new ObservationsHolder(this.state.programEncounter.observations);
+        const filteredFormElements = this.state.filteredFormElements || this.state.formElementGroup.getFormElements();
+        // Mirrors the checks state.validateEntity() runs on Next-press (minus the GPS location check,
+        // which needs reducer context) so the button colour reflects page completeness without
+        // duplicating side-effecting validation here.
+        const currentPageValidationResults = [
+            ...(this.state.wizard.isFirstFormPage() ? this.state.programEncounter.validate() : []),
+            ...getCurrentPageValidationResults(this.state.formElementGroup, filteredFormElements, observationHolder)
+        ];
+        const isCurrentPageComplete = _.every(currentPageValidationResults, validationResult => validationResult.success);
         return (
             <CHSContainer>
                 <CHSContent>
-                    <ScrollView ref={this.scrollRef} style={{flex: 1}} keyboardShouldPersistTaps="handled">
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack(this.state.saveDrafts)}
                                displayHomePressWarning={!this.state.saveDrafts}/>
+                    <ScrollView ref={this.scrollRef} style={{flex: 1}} keyboardShouldPersistTaps="handled">
                     {displayTimer ?
                         <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.state.formElementGroup}/> : null}
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.programEncounter.latestEntityApprovalStatus}/>
@@ -242,7 +279,7 @@ class ProgramEncounterView extends AbstractComponent {
                     <View style={{backgroundColor: '#ffffff', flexDirection: 'column'}}>
                         {_.get(this.state, 'timerState.displayQuestions', true) &&
                             <FormElementGroup
-                            observationHolder={new ObservationsHolder(this.state.programEncounter.observations)}
+                            observationHolder={observationHolder}
                             group={this.state.formElementGroup}
                             actions={Actions}
                             validationResults={this.state.validationResults}
@@ -266,7 +303,8 @@ class ProgramEncounterView extends AbstractComponent {
                             }}
                             next={{
                                 func: () => this.next(),
-                                label: this.I18n.t('next')
+                                label: this.I18n.t('next'),
+                                ready: isCurrentPageComplete
                             }}
                         />
                     </View>}

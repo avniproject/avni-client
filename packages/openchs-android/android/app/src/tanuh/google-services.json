@@ -1,36 +1,26 @@
 {
   "project_info": {
-    "project_number": "554603098537",
-    "project_id": "avni-be4b7",
-    "storage_bucket": "avni-be4b7.appspot.com"
+    "project_number": "392718917375",
+    "project_id": "tanuh-e5469",
+    "storage_bucket": "tanuh-e5469.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:554603098537:android:c3a7fa04a7d97b6ea054b8",
+        "mobilesdk_app_id": "1:392718917375:android:bb18f1a968028ae287f6ca",
         "android_client_info": {
           "package_name": "org.tanuh.openchsclient"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "554603098537-kqsctnbuaetlqlftsj3bo72rd98a7qmv.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAXSx_6DFmB1K_Mf1n8vADP3-kgETbG0cI"
+          "current_key": "AIzaSyA-ShOAFscyP0IuREVOfQbdmNubGIaYZMo"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "554603098537-kqsctnbuaetlqlftsj3bo72rd98a7qmv.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

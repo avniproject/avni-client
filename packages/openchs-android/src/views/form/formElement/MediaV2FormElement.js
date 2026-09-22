@@ -1,4 +1,4 @@
-import {PermissionsAndroid, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
+import {NativeModules, PermissionsAndroid, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
 import React from "react";
 import fs from 'react-native-fs';
 import General from "../../../utility/General";
@@ -17,6 +17,8 @@ import ValidationErrorMessage from "../ValidationErrorMessage";
 import DeviceInfo from "react-native-device-info";
 import DeviceLocation from "../../../utility/DeviceLocation";
 import {getConnectionInfo} from "../../../utility/ConnectionInfo";
+import OrganisationConfigService from "../../../service/OrganisationConfigService";
+import {logEvent, firebaseEvents} from "../../../utility/Analytics";
 
 const styles = StyleSheet.create({
     icon: {
@@ -77,6 +79,20 @@ export default class MediaV2FormElement extends AbstractFormElement {
 
     get isVideo() {
         return this.props.element.concept.datatype === 'VideoV2';
+    }
+
+    // Camera usability enhancement (Phase 3). True only when all of:
+    //  - this is a photo question (the native screen doesn't support video capture — CameraX is
+    //    wired up for ImageCapture only, see CameraCaptureActivity.kt),
+    //  - NativeModules.CameraModule actually exists, i.e. this is a tanuh build (CameraModule/
+    //    CameraPackage live in src/tanuh/ and are simply absent from every other flavour's
+    //    compiled output), and
+    //  - the organisation has opted in via the server-synced OrganisationConfig flag.
+    // Everyone else (all non-tanuh flavours, and tanuh orgs that haven't opted in) falls through
+    // to the existing react-native-image-picker launchCamera() path, completely unchanged.
+    useNativeCameraScreen() {
+        return this.isImage && !!NativeModules.CameraModule
+            && this.getService(OrganisationConfigService).isNativeCameraEnabled();
     }
 
     addMediaFromPicker(response, onUpdateObservations) {
@@ -141,6 +157,15 @@ export default class MediaV2FormElement extends AbstractFormElement {
         DeviceLocation.getPosition(callback, true, null, this.context);
     }, 1000, {leading: true, trailing: false});
 
+    /**
+     * Camera capture funnel telemetry: logs camera_capture with outcome started/completed/
+     * cancelled/error/permission_denied, tagged with the target concept and a per-instance
+     * attempt count, on BOTH the native (TANUH) camera screen and the generic
+     * react-native-image-picker path — previously only a successful native capture logged
+     * anything (camera_photo_quality, unchanged below, still native-only), so cancellations,
+     * errors, permission denials, and the entire generic-picker path were invisible.
+     * this._cameraCaptureAttempt is instance-scoped (resets if this form element remounts).
+     */
     async launchCamera(onUpdateObservations) {
         this.setState(state => ({...state, mode: Mode.Camera}));
         const includeLocationInfoValue = this.includeLocationInfo();
@@ -158,8 +183,53 @@ export default class MediaV2FormElement extends AbstractFormElement {
             includeBase64: includeLocationInfoValue
         };
 
+        const conceptName = _.get(this.props, 'element.concept.name');
+        this._cameraCaptureAttempt = (this._cameraCaptureAttempt || 0) + 1;
+        const attempt = this._cameraCaptureAttempt;
+        const t0 = Date.now();
+        const logCapture = (outcome, extra) => logEvent(firebaseEvents.CAMERA_CAPTURE,
+            {concept_name: conceptName, attempt, outcome, duration_ms: Date.now() - t0, ...extra});
+        logCapture('started');
+
         if (await this.isPermissionGranted(includeLocationInfoValue)) {
-            launchCamera(options, (response) => this.addMediaFromPicker(response, onUpdateObservations));
+            if (this.useNativeCameraScreen()) {
+                try {
+                    // Camera usability enhancement (Phase 2) — CameraModule.launchCamera() now
+                    // resolves {uri, quality} | null instead of a plain file path string. `quality`
+                    // (blur/brightness/contrast/noise scoring from OpenCVUtils.kt/
+                    // ImageQualityAnalyzer.kt) is logged to Firebase Analytics here rather than
+                    // gating anything client-side beyond the soft retake prompt the native screen
+                    // itself already showed (camera master doc, Section 8 decision #1/#2).
+                    const result = await NativeModules.CameraModule.launchCamera();
+                    if (result && result.uri) {
+                        this.addMediaFromPicker({assets: [{uri: `file://${result.uri}`}]}, onUpdateObservations);
+                        if (result.quality) {
+                            logEvent(firebaseEvents.CAMERA_PHOTO_QUALITY, result.quality);
+                        }
+                        logCapture('completed');
+                    } else {
+                        // result is null when the user cancelled inside the native screen (closed
+                        // it, or denied the permission it separately re-checks).
+                        logCapture('cancelled');
+                    }
+                } catch (error) {
+                    General.logError('MediaV2FormElement.launchCamera (native)', error);
+                    logCapture('error', {error_message: error && error.message});
+                }
+            } else {
+                launchCamera(options, (response) => {
+                    if (response.didCancel) {
+                        logCapture('cancelled');
+                    } else if (response.errorCode) {
+                        logCapture('error', {error_code: response.errorCode});
+                    } else {
+                        logCapture('completed');
+                    }
+                    this.addMediaFromPicker(response, onUpdateObservations);
+                });
+            }
+        } else {
+            logCapture('permission_denied');
         }
     }
 

@@ -271,6 +271,15 @@ class MenuView extends AbstractComponent {
             </View>);
     }
 
+    renderDisclaimer() {
+        return (
+            <Text style={styles.disclaimerText}>
+                <Text style={styles.disclaimerBold}>{this.I18n.t('medicalDisclaimerNotice')} </Text>
+                {this.I18n.t('medicalDisclaimerBody')}
+            </Text>
+        );
+    }
+
     renderInfoRow(label, value, isFirst = false) {
         return <View style={[styles.infoRow, !isFirst && styles.infoRowDivider]}>
             <Text style={styles.infoLabel}>{label}</Text>
@@ -370,7 +379,12 @@ class MenuView extends AbstractComponent {
                             marginTop: Distances.ScaledContentDistanceFromEdge,
                             paddingBottom: 100
                         }}
-                        ListHeaderComponent={() => this.renderUserCard()}
+                        ListHeaderComponent={() => (
+                            <View>
+                                {this.renderUserCard()}
+                                {this.renderDisclaimer()}
+                            </View>
+                        )}
                         sections={dataGroup}
                         renderItem={({item}) => item}
                         keyExtractor={(item, index) => index}
@@ -419,6 +433,15 @@ const styles = StyleSheet.create({
             color: Colors.TextHint,
             alignSelf: 'center',
             fontSize: 24
+        },
+        disclaimerText: {
+            color: Colors.BrandPrimaryDark,
+            fontSize: Styles.smallerTextSize,
+            textAlign: 'left',
+            marginBottom: 16,
+        },
+        disclaimerBold: {
+            fontWeight: 'bold',
         },
         infoContainer: {
             padding: 16,

@@ -2,6 +2,7 @@ import {ScrollView, StyleSheet, Text, TextInput, ToastAndroid, View} from "react
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
+import {logTaskDuration} from "../../utility/Analytics";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
 import AppHeader from "../common/AppHeader";
@@ -110,8 +111,21 @@ class SubjectRegisterView extends AbstractComponent {
     }
 
     onAppHeaderBack(saveDraftOn) {
-        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [SubjectRegisterView]);
-        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n);
+        const onYesPress = () => {
+            // Mirrors the completed-registration task_duration in SubjectRegisterViewsMixin.js,
+            // but for the path where the user backs out and confirms discarding the form instead
+            // of finishing it - completes the 'abandoned' outcome logTaskDuration always supported.
+            if (this.state.isNewEntity && this.state.registrationStartTime) {
+                logTaskDuration('registration', _.get(this.state, 'subjectType.name'), Date.now() - this.state.registrationStartTime, 'abandoned');
+            }
+            CHSNavigator.navigateToFirstPage(this, [SubjectRegisterView]);
+        };
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n, undefined, {screen: this.viewName()});
+    }
+
+    onHardwareBackPress() {
+        this.onAppHeaderBack(this.state.saveDrafts);
+        return true;
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -132,6 +146,15 @@ class SubjectRegisterView extends AbstractComponent {
         }
         const profilePicFormElement = new StaticFormElement("profilePicture", false, 'Profile-Pics', []);
         const title = `${this.I18n.t(this.registrationType)} ${this.I18n.t('registration')}`;
+        // Mirrors the same checks state.validateEntity() runs on Next-press (minus the ones needing
+        // reducer context - GPS location and duplicate-name lookup) so the button colour reflects
+        // page completeness without duplicating side-effecting/DB-backed validation here.
+        const registrationValidationResults = [
+            ...this.state.subject.validate(),
+            ...(this.state.subject.isHousehold() && this.state.isNewEntity ? [this.state.household.validateTotalMembers()] : []),
+            ...(this.state.groupAffiliation ? this.state.groupAffiliation.validate(this.state.filteredFormElements) : [])
+        ];
+        const isCurrentPageComplete = _.every(registrationValidationResults, validationResult => validationResult.success);
         return (
             <CHSContainer>
                 <CHSContent>
@@ -203,7 +226,7 @@ class SubjectRegisterView extends AbstractComponent {
                         <WizardButtons
                             containerStyle={{paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}
                             buttonHeight={56}
-                            next={{func: () => SubjectRegisterViewsMixin.next(this), label: this.I18n.t('next')}}/>
+                            next={{func: () => SubjectRegisterViewsMixin.next(this), label: this.I18n.t('next'), ready: isCurrentPageComplete}}/>
                     </View>
                 </CHSContent>
             </CHSContainer>

@@ -22,7 +22,8 @@ class SelectableItemGroup extends React.Component {
         disabled: false,
         skipLabel: false,
         allowUnselect: true,
-        hasMediaContent: false
+        hasMediaContent: false,
+        labelMarginBottom: 0
     };
 
     static propTypes = {
@@ -39,6 +40,9 @@ class SelectableItemGroup extends React.Component {
         multiSelect: PropTypes.bool,
         skipLabel: PropTypes.bool,
         allowUnselect: PropTypes.bool,
+        // Opt-in gap between the label and the options below it - defaults to 0 so every other
+        // existing caller of this shared component is unaffected.
+        labelMarginBottom: PropTypes.number,
         locale: PropTypes.string.isRequired,
         disabled: PropTypes.bool,
         hasMediaContent: PropTypes.bool,
@@ -170,7 +174,7 @@ class SelectableItemGroup extends React.Component {
         return (
             <View>
                 {!skipLabel &&
-                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: this.props.labelMarginBottom}}>
                     <Text style={Styles.formLabel}>{this.props.I18n.t(labelKey)}{mandatoryText}</Text>
                     {showHeaderChip &&
                         <AnyChip label={headerChipLabel} active={!!headerChipActive} onPress={onHeaderChipPress}/>}

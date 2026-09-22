@@ -6,6 +6,7 @@ import fs from 'react-native-fs';
 import _ from "lodash";
 import {DownloadableContent} from 'avni-models';
 import FileSystem from "../model/FileSystem";
+import {firebaseEvents, logEvent} from "../utility/Analytics";
 
 const EDGE_MODEL_CATEGORY = 'edgeModel';
 
@@ -189,18 +190,43 @@ class EdgeModelService extends BaseService {
         return {...result, positive: result.label === labels[1]};
     }
 
-    async _runInferenceOnImageForRow(row, imagePath) {
+    /**
+     * Run inference for a single synced row and log the `model_inference_consolidated` /
+     * `model_inference_individual` analytics event (ported from the pre-model-fetch
+     * EdgeModelService — see firebaseEvents.MODEL_INFERENCE_* in utility/Analytics.js).
+     * `ensembleContentKeys` is set ONLY by runEnsembleInferenceOnImage, to the full list of
+     * fold contentKeys in that ensemble run — never by a caller. When set, this row's own
+     * reading is logged as model_inference_individual (a per-fold diagnostic, carrying
+     * ensemble_models so sibling folds of the same run can be grouped back together) instead
+     * of model_inference_consolidated — the ensemble's own combined verdict is what logs
+     * model_inference_consolidated (see runEnsembleInferenceOnImage), keeping that event at
+     * exactly one row per image scored.
+     */
+    async _runInferenceOnImageForRow(row, imagePath, ensembleContentKeys = null) {
         General.logDebug('EdgeModelSvc', `runInferenceOnImage: sha256=${row.sha256} imagePath=${imagePath}`);
         const t0 = Date.now();
         await this._ensureLoaded(row);
+        const isFold = Array.isArray(ensembleContentKeys);
+        const eventName = isFold ? firebaseEvents.MODEL_INFERENCE_INDIVIDUAL : firebaseEvents.MODEL_INFERENCE_CONSOLIDATED;
+        const ensembleTag = isFold ? {ensemble_models: ensembleContentKeys.join(',')} : {ensemble: false};
         try {
             const result = await NativeModules.EdgeModelModule.runInferenceOnImage(row.sha256, imagePath);
+            const durationMs = Date.now() - t0;
             General.logDebug('EdgeModelSvc',
-                `runInferenceOnImage OK (${Date.now() - t0}ms): label=${result && result.label}`);
+                `runInferenceOnImage OK (${durationMs}ms): label=${result && result.label}`);
+            logEvent(eventName, {
+                model_key: row.contentKey, ...ensembleTag, label: result && result.label,
+                outcome: 'success', duration_ms: durationMs
+            });
             return result;
         } catch (e) {
+            const durationMs = Date.now() - t0;
             General.logError('EdgeModelSvc',
-                `runInferenceOnImage FAIL (${Date.now() - t0}ms) ${row.sha256}: ${e && e.message}`);
+                `runInferenceOnImage FAIL (${durationMs}ms) ${row.sha256}: ${e && e.message}`);
+            logEvent(eventName, {
+                model_key: row.contentKey, ...ensembleTag,
+                outcome: 'error', duration_ms: durationMs
+            });
             throw e;
         }
     }
@@ -212,7 +238,10 @@ class EdgeModelService extends BaseService {
      * The combiner is read from the synced payload override (`output.params.combine`) and defaults
      * to `unanimous-and`, the only shipped value. Returns the combined verdict plus a per-model
      * breakdown; the combined `label` is shaped like a single model's, so callers
-     * (e.g. _scheduleImageInference) and `labelMap` treat it identically.
+     * (e.g. _scheduleImageInference) and `labelMap` treat it identically. Logs exactly one
+     * model_inference_consolidated event for the combined verdict (success or failure); each
+     * fold's own reading is logged separately by _runInferenceOnImageForRow as
+     * model_inference_individual.
      */
     async runEnsembleInferenceOnImage(imagePath) {
         const rows = this._edgeModelRows();
@@ -228,46 +257,63 @@ class EdgeModelService extends BaseService {
         const labels = decoderParams.labels ?? ['Negative', 'Positive'];
 
         const t0 = Date.now();
-        // allSettled, not all: Promise.all reports only the first rejection, so a single named fold
-        // masked the state of every other one — that's what hid a mis-provisioned fold (its row
-        // carried another fold's sha, so the ensemble silently ran 2 distinct models, not 3).
-        // Report every failing fold before throwing.
-        const settled = await Promise.allSettled(rows.map(row => this._runInferenceOnImageForRow(row, imagePath)));
-        const failures = settled
-            .map((s, i) => ({s, sha256: rows[i].sha256}))
-            .filter(({s}) => s.status === 'rejected');
-        if (failures.length > 0) {
-            const detail = failures.map(({s, sha256}) => `${sha256}: ${s.reason && s.reason.message}`).join(' | ');
-            // When every failing fold is merely uncached this is a provisioning gap — syncing then
-            // refilling recovers it. A genuine runtime failure in the mix makes 'sync and retry'
-            // misleading, so it degrades to the plain inference-failed message.
-            const allModelNotCached = failures.every(({s}) => s.reason && s.reason.code === MODEL_NOT_CACHED);
-            throw _.assign(
-                new Error(`EdgeModelService.runEnsembleInferenceOnImage: ${failures.length}/${settled.length} folds failed — ${detail}`),
-                allModelNotCached ? {code: MODEL_NOT_CACHED} : {});
-        }
-        const results = settled.map(s => s.value);
-        // Fail loud on a fold with a non-finite logit rather than letting it silently count as a
-        // negative vote — sigmoid(NaN) > threshold is false, so the native decoder hands back
-        // label="Negative" and the fold would masquerade as a confident negative, the worst outcome
-        // for a screening verdict. Throwing here follows the same contract as a fold that throws
-        // natively: no verdict is written, the target obs stays absent.
-        results.forEach((r, i) => {
-            if (!Number.isFinite(r.logit)) {
-                throw new Error(`EdgeModelService.runEnsembleInferenceOnImage: fold ${rows[i].sha256} returned a non-finite logit (${r.logit}); rows=[${rows.map(row => row.sha256).join(',')}]`);
+        const ensembleContentKeys = rows.map(row => row.contentKey);
+        try {
+            // allSettled, not all: Promise.all reports only the first rejection, so a single named fold
+            // masked the state of every other one — that's what hid a mis-provisioned fold (its row
+            // carried another fold's sha, so the ensemble silently ran 2 distinct models, not 3).
+            // Report every failing fold before throwing.
+            const settled = await Promise.allSettled(rows.map(row => this._runInferenceOnImageForRow(row, imagePath, ensembleContentKeys)));
+            const failures = settled
+                .map((s, i) => ({s, sha256: rows[i].sha256}))
+                .filter(({s}) => s.status === 'rejected');
+            if (failures.length > 0) {
+                const detail = failures.map(({s, sha256}) => `${sha256}: ${s.reason && s.reason.message}`).join(' | ');
+                // When every failing fold is merely uncached this is a provisioning gap — syncing then
+                // refilling recovers it. A genuine runtime failure in the mix makes 'sync and retry'
+                // misleading, so it degrades to the plain inference-failed message.
+                const allModelNotCached = failures.every(({s}) => s.reason && s.reason.code === MODEL_NOT_CACHED);
+                throw _.assign(
+                    new Error(`EdgeModelService.runEnsembleInferenceOnImage: ${failures.length}/${settled.length} folds failed — ${detail}`),
+                    allModelNotCached ? {code: MODEL_NOT_CACHED} : {});
             }
-        });
-        // Each fold binarises against its own threshold natively; the ensemble is positive only if
-        // all folds decoded positive (labels[1]). confidence is the weakest fold's — informational.
-        const positive = results.every(r => r.label === labels[1]);
-        const label = positive ? labels[1] : labels[0];
-        const confidence = Math.min(...results.map(r => r.confidence));
-        General.logDebug('EdgeModelSvc',
-            `runEnsembleInferenceOnImage OK (${Date.now() - t0}ms): combine=${combine} label=${label} positive=${positive} rows=${rows.length}`);
-        return {
-            label, confidence, positive,
-            perModel: results.map((r, i) => ({sha256: rows[i].sha256, logit: r.logit, confidence: r.confidence, label: r.label}))
-        };
+            const results = settled.map(s => s.value);
+            // Fail loud on a fold with a non-finite logit rather than letting it silently count as a
+            // negative vote — sigmoid(NaN) > threshold is false, so the native decoder hands back
+            // label="Negative" and the fold would masquerade as a confident negative, the worst outcome
+            // for a screening verdict. Throwing here follows the same contract as a fold that throws
+            // natively: no verdict is written, the target obs stays absent.
+            results.forEach((r, i) => {
+                if (!Number.isFinite(r.logit)) {
+                    throw new Error(`EdgeModelService.runEnsembleInferenceOnImage: fold ${rows[i].sha256} returned a non-finite logit (${r.logit}); rows=[${rows.map(row => row.sha256).join(',')}]`);
+                }
+            });
+            // Each fold binarises against its own threshold natively; the ensemble is positive only if
+            // all folds decoded positive (labels[1]). confidence is the weakest fold's — informational.
+            const positive = results.every(r => r.label === labels[1]);
+            const label = positive ? labels[1] : labels[0];
+            const confidence = Math.min(...results.map(r => r.confidence));
+            const durationMs = Date.now() - t0;
+            General.logDebug('EdgeModelSvc',
+                `runEnsembleInferenceOnImage OK (${durationMs}ms): combine=${combine} label=${label} positive=${positive} rows=${rows.length}`);
+            logEvent(firebaseEvents.MODEL_INFERENCE_CONSOLIDATED, {
+                model_key: ensembleContentKeys.join(','), ensemble: true, label,
+                outcome: 'success', duration_ms: durationMs
+            });
+            return {
+                label, confidence, positive,
+                perModel: results.map((r, i) => ({sha256: rows[i].sha256, logit: r.logit, confidence: r.confidence, label: r.label}))
+            };
+        } catch (e) {
+            const durationMs = Date.now() - t0;
+            General.logError('EdgeModelSvc',
+                `runEnsembleInferenceOnImage FAIL (${durationMs}ms) rows=[${rows.map(row => row.sha256).join(',')}]: ${e && e.message}`);
+            logEvent(firebaseEvents.MODEL_INFERENCE_CONSOLIDATED, {
+                model_key: ensembleContentKeys.join(','), ensemble: true,
+                outcome: 'error', duration_ms: durationMs
+            });
+            throw e;
+        }
     }
 
     /**

@@ -2,6 +2,7 @@ import {ToastAndroid, ScrollView, StyleSheet, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
+import {logTaskDuration} from "../../utility/Analytics";
 import Path from "../../framework/routing/Path";
 import AddressLevels from "../common/AddressLevels";
 import {Actions} from "../../action/individual/PersonRegisterActions";
@@ -106,8 +107,18 @@ class PersonRegisterView extends AbstractComponent {
     }
 
     onAppHeaderBack(saveDraftOn) {
-        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [PersonRegisterView]);
-        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n);
+        const onYesPress = () => {
+            if (this.state.isNewEntity && this.state.registrationStartTime) {
+                logTaskDuration('registration', _.get(this.state, 'individualSubjectType.name'), Date.now() - this.state.registrationStartTime, 'abandoned');
+            }
+            CHSNavigator.navigateToFirstPage(this, [PersonRegisterView]);
+        };
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n, undefined, {screen: this.viewName()});
+    }
+
+    onHardwareBackPress() {
+        this.onAppHeaderBack(this.state.saveDrafts);
+        return true;
     }
 
     render() {
@@ -115,6 +126,15 @@ class PersonRegisterView extends AbstractComponent {
         const profilePicFormElement = new StaticFormElement("profilePicture", false, 'Profile-Pics', []);
         const title = `${this.I18n.t(this.registrationType)} ${this.I18n.t('registration')}`;
         {this.displayMessage(this.props.params.message)}
+        // Mirrors the same checks state.validateEntity() runs on Next-press (minus the ones needing
+        // reducer context - GPS location and duplicate-name lookup, plus the relative age/gender
+        // checks which mutate state as a side effect) so the button colour reflects page
+        // completeness without duplicating side-effecting/DB-backed validation here.
+        const registrationValidationResults = [
+            ...this.state.individual.validate(),
+            ...(this.state.groupAffiliation ? this.state.groupAffiliation.validate(this.state.filteredFormElements) : [])
+        ];
+        const isCurrentPageComplete = _.every(registrationValidationResults, validationResult => validationResult.success);
         return (
             <CHSContainer>
                 <CHSContent>
@@ -161,7 +181,7 @@ class PersonRegisterView extends AbstractComponent {
                         <WizardButtons
                             containerStyle={{paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}
                             buttonHeight={56}
-                            next={{func: () => PersonRegisterViewsMixin.next(this), label: this.I18n.t('next')}}/>
+                            next={{func: () => PersonRegisterViewsMixin.next(this), label: this.I18n.t('next'), ready: isCurrentPageComplete}}/>
                     </View>
                 </CHSContent>
             </CHSContainer>

@@ -49,12 +49,22 @@
       // `logit`/`raw`/`threshold` are single-model-only — none of these are guaranteed.
       return params.services.edgeModelService.runInferenceOnImage(imagePath)
         .then(result => {
-          console.log(TAG, "inference result:", JSON.stringify({
+          console.log(TAG, "ensemble result:", JSON.stringify({
             label: result.label,
             confidence: result.confidence,
-            positive: result.positive
+            positive: result.positive,
+            perModel: result.perModel
           }));
-          const value = result.label === "Positive" ? "Suspected Oral SCC" : "Normal";
+          // Matches the exact answer-concept strings configured on the Avni server for
+          // "AI Oral Screening" (both directly confirmed against your org's config: "Suspicious"
+          // and "Non-Suspicious" — note the hyphen in the negative case, which differs from the
+          // space used in tools/edge-model/README.md's scheduleImageInferenceIntoGroup example
+          // mapping ({'Positive': 'Suspicious', 'Negative': 'Non Suspicious'}) — that README
+          // example is illustrative only, this server's actual configured string wins). Avni
+          // decision values need to match a configured coded-concept answer exactly (including
+          // punctuation), so this replaces the earlier placeholder strings
+          // ("Suspected Oral SCC"/"Normal") that didn't correspond to any real answer option.
+          const value = result.label === "Positive" ? "Suspicious" : "Non-Suspicious";
           console.log(TAG, "decision:", value);
           decisions.encounterDecisions.push({name: "AI Oral Screening", value});
           return decisions;
