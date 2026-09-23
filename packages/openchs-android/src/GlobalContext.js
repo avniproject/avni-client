@@ -8,9 +8,10 @@ import Perf from "./utility/perf";
 let singleton;
 
 class GlobalContext {
-    // INVARIANT: `this.db` is always the Realm instance and is never reassigned by
-    // switchBackend(). The active database handed to the bean registry is selected
-    // via _activeBackend + sqliteDb.
+    // INVARIANT: `this.db` is the Realm instance and is never reassigned by switchBackend().
+    // The active database handed to the bean registry is selected via _activeBackend +
+    // sqliteDb. It is null only between a close and the reopen that follows it, and only
+    // ever nulled by whatever did the closing — see reinitializeDatabase.
     db;
     sqliteDb;
     beanRegistry;
@@ -232,6 +233,10 @@ class GlobalContext {
         }
         const activeDb = this._activeBackend === BACKENDS.SQLITE ? this.sqliteDb : this.db;
         if (!activeDb) {
+            // There is nothing to bind. The registry keeps whatever it had, which on the
+            // onDatabaseRecreated path is the handle that caller closed — no worse than
+            // binding it again, and no better. What the false buys is a caller that can
+            // report the failure instead of reporting success.
             General.logError("GlobalContext", "Neither database could be reopened — bean registry left as it was");
             return false;
         }

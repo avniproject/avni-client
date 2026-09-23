@@ -200,6 +200,21 @@ class SqliteMigrationService extends BaseService {
         return updated;
     }
 
+    // A migration that cannot even start records why. Without it a device that defers on
+    // every sync looks exactly like one with nothing to migrate, and the deferral is
+    // invisible outside that device's own logs. Written once per distinct reason, so a
+    // device stuck for weeks does not rewrite the record on every sync.
+    async recordBlocked(message) {
+        try {
+            const username = await this._getCurrentUsername();
+            const state = await SqliteMigrationService._readStateForWrite(username);
+            if (state.lastError === message) return;
+            await SqliteMigrationService.persistStateForUser(username, {...state, lastError: message});
+        } catch (e) {
+            General.logWarn("SqliteMigrationService", `Could not record the blocked migration: ${e.message}`);
+        }
+    }
+
     // Opens the backend the state record commits to: at launch, and after a failed SQLite
     // restore. An unfinished leg or restore committed nothing, so the device opens the
     // complete backend it was on and waits for the next sync the user starts. Never wipes,

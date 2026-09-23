@@ -97,10 +97,6 @@ export default class EncryptionService extends BaseService {
 
         for (const entry of databases) {
             entry.db.close();
-            // The handle dies here and the file under it is about to be replaced. Drop the
-            // reference with it: a throw later in this loop leaves the swap half done, and
-            // whatever reads GlobalContext next must not be handed a closed database.
-            if (entry.isSqlite) globalContext.sqliteDb = null; else globalContext.db = null;
             if (entry.isSqlite) {
                 // Stale WAL/SHM from the old file would corrupt the swapped-in copy
                 await this._removeIfExists(`${entry.path}-wal`);
@@ -109,6 +105,14 @@ export default class EncryptionService extends BaseService {
             General.logDebug("EncryptionService", `Moving the ${suffix.substring(1)} copy to the old path`);
             await fs.moveFile(entry.copyPath, entry.path);
         }
+
+        // Both handles are closed and their files replaced. Drop them here rather than as
+        // each one closes: a throw part way through the loop above skips the reinitialise
+        // that would repopulate them, and leaving the closed handles is the state this
+        // method has always failed into — a half-swapped device needs the restart that
+        // removeStaleKeyIfDbsPlaintext heals, not a different shape of broken.
+        globalContext.sqliteDb = null;
+        globalContext.db = null;
     }
 
     async _removeIfExists(path) {

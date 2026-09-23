@@ -903,6 +903,9 @@ class SyncService extends BaseService {
         if (desired === BACKENDS.SQLITE && !(await GlobalContext.getInstance().openSqliteIfMissing())) {
             General.logWarn("SyncService",
                 "Backend migration is due but SQLite will not open; syncing on the current backend");
+            // Deferring here skips the leg, and with it the abandonOpenLeg that used to be
+            // the only report a stuck device made.
+            await migrationService.recordBlocked("SQLite will not open; migration deferred");
             return null;
         }
 

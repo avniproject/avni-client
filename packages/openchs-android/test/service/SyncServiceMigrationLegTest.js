@@ -69,6 +69,7 @@ function buildMigrationService({activeBackend, groupsName}) {
         restartTarget: jest.fn(async () => {}),
         commitLeg: jest.fn(async (leg) => { service.state.activeBackend = leg.target; }),
         abandonOpenLeg: jest.fn(async () => {}),
+        recordBlocked: jest.fn(async () => {}),
         openCommittedBackend: jest.fn(async () => {}),
     };
     // The app runs on the committed backend unless a test says otherwise.
@@ -247,6 +248,8 @@ describe('the switch commits once, after the whole sync (#2120)', () => {
         expect(migrationService.beginLeg).not.toHaveBeenCalled();
         expect(mockGlobalContext.switchBackend).not.toHaveBeenCalled();
         expect(migrationService.state.activeBackend).toBe('realm');
+        // Skipping the leg skips abandonOpenLeg, which was the only report this device made.
+        expect(migrationService.recordBlocked).toHaveBeenCalled();
     });
 
     it('opens no leg when the committed backend is already the one the group names', async () => {
