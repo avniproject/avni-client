@@ -3,6 +3,7 @@ import _ from "lodash";
 import moment from "moment";
 import ChainedRequests from "../../framework/http/ChainedRequests";
 import General from "../../utility/General";
+import SpikeFlags from "../../framework/spike/SpikeFlags";
 import {RuleFailureTelemetry} from 'openchs-models';
 
 class ConventionalRestClient {
@@ -100,7 +101,7 @@ class ConventionalRestClient {
         const processResponse = async (resp, pageNumber, timings) => {
             // persistAll may be async (SQLite bulkCreate path) — await it to ensure
             // the current page is fully persisted before the next page is fetched.
-            await onGetOfAnEntity(entityMetadata, _.get(resp, `_embedded.${entityMetadata.resourceName}`, []), timings);
+            await onGetOfAnEntity(entityMetadata, _.get(resp, `_embedded.${entityMetadata.resourceName}`, []), timings, pageNumber);
 
             const pageElement = resp["page"];
             const contentElement = resp["content"];
@@ -111,7 +112,10 @@ class ConventionalRestClient {
             }
         };
 
-        const endpoint = (page = 0, size = settings.pageSize) => `${resourceEndpoint}?${params(page, size)}`;
+        const endpoint = (page = 0, size = (SpikeFlags.PAGE_SIZE || settings.pageSize)) => `${resourceEndpoint}?${params(page, size)}`;
+        if (SpikeFlags.PIPELINE) {
+            return this._spikePipelinedPages(endpoint, processResponse, onGetOfFirstPage, entityMetadata);
+        }
         return getJSONTimed(endpoint()).then(async ({body: response, timings}) => {
             //first page
             const page = response["page"];
@@ -126,6 +130,24 @@ class ConventionalRestClient {
                     (resp, pageTimings) => processResponse(resp, pageNumber, pageTimings))));
 
             return chainedRequests.fire();
+        });
+    }
+
+    // SPIKE: keep one page in flight ahead of the parse/map/write of the current one. Pages are
+    // still persisted strictly in order; only the network wait overlaps the device work.
+    _spikePipelinedPages(endpoint, processResponse, onGetOfFirstPage, entityMetadata) {
+        const guard = (p) => { if (p) p.catch(_.noop); return p; };
+        return getJSONTimed(endpoint()).then(async ({body: response, timings}) => {
+            const page = response["page"];
+            const totalPages = page.totalPages;
+            let next = guard(totalPages > 1 ? getJSONTimed(endpoint(1)) : null);
+            await processResponse(response, 0, timings);
+            onGetOfFirstPage(entityMetadata.entityName, page, _.get(entityMetadata, 'syncStatus.entityTypeUuid'));
+            for (let p = 1; p < totalPages; p++) {
+                const {body, timings: pageTimings} = await next;
+                next = guard(p + 1 < totalPages ? getJSONTimed(endpoint(p + 1)) : null);
+                await processResponse(body, p, pageTimings);
+            }
         });
     }
 

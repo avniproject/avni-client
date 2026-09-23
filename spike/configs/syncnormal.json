@@ -1,0 +1,1 @@
+{"runId": "syncnormal", "pipeline": false, "fkStub": false, "syncNormal": true, "dropIndexes": false, "multiRow": false, "pageSize": null, "timeoutMs": 300000}

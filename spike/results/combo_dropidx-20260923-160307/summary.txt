@@ -1,0 +1,39 @@
+run: combo_dropidx   events: 274   syncs started: 1
+db_open: {'synchronous': 1, 'journal': 'wal', 'pageSize': 4096, 'cacheSize': -2000, 'sqlite': '3.46.1', 'cipher': '4.6.1 community', 'encrypted': False}
+sync_start: realm manual pageSize 1000
+backend_switch: realm -> sqlite
+sync_end: wall 515.1s {'heapMB': 68, 'gcs': 1041, 'gcTime': 10.914999999999944}
+
+pages: 132   rows: 58408   rows/page mean: 442
+phase totals (s) and ms/row:
+  networkMs      353.6s      6.05 ms/row
+  parseMs          8.1s      0.14 ms/row
+  mapMs          121.3s      2.08 ms/row
+  writeMs         89.8s      1.54 ms/row
+  persistMs      215.7s      3.69 ms/row
+  device (parse+map+write) 219.1s  3.75 ms/row   vs network 6.05 ms/row
+serial sum net+persist: 569.4s   pipelined estimate sum max(net,persist): 392.2s   (31% less)
+requests > 60s: 0   slowest request: 33.1s
+hermes heap MB: max 68  last 68   gcs last 1027  gcTime last 10.77099999999995
+bulk: 132 calls  flatten 67.1s  exec 12.1s  cmds 190
+idx_drop: {'count': 152, 'ms': 193}
+idx_drop: {'count': 0, 'ms': 0}
+idx_recreate: {'count': 152, 'ms': 2226}
+ref_cache: {'ms': 6342}
+ref_cache: {'ms': 5051}
+
+top entities by device time (parse+map+write):
+  entity                       pages    rows   net s parse s   map s write s dev ms/row
+  ProgramEncounter                47   25718   121.4     3.9    43.6    45.5       3.61
+  Individual                      11    9423    76.7     1.3    14.9    17.4       3.58
+  IndividualRelationship           4    3621    32.2     0.4    28.7     3.0       8.85
+  ConceptAnswer                    3    2814    11.9     0.2     6.3     8.6       5.38
+  FormElement                      2    1242    14.2     0.3    13.4     1.0      11.80
+  ProgramEnrolment                13    9122    41.6     1.0     4.3     9.3       1.60
+  GroupPrivileges                  2    1459     5.7     0.2     4.7     1.0       4.05
+  Concept                          3    2529     6.0     0.3     0.3     1.8       0.96
+  FormMapping                      1     172     0.3     0.0     1.2     0.1       7.49
+  LocationMapping                  1     205     7.1     0.0     1.0     0.1       5.00
+  ResetSync                        2     589     1.1     0.0     0.8     0.2       1.59
+  FormElementGroup                 1     217     2.7     0.2     0.5     0.2       3.66
+appended to /Users/himeshr/IdeaProjects/avni-client/spike/results/summary.csv

@@ -187,7 +187,7 @@ android {
         generic {
             applicationId "com.openchsclient"
             resValue "string", "app_name", "Avni"
-            signingConfig signingConfigs.generic
+            signingConfig System.getenv("generic_KEYSTORE_PASSWORD") ? signingConfigs.generic : signingConfigs.debug // SPIKE fallback
             manifestPlaceholders = [
                 bugsnagAPIKey: System.getenv("OPENCHS_CLIENT_BUGSNAG_API_KEY") ?: "dummy",
                 appLinkHost  : System.getenv("APP_LINK_HOST") ?: "app.avniproject.org"

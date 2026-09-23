@@ -36,6 +36,7 @@ import SubjectTypeService from "./SubjectTypeService";
 import MetricsService from "./MetricsService";
 import {post} from "../framework/http/requests";
 import General from "../utility/General";
+import SpikeFlags, {spikeLog, heapStats, SpikeState} from "../framework/spike/SpikeFlags";
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 import {BACKENDS} from "../framework/BackendTypes";
 import SubjectMigrationService from "./SubjectMigrationService";
@@ -138,7 +139,11 @@ class SyncService extends BaseService {
         const updatedSyncSource = this.getUpdatedSyncSource(syncSource);
         const appInfo = await this.metricsService.getAppInfo();
         this.dispatchAction(SyncTelemetryActions.START_SYNC, {connectionInfo, syncSource: updatedSyncSource, appInfo});
-        const syncCompleted = () => Promise.resolve(this.dispatchAction(SyncTelemetryActions.SYNC_COMPLETED))
+        const spikeStart = Date.now();
+        spikeLog("sync_start", {backend: this.db.isSqlite ? "sqlite" : "realm", syncSource: updatedSyncSource,
+            pageSize: SpikeFlags.PAGE_SIZE || _.get(this.getService(SettingsService).getSettings(), "pageSize"), flags: SpikeFlags});
+        const syncCompleted = () => Promise.resolve(spikeLog("sync_end", {backend: this.db.isSqlite ? "sqlite" : "realm", wallMs: Date.now() - spikeStart, ...heapStats()}))
+            .then(() => this.dispatchAction(SyncTelemetryActions.SYNC_COMPLETED))
             .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity))
             .then(() => Promise.resolve(progressBarStatus.onSyncComplete()))
             .then(() => Promise.resolve(this.logSyncCompleteEvent(syncStartTime)))
@@ -160,7 +165,11 @@ class SyncService extends BaseService {
         } else {
             promise = Promise.resolve();
         }
-        return promise.then(() => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isManualSync, userConfirmation, isOnlyUploadRequired)).then(syncCompleted);
+        return promise.then(() => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isManualSync, userConfirmation, isOnlyUploadRequired)).then(syncCompleted)
+            .catch((error) => {
+                spikeLog("sync_error", {message: _.get(error, "message", String(error)), wallMs: Date.now() - spikeStart});
+                throw error;
+            });
     }
 
     /*
@@ -290,6 +299,7 @@ class SyncService extends BaseService {
         let migrationLeg = null;
         let syncSucceeded = false;
         this._disableForeignKeysIfSqlite();
+        this._spikeDropIndexesIfSqlite();
         this._enableShallowHydrationIfSqlite();
         return Promise.resolve(statusMessageCallBack("downloadForms"))
             .then(() => this.getTxData(userInfoData, onProgressPerEntity, syncDetails, endDateTime))
@@ -324,6 +334,7 @@ class SyncService extends BaseService {
                 // with FK ON and shallow hydration off — re-apply sync modes for the
                 // tx-data downloads still ahead.
                 this._disableForeignKeysIfSqlite();
+                this._spikeDropIndexesIfSqlite();
                 this._enableShallowHydrationIfSqlite();
             })
             .then(() => this._buildReferenceCacheIfSqlite())
@@ -360,6 +371,7 @@ class SyncService extends BaseService {
             })
             .finally(() => {
                 this._disableShallowHydrationIfSqlite();
+                this._spikeRecreateIndexesIfSqlite();
                 this._enableForeignKeysIfSqlite();
                 if (syncSucceeded) this._checkForeignKeyIntegrityIfSqlite();
             })
@@ -585,7 +597,7 @@ class SyncService extends BaseService {
         });
     }
 
-    async persistAll(entityMetaData, entityResources, timings) {
+    async persistAll(entityMetaData, entityResources, timings, spikePage) {
         const persistStart = performance.now();
         // Every entity costs a round trip even when it has nothing to pull, so an empty page is
         // still reported - otherwise that time is missing from the telemetry entirely.
@@ -601,7 +613,15 @@ class SyncService extends BaseService {
         entityResources = _.sortBy(entityResources, 'lastModifiedDateTime');
         const loadedSince = _.last(entityResources).lastModifiedDateTime;
 
-        const entities = entityResources.reduce(transformResourceToEntity.call(this, entityMetaData, entityResources), []);
+        const spikeMapStart = performance.now();
+        SpikeState.currentEntity = entityMetaData.entityName;
+        let entities;
+        try {
+            entities = entityResources.reduce(transformResourceToEntity.call(this, entityMetaData, entityResources), []);
+        } finally {
+            SpikeState.currentEntity = null;
+        }
+        const spikeMapMs = General.elapsedMs(spikeMapStart);
         const initialLength = entityResources.length;
         entityResources = _.filter(entityResources, (resource) => !resource.excludeFromPersist);
         General.logDebug("SyncService", `Before filter entityResources length: ${initialLength}, after filter entityResources length: ${entityResources.length}, entities length  ${entities.length}`);
@@ -621,11 +641,25 @@ class SyncService extends BaseService {
         General.logDebug("SyncService", `Syncing - ${entityMetaData.entityName} with subType: ${entityMetaData.syncStatus.entityTypeUuid}`);
 
         // Use batch path for SQLite — one native call for all entities via executeBatch
+        const spikeWriteStart = performance.now();
         if (this.db.isSqlite && typeof this.db.bulkCreate === 'function') {
             await this._persistAllBatch(entityMetaData, entityResources, entities, loadedSince);
         } else {
             this._persistAllSync(entityMetaData, entityResources, entities, loadedSince);
         }
+        const spikeWriteMs = General.elapsedMs(spikeWriteStart);
+        spikeLog("page", {
+            entity: entityMetaData.entityName,
+            type: _.get(entityMetaData, 'syncStatus.entityTypeUuid') || undefined,
+            page: spikePage,
+            rows: entities.length,
+            networkMs: _.get(timings, 'networkMs'),
+            parseMs: _.get(timings, 'parseMs'),
+            mapMs: spikeMapMs,
+            writeMs: spikeWriteMs,
+            persistMs: General.elapsedMs(persistStart),
+            ...heapStats()
+        });
 
         // Taken after the batch path's await, so persistMs covers the write on either backend.
         this.dispatchAction(SyncTelemetryActions.ENTITY_PULL_COMPLETED, {
@@ -815,6 +849,7 @@ class SyncService extends BaseService {
         const currentVersionDetails = this.retainEntitiesPresentInCurrentVersion(syncDetails, allEntitiesMetaData);
         this.entitySyncStatusService.updateAsPerSyncDetails(currentVersionDetails);
         this._disableForeignKeysIfSqlite();
+        this._spikeDropIndexesIfSqlite();
         this._enableShallowHydrationIfSqlite();
         await this._pullResetSyncsAndMarkMigratedBeforeRefData(allEntitiesMetaData, onProgressPerEntity, leg);
         await this.getTxData(userInfoData, onProgressPerEntity, syncDetails, endDateTime);
@@ -898,6 +933,7 @@ class SyncService extends BaseService {
 
         General.logInfo("SyncService",
             `Mid-sync migration: switching ${state.activeBackend} → ${desired} before transactional data sync`);
+        spikeLog("backend_switch", {from: state.activeBackend, to: desired});
         statusMessageCallBack('switchingBackendMessage');
 
         // Auth lives only in the source's Settings; read it before the runtime moves.
@@ -906,6 +942,7 @@ class SyncService extends BaseService {
         // The sync modes were applied to the backend this sync started on; reset them there
         // before leaving it. The target gets them in _switchBackendAndResyncRefDataIfNeeded.
         this._disableShallowHydrationIfSqlite();
+        this._spikeRecreateIndexesIfSqlite();
         this._enableForeignKeysIfSqlite();
         GlobalContext.getInstance().switchBackend(desired);
         leg.reentry = await migrationService.prepareTarget(leg);
@@ -933,6 +970,19 @@ class SyncService extends BaseService {
         } catch (e) {
             General.logError("SyncService", `Reopening the committed backend failed: ${e.message}`);
         }
+    }
+
+    // SPIKE: secondary indexes off for the bulk load, back on before the FK check.
+    _spikeDropIndexesIfSqlite() {
+        if (!SpikeFlags.DROP_INDEXES || !this.db.isSqlite || typeof this.db.spikeDropSecondaryIndexes !== "function") return;
+        this._spikeIndexSql = (this._spikeIndexSql || []).concat(this.db.spikeDropSecondaryIndexes());
+    }
+
+    _spikeRecreateIndexesIfSqlite() {
+        if (!SpikeFlags.DROP_INDEXES || !this.db.isSqlite || _.isEmpty(this._spikeIndexSql)) return;
+        const sqls = this._spikeIndexSql;
+        this._spikeIndexSql = [];
+        this.db.spikeRecreateIndexes(sqls);
     }
 
     _disableForeignKeysIfSqlite() {
@@ -1002,6 +1052,7 @@ class SyncService extends BaseService {
         const start = Date.now();
         if (this.context.getRepositoryFactory().buildReferenceCache(cacheConfigs)) {
             General.logDebug("Sync", `SQLite reference cache built in ${Date.now() - start} ms`);
+            spikeLog("ref_cache", {ms: Date.now() - start});
         }
     }
 

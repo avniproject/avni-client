@@ -1,0 +1,262 @@
+🔗 Including React Native native modules from autolinking.json...
+  ✓ Included: :bam.tech_react-native-image-resizer -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/@bam.tech/react-native-image-resizer/android
+  ✓ Included: :bugsnag_react-native -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/@bugsnag/react-native/android
+  ✓ Included: :op-engineering_op-sqlite -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/@op-engineering/op-sqlite/android
+  ✓ Included: :react-native-async-storage_async-storage -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/@react-native-async-storage/async-storage/android
+  ✓ Included: :react-native-clipboard_clipboard -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/@react-native-clipboard/clipboard/android
+  ✓ Included: :react-native-community_datetimepicker -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/@react-native-community/datetimepicker/android
+  ✓ Included: :react-native-community_netinfo -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/@react-native-community/netinfo/android
+  ✓ Included: :react-native-community_progress-bar-android -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/@react-native-community/progress-bar-android/android
+  ✓ Included: :react-native-cookies_cookies -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/@react-native-cookies/cookies/android
+  ✓ Included: :react-native-documents_picker -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/@react-native-documents/picker/android
+  ✓ Included: :react-native-firebase_analytics -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/@react-native-firebase/analytics/android
+  ✓ Included: :react-native-firebase_app -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/@react-native-firebase/app/android
+  ✓ Included: :amazon-cognito-identity-js -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/amazon-cognito-identity-js/android
+  ✓ Included: :jail-monkey -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/jail-monkey/android
+  ✓ Included: :react-native-audio-recorder-player -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/react-native-audio-recorder-player/android
+  ✓ Included: :react-native-background-timer -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/react-native-background-timer/android
+  ✓ Included: :react-native-background-worker -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/react-native-background-worker/android
+  ✓ Included: :react-native-blob-util -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/react-native-blob-util/android
+  ✓ Included: :react-native-charts-wrapper -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/react-native-charts-wrapper/android
+  ✓ Included: :react-native-device-info -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/react-native-device-info/android
+  ✓ Included: :react-native-exception-handler -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/react-native-exception-handler/android
+  ✓ Included: :react-native-file-viewer -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/react-native-file-viewer/android
+  ✓ Included: :react-native-fs -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/react-native-fs/android
+  ✓ Included: :react-native-geolocation-service -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/react-native-geolocation-service/android
+  ✓ Included: :react-native-get-random-values -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/react-native-get-random-values/android
+  ✓ Included: :react-native-html-to-pdf -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/react-native-html-to-pdf/android
+  ✓ Included: :react-native-i18n -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/react-native-i18n/android
+  ✓ Included: :react-native-image-picker -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/react-native-image-picker/android
+  ✓ Included: :react-native-immediate-phone-call -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/react-native-immediate-phone-call/android
+  ✓ Included: :react-native-keep-awake -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/react-native-keep-awake/android
+  ✓ Included: :react-native-keychain -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/react-native-keychain/android
+  ✓ Included: :react-native-randombytes -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/react-native-randombytes/android
+  ✓ Included: :react-native-restart -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/react-native-restart/android
+  ✓ Included: :react-native-safe-area-context -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/react-native-safe-area-context/android
+  ✓ Included: :react-native-share -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/react-native-share/android
+  ✓ Included: :react-native-svg -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/react-native-svg/android
+  ✓ Included: :react-native-vector-icons -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/react-native-vector-icons/android
+  ✓ Included: :react-native-video -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/react-native-video/android
+  ✓ Included: :react-native-vision-camera -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/react-native-vision-camera/android
+  ✓ Included: :react-native-webview -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/react-native-webview/android
+  ✓ Included: :react-native-zip-archive -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/react-native-zip-archive/android
+  ✓ Included: :realm -> /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/../node_modules/realm/binding/android
+✅ React Native module inclusion complete
+[OP-SQLITE] using SQLCipher 🔒
+:react-native-firebase_analytics package.json found at /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/node_modules/@react-native-firebase/analytics/package.json
+:react-native-firebase_app package.json found at /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/node_modules/@react-native-firebase/app/package.json
+:react-native-firebase_analytics:firebase.bom using default value: 33.1.2
+:react-native-firebase_analytics package.json found at /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/node_modules/@react-native-firebase/analytics/package.json
+:react-native-firebase_analytics:version set from package.json: 20.4.0 (20,4,0 - 20004000)
+:react-native-firebase_analytics:android.compileSdk using custom value: 36
+:react-native-firebase_analytics:android.targetSdk using custom value: 36
+:react-native-firebase_analytics:android.minSdk using custom value: 24
+:react-native-firebase_analytics:reactNativeAndroidDir /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/node_modules/react-native/android
+:react-native-firebase_app package.json found at /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/node_modules/@react-native-firebase/app/package.json
+:react-native-firebase_app:firebase.bom using default value: 33.1.2
+:react-native-firebase_app:play.play-services-auth using default value: 21.2.0
+:react-native-firebase_app package.json found at /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/node_modules/@react-native-firebase/app/package.json
+:react-native-firebase_app:version set from package.json: 20.4.0 (20,4,0 - 20004000)
+:react-native-firebase_app:android.compileSdk using custom value: 36
+:react-native-firebase_app:android.targetSdk using custom value: 36
+:react-native-firebase_app:android.minSdk using custom value: 24
+:react-native-firebase_app:reactNativeAndroidDir /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/node_modules/react-native/android
+Kotlin version is correct: 2.0.21
+AndroidX version is correct: 1.9.3
+useExoplayerIMA: false
+useExoplayerSmoothStreaming: true
+useExoplayerDash: true
+useExoplayerHls: true
+useExoplayerRtsp: false
+buildFromSource: false
+ WARN  the transform cache was reset.
+                Welcome to Metro v0.81.5
+              Fast - Scalable - Integrated
+
+
+Writing bundle output to: /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle
+Writing sourcemap output to: /Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/intermediates/sourcemaps/react/genericRelease/index.android.bundle.packager.map
+Done writing bundle output
+Done writing sourcemap output
+Copying 8 asset files
+Done copying assets
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:1243:23: warning: the variable "DebuggerInternal" was not declared in function "__shouldPauseOnThrow"
+        return typeof DebuggerInternal !== 'undefined' && DebuggerInternal.sh...
+                      ^~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:5626:7: warning: the variable "setTimeout" was not declared in function "logCapturedError"
+      setTimeout(function () {
+      ^~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:3860:31: warning: the variable "nativeFabricUIManager" was not declared in anonymous function " 141#"
+  var _nativeFabricUIManage = nativeFabricUIManager,
+                              ^~~~~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:3888:21: warning: the variable "clearTimeout" was not declared in anonymous function " 141#"
+    cancelTimeout = clearTimeout;
+                    ^~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:3901:51: warning: the variable "RN$enableMicrotasksInReact" was not declared in anonymous function " 141#"
+... "undefined" !== typeof RN$enableMicrotasksInReact && !!RN$enableMicrotask...
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:3902:47: warning: the variable "queueMicrotask" was not declared in anonymous function " 141#"
+...otask = "function" === typeof queueMicrotask ? queueMicrotask : scheduleTi...
+                                 ^~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:8323:30: warning: the variable "__REACT_DEVTOOLS_GLOBAL_HOOK__" was not declared in anonymous function " 141#"
+  if ("undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__) {
+                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:10265:5: warning: the variable "setImmediate" was not declared in function "handleResolved"
+    setImmediate(function () {
+    ^~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:14015:12: warning: the variable "fetch" was not declared in anonymous function " 393#"
+    fetch: fetch,
+           ^~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:14016:14: warning: the variable "Headers" was not declared in anonymous function " 393#"
+    Headers: Headers,
+             ^~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:14017:14: warning: the variable "Request" was not declared in anonymous function " 393#"
+    Request: Request,
+             ^~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:14018:15: warning: the variable "Response" was not declared in anonymous function " 393#"
+    Response: Response
+              ^~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:14175:24: warning: the variable "FileReader" was not declared in function "readBlobAsArrayBuffer"
+      var reader = new FileReader();
+                       ^~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:14226:36: warning: the variable "Blob" was not declared in anonymous function " 404#"
+        } else if (support.blob && Blob.prototype.isPrototypeOf(body)) {
+                                   ^~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:14228:40: warning: the variable "FormData" was not declared in anonymous function " 404#"
+        } else if (support.formData && FormData.prototype.isPrototypeOf(body)) {
+                                       ^~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:14230:44: warning: the variable "URLSearchParams" was not declared in anonymous function " 404#"
+...e if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body...
+                                 ^~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:14349:26: warning: the variable "AbortController" was not declared in anonymous function " 410#"
+          var ctrl = new AbortController();
+                         ^~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:14483:23: warning: the variable "XMLHttpRequest" was not declared in anonymous function " 414#"
+        var xhr = new XMLHttpRequest();
+                      ^~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:14028:71: warning: the variable "self" was not declared in anonymous function " 396#"
+...undefined' && globalThis || typeof self !== 'undefined' && self ||
+                                      ^~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:22033:26: warning: the variable "navigator" was not declared in anonymous function " 703#"
+  "undefined" !== typeof navigator && undefined !== navigator.scheduling && u...
+                         ^~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:22143:37: warning: the variable "MessageChannel" was not declared in anonymous function " 703#"
+  };else if ("undefined" !== typeof MessageChannel) {
+                                    ^~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:22158:34: warning: the variable "nativeRuntimeScheduler" was not declared in anonymous function " 703#"
+... = "undefined" !== typeof nativeRuntimeScheduler ? nativeRuntimeScheduler....
+                             ^~~~~~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:75544:32: warning: the variable "crypto" was not declared in function "rng"
+      getRandomValues = typeof crypto !== 'undefined' && crypto.getRandomValu...
+                               ^~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:87473:50: warning: the variable "form" was not declared in function "associateChild 11#"
+          _BaseEntity.default.addNewChild(child, form.formElementGroups);
+                                                 ^~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:89388:26: warning: the variable "ConfigFile" was not declared in anonymous function " 2604#"
+            newDB.create(ConfigFile.schema.name, ConfigFile.create(decisionCo...
+                         ^~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:114170:21: warning: the variable "expo" was not declared in function "isExpoGo"
+      return typeof expo === "object" && ((_expo$modules = expo.modules) == n...
+                    ^~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:118316:147: warning: the variable "babelHelpers" was not declared in function "from 4#"
+...like Object. Received type " + babelHelpers["typeof"](value));
+                                  ^~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:118321:20: warning: the variable "SharedArrayBuffer" was not declared in function "from 4#"
+        if (typeof SharedArrayBuffer !== 'undefined' && (isInstance(value, Sh...
+                   ^~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:120510:18: warning: the variable "WebAssembly" was not declared in anonymous function " 3556#"
+      wasm = new WebAssembly.Instance(new WebAssembly.Module(
+                 ^~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:164026:16: warning: Direct call to eval(), but lexical scope is not supported.
+        return eval(globalRuleDependency.code);
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:164127:30: warning: Direct call to eval(), but lexical scope is not supported.
+              var ruleFunc = eval(form.decisionRule);
+                             ^~~~~~~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:164230:28: warning: Direct call to eval(), but lexical scope is not supported.
+            var ruleFunc = eval(worklistUpdationRule);
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:164285:26: warning: Direct call to eval(), but lexical scope is not supported.
+          var ruleFunc = eval(form.shareRule);
+                         ^~~~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:164305:26: warning: Direct call to eval(), but lexical scope is not supported.
+          var ruleFunc = eval(shareRuleString);
+                         ^~~~~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:164335:28: warning: Direct call to eval(), but lexical scope is not supported.
+            var ruleFunc = eval(form.editFormRule);
+                           ^~~~~~~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:164447:28: warning: Direct call to eval(), but lexical scope is not supported.
+            var ruleFunc = eval(subjectType.subjectSummaryRule);
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:164488:26: warning: Direct call to eval(), but lexical scope is not supported.
+          var ruleFunc = eval(subjectType.memberAdditionEligibilityCheckRule);
+                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:164512:28: warning: Direct call to eval(), but lexical scope is not supported.
+            var ruleFunc = eval(subjectType.programEligibilityCheckRule);
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:164560:26: warning: Direct call to eval(), but lexical scope is not supported.
+          var ruleFunc = eval(program.enrolmentSummaryRule);
+                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:164621:26: warning: Direct call to eval(), but lexical scope is not supported.
+          var ruleFunc = eval(form.validationRule);
+                         ^~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:164664:28: warning: Direct call to eval(), but lexical scope is not supported.
+            var ruleFunc = eval(form.validationRule);
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:164708:28: warning: Direct call to eval(), but lexical scope is not supported.
+            var ruleFunc = eval(form.visitScheduleRule);
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:164866:28: warning: Direct call to eval(), but lexical scope is not supported.
+            var ruleFunc = eval(form.checklistsRule);
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:164912:26: warning: Direct call to eval(), but lexical scope is not supported.
+          var ruleFunc = eval(formElementGroup.rule);
+                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:165043:26: warning: Direct call to eval(), but lexical scope is not supported.
+          var ruleFunc = eval(formElement.rule);
+                         ^~~~~~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:165116:28: warning: Direct call to eval(), but lexical scope is not supported.
+            var ruleFunc = eval(encounterType.encounterEligibilityCheckRule);
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:165143:28: warning: Direct call to eval(), but lexical scope is not supported.
+            var ruleFunc = eval(program.enrolmentEligibilityCheckRule);
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:165169:28: warning: Direct call to eval(), but lexical scope is not supported.
+            var ruleFunc = eval(program.manualEnrolmentEligibilityCheckRule);
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:165191:26: warning: Direct call to eval(), but lexical scope is not supported.
+          var ruleFunc = eval(customCardConfig.dataRule);
+                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:165214:26: warning: Direct call to eval(), but lexical scope is not supported.
+          var ruleFunc = eval(reportCard.query);
+                         ^~~~~~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:165351:26: warning: Direct call to eval(), but lexical scope is not supported.
+          var ruleFunc = eval(linkFunction);
+                         ^~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:167064:23: warning: Direct call to eval(), but lexical scope is not supported.
+        rulesConfig = eval(this.trimRuleDependencyCode(ruleDependency));
+                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:215284:19: warning: the variable "ruleServiceLibraryInterfaceForSharingModules" was not declared in function "get ruleServiceLibraryInterfaceForSharingModules"
+              if (ruleServiceLibraryInterfaceForSharingModules) return ruleSe...
+                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:232579:10: warning: the variable "_" was not declared in function "summaryForObservation"
+    if (!_.isNil(observationValue)) {
+         ^
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:240148:19: warning: the variable "TextEncoder" was not declared in function "fromUtf8"
+    return typeof TextEncoder === "function" ? (0, _$$_REQUIRE(_dependencyMap...
+                  ^~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:240152:19: warning: the variable "TextDecoder" was not declared in function "toUtf8"
+    return typeof TextDecoder === "function" ? (0, _$$_REQUIRE(_dependencyMap...
+                  ^~~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:379114:31: warning: the variable "Node" was not declared in anonymous function " 11069#"
+        if (node.nodeType === Node.ELEMENT_NODE) {
+                              ^~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:379121:20: warning: the variable "NodeFilter" was not declared in anonymous function " 11069#"
+            return NodeFilter.FILTER_ACCEPT;
+                   ^~~~~~~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:382197:37: warning: the variable "MSApp" was not declared in anonymous function " 11294#"
+      return "undefined" !== typeof MSApp && MSApp.execUnsafeLocalFunction ? ...
+                                    ^~~~~
+/Users/himeshr/IdeaProjects/avni-client/packages/openchs-android/android/app/build/generated/assets/createBundleGenericReleaseJsAndAssets/index.android.bundle:388495:34: warning: the variable "reportError" was not declared in anonymous function " 11261#"
+  var kl = "function" === typeof reportError ? reportError : function (a) {
+                                 ^~~~~~~~~~~

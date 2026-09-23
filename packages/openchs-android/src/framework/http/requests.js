@@ -5,6 +5,7 @@ import ServerError from "../../service/ServerError";
 import GlobalContext from "../../GlobalContext";
 import {IDP_PROVIDERS} from "../../model/IdpProviders";
 import CookieManager from "@react-native-cookies/cookies";
+import SpikeFlags from "../spike/SpikeFlags";
 
 const ACCEPTABLE_RESPONSE_STATUSES = [200, 201];
 
@@ -54,7 +55,7 @@ const getXSRFPromise = function (endpoint) {
     });
 }
 
-const fetchWithTimeOut = (url, options, timeout = 60000) => {
+const fetchWithTimeOut = (url, options, timeout = SpikeFlags.TIMEOUT_MS) => {
     return Promise.race([
         fetch(url, options),
         new Promise((_, reject) =>

@@ -16,6 +16,7 @@ import EntityHydrator from "./EntityHydrator";
 import {schemaNameToTableName, camelToSnake, encryptionKeyToHex} from "./SqliteUtils";
 import {EMBEDDED_SCHEMA_NAMES} from "./SchemaGenerator";
 import General from "../../utility/General";
+import SpikeFlags, {spikeLog} from "../spike/SpikeFlags";
 
 class SqliteProxy {
     /**
@@ -685,7 +686,8 @@ class SqliteProxy {
         // written so absent properties never clobber existing values.
         const templateCache = new Map();
 
-        const commands = entities.map(entity => {
+        const spikeFlattenStart = Date.now();
+        const rows = entities.map(entity => {
             const rawObject = (entity && entity.that) ? entity.that : entity;
             const flatRow = this.hydrator.flatten(schemaName, {that: rawObject});
             const columns = this._presentColumns(tableMeta, flatRow);
@@ -695,12 +697,17 @@ class SqliteProxy {
                 template = this._buildUpsertTemplate(schemaName, columns);
                 templateCache.set(signature, template);
             }
-            return [template.sql, template.columnNames.map(col => flatRow[col])];
+            return {template, signature, values: template.columnNames.map(col => flatRow[col])};
         });
+        const spikeFlattenMs = Date.now() - spikeFlattenStart;
+        const commands = SpikeFlags.MULTIROW
+            ? this._spikeMultiRowCommands(tableMeta, rows)
+            : rows.map(r => [r.template.sql, r.values]);
 
         const start = Date.now();
         await this.db.executeBatch(commands);
         const elapsed = Date.now() - start;
+        spikeLog("bulk", {schema: schemaName, rows: entities.length, cmds: commands.length, flattenMs: spikeFlattenMs, execMs: elapsed});
 
         if (elapsed > this.slowQueryThreshold) {
             General.logWarn("SqliteProxy", `bulkCreate ${schemaName}: ${entities.length} entities in ${elapsed}ms (${Math.round(elapsed / entities.length * 10) / 10}ms/entity)`);
@@ -731,6 +738,53 @@ class SqliteProxy {
                     chunk);
             });
         });
+    }
+
+    // SPIKE: multi-row VALUES chunks, one statement per <= chunk rows, last row wins on duplicate pk.
+    _spikeMultiRowCommands(tableMeta, rows) {
+        const MAX_VARS = 30000;
+        const pk = tableMeta.primaryKey || "uuid";
+        const groups = new Map();
+        rows.forEach(r => {
+            let g = groups.get(r.signature);
+            if (!g) { g = {template: r.template, byKey: new Map(), list: []}; groups.set(r.signature, g); }
+            const pkIdx = r.template.columnNames.indexOf(pk);
+            if (pkIdx >= 0) g.byKey.set(r.values[pkIdx], r.values); else g.list.push(r.values);
+        });
+        const commands = [];
+        groups.forEach(({template, byKey, list}) => {
+            const cols = template.columnNames;
+            const colList = cols.map(c => `"${c}"`).join(", ");
+            const rowPh = `(${cols.map(() => "?").join(", ")})`;
+            const updateCols = cols.filter(c => c !== pk).map(c => `"${c}" = excluded."${c}"`).join(", ");
+            const chunkSize = Math.max(1, Math.min(500, Math.floor(MAX_VARS / cols.length)));
+            const values = Array.from(byKey.values()).concat(list);
+            _.chunk(values, chunkSize).forEach(chunk => {
+                const valuesSql = chunk.map(() => rowPh).join(", ");
+                const sql = updateCols.length === 0
+                    ? `INSERT OR IGNORE INTO ${tableMeta.tableName} (${colList}) VALUES ${valuesSql}`
+                    : `INSERT INTO ${tableMeta.tableName} (${colList}) VALUES ${valuesSql} ON CONFLICT("${pk}") DO UPDATE SET ${updateCols}`;
+                commands.push([sql, _.flatten(chunk)]);
+            });
+        });
+        return commands;
+    }
+
+    // SPIKE: drop every non-unique secondary index, return the SQL needed to recreate them.
+    spikeDropSecondaryIndexes() {
+        const rows = this._executeQuery(
+            `SELECT name, sql FROM sqlite_master WHERE type = 'index' AND sql IS NOT NULL AND sql NOT LIKE 'CREATE UNIQUE%'`);
+        const start = Date.now();
+        rows.forEach(r => this._executeRaw(`DROP INDEX IF EXISTS "${r.name}"`));
+        spikeLog("idx_drop", {count: rows.length, ms: Date.now() - start});
+        return rows.map(r => r.sql);
+    }
+
+    spikeRecreateIndexes(sqls) {
+        if (_.isEmpty(sqls)) return;
+        const start = Date.now();
+        this.write(() => sqls.forEach(sql => this._executeRaw(sql)));
+        spikeLog("idx_recreate", {count: sqls.length, ms: Date.now() - start});
     }
 
     // ──── Reference data cache ────

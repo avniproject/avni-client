@@ -1,6 +1,7 @@
 // @flow
 import _ from "lodash";
 import General from "../utility/General";
+import SpikeFlags, {spikeShouldStub} from "../framework/spike/SpikeFlags";
 import deferPastInteractions from "../utility/deferPastInteractions";
 import RealmQueryService from "./query/RealmQueryService";
 import UpdateMode from "../repository/UpdateMode";
@@ -85,6 +86,10 @@ class BaseService {
     }
 
     findByKey(keyName, value, schemaName = this.getSchema()) {
+        // SPIKE: the JSON already carries the parent uuid; skip the SELECT + hydration.
+        if (SpikeFlags.FK_STUB && keyName === "uuid" && !_.isNil(value) && spikeShouldStub(schemaName)) {
+            return {uuid: value};
+        }
         // For uuid lookups, check the in-memory reference data cache first.
         // During sync, fromResource calls findByKey("uuid", conceptUuid, "Concept")
         // ~15K times per 1000-entity page. Without this, each call executes a

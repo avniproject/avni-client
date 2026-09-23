@@ -1,0 +1,1 @@
+{"runId": "dropidx", "pipeline": false, "fkStub": false, "syncNormal": false, "dropIndexes": true, "multiRow": false, "pageSize": null, "timeoutMs": 300000}
