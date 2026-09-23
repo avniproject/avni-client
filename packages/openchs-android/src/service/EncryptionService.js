@@ -97,6 +97,10 @@ export default class EncryptionService extends BaseService {
 
         for (const entry of databases) {
             entry.db.close();
+            // The handle dies here and the file under it is about to be replaced. Drop the
+            // reference with it: a throw later in this loop leaves the swap half done, and
+            // whatever reads GlobalContext next must not be handed a closed database.
+            if (entry.isSqlite) globalContext.sqliteDb = null; else globalContext.db = null;
             if (entry.isSqlite) {
                 // Stale WAL/SHM from the old file would corrupt the swapped-in copy
                 await this._removeIfExists(`${entry.path}-wal`);

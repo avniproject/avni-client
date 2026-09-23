@@ -135,6 +135,21 @@ describe('SQLite fast-sync restore commits the backend last (#2120)', () => {
         expect(cb).toHaveBeenLastCalledWith(100, 'restoreFailed', true, diskFull);
     });
 
+    // Reporting this one complete would commit SQLite as active while the runtime sits on
+    // Realm, and the user's next sync is blocked with nothing having told them why.
+    it('fails the restore when the snapshot is in place but SQLite will not open on it', async () => {
+        const {service, onRestoreCompleted, onRestoreFailure, cb} = build();
+        onRestoreCompleted.mockImplementationOnce(async () => false);
+
+        await service.restore(cb);
+
+        expect(SqliteMigrationService.commitStateForUser).not.toHaveBeenCalled();
+        expect(onRestoreFailure).toHaveBeenCalled();
+        expect(cb).toHaveBeenLastCalledWith(100, 'restoreFailed', true, expect.objectContaining({
+            message: expect.stringContaining('could not be reopened'),
+        }));
+    });
+
     // Login waits on cb and has no catch on restore()'s promise.
     it('still reports the failure when the failure handler itself throws', async () => {
         const {service, onRestoreFailure, cb} = build();

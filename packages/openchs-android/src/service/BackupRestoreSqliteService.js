@@ -124,7 +124,14 @@ export default class BackupRestoreSqliteService extends BaseService {
 
             cb(92, 'restoringDb');
             if (this.onRestoreCompleted) {
-                await this.onRestoreCompleted();
+                // false means the snapshot file is in place but SQLite would not open on it,
+                // so the runtime has fallen back to Realm. Everything below assumes the beans
+                // are on SQLite — without this the user is told the restore worked and then
+                // finds sync blocked by the mismatch with the record written at :145.
+                const reopened = await this.onRestoreCompleted();
+                if (reopened === false) {
+                    throw new Error('SQLite snapshot applied but the database could not be reopened');
+                }
             }
 
             // Beans are now wired to SQLite. Two post-switch steps that mirror

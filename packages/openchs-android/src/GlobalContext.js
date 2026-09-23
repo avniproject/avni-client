@@ -158,14 +158,21 @@ class GlobalContext {
     }
 
     async onDatabaseRecreated(realmFactory) {
-        this.db.close();
+        this.db?.close();
+        // Whoever closes the Realm drops the reference. A closed handle left on this.db
+        // reads as a usable database and fails at some unrelated point much later.
+        this.db = null;
         await this.reinitializeDatabase(realmFactory);
     }
 
+    // Returns false when the snapshot is in place but SQLite could not be opened on it.
+    // The restore must not report success then: it would commit SQLite as the active
+    // backend while the runtime has fallen back to Realm.
     async onSqliteDatabaseRestored(realmFactory) {
         this._activeBackend = BACKENDS.SQLITE;
         General.logInfo("GlobalContext", "SQLite snapshot restored — switching active backend to SQLite");
-        await this.reinitializeDatabase(realmFactory);
+        const reopened = await this.reinitializeDatabase(realmFactory);
+        return reopened && this._activeBackend === BACKENDS.SQLITE;
     }
 
     // The restore records SQLite as active only once it succeeds, so after a failure — even
@@ -186,11 +193,17 @@ class GlobalContext {
 
     // Never throws. Both restore-failure callbacks run through here with nothing around them,
     // and a throw strands the login screen on its restore spinner with no callback fired.
+    // Returns false when neither database could be opened, so a caller that reports an
+    // outcome to the user has something to report it from.
     async reinitializeDatabase(realmFactory) {
         try {
             this.db = await realmFactory.createRealm();
             updateAnalyticsDatabase(this.db);
         } catch (e) {
+            // this.db is left as it is. Two callers reach here with the Realm still open and
+            // healthy — the SQLite restore's failure callback and the Realm restore's — and
+            // dropping a working handle for them would be worse than the failed reopen. The
+            // two that close it first null it themselves, so there is nothing to keep.
             General.logError("GlobalContext", `Realm reinit failed: ${e.message}`);
         }
 
@@ -217,7 +230,21 @@ class GlobalContext {
         if (this._activeBackend === BACKENDS.SQLITE && !this.sqliteDb) {
             this._activeBackend = BACKENDS.REALM;
         }
-        this.beanRegistry.updateDatabase(this._activeBackend === BACKENDS.SQLITE ? this.sqliteDb : this.db);
+        const activeDb = this._activeBackend === BACKENDS.SQLITE ? this.sqliteDb : this.db;
+        if (!activeDb) {
+            General.logError("GlobalContext", "Neither database could be reopened — bean registry left as it was");
+            return false;
+        }
+        // Guarded for the same reason as the opens above: on a backend type change this
+        // rebuilds every cached repository, and the Realm restore's failure callback runs
+        // it with nothing around it.
+        try {
+            this.beanRegistry.updateDatabase(activeDb);
+        } catch (e) {
+            General.logError("GlobalContext", `Binding the reopened database failed: ${e.message}`);
+            return false;
+        }
+        return true;
     }
 }
 

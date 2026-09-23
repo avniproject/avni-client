@@ -51,7 +51,7 @@ function wireBeans(migrationService) {
     mockBeans.set('sqliteMigrationService', migrationService);
 }
 
-const realmFactory = {createRealm: jest.fn(async () => ({kind: 'realm'}))};
+const realmFactory = {createRealm: jest.fn(async () => ({kind: 'realm', close: jest.fn()}))};
 
 describe('launch opens the committed backend (#2120)', () => {
     it('opens the committed backend before the store exists, and starts no migration work', async () => {
@@ -137,7 +137,7 @@ describe('reopening the databases after a restore never throws (#2120)', () => {
     }
 
     afterEach(() => {
-        realmFactory.createRealm.mockImplementation(async () => ({kind: 'realm'}));
+        realmFactory.createRealm.mockImplementation(async () => ({kind: 'realm', close: jest.fn()}));
         SqliteFactory.createSqliteProxy.mockImplementation(async () => ({kind: 'sqlite', close: jest.fn()}));
     });
 
@@ -161,6 +161,41 @@ describe('reopening the databases after a restore never throws (#2120)', () => {
         expect(context.sqliteDb).toBeNull();
         expect(context.getActiveBackend()).toBe('realm');
         expect(mockUpdateDatabase).toHaveBeenLastCalledWith(expect.objectContaining({kind: 'realm'}));
+    });
+
+    // This path closes the Realm before reopening it, so binding the old handle would hand
+    // the registry a closed database that fails at some unrelated read much later.
+    it('binds nothing when the Realm it just closed cannot be reopened', async () => {
+        const {context} = await booted('realm');
+        const onRealmRecreated = mockBeans.get('backupRestoreRealmService').subscribeOnRestore.mock.calls[0][0];
+        realmFactory.createRealm.mockImplementation(async () => { throw new Error('realm locked'); });
+        mockUpdateDatabase.mockClear();
+
+        await expect(onRealmRecreated()).resolves.toBeUndefined();
+
+        expect(context.db).toBeNull();
+        expect(mockUpdateDatabase).not.toHaveBeenCalled();
+    });
+
+    // The SQLite restore's failure callback arrives with Realm open and untouched — that
+    // flow never goes near it. A failed reopen there must not throw a working handle away.
+    it('keeps the open Realm when a reopen fails and nothing had closed it', async () => {
+        const {context, onRestoreFailed} = await booted('realm');
+        const openRealm = context.db;
+        realmFactory.createRealm.mockImplementation(async () => { throw new Error('transient'); });
+
+        await expect(onRestoreFailed()).resolves.toBeUndefined();
+
+        expect(context.db).toBe(openRealm);
+        expect(mockUpdateDatabase).toHaveBeenLastCalledWith(openRealm);
+    });
+
+    // The caller reports the restore's outcome to the user off this.
+    it('tells the restore it failed when SQLite will not open on the snapshot', async () => {
+        const {onRestored} = await booted('realm');
+        SqliteFactory.createSqliteProxy.mockImplementation(async () => { throw new Error('file locked'); });
+
+        expect(await onRestored()).toBe(false);
     });
 
     it('opens SQLite on a later try when it failed to open at launch', async () => {
