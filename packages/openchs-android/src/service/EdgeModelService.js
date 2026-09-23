@@ -89,6 +89,13 @@ class EdgeModelService extends BaseService {
         // would fail identically; and the failure dispatch itself triggers a rule cycle, which
         // re-fires the scheduling rule — without this the pair would loop indefinitely.
         this._inferenceFailedForImage = new Set();
+        // The imagePath of the most recent dispatch for a target, keyed by targetKey. `_scheduled`
+        // dedups by image and so cannot supersede: when a row's photo is replaced mid-inference,
+        // both images are legitimately in flight and the one that resolves LAST writes its verdict.
+        // Resolving out of order therefore put the discarded photo's verdict on the new photo
+        // (avniproject/avni-client#2000). A result is now dropped unless its image is still the one
+        // this target is waiting on.
+        this._inFlightImageByTarget = new Map();
         // Inference results wait here for a short trailing-debounce window so a burst of N
         // verdicts (one per image on the summary screen) is applied in a single dispatch.
         this._pendingResults = [];
@@ -431,6 +438,10 @@ class EdgeModelService extends BaseService {
             return;
         }
         this._scheduled.add(inflightKey);
+        // Supersedes any earlier dispatch for this target: whatever was in flight for the previous
+        // image no longer describes what is in the row.
+        this._inFlightImageByTarget.set(targetKey, imagePath);
+        const isSuperseded = () => this._inFlightImageByTarget.get(targetKey) !== imagePath;
         General.logDebug('EdgeModelSvc', `scheduleImageInference QUEUED: ${inflightKey}`);
         if (invalidateStaleNow) queueClear();
 
@@ -457,6 +468,11 @@ class EdgeModelService extends BaseService {
         inference
             .then(result => {
                 if (result === SKIP_INFERENCE) return;   // cold-start, media absent → verdict kept, no dispatch
+                if (isSuperseded()) {
+                    General.logDebug('EdgeModelSvc',
+                        `scheduleImageInference DROP superseded result for '${targetConceptName}' (${imagePath}); row now holds ${this._inFlightImageByTarget.get(targetKey)}`);
+                    return;
+                }
                 const rawLabel = result && result.label != null ? result.label : result;
                 // Apply the optional label map so the obs holds the user-facing string
                 // (TextFormElement renders the obs verbatim).
@@ -476,6 +492,14 @@ class EdgeModelService extends BaseService {
                 General.logError('EdgeModelSvc',
                     `scheduleImageInference FAILED ${imagePath}: ${err && err.message}\n${err && err.stack}`);
                 this._inferenceFailedForImage.add(failureKey);
+                // A failure on a photo the worker has already replaced must not raise a blocking
+                // error against the photo now in the row. The cap above still records the attempt,
+                // keyed by image, so re-selecting that photo does not re-run a failing inference.
+                if (isSuperseded()) {
+                    General.logDebug('EdgeModelSvc',
+                        `scheduleImageInference DROP superseded failure for '${targetConceptName}' (${imagePath})`);
+                    return;
+                }
                 // No verdict was produced. Tell the form so it can block Next rather than let the
                 // worker reach the referral screen on an absent verdict. Inference deliberately does
                 // not re-download here — recovery is sync-then-refill, so this is terminal for the
@@ -492,6 +516,9 @@ class EdgeModelService extends BaseService {
             })
             .finally(() => {
                 this._scheduled.delete(inflightKey);
+                // Only if this dispatch is still the current one — a superseding dispatch owns the
+                // entry now, and clearing it would let its own result be read as superseded.
+                if (!isSuperseded()) this._inFlightImageByTarget.delete(targetKey);
             });
     }
 

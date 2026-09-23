@@ -812,6 +812,115 @@ describe('EdgeModelService', () => {
         });
     });
 
+    // avniproject/avni-client#2000. `_scheduled` dedups by image, so a photo replaced mid-inference
+    // leaves two legitimate dispatches in flight for one row. Whichever resolves LAST used to write,
+    // which put the discarded photo's verdict on the photo now in the row.
+    describe('supersede-safe dispatch (#2000)', () => {
+        const rqgEntity = (uuid) => ({
+            uuid,
+            findObservation: jest.fn(() => ({
+                getValueWrapper: () => ({size: () => 1, getGroupObservationAtIndex: () => null}),
+            })),
+        });
+        // Resolves only when the test says so, so the two can be settled out of order.
+        const deferInference = () => {
+            const gate = {};
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation(
+                (sha, imagePath) => new Promise(resolve => { gate[imagePath] = resolve; }));
+            return {
+                settle: async (imagePath, label) => {
+                    gate[imagePath]({label, confidence: 0.9});
+                    for (let i = 0; i < 5; i++) await new Promise(res => setImmediate(res));
+                },
+            };
+        };
+        const verdicts = () => service.dispatchAction.mock.calls
+            .filter(([action]) => action === 'EDGE_MODEL.INFERENCE_RESULTS_BATCH')
+            .flatMap(([, payload]) => payload.results);
+
+        beforeEach(() => {
+            const r = row();
+            rows = [r];
+            cacheRow(r);
+            service.dispatchAction = jest.fn();
+        });
+
+        it('never writes image A\'s verdict once image B has been dispatched for the same row', async () => {
+            const gate = deferInference();
+            const entity = rqgEntity('e1');
+            service.scheduleImageInferenceIntoGroup('/tmp/A.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
+            service.scheduleImageInferenceIntoGroup('/tmp/B.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
+
+            // Out of order on purpose: the FIRST inference resolves AFTER the second.
+            await gate.settle('/tmp/B.jpg', 'Negative');
+            await gate.settle('/tmp/A.jpg', 'Positive');
+            flushInference();
+
+            expect(verdicts().map(v => v.value)).toEqual(['Negative']);
+        });
+
+        it('binds the row to the image that actually produced the surviving verdict', async () => {
+            const gate = deferInference();
+            const entity = rqgEntity('e1');
+            service.scheduleImageInferenceIntoGroup('/tmp/A.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
+            service.scheduleImageInferenceIntoGroup('/tmp/B.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
+            await gate.settle('/tmp/B.jpg', 'Negative');
+            await gate.settle('/tmp/A.jpg', 'Positive');
+
+            expect(service._lastInferredImageByTarget.get('e1|Lesion Group|0|AI Verdict')).toBe('/tmp/B.jpg');
+        });
+
+        it('does not raise a blocking error when the SUPERSEDED image is the one that fails', async () => {
+            const gate = {};
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation(
+                (sha, imagePath) => new Promise((resolve, reject) => { gate[imagePath] = {resolve, reject}; }));
+            const entity = rqgEntity('e1');
+            service.scheduleImageInferenceIntoGroup('/tmp/A.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
+            service.scheduleImageInferenceIntoGroup('/tmp/B.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
+
+            gate['/tmp/B.jpg'].resolve({label: 'Negative', confidence: 0.9});
+            for (let i = 0; i < 5; i++) await new Promise(res => setImmediate(res));
+            gate['/tmp/A.jpg'].reject(new Error('inference blew up on the discarded photo'));
+            for (let i = 0; i < 5; i++) await new Promise(res => setImmediate(res));
+            flushInference();
+
+            const unavailable = service.dispatchAction.mock.calls
+                .filter(([action]) => action === 'EDGE_MODEL.INFERENCE_UNAVAILABLE');
+            expect(unavailable).toHaveLength(0);
+            expect(verdicts().map(v => v.value)).toEqual(['Negative']);
+        });
+
+        it('still writes a single dispatch\'s verdict — the guard only drops superseded ones', async () => {
+            const gate = deferInference();
+            service.scheduleImageInferenceIntoGroup('/tmp/only.jpg', rqgEntity('e1'), 'Lesion Group', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
+            await gate.settle('/tmp/only.jpg', 'Positive');
+            flushInference();
+
+            expect(verdicts().map(v => v.value)).toEqual(['Positive']);
+        });
+
+        it('keeps sibling rows independent — row 1 does not supersede row 0', async () => {
+            const gate = deferInference();
+            const entity = rqgEntity('e1');
+            service.scheduleImageInferenceIntoGroup('/tmp/row0.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+            service.scheduleImageInferenceIntoGroup('/tmp/row1.jpg', entity, 'Lesion Group', 'AI Verdict', 1);
+            await new Promise(res => setImmediate(res));
+            await gate.settle('/tmp/row1.jpg', 'Negative');
+            await gate.settle('/tmp/row0.jpg', 'Positive');
+            flushInference();
+
+            const byRow = Object.fromEntries(verdicts().map(v => [v.questionGroupIndex, v.value]));
+            expect(byRow).toEqual({0: 'Positive', 1: 'Negative'});
+        });
+    });
+
     describe('result shape', () => {
         it('the single-model result includes the derived `positive` boolean (matches the ensemble shape)', async () => {
             const r = row();
