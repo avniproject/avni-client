@@ -1,4 +1,5 @@
 import moment from "moment";
+import _ from "lodash";
 import {firebaseEvents, logEvent} from "../utility/Analytics";
 
 class SyncActions {
@@ -36,7 +37,7 @@ class SyncActions {
         return {...state, showOkButton: !!action.show};
     }
 
-    static onError(state) {
+    static onError(state, action) {
         const dateTimeFormat = "DD MMM YYYY hh:mm:ss a";
         const syncStartTime = moment(state.startTime).format(dateTimeFormat);
         const errorTime = Date.now();
@@ -46,6 +47,10 @@ class SyncActions {
             sync_start_time: syncStartTime,
             error_time: moment(errorTime).format(dateTimeFormat)
         };
+        // Makes a failed sync joinable to the redirect it may have caused, and is the only record
+        // of a 403 once it stops redirecting.
+        const errorCode = _.get(action, 'errorCode');
+        if (!_.isEmpty(errorCode)) params.error_code = errorCode;
         logEvent(firebaseEvents.SYNC_FAILED, params);
         return {...state, syncing: false};
     }

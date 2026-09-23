@@ -128,6 +128,7 @@ export const firebaseEvents = {
     LOG_IN: 'login',
     LOG_IN_ERROR: 'login_error',
     LOG_OUT: 'logout',
+    FORCED_LOGIN_PROMPT: 'forced_login_prompt',
     SUMMARY_PRESSED: 'summary_pressed',
     QUICK_FORM_EDIT: 'quick_form_edit'
 };

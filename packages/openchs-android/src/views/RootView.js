@@ -12,6 +12,8 @@ import { getAvniError } from "../service/ServerError";
 import MessageService from "../service/MessageService";
 import { AlertMessage } from "./common/AlertMessage";
 import { BackHandler } from "react-native";
+import {logForcedLoginPrompt, NO_USER_REASON} from "../utility/ForcedLoginPrompt";
+import {getConnectionInfo} from "../utility/ConnectionInfo";
 
 @Path('/rootView')
 @PathRoot
@@ -64,6 +66,15 @@ class RootView extends AbstractComponent {
         }
 
         General.logDebug("RootView", `User exists: ${userExists}. Database Synced: ${databaseSynced}`);
+        // Only when the user could not be confirmed. A synced-but-userless device has lost a
+        // session it had; an unsynced one is a first run, which nobody was forced out of.
+        if (!userExists && databaseSynced) {
+            const connection = await getConnectionInfo().catch(() => ({isConnected: false}));
+            logForcedLoginPrompt(this.context, {
+                errorCode: NO_USER_REASON,
+                isConnected: connection.isConnected
+            });
+        }
         return CHSNavigator.navigateToLoginView(this, false);
     }
 
