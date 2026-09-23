@@ -29,6 +29,7 @@ jest.mock('../../src/utility/General', () => ({
 
 const mockGlobalContext = {
     switchBackend: jest.fn(),
+    openSqliteIfMissing: jest.fn(async () => true),
     getActiveBackend: jest.fn(() => 'realm'),
     // The @Service decorator registers every service against this at import time.
     beanRegistry: {register: jest.fn()},
@@ -232,6 +233,20 @@ describe('the switch commits once, after the whole sync (#2120)', () => {
         const switchOrder = mockGlobalContext.switchBackend.mock.invocationCallOrder[0];
         expect(svc._enableForeignKeysIfSqlite.mock.invocationCallOrder[0]).toBeLessThan(switchOrder);
         expect(svc._disableShallowHydrationIfSqlite.mock.invocationCallOrder[0]).toBeLessThan(switchOrder);
+    });
+
+    // SQLite that failed to open at launch would make the switch throw with a leg already
+    // open, costing an attempt and a recorded error on every sync until the user restarts.
+    it('syncs on the current backend, with no leg, when SQLite will not open', async () => {
+        const migrationService = buildMigrationService({activeBackend: 'realm', groupsName: 'sqlite'});
+        const svc = buildSyncService(migrationService);
+        mockGlobalContext.openSqliteIfMissing.mockImplementationOnce(async () => false);
+
+        await manualSync(svc);
+
+        expect(migrationService.beginLeg).not.toHaveBeenCalled();
+        expect(mockGlobalContext.switchBackend).not.toHaveBeenCalled();
+        expect(migrationService.state.activeBackend).toBe('realm');
     });
 
     it('opens no leg when the committed backend is already the one the group names', async () => {

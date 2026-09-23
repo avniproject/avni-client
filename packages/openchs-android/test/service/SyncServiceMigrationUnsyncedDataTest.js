@@ -34,6 +34,7 @@ jest.mock('../../src/utility/General', () => ({
 
 const mockGlobalContext = {
     switchBackend: jest.fn(),
+    openSqliteIfMissing: jest.fn(async () => true),
     getActiveBackend: jest.fn(() => 'realm'),
     // The @Service decorator registers every service against this at import time.
     beanRegistry: {register: jest.fn()},

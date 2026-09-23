@@ -896,6 +896,16 @@ class SyncService extends BaseService {
             return null;
         }
 
+        // SQLite may have failed to open at launch, and nothing short of a restart reopens it.
+        // Try here, before the leg is opened: a device whose problem has cleared migrates
+        // without the user restarting, and one where it has not syncs on the backend it is
+        // already on instead of opening a leg that cannot move and recording an attempt.
+        if (desired === BACKENDS.SQLITE && !(await GlobalContext.getInstance().openSqliteIfMissing())) {
+            General.logWarn("SyncService",
+                "Backend migration is due but SQLite will not open; syncing on the current backend");
+            return null;
+        }
+
         General.logInfo("SyncService",
             `Mid-sync migration: switching ${state.activeBackend} → ${desired} before transactional data sync`);
         statusMessageCallBack('switchingBackendMessage');
