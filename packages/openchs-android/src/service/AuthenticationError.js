@@ -6,13 +6,16 @@ export const HTTP_403 = 'Http 403';
 export const NOT_AUTHORIZED = 'NotAuthorizedException';
 export const NETWORK_ERROR = 'NetworkError';
 
-const RE_LOGIN_AUTH_CODES = [HTTP_401, NO_USER, NOT_AUTHORIZED];
+const SESSION_SURVIVES_AUTH_CODES = [NETWORK_ERROR, HTTP_403];
 
-// Allow-list, not a deny-list: the previous guard excluded one vendor spelling and sent every
-// other failure — a dropped network included — to the login screen, where a mis-tap on
-// "Delete data and login" destroys unsynced work. An unrecognised code keeps the session.
+// Listed by what the session survives, because only that set is closed. The codes that end a
+// session cannot be enumerated: getSession reports "Please authenticate" as a plain Error with no
+// code at all, and the service exceptions that end one (UserNotFoundException,
+// PasswordResetRequiredException, ...) arrive straight from data.__type. So an unrecognised or
+// missing code means re-login, and the two recoverable cases are named here instead. The canary
+// test pins NetworkError's spelling, which is the one string this depends on.
 export function requiresReLogin(error) {
-    return RE_LOGIN_AUTH_CODES.indexOf(error.authErrCode) > -1;
+    return SESSION_SURVIVES_AUTH_CODES.indexOf(error.authErrCode) === -1;
 }
 
 function AuthenticationError(code, message, fileName, lineNumber) {

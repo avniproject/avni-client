@@ -8,6 +8,7 @@ import BackupRestoreRealmService from "../service/BackupRestoreRealmService";
 import BackupRestoreSqliteService from "../service/BackupRestoreSqliteService";
 import SettingsService from "../service/SettingsService";
 import SessionUsername from "../service/SessionUsername";
+import SessionEstablished from "../service/SessionEstablished";
 import { IDP_PROVIDERS } from "../model/IdpProviders";
 
 function restoreDump(context, action, source, successCb) {
@@ -112,6 +113,7 @@ class LoginActions {
         // the credentials — persistUserId runs before that call, so keying migration state
         // off it would let a mistyped failed login decide the next launch's backend.
         SessionUsername.set(context.get(SettingsService).getSettings().userId);
+        SessionEstablished.set();
         let backupRestoreRealmService = context.get(BackupRestoreRealmService);
         const doRestoreDump = backupRestoreRealmService.isDatabaseNeverSynced();
         General.logInfo("LoginActions", `Dump restore can be done = ${doRestoreDump}`);

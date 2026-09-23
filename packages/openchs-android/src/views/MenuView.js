@@ -43,6 +43,7 @@ import SqliteFactory from "../framework/db/SqliteFactory";
 import { getAvniError } from "../service/ServerError";
 import { AlertMessage } from "./common/AlertMessage";
 import MessageService from "../service/MessageService";
+import SessionEstablished from "../service/SessionEstablished";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -110,6 +111,8 @@ class MenuView extends AbstractComponent {
             })
             .then(() => {
                 logEvent(firebaseEvents.LOG_OUT);
+                // Stops the next launch counting this as a session the user did not end.
+                SessionEstablished.clear();
                 CHSNavigator.navigateToLoginView(this, false);
             })
     };
