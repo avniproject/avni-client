@@ -7,6 +7,7 @@ import General from "../utility/General";
 import UserInfoService from "./UserInfoService";
 import BaseAuthProviderService from "./BaseAuthProviderService";
 import bugsnag from "../utility/bugsnag";
+import jwt_decode from "jwt-decode";
 
 @Service("cognitoAuthService")
 class CognitoAuthService extends BaseAuthProviderService {
@@ -52,6 +53,33 @@ class CognitoAuthService extends BaseAuthProviderService {
                 });
             });
         });
+    }
+
+    // The SDK measures clock drift once at login and never surfaces it again, so a device whose
+    // clock was already wrong when the user signed in is otherwise invisible to us. Reads the
+    // SDK's own storage, which getUser() has already synced from AsyncStorage.
+    getCachedSessionClockInfo() {
+        try {
+            const settings = this.getAuthSettings();
+            const storage = new CognitoUserPool({
+                UserPoolId: settings.poolId,
+                ClientId: settings.clientId
+            }).storage;
+            const username = storage.getItem(`CognitoIdentityServiceProvider.${settings.clientId}.LastAuthUser`);
+            if (_.isNil(username)) return {};
+
+            const keyPrefix = `CognitoIdentityServiceProvider.${settings.clientId}.${username}`;
+            const drift = parseInt(storage.getItem(`${keyPrefix}.clockDrift`), 10);
+            const idToken = storage.getItem(`${keyPrefix}.idToken`);
+            const issuedAt = _.isNil(idToken) ? NaN : _.get(jwt_decode(idToken), 'iat', NaN);
+            return {
+                clockDriftSeconds: _.isFinite(drift) ? drift : undefined,
+                tokenIssuedAt: _.isFinite(issuedAt) ? issuedAt * 1000 : undefined
+            };
+        } catch (e) {
+            General.logWarn("CognitoAuthService", `Could not read cached session clock info: ${e.message}`);
+            return {};
+        }
     }
 
     getUser() {
