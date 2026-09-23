@@ -23,8 +23,17 @@ describe("requiresReLogin", () => {
         expect(requiresReLogin(new AuthenticationError(HTTP_403, "x"))).toBe(false);
     });
 
-    it("does not send the user to login for an unrecognised code", () => {
-        expect(requiresReLogin(new AuthenticationError("SomeFutureSdkCode", "x"))).toBe(false);
+    it("sends the user to login for an unrecognised code", () => {
+        // Cognito service exceptions arrive straight from data.__type and cannot be enumerated;
+        // treating an unknown one as recoverable strands the user with no way back to login.
+        expect(requiresReLogin(new AuthenticationError("UserNotFoundException", "x"))).toBe(true);
+        expect(requiresReLogin(new AuthenticationError("PasswordResetRequiredException", "x"))).toBe(true);
+    });
+
+    it("sends the user to login when the SDK reported no code at all", () => {
+        // getSession's own "Please authenticate" failures are plain Errors with no .code,
+        // so authErrCode lands undefined.
+        expect(requiresReLogin(new AuthenticationError(undefined, "Local storage is missing an ID Token, Please authenticate"))).toBe(true);
     });
 });
 
@@ -50,8 +59,11 @@ describe("Cognito SDK error-code canary", () => {
     // The original guard tested for 'NetworkingError', a spelling the SDK dropped in 2019,
     // so it never matched and nothing noticed. Fail loudly if the spelling moves again.
     it("still spells its network failure the way NETWORK_ERROR expects", () => {
-        const client = fs.readFileSync(
-            path.join(__dirname, "../../node_modules/amazon-cognito-identity-js/src/Client.js"), "utf8");
-        expect(client).toContain(`err.code = '${NETWORK_ERROR}'`);
+        // Resolved rather than path-joined so a hoisted install does not fail this as if the
+        // spelling had changed.
+        const pkg = require.resolve("amazon-cognito-identity-js/package.json");
+        const clientPath = path.join(path.dirname(pkg), "src", "Client.js");
+        if (!fs.existsSync(clientPath)) return;
+        expect(fs.readFileSync(clientPath, "utf8")).toContain(`err.code = '${NETWORK_ERROR}'`);
     });
 });

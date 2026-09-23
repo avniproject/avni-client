@@ -6,7 +6,8 @@ describe("buildForcedLoginPromptParams", () => {
     it("records the reason and whether the device believed it was online", () => {
         const p = buildForcedLoginPromptParams({errorCode: "NetworkError", isConnected: true, now: NOW});
         expect(p.error_code).toBe("NetworkError");
-        expect(p.is_connected).toBe(true);
+        // Stringified: Firebase on Android drops Booleans from an event bundle.
+        expect(p.is_connected).toBe("true");
     });
 
     it("carries the no-user reason from the launch path", () => {
@@ -34,6 +35,11 @@ describe("buildForcedLoginPromptParams", () => {
     it("keeps a zero clock drift, which is a real reading and not a missing one", () => {
         expect(buildForcedLoginPromptParams({errorCode: "No User", clockDriftSeconds: 0, now: NOW})
             .cognito_clock_drift_seconds).toBe(0);
+    });
+
+    it("stringifies a false connection rather than dropping it", () => {
+        expect(buildForcedLoginPromptParams({errorCode: "No User", isConnected: false, now: NOW})
+            .is_connected).toBe("false");
     });
 
     it("carries a negative clock drift unchanged", () => {
