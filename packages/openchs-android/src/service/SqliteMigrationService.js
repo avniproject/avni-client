@@ -210,6 +210,8 @@ class SqliteMigrationService extends BaseService {
             const state = await SqliteMigrationService._readStateForWrite(username);
             if (state.lastError === message) return;
             await SqliteMigrationService.persistStateForUser(username, {...state, lastError: message});
+            // The record never leaves the device; this is the only thing the fleet sees.
+            ErrorUtil.notifyBugsnag(new Error(message), "SqliteMigrationService::blocked");
         } catch (e) {
             General.logWarn("SqliteMigrationService", `Could not record the blocked migration: ${e.message}`);
         }

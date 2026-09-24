@@ -555,6 +555,22 @@ describe('SqliteMigrationService', () => {
         });
     });
 
+    // The state record never leaves the device, so without the notification a device blocked
+    // on every sync is indistinguishable in the fleet from one with nothing to migrate.
+    describe('a blocked migration', () => {
+        it('records the reason and reports it once, not on every sync', async () => {
+            const ErrorUtil = require('../../src/framework/errorHandling/ErrorUtil').default;
+            ErrorUtil.notifyBugsnag.mockClear();
+            const reason = 'SQLite will not open; migration deferred';
+
+            await service.recordBlocked(reason);
+            await service.recordBlocked(reason);
+
+            expect((await service.getState()).lastError).toBe(reason);
+            expect(ErrorUtil.notifyBugsnag).toHaveBeenCalledTimes(1);
+        });
+    });
+
     describe('storage', () => {
         it('readStateForUser returns default state when nothing persisted', async () => {
             const state = await SqliteMigrationService.readStateForUser('new-user');
