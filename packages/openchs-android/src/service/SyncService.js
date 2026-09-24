@@ -52,6 +52,7 @@ import DeviceInfo from "react-native-device-info";
 import {pruneConceptMedia} from "../task/PruneMedia";
 import FileSystem from "../model/FileSystem";
 import {jsonArrayListPropFor} from "../framework/db/SchemaGenerator";
+import LastSyncCompleted from "./LastSyncCompleted";
 
 function transformResourceToEntity(entityMetaData, entityResources) {
     return (acc, resource) => {
@@ -137,8 +138,17 @@ class SyncService extends BaseService {
         const mediaUploadRequired = this.mediaQueueService.isMediaUploadRequired();
         const updatedSyncSource = this.getUpdatedSyncSource(syncSource);
         const appInfo = await this.metricsService.getAppInfo();
+        // Down for the duration of this sync. A sync the app never finishes writes no telemetry
+        // row at all, so without this the previous sync's "complete" would stand as the newest
+        // answer and the catchment upload would read a dead device as healthy (#2141).
+        await LastSyncCompleted.clear();
         this.dispatchAction(SyncTelemetryActions.START_SYNC, {connectionInfo, syncSource: updatedSyncSource, appInfo});
         const syncCompleted = () => Promise.resolve(this.dispatchAction(SyncTelemetryActions.SYNC_COMPLETED))
+            // Upload-only background syncs pull nothing, so they cannot make a stale database
+            // current — the same reason getLatestCompletedFullSync excludes them.
+            .then(() => updatedSyncSource === SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB
+                ? Promise.resolve()
+                : LastSyncCompleted.set())
             .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity))
             .then(() => Promise.resolve(progressBarStatus.onSyncComplete()))
             .then(() => Promise.resolve(this.logSyncCompleteEvent(syncStartTime)))
