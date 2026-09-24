@@ -198,6 +198,36 @@ describe('reopening the databases after a restore never throws (#2120)', () => {
         expect(await onRestored()).toBe(false);
     });
 
+    // The registry holding null is worse than it holding the handle it had: every service
+    // reads through it, and _activeBackend would say Realm as if the move had happened.
+    it('refuses to move to a Realm that is not open, and stays where it is', async () => {
+        const {context} = await booted('realm');
+        context.switchBackend('sqlite');
+        context.db = null;
+        mockUpdateDatabase.mockClear();
+
+        expect(() => context.switchBackend('realm')).toThrow('the database is not open');
+
+        expect(mockUpdateDatabase).not.toHaveBeenCalled();
+        expect(context.getActiveBackend()).toBe('sqlite');
+    });
+
+    // The encryption swap drops both handles and reopens them. A Realm that does not come
+    // back leaves nothing for the leg to fall back to.
+    it('refuses after a failed reopen leaves no Realm behind', async () => {
+        const {context} = await booted('realm');
+        context.switchBackend('sqlite');
+        context.db = null;
+        context.sqliteDb = null;
+        realmFactory.createRealm.mockImplementation(async () => { throw new Error('stale key'); });
+        await context.reinitializeDatabase(realmFactory);
+        mockUpdateDatabase.mockClear();
+
+        expect(() => context.switchBackend('realm')).toThrow('the database is not open');
+
+        expect(mockUpdateDatabase).not.toHaveBeenCalled();
+    });
+
     it('opens SQLite on a later try when it failed to open at launch', async () => {
         SqliteFactory.createSqliteProxy.mockImplementationOnce(async () => { throw new Error('file locked'); });
         const {context} = await booted('realm');
