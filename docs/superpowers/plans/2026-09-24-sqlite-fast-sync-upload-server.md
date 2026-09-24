@@ -10,8 +10,9 @@
 
 **Spec:** `docs/superpowers/specs/2026-09-24-sqlite-fast-sync-upload-design.md` (in the avni-client repo)
 
-**Before starting:** file the avni-server issue and substitute its number for `<server-issue>` in
-the commit messages below. Task 4 already carries its real number, #1059.
+**Issue references:** commits cite `avniproject/avni-client#2140`, following avni-server's existing
+cross-repo convention (`avniproject/avni-webapp#1806` etc.). No separate server issue is needed.
+Task 4 cites #1059, which is an avni-server issue and already exists.
 
 **Repo:** avni-server. This plan lives in avni-client only because avni-server has no `docs/superpowers` directory; move it if one is created.
 
@@ -208,7 +209,7 @@ Expected: PASS, 6 tests.
 ```bash
 git add avni-server-api/src/main/java/org/avni/server/service/FastSyncKeyService.java \
         avni-server-api/src/test/java/org/avni/server/service/FastSyncKeyServiceTest.java
-git commit -m "#<server-issue> | Derive the fast-sync storage key from the user's sync scope"
+git commit -m "avniproject/avni-client#2140 | Derive the fast-sync storage key from the user's sync scope"
 ```
 
 ---
@@ -374,7 +375,7 @@ Expected: PASS, 5 tests.
 ```bash
 git add avni-server-api/src/main/java/org/avni/server/web/MediaController.java \
         avni-server-api/src/test/java/org/avni/server/web/MediaControllerFastSyncTest.java
-git commit -m "#<server-issue> | Add the fast-sync upload route, keyed per user or per catchment"
+git commit -m "avniproject/avni-client#2140 | Add the fast-sync upload route, keyed per user or per catchment"
 ```
 
 ---
@@ -556,7 +557,7 @@ Expected: PASS, 15 tests (Task 2's 5 plus these 10 — same file).
 ```bash
 git add avni-server-api/src/main/java/org/avni/server/web/MediaController.java \
         avni-server-api/src/test/java/org/avni/server/web/MediaControllerFastSyncTest.java
-git commit -m "#<server-issue> | Serve the fast-sync database in preference order"
+git commit -m "avniproject/avni-client#2140 | Serve the fast-sync database in preference order"
 ```
 
 ---
