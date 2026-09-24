@@ -28,6 +28,7 @@
   "asOnDate": "As on date",
   "filter": "FILTER",
   "uploadMedia": "Uploading saved media files",
+  "mediaUploadBlockedSync": "Sync stopped because a saved media file could not be uploaded.",
   "serverRefusedRequest": "The server would not allow this request. You are still signed in. Please contact your Avni administrator.",
   "internetConnectionError": "No internet connection. Please connect to internet.",
   "uploadLocallySavedData": "Uploading saved data",

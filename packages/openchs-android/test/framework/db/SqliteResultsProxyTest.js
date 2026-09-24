@@ -266,15 +266,35 @@ describe("SqliteResultsProxy — supported query types", () => {
     describe("dot-notation (JOINs)", () => {
         it("should generate LEFT JOIN for single dot-path", () => {
             const {proxy, executeQuery} = createProxy();
-            proxy.filtered("subjectType.uuid = $0", "st-uuid").length;
+            proxy.filtered("subjectType.name = $0", "Person").length;
             const sql = getExecutedSql(executeQuery);
             expect(sql).toContain("LEFT JOIN subject_type AS t1");
             expect(sql).toContain('t0."subject_type_uuid" = t1."uuid"');
+            expect(sql).toContain('t1."name" = ?');
+            expect(getExecutedParams(executeQuery)).toEqual(["Person"]);
+        });
+
+        it("single dot-path ending in .uuid still JOINs rather than reading the FK column", () => {
+            // The LEFT JOIN reads NULL for a row whose parent is missing, matching Realm's
+            // null link; t0."subject_type_uuid" would read the orphaned uuid instead.
+            const {proxy, executeQuery} = createProxy();
+            proxy.filtered("subjectType.uuid = $0", "st-uuid").length;
+            const sql = getExecutedSql(executeQuery);
+            expect(sql).toContain("LEFT JOIN subject_type AS t1");
             expect(sql).toContain('t1."uuid" = ?');
             expect(getExecutedParams(executeQuery)).toEqual(["st-uuid"]);
         });
 
         it("should generate chained JOINs for multi-level dot-path", () => {
+            const {proxy, executeQuery} = createProxy({schemaName: "Encounter", tableName: "encounter"});
+            proxy.filtered("individual.subjectType.name = $0", "Person").length;
+            const sql = getExecutedSql(executeQuery);
+            expect(sql).toContain("LEFT JOIN individual AS t1");
+            expect(sql).toContain("LEFT JOIN subject_type AS t2");
+            expect(sql).toContain('t2."name" = ?');
+        });
+
+        it("multi-level dot-path ending in .uuid JOINs all the way to the last link", () => {
             const {proxy, executeQuery} = createProxy({schemaName: "Encounter", tableName: "encounter"});
             proxy.filtered("individual.subjectType.uuid = $0", "st-uuid").length;
             const sql = getExecutedSql(executeQuery);
@@ -285,7 +305,7 @@ describe("SqliteResultsProxy — supported query types", () => {
 
         it("should use DISTINCT when JOINs are present", () => {
             const {proxy, executeQuery} = createProxy();
-            proxy.filtered("subjectType.uuid = $0", "st-uuid").length;
+            proxy.filtered("subjectType.name = $0", "Person").length;
             const sql = getExecutedSql(executeQuery);
             expect(sql).toContain("SELECT DISTINCT t0.*");
         });
@@ -315,13 +335,13 @@ describe("SqliteResultsProxy — supported query types", () => {
         it("should accumulate JOINs across chained calls without alias collision", () => {
             const {proxy, executeQuery} = createProxy();
             proxy
-                .filtered("subjectType.uuid = $0", "st-uuid")
-                .filtered("gender.uuid = $0", "g-uuid")
+                .filtered("subjectType.name = $0", "Person")
+                .filtered("gender.name = $0", "Female")
                 .length;
             const sql = getExecutedSql(executeQuery);
             expect(sql).toContain("LEFT JOIN subject_type AS t1");
             expect(sql).toContain("LEFT JOIN gender AS t2");
-            expect(getExecutedParams(executeQuery)).toEqual(["st-uuid", "g-uuid"]);
+            expect(getExecutedParams(executeQuery)).toEqual(["Person", "Female"]);
         });
 
         it("should chain three .filtered() calls", () => {
@@ -728,8 +748,10 @@ describe("TRUEPREDICATE window query", () => {
              .sorted("createdDateTime", true)
              .getLength();
         const sql = getExecutedSql(executeQuery);
-        expect(sql).toContain('ORDER BY t0."created_date_time" ASC)');   // window internal
-        expect(sql.trim()).toMatch(/WHERE __rn = 1 ORDER BY __ob0 DESC$/); // outer
+        // rowid closes both orderings: ties inside the window pick the first row in table
+        // order, and the outer sort can't fall back to partition order.
+        expect(sql).toContain('ORDER BY t0."created_date_time" ASC, t0.rowid)');   // window internal
+        expect(sql.trim()).toMatch(/WHERE __rn = 1 ORDER BY __ob0 DESC, __rid$/); // outer
     });
 
     it("sort-only (no distinct) → plain ORDER BY, no window", () => {

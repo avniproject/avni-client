@@ -12252,10 +12252,10 @@ ripemd160@^2.0.0, ripemd160@^2.0.1, ripemd160@^2.0.3:
     hash-base "^3.1.2"
     inherits "^2.0.4"
 
-"rules-config@github:openchs/rules-config#f5f651905ac26dc98b9259245a2c3802bb59f3fe":
+"rules-config@github:openchs/rules-config#6c6a590c22ae45902cd733dbeace3861da01c249":
   version "0.0.1"
-  resolved "git+ssh://git@github.com/openchs/rules-config.git#f5f651905ac26dc98b9259245a2c3802bb59f3fe"
-  integrity sha512-ZWfNSrVWmxeHPubUtpHI2kq49gMz1Hlz4ycSaECZoqQCvbEajC0feBQHK9oufT1THw6fKa3q2mO6xZ/xwGbdfQ==
+  resolved "git+ssh://git@github.com/openchs/rules-config.git#6c6a590c22ae45902cd733dbeace3861da01c249"
+  integrity sha512-/xMmMBftwQM6skjTHDgfaBp/6ZAcLBb4/thZWgqZo/yzhyjQYmDwW8Gm0buaUpN+UYiq9iNOSf5pG6Tp1wclfQ==
 
 run-parallel-limit@^1.0.5:
   version "1.1.0"

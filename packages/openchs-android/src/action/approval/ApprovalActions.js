@@ -1,5 +1,28 @@
 import EntityApprovalStatusService from "../../service/EntityApprovalStatusService";
 import PrivilegeService from "../../service/PrivilegeService";
+import FormMappingService from "../../service/FormMappingService";
+import _ from "lodash";
+
+/**
+ * Opens the mapped Approval or Rejection form if the organisation has attached one, and reports whether it
+ * did (avniproject/avni-client#2091).
+ *
+ * Navigation is done through a callback supplied in the action payload rather than by importing a
+ * navigator here, because these are reducers. onApprove and onReject already take a `cb` and invoke it, so
+ * this follows the idiom the file already uses.
+ *
+ * Returns false - meaning "fall through to the comment box" - whenever there is no form, no callback, or
+ * anything unexpected. That fallback is every organisation on day one, and also any device that has not
+ * finished syncing form metadata, so it has to be the safe default rather than an error path.
+ */
+function openMappedFormIfAny(action, context, findForm) {
+    const {entity, navigateToForm} = action;
+    if (_.isNil(navigateToForm) || _.isNil(entity)) return false;
+    const form = findForm(context.get(FormMappingService), entity);
+    if (_.isNil(form)) return false;
+    navigateToForm(form);
+    return true;
+}
 
 class ApprovalActions {
 
@@ -17,10 +40,14 @@ class ApprovalActions {
         return {...newState, ...initialState, showApprovalButtons, showEditButton};
     }
 
-    static onApprovePress(state, action) {
+    static onApprovePress(state, action, context) {
         const newState = {...state};
         const {entity, I18n} = action;
         newState.rejectionComment = "";
+        if (openMappedFormIfAny(action, context, (service, e) => service.findApprovalFormFor(e))) {
+            newState.openDialog = false;
+            return newState;
+        }
         newState.openDialog = true;
         newState.title = I18n.t('approveRequestTitle', {entityName: entity.getName()});
         newState.message = I18n.t('approveRequestMsg', {subjectName: entity.individual.nameString});
@@ -40,10 +67,14 @@ class ApprovalActions {
         return newState;
     }
 
-    static onRejectPress(state, action) {
+    static onRejectPress(state, action, context) {
         const newState = {...state};
         const {entity, I18n} = action;
         newState.rejectionComment = "";
+        if (openMappedFormIfAny(action, context, (service, e) => service.findRejectionFormFor(e))) {
+            newState.openDialog = false;
+            return newState;
+        }
         newState.openDialog = true;
         newState.title = I18n.t('rejectRequestTitle', {
             entityName: entity.getName(),

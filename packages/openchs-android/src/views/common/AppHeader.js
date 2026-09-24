@@ -6,7 +6,8 @@ import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import {Platform, Text, TouchableNativeFeedback, View} from "react-native";
 import _ from "lodash";
 import Colors from "../primitives/Colors";
-import Distances from "../primitives/Distances";
+import {edgeToEdgeStatusBarInset} from "../primitives/Distances";
+import {SafeAreaInsetsContext} from "react-native-safe-area-context";
 import CHSNavigator from "../../utility/CHSNavigator";
 import {LandingViewActionsNames} from "../../action/LandingViewActions";
 import SyncComponent from "../SyncComponent";
@@ -96,12 +97,15 @@ class AppHeader extends AbstractComponent {
         const {renderSync, renderExitBeneficiaryMode, renderCommentResolve, hideBackButton, title, renderSearch, iconFunc, onSearch} = this.props;
 
         return (
+            <SafeAreaInsetsContext.Consumer>
+                {(insets) => (
             <View style={{
                 backgroundColor: Colors.headerBackgroundColor,
                 flexDirection: 'row',
                 minHeight: 56,
                 elevation: 3,
-                paddingTop: Distances.EdgeToEdgeStatusBarInset,
+                // Padding rather than a margin, so the bar's own colour still fills the status bar area.
+                paddingTop: edgeToEdgeStatusBarInset(insets),
             }}>
                 {hideBackButton ? <View/> :
                     <TouchableNativeFeedback onPress={() => this.onBack()}
@@ -140,6 +144,8 @@ class AppHeader extends AbstractComponent {
 
                 {!renderSync && !renderExitBeneficiaryMode && !renderCommentResolve && this.renderHomeIcon()}
             </View>
+                )}
+            </SafeAreaInsetsContext.Consumer>
         );
     }
 }

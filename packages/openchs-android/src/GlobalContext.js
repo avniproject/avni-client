@@ -8,11 +8,10 @@ import Perf from "./utility/perf";
 let singleton;
 
 class GlobalContext {
-    // INVARIANT: `this.db` is always the Realm instance and is never reassigned by
-    // switchBackend(). The active database handed to the bean registry is selected
-    // via _activeBackend + sqliteDb. Code that needs the Realm instance directly
-    // (e.g., SqliteMigrationService._captureAuthStateFromSource during resume)
-    // relies on this invariant.
+    // INVARIANT: `this.db` is the Realm instance and is never reassigned by switchBackend().
+    // The active database handed to the bean registry is selected via _activeBackend +
+    // sqliteDb. It is null only between a close and the reopen that follows it, and only
+    // ever nulled by whatever did the closing — see reinitializeDatabase.
     db;
     sqliteDb;
     beanRegistry;
@@ -65,11 +64,9 @@ class GlobalContext {
             General.logWarn("GlobalContext", `SQLite init skipped: ${e.message}`);
         }
 
-        // Always boot the bean registry on Realm. Migration state is keyed per-username
-        // in AsyncStorage, so we cannot know which backend to use before services are
-        // wired up and UserInfo is readable. SqliteMigrationService.resumeIfPending()
-        // runs after services initialise and reconciles the active backend to whatever
-        // the per-user migration state records.
+        // Boot the bean registry on Realm, then open the backend the per-user state record
+        // commits to (below, before the store exists). The record is keyed by the session
+        // username, which needs services wired up to resolve for pre-#2083 installs.
         this._activeBackend = BACKENDS.REALM;
         General.logInfo("GlobalContext", `Initialising bean registry with activeBackend=${this._activeBackend}`);
         const _t1 = Date.now();
@@ -96,6 +93,18 @@ class GlobalContext {
             throw new Error(errorMsg);
         }
 
+        // Open the committed backend before the store exists, so nothing renders or schedules
+        // on the wrong database. An unfinished migration committed nothing and boots on the
+        // complete source backend; its work waits for the next sync the user starts.
+        try {
+            const migrationService = this.beanRegistry.getService('sqliteMigrationService');
+            if (migrationService) {
+                await migrationService.openCommittedBackend();
+            }
+        } catch (e) {
+            General.logError("GlobalContext", `Opening the committed backend failed: ${e.message}`);
+        }
+
         this.reduxStore = appStore.create(this.beanRegistry.beansMap);
         this.beanRegistry.setReduxStore(this.reduxStore);
         const restoreRealmService = this.beanRegistry.getService("backupRestoreRealmService");
@@ -104,27 +113,14 @@ class GlobalContext {
 
         // SQLite fast-sync apply: on success, reopen the (now-replaced) SQLite
         // file and flip the bean registry to SQLite as the primary backend.
-        // On failure, just reinitialize (BackupRestoreSqliteService has already
-        // restored the .backup file before invoking this callback).
+        // On failure, reinitialize and open the committed backend (BackupRestoreSqliteService
+        // has already restored the .backup file before invoking this callback).
         const restoreSqliteService = this.beanRegistry.getService("backupRestoreSqliteService");
         if (restoreSqliteService) {
             restoreSqliteService.subscribeOnRestore(async () => await this.onSqliteDatabaseRestored(realmFactory));
-            restoreSqliteService.subscribeOnRestoreFailure(async () => await this.reinitializeDatabase(realmFactory));
+            restoreSqliteService.subscribeOnRestoreFailure(async () => await this.onSqliteRestoreFailed(realmFactory));
         }
         await initAnalytics(this.db);
-
-        // After services are wired up, if a migration was interrupted previously,
-        // resume it. Fire-and-forget — failures are reported by the migration service itself.
-        try {
-            const migrationService = this.beanRegistry.getService('sqliteMigrationService');
-            if (migrationService) {
-                Promise.resolve(migrationService.resumeIfPending()).catch(e => {
-                    General.logError("GlobalContext", `resumeIfPending failed: ${e.message}`);
-                });
-            }
-        } catch (e) {
-            General.logError("GlobalContext", `Failed to start migration resume: ${e.message}`);
-        }
     }
 
     /**
@@ -147,20 +143,70 @@ class GlobalContext {
         return this._activeBackend;
     }
 
+    // switchBackend() refuses SQLite while sqliteDb is missing, and nothing else reopens it
+    // after a failed open at launch. Callers that must reach SQLite try again here first.
+    async openSqliteIfMissing() {
+        if (this.sqliteDb) return true;
+        try {
+            const SqliteFactory = require("./framework/db/SqliteFactory").default;
+            this.sqliteDb = await SqliteFactory.createSqliteProxy();
+            General.logInfo("GlobalContext", "SQLite database opened on retry");
+            return true;
+        } catch (e) {
+            General.logWarn("GlobalContext", `SQLite open retry failed: ${e.message}`);
+            return false;
+        }
+    }
+
     async onDatabaseRecreated(realmFactory) {
-        this.db.close();
+        this.db?.close();
+        // Whoever closes the Realm drops the reference. A closed handle left on this.db
+        // reads as a usable database and fails at some unrelated point much later.
+        this.db = null;
         await this.reinitializeDatabase(realmFactory);
     }
 
+    // Returns false when the snapshot is in place but SQLite could not be opened on it.
+    // The restore must not report success then: it would commit SQLite as the active
+    // backend while the runtime has fallen back to Realm.
     async onSqliteDatabaseRestored(realmFactory) {
         this._activeBackend = BACKENDS.SQLITE;
         General.logInfo("GlobalContext", "SQLite snapshot restored — switching active backend to SQLite");
-        await this.reinitializeDatabase(realmFactory);
+        const reopened = await this.reinitializeDatabase(realmFactory);
+        return reopened && this._activeBackend === BACKENDS.SQLITE;
     }
 
+    // The restore records SQLite as active only once it succeeds, so after a failure — even
+    // one after the file swap flipped the runtime — the record still names the backend the
+    // device was committed to before the restore began. Usually that is Realm on a fresh
+    // install, but a SQLite user whose data a full reset wiped also reads as never synced.
+    async onSqliteRestoreFailed(realmFactory) {
+        await this.reinitializeDatabase(realmFactory);
+        try {
+            const migrationService = this.beanRegistry.getService('sqliteMigrationService');
+            if (migrationService) {
+                await migrationService.openCommittedBackend();
+            }
+        } catch (e) {
+            General.logError("GlobalContext", `Opening the committed backend after a failed restore failed: ${e.message}`);
+        }
+    }
+
+    // Never throws. Both restore-failure callbacks run through here with nothing around them,
+    // and a throw strands the login screen on its restore spinner with no callback fired.
+    // Returns false when neither database could be opened, so a caller that reports an
+    // outcome to the user has something to report it from.
     async reinitializeDatabase(realmFactory) {
-        this.db = await realmFactory.createRealm();
-        updateAnalyticsDatabase(this.db);
+        try {
+            this.db = await realmFactory.createRealm();
+            updateAnalyticsDatabase(this.db);
+        } catch (e) {
+            // this.db is left as it is. Two callers reach here with the Realm still open and
+            // healthy — the SQLite restore's failure callback and the Realm restore's — and
+            // dropping a working handle for them would be worse than the failed reopen. The
+            // two that close it first null it themselves, so there is nothing to keep.
+            General.logError("GlobalContext", `Realm reinit failed: ${e.message}`);
+        }
 
         // Recreate SQLite DB
         if (this.sqliteDb) {
@@ -174,12 +220,36 @@ class GlobalContext {
             const SqliteFactory = require("./framework/db/SqliteFactory").default;
             this.sqliteDb = await SqliteFactory.createSqliteProxy();
         } catch (e) {
+            // The handle above is closed; leaving it bound would hand the registry a dead database.
+            this.sqliteDb = null;
             General.logWarn("GlobalContext", `SQLite reinit skipped: ${e.message}`);
         }
 
-        // Re-apply the previously active backend choice (preserved across re-init)
-        const activeDb = (this._activeBackend === BACKENDS.SQLITE && this.sqliteDb) ? this.sqliteDb : this.db;
-        this.beanRegistry.updateDatabase(activeDb);
+        // Re-apply the previously active backend choice (preserved across re-init). Without
+        // SQLite the runtime is on Realm, and _activeBackend says so, so the sync guard sees
+        // the mismatch with the committed backend rather than a runtime that claims SQLite.
+        if (this._activeBackend === BACKENDS.SQLITE && !this.sqliteDb) {
+            this._activeBackend = BACKENDS.REALM;
+        }
+        const activeDb = this._activeBackend === BACKENDS.SQLITE ? this.sqliteDb : this.db;
+        if (!activeDb) {
+            // There is nothing to bind. The registry keeps whatever it had, which on the
+            // onDatabaseRecreated path is the handle that caller closed — no worse than
+            // binding it again, and no better. What the false buys is a caller that can
+            // report the failure instead of reporting success.
+            General.logError("GlobalContext", "Neither database could be reopened — bean registry left as it was");
+            return false;
+        }
+        // Guarded for the same reason as the opens above: on a backend type change this
+        // rebuilds every cached repository, and the Realm restore's failure callback runs
+        // it with nothing around it.
+        try {
+            this.beanRegistry.updateDatabase(activeDb);
+        } catch (e) {
+            General.logError("GlobalContext", `Binding the reopened database failed: ${e.message}`);
+            return false;
+        }
+        return true;
     }
 }
 

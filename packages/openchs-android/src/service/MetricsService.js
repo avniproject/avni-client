@@ -3,6 +3,7 @@ import {Observation, Point} from "openchs-models";
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
 import GlobalContext from "../GlobalContext";
+import SettingsService from "./SettingsService";
 
 @Service("metricsService")
 export default class MetricsService extends BaseService {
@@ -22,6 +23,9 @@ export default class MetricsService extends BaseService {
         } catch (e) {
             appInfo.activeBackend = 'unknown';
         }
+        // Always a present key, null included: its presence is what marks a row as one that
+        // reports phase durations at all, now that the phases themselves are sparse.
+        appInfo.pageSize = this.getService(SettingsService).getSettings().pageSize ?? null;
         return appInfo;
     }
 }

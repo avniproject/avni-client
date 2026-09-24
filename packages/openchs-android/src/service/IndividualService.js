@@ -134,6 +134,21 @@ function getSubjectUUIDsForCustomFilters(customFilterService, reportFilters, ent
     return {uniqueSubjects, filterApplied};
 }
 
+// A subject-list row shows a name, an address and one visit line — never the encounter history
+// hanging off each enrolment and subject. Depth counts the hops to the subject; cards that show
+// enrolment badges need one hop more and that one list kept eager. Skipped lists still resolve
+// if something reads them.
+const SUBJECT_VIA_ENROLMENT = {skipLists: true, depth: 2};
+const SUBJECT_DIRECT = {skipLists: true, depth: 1};
+const SUBJECT_VIA_ENROLMENT_WITH_BADGES = {skipLists: true, depth: 3, listsToInclude: new Set(['Individual.enrolments'])};
+const SUBJECT_DIRECT_WITH_BADGES = {skipLists: true, depth: 2, listsToInclude: new Set(['Individual.enrolments'])};
+const SUBJECT_WITH_BADGES = {skipLists: true, depth: 1, listsToInclude: new Set(['Individual.enrolments'])};
+
+// withHydration exists only on the SQLite backend; Realm collections are left exactly as they were.
+function forListDisplay(results, hydrationOptions) {
+    return results.withHydration ? results.withHydration(hydrationOptions) : results;
+}
+
 function applyConfiguredFilters(entities, criteria) {
     let filteredEntities = entities;
     if (!_.isEmpty(criteria)) {
@@ -339,7 +354,7 @@ class IndividualService extends BaseService {
         let searchResults, finalSearchResults = [];
 
         // Shallow, but keep enrolments — the result card shows active-program badges.
-        const shallowOpts = {skipLists: true, depth: 1, listsToInclude: new Set(['enrolments'])};
+        const shallowOpts = {skipLists: true, depth: 1, listsToInclude: new Set(['Individual.enrolments'])};
         const allResults = this.repository.findAll();
         const base = allResults.withHydration ? allResults.withHydration(shallowOpts) : allResults;
 
@@ -459,7 +474,7 @@ class IndividualService extends BaseService {
 
         let programEncounters = [];
         if (queryProgramEncounter) {
-            programEncounters = this.getRepository(ProgramEncounter.schema.name).findAll()
+            programEncounters = forListDisplay(this.getRepository(ProgramEncounter.schema.name).findAll(), SUBJECT_VIA_ENROLMENT)
                 .filtered('earliestVisitDateTime <= $0 ' +
                     'AND maxVisitDateTime >= $1 ' +
                     'AND encounterDateTime = null ' +
@@ -498,7 +513,7 @@ class IndividualService extends BaseService {
 
         let encounters = [];
         if (queryGeneralEncounter) {
-            encounters = this.getRepository(Encounter.schema.name).findAll()
+            encounters = forListDisplay(this.getRepository(Encounter.schema.name).findAll(), SUBJECT_DIRECT)
                 .filtered('earliestVisitDateTime <= $0 ' +
                     'AND maxVisitDateTime >= $1 ' +
                     'AND encounterDateTime = null ' +
@@ -545,7 +560,7 @@ class IndividualService extends BaseService {
 
         let programEncounters = [];
         if (queryProgramEncounter) {
-            programEncounters = this.getRepository(ProgramEncounter.schema.name).findAll()
+            programEncounters = forListDisplay(this.getRepository(ProgramEncounter.schema.name).findAll(), SUBJECT_VIA_ENROLMENT)
                 .filtered('maxVisitDateTime < $0 ' +
                     'AND cancelDateTime = null ' +
                     'AND encounterDateTime = null ' +
@@ -582,7 +597,7 @@ class IndividualService extends BaseService {
 
         let encounters = [];
         if (queryGeneralEncounter) {
-            encounters = this.getRepository(Encounter.schema.name).findAll()
+            encounters = forListDisplay(this.getRepository(Encounter.schema.name).findAll(), SUBJECT_DIRECT)
                 .filtered('maxVisitDateTime < $0 ' +
                     'AND cancelDateTime = null ' +
                     'AND encounterDateTime = null ' +
@@ -642,7 +657,7 @@ class IndividualService extends BaseService {
 
         let programEncounters = [];
         if (queryProgramEncounter) {
-            programEncounters = this.getRepository(ProgramEncounter.schema.name).findAll()
+            programEncounters = forListDisplay(this.getRepository(ProgramEncounter.schema.name).findAll(), SUBJECT_VIA_ENROLMENT_WITH_BADGES)
                 .filtered('voided = false ' +
                     'AND programEnrolment.voided = false ' +
                     'AND programEnrolment.individual.voided = false ' +
@@ -672,7 +687,7 @@ class IndividualService extends BaseService {
 
         let encounters = [];
         if (queryGeneralEncounter) {
-            encounters = this.getRepository(Encounter.schema.name).findAll()
+            encounters = forListDisplay(this.getRepository(Encounter.schema.name).findAll(), SUBJECT_DIRECT_WITH_BADGES)
                 .filtered('voided = false ' +
                     'AND individual.voided = false ' +
                     'AND encounterDateTime <= $0 ' +
@@ -707,7 +722,7 @@ class IndividualService extends BaseService {
         const {fromDate, tillDate} = getDateRange(date, new Duration(1, Duration.Day));
         const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
 
-        let individuals = this.repository.findAll()
+        let individuals = forListDisplay(this.repository.findAll(), SUBJECT_WITH_BADGES)
             .filtered('voided = false ' +
                 'AND registrationDate <= $0 ' +
                 'AND registrationDate >= $1 ',

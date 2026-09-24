@@ -1,4 +1,4 @@
-import {getJSON as httpGet, get as httpGetText, post as httpPost} from './requests';
+import {getJSON as httpGet, get as httpGetText, post as httpPost, getJSONTimed as httpGetTimed, postTimed as httpPostTimed} from './requests';
 
 class ChainedRequests {
     constructor() {
@@ -19,6 +19,14 @@ class ChainedRequests {
 
     post(endpoint, filecontents, onComplete) {
         return () => httpPost(endpoint, filecontents).then(onComplete);
+    }
+
+    getTimed(endpoint, onComplete) {
+        return () => httpGetTimed(endpoint).then(({body, timings}) => onComplete(body, timings));
+    }
+
+    postTimed(endpoint, filecontents, onComplete) {
+        return () => httpPostTimed(endpoint, filecontents).then(({timings}) => onComplete(timings));
     }
 
     fire() {

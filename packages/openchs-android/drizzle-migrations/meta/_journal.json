@@ -43,6 +43,27 @@
       "when": 1784088378718,
       "tag": "0005_add_downloadable_content_and_1_33_71",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1788351930467,
+      "tag": "0006_add_entity_approval_status_entity_uuid_index",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1789706853655,
+      "tag": "0007_entity_approval_status_observations",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1789706854499,
+      "tag": "0008_program_encounter_pending_visits",
+      "breakpoints": true
     }
   ]
 }

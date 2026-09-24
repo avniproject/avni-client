@@ -122,7 +122,7 @@ async function runSync(svc) {
         noop,   // onProgressPerEntity
         noop,   // onAfterMediaPush
         noop,   // updateProgressSteps
-        false,  // isSyncResetRequired
+        false,  // isManualSync
         undefined, // userConfirmation
         false,  // isOnlyUploadRequired
     );

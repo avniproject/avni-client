@@ -50,12 +50,24 @@ const EMBEDDED_SCHEMA_NAMES = new Set([
 ]);
 
 // Keep in sync with ADDITIONAL_INDEXES in SchemaGenerator.js.
+// Tables → composite indexes beyond the single-column ones above. The scheduled and overdue
+// cards filter pending visits by date; starting the index with `voided` is what gets it chosen
+// over idx_program_encounter_voided, which nearly every row matches. The app never runs ANALYZE,
+// so the planner has no statistics and prefers the index with the most equality columns.
+// Keep in sync with the same map in SchemaGenerator.js.
+const COMPOSITE_INDEXES = {
+    program_encounter: [
+        {name: "idx_program_encounter_pending_visits", columns: ["voided", "encounter_date_time", "cancel_date_time", "max_visit_date_time"]}
+    ],
+};
+
 const ADDITIONAL_INDEXES = {
     address_level: ["parent_uuid", "type_uuid"],
     location_hierarchy: ["parent_uuid", "type_uuid"],
     individual: ["registration_date"],
     encounter: ["encounter_date_time"],
     program_enrolment: ["enrolment_date_time"],
+    entity_approval_status: ["entity_uuid"],
 };
 
 // Keep in sync with JSON_UUID_ARRAY_LIST_PROPERTIES in SchemaGenerator.js.
@@ -182,6 +194,12 @@ function buildDrizzleTables() {
             }
         }
 
+        for (const {name, columns} of COMPOSITE_INDEXES[tableName] || []) {
+            if (columns.every(colName => columnDefs[colName])) {
+                indexDefs.push({tableName, colNames: columns, indexName: name});
+            }
+        }
+
         tableColumns[tableName] = columnDefs;
     }
 
@@ -212,7 +230,8 @@ function buildDrizzleTables() {
                 }
 
                 for (const idx of tableIdxs) {
-                    extras.push(index(idx.indexName).on(table[idx.colName]));
+                    const cols = (idx.colNames || [idx.colName]).map(colName => table[colName]);
+                    extras.push(index(idx.indexName).on(...cols));
                 }
 
                 return extras;

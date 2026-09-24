@@ -2,11 +2,13 @@ import {assert} from "chai";
 
 jest.mock("../../../src/framework/http/requests", () => ({
     getJSON: jest.fn(),
+    getJSONTimed: jest.fn(),
     get: jest.fn(),
     post: jest.fn(),
+    postTimed: jest.fn(),
 }));
 
-import {post} from "../../../src/framework/http/requests";
+import {postTimed} from "../../../src/framework/http/requests";
 import ConventionalRestClient from "../../../src/service/rest/ConventionalRestClient";
 
 const settingsService = {getSettings: () => ({serverURL: "http://server"})};
@@ -31,12 +33,12 @@ describe("ConventionalRestClient.postAllEntities", () => {
     let client;
 
     beforeEach(() => {
-        post.mockReset();
+        postTimed.mockReset();
         client = new ConventionalRestClient(settingsService);
     });
 
     it("drops a failing RuleFailureTelemetry post and continues with remaining entities", async () => {
-        post.mockImplementation((url, resource) =>
+        postTimed.mockImplementation((url, resource) =>
             resource.uuid === "t2" ? Promise.reject(new Error("500")) : Promise.resolve({}));
         const {popped, onCompleteOfIndividualPost} = trackPops();
         const telemetry = entitiesOfType("RuleFailureTelemetry", "ruleFailureTelemetry", ["t1", "t2", "t3"]);
@@ -48,11 +50,25 @@ describe("ConventionalRestClient.postAllEntities", () => {
 
         assert.deepEqual(popped, ["t1", "t2", "t3", "i1"], "failed telemetry must still be popped off the queue");
         assert.deepEqual(completedTypes, ["RuleFailureTelemetry", "Individual"], "push must proceed past the failure");
-        assert.equal(post.mock.calls.length, 4);
+        assert.equal(postTimed.mock.calls.length, 4);
+    });
+
+    it("hands each entity's completion callback the push timings", async () => {
+        // The callback factory must return the callback. telemetrySync once ran it inline and
+        // returned undefined, which only survived while the result was passed to a bare .then().
+        postTimed.mockImplementation(() => Promise.resolve({response: {}, timings: {serializeMs: 2, networkMs: 30}}));
+        const seen = [];
+        const onCompleteOfIndividualPost = (metaData, uuid) => (timings) => seen.push([uuid, timings]);
+        const individuals = entitiesOfType("Individual", "individual", ["i1", "i2"]);
+
+        await client.postAllEntities([individuals], onCompleteOfIndividualPost, () => {
+        });
+
+        assert.deepEqual(seen, [["i1", {serializeMs: 2, networkMs: 30}], ["i2", {serializeMs: 2, networkMs: 30}]]);
     });
 
     it("aborts on failure of a non-best-effort entity without popping it", async () => {
-        post.mockImplementation((url, resource) =>
+        postTimed.mockImplementation((url, resource) =>
             resource.uuid === "i2" ? Promise.reject(new Error("500")) : Promise.resolve({}));
         const {popped, onCompleteOfIndividualPost} = trackPops();
         const individuals = entitiesOfType("Individual", "individual", ["i1", "i2", "i3"]);

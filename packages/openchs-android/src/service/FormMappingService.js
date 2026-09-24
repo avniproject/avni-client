@@ -1,7 +1,7 @@
 // @flow
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import {EncounterType, Form, FormMapping, Program, SubjectType} from "openchs-models";
+import {Encounter, EncounterType, Form, FormMapping, Individual, Program, ProgramEncounter, ProgramEnrolment, SubjectType} from "openchs-models";
 import _ from "lodash";
 import FormQueryResult from "./FormQueryResult";
 import RealmQueryService from "./query/RealmQueryService";
@@ -195,6 +195,92 @@ class FormMappingService extends BaseService {
             this.getCancellationFormMappingsForProgramEncounterType(encounterType, program, subjectType) :
             this.getProgramEncounterFormMapping(encounterType, program, subjectType);
         return !!_.get(formMapping, 'enableApproval');
+    }
+
+    /**
+     * The Approval or Rejection form to open when a decision is made on this record, or null if the
+     * organisation has attached none - which is every organisation until one is configured, and the case
+     * that must keep falling through to the comment box.
+     *
+     * The server attaches a decision form to exactly the same (subject type, programme, visit type)
+     * combination as the form whose approval switch produced the decision (avni-server#1052), so the
+     * triple is matched exactly. Approximate matching would be wrong in a way that is hard to spot: a
+     * subject type carrying an Approval form at the subject level and another on one of its programmes
+     * shares both subject type and form type across the two, and only the programme separates them.
+     *
+     * A cancelled encounter is approved as an Encounter and a programme exit as a ProgramEnrolment, so
+     * each shares its triple's decision form. That is intended, not an oversight.
+     */
+    findApprovalFormFor(entity) {
+        return this.findDecisionForm(entity, Form.formTypes.Approval);
+    }
+
+    findRejectionFormFor(entity) {
+        return this.findDecisionForm(entity, Form.formTypes.Rejection);
+    }
+
+    /**
+     * The form a recorded decision was answered on, resolved from the decision itself.
+     *
+     * Every screen that shows a decision's answers has the decision in hand but not always the record it
+     * was made about, so the record is looked up here rather than being threaded through eleven views. The
+     * form is what turns a flat list of answers into the page-by-page layout every other set of
+     * observations in the app is shown in.
+     *
+     * Null whenever the record is gone, the decision is still Pending, or the organisation has since
+     * detached the form. All three fall back to the flat list, which is what was shown before pages
+     * existed - a missing form must never blank out answers the approver did give.
+     */
+    findFormForDecision(entityApprovalStatus) {
+        // Read through _.get rather than the isRejected/isApproved getters, which dereference
+        // approvalStatus and throw on a decision that has none - reachable from a render path, where a
+        // throw takes the whole screen down rather than losing the page headings.
+        const isRejected = _.get(entityApprovalStatus, 'approvalStatus.isRejected');
+        const isApproved = _.get(entityApprovalStatus, 'approvalStatus.isApproved');
+        if (!isRejected && !isApproved) return null;
+        if (!_.isFunction(entityApprovalStatus.getApprovedEntitySchema)) return null;
+        const entity = this.findByUUID(entityApprovalStatus.entityUUID, entityApprovalStatus.getApprovedEntitySchema());
+        if (_.isNil(entity)) return null;
+        return isRejected ? this.findRejectionFormFor(entity) : this.findApprovalFormFor(entity);
+    }
+
+    findDecisionForm(entity, formType) {
+        const triple = this.approvalCombinationFor(entity);
+        if (_.isNil(triple)) return null;
+        const uuidOf = (x) => _.get(x, 'uuid') || null;
+        const formMapping = _.find(
+            this.allFormMappings().unVoided().forFormType(formType).all(),
+            (fm) => _.get(fm, 'subjectType.uuid') === uuidOf(triple.subjectType)
+                && (fm.entityUUID || null) === uuidOf(triple.program)
+                && (fm.observationsTypeEntityUUID || null) === uuidOf(triple.encounterType));
+        return _.get(formMapping, 'form') || null;
+    }
+
+    /**
+     * The combination a decision on this record belongs to. Mirrors the switch in
+     * ApprovalDetailsView#findForm, which resolves the form of the record itself rather than of the
+     * decision, so the two lookups stay recognisably the same shape.
+     */
+    approvalCombinationFor(entity) {
+        const get = (property) => _.get(entity, property);
+        switch (entity.getSchemaName()) {
+            case Individual.schema.name:
+                return {subjectType: get('subjectType'), program: null, encounterType: null};
+            case ProgramEnrolment.schema.name:
+                return {subjectType: get('individual.subjectType'), program: get('program'), encounterType: null};
+            case Encounter.schema.name:
+                return {subjectType: get('individual.subjectType'), program: null, encounterType: get('encounterType')};
+            case ProgramEncounter.schema.name:
+                return {
+                    subjectType: get('individual.subjectType'),
+                    program: get('programEnrolment.program'),
+                    encounterType: get('encounterType')
+                };
+            default:
+                // ChecklistItem is listed on the approval dashboard but has no form mapping of its own,
+                // so a decision on one has no form to open and falls through to the comment box.
+                return null;
+        }
     }
 
     findFormForCancellingEncounterType(encounterType: EncounterType, program: Program, subjectType: SubjectType) {

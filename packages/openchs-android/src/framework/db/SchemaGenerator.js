@@ -49,12 +49,24 @@ function jsonArrayListPropFor(parentSchemaName, childSchemaName) {
 // on address_level / location_hierarchy — declared as plain string columns,
 // not FKs) and for date-range filtering on hot dashboard / sync queries.
 // Keep in sync with the same map in DrizzleSchemaExport.js.
+// Tables → composite indexes beyond the single-column ones above. The scheduled and overdue
+// cards filter pending visits by date; starting the index with `voided` is what gets it chosen
+// over idx_program_encounter_voided, which nearly every row matches. The app never runs ANALYZE,
+// so the planner has no statistics and prefers the index with the most equality columns.
+// Keep in sync with the same map in DrizzleSchemaExport.js.
+const COMPOSITE_INDEXES = {
+    program_encounter: [
+        {name: "idx_program_encounter_pending_visits", columns: ["voided", "encounter_date_time", "cancel_date_time", "max_visit_date_time"]}
+    ],
+};
+
 const ADDITIONAL_INDEXES = {
     address_level: ["parent_uuid", "type_uuid"],
     location_hierarchy: ["parent_uuid", "type_uuid"],
     individual: ["registration_date"],
     encounter: ["encounter_date_time"],
     program_enrolment: ["enrolment_date_time"],
+    entity_approval_status: ["entity_uuid"],
 };
 
 class ColumnDef {
@@ -268,6 +280,13 @@ class SchemaGenerator {
                     }
                 });
             }
+
+            (COMPOSITE_INDEXES[tableMeta.tableName] || []).forEach(({name, columns}) => {
+                if (columns.every(colName => tableMeta.getColumn(colName))) {
+                    const cols = columns.map(colName => `"${colName}"`).join(",");
+                    statements.push(`CREATE INDEX IF NOT EXISTS ${name} ON ${tableMeta.tableName}(${cols})`);
+                }
+            });
         });
 
         return statements;

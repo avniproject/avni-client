@@ -18,6 +18,7 @@
  * full or empty set (#1981).
  */
 import {UnsupportedRealmQueryError} from "./RealmQueryParser";
+import {parseDescriptors, extractTrailingCall, parseSortKeys, parseDistinctFields} from "./SortDistinctGrammar";
 
 class JsFallbackFilterEvaluator {
     /**
@@ -40,8 +41,8 @@ class JsFallbackFilterEvaluator {
         const {query, args} = filter;
         let trimmed = query.trim();
 
-        // TRUEPREDICATE DISTINCT(field)
-        if (/TRUEPREDICATE/i.test(trimmed) && /DISTINCT\s*\(/i.test(trimmed)) {
+        // TRUEPREDICATE DISTINCT(field, …)
+        if (/TRUEPREDICATE/i.test(trimmed) && parseDescriptors(trimmed).descriptors.some(d => d.keyword === "distinct")) {
             return this._applyDistinct(entities, trimmed, args, schemaName);
         }
 
@@ -54,10 +55,10 @@ class JsFallbackFilterEvaluator {
 
         // A trailing SORT(...) orders the result set; it isn't part of the predicate.
         let sortBody = null;
-        const sortMatch = trimmed.match(/\bSORT\s*\(([^)]*)\)\s*$/i);
-        if (sortMatch) {
-            sortBody = sortMatch[1];
-            trimmed = trimmed.slice(0, sortMatch.index).trim();
+        const sortCall = extractTrailingCall(trimmed, "sort");
+        if (sortCall) {
+            sortBody = sortCall.body;
+            trimmed = sortCall.rest;
             if (trimmed.length === 0) return this._applySort(entities, sortBody, schemaName);
         }
 
@@ -158,14 +159,8 @@ class JsFallbackFilterEvaluator {
     // ──── SORT(field dir, …) ────
 
     static _applySort(entities, sortBody, schemaName) {
-        const keys = sortBody.split(",")
-            .map(k => k.trim())
-            .filter(Boolean)
-            .map(k => {
-                const m = k.match(/^([\w.]+)(?:\s+(asc|desc))?$/i);
-                return m ? {field: m[1], desc: (m[2] || "").toUpperCase() === "DESC"} : null;
-            });
-        if (keys.length === 0 || keys.some(k => k === null)) {
+        const keys = parseSortKeys(sortBody);
+        if (!keys) {
             throw new UnsupportedRealmQueryError(sortBody, `could not parse SORT keys for ${schemaName}`);
         }
         return [...entities].sort((a, b) => {
@@ -182,42 +177,49 @@ class JsFallbackFilterEvaluator {
         });
     }
 
-    // ──── TRUEPREDICATE DISTINCT(field) ────
+    // ──── TRUEPREDICATE DISTINCT(field, …) ────
 
     static _applyDistinct(entities, query, args, schemaName) {
-        // Extract DISTINCT(field) — field may contain dots
-        const distinctMatch = query.match(/DISTINCT\s*\(\s*([\w.]+)\s*\)/i);
-        if (!distinctMatch) {
-            // Recognized as DISTINCT but the field didn't parse — fail loud rather than return the
-            // full unfiltered set (silent-wrong is the failure #1981 kills, in any branch).
+        // Same descriptor list, read the same way, as the SQL translator's — including which of
+        // the two was written first, which decides the rows rather than just their order.
+        const {descriptors} = parseDescriptors(query);
+        const distinctCall = descriptors.find(d => d.keyword === "distinct");
+        const sortCall = descriptors.find(d => d.keyword === "sort");
+
+        if (new Set(descriptors.map(d => d.keyword)).size !== descriptors.length) {
+            // Applying the first and ignoring the rest returns rows nobody asked for. The SQL
+            // translator rejects this shape too, so there is nowhere left for it to go.
+            throw new UnsupportedRealmQueryError(query, `repeated sort/DISTINCT descriptor not evaluable for ${schemaName}`);
+        }
+
+        const fields = distinctCall && parseDistinctFields(distinctCall.body);
+        if (!fields) {
+            // Recognized as DISTINCT but the field(s) didn't parse — fail loud rather than return
+            // the full unfiltered set (silent-wrong is the failure #1981 kills, in any branch).
             throw new UnsupportedRealmQueryError(query, `could not parse DISTINCT field for ${schemaName}`);
         }
-        const field = distinctMatch[1];
+        // A NUL separator can't appear in a resolved field value, so joining on it can't let
+        // two different field-value combinations collide onto the same composite key.
+        const distinctKey = entity => fields.map(f => {
+            const v = this._resolveFieldValue(entity, f);
+            return v == null ? "__null__" : String(v);
+        }).join("\u0000");
 
-        // Check for embedded SORT(field dir) — used in some queries
-        const sortMatch = query.match(/SORT\s*\(\s*([\w.]+)\s+(ASC|DESC)\s*\)/i);
+        // Realm applies descriptors in written order: a SORT after the DISTINCT dedupes
+        // first (keeping each key's first row in table order) and only then orders.
+        if (sortCall && distinctCall.index < sortCall.index) {
+            const deduped = this._dedupe(entities, distinctKey);
+            return this._applySort(deduped, sortCall.body, schemaName);
+        }
 
-        if (sortMatch) {
-            const sortField = sortMatch[1];
-            const sortDesc = sortMatch[2].toUpperCase() === "DESC";
-
+        if (sortCall) {
             // Sort a copy to determine winners per distinct value
-            const sorted = [...entities].sort((a, b) => {
-                const va = this._resolveFieldValue(a, sortField);
-                const vb = this._resolveFieldValue(b, sortField);
-                if (va == null && vb == null) return 0;
-                if (va == null) return sortDesc ? 1 : -1;
-                if (vb == null) return sortDesc ? -1 : 1;
-                if (va < vb) return sortDesc ? 1 : -1;
-                if (va > vb) return sortDesc ? -1 : 1;
-                return 0;
-            });
+            const sorted = this._applySort(entities, sortCall.body, schemaName);
 
             // Pick first occurrence per distinct value from sorted copy
             const winners = new Map();
             for (const entity of sorted) {
-                const val = this._resolveFieldValue(entity, field);
-                const key = val == null ? "__null__" : String(val);
+                const key = distinctKey(entity);
                 if (!winners.has(key)) {
                     winners.set(key, entity);
                 }
@@ -228,11 +230,14 @@ class JsFallbackFilterEvaluator {
             return entities.filter(e => winnerSet.has(e));
         }
 
-        // Simple dedup — keep first occurrence per unique field value
+        return this._dedupe(entities, distinctKey);
+    }
+
+    // Keep the first occurrence per key, in table order.
+    static _dedupe(entities, distinctKey) {
         const seen = new Set();
         return entities.filter(entity => {
-            const val = this._resolveFieldValue(entity, field);
-            const key = val == null ? "__null__" : String(val);
+            const key = distinctKey(entity);
             if (seen.has(key)) return false;
             seen.add(key);
             return true;

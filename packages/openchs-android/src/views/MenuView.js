@@ -11,7 +11,8 @@ import CHSContent from "./common/CHSContent";
 import Colors from "./primitives/Colors";
 import AuthService from "../service/AuthService";
 import RuleEvaluationService from "../service/RuleEvaluationService";
-import Distances from "./primitives/Distances";
+import Distances, {edgeToEdgeStatusBarInset} from "./primitives/Distances";
+import {SafeAreaInsetsContext} from "react-native-safe-area-context";
 import Fonts from "./primitives/Fonts";
 import CHSContainer from "./common/CHSContainer";
 import Separator from "./primitives/Separator";
@@ -43,6 +44,10 @@ import { getAvniError } from "../service/ServerError";
 import { AlertMessage } from "./common/AlertMessage";
 import MessageService from "../service/MessageService";
 import SessionEstablished from "../service/SessionEstablished";
+import LastSyncCompleted from "../service/LastSyncCompleted";
+import ResetSyncService from "../service/ResetSyncService";
+import EntitySyncStatusService from "../service/EntitySyncStatusService";
+import {catchmentUploadBlockers} from "../utility/CatchmentUploadGuard";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -153,17 +158,32 @@ class MenuView extends AbstractComponent {
         )
     };
 
-    uploadCatchmentDatabase() {
-        if (!this.state.oneSyncCompleted || this.state.unsyncedTxData) {
-            Alert.alert(this.I18n.t('uploadCatchmentDatabaseErrorTitle'),
-                this.getCatchmentUploadErrorMessage(),
-                [{
-                    text: this.I18n.t('ok'), onPress: () => {
-                    }, style: 'cancel'
-                }]);
-        } else {
+    // Read at the tap, not at menu load: a sync can start while this screen sits open, and a
+    // guard answering from state captured earlier would wave through the case it exists to stop.
+    async getCatchmentUploadBlockers() {
+        // getNotMigratedResetSyncs, not isResetSyncRequired — the latter marks resets migrated
+        // as a side effect, which a guard must not do on a menu tap.
+        const pendingResets = this.getService(ResetSyncService).getNotMigratedResetSyncs();
+        return catchmentUploadBlockers({
+            lastSyncCompleted: await LastSyncCompleted.didComplete(),
+            hasUnsyncedTxData: this.getService(EntitySyncStatusService).getTotalEntitiesPending() !== 0,
+            hasPendingReset: !_.isEmpty(pendingResets)
+        });
+    }
+
+    async uploadCatchmentDatabase() {
+        const blockers = await this.getCatchmentUploadBlockers();
+        if (_.isEmpty(blockers)) {
             this.startUploadDatabase('uploadCatchmentDatabase', 'uploadCatchmentDatabaseConfirmationMessage', MediaQueueService.DumpType.Catchment);
+            return;
         }
+        const reasons = blockers.map(key => this.I18n.t(key)).join(' ');
+        Alert.alert(this.I18n.t('uploadCatchmentDatabaseErrorTitle'),
+            `${reasons} ${this.I18n.t('uploadCatchmentDatabaseActionRecommended')}`,
+            [{
+                text: this.I18n.t('ok'), onPress: () => {
+                }, style: 'cancel'
+            }]);
     };
 
     uploadAppInfo() {
@@ -208,12 +228,6 @@ class MenuView extends AbstractComponent {
         Alert.alert(this.I18n.t('uploadFailed'), body);
     }
 
-    getCatchmentUploadErrorMessage() {
-        let unSyncedDataMessage = this.state.unsyncedTxData ? `${this.I18n.t('uploadCatchmentDatabaseLocalUnsavedData')}` : "";
-        let noSyncCompletedMessage = this.state.oneSyncCompleted ? "" : `${this.I18n.t('uploadCatchmentDatabaseLocalOneSyncNeeded')}`;
-        return `${unSyncedDataMessage} ${noSyncCompletedMessage} ${this.I18n.t('uploadCatchmentDatabaseActionRecommended')}`;
-    }
-
     createAnonymizedDatabase() {
         this.dispatchAction(MenuActionNames.ON_ANONYMIZE_DB, {
             onAnonymizeDBCb: (percentDone, message) => this.dispatchAction(MenuActionNames.ON_ANONYMIZE_PROGRESS, {
@@ -253,6 +267,8 @@ class MenuView extends AbstractComponent {
 
     renderTitle() {
         return (
+            <SafeAreaInsetsContext.Consumer>
+                {(insets) => (
             <TouchableNativeFeedback onPress={() => this.userSettingsView()}
                                      background={this.background()}>
                 <View style={{
@@ -261,7 +277,7 @@ class MenuView extends AbstractComponent {
                     minHeight: 70,
                     elevation: 3,
                     paddingHorizontal: 16,
-                    paddingTop: 8 + Distances.EdgeToEdgeStatusBarInset,
+                    paddingTop: 8 + edgeToEdgeStatusBarInset(insets),
                     paddingBottom: 8
                 }}>
                     <MCIIcon style={{fontSize: 35, color: Colors.headerIconColor, alignSelf: 'center'}}
@@ -285,7 +301,9 @@ class MenuView extends AbstractComponent {
                         }]}>{this.I18n.t('editSettings')}</Text>
                     </View>
                 </View>
-            </TouchableNativeFeedback>);
+            </TouchableNativeFeedback>
+                )}
+            </SafeAreaInsetsContext.Consumer>);
     }
 
     onMetabaseReportClick() {

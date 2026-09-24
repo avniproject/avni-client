@@ -27,7 +27,6 @@ import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import EncounterService from "../../service/EncounterService";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
 import {AvniAlert} from "../common/AvniAlert";
-import {RejectionMessage} from "../approval/RejectionMessage";
 import SummaryButton from "../common/SummaryButton";
 import Timer from "../common/Timer";
 import BackgroundTimer from "react-native-background-timer";
@@ -201,8 +200,6 @@ class IndividualEncounterView extends AbstractComponent {
                         <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.state.formElementGroup}/> : null}
                     {this.state.wizard.isFirstFormPage() ?
                         <View>
-                            <RejectionMessage I18n={this.I18n}
-                                              entityApprovalStatus={this.state.encounter.latestEntityApprovalStatus}/>
                             {this.state.loadPullDownView &&
                             <PreviousEncounterPullDownView showExpanded={this.state.previousEncountersDisplayed}
                                                            individual={this.state.encounter.individual}

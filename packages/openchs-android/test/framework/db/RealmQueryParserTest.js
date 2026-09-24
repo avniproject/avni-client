@@ -1,4 +1,10 @@
 import RealmQueryParser from "../../../src/framework/db/RealmQueryParser";
+import General from "../../../src/utility/General";
+
+jest.mock("../../../src/framework/errorHandling/ErrorUtil", () => ({
+    __esModule: true,
+    default: {notifyBugsnag: jest.fn()},
+}));
 
 describe("RealmQueryParser", () => {
 
@@ -191,6 +197,23 @@ describe("RealmQueryParser", () => {
 
         it("should generate JOIN for single dot-path", () => {
             const result = RealmQueryParser.parse(
+                'subjectType.name = $0',
+                ["Person"],
+                "Individual",
+                schemaMap
+            );
+            expect(result.unsupported).toBe(false);
+            expect(result.joins.length).toBe(1);
+            expect(result.joins[0].table).toBe("subject_type");
+            expect(result.where).toContain('t1."name" = ?');
+            expect(result.params).toEqual(["Person"]);
+        });
+
+        it("single dot-path ending in .uuid still JOINs rather than reading the FK column", () => {
+            // Reading t0."subject_type_uuid" instead would be the same value only while no FK
+            // dangles. The LEFT JOIN reads NULL for an orphaned row, which is what Realm gives
+            // for a link to an absent object; the FK column would read the orphaned uuid.
+            const result = RealmQueryParser.parse(
                 'subjectType.uuid = $0',
                 ["st-uuid"],
                 "Individual",
@@ -198,12 +221,23 @@ describe("RealmQueryParser", () => {
             );
             expect(result.unsupported).toBe(false);
             expect(result.joins.length).toBe(1);
-            expect(result.joins[0].table).toBe("subject_type");
             expect(result.where).toContain('t1."uuid" = ?');
             expect(result.params).toEqual(["st-uuid"]);
         });
 
         it("should generate chained JOINs for multi-level dot-path", () => {
+            const result = RealmQueryParser.parse(
+                'individual.subjectType.name = $0',
+                ["Person"],
+                "Encounter",
+                schemaMap
+            );
+            expect(result.unsupported).toBe(false);
+            expect(result.joins.length).toBe(2);
+            expect(result.where).toContain('t2."name" = ?');
+        });
+
+        it("multi-level dot-path ending in .uuid JOINs all the way to the last link", () => {
             const result = RealmQueryParser.parse(
                 'individual.subjectType.uuid = $0',
                 ["st-uuid"],
@@ -217,7 +251,7 @@ describe("RealmQueryParser", () => {
 
         it("should use aliasOffset to avoid collisions with existing JOINs from prior filtered() calls", () => {
             // Simulates chained .filtered() calls on GroupPrivileges:
-            //   .filtered("group.uuid = $0", "g1")    → joins groups AS t1
+            //   .filtered("group.name = $0", "g1")     → joins groups AS t1
             //   .filtered("privilege.name = $0", "x")  → should join privilege AS t2 (not t1 again)
             const groupPrivSchema = new Map();
             groupPrivSchema.set("GroupPrivileges", {
@@ -243,8 +277,8 @@ describe("RealmQueryParser", () => {
 
             // First filtered() call — aliasOffset=0
             const first = RealmQueryParser.parse(
-                "group.uuid = $0",
-                ["g1-uuid"],
+                "group.name = $0",
+                ["g1-name"],
                 "GroupPrivileges",
                 groupPrivSchema,
                 0
@@ -354,15 +388,33 @@ describe("RealmQueryParser", () => {
         });
 
         it("malformed sort key degrades to JS fallback instead of throwing", () => {
-            expect(() => RealmQueryParser.parse("TRUEPREDICATE sort(name ascending) Distinct(uuid)", [], "X", new Map())).not.toThrow();
-            const r = RealmQueryParser.parse("TRUEPREDICATE sort(name ascending) Distinct(uuid)", [], "X", new Map());
+            // "name asc desc" is rejected by Realm itself; "ascending" is not, and translates.
+            expect(() => RealmQueryParser.parse("TRUEPREDICATE sort(name asc desc) Distinct(uuid)", [], "X", new Map())).not.toThrow();
+            const r = RealmQueryParser.parse("TRUEPREDICATE sort(name asc desc) Distinct(uuid)", [], "X", new Map());
             expect(r.distinct).toBeFalsy();
+        });
+
+        it("translates the long spelling of the sort direction, as Realm accepts it", () => {
+            const r = RealmQueryParser.parse("TRUEPREDICATE sort(name ascending, level descending)", [], "X", new Map());
+            expect(r.unsupported).toBeFalsy();
+            expect(r.orderByTerms.map(t => t.dir)).toEqual(["ASC", "DESC"]);
         });
 
         it("reversed Distinct(...) sort(...) is not translated (stays on fallback)", () => {
             const r = RealmQueryParser.parse("TRUEPREDICATE Distinct(entityName) sort(createdDateTime asc)", [], "X", new Map());
             expect(r.distinct).toBeFalsy();
             expect(r.orderByTerms).toBeFalsy();
+        });
+
+        it("a repeated descriptor stays on fallback rather than applying the first and dropping the rest", () => {
+            for (const q of [
+                "TRUEPREDICATE sort(name asc) sort(level desc)",
+                "TRUEPREDICATE Distinct(uuid) Distinct(entityName)",
+            ]) {
+                const r = RealmQueryParser.parse(q, [], "X", new Map());
+                expect(r.distinct).toBeFalsy();
+                expect(r.orderByTerms).toBeFalsy();
+            }
         });
     });
 
@@ -501,12 +553,12 @@ describe("RealmQueryParser", () => {
             schemaMap.set("Individual", {
                 name: "Individual",
                 primaryKey: "uuid",
-                properties: {uuid: "string"}
+                properties: {uuid: "string", name: "string"}
             });
 
             const parseResult = RealmQueryParser.parse(
-                'individual.uuid = $0',
-                ["ind-uuid"],
+                'individual.name = $0',
+                ["ind-name"],
                 "Encounter",
                 schemaMap
             );
@@ -655,9 +707,27 @@ describe("RealmQueryParser", () => {
             expect(r.where).toMatch(/t0\."voided" = \?/);   // the trailing clause survives
         });
 
-        it("lowercase 'and' after the SUBQUERY count comparison also survives", () => {
+        it("a SUBQUERY with a single bare-column condition keeps its trailing clause", () => {
             const r = RealmQueryParser.parse(
                 "SUBQUERY(enrolments, $e, $e.voided = false).@count > 0 and voided = false",
+                [], "Individual", schemaMap);
+            expect(r.unsupported).toBe(false);
+            expect(r.where).toMatch(/t0\."voided" = \?/);
+        });
+
+        // Both spellings must translate; several production cards use uppercase AND.
+        it("uppercase 'AND' after the SUBQUERY count comparison also survives", () => {
+            const r = RealmQueryParser.parse(
+                "SUBQUERY(enrolments, $e, $e.program.name = 'Child' and $e.voided = false).@count > 0 AND voided = false",
+                [], "Individual", schemaMap);
+            expect(r.unsupported).toBe(false);
+            expect(r.where).toContain('t0."uuid" IN (SELECT "individual_uuid" FROM program_enrolment');
+            expect(r.where).toMatch(/t0\."voided" = \?/);
+        });
+
+        it("'&&' after the SUBQUERY count comparison also survives", () => {
+            const r = RealmQueryParser.parse(
+                "SUBQUERY(enrolments, $e, $e.voided = false).@count > 0 && voided = false",
                 [], "Individual", schemaMap);
             expect(r.unsupported).toBe(false);
             expect(r.where).toMatch(/t0\."voided" = \?/);
@@ -696,6 +766,16 @@ describe("RealmQueryParser", () => {
                 [], "Individual", schemaMap);
             expect(r.unsupported).toBe(false);
             expect(r.where).toMatch(/"program_exit_date_time" IS NULL/);
+        });
+
+        it("a link's .uuid inside a SUBQUERY leaf stays on JS fallback", () => {
+            // `= null` isn't in the FK dot-ref regex's literal alternation (quoted | $N | number),
+            // so this leaf falls to the scalar/AST path, resolves the dot-path through a JOIN, and
+            // trips the "JOIN can't live in a bare subquery" guard.
+            const r = RealmQueryParser.parse(
+                "SUBQUERY(enrolments, $e, $e.program.uuid = null).@count > 0",
+                [], "Individual", schemaMap);
+            expect(r.unsupported).toBe(true);
         });
 
         it("guard also fires for unknown field inside && / || / NOT compounds", () => {
@@ -886,6 +966,41 @@ describe("RealmQueryParser", () => {
                 const r = RealmQueryParser.parse(q, [], "A", deepSchemaMap());
                 expect(r.unsupported).toBe(true);
             });
+        });
+    });
+
+    describe("a TRUEPREDICATE translation that throws", () => {
+        const ErrorUtil = require("../../../src/framework/errorHandling/ErrorUtil").default;
+        let logError;
+
+        beforeEach(() => {
+            ErrorUtil.notifyBugsnag.mockClear();
+            logError = jest.spyOn(General, "logError").mockImplementation(() => {});
+        });
+
+        afterEach(() => {
+            jest.restoreAllMocks();
+        });
+
+        it("reports the query with the original stack, once per query, and still falls back", () => {
+            const boom = new Error("boom");
+            jest.spyOn(RealmQueryParser, "_tryTranslateTruePredicate").mockImplementation(() => {
+                throw boom;
+            });
+            const q = "TRUEPREDICATE sort(name asc) Distinct(uuid)";
+
+            const r = RealmQueryParser.parse(q, [], "X", new Map());
+            expect(r.distinct).toBeFalsy();
+            expect(logError).toHaveBeenCalledWith(expect.stringContaining(q), boom);
+            expect(ErrorUtil.notifyBugsnag).toHaveBeenCalledTimes(1);
+            const [reported, source] = ErrorUtil.notifyBugsnag.mock.calls[0];
+            expect(reported.message).toContain(q);
+            expect(reported.stack).toBe(boom.stack);
+            expect(source).toBe("RealmQueryParser::TruePredicateTranslation");
+
+            // Every card using this query would otherwise report it on every render.
+            RealmQueryParser.parse(q, [], "X", new Map());
+            expect(ErrorUtil.notifyBugsnag).toHaveBeenCalledTimes(1);
         });
     });
 });

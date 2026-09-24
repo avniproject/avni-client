@@ -28,6 +28,12 @@ export class IndividualProfileActions {
         }
     }
 
+    // Reducer state outlives the screen, so a subject saved on one profile must not leak into the next.
+    static displayedIndividual(state, propIndividual) {
+        const saved = _.get(state, 'individual');
+        return saved && saved.uuid === _.get(propIndividual, 'uuid') ? saved : propIndividual;
+    }
+
     static launchActionSelector(state) {
         const newState = IndividualProfileActions.clone(state);
         newState.displayActionSelector = true;

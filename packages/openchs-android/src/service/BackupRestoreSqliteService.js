@@ -11,10 +11,7 @@ import EntitySyncStatusService from './EntitySyncStatusService';
 import {get} from '../framework/http/requests';
 import General from '../utility/General';
 import SqliteFactory from '../framework/db/SqliteFactory';
-import SqliteMigrationService, {
-    BACKENDS,
-    MIGRATION_PHASES,
-} from './SqliteMigrationService';
+import SqliteMigrationService, {BACKENDS} from './SqliteMigrationService';
 
 /**
  * SQLite parallel to BackupRestoreRealmService for the fast-sync apply path.
@@ -29,14 +26,16 @@ import SqliteMigrationService, {
  *      compare to Settings.userId. Reject on mismatch — defence-in-depth against
  *      a snapshot misrouting.
  *   5. Backup the live SQLite file, move the downloaded .db into place.
- *   6. Persist SqliteMigrationService state as {activeBackend: SQLITE, phase: IDLE}
- *      so resumeIfPending() on the next launch immediately switches the bean
- *      registry to SQLite without trying a Realm→SQLite migration.
- *   7. Callback to GlobalContext.onSqliteDatabaseRestored → reopen SQLite from
+ *   6. Callback to GlobalContext.onSqliteDatabaseRestored → reopen SQLite from
  *      the swapped file, flip _activeBackend, update bean registry.
- *   8. On any failure after step 5: restore the SQLite backup, notify
- *      GlobalContext to reinitialize, surface "restoreFailed" so the UI can
- *      offer Retry / Slow Sync.
+ *   7. Seed missing checkpoints and bootstrap Settings on SQLite.
+ *   8. Only then commit SqliteMigrationService state as {activeBackend: SQLITE}, so the
+ *      next launch's openCommittedBackend() opens SQLite directly. Written last, like the
+ *      migration leg's commit, and a failed write fails the restore: a restore that fails
+ *      before this point leaves nothing naming a database it never finished.
+ *   9. On any failure after step 5: restore the SQLite backup, notify GlobalContext,
+ *      which opens the backend the record still commits to, and surface "restoreFailed"
+ *      so the UI can offer Retry / Slow Sync.
  *
  * Unlike the Realm flow, this DOES NOT reset entity_sync_status to
  * REALLY_OLD_DATE — the whole value of the SQLite snapshot is its populated
@@ -124,22 +123,19 @@ export default class BackupRestoreSqliteService extends BaseService {
             await fs.copyFile(dbEntry.path, liveDbPath);
 
             cb(92, 'restoringDb');
-            await SqliteMigrationService.persistStateForUser(expectedUsername, {
-                activeBackend: BACKENDS.SQLITE,
-                desiredBackend: BACKENDS.SQLITE,
-                phase: MIGRATION_PHASES.IDLE,
-                startedAt: null,
-                attemptCount: 0,
-                lastError: null,
-            });
-
-            cb(94, 'restoringDb');
             if (this.onRestoreCompleted) {
-                await this.onRestoreCompleted();
+                // false means the snapshot file is in place but SQLite would not open on it,
+                // so the runtime has fallen back to Realm. Everything below assumes the beans
+                // are on SQLite — without this the user is told the restore worked and then
+                // finds sync blocked by the mismatch with the record written at :145.
+                const reopened = await this.onRestoreCompleted();
+                if (reopened === false) {
+                    throw new Error('SQLite snapshot applied but the database could not be reopened');
+                }
             }
 
             // Beans are now wired to SQLite. Two post-switch steps that mirror
-            // SqliteMigrationService.resume() after switchBackend():
+            // the migration leg after it moves the runtime:
             // (1) seed baseline entity_sync_status rows for any
             //     entities-to-be-pulled that aren't already in the snapshot
             //     (idempotent — setup() only inserts when get() returns nil),
@@ -150,6 +146,18 @@ export default class BackupRestoreSqliteService extends BaseService {
             this._seedEntitySyncStatusBaseline();
             await this._bootstrapTargetSettings(authState);
 
+            // Recorded last, once the restored database is usable (step 8 above). Throws if
+            // the write fails, which takes the failure path below.
+            cb(96, 'restoringDb');
+            await SqliteMigrationService.commitStateForUser(expectedUsername, {
+                activeBackend: BACKENDS.SQLITE,
+                desiredBackend: BACKENDS.SQLITE,
+                preparedTarget: null,
+                startedAt: null,
+                attemptCount: 0,
+                lastError: null,
+            });
+
             await this._cleanup(downloadedZip, unzipDir, backupPath);
             cb(100, 'restoreComplete');
         } catch (error) {
@@ -157,13 +165,18 @@ export default class BackupRestoreSqliteService extends BaseService {
             await this._restoreBackup(liveDbPath, backupPath);
             await this._cleanup(downloadedZip, unzipDir);
             if (this.onRestoreFailure) {
-                await this.onRestoreFailure();
+                // cb must fire whatever happens here, or login waits on the restore forever.
+                try {
+                    await this.onRestoreFailure();
+                } catch (e) {
+                    General.logError('BackupRestoreSqliteService', `Restore-failure handler failed: ${e.message}`);
+                }
             }
             cb(100, 'restoreFailed', true, error);
         }
     }
 
-    // Mirrors the seeding half of SqliteMigrationService._resetTargetBackend — but NOT
+    // Mirrors the seeding half of SqliteMigrationService.prepareTarget — but NOT
     // the wipe: the snapshot file is intentionally pre-populated.
     // Idempotent: setup() only inserts REALLY_OLD_DATE rows for entities the
     // user can pull (no privilegeParam) AND that don't already have a row.
