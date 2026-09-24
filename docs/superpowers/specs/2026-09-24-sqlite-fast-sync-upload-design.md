@@ -159,12 +159,16 @@ backend-neutral and says nothing about catchments. Only the internal key mention
 that key would break platform translations organisations have already synced. Leave both as they
 are.
 
-**#2057 is a sequencing dependency, not in scope.** Restoring a dump and then hitting a pending
-reset sync wipes the dump just restored and forces the full sync it existed to avoid. The fix
-(`_pullResetSyncsAndMarkMigratedBeforeRefData`) exists in `SyncService` but neither restore path
-calls it. It is a live production defect on Realm today and affects both backends equally, so it
-belongs to its own card — but fast sync stays unreliable until it lands, and it should be sequenced
-before any rollout of this feature.
+**No reset-sync dependency.** #2057 is closed (8 Sep 2026); `2ec9c3624` and `9825af472` fixed the
+backend-switch path in `SyncService.js` and are both in HEAD. An earlier draft of this spec listed a
+restore-path reset defect as a prerequisite, citing that number. That was wrong on both counts: the
+issue is closed, and it covered the migration dialog rather than the restore path.
+
+The restore-then-reset interaction is worth one check during implementation rather than a blocking
+dependency. A restored dump carries the uploader's already-migrated `ResetSync` rows, so the only
+window is a reset created *after* the dump was produced — in which case applying it is correct
+behaviour, not data loss. Confirm that empirically on the device test for key 2, where the dump is
+shared and therefore oldest.
 
 ## Testing
 
