@@ -115,10 +115,15 @@ export default class BackupRestoreSqliteService extends BaseService {
             }
 
             cb(88, 'restoringDb');
+            // Close before the file moves, not after. The open connection's own close would
+            // otherwise run against the swapped-in snapshot's path, and the backup copied
+            // below would be missing whatever was still only in the WAL.
+            this._closeLiveSqlite();
             if (await fs.exists(liveDbPath)) {
                 await fs.copyFile(liveDbPath, backupPath);
                 await fs.unlink(liveDbPath);
             }
+            await this._removeSidecars(liveDbPath);
             // -wal / -shm regenerate on first open; copy main file only.
             await fs.copyFile(dbEntry.path, liveDbPath);
 
@@ -127,7 +132,7 @@ export default class BackupRestoreSqliteService extends BaseService {
                 // false means the snapshot file is in place but SQLite would not open on it,
                 // so the runtime has fallen back to Realm. Everything below assumes the beans
                 // are on SQLite — without this the user is told the restore worked and then
-                // finds sync blocked by the mismatch with the record written at :145.
+                // finds sync blocked by the mismatch with the commitStateForUser record below.
                 const reopened = await this.onRestoreCompleted();
                 if (reopened === false) {
                     throw new Error('SQLite snapshot applied but the database could not be reopened');
@@ -282,12 +287,33 @@ export default class BackupRestoreSqliteService extends BaseService {
         try {
             if (await fs.exists(backupPath)) {
                 General.logInfo('BackupRestoreSqliteService', 'Restoring SQLite backup after failure');
+                this._closeLiveSqlite();
                 if (await fs.exists(liveDbPath)) await fs.unlink(liveDbPath);
+                await this._removeSidecars(liveDbPath);
                 await fs.moveFile(backupPath, liveDbPath);
             }
         } catch (e) {
             General.logError('BackupRestoreSqliteService', `Failed to restore SQLite backup: ${e.message}`);
         }
+    }
+
+    // Whoever closes it drops the reference: reinitializeDatabase skips its own close when the
+    // handle is gone, and nothing may be handed a closed database in between.
+    _closeLiveSqlite() {
+        const globalContext = require('../GlobalContext').default.getInstance();
+        if (!globalContext.sqliteDb) return;
+        try {
+            globalContext.sqliteDb.close();
+        } catch (e) {
+            General.logWarn('BackupRestoreSqliteService', `Closing the live SQLite connection failed: ${e.message}`);
+        }
+        globalContext.sqliteDb = null;
+    }
+
+    // -wal and -shm belong to the file they were written beside. Left next to a different one
+    // they are read as its own, and the open fails or the database reads as corrupt.
+    async _removeSidecars(dbPath) {
+        await this._cleanup(`${dbPath}-wal`, `${dbPath}-shm`);
     }
 
     async _cleanup(...paths) {

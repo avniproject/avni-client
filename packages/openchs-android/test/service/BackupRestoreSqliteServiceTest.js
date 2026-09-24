@@ -53,6 +53,12 @@ jest.mock('../../src/service/SqliteMigrationService', () => ({
     BACKENDS: {REALM: 'realm', SQLITE: 'sqlite'},
 }));
 
+const mockGlobalContext = {sqliteDb: null};
+jest.mock('../../src/GlobalContext', () => ({
+    __esModule: true,
+    default: {getInstance: () => mockGlobalContext},
+}));
+
 const mockGet = jest.fn();
 
 const BackupRestoreSqliteService = require('../../src/service/BackupRestoreSqliteService').default;
@@ -90,7 +96,27 @@ function build() {
 describe('SQLite fast-sync restore commits the backend last (#2120)', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        mockGlobalContext.sqliteDb = null;
         mockGet.mockImplementation(async (url) => url.endsWith('/exists') ? 'true' : 'https://signed-url');
+    });
+
+    // -wal and -shm belong to the file they were written beside. Left next to the snapshot they
+    // are read as its own, and the backup taken under an open connection can miss the WAL.
+    it('closes the live connection and clears its -wal/-shm before the file swap', async () => {
+        const fs = require('react-native-fs').default;
+        const close = jest.fn();
+        mockGlobalContext.sqliteDb = {close};
+        const {service, cb} = build();
+
+        await service.restore(cb);
+
+        expect(close).toHaveBeenCalled();
+        expect(mockGlobalContext.sqliteDb).toBeNull();
+        expect(fs.unlink).toHaveBeenCalledWith('/docs/avni_sqlite.db-wal');
+        expect(fs.unlink).toHaveBeenCalledWith('/docs/avni_sqlite.db-shm');
+        const backupCopy = fs.copyFile.mock.calls.findIndex(([from]) => from === '/docs/avni_sqlite.db');
+        expect(close.mock.invocationCallOrder[0])
+            .toBeLessThan(fs.copyFile.mock.invocationCallOrder[backupCopy]);
     });
 
     it('records SQLite as active only after the settings bootstrap succeeds', async () => {
