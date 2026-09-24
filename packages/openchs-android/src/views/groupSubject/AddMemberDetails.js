@@ -34,7 +34,7 @@ class AddMemberDetails extends AbstractComponent {
                 inPairs={true}
                 onPress={(value) => this.toggleRole(value)}
                 selectionFn={(groupRoleUUID) => this.state.member.groupRole.uuid === groupRoleUUID}
-                labelKey={this.I18n.t('Role')}
+                labelKey={'role'}
                 mandatory={true}
                 I18n={this.I18n}
                 locale={locale}

@@ -10,6 +10,14 @@ import {IndividualRegistrationDetailsActions} from "../individual/IndividualRegi
 
 export class MemberAction {
 
+    // A device limit, not org policy: each candidate costs an eval of the org's rule on the JS
+    // thread, and the whole batch runs in one dispatch.
+    static MAX_BULK_SELECTION = 100;
+
+    // The exclusion list is joined into the search predicate one `uuid != "..."` at a time, so a
+    // group near a four-figure cap would hand the parser a query tens of kilobytes long.
+    static MAX_SEARCH_EXCLUSIONS = 200;
+
     static getInitialState(context) {
         const relations = context.get(EntityService).loadAllNonVoided(IndividualRelation.schema.name);
         return {
@@ -26,7 +34,12 @@ export class MemberAction {
             messageDisplayed: true,
             relations,
             individualRelative: IndividualRelative.createEmptyInstance(),
-            workListUpdated: false
+            workListUpdated: false,
+            bulkAddEnabled: false,
+            selectedMembers: [],
+            existingMemberCountByRoleUUID: {},
+            excludedMemberUUIDs: [],
+            eligibilityCache: {}
         }
     }
 
@@ -45,6 +58,15 @@ export class MemberAction {
             messageDisplayed: state.messageDisplayed,
             workListUpdated: state.workListUpdated,
             relativeGender: state.relativeGender,
+            bulkAddEnabled: state.bulkAddEnabled,
+            selectedMembers: state.selectedMembers.map(({memberSubject, validationResults}) => ({
+                memberSubject,
+                validationResults: validationResults.map(ValidationResult.clone)
+            })),
+            // Settled in onLoad, or a pure memo — safe to share across clones.
+            existingMemberCountByRoleUUID: state.existingMemberCountByRoleUUID,
+            excludedMemberUUIDs: state.excludedMemberUUIDs,
+            eligibilityCache: state.eligibilityCache,
         };
     }
 
@@ -74,6 +96,14 @@ export class MemberAction {
             const groupSubject = action.groupSubject;
             newState.groupRoles = context.get(GroupSubjectService).getGroupRoles(groupSubject.subjectType);
             newState.member.groupSubject = groupSubject;
+            // A household member needs their own relation to the head, and a worklist wizard
+            // carries exactly one member through to registration. Neither has a batch form.
+            newState.bulkAddEnabled = !groupSubject.isHousehold() && _.isNil(action.workLists);
+            const currentMembers = _.filter(groupSubject.groupSubjects, ({voided}) => !voided);
+            // Snapshot: groupSubjects is a memoised lazy list, so it will not grow during a batch
+            // and re-filtering it on every selection change re-hydrates the whole membership.
+            newState.excludedMemberUUIDs = _.compact(_.map(currentMembers, gs => _.get(gs, 'memberSubject.uuid')));
+            newState.existingMemberCountByRoleUUID = _.countBy(currentMembers, gs => _.get(gs, 'groupRole.uuid'));
         }
         MemberAction.autoAssignRoleIfRequired(newState, newState.member.groupSubject, newState.groupRoles, context);
         return newState;
@@ -142,6 +172,73 @@ export class MemberAction {
         }
     }
 
+    // The rule is eval'd on every call and its failures are recorded per member, so a batch that
+    // re-checks the same person is paying twice for the same answer.
+    static cachedMemberEligibility(memberSubject, groupSubject, context, cache) {
+        if (!_.has(cache, memberSubject.uuid)) {
+            cache[memberSubject.uuid] = MemberAction.checkMemberEligibility(memberSubject, groupSubject, context);
+        }
+        return cache[memberSubject.uuid];
+    }
+
+    // Row-scoped checks for one candidate in a batch. acceptedSoFar is what the earlier rows in
+    // this same selection have already spent of the role's headroom.
+    static validateCandidate(state, memberSubject, acceptedSoFar, context) {
+        const results = [];
+        const {groupSubject, groupRole} = state.member;
+
+        if (memberSubject.voided) {
+            results.push(ValidationResult.failure('GROUP_MEMBER', 'voidedIndividualAlertMessage'));
+        }
+        if (_.includes(state.excludedMemberUUIDs, memberSubject.uuid)) {
+            results.push(ValidationResult.failure('GROUP_MEMBER', 'memberAlreadyAddedMessage'));
+        }
+        if (!_.isNil(groupRole.memberSubjectType) && !_.isNil(memberSubject.subjectType)
+            && groupRole.memberSubjectType.uuid !== memberSubject.subjectType.uuid) {
+            // A mismatch is not merely unsaved-invalid: groupToMember.sql joins on it, so the
+            // membership would exist and be absent from every report.
+            results.push(ValidationResult.failure('GROUP_MEMBER', 'memberSubjectTypeMismatchMessage'));
+        }
+
+        const eligibility = MemberAction.cachedMemberEligibility(memberSubject, groupSubject, context, state.eligibilityCache);
+        if (eligibility.isDisallowed()) {
+            results.push(ValidationResult.failure('GROUP_MEMBER', eligibility.getMessage()));
+        }
+
+        const maximumNumberOfMembers = groupRole.maximumNumberOfMembers;
+        if (_.isFinite(maximumNumberOfMembers)) {
+            const existing = _.get(state.existingMemberCountByRoleUUID, groupRole.uuid, 0);
+            if (existing + acceptedSoFar >= maximumNumberOfMembers) {
+                results.push(ValidationResult.failure('GROUP_MEMBER', 'maxLimitReachedMsg'));
+            }
+        }
+        return results;
+    }
+
+    static revalidateSelection(state, memberSubjects, context) {
+        let acceptedSoFar = 0;
+        state.selectedMembers = memberSubjects.map(memberSubject => {
+            const validationResults = MemberAction.validateCandidate(state, memberSubject, acceptedSoFar, context);
+            if (_.isEmpty(validationResults)) acceptedSoFar += 1;
+            return {memberSubject, validationResults};
+        });
+        state.member.memberSubject = _.get(state.selectedMembers, '[0].memberSubject', {});
+        return state;
+    }
+
+    static addMembers(state, action, context) {
+        const newState = MemberAction.clone(state);
+        const selected = _.uniqBy(action.value || [], 'uuid');
+        return MemberAction.revalidateSelection(newState, _.take(selected, MemberAction.MAX_BULK_SELECTION), context);
+    }
+
+    static removeSelectedMember(state, action, context) {
+        const newState = MemberAction.clone(state);
+        const remaining = _.reject(newState.selectedMembers,
+            ({memberSubject}) => memberSubject.uuid === action.memberSubjectUUID);
+        return MemberAction.revalidateSelection(newState, _.map(remaining, 'memberSubject'), context);
+    }
+
     static validateFieldForEmpty(value, key) {
         if (value instanceof Date) {
             return _.isNil(value) ? ValidationResult.failure(key, 'emptyValidationMessage') : ValidationResult.successful(key);
@@ -162,6 +259,16 @@ export class MemberAction {
         try {
             const newState = MemberAction.clone(state);
             const groupRole = state.member.groupRole;
+            if (!_.isEmpty(newState.selectedMembers)) {
+                // Role and start date are shared by the batch and can be cleared after the members
+                // are picked; writing past that would give every row an empty membershipStartDate.
+                if (!_.isEmpty(newState.validationResults)) return newState;
+                const members = MemberAction.saveableMembers(newState);
+                if (!_.isEmpty(members)) {
+                    action.cb(context.get(GroupSubjectService).addMembers(members, false));
+                }
+                return newState;
+            }
             MemberAction.checkValidationErrors(newState, MemberAction.validateRelative(newState, context));
             if (_.isEmpty(newState.validationResults)) {
                 context.get(GroupSubjectService).addMember(newState.member, groupRole.isHouseholdMember, newState.individualRelative);
@@ -172,6 +279,19 @@ export class MemberAction {
             General.logError('MemberAction.onSave', error);
             return MemberAction.clone(state);
         }
+    }
+
+    // No uuid on these: each one gets a fresh one in GroupSubject.create, so a batch cannot
+    // collapse into repeated upserts of a single row.
+    static saveableMembers(state) {
+        return _.filter(state.selectedMembers, ({validationResults}) => _.isEmpty(validationResults))
+            .map(({memberSubject}) => ({
+                groupSubject: state.member.groupSubject,
+                memberSubject,
+                groupRole: state.member.groupRole,
+                membershipStartDate: state.member.membershipStartDate,
+                membershipEndDate: state.member.membershipEndDate,
+            }));
     }
 
     static validateRelative(state, context) {
@@ -193,7 +313,10 @@ export class MemberAction {
         const maximumNumberOfMembers = newState.member.groupRole.maximumNumberOfMembers;
         const validationError = currentMemberCount === maximumNumberOfMembers ? ValidationResult.failure('ROLE', 'maxLimitReachedMsg') : ValidationResult.successful('ROLE');
         MemberAction.handleValidationResult(newState, validationError);
-        return newState;
+        // saveableMembers stamps whatever role is current, and the radio stays live above the
+        // selection - so every row's cap and subject-type verdict has to be taken again.
+        return _.isEmpty(newState.selectedMembers) ? newState
+            : MemberAction.revalidateSelection(newState, _.map(newState.selectedMembers, 'memberSubject'), context);
     }
 
     static addMember(state, action, context) {
@@ -310,6 +433,8 @@ const AddNewMemberActions = {
     ON_LOAD: `${ActionPrefix}.ON_LOAD`,
     ON_ROLE_SELECT: `${ActionPrefix}.ON_ROLE_SELECT`,
     ON_MEMBER_SELECT: `${ActionPrefix}.ON_MEMBER_SELECT`,
+    ON_MEMBERS_SELECT: `${ActionPrefix}.ON_MEMBERS_SELECT`,
+    ON_MEMBER_REMOVE: `${ActionPrefix}.ON_MEMBER_REMOVE`,
     ON_MEMBERSHIP_START_DATE_SELECT: `${ActionPrefix}.ON_MEMBERSHIP_START_DATE_SELECT`,
     ON_MEMBERSHIP_END_DATE_SELECT: `${ActionPrefix}.ON_MEMBERSHIP_END_DATE_SELECT`,
     ON_SAVE: `${ActionPrefix}.ON_SAVE`,
@@ -325,6 +450,8 @@ const AddMemberActionMap = new Map([
     [AddNewMemberActions.ON_DELETE_MEMBER, MemberAction.onDeleteMember],
     [AddNewMemberActions.ON_REMOVAL_REASON_SELECT, MemberAction.onRemovalReasonSelect],
     [AddNewMemberActions.ON_MEMBER_SELECT, MemberAction.addMember],
+    [AddNewMemberActions.ON_MEMBERS_SELECT, MemberAction.addMembers],
+    [AddNewMemberActions.ON_MEMBER_REMOVE, MemberAction.removeSelectedMember],
     [AddNewMemberActions.ON_MEMBERSHIP_START_DATE_SELECT, MemberAction.addMembershipStartDate],
     [AddNewMemberActions.ON_MEMBERSHIP_END_DATE_SELECT, MemberAction.addMembershipEndDate],
     [AddNewMemberActions.ON_ROLE_SELECT, MemberAction.addRole],
