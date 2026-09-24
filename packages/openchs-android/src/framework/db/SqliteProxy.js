@@ -642,6 +642,20 @@ class SqliteProxy {
         const columnNames = presentColumns;
         const colList = columnNames.map(c => `"${c}"`).join(", ");
         const placeholders = columnNames.map(() => "?").join(", ");
+
+        // No primary key means no conflict target. ON CONFLICT("uuid") named a column the
+        // table does not have and SQLite rejected the whole statement (#2138). create()
+        // already DELETEs by entity_uuid for these tables, which is the Realm
+        // one-row-per-key behaviour the upsert was standing in for, so a plain INSERT
+        // keeps the semantics. Not INSERT OR IGNORE: that would also swallow NOT NULL and
+        // foreign-key failures this path still wants to hear about.
+        if (!tableMeta.primaryKey) {
+            return {
+                sql: `INSERT INTO ${tableMeta.tableName} (${colList}) VALUES (${placeholders})`,
+                columnNames
+            };
+        }
+
         const pk = tableMeta.primaryKey || "uuid";
         const updateCols = columnNames
             .filter(c => c !== pk)
