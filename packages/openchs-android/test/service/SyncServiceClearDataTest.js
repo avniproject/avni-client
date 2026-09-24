@@ -123,6 +123,20 @@ describe('clearData wipes both backends (#2083)', () => {
         expect(AsyncStorage.__store.has(SESSION_KEY)).toBe(false);
     });
 
+    // Landing on Realm fails when a reopen left no handle. The wipe still has to finish.
+    it('finishes even when it cannot land on Realm', async () => {
+        activeBackend = 'sqlite';
+        const svc = buildSyncService();
+        mockGlobalContext.switchBackend.mockImplementation((target) => {
+            if (target === 'realm') throw new Error('Cannot switch to Realm — the database is not open');
+            activeBackend = target;
+        });
+
+        await expect(svc.clearData()).resolves.toBeUndefined();
+
+        expect(svc.wipedBackends).toContain('sqlite');
+    });
+
     // A record outliving a half-finished run points the next launch at a backend that may
     // still hold the previous user's rows.
     it('drops the migration record before it starts wiping', async () => {

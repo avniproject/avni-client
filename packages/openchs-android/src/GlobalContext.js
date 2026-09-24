@@ -133,6 +133,14 @@ class GlobalContext {
         if (targetBackend === BACKENDS.SQLITE && !this.sqliteDb) {
             throw new Error("Cannot switch to SQLite — sqliteDb not initialised");
         }
+        // The same guard for Realm. this.db is null between a close and the reopen that
+        // follows it, so a reopen that failed leaves nothing here — and binding that null
+        // hands every service a database it cannot use while _activeBackend reports Realm
+        // as if the move had happened. Throwing keeps the runtime where it is, so the
+        // committed-backend guard on the next sync still sees the truth.
+        if (targetBackend === BACKENDS.REALM && !this.db) {
+            throw new Error("Cannot switch to Realm — the database is not open");
+        }
         const targetDb = targetBackend === BACKENDS.SQLITE ? this.sqliteDb : this.db;
         General.logInfo("GlobalContext", `Switching backend ${this._activeBackend} → ${targetBackend}`);
         this.beanRegistry.updateDatabase(targetDb);
