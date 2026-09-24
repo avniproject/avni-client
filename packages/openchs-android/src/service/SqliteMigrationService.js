@@ -401,6 +401,12 @@ class SqliteMigrationService extends BaseService {
     // The single writer of activeBackend. Throws when the write fails: a leg that cannot
     // record its completion must fail, so the runtime returns to what the next launch opens.
     async commitLeg(leg) {
+        // An encryption swap mid-sync reinitialises both databases and falls back to Realm when
+        // the target will not reopen, so the runtime can leave the leg under it.
+        const runtime = require('../GlobalContext').default.getInstance().getActiveBackend();
+        if (runtime !== leg.target) {
+            throw new Error(`Migration to ${leg.target} cannot be committed: the app is running on ${runtime}`);
+        }
         const state = await SqliteMigrationService._readStateForWrite(leg.username);
         await SqliteMigrationService.commitStateForUser(leg.username, {
             ...state,

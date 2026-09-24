@@ -424,6 +424,7 @@ describe('SqliteMigrationService', () => {
         it('commits the target as the active backend and clears the attempt', async () => {
             const leg = await service.beginLeg(BACKENDS.SQLITE);
             await service.prepareTarget(leg);
+            mockGlobalContext.getActiveBackend.mockReturnValue(BACKENDS.SQLITE);
 
             await service.commitLeg(leg);
 
@@ -437,9 +438,23 @@ describe('SqliteMigrationService', () => {
 
         it('fails the commit when the state record cannot be written', async () => {
             const leg = await service.beginLeg(BACKENDS.SQLITE);
+            mockGlobalContext.getActiveBackend.mockReturnValue(BACKENDS.SQLITE);
             AsyncStorage.setItem.mockImplementationOnce(async () => { throw new Error('disk full'); });
 
             await expect(service.commitLeg(leg)).rejects.toThrow('disk full');
+
+            expect((await service.getState()).activeBackend).toBe(BACKENDS.REALM);
+        });
+
+        // An encryption swap mid-sync can reinitialise both databases and fall back to Realm.
+        // The rest of the sync then filled Realm, so recording SQLite would name a database
+        // holding reference data and no people.
+        it('refuses to commit when the runtime left the leg under it', async () => {
+            const leg = await service.beginLeg(BACKENDS.SQLITE);
+            await service.prepareTarget(leg);
+            mockGlobalContext.getActiveBackend.mockReturnValue(BACKENDS.REALM);
+
+            await expect(service.commitLeg(leg)).rejects.toThrow('running on realm');
 
             expect((await service.getState()).activeBackend).toBe(BACKENDS.REALM);
         });
