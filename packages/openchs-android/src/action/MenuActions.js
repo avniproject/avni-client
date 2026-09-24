@@ -3,8 +3,6 @@ import SettingsService from "../service/SettingsService";
 import BackupRestoreRealmService from "../service/BackupRestoreRealmService";
 import AppInfoUploadService from "../service/AppInfoUploadService";
 import MediaQueueService from "../service/MediaQueueService";
-import SyncTelemetryService from "../service/SyncTelemetryService";
-import EntitySyncStatusService from "../service/EntitySyncStatusService";
 import General from "../utility/General";
 import MenuItemService from "../service/application/MenuItemService";
 import {MenuItem} from "openchs-models";
@@ -19,8 +17,6 @@ class MenuActions {
             backupInProgress: false,
             backupProgressUserMessage: '',
             percentDone: 0,
-            oneSyncCompleted: false,
-            unsyncedTxData: false,
             configuredMenuItems: [],
             configuredMenuItemRuleOutput: new Map()
         }
@@ -31,11 +27,6 @@ class MenuActions {
         let newState = MenuActions.clone(state);
         newState.userInfo = context.get(UserInfoService).getUserInfo();
         newState.serverURL = settings.serverURL;
-
-        newState.oneSyncCompleted = context.get(SyncTelemetryService).atLeastOneSyncCompleted();
-        const entitySyncStatusService = context.get(EntitySyncStatusService);
-        const totalPending = entitySyncStatusService.getTotalEntitiesPending();
-        newState.unsyncedTxData = totalPending !== 0;
 
         newState.configuredMenuItems = context.get(MenuItemService).getAllMenuItems();
         return newState;
