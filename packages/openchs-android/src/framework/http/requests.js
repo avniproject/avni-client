@@ -8,6 +8,10 @@ import CookieManager from "@react-native-cookies/cookies";
 
 const ACCEPTABLE_RESPONSE_STATUSES = [200, 201];
 
+// Exported so the Bugsnag exclusion matches the string this actually rejects with, rather than
+// re-typing it and drifting.
+export const SYNC_TIMEOUT_ERROR = "syncTimeoutError";
+
 const getAuthToken = async () => {
     const authService = GlobalContext.getInstance().beanRegistry.getService("authService");
     return await authService.getAuthProviderService().getAuthToken();
@@ -58,7 +62,7 @@ const fetchWithTimeOut = (url, options, timeout = 60000) => {
     return Promise.race([
         fetch(url, options),
         new Promise((_, reject) =>
-            setTimeout(() => reject(new Error("syncTimeoutError")), timeout)
+            setTimeout(() => reject(new Error(SYNC_TIMEOUT_ERROR)), timeout)
         )
     ]);
 };
