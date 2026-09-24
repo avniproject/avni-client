@@ -776,9 +776,11 @@ class SyncService extends BaseService {
             General.logError("SyncService", `Could not open the ${otherBackend} backend to clear it: ${e.message}`);
         } finally {
             // Landing on Realm can fail the same way opening the other backend did — after a
-            // reopen that did not come back there is no handle to land on. Logged, not thrown:
-            // a throw here would replace whatever failed inside the wipe.
+            // reopen that did not come back there is no handle to land on. Try to reopen it
+            // first; logged, not thrown, because a throw here would replace whatever failed
+            // inside the wipe.
             try {
+                await globalContext.openRealmIfMissing();
                 globalContext.switchBackend(BACKENDS.REALM);
             } catch (e) {
                 General.logError("SyncService", `Could not land on the realm backend after clearing: ${e.message}`);

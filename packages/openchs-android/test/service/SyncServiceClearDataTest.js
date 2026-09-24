@@ -37,6 +37,7 @@ jest.mock('@react-native-async-storage/async-storage', () => {
 const mockGlobalContext = {
     switchBackend: jest.fn(),
     openSqliteIfMissing: jest.fn(async () => true),
+    openRealmIfMissing: jest.fn(async () => true),
     getActiveBackend: jest.fn(() => 'realm'),
     beanRegistry: {register: jest.fn()},
 };

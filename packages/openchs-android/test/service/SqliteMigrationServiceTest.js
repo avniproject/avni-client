@@ -24,6 +24,7 @@ const mockGlobalContext = {
     switchBackend: jest.fn(),
     getActiveBackend: jest.fn(() => 'realm'),
     openSqliteIfMissing: jest.fn(async () => true),
+    openRealmIfMissing: jest.fn(async () => true),
 };
 jest.mock('../../src/GlobalContext', () => ({
     __esModule: true,

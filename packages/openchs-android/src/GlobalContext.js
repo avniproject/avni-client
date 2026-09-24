@@ -18,6 +18,7 @@ class GlobalContext {
     routes;
     reduxStore;
     _activeBackend;
+    _realmFactory;
 
     static getInstance() {
         if (_.isNil(singleton)) {
@@ -42,6 +43,9 @@ class GlobalContext {
         const _tEnc = Date.now();
         await EncryptionService.removeStaleKeyIfDbsPlaintext();
         Perf.mark("startup.encryptionReconcile", {ms: Date.now() - _tEnc});
+
+        // Kept for openRealmIfMissing, which runs long after this and has no caller holding one.
+        this._realmFactory = realmFactory;
 
         // Always initialize Realm (needed during transition for unsynced data verification)
         // avni-client#2084 instrumentation: on a large realm this is the dominant part of a cold start
@@ -149,6 +153,25 @@ class GlobalContext {
 
     getActiveBackend() {
         return this._activeBackend;
+    }
+
+    // The Realm half of openSqliteIfMissing. Nothing reopens Realm after a failed reinit, so
+    // a fall back to it would otherwise refuse for the rest of the process.
+    async openRealmIfMissing() {
+        if (this.db) return true;
+        if (!this._realmFactory) {
+            General.logWarn("GlobalContext", "Realm open retry skipped: no factory recorded at launch");
+            return false;
+        }
+        try {
+            this.db = await this._realmFactory.createRealm();
+            updateAnalyticsDatabase(this.db);
+            General.logInfo("GlobalContext", "Realm database opened on retry");
+            return true;
+        } catch (e) {
+            General.logWarn("GlobalContext", `Realm open retry failed: ${e.message}`);
+            return false;
+        }
     }
 
     // switchBackend() refuses SQLite while sqliteDb is missing, and nothing else reopens it

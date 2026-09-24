@@ -238,4 +238,20 @@ describe('reopening the databases after a restore never throws (#2120)', () => {
 
         expect(context.getActiveBackend()).toBe('sqlite');
     });
+
+    // Refusing the switch is half of it. Nothing reopened Realm after a failed reinit, so the
+    // fall back every abandoned leg depends on would stay refused for the rest of the process.
+    it('opens Realm on a later try after a failed reopen left none', async () => {
+        const {context} = await booted('realm');
+        context.switchBackend('sqlite');
+        const onRealmRecreated = mockBeans.get('backupRestoreRealmService').subscribeOnRestore.mock.calls[0][0];
+        realmFactory.createRealm.mockImplementationOnce(async () => { throw new Error('realm locked'); });
+        await onRealmRecreated();
+        expect(context.db).toBeNull();
+
+        expect(await context.openRealmIfMissing()).toBe(true);
+        context.switchBackend('realm');
+
+        expect(context.getActiveBackend()).toBe('realm');
+    });
 });

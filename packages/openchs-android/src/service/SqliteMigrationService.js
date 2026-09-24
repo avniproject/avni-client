@@ -230,6 +230,8 @@ class SqliteMigrationService extends BaseService {
                 `Opening the committed backend: ${state.activeBackend}`);
             if (state.activeBackend === BACKENDS.SQLITE) {
                 await globalContext.openSqliteIfMissing();
+            } else {
+                await globalContext.openRealmIfMissing();
             }
             globalContext.switchBackend(state.activeBackend);
         }
@@ -435,10 +437,19 @@ class SqliteMigrationService extends BaseService {
         this._openLeg = null;
         const message = error && error.message ? error.message : String(error);
         try {
-            const GlobalContext = require('../GlobalContext').default;
-            GlobalContext.getInstance().switchBackend(leg.source);
+            const globalContext = require('../GlobalContext').default.getInstance();
+            // The source may not be open to go back to, and switchBackend refuses a missing one.
+            if (leg.source === BACKENDS.SQLITE) await globalContext.openSqliteIfMissing();
+            else await globalContext.openRealmIfMissing();
+            globalContext.switchBackend(leg.source);
             General.logError("SqliteMigrationService",
                 `Migration to ${leg.target} failed; back on ${leg.source}: ${message}`);
+        } catch (e) {
+            General.logError("SqliteMigrationService",
+                `Could not return the runtime to ${leg.source}: ${e.message}`);
+        }
+        // Separate from the revert: a revert that fails is exactly when the diagnostics matter.
+        try {
             ErrorUtil.notifyBugsnag(error instanceof Error ? error : new Error(message),
                 `SqliteMigrationService::leg::${leg.source}->${leg.target}`);
             // Only over a record we could actually read; never write defaults back.
