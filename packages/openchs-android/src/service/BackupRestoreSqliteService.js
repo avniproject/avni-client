@@ -10,7 +10,16 @@ import MediaService from './MediaService';
 import GlobalContext from '../GlobalContext';
 import MediaQueueService from './MediaQueueService';
 import EntitySyncStatusService from './EntitySyncStatusService';
-import {UserInfo} from 'openchs-models';
+import {
+    DraftEncounter,
+    DraftEnrolment,
+    DraftProgramEncounter,
+    DraftSubject,
+    EntitySyncStatus,
+    MyGroups,
+    UserInfo,
+    UserSubjectAssignment
+} from 'openchs-models';
 import {removeBackupFile} from './BackupRestoreRealmService';
 import UserInfoService from './UserInfoService';
 import {get, getJSON} from '../framework/http/requests';
@@ -24,6 +33,18 @@ const PER_USER_TIER = 'perUser';
 const CATCHMENT_TIER = 'catchment';
 const SNAPSHOT_TIER = 'snapshot';
 const TIERS = [PER_USER_TIER, CATCHMENT_TIER, SNAPSHOT_TIER];
+
+// Rows that belong to the device the dump was taken on, not to whoever restores it.
+const PEER_OWNED_SCHEMAS = [
+    MyGroups.schema.name,
+    UserSubjectAssignment.schema.name,
+    DraftSubject.schema.name,
+    DraftEncounter.schema.name,
+    DraftEnrolment.schema.name,
+    DraftProgramEncounter.schema.name,
+];
+// The subset of the above that syncs from the server, so has an entity_sync_status row to reset.
+const PEER_OWNED_SYNCED_SCHEMAS = [MyGroups.schema.name, UserSubjectAssignment.schema.name];
 
 /**
  * SQLite parallel to BackupRestoreRealmService for the fast-sync apply path.
@@ -50,11 +71,11 @@ const TIERS = [PER_USER_TIER, CATCHMENT_TIER, SNAPSHOT_TIER];
  *      which opens the backend the record still commits to, and surface "restoreFailed"
  *      so the UI can offer Retry / Slow Sync.
  *
- * Unlike the Realm flow, this DOES NOT reset entity_sync_status to
- * REALLY_OLD_DATE — the whole value of the SQLite snapshot is its populated
- * loaded_since rows. And the device-local-only entities (drafts, MyGroups,
- * UserSubjectAssignment) don't exist in a server-generated snapshot, so no
- * cleanup pass is needed for them either.
+ * Unlike the Realm flow, this DOES NOT reset entity_sync_status wholesale to
+ * REALLY_OLD_DATE — the whole value of the SQLite dump is its populated
+ * loaded_since rows. A perUser or snapshot artifact is server-generated and carries
+ * no device-local rows, so it needs no cleanup beyond that. A catchment artifact is
+ * a peer's live database, so it does: see _clearPeerOwnedData.
  */
 @Service('backupRestoreSqliteService')
 export default class BackupRestoreSqliteService extends BaseService {
@@ -204,6 +225,12 @@ export default class BackupRestoreSqliteService extends BaseService {
             //     "Cannot read property 'loadedSince' of undefined".
             // (2) bootstrap Settings: init() (idempotent default seed) then
             //     overlay the captured auth state.
+
+            // Before the seeding, not after: the seed only inserts a baseline row where none
+            // exists, so the uploader's rows for the cleared entities have to be gone by then.
+            if (tier === CATCHMENT_TIER) {
+                this._clearPeerOwnedData();
+            }
             this._seedEntitySyncStatusBaseline();
             await this._bootstrapTargetSettings(authState);
             if (tier === CATCHMENT_TIER) {
@@ -238,6 +265,28 @@ export default class BackupRestoreSqliteService extends BaseService {
             }
             cb(100, 'restoreFailed', true, error);
         }
+    }
+
+    // A catchment dump is another field worker's live database, so it carries their group
+    // memberships, subject assignments and unsaved drafts. Realm clears the equivalent after its
+    // swap (_deleteUserGroups / _deleteUserSubjectAssignments / _deleteDrafts); here the sync
+    // status must go too, because this flow otherwise keeps loaded_since and the next sync would
+    // never re-pull what was deleted. Failing here fails the restore — running on a peer's
+    // memberships is worse than not restoring.
+    _clearPeerOwnedData() {
+        const sqliteProxy = GlobalContext.getInstance().sqliteDb;
+        if (!sqliteProxy) {
+            throw new Error('SQLite database is not open; refusing to run a catchment dump uncleaned');
+        }
+        sqliteProxy.write(() => {
+            PEER_OWNED_SCHEMAS.forEach(schemaName => sqliteProxy.deleteAllInSchema(schemaName));
+            const staleSyncStatuses = _.flatMap(PEER_OWNED_SYNCED_SCHEMAS, schemaName =>
+                sqliteProxy.objects(EntitySyncStatus.schema.name)
+                    .filtered('entityName = $0', schemaName)
+                    .slice());
+            sqliteProxy.delete(staleSyncStatuses);
+        });
+        General.logInfo('BackupRestoreSqliteService', 'Cleared the uploader\'s device-local rows from the catchment dump');
     }
 
     // A catchment dump carries the uploader's user_info row. Realm has always corrected this after

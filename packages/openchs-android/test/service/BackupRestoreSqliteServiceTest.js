@@ -324,7 +324,17 @@ describe('SQLite fast-sync restore handles identity by tier', () => {
         ]);
         const service = new BackupRestoreSqliteService({}, {getService: (cls) => services.get(cls)});
         service._readSnapshotUsername = jest.fn(async () => snapshotUsername);
-        service.subscribeOnRestore(jest.fn(async () => {}));
+        // Stands in for the reopen the runtime does inside this callback; the catchment cleanup
+        // that follows it refuses to run without an open database.
+        service.subscribeOnRestore(jest.fn(async () => {
+            mockGlobalContext.sqliteDb = {
+                close: jest.fn(),
+                write: (callback) => callback(),
+                deleteAllInSchema: jest.fn(),
+                objects: () => ({filtered: () => ({slice: () => []})}),
+                delete: jest.fn(),
+            };
+        }));
         service.subscribeOnRestoreFailure(jest.fn(async () => {}));
         return service;
     }
@@ -433,5 +443,132 @@ describe('SQLite fast-sync restore handles identity by tier', () => {
         });
         await service.restore(() => {});
         expect(saved[0]).toMatchObject({username: 'aw@org', name: 'aw@org', organisationName: 'Example Org'});
+    });
+});
+
+
+describe('SQLite fast-sync restore clears a peer database of its owner (catchment only)', () => {
+    const {MyGroups, UserSubjectAssignment, DraftSubject, DraftEncounter, DraftEnrolment, DraftProgramEncounter, EntitySyncStatus}
+        = require('openchs-models');
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+        mockGlobalContext.sqliteDb = null;
+        mockGet.mockImplementation(async (url) => url.endsWith('/exists') ? 'true' : 'https://signed-url');
+    });
+
+    function results(rows) {
+        const proxy = {
+            filtered: (query, arg) => {
+                const [, field] = /^\s*(\w+)\s*=\s*\$0\s*$/.exec(query) || [];
+                if (!field) throw new Error(`fake results proxy cannot parse: ${query}`);
+                return results(rows.filter(r => r[field] === arg));
+            },
+            slice: () => [...rows],
+        };
+        return proxy;
+    }
+
+    function fakeSqliteDb(syncStatusRows) {
+        const db = {
+            clearedSchemas: [],
+            deletedSyncStatuses: [],
+            close: jest.fn(),
+            write: jest.fn((callback) => callback()),
+            deleteAllInSchema: jest.fn((schemaName) => db.clearedSchemas.push(schemaName)),
+            objects: jest.fn((schemaName) => {
+                if (schemaName !== EntitySyncStatus.schema.name) throw new Error(`unexpected objects(${schemaName})`);
+                return results(syncStatusRows);
+            }),
+            delete: jest.fn((rows) => db.deletedSyncStatuses.push(...rows)),
+        };
+        return db;
+    }
+
+    function serviceWith({tier, syncStatusRows = []} = {}) {
+        mockGetJSON.mockImplementation(async () => ({url: 'https://signed-url', tier}));
+        const settings = {serverURL: 'https://server', userId: 'aw@org', idpType: 'cognito', clone() { return {...this}; }};
+        const entitySyncStatusService = {setup: jest.fn()};
+        const services = new Map([
+            [SettingsService, {getSettings: jest.fn(() => settings), init: jest.fn(async () => {}), saveOrUpdate: jest.fn()}],
+            [MediaService, {downloadFromUrl: jest.fn(async () => {})}],
+            [EntitySyncStatusService, entitySyncStatusService],
+            [UserInfoService, {getUserInfo: jest.fn(() => null), saveOrUpdate: jest.fn()}],
+        ]);
+        const service = new BackupRestoreSqliteService({}, {getService: (cls) => services.get(cls)});
+        service._readSnapshotUsername = jest.fn(async () => tier === 'catchment' ? 'peer.in.same.catchment' : 'aw@org');
+        const sqliteDb = fakeSqliteDb(syncStatusRows);
+        // The runtime reopens SQLite inside this callback; everything after it runs on the swapped file.
+        service.subscribeOnRestore(jest.fn(async () => { mockGlobalContext.sqliteDb = sqliteDb; }));
+        service.subscribeOnRestoreFailure(jest.fn(async () => {}));
+        return {service, sqliteDb, entitySyncStatusService};
+    }
+
+    async function restore(service) {
+        const messages = [];
+        await service.restore((p, m, failed, error) => messages.push([p, m, failed, error]));
+        return messages[messages.length - 1];
+    }
+
+    it("deletes the uploader's group memberships and subject assignments", async () => {
+        const {service, sqliteDb} = serviceWith({tier: 'catchment'});
+
+        const last = await restore(service);
+
+        expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
+        expect(sqliteDb.clearedSchemas).toEqual(expect.arrayContaining([
+            MyGroups.schema.name, UserSubjectAssignment.schema.name]));
+    });
+
+    it("deletes the uploader's unsaved drafts", async () => {
+        const {service, sqliteDb} = serviceWith({tier: 'catchment'});
+
+        const last = await restore(service);
+
+        expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
+        expect(sqliteDb.clearedSchemas).toEqual(expect.arrayContaining([
+            DraftSubject.schema.name, DraftEncounter.schema.name,
+            DraftEnrolment.schema.name, DraftProgramEncounter.schema.name]));
+    });
+
+    // The point of fast sync is the populated loaded_since rows; resetting them all would undo it.
+    it('resets sync status for the cleared synced entities and for nothing else', async () => {
+        const rows = [
+            {uuid: 'g1', entityName: MyGroups.schema.name},
+            {uuid: 'u1', entityName: UserSubjectAssignment.schema.name},
+            {uuid: 'i1', entityName: 'Individual'},
+            {uuid: 'p1', entityName: 'ProgramEncounter'},
+        ];
+        const {service, sqliteDb} = serviceWith({tier: 'catchment', syncStatusRows: rows});
+
+        const last = await restore(service);
+
+        expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
+        expect(sqliteDb.deletedSyncStatuses.map(r => r.uuid).sort()).toEqual(['g1', 'u1']);
+    });
+
+    // setup() only inserts a REALLY_OLD_DATE row where none exists, so the stale rows must be gone first.
+    it('drops the stale sync status rows before the baseline seed re-creates them', async () => {
+        const rows = [{uuid: 'g1', entityName: MyGroups.schema.name}];
+        const {service, sqliteDb, entitySyncStatusService} = serviceWith({tier: 'catchment', syncStatusRows: rows});
+
+        const last = await restore(service);
+
+        expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
+        expect(sqliteDb.delete).toHaveBeenCalled();
+        expect(entitySyncStatusService.setup).toHaveBeenCalled();
+        expect(sqliteDb.delete.mock.invocationCallOrder[0])
+            .toBeLessThan(entitySyncStatusService.setup.mock.invocationCallOrder[0]);
+    });
+
+    it.each(['perUser', 'snapshot'])('leaves a %s artifact alone — it holds no other user\'s rows', async (tier) => {
+        const rows = [{uuid: 'g1', entityName: MyGroups.schema.name}];
+        const {service, sqliteDb} = serviceWith({tier, syncStatusRows: rows});
+
+        const last = await restore(service);
+
+        expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
+        expect(sqliteDb.deleteAllInSchema).not.toHaveBeenCalled();
+        expect(sqliteDb.delete).not.toHaveBeenCalled();
     });
 });
