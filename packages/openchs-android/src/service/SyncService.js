@@ -768,6 +768,9 @@ class SyncService extends BaseService {
         await SqliteMigrationService.clearAllMigrationState();
         await SessionUsername.clear();
 
+        // Reopen first: a wipe through a handle a failed reopen left closed clears nothing.
+        await globalContext.openRealmIfMissing();
+        await globalContext.openSqliteIfMissing();
         this._clearBackend(startingBackend);
         try {
             globalContext.switchBackend(otherBackend);

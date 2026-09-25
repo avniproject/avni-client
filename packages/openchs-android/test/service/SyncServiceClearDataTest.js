@@ -154,6 +154,18 @@ describe('clearData wipes both backends (#2083)', () => {
         expect(recordPresentAtFirstWipe).toBe(false);
     });
 
+    // A wipe through a handle a failed reopen left closed clears nothing, and the reopen at
+    // the end would then hand the unwiped database to the next user.
+    it('reopens both databases before the first wipe', async () => {
+        const svc = buildSyncService();
+
+        await svc.clearData();
+
+        const firstWipe = svc.entityService.clearDataIn.mock.invocationCallOrder[0];
+        expect(mockGlobalContext.openRealmIfMissing.mock.invocationCallOrder[0]).toBeLessThan(firstWipe);
+        expect(mockGlobalContext.openSqliteIfMissing.mock.invocationCallOrder[0]).toBeLessThan(firstWipe);
+    });
+
     describe('one backend failing does not spare the other', () => {
         it('still clears SQLite when Realm cannot be cleared', async () => {
             const svc = buildSyncService({failOn: 'realm'});
