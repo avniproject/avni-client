@@ -121,6 +121,7 @@ describe('SqliteMigrationService', () => {
     let mockUserInfoService;
     let mockSettingsService;
     let mockEntityService;
+    let mockBackupRestoreSqliteService;
     let mockBeanStore;
 
     beforeEach(() => {
@@ -140,6 +141,10 @@ describe('SqliteMigrationService', () => {
         };
         mockEntityService = {
             clearDataIn: jest.fn(),
+        };
+        // No dump by default, so every test that predates fast sync still takes the full pull.
+        mockBackupRestoreSqliteService = {
+            restoreForMigration: jest.fn(async () => false),
         };
         // Default mock: settings has idpType set so the auth bootstrap path "just works"
         const mockSettings = {
@@ -165,6 +170,7 @@ describe('SqliteMigrationService', () => {
                     case 'userInfoService': return mockUserInfoService;
                     case 'settingsService': return mockSettingsService;
                     case 'entityService': return mockEntityService;
+                    case 'backupRestoreSqliteService': return mockBackupRestoreSqliteService;
                     default: return null;
                 }
             }),
@@ -508,6 +514,97 @@ describe('SqliteMigrationService', () => {
 
             expect(leg.source).toBe(BACKENDS.SQLITE);
             expect(mockEntityService.clearDataIn).toHaveBeenCalled();
+            expect((await service.getState()).activeBackend).toBe(BACKENDS.REALM);
+        });
+    });
+
+    // A device migrating to SQLite is usually an existing field worker whose catchment already
+    // has a dump in S3. Restoring it makes the migration's pull a delta instead of everything.
+    describe('a fast sync dump on the way to SQLite', () => {
+        const dumpApplied = () => mockBackupRestoreSqliteService.restoreForMigration.mockResolvedValue(true);
+
+        it('restores the dump instead of clearing the target and seeding a full pull', async () => {
+            dumpApplied();
+            const leg = await service.beginLeg(BACKENDS.SQLITE);
+
+            expect(await service.prepareTarget(leg)).toBe(false);
+
+            expect(mockBackupRestoreSqliteService.restoreForMigration).toHaveBeenCalledWith('test-user');
+            expect(mockEntityService.clearDataIn).not.toHaveBeenCalled();
+            // The restore seeds its own baseline over the dump's checkpoints; seeding here would
+            // only be the full-pull path having run as well.
+            expect(mockEntitySyncStatusService.setup).not.toHaveBeenCalled();
+            expect((await service.getState()).preparedTarget).toBe(BACKENDS.SQLITE);
+        });
+
+        it('falls back to the full pull when the catchment has no dump', async () => {
+            mockBackupRestoreSqliteService.restoreForMigration.mockResolvedValue(false);
+            const leg = await service.beginLeg(BACKENDS.SQLITE);
+
+            await service.prepareTarget(leg);
+
+            expect(mockEntityService.clearDataIn).toHaveBeenCalled();
+            expect(mockEntitySyncStatusService.setup).toHaveBeenCalled();
+            expect((await service.getState()).preparedTarget).toBe(BACKENDS.SQLITE);
+        });
+
+        it('falls back to the full pull when the restore itself fails', async () => {
+            mockBackupRestoreSqliteService.restoreForMigration.mockRejectedValue(new Error('download timed out'));
+            const leg = await service.beginLeg(BACKENDS.SQLITE);
+
+            await expect(service.prepareTarget(leg)).resolves.toBe(false);
+
+            expect(mockEntityService.clearDataIn).toHaveBeenCalled();
+            expect(mockEntitySyncStatusService.setup).toHaveBeenCalled();
+            expect((await service.getState()).preparedTarget).toBe(BACKENDS.SQLITE);
+        });
+
+        // A dump is a SQLite file; restoring one over Realm would replace the database the
+        // reverse migration is migrating away from.
+        it('is not looked for when the target is Realm', async () => {
+            dumpApplied();
+            await persisted({activeBackend: BACKENDS.SQLITE, desiredBackend: BACKENDS.REALM});
+            const leg = await service.beginLeg(BACKENDS.REALM);
+
+            await service.prepareTarget(leg);
+
+            expect(mockBackupRestoreSqliteService.restoreForMigration).not.toHaveBeenCalled();
+            expect(mockEntityService.clearDataIn).toHaveBeenCalled();
+        });
+
+        // Re-entry carries on from the checkpoints the interrupted attempt reached; a second
+        // dump would throw that progress away and download the whole thing again.
+        it('is not looked for on re-entry', async () => {
+            dumpApplied();
+            await persisted({desiredBackend: BACKENDS.SQLITE, preparedTarget: BACKENDS.SQLITE, attemptCount: 1});
+            const leg = await service.beginLeg(BACKENDS.SQLITE);
+
+            expect(await service.prepareTarget(leg)).toBe(true);
+
+            expect(mockBackupRestoreSqliteService.restoreForMigration).not.toHaveBeenCalled();
+            expect(mockEntityService.clearDataIn).not.toHaveBeenCalled();
+        });
+
+        // A reset wants everything fetched again; the dump is as old as the data being reset.
+        it('is not looked for when a reset starts the target over', async () => {
+            dumpApplied();
+            await persisted({desiredBackend: BACKENDS.SQLITE, preparedTarget: BACKENDS.SQLITE, attemptCount: 1});
+            const leg = await service.beginLeg(BACKENDS.SQLITE);
+
+            await service.restartTarget(leg);
+
+            expect(mockBackupRestoreSqliteService.restoreForMigration).not.toHaveBeenCalled();
+            expect(mockEntityService.clearDataIn).toHaveBeenCalled();
+        });
+
+        // commitLeg is the single writer of activeBackend for a leg, and it runs only once the
+        // whole sync has succeeded.
+        it('leaves the committed backend alone until the leg commits', async () => {
+            dumpApplied();
+            const leg = await service.beginLeg(BACKENDS.SQLITE);
+
+            await service.prepareTarget(leg);
+
             expect((await service.getState()).activeBackend).toBe(BACKENDS.REALM);
         });
     });
