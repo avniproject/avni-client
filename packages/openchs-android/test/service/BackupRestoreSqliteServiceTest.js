@@ -85,6 +85,9 @@ const EntitySyncStatusService = require('../../src/service/EntitySyncStatusServi
 const UserInfoService = require('../../src/service/UserInfoService').default;
 const SqliteMigrationService = require('../../src/service/SqliteMigrationService').default;
 const MediaQueueService = require('../../src/service/MediaQueueService').default;
+const _ = require('lodash');
+const {UserInfo} = require('openchs-models');
+const {PEER_OWNED_SYNC_STATUS_SCHEMAS} = require('../../src/service/BackupRestoreSqliteService');
 
 function build() {
     const settings = {
@@ -102,7 +105,7 @@ function build() {
         [SettingsService, settingsService],
         [MediaService, {downloadFromUrl: jest.fn(async () => {})}],
         [EntitySyncStatusService, {setup: jest.fn()}],
-        [UserInfoService, {getUserInfo: jest.fn(() => null), saveOrUpdate: jest.fn()}],
+        [UserInfoService, {getUserInfo: jest.fn(() => UserInfo.createEmptyInstance()), saveOrUpdate: jest.fn()}],
     ]);
     const service = new BackupRestoreSqliteService({}, {getService: (cls) => services.get(cls)});
     service._readSnapshotUsername = jest.fn(async () => 'test-user');
@@ -272,6 +275,27 @@ describe('SQLite fast-sync backup uploads the live database', () => {
         expect(fs.unlink).toHaveBeenCalledWith(`${copiedTo}.zip`);
     });
 
+    // A stalled PUT on a 400MB database leaves ~800MB of temp files behind per retry.
+    it('removes both temp files when the upload fails', async () => {
+        const fs = require('react-native-fs').default;
+        const service = serviceWith({
+            mediaQueueService: {foregroundUpload: jest.fn(async () => {throw new Error('PUT stalled');})}
+        });
+        const messages = [];
+        await service.backup(MediaQueueService.DumpType.CatchmentSqlite,
+            (percent, message) => messages.push([percent, message]));
+
+        expect(messages[messages.length - 1]).toEqual([100, 'backupFailed']);
+        // Pinned to the upload error: the cleanup assertions below are satisfied by the success
+        // path too, so the failure has to be the one that leaves both temp files on disk.
+        const General = require('../../src/utility/General').default;
+        const loggedError = General.logError.mock.calls[General.logError.mock.calls.length - 1][1];
+        expect(String(loggedError.message)).toMatch(/PUT stalled/);
+        const copiedTo = mockGlobalContext.sqliteDb.writeCopyTo.mock.calls[0][0].path;
+        expect(fs.unlink).toHaveBeenCalledWith(copiedTo);
+        expect(fs.unlink).toHaveBeenCalledWith(`${copiedTo}.zip`);
+    });
+
     it('reports backupFailed rather than throwing when the copy fails', async () => {
         mockGlobalContext.sqliteDb = {writeCopyTo: () => {throw new Error('disk full');}};
         const service = serviceWith();
@@ -320,7 +344,7 @@ describe('SQLite fast-sync restore handles identity by tier', () => {
             [SettingsService, {getSettings: jest.fn(() => settings), init: jest.fn(async () => {}), saveOrUpdate: jest.fn()}],
             [MediaService, {downloadFromUrl: jest.fn(async () => {})}],
             [EntitySyncStatusService, {setup: jest.fn()}],
-            [UserInfoService, {getUserInfo: jest.fn(() => null), saveOrUpdate: jest.fn(), ...userInfoService}],
+            [UserInfoService, {getUserInfo: jest.fn(() => UserInfo.createEmptyInstance()), saveOrUpdate: jest.fn(), ...userInfoService}],
         ]);
         const service = new BackupRestoreSqliteService({}, {getService: (cls) => services.get(cls)});
         service._readSnapshotUsername = jest.fn(async () => snapshotUsername);
@@ -430,6 +454,23 @@ describe('SQLite fast-sync restore handles identity by tier', () => {
         expect(saved).toHaveLength(0);
     });
 
+    // UserInfoService.getUserInfo() returns an empty instance, never null, so a dump with an empty
+    // user_info table stamps organisation_name = NULL unless the undefined is caught.
+    it('falls back to a placeholder organisation when the dump carries no user_info', async () => {
+        const saved = [];
+        const service = serviceWith({
+            downloadTier: 'catchment',
+            snapshotUsername: 'peer.in.same.catchment',
+            settingsUserId: 'aw@org',
+            userInfoService: {
+                getUserInfo: () => UserInfo.createEmptyInstance(),
+                saveOrUpdate: (entity) => saved.push(entity)
+            }
+        });
+        await service.restore(() => {});
+        expect(saved[0]).toMatchObject({username: 'aw@org', organisationName: 'dummy'});
+    });
+
     it('keeps the existing organisation name when stamping the local identity', async () => {
         const saved = [];
         const service = serviceWith({
@@ -448,8 +489,8 @@ describe('SQLite fast-sync restore handles identity by tier', () => {
 
 
 describe('SQLite fast-sync restore clears a peer database of its owner (catchment only)', () => {
-    const {MyGroups, UserSubjectAssignment, DraftSubject, DraftEncounter, DraftEnrolment, DraftProgramEncounter, EntitySyncStatus}
-        = require('openchs-models');
+    const {MyGroups, UserSubjectAssignment, DraftSubject, DraftEncounter, DraftEnrolment, DraftProgramEncounter,
+        IdentifierAssignment, EntitySyncStatus} = require('openchs-models');
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -493,7 +534,7 @@ describe('SQLite fast-sync restore clears a peer database of its owner (catchmen
             [SettingsService, {getSettings: jest.fn(() => settings), init: jest.fn(async () => {}), saveOrUpdate: jest.fn()}],
             [MediaService, {downloadFromUrl: jest.fn(async () => {})}],
             [EntitySyncStatusService, entitySyncStatusService],
-            [UserInfoService, {getUserInfo: jest.fn(() => null), saveOrUpdate: jest.fn()}],
+            [UserInfoService, {getUserInfo: jest.fn(() => UserInfo.createEmptyInstance()), saveOrUpdate: jest.fn()}],
         ]);
         const service = new BackupRestoreSqliteService({}, {getService: (cls) => services.get(cls)});
         service._readSnapshotUsername = jest.fn(async () => tier === 'catchment' ? 'peer.in.same.catchment' : 'aw@org');
@@ -520,6 +561,17 @@ describe('SQLite fast-sync restore clears a peer database of its owner (catchmen
             MyGroups.schema.name, UserSubjectAssignment.schema.name]));
     });
 
+    // Free identifiers are pre-allocated to the uploader's device. Left in place, this device hands
+    // out numbers the uploader is still holding as free, and two subjects get the same identifier.
+    it("deletes the uploader's pre-allocated identifier assignments", async () => {
+        const {service, sqliteDb} = serviceWith({tier: 'catchment'});
+
+        const last = await restore(service);
+
+        expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
+        expect(sqliteDb.clearedSchemas).toEqual(expect.arrayContaining([IdentifierAssignment.schema.name]));
+    });
+
     it("deletes the uploader's unsaved drafts", async () => {
         const {service, sqliteDb} = serviceWith({tier: 'catchment'});
 
@@ -536,6 +588,8 @@ describe('SQLite fast-sync restore clears a peer database of its owner (catchmen
         const rows = [
             {uuid: 'g1', entityName: MyGroups.schema.name},
             {uuid: 'u1', entityName: UserSubjectAssignment.schema.name},
+            {uuid: 'id1', entityName: IdentifierAssignment.schema.name},
+            {uuid: 'ui1', entityName: UserInfo.schema.name},
             {uuid: 'i1', entityName: 'Individual'},
             {uuid: 'p1', entityName: 'ProgramEncounter'},
         ];
@@ -544,7 +598,7 @@ describe('SQLite fast-sync restore clears a peer database of its owner (catchmen
         const last = await restore(service);
 
         expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
-        expect(sqliteDb.deletedSyncStatuses.map(r => r.uuid).sort()).toEqual(['g1', 'u1']);
+        expect(sqliteDb.deletedSyncStatuses.map(r => r.uuid).sort()).toEqual(['g1', 'id1', 'u1', 'ui1']);
     });
 
     // setup() only inserts a REALLY_OLD_DATE row where none exists, so the stale rows must be gone first.
@@ -559,6 +613,53 @@ describe('SQLite fast-sync restore clears a peer database of its owner (catchmen
         expect(entitySyncStatusService.setup).toHaveBeenCalled();
         expect(sqliteDb.delete.mock.invocationCallOrder[0])
             .toBeLessThan(entitySyncStatusService.setup.mock.invocationCallOrder[0]);
+    });
+
+    // The identity stamp rewrites the user_info row on purpose; only its checkpoint is the
+    // uploader's. Kept, /v2/me is asked for changes since the uploader's last sync and never
+    // returns this user's own record, so locale and preferences stay at their defaults.
+    it('drops the user_info checkpoint but keeps the row the identity stamp rewrites', async () => {
+        const rows = [{uuid: 'ui1', entityName: UserInfo.schema.name}];
+        const {service, sqliteDb} = serviceWith({tier: 'catchment', syncStatusRows: rows});
+
+        const last = await restore(service);
+
+        expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
+        expect(sqliteDb.deletedSyncStatuses.map(r => r.uuid)).toEqual(['ui1']);
+        expect(sqliteDb.clearedSchemas).not.toContain(UserInfo.schema.name);
+    });
+
+    // The cleanup deletes on the promise that the seed re-creates. A silent seed failure leaves
+    // the next sync destructuring loadedSince off undefined, which aborts the whole sync.
+    it('fails the catchment restore when the baseline seed cannot re-create what it deleted', async () => {
+        const rows = [{uuid: 'g1', entityName: MyGroups.schema.name}];
+        const {service, entitySyncStatusService} = serviceWith({tier: 'catchment', syncStatusRows: rows});
+        const seedFailed = new Error('entity_sync_status insert failed');
+        entitySyncStatusService.setup.mockImplementation(() => { throw seedFailed; });
+
+        const last = await restore(service);
+
+        expect(last).toEqual([100, 'restoreFailed', true, seedFailed]);
+        expect(SqliteMigrationService.commitStateForUser).not.toHaveBeenCalled();
+    });
+
+    it.each(['perUser', 'snapshot'])('completes a %s restore whose baseline seed fails — it deleted nothing', async (tier) => {
+        const {service, entitySyncStatusService} = serviceWith({tier});
+        entitySyncStatusService.setup.mockImplementation(() => { throw new Error('entity_sync_status insert failed'); });
+
+        const last = await restore(service);
+
+        expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
+    });
+
+    // The cleanup only deletes checkpoints; setup() is what puts them back. A schema it will not
+    // re-seed would be deleted and never replaced, which is the crash the seed exists to prevent.
+    it('only drops checkpoints the baseline seed will re-create', () => {
+        const {EntityMetaData} = require('openchs-models');
+        const reseeded = EntityMetaData.getEntitiesToBePulled()
+            .filter(e => _.isEmpty(e.privilegeParam))
+            .map(e => e.entityName);
+        expect(_.difference(PEER_OWNED_SYNC_STATUS_SCHEMAS, reseeded)).toEqual([]);
     });
 
     it.each(['perUser', 'snapshot'])('leaves a %s artifact alone — it holds no other user\'s rows', async (tier) => {

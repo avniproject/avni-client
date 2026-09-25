@@ -16,6 +16,7 @@ import {
     DraftProgramEncounter,
     DraftSubject,
     EntitySyncStatus,
+    IdentifierAssignment,
     MyGroups,
     UserInfo,
     UserSubjectAssignment
@@ -38,13 +39,23 @@ const TIERS = [PER_USER_TIER, CATCHMENT_TIER, SNAPSHOT_TIER];
 const PEER_OWNED_SCHEMAS = [
     MyGroups.schema.name,
     UserSubjectAssignment.schema.name,
+    // Free identifiers are pre-allocated to the uploader's device; kept, both devices hand out
+    // the same number and one registration overwrites the other.
+    IdentifierAssignment.schema.name,
     DraftSubject.schema.name,
     DraftEncounter.schema.name,
     DraftEnrolment.schema.name,
     DraftProgramEncounter.schema.name,
 ];
-// The subset of the above that syncs from the server, so has an entity_sync_status row to reset.
-const PEER_OWNED_SYNCED_SCHEMAS = [MyGroups.schema.name, UserSubjectAssignment.schema.name];
+// Checkpoints left over from the uploader's sync. UserInfo is here without being in the list
+// above: _stampLocalIdentity rewrites that row deliberately, but the uploader's loaded_since
+// would have /v2/me asked for changes newer than this user's own record, which never returns it.
+export const PEER_OWNED_SYNC_STATUS_SCHEMAS = [
+    MyGroups.schema.name,
+    UserSubjectAssignment.schema.name,
+    IdentifierAssignment.schema.name,
+    UserInfo.schema.name,
+];
 
 /**
  * SQLite parallel to BackupRestoreRealmService for the fast-sync apply path.
@@ -228,10 +239,11 @@ export default class BackupRestoreSqliteService extends BaseService {
 
             // Before the seeding, not after: the seed only inserts a baseline row where none
             // exists, so the uploader's rows for the cleared entities have to be gone by then.
-            if (tier === CATCHMENT_TIER) {
+            const clearedPeerOwnedData = tier === CATCHMENT_TIER;
+            if (clearedPeerOwnedData) {
                 this._clearPeerOwnedData();
             }
-            this._seedEntitySyncStatusBaseline();
+            this._seedEntitySyncStatusBaseline({mustSucceed: clearedPeerOwnedData});
             await this._bootstrapTargetSettings(authState);
             if (tier === CATCHMENT_TIER) {
                 this._stampLocalIdentity(localUsername);
@@ -280,7 +292,7 @@ export default class BackupRestoreSqliteService extends BaseService {
         }
         sqliteProxy.write(() => {
             PEER_OWNED_SCHEMAS.forEach(schemaName => sqliteProxy.deleteAllInSchema(schemaName));
-            const staleSyncStatuses = _.flatMap(PEER_OWNED_SYNCED_SCHEMAS, schemaName =>
+            const staleSyncStatuses = _.flatMap(PEER_OWNED_SYNC_STATUS_SCHEMAS, schemaName =>
                 sqliteProxy.objects(EntitySyncStatus.schema.name)
                     .filtered('entityName = $0', schemaName)
                     .slice());
@@ -297,7 +309,7 @@ export default class BackupRestoreSqliteService extends BaseService {
         const existing = userInfoService.getUserInfo();
         userInfoService.saveOrUpdate(UserInfo.fromResource({
             username,
-            organisationName: existing ? existing.organisationName : 'dummy',
+            organisationName: _.get(existing, 'organisationName') || 'dummy',
             name: username
         }));
     }
@@ -307,7 +319,7 @@ export default class BackupRestoreSqliteService extends BaseService {
     // Idempotent: setup() only inserts REALLY_OLD_DATE rows for entities the
     // user can pull (no privilegeParam) AND that don't already have a row.
     // Existing snapshot rows with their loaded_since values are untouched.
-    _seedEntitySyncStatusBaseline() {
+    _seedEntitySyncStatusBaseline({mustSucceed = false} = {}) {
         try {
             const entitySyncStatusService = this.getService(EntitySyncStatusService);
             if (entitySyncStatusService && typeof entitySyncStatusService.setup === 'function') {
@@ -316,6 +328,10 @@ export default class BackupRestoreSqliteService extends BaseService {
             }
         } catch (e) {
             General.logError('BackupRestoreSqliteService', `Failed to seed baseline entity_sync_status: ${e.message}`);
+            // _clearPeerOwnedData deleted rows on the promise that this re-creates them. Without
+            // them the next sync destructures loadedSince off undefined and aborts entirely, and
+            // only the next app launch repairs it — so fail the restore and roll the file back.
+            if (mustSucceed) throw e;
         }
     }
 
