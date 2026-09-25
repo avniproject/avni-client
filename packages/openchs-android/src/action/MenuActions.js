@@ -1,6 +1,7 @@
 import UserInfoService from "../service/UserInfoService";
 import SettingsService from "../service/SettingsService";
 import BackupRestoreRealmService from "../service/BackupRestoreRealmService";
+import BackupRestoreSqliteService from "../service/BackupRestoreSqliteService";
 import AppInfoUploadService from "../service/AppInfoUploadService";
 import MediaQueueService from "../service/MediaQueueService";
 import General from "../utility/General";
@@ -8,6 +9,8 @@ import MenuItemService from "../service/application/MenuItemService";
 import {MenuItem} from "openchs-models";
 import RuleEvaluationService from "../service/RuleEvaluationService";
 import AnonymizeRealmService from "../service/AnonymizeRealmService";
+import GlobalContext from "../GlobalContext";
+import {BACKENDS} from "../framework/BackendTypes";
 
 class MenuActions {
     static getInitialState() {
@@ -44,6 +47,8 @@ class MenuActions {
         };
         if (action.dumpType === MediaQueueService.DumpType.Adhoc) {
             context.get(AppInfoUploadService).upload(cb);
+        } else if (GlobalContext.getInstance().getActiveBackend() === BACKENDS.SQLITE) {
+            context.get(BackupRestoreSqliteService).backup(MediaQueueService.DumpType.CatchmentSqlite, cb);
         } else {
             context.get(BackupRestoreRealmService).backup(action.dumpType, cb);
         }

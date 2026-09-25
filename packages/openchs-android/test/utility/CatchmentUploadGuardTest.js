@@ -31,4 +31,11 @@ describe('catchmentUploadBlockers', () => {
         expect(catchmentUploadBlockers({})).toContain(BLOCKER_KEYS.lastSyncIncomplete);
         expect(catchmentUploadBlockers(undefined)).toContain(BLOCKER_KEYS.lastSyncIncomplete);
     });
+
+    // The guard runs before MenuActions picks Realm or SQLite as the backup backend, so it
+    // must block on the same reasons regardless of which backend will end up uploading.
+    it('blocks the SQLite upload for the same reasons as the Realm upload', () => {
+        const blocked = {lastSyncCompleted: false, hasUnsyncedTxData: false, hasPendingReset: false};
+        expect(catchmentUploadBlockers(blocked)).toEqual(['uploadCatchmentDatabaseLocalOneSyncNeeded']);
+    });
 });

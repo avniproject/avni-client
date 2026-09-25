@@ -18,7 +18,7 @@ jest.mock('react-native-fs', () => ({
         readDir: jest.fn(async () => [{name: 'snapshot.db', path: '/docs/unzipped/snapshot.db'}]),
     },
 }));
-jest.mock('react-native-zip-archive', () => ({unzip: jest.fn(async () => {})}));
+jest.mock('react-native-zip-archive', () => ({unzip: jest.fn(async () => {}), zip: jest.fn(async () => {})}));
 jest.mock('../../src/framework/http/requests', () => ({get: (...args) => mockGet(...args)}));
 jest.mock('../../src/utility/General', () => ({
     __esModule: true,
@@ -43,6 +43,18 @@ jest.mock('../../src/service/BaseService', () => ({
 jest.mock('../../src/service/SettingsService', () => ({__esModule: true, default: class SettingsService {}}));
 jest.mock('../../src/service/MediaService', () => ({__esModule: true, default: class MediaService {}}));
 jest.mock('../../src/service/EntitySyncStatusService', () => ({__esModule: true, default: class EntitySyncStatusService {}}));
+jest.mock('../../src/service/MediaQueueService', () => ({
+    __esModule: true,
+    default: class MediaQueueService {
+        static DumpType = {
+            Catchment: 'catchment',
+            CatchmentSqlite: 'catchmentSqlite',
+            Adhoc: 'Adhoc',
+        };
+        getDumpUploadUrl() {}
+        foregroundUpload() {}
+    },
+}));
 jest.mock('../../src/framework/db/SqliteFactory', () => ({
     __esModule: true,
     default: {getDbFullPath: () => '/docs/avni_sqlite.db'},
@@ -66,6 +78,7 @@ const SettingsService = require('../../src/service/SettingsService').default;
 const MediaService = require('../../src/service/MediaService').default;
 const EntitySyncStatusService = require('../../src/service/EntitySyncStatusService').default;
 const SqliteMigrationService = require('../../src/service/SqliteMigrationService').default;
+const MediaQueueService = require('../../src/service/MediaQueueService').default;
 
 function build() {
     const settings = {
@@ -91,6 +104,18 @@ function build() {
     service.subscribeOnRestore(onRestoreCompleted);
     service.subscribeOnRestoreFailure(onRestoreFailure);
     return {service, settingsService, onRestoreCompleted, onRestoreFailure, cb: jest.fn()};
+}
+
+function serviceWith({db, mediaQueueService} = {}) {
+    const defaultMediaQueueService = {
+        getDumpUploadUrl: jest.fn(async () => 'https://s3/put'),
+        foregroundUpload: jest.fn(async () => {}),
+    };
+    const services = new Map([
+        [MediaQueueService, {...defaultMediaQueueService, ...mediaQueueService}],
+    ]);
+    const defaultDb = {writeCopyTo: jest.fn()};
+    return new BackupRestoreSqliteService({...defaultDb, ...db}, {getService: (cls) => services.get(cls)});
 }
 
 describe('SQLite fast-sync restore commits the backend last (#2120)', () => {
@@ -186,5 +211,45 @@ describe('SQLite fast-sync restore commits the backend last (#2120)', () => {
         await service.restore(cb);
 
         expect(cb).toHaveBeenLastCalledWith(100, 'restoreFailed', true, diskFull);
+    });
+});
+
+describe('SQLite fast-sync backup uploads the live database', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it('copies the live SQLite database and uploads it as a SQLite catchment dump', async () => {
+        const copied = [];
+        const uploaded = [];
+        const service = serviceWith({
+            db: {writeCopyTo: (config) => copied.push(config.path)},
+            mediaQueueService: {
+                getDumpUploadUrl: (dumpType) => {
+                    uploaded.push(dumpType);
+                    return Promise.resolve('https://s3/put');
+                },
+                uploadToUrl: () => Promise.resolve()
+            }
+        });
+
+        const messages = [];
+        await service.backup(MediaQueueService.DumpType.CatchmentSqlite,
+            (percent, message) => messages.push([percent, message]));
+
+        expect(copied).toHaveLength(1);
+        expect(copied[0]).toMatch(/\.db$/);
+        expect(uploaded).toEqual([MediaQueueService.DumpType.CatchmentSqlite]);
+        expect(messages[messages.length - 1]).toEqual([100, 'backupCompleted']);
+    });
+
+    it('reports backupFailed rather than throwing when the copy fails', async () => {
+        const service = serviceWith({
+            db: {writeCopyTo: () => {throw new Error('disk full');}}
+        });
+        const messages = [];
+        await service.backup(MediaQueueService.DumpType.CatchmentSqlite,
+            (percent, message) => messages.push([percent, message]));
+        expect(messages[messages.length - 1]).toEqual([100, 'backupFailed']);
     });
 });

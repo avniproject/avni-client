@@ -32,6 +32,7 @@ function checkUploadStatus(response, mediaDisplayText) {
 class MediaQueueService extends BaseService {
     static DumpType = {
         Catchment: 'catchment',
+        CatchmentSqlite: 'catchmentSqlite',
         Adhoc: 'Adhoc'
     }
 
@@ -112,6 +113,8 @@ class MediaQueueService extends BaseService {
         const serverUrl = this.getServerUrl();
         if (dumpType === MediaQueueService.DumpType.Catchment)
             return get(`${serverUrl}/media/mobileDatabaseBackupUrl/upload`, false, false);
+        else if (dumpType === MediaQueueService.DumpType.CatchmentSqlite)
+            return get(`${serverUrl}/media/fastSyncUpload`, false, false);
         else if (dumpType === MediaQueueService.DumpType.Adhoc)
             return get(`${serverUrl}/media/uploadUrl/${fileName}`, false, false);
     }

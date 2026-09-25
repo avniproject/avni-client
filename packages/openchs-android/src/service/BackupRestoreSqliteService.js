@@ -1,5 +1,5 @@
 import fs from 'react-native-fs';
-import {unzip} from 'react-native-zip-archive';
+import {unzip, zip} from 'react-native-zip-archive';
 import {open as openSqlite} from '@op-engineering/op-sqlite';
 import _ from 'lodash';
 
@@ -7,11 +7,15 @@ import Service from '../framework/bean/Service';
 import BaseService from './BaseService';
 import SettingsService from './SettingsService';
 import MediaService from './MediaService';
+import MediaQueueService from './MediaQueueService';
 import EntitySyncStatusService from './EntitySyncStatusService';
+import {removeBackupFile} from './BackupRestoreRealmService';
 import {get} from '../framework/http/requests';
 import General from '../utility/General';
+import FileSystem from '../model/FileSystem';
 import SqliteFactory from '../framework/db/SqliteFactory';
 import SqliteMigrationService, {BACKENDS} from './SqliteMigrationService';
+import toAvniError from '../framework/errorHandling/toAvniError';
 
 /**
  * SQLite parallel to BackupRestoreRealmService for the fast-sync apply path.
@@ -55,6 +59,39 @@ export default class BackupRestoreSqliteService extends BaseService {
 
     subscribeOnRestoreFailure(onRestoreFailure) {
         this.onRestoreFailure = onRestoreFailure;
+    }
+
+    backup(dumpType, cb) {
+        const fileName = `${General.randomUUID()}.db`;
+        const destFile = `${FileSystem.getBackupDir()}/${fileName}`;
+        const destZipFile = `${destFile}.zip`;
+        const mediaQueueService = this.getService(MediaQueueService);
+
+        return Promise.resolve()
+            .then(() => {
+                // SqliteProxy.writeCopyTo already checkpoints the WAL and disables FK enforcement for
+                // the copy, so the copy is consistent without extra work here.
+                this.db.writeCopyTo({path: destFile});
+            })
+            .then(() => zip(destFile, destZipFile))
+            .then(() => cb(10, "backupUploading"))
+            .then(() => mediaQueueService.getDumpUploadUrl(dumpType, fileName))
+            .then((url) => mediaQueueService.foregroundUpload(url, destZipFile, (written, total) => {
+                cb(10 + (97 - 10) * (written / total), "backupUploading");
+            }))
+            .then(() => removeBackupFile(destFile))
+            .then(() => removeBackupFile(destZipFile))
+            .then(() => cb(100, "backupCompleted"))
+            .catch((error) => {
+                General.logError("BackupRestoreSqliteService", error);
+                removeBackupFile(destFile).catch(() => {});
+                removeBackupFile(destZipFile).catch(() => {});
+                cb(100, "backupFailed", this._toAvniError(error));
+            });
+    }
+
+    _toAvniError(error) {
+        return toAvniError(error);
     }
 
     /**
