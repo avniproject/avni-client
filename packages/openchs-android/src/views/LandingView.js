@@ -13,11 +13,12 @@ import {LandingViewActionsNames as Actions} from "../action/LandingViewActions";
 import Reducers from "../reducer";
 import Styles from "./primitives/Styles";
 import MyDashboardView from "./mydashbaord/MyDashboardView";
-import {Dimensions, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {BackHandler, Dimensions, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import EntityService from "../service/EntityService";
 import {SubjectType} from "avni-models";
 import _ from "lodash";
 import Colors from "./primitives/Colors";
+import Distances from "./primitives/Distances";
 import RegisterView from "./RegisterView";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -87,6 +88,14 @@ class LandingView extends AbstractComponent {
 
     viewName() {
         return "LandingView";
+    }
+
+    // This is the home dashboard - Login/RootView are no longer in the navigator stack beneath
+    // it by this point, so Router's generic pop()-based hardware-back fallback has nothing left
+    // to pop to and silently no-ops instead of exiting. Handle it explicitly here.
+    onHardwareBackPress() {
+        BackHandler.exitApp();
+        return true;
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -372,9 +381,14 @@ class LandingView extends AbstractComponent {
         General.logDebug('LandingView', `render - showGuide: ${showGuide}, showRegisterGuide: ${this.state.showRegisterGuide}, displayRegister: ${displayRegister}, registerButtonIndex: ${registerButtonIndex}, bottomBarCount: ${bottomBarIcons.length}, secondaryDashboard: ${!_.isNil(secondaryDashboard)}`);
         const bottomBarContent = (
             <View style={{
-                height: LandingView.layoutConstants.bottomBarHeight,
+                // Bar's background stays flush to the true bottom edge (bottom: 0) and grows taller by the
+                // Android 16+ gesture-nav inset; paddingBottom reserves that same amount inside the box, so
+                // alignItems: 'center' still centers the icons within the original bottomBarHeight zone -
+                // same gaps as before, just sitting `inset` px above the gesture bar instead of under it.
+                height: LandingView.layoutConstants.bottomBarHeight + Distances.EdgeToEdgeNavigationBarInset,
                 position: 'absolute',
                 bottom: 0,
+                paddingBottom: Distances.EdgeToEdgeNavigationBarInset,
                 width: '100%',
                 backgroundColor: Colors.bottomBarColor,
                 flexDirection: 'row',

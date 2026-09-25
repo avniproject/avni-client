@@ -1,6 +1,7 @@
 import {ScrollView, StyleSheet, Vibration, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
+import {logTaskDuration} from "../../utility/Analytics";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
 import {Actions} from "../../action/individual/PersonRegisterActions";
@@ -11,6 +12,7 @@ import WizardButtons from "../common/WizardButtons";
 import PersonRegisterViewsMixin from "./PersonRegisterViewsMixin";
 import {ObservationsHolder} from 'avni-models';
 import General from "../../utility/General";
+import {getCurrentPageValidationResults} from "../../utility/FormPageReadiness";
 import Distances from "../primitives/Distances";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
@@ -79,7 +81,7 @@ class PersonRegisterFormView extends AbstractComponent {
     }
 
     onHardwareBackPress() {
-        !this.state.wizard.isFirstPage() ? this.previous() : TypedTransition.from(this).goBack();
+        this.onAppHeaderBack(this.state.saveDrafts);
         return true;
     }
 
@@ -95,8 +97,13 @@ class PersonRegisterFormView extends AbstractComponent {
     }
 
     onAppHeaderBack(saveDraftOn) {
-        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [PersonRegisterView, PersonRegisterFormView]);
-        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n);
+        const onYesPress = () => {
+            if (this.state.isNewEntity && this.state.registrationStartTime) {
+                logTaskDuration('registration', _.get(this.state, 'individualSubjectType.name'), Date.now() - this.state.registrationStartTime, 'abandoned');
+            }
+            CHSNavigator.navigateToFirstPage(this, [PersonRegisterView, PersonRegisterFormView]);
+        };
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n, undefined, {screen: this.viewName()});
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -125,6 +132,9 @@ class PersonRegisterFormView extends AbstractComponent {
         const subjectType = this.state.individual.subjectType;
         const userInfoService = this.context.getService(UserInfoService);
         const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);
+        const observationHolder = new ObservationsHolder(this.state.individual.observations);
+        const filteredFormElements = this.state.filteredFormElements || this.state.formElementGroup.getFormElements();
+        const isCurrentPageComplete = _.every(getCurrentPageValidationResults(this.state.formElementGroup, filteredFormElements, observationHolder), validationResult => validationResult.success);
         return (
             <CHSContainer>
                 <CHSContent>
@@ -137,9 +147,9 @@ class PersonRegisterFormView extends AbstractComponent {
                         <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                             <SummaryButton onPress={() => PersonRegisterViewsMixin.summary(this)}/>
                         </View>
-                        <View style={{backgroundColor: '#ffffff', flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
+                        <View style={{backgroundColor: '#ffffff', flexDirection: 'column'}}>
                             {_.get(this.state, 'timerState.displayQuestions', true) &&
-                            <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)}
+                            <FormElementGroup observationHolder={observationHolder}
                                               group={this.state.formElementGroup}
                                               actions={Actions}
                                               filteredFormElements={this.state.filteredFormElements}
@@ -166,7 +176,8 @@ class PersonRegisterFormView extends AbstractComponent {
                             }}
                             next={{
                                 func: () => PersonRegisterViewsMixin.next(this),
-                                label: this.I18n.t('next')
+                                label: this.I18n.t('next'),
+                                ready: isCurrentPageComplete
                             }}
                         />
                     </View>}
@@ -178,7 +189,12 @@ class PersonRegisterFormView extends AbstractComponent {
 
 const styles = StyleSheet.create({
     fixedButtonBar: {
-        height: 84,
+        // Explicit padding, not height/minHeight+centering: (84 - buttonHeight(56)) / 2 = 14, the original visual
+        // gap above and below the button row. Centering math collapsed this gap once the box grew to fit
+        // WizardButtons' own added bottom inset (API 36+ gesture/nav bar clearance) - explicit padding keeps
+        // this 14px gap guaranteed regardless of content height, while that inset adds further space below it.
+        paddingTop: 14,
+        paddingBottom: 14,
         justifyContent: 'center',
         backgroundColor: '#ffffff',
         shadowColor: '#000',

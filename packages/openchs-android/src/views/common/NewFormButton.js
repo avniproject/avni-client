@@ -6,13 +6,14 @@ import Fonts from "../primitives/Fonts";
 import {Actions} from "../../action/individual/IndividualGeneralHistoryActions";
 import _ from "lodash";
 import Colors from "../primitives/Colors";
+import Distances from "../primitives/Distances";
 import MCIcon from "react-native-vector-icons/MaterialCommunityIcons";
 
 const styles = StyleSheet.create({
     floatingContainer: {
         position: 'absolute',
         right: 16,
-        bottom: 24,
+        bottom: 24 + Distances.EdgeToEdgeNavigationBarInset,
         zIndex: 10,
         elevation: 6
     },

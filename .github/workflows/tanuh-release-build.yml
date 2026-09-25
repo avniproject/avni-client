@@ -1,0 +1,170 @@
+name: TANUH release build (self-hosted)
+
+# Manual trigger ONLY. This repo is public and the runner below is a personal
+# machine with the TANUH signing key on it — it must never be reachable from
+# pull_request/pull_request_target, which would let any forked-repo PR execute
+# arbitrary code on that machine. Do not add those triggers here without
+# re-reading tools/edge-model/README.md's threat-model section first.
+#
+# Model-free build: the edge model is delivered to devices via sync (synced
+# DownloadableContent), not bundled in the APK/AAB, so this workflow does not
+# need — and must not require — any model file. Provisioning the model to the
+# server (encrypting it and uploading it) is a separate, currently-manual step
+# (see tools/edge-model/README.md); this workflow only builds and distributes
+# the model-free production (release) binary.
+on:
+  workflow_dispatch:
+    inputs:
+      versionName:
+        description: "Android versionName (optional, defaults per build.gradle)"
+        required: false
+        default: ""
+
+concurrency:
+  group: tanuh-release-build
+  cancel-in-progress: false
+
+jobs:
+  build:
+    # Custom label so this can only ever land on the intended self-hosted Mac,
+    # never accidentally on a GitHub-hosted runner.
+    runs-on: [self-hosted, macOS, tanuh]
+    timeout-minutes: 120
+    env:
+      # Fixed, outside-the-checkout locations on the runner. Never inside
+      # $GITHUB_WORKSPACE, so a `git clean` / fresh checkout can't touch them.
+      TANUH_KEYSTORE_DIR: /Users/jiteshupadhyay/Desktop/tanuh/ci/keystore
+      TANUH_OPENCV_AAR: /Users/jiteshupadhyay/Desktop/tanuh/ci/opencv/opencv-4140-android-trimmed.aar
+      OUTPUT_DIR: /Users/jiteshupadhyay/build/output
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preflight — verify signing key and CI-only secrets are present
+        run: |
+          set -e
+          test -f "$TANUH_KEYSTORE_DIR/tanuh-release-key.keystore" || { echo "::error::keystore missing at $TANUH_KEYSTORE_DIR"; exit 1; }
+          # tanuh_KEYSTORE_PASSWORD / tanuh_KEY_ALIAS must come from the runner's
+          # own .env (see repo docs) — never from GitHub secrets — so just confirm
+          # they made it into this job's environment; never print their values.
+          test -n "$tanuh_KEYSTORE_PASSWORD" || { echo "::error::tanuh_KEYSTORE_PASSWORD not set in the runner's own environment (.env)"; exit 1; }
+          test -n "$tanuh_KEY_ALIAS" || { echo "::error::tanuh_KEY_ALIAS not set in the runner's own environment (.env)"; exit 1; }
+          test -n "$FIREBASE_TOKEN" || { echo "::error::FIREBASE_TOKEN not set in the runner's own environment (.env) — run 'npx firebase-tools login:ci' on this Mac and add it"; exit 1; }
+          echo "Preflight OK."
+
+      - name: Place signing keystore at repo root
+        # makefiles/tanuh.mk's TANUH_KEYSTORE is the literal relative path
+        # "tanuh-release-key.keystore", checked (and handed to gradlew as
+        # KEY_STORE_PREFIX="$(CURDIR)/") relative to wherever `make` runs —
+        # i.e. the repo root. It does NOT read KEY_STORE_PREFIX from the
+        # outer environment for this target chain, so the file has to
+        # physically exist at $GITHUB_WORKSPACE/tanuh-release-key.keystore
+        # on every fresh checkout. This copy is gitignored at that path, so
+        # it never gets committed.
+        run: cp "$TANUH_KEYSTORE_DIR/tanuh-release-key.keystore" ./tanuh-release-key.keystore
+
+      - name: Place OpenCV AAR (needed by branches with the image-quality-scoring code)
+        # packages/openchs-android/android/app/libs is gitignored — each tanuh
+        # developer drops their own trimmed opencv .aar there before building
+        # (see the comment above the `tanuhImplementation(files("libs/..."))`
+        # line in app/build.gradle). Harmless no-op on branches that don't
+        # declare this dependency; only branches like PE-34_Telemetry /
+        # newmodel_CameraEnhancements actually reference it.
+        run: |
+          mkdir -p packages/openchs-android/android/app/libs
+          cp "$TANUH_OPENCV_AAR" packages/openchs-android/android/app/libs/opencv-4140-android-trimmed.aar
+
+      - name: Install JS dependencies
+        run: make deps_ci
+
+      - name: Reset Watchman
+        # This self-hosted runner reuses the same checkout directory across
+        # every run instead of starting fresh each time. Watchman is a
+        # long-running daemon on the Mac that keeps a persistent index of
+        # that path; a hard checkout/reset between runs (especially across
+        # branches, changing many files at once) can leave its crawl stale
+        # ("Recrawled this watch N times" in the Metro log), causing Metro
+        # to report real, on-disk files as unresolvable modules. Wiping all
+        # watches before bundling forces a clean re-crawl.
+        run: watchman watch-del-all || true
+
+      - name: Compute versionCode
+        # Auto-generated from this workflow's own run number (github.run_number), which GitHub
+        # guarantees always increases on every run of this workflow file - never manually typed,
+        # never at risk of someone passing a too-low value and breaking Play/Firebase's "must
+        # strictly increase over the last published versionCode" rule again.
+        #
+        # Seed base is 8500000, ~11.4k above the confirmed last-published versionCode (8488624,
+        # verified from a tester's installed 1.0.16 app - see git history for why an earlier,
+        # incorrect assumption of 8388624 briefly produced values that were too low). That's
+        # enough headroom for over 10,000 runs of this workflow before it's a concern; if this
+        # workflow is ever expected to run that many more times, raise this seed again first.
+        id: version
+        run: echo "code=$((8500000 + ${{ github.run_number }}))" >> "$GITHUB_OUTPUT"
+
+      - name: Build signed model-free AAB + universal APK
+        # No model is placed or encrypted here — tanuh-universal-apk-no-model builds straight
+        # from source, guarded by `tanuh-verify-no-model` (fails if a stale model blob is left
+        # in the flavour assets). This intentionally skips `tanuh-ensemble` (the provisioning
+        # encryption step) — see tools/edge-model/README.md for that separate, manual flow.
+        run: |
+          make tanuh-universal-apk-no-model \
+            versionCode="${{ steps.version.outputs.code }}" \
+            versionName="${{ inputs.versionName }}"
+
+      - name: Copy build outputs to the build folder
+        run: |
+          set -e
+          mkdir -p "$OUTPUT_DIR"
+          ts="$(date +%Y%m%d-%H%M%S)"
+          dest="$OUTPUT_DIR/$ts"
+          mkdir -p "$dest"
+
+          aab_src="packages/openchs-android/android/app/build/outputs/bundle/tanuhRelease/app-tanuh-release.aab"
+
+          # Read the versionName actually baked into the AAB (via bundletool,
+          # already present after the build step) rather than trusting the
+          # workflow's optional input verbatim, so the filename is correct
+          # even if versionName was left blank and Gradle fell back to its
+          # own default.
+          version_name="$(java -jar bundletool.jar dump manifest --bundle="$aab_src" | grep -o 'versionName="[^"]*"' | head -1 | cut -d'"' -f2)"
+          base="tanuh_${version_name}_production"
+
+          cp "$aab_src" "$dest/${base}.aab"
+          cp tanuh-universal.apks "$dest/${base}.apks"
+          unzip -p tanuh-universal.apks universal.apk > "$dest/${base}.apk"
+
+          echo "### TANUH build output" >> "$GITHUB_STEP_SUMMARY"
+          echo "versionName: $version_name" >> "$GITHUB_STEP_SUMMARY"
+          echo "versionCode: ${{ steps.version.outputs.code }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Saved to: \`$dest\`" >> "$GITHUB_STEP_SUMMARY"
+          ls -la "$dest" >> "$GITHUB_STEP_SUMMARY"
+
+          # Make these available to the Firebase distribution step below,
+          # since each `run:` step is its own shell and doesn't inherit
+          # local shell variables from this one.
+          echo "TANUH_BUILD_APK=$dest/${base}.apk" >> "$GITHUB_ENV"
+          echo "TANUH_BUILD_VERSION_NAME=$version_name" >> "$GITHUB_ENV"
+
+      - name: Distribute APK to internal testers via Firebase App Distribution
+        # Distributing the AAB directly was tried and reverted: Firebase App
+        # Distribution refuses AAB uploads ("This project is not linked to a
+        # Google Play account") unless the Firebase project is linked to a
+        # Play Console account, which this one isn't. APK distribution has
+        # no such requirement, so we upload the universal APK here; the
+        # signed AAB still lands in $OUTPUT_DIR locally for whenever it's
+        # actually needed (e.g. a real Play Store submission, which would
+        # go through Play Console directly rather than App Distribution).
+        #
+        # Auth is FIREBASE_TOKEN from the runner's own .env (generated once
+        # via `npx firebase-tools login:ci` on this Mac) — never a GitHub
+        # secret, same reasoning as the keystore password. App Distribution
+        # is invite-only (Testers & Groups), so this is safe on a public
+        # repo, unlike a GitHub Release or actions/upload-artifact, both of
+        # which would make the signed build publicly downloadable.
+        run: |
+          npx --yes firebase-tools@latest appdistribution:distribute "$TANUH_BUILD_APK" \
+            --app "1:392718917375:android:bb18f1a968028ae287f6ca" \
+            --groups "TANUH_SAMVIT" \
+            --release-notes "versionName $TANUH_BUILD_VERSION_NAME" \
+            --token "$FIREBASE_TOKEN"
+

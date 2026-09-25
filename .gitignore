@@ -112,7 +112,14 @@ tools/edge-model/**/*.bin
 packages/openchs-android/android/app/src/tanuh/assets/models/*
 !packages/openchs-android/android/app/src/tanuh/assets/models/.gitkeep
 
-# tanuh release keystore — never committed.
+# OpenCV Android AAR (TANUH-only, camera-feature Phase 2 — image quality scoring). Same pattern
+# as fhir-app's own libs/opencv-411-android.aar: a large third-party binary, never committed —
+# each tanuh developer builds/places their own copy at this path (see camera master doc / this
+# repo's app/build.gradle for how it's built: `./gradlew :opencv:assembleRelease` against a local
+# OpenCV Android SDK checkout).
+packages/openchs-android/android/app/libs/*.aar
+
+# TANUH release keystore — never committed.
 tanuh-release-key.keystore
 
 # bundletool jar + bundletool output, downloaded/produced by the bundle targets.
@@ -124,3 +131,13 @@ tanuh-size-report.csv
 
 # Claude Code local session files
 .claude/
+packages/openchs-android/android/app/libs/opencv-4110-android-trimmed.aar
+packages/openchs-android/android/app/libs/opencv-4140-android-trimmed.aar
+
+# Stray local build/debug leftovers that keep showing up as untracked files
+# on this Mac while running the tanuh CI/local build scripts — never meant
+# to be committed.
+/TANUH_RELEASE
+packages/openchs-android/cli-config.log
+tanuh-build.log
+packages/openchs-android/local.properties.save*

@@ -153,8 +153,14 @@ tanuh-clean: ## Remove the staging artefacts (blobs, manifest.json, keys.json).
 # was left in the flavour assets.
 #
 # Both targets honour `versionCode` / `versionName` env vars. build.gradle:63-67 reads
-# them from the environment; without them, versionCode defaults to 1 (real value
-# 8388609 after the 8*1048576 base offset) and versionName defaults to "1".
+# them from the environment; without them, versionCode defaults to 1 and versionName
+# defaults to "1". versionCode is passed through as-is (no offset applied any more).
+# tanuh-release-build.yml's CI workflow computes versionCode automatically (from its own
+# run number - see that workflow's "Compute versionCode" step) so it never needs to be
+# typed by hand there. For any other caller (local builds, other CI), Play/Firebase still
+# require every new versionCode to be strictly greater than the highest one ever actually
+# published - last known published value, confirmed from a tester's installed app, was
+# 8488624 (versionName 1.0.16) - so pass something greater than that.
 
 BUNDLETOOL_VERSION ?= 1.15.1
 BUNDLETOOL_JAR     := bundletool.jar
@@ -169,6 +175,15 @@ TANUH_SIZE_GATE_APKS   := tanuh-size-gate.apks
 TANUH_SIZE_REPORT      := tanuh-size-report.csv
 TANUH_SIZE_LIMIT_BYTES ?= 209715200
 
+# NOTE: enableSeparateBuildPerCPUArchitecture=false is forced here (overriding app/build.gradle's
+# own default of true) because bundleTanuhRelease builds an AAB, and bundletool (see
+# tanuh-universal-apk below) is what derives per-ABI/universal APKs from that AAB — Gradle's own
+# splits.abi mechanism is never used for this path. Leaving it enabled here triggers a known AGP
+# bug (https://issuetracker.google.com/402800800): with shrinkResources true (release buildType)
+# AND splits.abi enabled, bundleTanuhRelease's buildTanuhReleasePreBundle task fails with
+# "Multiple shrunk-resources files found" because resource shrinking produces one file per ABI
+# split but the bundle-packaging task expects exactly one. The plain `tanuh-apk` target below
+# (assembleTanuhRelease, for local per-ABI installs) is untouched and still gets real ABI splits.
 tanuh-aab: tanuh-ensemble tanuh-verify-no-model ## Build signed model-free tanuh release AAB (+ provisioning artefacts). Pass versionCode=N versionName=X to set them.
 	@if [ ! -f "$(TANUH_KEYSTORE)" ]; then \
 		echo "ERROR: $(TANUH_KEYSTORE) not found. Run 'make tanuh-setup' first."; \
@@ -180,12 +195,51 @@ tanuh-aab: tanuh-ensemble tanuh-verify-no-model ## Build signed model-free tanuh
 	fi
 	$(MAKE) as_prod flavor=tanuh
 	$(MAKE) metro_config flavor=tanuh
-	cd packages/openchs-android/android; KEY_STORE_PREFIX="$(CURDIR)/" GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew bundleTanuhRelease --stacktrace
+	cd packages/openchs-android/android; KEY_STORE_PREFIX="$(CURDIR)/" GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" enableSeparateBuildPerCPUArchitecture=false ./gradlew bundleTanuhRelease --stacktrace
 	@echo ""
 	@echo "Signed AAB (model-free): $(TANUH_AAB)"
 	@echo "  versionCode env=$${versionCode:-<unset, defaults to 1>}  versionName env=$${versionName:-<unset, defaults to 1>}"
 
 tanuh-universal-apk: tanuh-aab ## Build signed model-free AAB + signed universal APK via bundletool.
+	@if [ ! -f "$(BUNDLETOOL_JAR)" ]; then \
+		echo "Downloading bundletool $(BUNDLETOOL_VERSION)..."; \
+		curl -fSL -o $(BUNDLETOOL_JAR) $(BUNDLETOOL_URL); \
+	fi
+	rm -f $(TANUH_UNIVERSAL)
+	java -jar $(BUNDLETOOL_JAR) build-apks \
+		--bundle=$(TANUH_AAB) \
+		--output=$(TANUH_UNIVERSAL) \
+		--mode=universal \
+		$(BUNDLETOOL_SIGN_FLAGS)
+	@echo ""
+	@echo "Signed AAB (model-free): $(TANUH_AAB)"
+	@echo "Universal apks (zip):  $(TANUH_UNIVERSAL)"
+	@echo "Extract installable APK: unzip -p $(TANUH_UNIVERSAL) universal.apk > tanuh-universal.apk"
+
+# ── Model-free build (no ensemble/provisioning step) ────────────────────────────────
+# Models are delivered to devices via sync (synced DownloadableContent), never bundled in the
+# APK/AAB, so a release build does not need any model file present at all. These targets are
+# tanuh-aab / tanuh-universal-apk minus the tanuh-ensemble prerequisite (which encrypts raw
+# .onnx models into tools/edge-model/staging/ for provisioning — a separate, manual flow, see
+# tools/edge-model/README.md). tanuh-verify-no-model still guards against a stale model blob
+# left behind in the flavour assets from an earlier local `make tanuh-ensemble` run.
+tanuh-aab-no-model: tanuh-verify-no-model ## Build signed model-free tanuh release AAB — no model required. Pass versionCode=N versionName=X to set them.
+	@if [ ! -f "$(TANUH_KEYSTORE)" ]; then \
+		echo "ERROR: $(TANUH_KEYSTORE) not found. Run 'make tanuh-setup' first."; \
+		exit 1; \
+	fi
+	@if [ -z "$$tanuh_KEYSTORE_PASSWORD" ] || [ -z "$$tanuh_KEY_ALIAS" ]; then \
+		echo "ERROR: signing env vars not set. Export tanuh_KEYSTORE_PASSWORD and tanuh_KEY_ALIAS."; \
+		exit 1; \
+	fi
+	$(MAKE) as_prod flavor=tanuh
+	$(MAKE) metro_config flavor=tanuh
+	cd packages/openchs-android/android; KEY_STORE_PREFIX="$(CURDIR)/" GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" enableSeparateBuildPerCPUArchitecture=false ./gradlew bundleTanuhRelease --stacktrace
+	@echo ""
+	@echo "Signed AAB (model-free): $(TANUH_AAB)"
+	@echo "  versionCode env=$${versionCode:-<unset, defaults to 1>}  versionName env=$${versionName:-<unset, defaults to 1>}"
+
+tanuh-universal-apk-no-model: tanuh-aab-no-model ## Build signed model-free AAB + signed universal APK via bundletool — no model required.
 	@if [ ! -f "$(BUNDLETOOL_JAR)" ]; then \
 		echo "Downloading bundletool $(BUNDLETOOL_VERSION)..."; \
 		curl -fSL -o $(BUNDLETOOL_JAR) $(BUNDLETOOL_URL); \
@@ -290,4 +344,4 @@ run_app_prerelease_tanuh_dev: ## Install + launch tanuh debug build, prerelease 
 run-app-prerelease-tanuh: run_app_prerelease_tanuh
 run-app-prerelease-tanuh-dev: run_app_prerelease_tanuh_dev
 
-.PHONY: tanuh-setup tanuh-encrypt tanuh-verify-no-model tanuh-apk _tanuh-release-assemble tanuh-ensemble tanuh-ensemble-apk tanuh-aab tanuh-universal-apk tanuh-size-gate tanuh-ensemble-aab tanuh-ensemble-universal-apk tanuh-clean tanuh-placeholder run_app_tanuh run_app_tanuh_dev run-app-tanuh run-app-tanuh-dev run_app_prerelease_tanuh run_app_prerelease_tanuh_dev run-app-prerelease-tanuh run-app-prerelease-tanuh-dev
+.PHONY: tanuh-setup tanuh-encrypt tanuh-verify-no-model tanuh-apk _tanuh-release-assemble tanuh-ensemble tanuh-ensemble-apk tanuh-aab tanuh-aab-no-model tanuh-universal-apk tanuh-universal-apk-no-model tanuh-size-gate tanuh-ensemble-aab tanuh-ensemble-universal-apk tanuh-clean tanuh-placeholder run_app_tanuh run_app_tanuh_dev run-app-tanuh run-app-tanuh-dev run_app_prerelease_tanuh run_app_prerelease_tanuh_dev run-app-prerelease-tanuh run-app-prerelease-tanuh-dev

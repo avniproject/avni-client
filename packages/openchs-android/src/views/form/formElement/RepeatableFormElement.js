@@ -2,11 +2,13 @@ import React, {Fragment} from 'react';
 import AbstractFormElement from "./AbstractFormElement";
 import PropTypes from "prop-types";
 import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Colors from "../../primitives/Colors";
 import Styles from "../../primitives/Styles";
 import {QuestionGroup as QuestionGroupModel, RepeatableQuestionGroup} from 'avni-models';
 import QuestionGroup from "./QuestionGroup";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
+import Line from "../../common/Line";
 import _ from "lodash";
 
 class RepeatableFormElement extends AbstractFormElement {
@@ -21,7 +23,10 @@ class RepeatableFormElement extends AbstractFormElement {
         observationHolder: PropTypes.object,
         filteredFormElements: PropTypes.array,
         actions: PropTypes.object,
-        subjectUUID: PropTypes.string
+        subjectUUID: PropTypes.string,
+        // Same (x, y) => scrollTo(...) callback FormElementGroup already threads down for
+        // scrolling to a validation error - reused here to scroll to the row just added.
+        scrollToPosition: PropTypes.func
     };
 
     static defaultProps = {
@@ -31,9 +36,21 @@ class RepeatableFormElement extends AbstractFormElement {
     constructor(props, context) {
         super(props, context);
         this.rowKeys = [];
+        // First card is implicitly the one being worked on when the user lands here, so it
+        // starts highlighted rather than waiting for an "Add More" press.
+        this.activeRowIndex = 0;
     }
 
     onAdd() {
+        // Index the new row will land at once the dispatch below appends it - renderQuestionGroup
+        // uses this to know which row to scroll to once it's laid out.
+        this.pendingScrollRowIndex = this.props.value.size();
+        // "Currently focused" row - drives both the highlighted border below and the follow-up
+        // scroll in renderAddMoreButton. Stays set (keeping the border) until a different row is
+        // added or this one is removed; the one-shot follow-up scroll has its own flag so it only
+        // fires once even though the border sticks around longer.
+        this.activeRowIndex = this.pendingScrollRowIndex;
+        this.followUpScrollPending = true;
         this.rowKeys.push(_.uniqueId('rqg_'));
         this.dispatchAction(this.props.actionName, {
             action: RepeatableQuestionGroup.actions.add,
@@ -42,8 +59,22 @@ class RepeatableFormElement extends AbstractFormElement {
         });
     }
 
+    // Marks the row the user is currently touching/working in as active, so the highlighted
+    // border follows whichever card they're actually filling in, not just the last one added.
+    onCardInteraction(questionGroupIndex) {
+        if (this.activeRowIndex !== questionGroupIndex) {
+            this.activeRowIndex = questionGroupIndex;
+            this.forceUpdate();
+        }
+    }
+
     onRemove(questionGroupIndex) {
         this.rowKeys.splice(questionGroupIndex, 1);
+        // Stop tracking rather than risk the border/follow-up scroll referring to a stale/shifted index.
+        if (this.activeRowIndex === questionGroupIndex) {
+            this.activeRowIndex = null;
+            this.followUpScrollPending = false;
+        }
         this.dispatchAction(this.props.actionName, {
             action: RepeatableQuestionGroup.actions.remove,
             parentFormElement: this.props.element,
@@ -60,6 +91,17 @@ class RepeatableFormElement extends AbstractFormElement {
                               onPress={onPress}
                               style={[styles.actionButton, {borderColor: color}]}>
                 <Text numberOfLines={1} style={{fontSize: Styles.normalTextSize, fontWeight: '500', color}}>{label}</Text>
+            </TouchableOpacity>;
+    }
+
+    removeButton(onPress, isDisabled) {
+        const color = isDisabled ? Colors.DisabledButtonColor : Colors.NegativeActionButtonColor;
+        return this.props.element.recordValueByKey('disableManualActions') ? null :
+            <TouchableOpacity activeOpacity={0.5}
+                              disabled={isDisabled}
+                              onPress={onPress}
+                              style={styles.removeButton}>
+                <Icon name="minus-circle" size={32} color={color}/>
             </TouchableOpacity>;
     }
 
@@ -123,9 +165,9 @@ class RepeatableFormElement extends AbstractFormElement {
         if (!this.rowKeys[questionGroupIndex]) {
             this.rowKeys[questionGroupIndex] = _.uniqueId('rqg_');
         }
-        return (
-            <Fragment key={this.rowKeys[questionGroupIndex]}>
-                {this.actionButton(this.I18n.t('remove'), () => this.onRemove(questionGroupIndex), isRemoveDisabled, Colors.NegativeActionButtonColor)}
+        const content = (
+            <Fragment>
+                {this.removeButton(() => this.onRemove(questionGroupIndex), isRemoveDisabled)}
                 <QuestionGroup
                     questionGroupIndex={questionGroupIndex}
                     element={this.props.element}
@@ -139,9 +181,47 @@ class RepeatableFormElement extends AbstractFormElement {
                     extraContainerStyle={{marginVertical: 0}}
                     subjectUUID={this.props.subjectUUID}
                     suppressGroupValidationMessage={this.shouldShowMinimumCountHint}
+                    hideLastElementSeparator={true}
                 />
             </Fragment>
-        )
+        );
+        const needsScrollListener = this.pendingScrollRowIndex === questionGroupIndex && _.isFunction(this.props.scrollToPosition);
+        return (
+            <View key={this.rowKeys[questionGroupIndex]}
+                  style={[styles.row, this.activeRowIndex === questionGroupIndex && styles.activeRow]}
+                  onTouchStart={() => this.onCardInteraction(questionGroupIndex)}
+                  onLayout={needsScrollListener ? (event) => {
+                      this.pendingScrollRowIndex = null;
+                      const {x, y} = event.nativeEvent.layout;
+                      this.props.scrollToPosition(x, y);
+                  } : undefined}>
+                {content}
+            </View>
+        );
+    }
+
+    // A second scroll for the case AbstractComponent's onLayout-once approach in
+    // renderQuestionGroup doesn't cover: the row just added starts out short (no photo yet), so
+    // the first scroll lands correctly, but once the photo is captured the row grows taller and
+    // "Add More" ends up below the fold again. Fires once, only while still tracking that row.
+    renderAddMoreButton(isAddDisabled) {
+        const button = this.actionButton(this.I18n.t('addMoreItem'), () => this.onAdd(), isAddDisabled, Colors.ActionButtonColor);
+        if (_.isNil(this.activeRowIndex) || !this.followUpScrollPending || !_.isFunction(this.props.scrollToPosition)) {
+            return button;
+        }
+        const activeRowValue = this.props.value.getGroupObservationAtIndex(this.activeRowIndex);
+        if (_.isNil(activeRowValue) || activeRowValue.isEmpty()) {
+            return button;
+        }
+        return (
+            <View onLayout={(event) => {
+                this.followUpScrollPending = false;
+                const {x, y} = event.nativeEvent.layout;
+                this.props.scrollToPosition(x, y);
+            }}>
+                {button}
+            </View>
+        );
     }
 
     render() {
@@ -150,8 +230,16 @@ class RepeatableFormElement extends AbstractFormElement {
             <View style={{marginVertical: 16}}>
                 <FormElementLabelWithDocumentation element={this.props.element}/>
                 {this.shouldShowMinimumCountHint && this.renderMinimumCountHint()}
-                {_.map(_.range(0, _.max([1, this.props.value.size()])), index => this.renderQuestionGroup(index))}
-                {this.actionButton(this.I18n.t('addMoreItem'), () => this.onAdd(), isAddDisabled, Colors.ActionButtonColor)}
+                {_.map(_.range(0, _.max([1, this.props.value.size()])), index => {
+                    const rowCount = _.max([1, this.props.value.size()]);
+                    return (
+                        <Fragment key={`group-${index}`}>
+                            {this.renderQuestionGroup(index)}
+                            {index < rowCount - 1 && <Line height={20} color={Colors.InputBorderNormal}/>}
+                        </Fragment>
+                    );
+                })}
+                {this.renderAddMoreButton(isAddDisabled)}
             </View>
         );
     }
@@ -159,6 +247,20 @@ class RepeatableFormElement extends AbstractFormElement {
 }
 
 const styles = StyleSheet.create({
+    row: {
+        borderWidth: 1,
+        borderColor: '#DAF3F4',
+        borderRadius: 8,
+        padding: 8,
+        marginBottom: 20,
+    },
+    activeRow: {
+        borderColor: Colors.BrandPrimaryDark,
+    },
+    removeButton: {
+        alignSelf: 'flex-end',
+        marginTop: 10,
+    },
     actionButton: {
         flexDirection: 'row',
         alignSelf: 'flex-end',

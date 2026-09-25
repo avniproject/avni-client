@@ -60,19 +60,21 @@ class SettingsView extends AbstractComponent {
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
                 <CHSContent>
                     <AppHeader title={this.I18n.t('settings')}/>
-                    <View style={{paddingHorizontal: Distances.ContentDistanceFromEdge}}>
+                    <View style={{paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {_.isEmpty(this.state.localeMappings) ? <View/> :
-                            <SelectableItemGroup
-                                locale={currentLocale}
-                                I18n={this.I18n}
-                                onPress={(value) => this.dispatchAction(Actions.ON_LOCALE_CHANGE, {locale: value.locale})}
-                                labelValuePairs={localeLabelValuePairs}
-                                labelKey='locale'
-                                inPairs={true}
-                                selectionFn={(localeMapping) => this.state.userInfo.getSettings().locale === localeMapping.locale}
-                                validationError={null}
-                                style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
-                            />
+                            <View style={{marginTop: 28}}>
+                                <SelectableItemGroup
+                                    locale={currentLocale}
+                                    I18n={this.I18n}
+                                    onPress={(value) => this.dispatchAction(Actions.ON_LOCALE_CHANGE, {locale: value.locale})}
+                                    labelValuePairs={localeLabelValuePairs}
+                                    labelKey='locale'
+                                    inPairs={true}
+                                    selectionFn={(localeMapping) => this.state.userInfo.getSettings().locale === localeMapping.locale}
+                                    validationError={null}
+                                    labelMarginBottom={12}
+                                />
+                            </View>
                         }
                         {this.renderUserPropertyToggleButton('location', 'trackLocation', Actions.ON_CAPTURE_LOCATION_CHANGE, 'crosshairs-gps')}
                         {this.renderUserPropertyToggleButton('autoRefresh', 'disableAutoRefresh', Actions.ON_CAPTURE_AUTO_REFRESH_CHANGE, 'refresh', (disabled) => {

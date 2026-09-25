@@ -5,6 +5,7 @@ import _, {get} from 'lodash';
 import MCIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Colors from '../primitives/Colors';
 import Styles from '../primitives/Styles';
+import Distances from '../primitives/Distances';
 
 const renderIcon = function (iconName, textColor) {
     return (
@@ -34,7 +35,11 @@ const cardGap = 14;
 
 export const CardTileView = ({index, reportCard, I18n, onCardPress, countResult}) => {
     const {name, itemKey, iconName, colour} = reportCard;
-    const cardWidth = (Dimensions.get('window').width - cardGap * 3) / 2;
+    // Width relative to the space actually available inside the parent's own horizontal
+    // padding (CustomDashboardView's itemContent style), not the raw device width - otherwise
+    // these tiles ignore whatever edge margin the parent sets entirely.
+    const availableWidth = Dimensions.get('window').width - (Distances.ScaledContentDistanceFromEdge * 2);
+    const cardWidth = (availableWidth - cardGap) / 2;
     const cardName = (countResult && countResult.cardName) || name;
     // Tile background colour is server-configured (reportCard.colour / countResult.cardColor)
     // so each tile can carry its own colour again; '#DAF3F4' was a temporary flat Figma colour.

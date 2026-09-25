@@ -11,6 +11,7 @@ import Reducers from "../../reducer";
 import {IndividualEncounterViewActions as Actions} from "../../action/individual/EncounterActions";
 import _ from "lodash";
 import General from "../../utility/General";
+import {getCurrentPageValidationResults} from "../../utility/FormPageReadiness";
 import {AbstractEncounter, Encounter, Form, ObservationsHolder, PrimitiveValue, ValidationResult} from 'openchs-models';
 import CHSNavigator from "../../utility/CHSNavigator";
 import StaticFormElement from "../viewmodel/StaticFormElement";
@@ -130,7 +131,7 @@ class IndividualEncounterView extends AbstractComponent {
     }
 
     onHardwareBackPress() {
-        this.previous();
+        this.onAppHeaderBack(this.state.saveDrafts);
         return true;
     }
 
@@ -145,7 +146,7 @@ class IndividualEncounterView extends AbstractComponent {
             });
             CHSNavigator.navigateToFirstPage(this, [IndividualEncounterView]);
         }
-        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n);
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n, undefined, {screen: this.viewName()});
     }
 
     onStartTimer() {
@@ -172,11 +173,21 @@ class IndividualEncounterView extends AbstractComponent {
         }
         const title = this.I18n.t(this.state.encounter.encounterType.displayName);
         const hideVisitDate = this.context.getService(OrganisationConfigService).isVisitDateHidden() && !_.isNil(this.state.encounter.encounterDateTime);
+        const observationHolder = new ObservationsHolder(this.state.encounter.observations);
+        const filteredFormElements = this.state.filteredFormElements || this.state.formElementGroup.getFormElements();
+        // Mirrors the checks state.validateEntity() runs on Next-press (minus the GPS location check,
+        // which needs reducer context) so the button colour reflects page completeness without
+        // duplicating side-effecting validation here.
+        const currentPageValidationResults = [
+            ...(this.state.wizard.isFirstFormPage() ? this.state.encounter.validate() : []),
+            ...getCurrentPageValidationResults(this.state.formElementGroup, filteredFormElements, observationHolder)
+        ];
+        const isCurrentPageComplete = _.every(currentPageValidationResults, validationResult => validationResult.success);
         return (
             <CHSContainer>
                 <CHSContent>
-                    <ScrollView ref={this.scrollRef} style={{flex: 1}} keyboardShouldPersistTaps="handled">
                     <AppHeader title={title} func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
+                    <ScrollView ref={this.scrollRef} style={{flex: 1}} keyboardShouldPersistTaps="handled">
                     {displayTimer ?
                         <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.state.formElementGroup}/> : null}
                     {this.state.wizard.isFirstFormPage() ?
@@ -223,7 +234,7 @@ class IndividualEncounterView extends AbstractComponent {
                     <View style={{backgroundColor: '#ffffff', flexDirection: 'column'}}>
                         {_.get(this.state, 'timerState.displayQuestions', true) &&
                         <FormElementGroup group={this.state.formElementGroup}
-                                          observationHolder={new ObservationsHolder(this.state.encounter.observations)}
+                                          observationHolder={observationHolder}
                                           actions={Actions}
                                           validationResults={this.state.validationResults}
                                           filteredFormElements={this.state.filteredFormElements}
@@ -246,7 +257,8 @@ class IndividualEncounterView extends AbstractComponent {
                             }}
                             next={{
                                 func: () => this.next(),
-                                label: this.I18n.t('next')
+                                label: this.I18n.t('next'),
+                                ready: isCurrentPageComplete
                             }}
                         />
                     </View>}
@@ -264,7 +276,12 @@ const styles = StyleSheet.create({
         flexDirection: 'column'
     },
     fixedButtonBar: {
-        height: 84,
+        // Explicit padding, not height/minHeight+centering: (84 - buttonHeight(56)) / 2 = 14, the original visual
+        // gap above and below the button row. Centering math collapsed this gap once the box grew to fit
+        // WizardButtons' own added bottom inset (API 36+ gesture/nav bar clearance) - explicit padding keeps
+        // this 14px gap guaranteed regardless of content height, while that inset adds further space below it.
+        paddingTop: 14,
+        paddingBottom: 14,
         justifyContent: 'center',
         backgroundColor: '#ffffff',
         shadowColor: '#000',

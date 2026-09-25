@@ -368,6 +368,7 @@ class FormElementGroup extends AbstractComponent {
                                 formElementsUserState={this.props.formElementsUserState}
                                 observationHolder={this.props.observationHolder}
                                 subjectUUID={this.props.subjectUUID}
+                                scrollToPosition={this.props.onValidationError}
                             />, uniqueKey, formElement.uuid === erroredUUID);
                         }
                     })

@@ -25,6 +25,12 @@
         </intent>
     </queries>
 
+    <!-- enableOnBackInvokedCallback is opted OUT (false) below: RN 0.77.3 on legacy (non-Fabric)
+         architecture never wires the new Android 13+ predictive-back dispatcher to anything itself -
+         it relies on AndroidX bridging it into the old onBackPressed(), which this app's whole
+         BackHandler/Router chain depends on, and that bridge is unreliable across OEM ROMs (some
+         devices' back press never reaches JS at all and just exits the app instead of navigating
+         back or showing a confirm dialog). false restores the classic, consistent dispatch. -->
     <application
             android:name=".MainApplication"
             android:roundIcon="@mipmap/openchs_launcher_round"

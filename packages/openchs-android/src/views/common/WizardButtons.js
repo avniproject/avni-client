@@ -6,6 +6,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import _ from 'lodash';
 import Colors from '../primitives/Colors';
 import Distances from "../primitives/Distances";
+import {logUiClick} from "../../utility/Analytics";
 
 const BUTTON_RADIUS = 8;
 
@@ -36,7 +37,11 @@ class WizardButtons extends AbstractComponent {
         const previousButton = this.getButtonProps(this.props.previous);
         const nextButton = this.getButtonProps(this.props.next);
         const nextAndMore = this.getButtonProps(this.props.nextAndMore);
-        const containerStyle = this.props.containerStyle || {marginVertical: 30, paddingHorizontal: Distances.ScaledContentDistanceFromEdge};
+        const baseContainerStyle = this.props.containerStyle || {marginVertical: 30, paddingHorizontal: Distances.ScaledContentDistanceFromEdge};
+        // Android 16+ edge-to-edge draws content behind the bottom gesture/nav bar; add the same
+        // inset the app bar already reserves at the top (Distances.EdgeToEdgeStatusBarInset), here
+        // for the bottom, on top of whatever paddingBottom a caller's own containerStyle already has.
+        const containerStyle = {...baseContainerStyle, paddingBottom: (baseContainerStyle.paddingBottom || 0) + Distances.EdgeToEdgeNavigationBarInset};
         const buttonHeightStyle = _.isNil(this.props.buttonHeight) ? {} : {height: this.props.buttonHeight};
         return (<View style={containerStyle}>
             {nextAndMore.visible &&
@@ -44,7 +49,10 @@ class WizardButtons extends AbstractComponent {
                 style={this.appendedStyle({justifyContent: 'space-between', flexDirection: 'row', marginBottom: 12})}>
                 <Button primary
                         style={{flex: 1, justifyContent: "center", backgroundColor: Colors.BrandPrimaryDark, borderRadius: BUTTON_RADIUS, ...buttonHeightStyle}}
-                        onPress={() => nextAndMore.func()}>
+                        onPress={() => {
+                            logUiClick('next_and_more');
+                            nextAndMore.func();
+                        }}>
                     {nextAndMore.label}</Button>
             </View>
             }
@@ -62,13 +70,29 @@ class WizardButtons extends AbstractComponent {
                                 ...buttonHeightStyle
                             }}
                             _text={{color: Colors.BrandPrimary}}
-                            onPress={() => previousButton.func()}>
+                            onPress={() => {
+                                logUiClick('previous');
+                                previousButton.func();
+                            }}>
                         {previousButton.label}</Button> :
                     <View style={{flex: 0.5}}/>}
                 {nextButton.visible ?
                     <Button primary
-                            style={{flex: 0.5, marginLeft: 8, justifyContent: "center", backgroundColor: Colors.BrandPrimaryDark, borderRadius: BUTTON_RADIUS, ...buttonHeightStyle}}
-                            onPress={() => nextButton.func()}>{nextButton.label}
+                            style={{
+                                flex: 0.5,
+                                marginLeft: 8,
+                                justifyContent: "center",
+                                // Stays enabled either way - ready === false just shows the paler,
+                                // not-yet-satisfied colour instead of the full brand colour.
+                                backgroundColor: nextButton.ready === false ? '#DAF3F4' : Colors.BrandPrimaryDark,
+                                borderRadius: BUTTON_RADIUS,
+                                ...buttonHeightStyle
+                            }}
+                            _text={nextButton.ready === false ? {color: Colors.BrandPrimaryDark} : undefined}
+                            onPress={() => {
+                                logUiClick('next', {ready: nextButton.ready !== false});
+                                nextButton.func();
+                            }}>{nextButton.label}
                     </Button> : <View style={{flex: 0.5}}/>}
             </View>
         </View>);

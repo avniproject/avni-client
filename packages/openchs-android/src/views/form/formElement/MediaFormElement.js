@@ -1,4 +1,4 @@
-import {StyleSheet, TouchableNativeFeedback, View, PermissionsAndroid, Text} from "react-native";
+import {StyleSheet, TouchableNativeFeedback, View, PermissionsAndroid, Text, NativeModules} from "react-native";
 import React from "react";
 import AbstractFormElement from "./AbstractFormElement";
 import {launchCamera, launchImageLibrary} from "react-native-image-picker";
@@ -11,10 +11,12 @@ import ExpandableMedia from "../../common/ExpandableMedia";
 import FileSystem from "../../../model/FileSystem";
 import DeviceInfo from 'react-native-device-info';
 import RemoveMediaConfirmDialog from "../../common/RemoveMediaConfirmDialog";
+import OrganisationConfigService from "../../../service/OrganisationConfigService";
 import _ from "lodash";
 import GuidedCameraModal from "./GuidedCameraModal";
 import {toPickerResponse, isGuidedCameraEnabled, resizeCapturedImage} from "./GuidedCameraHelper";
 import ImageResizer from "@bam.tech/react-native-image-resizer";
+import {logEvent, firebaseEvents} from "../../../utility/Analytics";
 
 const styles = StyleSheet.create({
     icon: {
@@ -109,7 +111,6 @@ const styles = StyleSheet.create({
     },
     uploadButton: {
         flex: 1,
-        minWidth: 120,
         height: 48,
         marginRight: 16,
         borderRadius: 8,
@@ -126,7 +127,7 @@ const styles = StyleSheet.create({
         marginRight: 8,
     },
     addImageButton: {
-        width: 160,
+        flex: 1,
         height: 48,
         borderRadius: 8,
         backgroundColor: Colors.BrandPrimary,
@@ -192,6 +193,18 @@ export default class MediaFormElement extends AbstractFormElement {
     get isImage() {
         return this.props.element.concept.datatype === 'Image'
             || this.props.element.concept.datatype === 'Profile-Pics';
+    }
+
+    // Camera usability enhancement (Phase 3) — same gating as MediaV2FormElement.useNativeCameraScreen():
+    // true only for photo questions (this native screen doesn't record video), only when
+    // NativeModules.CameraModule actually exists (a tanuh build), and only when the organisation
+    // has opted in via the server-synced OrganisationConfig flag. This is the legacy
+    // Image/Video/Profile-Pics datatype path (routed here via SingleSelectMediaFormElement /
+    // MultiSelectMediaFormElement) — MediaV2FormElement.js covers the newer ImageV2 datatype
+    // separately; both check the same flag independently.
+    useNativeCameraScreen() {
+        return this.isImage && !!NativeModules.CameraModule
+            && this.getService(OrganisationConfigService).isNativeCameraEnabled();
     }
 
     get label() {
@@ -293,13 +306,60 @@ export default class MediaFormElement extends AbstractFormElement {
         this.setState({showGuidedCamera: false});
     }
 
+    /**
+     * Camera capture funnel telemetry — same fix as MediaV2FormElement.launchCamera: logs
+     * camera_capture (started/completed/cancelled/error/permission_denied) tagged with the
+     * target concept and a per-instance attempt count, on both the native and generic-picker
+     * paths. camera_photo_quality below is unchanged (still native-only, success-only).
+     */
     async launchCamera(onUpdateObservations) {
         this.setState({ mode: Mode.Camera });
         const options = { ...this.getDefaultOptions(),
             durationLimit: this.getFromKeyValue('durationLimitInSecs', DEFAULT_DURATION_LIMIT)};
+
+        const conceptName = _.get(this.props, 'element.concept.name');
+        this._cameraCaptureAttempt = (this._cameraCaptureAttempt || 0) + 1;
+        const attempt = this._cameraCaptureAttempt;
+        const t0 = Date.now();
+        const logCapture = (outcome, extra) => logEvent(firebaseEvents.CAMERA_CAPTURE,
+            {concept_name: conceptName, attempt, outcome, duration_ms: Date.now() - t0, ...extra});
+        logCapture('started');
+
         if (await this.isPermissionGranted()) {
-            launchCamera(options,
-                (response) => this.addMediaFromPicker(response, onUpdateObservations));
+            if (this.useNativeCameraScreen()) {
+                try {
+                    // Camera usability enhancement (Phase 2) — CameraModule.launchCamera() now
+                    // resolves {uri, quality} | null instead of a plain file path string, same
+                    // contract change as MediaV2FormElement.launchCamera(native).
+                    const result = await NativeModules.CameraModule.launchCamera();
+                    if (result && result.uri) {
+                        this.addMediaFromPicker({assets: [{uri: `file://${result.uri}`}]}, onUpdateObservations);
+                        if (result.quality) {
+                            logEvent(firebaseEvents.CAMERA_PHOTO_QUALITY, result.quality);
+                        }
+                        logCapture('completed');
+                    } else {
+                        // result is null when the user cancelled inside the native screen.
+                        logCapture('cancelled');
+                    }
+                } catch (error) {
+                    General.logError('MediaFormElement.launchCamera (native)', error);
+                    logCapture('error', {error_message: error && error.message});
+                }
+            } else {
+                launchCamera(options, (response) => {
+                    if (response.didCancel) {
+                        logCapture('cancelled');
+                    } else if (response.errorCode) {
+                        logCapture('error', {error_code: response.errorCode});
+                    } else {
+                        logCapture('completed');
+                    }
+                    this.addMediaFromPicker(response, onUpdateObservations);
+                });
+            }
+        } else {
+            logCapture('permission_denied');
         }
     }
 

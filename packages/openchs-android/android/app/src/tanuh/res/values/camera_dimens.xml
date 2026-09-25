@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="camera_spacing_8">8dp</dimen>
+    <dimen name="camera_spacing_16">16dp</dimen>
+    <dimen name="camera_spacing_36">36dp</dimen>
+    <!-- Matches the borderRadius: 8 used app-wide for primary/secondary action buttons in JS
+         (e.g. src/views/common/NewFormButton.js's fabButton style). -->
+    <dimen name="camera_button_corner_radius">8dp</dimen>
+</resources>

@@ -3,7 +3,7 @@ import General from "../utility/General";
 import { ValidationResult } from 'avni-models';
 import UserInfoService from "../service/UserInfoService";
 import _ from 'lodash';
-import { firebaseEvents, logEvent } from "../utility/Analytics";
+import { firebaseEvents, logEvent, logTaskDuration, logTaskStarted } from "../utility/Analytics";
 import BackupRestoreRealmService from "../service/BackupRestoreRealmService";
 import SettingsService from "../service/SettingsService";
 import { IDP_PROVIDERS } from "../model/IdpProviders";
@@ -63,16 +63,26 @@ class LoginActions {
 
     static onLoginStarted(state, action, context) {
         let newState = _.assignIn({}, state, {loggingIn: true, loginError: '', loginSuccess: false});
+        // Timed from the moment the user taps Login (this dispatch) to the moment successCb
+        // actually runs — deliberately *after* any DB restore below, not at the LOG_IN event
+        // just below, which fires as soon as auth succeeds. Restore time is real wait time the
+        // user experiences as part of "logging in", per the telemetry design doc.
+        const loginStartTime = Date.now();
+        logTaskStarted('login');
+        const timeLoginCompletion = (cb) => (source) => {
+            logTaskDuration('login', null, Date.now() - loginStartTime);
+            cb(source);
+        };
         context.get(AuthService).getAuthProviderService(state.idpType === IDP_PROVIDERS.BOTH ? state.userSelectedIdp : null)
             .authenticate(state.userId, state.password)
             .then((response) => {
                 if (response.status === "LOGIN_SUCCESS") {
                     logEvent(firebaseEvents.LOG_IN);
-                    LoginActions.startDumpRestore(context, action, action.source, action.successCb);
+                    LoginActions.startDumpRestore(context, action, action.source, timeLoginCompletion(action.successCb));
                     return;
                 }
                 if (response.status === "NEWPASSWORD_REQUIRED") {
-                    action.newPasswordRequired(response.user, (source) => LoginActions.startDumpRestore(context, action, source, action.successCBFromSetPasswordView));
+                    action.newPasswordRequired(response.user, (source) => LoginActions.startDumpRestore(context, action, source, timeLoginCompletion(action.successCBFromSetPasswordView)));
                     return;
                 }
                 General.logError("Unreachable code");

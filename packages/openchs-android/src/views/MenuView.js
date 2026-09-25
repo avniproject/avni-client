@@ -271,6 +271,15 @@ class MenuView extends AbstractComponent {
             </View>);
     }
 
+    renderDisclaimer() {
+        return (
+            <Text style={styles.disclaimerText}>
+                <Text style={styles.disclaimerBold}>{this.I18n.t('medicalDisclaimerNotice')} </Text>
+                {this.I18n.t('medicalDisclaimerBody')}
+            </Text>
+        );
+    }
+
     renderInfoRow(label, value, isFirst = false) {
         return <View style={[styles.infoRow, !isFirst && styles.infoRowDivider]}>
             <Text style={styles.infoLabel}>{label}</Text>
@@ -368,9 +377,18 @@ class MenuView extends AbstractComponent {
                             marginRight: Distances.ScaledContentDistanceFromEdge,
                             marginLeft: Distances.ScaledContentDistanceFromEdge,
                             marginTop: Distances.ScaledContentDistanceFromEdge,
-                            paddingBottom: 100
+                            // This screen renders behind LandingView's absolute bottom tab bar (same as
+                            // CustomDashboardView's home tab) - reserve the same shared clearance instead of
+                            // the old flat 100, which fell short of the bar's Android 16+ gesture-inset height.
+                            // Plus a bit of extra breathing room below the last card, past the bar itself.
+                            paddingBottom: Distances.BottomTabBarClearance + Distances.ScaledContentDistanceFromEdge
                         }}
-                        ListHeaderComponent={() => this.renderUserCard()}
+                        ListHeaderComponent={() => (
+                            <View>
+                                {this.renderUserCard()}
+                                {this.renderDisclaimer()}
+                            </View>
+                        )}
                         sections={dataGroup}
                         renderItem={({item}) => item}
                         keyExtractor={(item, index) => index}
@@ -419,6 +437,15 @@ const styles = StyleSheet.create({
             color: Colors.TextHint,
             alignSelf: 'center',
             fontSize: 24
+        },
+        disclaimerText: {
+            color: Colors.BrandPrimaryDark,
+            fontSize: Styles.smallerTextSize,
+            textAlign: 'left',
+            marginBottom: 16,
+        },
+        disclaimerBold: {
+            fontWeight: 'bold',
         },
         infoContainer: {
             padding: 16,

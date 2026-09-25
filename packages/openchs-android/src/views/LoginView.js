@@ -47,6 +47,9 @@ import {SecureTextInput} from "./common/SecureTextInput";
 
 @Path('/loginView')
 class LoginView extends AbstractComponent {
+    // Hidden for now per request (Google review) - flip back to true to restore.
+    static SHOW_FOOTER_INFO = false;
+
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.loginActions);
         this.safeLogin = this.safeLogin.bind(this);
@@ -323,16 +326,24 @@ class LoginView extends AbstractComponent {
                                         </View>
                                     </View>
                                 </View>
+                                <Text style={styles.disclaimerText}>
+                                    <Text style={styles.disclaimerBold}>{this.I18n.t('medicalDisclaimerNotice')} </Text>
+                                    {this.I18n.t('medicalDisclaimerBody')}
+                                </Text>
                             </View>
                             <View style={{
                                 flexDirection: 'column',
                                 justifyContent: 'flex-end',
                                 alignItems: 'center',
                                 minHeight: height * 0.15,
-                                paddingLeft: 16
+                                paddingHorizontal: 16
                             }}>
-                                <Text style={styles.footerText}>Powered by Avni (Version {DeviceInfo.getVersion()}-{Config.COMMIT_ID})</Text>
-                                {!EnvironmentConfig.isProd() &&
+                                {/* Hidden for now per request - keep the markup, just gated behind this
+                                    flag so it can be switched back on later without re-adding the code. */}
+                                {LoginView.SHOW_FOOTER_INFO &&
+                                    <Text style={styles.footerText}>Powered by Avni (Version {DeviceInfo.getVersion()}-{Config.COMMIT_ID})</Text>
+                                }
+                                {LoginView.SHOW_FOOTER_INFO && !EnvironmentConfig.isProd() &&
                                     <>
                                         <Text style={{
                                             fontSize: Styles.normalTextSize,
@@ -508,6 +519,15 @@ const styles = StyleSheet.create({
     },
     footerText: {
         color: Colors.TextHint
+    },
+    disclaimerText: {
+        color: Colors.BrandPrimaryDark,
+        fontSize: Styles.smallerTextSize,
+        textAlign: 'center',
+        marginTop: 16
+    },
+    disclaimerBold: {
+        fontWeight: 'bold'
     }
 });
 

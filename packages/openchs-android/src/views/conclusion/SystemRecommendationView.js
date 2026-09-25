@@ -222,7 +222,7 @@ class SystemRecommendationView extends AbstractComponent {
 
             CHSNavigator.navigateToFirstPage(this, wizardViews);
         }
-        isSaveDraftOn ? onYesPress() : AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
+        isSaveDraftOn ? onYesPress() : AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n, undefined, {screen: this.viewName()});
     }
 
     render() {
@@ -241,7 +241,7 @@ class SystemRecommendationView extends AbstractComponent {
                     <ScrollView ref={this.scrollRef} style={{flex: 1}}>
                         <View style={{flexDirection: 'column', backgroundColor: Styles.greyBackground}}>
                             {!_.isNil(this.props.individual) && this.profile()}
-                            <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>
+                            <View style={{flexDirection: 'column', marginHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                                 {showSystemRecommendationsCard &&
                                     <View style={this.scaleStyle(SystemRecommendationView.styles.summaryCard)}>
                                         {

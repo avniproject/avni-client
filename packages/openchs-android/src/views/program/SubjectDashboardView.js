@@ -18,6 +18,8 @@ import MCIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import OIcon from "react-native-vector-icons/Octicons";
 import _ from "lodash";
 import NewFormButton from "../common/NewFormButton";
+import Distances from "../primitives/Distances";
+import {logScreenEvent} from "../../utility/Analytics";
 
 class SubjectDashboardView extends AbstractComponent {
     static propTypes = {
@@ -53,6 +55,17 @@ class SubjectDashboardView extends AbstractComponent {
                      style={[SubjectDashboardView.iconStyle, isSelected && {color: Colors.iconSelectedColor}]}/>
     };
 
+    // Tab switches (Profile/Programs/General) don't remount this screen, so componentDidMount's
+    // screen_view never refires on tab change. Log a virtual sub-screen instead, reusing the
+    // existing screen_view/screen_load_time mechanism rather than inventing a new event shape.
+    // Guarded on alreadyActive so re-tapping the current tab doesn't fire a duplicate view.
+    onTabPress = (actionName, alreadyActive, virtualScreenSuffix) => () => {
+        if (!alreadyActive) {
+            logScreenEvent(`${this.viewName()}/${virtualScreenSuffix}`);
+        }
+        this.dispatchAction(actionName);
+    };
+
     renderOptions = options => options.filter((option) => _.last(option)).map(([icon, name, onPress, isSelected], index) => {
         return (
             <View key={index} style={{
@@ -80,9 +93,9 @@ class SubjectDashboardView extends AbstractComponent {
         General.logDebug(this.viewName(), 'render');
         const {enrolmentUUID, individualUUID, backFunction} = this.state;
         const options = [
-            [this.icon(MCIcon, 'face-agent', this.state.individualProfile), this.I18n.t('profile'), () => this.dispatchAction(Actions.ON_PROFILE_CLICK), this.state.individualProfile, true],
-            [this.icon(OIcon, 'project', this.state.program), this.I18n.t('programs'), () => this.dispatchAction(Actions.ON_PROGRAM_CLICK), this.state.program, this.state.displayProgramTab],
-            [this.icon(MCIcon, 'view-list', this.state.history), this.I18n.t('general'), () => this.dispatchAction(Actions.ON_HISTORY_CLICK), this.state.history, this.state.displayGeneralTab],
+            [this.icon(MCIcon, 'face-agent', this.state.individualProfile), this.I18n.t('profile'), this.onTabPress(Actions.ON_PROFILE_CLICK, this.state.individualProfile, 'Profile'), this.state.individualProfile, true],
+            [this.icon(OIcon, 'project', this.state.program), this.I18n.t('programs'), this.onTabPress(Actions.ON_PROGRAM_CLICK, this.state.program, 'Programs'), this.state.program, this.state.displayProgramTab],
+            [this.icon(MCIcon, 'view-list', this.state.history), this.I18n.t('general'), this.onTabPress(Actions.ON_HISTORY_CLICK, this.state.history, 'General'), this.state.history, this.state.displayGeneralTab],
         ];
         this.displayMessage(this.props.message);
         return (
@@ -111,7 +124,7 @@ class SubjectDashboardView extends AbstractComponent {
                 </CHSContent>
                 <NewFormButton
                     display={(this.state.individualProfile && this.state.displayGeneralInfoInProfileTab) || this.state.history}
-                    style={this.state.displayProgramTab ? {bottom: 24 + 55} : {}}
+                    style={this.state.displayProgramTab ? {bottom: 24 + 55 + Distances.EdgeToEdgeNavigationBarInset} : {}}
                 />
                 {this.state.displayProgramTab &&
                 <View style={styles.tabContainer}>
@@ -130,10 +143,15 @@ const styles = StyleSheet.create({
     tabContainer: {
         flexDirection: 'row',
         justifyContent: 'space-around',
-        height: 55,
+        // Same bar-stays-flush, grows-taller-by-the-inset treatment as LandingView.js's main bottom bar:
+        // height grows by the Android 16+ gesture-nav inset, paddingBottom reserves that same amount inside
+        // the box, so alignItems: 'center' still centers the option icons within the original 55px zone -
+        // same gaps as before, just sitting `inset` px above the gesture bar instead of under it.
+        height: 55 + Distances.EdgeToEdgeNavigationBarInset,
         width: '100%',
         position: 'absolute',
         bottom: 0,
+        paddingBottom: Distances.EdgeToEdgeNavigationBarInset,
         backgroundColor: Colors.programEnrolmentBottomBarColor,
         elevation: 3,
         alignItems: 'center',
