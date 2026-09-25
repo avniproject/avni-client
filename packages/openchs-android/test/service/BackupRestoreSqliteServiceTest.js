@@ -217,19 +217,19 @@ describe('SQLite fast-sync restore commits the backend last (#2120)', () => {
 describe('SQLite fast-sync backup uploads the live database', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        mockGlobalContext.sqliteDb = {writeCopyTo: jest.fn()};
     });
 
-    it('copies the live SQLite database and uploads it as a SQLite catchment dump', async () => {
-        const copied = [];
+    it('copies the live SQLite database and PUTs the zip to the signed url', async () => {
         const uploaded = [];
+        const foregroundUpload = jest.fn(async () => {});
         const service = serviceWith({
-            db: {writeCopyTo: (config) => copied.push(config.path)},
             mediaQueueService: {
                 getDumpUploadUrl: (dumpType) => {
                     uploaded.push(dumpType);
                     return Promise.resolve('https://s3/put');
                 },
-                uploadToUrl: () => Promise.resolve()
+                foregroundUpload
             }
         });
 
@@ -237,19 +237,56 @@ describe('SQLite fast-sync backup uploads the live database', () => {
         await service.backup(MediaQueueService.DumpType.CatchmentSqlite,
             (percent, message) => messages.push([percent, message]));
 
-        expect(copied).toHaveLength(1);
-        expect(copied[0]).toMatch(/\.db$/);
+        const copiedTo = mockGlobalContext.sqliteDb.writeCopyTo.mock.calls[0][0].path;
+        expect(copiedTo).toMatch(/\.db$/);
         expect(uploaded).toEqual([MediaQueueService.DumpType.CatchmentSqlite]);
+        // Without this the upload step can be deleted and the suite stays green while the user is
+        // told the upload succeeded.
+        expect(foregroundUpload).toHaveBeenCalledTimes(1);
+        expect(foregroundUpload).toHaveBeenCalledWith('https://s3/put', `${copiedTo}.zip`, expect.any(Function));
         expect(messages[messages.length - 1]).toEqual([100, 'backupCompleted']);
     });
 
+    it('zips the copy before uploading it', async () => {
+        const {zip} = require('react-native-zip-archive');
+        const service = serviceWith();
+        await service.backup(MediaQueueService.DumpType.CatchmentSqlite, () => {});
+        const copiedTo = mockGlobalContext.sqliteDb.writeCopyTo.mock.calls[0][0].path;
+        expect(zip).toHaveBeenCalledWith(copiedTo, `${copiedTo}.zip`);
+    });
+
+    it('removes both temp files on the success path', async () => {
+        const fs = require('react-native-fs').default;
+        const service = serviceWith();
+        await service.backup(MediaQueueService.DumpType.CatchmentSqlite, () => {});
+        const copiedTo = mockGlobalContext.sqliteDb.writeCopyTo.mock.calls[0][0].path;
+        expect(fs.unlink).toHaveBeenCalledWith(copiedTo);
+        expect(fs.unlink).toHaveBeenCalledWith(`${copiedTo}.zip`);
+    });
+
     it('reports backupFailed rather than throwing when the copy fails', async () => {
-        const service = serviceWith({
-            db: {writeCopyTo: () => {throw new Error('disk full');}}
-        });
+        mockGlobalContext.sqliteDb = {writeCopyTo: () => {throw new Error('disk full');}};
+        const service = serviceWith();
         const messages = [];
         await service.backup(MediaQueueService.DumpType.CatchmentSqlite,
             (percent, message) => messages.push([percent, message]));
         expect(messages[messages.length - 1]).toEqual([100, 'backupFailed']);
+    });
+
+    it('refuses to upload when SQLite is not the open database', async () => {
+        // A partly-failed backend switch would otherwise upload a Realm file under a SQLite key.
+        mockGlobalContext.sqliteDb = null;
+        const foregroundUpload = jest.fn(async () => {});
+        const service = serviceWith({mediaQueueService: {foregroundUpload}});
+        const messages = [];
+        await service.backup(MediaQueueService.DumpType.CatchmentSqlite,
+            (percent, message) => messages.push([percent, message]));
+        expect(foregroundUpload).not.toHaveBeenCalled();
+        expect(messages[messages.length - 1]).toEqual([100, 'backupFailed']);
+        // Asserted on the message, not just the outcome: without the explicit guard the failure
+        // is an opaque "Cannot read properties of null", which reports identically here.
+        const General = require('../../src/utility/General').default;
+        const loggedError = General.logError.mock.calls[General.logError.mock.calls.length - 1][1];
+        expect(String(loggedError.message)).toMatch(/refusing to upload a fast sync dump/);
     });
 });

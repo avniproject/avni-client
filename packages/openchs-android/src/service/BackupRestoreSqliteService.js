@@ -7,6 +7,7 @@ import Service from '../framework/bean/Service';
 import BaseService from './BaseService';
 import SettingsService from './SettingsService';
 import MediaService from './MediaService';
+import GlobalContext from '../GlobalContext';
 import MediaQueueService from './MediaQueueService';
 import EntitySyncStatusService from './EntitySyncStatusService';
 import {removeBackupFile} from './BackupRestoreRealmService';
@@ -69,9 +70,16 @@ export default class BackupRestoreSqliteService extends BaseService {
 
         return Promise.resolve()
             .then(() => {
-                // SqliteProxy.writeCopyTo already checkpoints the WAL and disables FK enforcement for
-                // the copy, so the copy is consistent without extra work here.
-                this.db.writeCopyTo({path: destFile});
+                // Taken from GlobalContext rather than this.db: a partly-failed backend switch can
+                // leave _activeBackend reading SQLite while some beans still hold the Realm handle,
+                // and a Realm file uploaded under a SQLite key would corrupt every device that
+                // restored it. SqliteProxy.writeCopyTo already checkpoints the WAL and disables FK
+                // enforcement, so the copy itself needs nothing further.
+                const sqliteProxy = GlobalContext.getInstance().sqliteDb;
+                if (!sqliteProxy) {
+                    throw new Error('SQLite database is not open; refusing to upload a fast sync dump');
+                }
+                sqliteProxy.writeCopyTo({path: destFile});
             })
             .then(() => zip(destFile, destZipFile))
             .then(() => cb(10, "backupUploading"))

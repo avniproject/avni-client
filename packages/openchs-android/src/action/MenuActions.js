@@ -41,9 +41,9 @@ class MenuActions {
 
     static onBackupDump(state, action, context) {
         let newState = MenuActions.clone(state);
-        const cb = (percentage, message) => {
+        const cb = (percentage, message, avniError) => {
             General.logDebug("MenuActions.onBackupDump", message);
-            action.onBackupDumpCb(percentage, message);
+            action.onBackupDumpCb(percentage, message, avniError);
         };
         if (action.dumpType === MediaQueueService.DumpType.Adhoc) {
             context.get(AppInfoUploadService).upload(cb);
