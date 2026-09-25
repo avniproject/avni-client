@@ -26,6 +26,9 @@ const BRANCHES = [
     {listType: "total", method: "allIn", expectation: "shallow"},
     {listType: "recentlyCompletedEnrolment", method: "recentlyEnrolled", expectation: "shallow"},
     {listType: "dueChecklist", method: "dueChecklists", expectation: "eager",
+        // A plain shallow shape would defer exactly the lists it then reads, adding a query per
+        // checklist. The deep default does also load visit history it never reads; a tailored shape
+        // is possible but unmeasured, and the card exists only where a 'Child' program has checklists.
         reason: "walks enrolment.checklists -> checklist.items -> calculateApplicableState() on every row"}
 ];
 
