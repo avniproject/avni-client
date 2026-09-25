@@ -493,8 +493,10 @@ class EntityHydrator {
      * @param {string} schemaName - parent schema name (e.g., "Individual")
      * @param {Array<string>} parentUuids - UUIDs of all parent rows to preload for
      * @param {number} depth - how many levels deep to preload (default 3)
+     * @param {Set<string>|null} onlyLists - schema-qualified lists to preload ("Individual.enrolments"),
+     *        for a shallow query that keeps a few; null preloads every list
      */
-    batchPreloadLists(schemaName, parentUuids, depth = 3) {
+    batchPreloadLists(schemaName, parentUuids, depth = 3, onlyLists = null) {
         if (!this._listBatchCache || !parentUuids || parentUuids.length === 0 || depth <= 0) return;
 
         const realmSchema = this.realmSchemaMap.get(schemaName);
@@ -514,6 +516,7 @@ class EntityHydrator {
 
             if (resolvedType !== "list" || !objectType) return;
             if (EMBEDDED_SCHEMA_NAMES.has(objectType)) return; // JSON on parent row
+            if (onlyLists && !onlyLists.has(`${schemaName}.${propName}`)) return;
 
             const childTableMeta = this.tableMetaMap.get(objectType);
             if (!childTableMeta) return;
@@ -553,7 +556,7 @@ class EntityHydrator {
             if (depth > 1 && allRows.length > 0) {
                 const childUuids = allRows.map(r => r.uuid).filter(u => u != null);
                 if (childUuids.length > 0) {
-                    this.batchPreloadLists(objectType, childUuids, depth - 1);
+                    this.batchPreloadLists(objectType, childUuids, depth - 1, onlyLists);
                 }
             }
         });
