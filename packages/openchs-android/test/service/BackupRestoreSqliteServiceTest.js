@@ -19,7 +19,10 @@ jest.mock('react-native-fs', () => ({
     },
 }));
 jest.mock('react-native-zip-archive', () => ({unzip: jest.fn(async () => {}), zip: jest.fn(async () => {})}));
-jest.mock('../../src/framework/http/requests', () => ({get: (...args) => mockGet(...args)}));
+jest.mock('../../src/framework/http/requests', () => ({
+    get: (...args) => mockGet(...args),
+    getJSON: (...args) => mockGetJSON(...args),
+}));
 jest.mock('../../src/utility/General', () => ({
     __esModule: true,
     default: {
@@ -43,6 +46,7 @@ jest.mock('../../src/service/BaseService', () => ({
 jest.mock('../../src/service/SettingsService', () => ({__esModule: true, default: class SettingsService {}}));
 jest.mock('../../src/service/MediaService', () => ({__esModule: true, default: class MediaService {}}));
 jest.mock('../../src/service/EntitySyncStatusService', () => ({__esModule: true, default: class EntitySyncStatusService {}}));
+jest.mock('../../src/service/UserInfoService', () => ({__esModule: true, default: class UserInfoService {}}));
 jest.mock('../../src/service/MediaQueueService', () => ({
     __esModule: true,
     default: class MediaQueueService {
@@ -72,11 +76,13 @@ jest.mock('../../src/GlobalContext', () => ({
 }));
 
 const mockGet = jest.fn();
+const mockGetJSON = jest.fn();
 
 const BackupRestoreSqliteService = require('../../src/service/BackupRestoreSqliteService').default;
 const SettingsService = require('../../src/service/SettingsService').default;
 const MediaService = require('../../src/service/MediaService').default;
 const EntitySyncStatusService = require('../../src/service/EntitySyncStatusService').default;
+const UserInfoService = require('../../src/service/UserInfoService').default;
 const SqliteMigrationService = require('../../src/service/SqliteMigrationService').default;
 const MediaQueueService = require('../../src/service/MediaQueueService').default;
 
@@ -96,6 +102,7 @@ function build() {
         [SettingsService, settingsService],
         [MediaService, {downloadFromUrl: jest.fn(async () => {})}],
         [EntitySyncStatusService, {setup: jest.fn()}],
+        [UserInfoService, {getUserInfo: jest.fn(() => null), saveOrUpdate: jest.fn()}],
     ]);
     const service = new BackupRestoreSqliteService({}, {getService: (cls) => services.get(cls)});
     service._readSnapshotUsername = jest.fn(async () => 'test-user');
@@ -123,6 +130,7 @@ describe('SQLite fast-sync restore commits the backend last (#2120)', () => {
         jest.clearAllMocks();
         mockGlobalContext.sqliteDb = null;
         mockGet.mockImplementation(async (url) => url.endsWith('/exists') ? 'true' : 'https://signed-url');
+        mockGetJSON.mockImplementation(async () => ({url: 'https://signed-url', tier: 'perUser'}));
     });
 
     // -wal and -shm belong to the file they were written beside. Left next to the snapshot they
@@ -288,5 +296,142 @@ describe('SQLite fast-sync backup uploads the live database', () => {
         const General = require('../../src/utility/General').default;
         const loggedError = General.logError.mock.calls[General.logError.mock.calls.length - 1][1];
         expect(String(loggedError.message)).toMatch(/refusing to upload a fast sync dump/);
+    });
+});
+
+
+describe('SQLite fast-sync restore handles identity by tier', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+        mockGlobalContext.sqliteDb = null;
+        mockGet.mockImplementation(async (url) => url.endsWith('/exists') ? 'true' : 'https://signed-url');
+    });
+
+    // Shadows the backup helper above: these tests build a service for the restore path.
+    function serviceWith({downloadTier, snapshotUsername, settingsUserId, userInfoService} = {}) {
+        mockGetJSON.mockImplementation(async () => ({url: 'https://signed-url', tier: downloadTier}));
+        const settings = {
+            serverURL: 'https://server',
+            userId: settingsUserId,
+            idpType: 'cognito',
+            clone() { return {...this}; },
+        };
+        const services = new Map([
+            [SettingsService, {getSettings: jest.fn(() => settings), init: jest.fn(async () => {}), saveOrUpdate: jest.fn()}],
+            [MediaService, {downloadFromUrl: jest.fn(async () => {})}],
+            [EntitySyncStatusService, {setup: jest.fn()}],
+            [UserInfoService, {getUserInfo: jest.fn(() => null), saveOrUpdate: jest.fn(), ...userInfoService}],
+        ]);
+        const service = new BackupRestoreSqliteService({}, {getService: (cls) => services.get(cls)});
+        service._readSnapshotUsername = jest.fn(async () => snapshotUsername);
+        service.subscribeOnRestore(jest.fn(async () => {}));
+        service.subscribeOnRestoreFailure(jest.fn(async () => {}));
+        return service;
+    }
+
+    it('rejects a per-user artifact whose username does not match', async () => {
+        const service = serviceWith({
+            downloadTier: 'perUser',
+            snapshotUsername: 'someone.else',
+            settingsUserId: 'aw@org'
+        });
+        const messages = [];
+        await service.restore((p, m, failed) => messages.push([p, m, failed]));
+        expect(messages[messages.length - 1].slice(0, 3)).toEqual([100, 'restoreFailed', true]);
+    });
+
+    it('rejects a snapshot artifact whose username does not match', async () => {
+        const service = serviceWith({
+            downloadTier: 'snapshot',
+            snapshotUsername: 'someone.else',
+            settingsUserId: 'aw@org'
+        });
+        const messages = [];
+        await service.restore((p, m, failed) => messages.push([p, m, failed]));
+        expect(messages[messages.length - 1].slice(0, 3)).toEqual([100, 'restoreFailed', true]);
+    });
+
+    it('accepts a catchment artifact uploaded by a peer and stamps the local identity', async () => {
+        const saved = [];
+        const service = serviceWith({
+            downloadTier: 'catchment',
+            snapshotUsername: 'peer.in.same.catchment',
+            settingsUserId: 'aw@org',
+            userInfoService: {saveOrUpdate: (entity) => saved.push(entity)}
+        });
+        const messages = [];
+        await service.restore((p, m) => messages.push([p, m]));
+        expect(messages[messages.length - 1]).toEqual([100, 'restoreComplete']);
+        expect(saved).toHaveLength(1);
+        expect(saved[0].username).toEqual('aw@org');
+    });
+
+    // The username matches deliberately: with a mismatched one this passes on the identity check
+    // alone and stays green with the tier allow-list deleted. Only the unknown tier may fail it.
+    it('fails closed when the download response carries no tier', async () => {
+        const saved = [];
+        const service = serviceWith({
+            downloadTier: undefined,
+            snapshotUsername: 'aw@org',
+            settingsUserId: 'aw@org',
+            userInfoService: {saveOrUpdate: (entity) => saved.push(entity)}
+        });
+        const messages = [];
+        await service.restore((p, m, failed) => messages.push([p, m, failed]));
+        expect(messages[messages.length - 1].slice(0, 3)).toEqual([100, 'restoreFailed', true]);
+        expect(saved).toHaveLength(0);
+    });
+
+    it('asks the fast sync download routes, not the retired snapshot route', async () => {
+        const service = serviceWith({
+            downloadTier: 'perUser',
+            snapshotUsername: 'aw@org',
+            settingsUserId: 'aw@org'
+        });
+        await service.restore(() => {});
+        expect(mockGet).toHaveBeenCalledWith('https://server/media/fastSyncDownload/exists');
+        expect(mockGetJSON).toHaveBeenCalledWith('https://server/media/fastSyncDownload');
+    });
+
+    it('falls through to Realm when no fast sync database exists', async () => {
+        mockGet.mockImplementation(async () => 'false');
+        const service = serviceWith({
+            downloadTier: 'perUser',
+            snapshotUsername: 'aw@org',
+            settingsUserId: 'aw@org'
+        });
+        const messages = [];
+        await service.restore((p, m) => messages.push([p, m]));
+        expect(messages[messages.length - 1]).toEqual([100, 'restoreNoSqliteDump']);
+        expect(mockGetJSON).not.toHaveBeenCalled();
+    });
+
+    it('leaves a per-user restore without an identity stamp', async () => {
+        const saved = [];
+        const service = serviceWith({
+            downloadTier: 'perUser',
+            snapshotUsername: 'aw@org',
+            settingsUserId: 'aw@org',
+            userInfoService: {saveOrUpdate: (entity) => saved.push(entity)}
+        });
+        const messages = [];
+        await service.restore((p, m) => messages.push([p, m]));
+        expect(messages[messages.length - 1]).toEqual([100, 'restoreComplete']);
+        expect(saved).toHaveLength(0);
+    });
+
+    it('keeps the existing organisation name when stamping the local identity', async () => {
+        const saved = [];
+        const service = serviceWith({
+            downloadTier: 'catchment',
+            snapshotUsername: 'peer.in.same.catchment',
+            settingsUserId: 'aw@org',
+            userInfoService: {
+                getUserInfo: () => ({organisationName: 'Example Org'}),
+                saveOrUpdate: (entity) => saved.push(entity)
+            }
+        });
+        await service.restore(() => {});
+        expect(saved[0]).toMatchObject({username: 'aw@org', name: 'aw@org', organisationName: 'Example Org'});
     });
 });

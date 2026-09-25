@@ -10,26 +10,34 @@ import MediaService from './MediaService';
 import GlobalContext from '../GlobalContext';
 import MediaQueueService from './MediaQueueService';
 import EntitySyncStatusService from './EntitySyncStatusService';
+import {UserInfo} from 'openchs-models';
 import {removeBackupFile} from './BackupRestoreRealmService';
-import {get} from '../framework/http/requests';
+import UserInfoService from './UserInfoService';
+import {get, getJSON} from '../framework/http/requests';
 import General from '../utility/General';
 import FileSystem from '../model/FileSystem';
 import SqliteFactory from '../framework/db/SqliteFactory';
 import SqliteMigrationService, {BACKENDS} from './SqliteMigrationService';
 import toAvniError from '../framework/errorHandling/toAvniError';
 
+const PER_USER_TIER = 'perUser';
+const CATCHMENT_TIER = 'catchment';
+const SNAPSHOT_TIER = 'snapshot';
+const TIERS = [PER_USER_TIER, CATCHMENT_TIER, SNAPSHOT_TIER];
+
 /**
  * SQLite parallel to BackupRestoreRealmService for the fast-sync apply path.
  * Flow:
- *   1. Ask /media/mobileDatabaseSqliteSnapshotUrl/exists. Server returns false
+ *   1. Ask /media/fastSyncDownload/exists. Server returns false
  *      when the calling user isn't in the "SQLite Migration" group OR no
  *      snapshot has been generated for them yet. Either case → cb("restoreNoSqliteDump")
  *      and LoginActions falls through to the legacy Realm fast-sync path.
- *   2. Otherwise GET .../download → signed S3 URL → MediaService.downloadFromUrl.
+ *   2. Otherwise GET /media/fastSyncDownload → {url, tier} → MediaService.downloadFromUrl.
  *   3. Unzip; find the single `.db` inside.
- *   4. Identity check: open the downloaded .db read-only, SELECT user_info.username,
- *      compare to Settings.userId. Reject on mismatch — defence-in-depth against
- *      a snapshot misrouting.
+ *   4. Identity: open the downloaded .db read-only and SELECT user_info.username. A per-user
+ *      or snapshot artifact is generated for one user, so a mismatch with Settings.userId is
+ *      a misrouting and is rejected; a catchment artifact is a peer's database by design, so
+ *      its identity is corrected after the swap instead of asserted.
  *   5. Backup the live SQLite file, move the downloaded .db into place.
  *   6. Callback to GlobalContext.onSqliteDatabaseRestored → reopen SQLite from
  *      the swapped file, flip _activeBackend, update bean registry.
@@ -128,15 +136,18 @@ export default class BackupRestoreSqliteService extends BaseService {
 
         try {
             cb(1, 'restoreCheckDb');
-            const existsResponse = await get(`${settingsService.getSettings().serverURL}/media/mobileDatabaseSqliteSnapshotUrl/exists`);
+            const existsResponse = await get(`${settingsService.getSettings().serverURL}/media/fastSyncDownload/exists`);
             if (existsResponse !== 'true') {
-                General.logInfo('BackupRestoreSqliteService', 'No SQLite snapshot available; falling through');
+                General.logInfo('BackupRestoreSqliteService', 'No fast sync database available; falling through');
                 cb(100, 'restoreNoSqliteDump');
                 return;
             }
 
-            const url = await get(`${settingsService.getSettings().serverURL}/media/mobileDatabaseSqliteSnapshotUrl/download`);
-            General.logDebug('BackupRestoreSqliteService', 'Downloading snapshot from signed URL');
+            const {url, tier} = await getJSON(`${settingsService.getSettings().serverURL}/media/fastSyncDownload`) || {};
+            if (!url || !TIERS.includes(tier)) {
+                throw new Error(`Fast sync download response is not usable: tier='${tier}'`);
+            }
+            General.logDebug('BackupRestoreSqliteService', `Downloading ${tier} fast sync database from signed URL`);
             await mediaService.downloadFromUrl(url, downloadedZip, (received, total) => {
                 cb(1 + (received * 80) / Math.max(total, 1), 'restoreDownloadPreparedDb');
             });
@@ -151,11 +162,11 @@ export default class BackupRestoreSqliteService extends BaseService {
             }
 
             cb(85, 'restoringDb');
-            const snapshotUsername = await this._readSnapshotUsername(dbEntry.path, unzipDir);
-            const expectedUsername = settingsService.getSettings().userId;
-            if (!snapshotUsername || snapshotUsername !== expectedUsername) {
+            const artifactUsername = await this._readSnapshotUsername(dbEntry.path, unzipDir);
+            const localUsername = settingsService.getSettings().userId;
+            if (tier !== CATCHMENT_TIER && (!artifactUsername || artifactUsername !== localUsername)) {
                 throw new Error(
-                    `SQLite snapshot user mismatch: snapshot.user_info.username='${snapshotUsername}', settings.userId='${expectedUsername}'`
+                    `SQLite snapshot user mismatch: snapshot.user_info.username='${artifactUsername}', settings.userId='${localUsername}'`
                 );
             }
 
@@ -195,11 +206,14 @@ export default class BackupRestoreSqliteService extends BaseService {
             //     overlay the captured auth state.
             this._seedEntitySyncStatusBaseline();
             await this._bootstrapTargetSettings(authState);
+            if (tier === CATCHMENT_TIER) {
+                this._stampLocalIdentity(localUsername);
+            }
 
             // Recorded last, once the restored database is usable (step 8 above). Throws if
             // the write fails, which takes the failure path below.
             cb(96, 'restoringDb');
-            await SqliteMigrationService.commitStateForUser(expectedUsername, {
+            await SqliteMigrationService.commitStateForUser(localUsername, {
                 activeBackend: BACKENDS.SQLITE,
                 desiredBackend: BACKENDS.SQLITE,
                 preparedTarget: null,
@@ -224,6 +238,19 @@ export default class BackupRestoreSqliteService extends BaseService {
             }
             cb(100, 'restoreFailed', true, error);
         }
+    }
+
+    // A catchment dump carries the uploader's user_info row. Realm has always corrected this after
+    // the swap rather than rejecting the dump (BackupRestoreRealmService._restoreUserInfo); without
+    // it the device would run as the uploader.
+    _stampLocalIdentity(username) {
+        const userInfoService = this.getService(UserInfoService);
+        const existing = userInfoService.getUserInfo();
+        userInfoService.saveOrUpdate(UserInfo.fromResource({
+            username,
+            organisationName: existing ? existing.organisationName : 'dummy',
+            name: username
+        }));
     }
 
     // Mirrors the seeding half of SqliteMigrationService.prepareTarget — but NOT
