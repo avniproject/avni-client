@@ -566,7 +566,7 @@ class EntityHydrator {
         // batch-loading referenced entities (Concept, EncounterType, Form, etc.)
         // into the session cache up front.
         const tFkStart = Date.now();
-        const fkPreloadEntries = this._batchPreloadFkReferences(schemaName, parentUuids);
+        const fkPreloadEntries = this._batchPreloadFkReferences(schemaName, parentUuids, !!onlyLists);
         const tFkEnd = Date.now();
         if (tFkEnd - tFkStart > 500) {
             const fkBreakdown = fkPreloadEntries.map(e => `${e.schema}=${e.loaded}/${e.total}uuids/${e.ms}ms`).join(', ');
@@ -588,12 +588,17 @@ class EntityHydrator {
      *
      * This turns 147K individual SELECT queries into a handful of batch IN queries.
      */
-    _batchPreloadFkReferences(parentSchemaName, parentUuids) {
+    _batchPreloadFkReferences(parentSchemaName, parentUuids, skipParentBackRefs = false) {
         if (!this._hydrationCache || !this._listBatchCache) return [];
 
         // Collect FK UUIDs from parent schema and all child schemas that have preloaded rows
         // fkTargets: Map<targetSchemaName, Set<uuid>>
         const fkTargets = new Map();
+
+        // A kept list's rows point back at their parents (ProgramEnrolment.individual), which this
+        // query is already hydrating; resolveReference returns the in-progress parent without a
+        // read. Fetching them here re-read every parent: 1.8 s of the total card's 5 s on the emulator.
+        const parentsInFlight = skipParentBackRefs ? new Set(parentUuids) : null;
 
         const collectFksFromSchema = (schemaName, rows) => {
             const schema = this.realmSchemaMap.get(schemaName);
@@ -617,6 +622,7 @@ class EntityHydrator {
             for (const row of rows) {
                 for (const {col, targetSchema} of fkProps) {
                     const uuid = row[col];
+                    if (parentsInFlight && targetSchema === parentSchemaName && parentsInFlight.has(uuid)) continue;
                     if (uuid && !this._hydrationCache.has(`${targetSchema}:${uuid}`)) {
                         if (!fkTargets.has(targetSchema)) fkTargets.set(targetSchema, new Set());
                         fkTargets.get(targetSchema).add(uuid);
