@@ -784,7 +784,7 @@ class IndividualService extends BaseService {
 
         General.logDebug("IndividualService", "recentlyEnrolled", "fromDate", fromDate, "tillDate", tillDate, programEnrolmentCriteria);
 
-        let enrolments = this.getRepository(ProgramEnrolment.schema.name).findAll()
+        let enrolments = forListDisplay(this.getRepository(ProgramEnrolment.schema.name).findAll(), SUBJECT_DIRECT_WITH_BADGES)
             .filtered('voided = false ' +
                 'AND individual.voided = false ' +
                 'AND enrolmentDateTime <= $0 ' +
