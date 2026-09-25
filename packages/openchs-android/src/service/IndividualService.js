@@ -460,7 +460,7 @@ class IndividualService extends BaseService {
 
     allIn(ignored, reportFilters, queryAdditions) {
         const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
-        let individuals = this.repository.getAllNonVoided();
+        let individuals = forListDisplay(this.repository.getAllNonVoided(), SUBJECT_WITH_BADGES);
         if (!_.isEmpty(queryAdditions)) {
             individuals = individuals.filtered(queryAdditions);
         }

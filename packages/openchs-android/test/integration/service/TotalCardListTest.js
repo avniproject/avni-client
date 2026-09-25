@@ -103,11 +103,12 @@ describe("total card list", () => {
         assert.deepEqual(radha.nonVoidedEnrolments(), []);
     });
 
-    // A deferred list still resolves when a configured search-result concept reads it.
-    it("still resolves observations on demand", () => {
+    // A configured search-result concept reads observations off the row. They are JSON on the
+    // subject's own row, parsed with it, so they are present without a query at any depth.
+    it("keeps observations on the row for a configured search-result concept", () => {
         const kavita = subjectFor(service.allIn(TODAY, [], ""), "kavita");
 
-        assert.isFalse(isPrefetched(kavita, "observations"));
+        assert.isTrue(isPrefetched(kavita, "observations"));
         assert.deepEqual([...kavita.observations], []);
     });
 
