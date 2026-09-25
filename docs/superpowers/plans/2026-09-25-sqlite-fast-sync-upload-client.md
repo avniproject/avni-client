@@ -71,67 +71,66 @@ static getSyncMenus(context) {
 
 - [ ] **Step 1: Write the failing tests**
 
-Create `packages/openchs-android/test/views/menu/StaticMenuItemFactoryTest.js`:
+Create `packages/openchs-android/test/views/menu/StaticMenuItemFactoryTest.js`. Mock `GlobalContext`
+the way `test/service/SyncServiceBackgroundNoSwitchTest.js:38-41` does — that is the established
+idiom in this suite, and it avoids poking the private `_activeBackend` field, for which there is no
+setter.
+
+The mock deliberately **throws**. After this task `getSyncMenus` must not consult the backend at all,
+so a throwing stub is a real regression pin: if anyone reintroduces a backend condition, the import
+comes back, the stub fires and the test fails loudly. Asserting "present on SQLite" would be vacuous
+once the code stops looking.
 
 ```js
-import {assert} from 'chai';
-import StaticMenuItemFactory from '../../../src/views/menu/StaticMenuItemFactory';
-import GlobalContext from '../../../src/GlobalContext';
-import {BACKENDS} from '../../../src/framework/BackendTypes';
-import OrganisationConfigService from '../../../src/service/OrganisationConfigService';
+let mockGlobalContext;
+
+jest.mock('../../../src/GlobalContext', () => ({
+    __esModule: true,
+    default: {getInstance: () => mockGlobalContext},
+}));
+
+const StaticMenuItemFactory = require('../../../src/views/menu/StaticMenuItemFactory').default;
+const OrganisationConfigService = require('../../../src/service/OrganisationConfigService').default;
 
 function contextWithEncryption(encrypted) {
     return {
         getService: (type) => {
             if (type === OrganisationConfigService) return {isDbEncryptionEnabled: () => encrypted};
-            throw new Error(`unexpected service ${type}`);
+            throw new Error(`unexpected service ${String(type)}`);
         }
     };
 }
 
-function names(context) {
-    return StaticMenuItemFactory.getSyncMenus(context).map(item => item.uniqueName);
-}
+const names = (context) => StaticMenuItemFactory.getSyncMenus(context).map(item => item.uniqueName);
 
 describe('StaticMenuItemFactory.getSyncMenus', () => {
-    let originalBackend;
-
     beforeEach(() => {
-        originalBackend = GlobalContext.getInstance().getActiveBackend();
+        mockGlobalContext = {
+            getActiveBackend: () => {
+                throw new Error('getSyncMenus must not depend on the active backend');
+            }
+        };
     });
 
-    afterEach(() => {
-        GlobalContext.getInstance()._activeBackend = originalBackend;
+    it('offers fast sync setup without consulting the backend', () => {
+        expect(names(contextWithEncryption(false))).toContain('uploadCatchmentDatabase');
     });
 
-    it('offers fast sync setup on the SQLite backend', () => {
-        GlobalContext.getInstance()._activeBackend = BACKENDS.SQLITE;
-        assert.include(names(contextWithEncryption(false)), 'uploadCatchmentDatabase');
+    it('hides fast sync setup under DB encryption', () => {
+        expect(names(contextWithEncryption(true))).not.toContain('uploadCatchmentDatabase');
     });
 
-    it('offers fast sync setup on the Realm backend', () => {
-        GlobalContext.getInstance()._activeBackend = BACKENDS.REALM;
-        assert.include(names(contextWithEncryption(false)), 'uploadCatchmentDatabase');
-    });
-
-    it('hides fast sync setup under DB encryption on SQLite too', () => {
-        GlobalContext.getInstance()._activeBackend = BACKENDS.SQLITE;
-        assert.notInclude(names(contextWithEncryption(true)), 'uploadCatchmentDatabase');
-    });
-
-    it('keeps entitySyncStatus regardless', () => {
-        GlobalContext.getInstance()._activeBackend = BACKENDS.SQLITE;
-        assert.include(names(contextWithEncryption(true)), 'entitySyncStatus');
+    it('keeps entitySyncStatus regardless of encryption', () => {
+        expect(names(contextWithEncryption(true))).toContain('entitySyncStatus');
+        expect(names(contextWithEncryption(false))).toContain('entitySyncStatus');
     });
 });
 ```
 
-`src/framework/BackendTypes.js` exports exactly `{REALM: 'realm', SQLITE: 'sqlite'}`, so both names above are correct as written.
-
 - [ ] **Step 2: Run the tests to verify they fail**
 
 Run: `yarn jest test/views/menu/StaticMenuItemFactoryTest.js --selectProjects unit`
-Expected: the SQLite test FAILS (the item is filtered out).
+Expected: the first test FAILS — the current code calls `getActiveBackend()`, so the throwing stub fires. That failure *is* the proof the condition is still there.
 
 - [ ] **Step 3: Remove the backend condition**
 
@@ -148,7 +147,7 @@ Delete the stale comment — it now states the opposite of what the code does. R
 - [ ] **Step 4: Run the tests to verify they pass**
 
 Run: `yarn jest test/views/menu/StaticMenuItemFactoryTest.js --selectProjects unit`
-Expected: PASS, 4 tests.
+Expected: PASS, 3 tests.
 
 - [ ] **Step 5: Commit**
 
@@ -175,6 +174,9 @@ The server route added for this is `GET /media/fastSyncUpload`, which returns a 
 
 - [ ] **Step 1: Write the failing route-mapping test**
 
+**Assertion style:** `test/service/BackupRestoreSqliteServiceTest.js` uses Jest `expect`, so every
+test below does too. A few files elsewhere in `test/` use chai; do not mix the two inside one file.
+
 In `packages/openchs-android/test/service/MediaQueueServiceTest.js`:
 
 ```js
@@ -182,15 +184,15 @@ it('sends a SQLite catchment dump to the fast sync upload route', () => {
     const calls = [];
     const service = mediaQueueServiceWithGet(url => calls.push(url));
     service.getDumpUploadUrl(MediaQueueService.DumpType.CatchmentSqlite, 'ignored.db');
-    assert.equal(calls.length, 1);
-    assert.match(calls[0], /\/media\/fastSyncUpload$/);
+    expect(calls).toHaveLength(1);
+    expect(calls[0]).toMatch(/\/media\/fastSyncUpload$/);
 });
 
 it('still sends a Realm catchment dump to the realm backup route', () => {
     const calls = [];
     const service = mediaQueueServiceWithGet(url => calls.push(url));
     service.getDumpUploadUrl(MediaQueueService.DumpType.Catchment, 'ignored.realm');
-    assert.match(calls[0], /\/media\/mobileDatabaseBackupUrl\/upload$/);
+    expect(calls[0]).toMatch(/\/media\/mobileDatabaseBackupUrl\/upload$/);
 });
 ```
 
@@ -252,10 +254,10 @@ it('copies the live SQLite database and uploads it as a SQLite catchment dump', 
     await service.backup(MediaQueueService.DumpType.CatchmentSqlite,
         (percent, message) => messages.push([percent, message]));
 
-    assert.equal(copied.length, 1);
-    assert.match(copied[0], /\.db$/);
-    assert.deepEqual(uploaded, [MediaQueueService.DumpType.CatchmentSqlite]);
-    assert.deepEqual(messages[messages.length - 1], [100, 'backupCompleted']);
+    expect(copied).toHaveLength(1);
+    expect(copied[0]).toMatch(/\.db$/);
+    expect(uploaded).toEqual([MediaQueueService.DumpType.CatchmentSqlite]);
+    expect(messages[messages.length - 1]).toEqual([100, 'backupCompleted']);
 });
 
 it('reports backupFailed rather than throwing when the copy fails', async () => {
@@ -265,7 +267,7 @@ it('reports backupFailed rather than throwing when the copy fails', async () => 
     const messages = [];
     await service.backup(MediaQueueService.DumpType.CatchmentSqlite,
         (percent, message) => messages.push([percent, message]));
-    assert.deepEqual(messages[messages.length - 1], [100, 'backupFailed']);
+    expect(messages[messages.length - 1]).toEqual([100, 'backupFailed']);
 });
 ```
 
@@ -368,7 +370,7 @@ guard, so the substitution goes here instead. Same outcome, one seam rather than
 ```js
 it('blocks the SQLite upload for the same reasons as the Realm upload', () => {
     const blocked = {lastSyncCompleted: false, hasUnsyncedTxData: false, hasPendingReset: false};
-    assert.deepEqual(catchmentUploadBlockers(blocked), ['uploadCatchmentDatabaseLocalOneSyncNeeded']);
+    expect(catchmentUploadBlockers(blocked)).toEqual(['uploadCatchmentDatabaseLocalOneSyncNeeded']);
 });
 ```
 
@@ -418,7 +420,7 @@ it('rejects a per-user artifact whose username does not match', async () => {
     });
     const messages = [];
     await service.restore((p, m, failed) => messages.push([p, m, failed]));
-    assert.deepEqual(messages[messages.length - 1].slice(0, 3), [100, 'restoreFailed', true]);
+    expect(messages[messages.length - 1].slice(0, 3)).toEqual([100, 'restoreFailed', true]);
 });
 
 it('rejects a snapshot artifact whose username does not match', async () => {
@@ -429,7 +431,7 @@ it('rejects a snapshot artifact whose username does not match', async () => {
     });
     const messages = [];
     await service.restore((p, m, failed) => messages.push([p, m, failed]));
-    assert.deepEqual(messages[messages.length - 1].slice(0, 3), [100, 'restoreFailed', true]);
+    expect(messages[messages.length - 1].slice(0, 3)).toEqual([100, 'restoreFailed', true]);
 });
 
 it('accepts a catchment artifact uploaded by a peer and stamps the local identity', async () => {
@@ -442,9 +444,9 @@ it('accepts a catchment artifact uploaded by a peer and stamps the local identit
     });
     const messages = [];
     await service.restore((p, m) => messages.push([p, m]));
-    assert.deepEqual(messages[messages.length - 1], [100, 'restoreComplete']);
-    assert.equal(saved.length, 1);
-    assert.equal(saved[0].username, 'aw@org');
+    expect(messages[messages.length - 1]).toEqual([100, 'restoreComplete']);
+    expect(saved).toHaveLength(1);
+    expect(saved[0].username).toEqual('aw@org');
 });
 
 it('fails closed when the download response carries no tier', async () => {
@@ -455,7 +457,7 @@ it('fails closed when the download response carries no tier', async () => {
     });
     const messages = [];
     await service.restore((p, m, failed) => messages.push([p, m, failed]));
-    assert.deepEqual(messages[messages.length - 1].slice(0, 3), [100, 'restoreFailed', true]);
+    expect(messages[messages.length - 1].slice(0, 3)).toEqual([100, 'restoreFailed', true]);
 });
 ```
 
