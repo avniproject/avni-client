@@ -60,6 +60,22 @@ describe('MenuActions.onBackupDump', () => {
             .toEqual([[BackupRestoreRealmService, MediaQueueService.DumpType.Catchment]]);
     });
 
+    // MenuView.showBackupFailedAlert renders its body from the third argument; dropping it leaves
+    // the user with an empty dialog.
+    it('forwards the avniError from the service to the callback', () => {
+        mockGlobalContext = {getActiveBackend: () => BACKENDS.SQLITE};
+        const avniError = {messageKey: 'backupFailed', reportingText: 'S3 responded 403'};
+        const context = {get: () => ({backup: (type, cb) => cb(100, 'backupFailed', avniError)})};
+        const received = [];
+
+        MenuActions.onBackupDump({}, {
+            dumpType: MediaQueueService.DumpType.Catchment,
+            onBackupDumpCb: (...args) => received.push(args)
+        }, context);
+
+        expect(received).toEqual([[100, 'backupFailed', avniError]]);
+    });
+
     it('sends an adhoc dump to the app info uploader on either backend', () => {
         expect(dispatch(BACKENDS.SQLITE, MediaQueueService.DumpType.Adhoc))
             .toEqual([[AppInfoUploadService, 'upload']]);
