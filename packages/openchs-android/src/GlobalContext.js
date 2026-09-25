@@ -167,11 +167,11 @@ class GlobalContext {
             this.db = await this._realmFactory.createRealm();
             updateAnalyticsDatabase(this.db);
             General.logInfo("GlobalContext", "Realm database opened on retry");
-            return true;
         } catch (e) {
             General.logWarn("GlobalContext", `Realm open retry failed: ${e.message}`);
             return false;
         }
+        return this._bindIfActive(BACKENDS.REALM, this.db);
     }
 
     // switchBackend() refuses SQLite while sqliteDb is missing, and nothing else reopens it
@@ -182,9 +182,22 @@ class GlobalContext {
             const SqliteFactory = require("./framework/db/SqliteFactory").default;
             this.sqliteDb = await SqliteFactory.createSqliteProxy();
             General.logInfo("GlobalContext", "SQLite database opened on retry");
-            return true;
         } catch (e) {
             General.logWarn("GlobalContext", `SQLite open retry failed: ${e.message}`);
+            return false;
+        }
+        return this._bindIfActive(BACKENDS.SQLITE, this.sqliteDb);
+    }
+
+    // A reopen of the backend already active is invisible to switchBackend, which returns
+    // early on no change, so the registry would keep the handle that died. Bind it here.
+    _bindIfActive(backend, db) {
+        if (this._activeBackend !== backend) return true;
+        try {
+            this.beanRegistry.updateDatabase(db);
+            return true;
+        } catch (e) {
+            General.logError("GlobalContext", `Binding the reopened ${backend} database failed: ${e.message}`);
             return false;
         }
     }
