@@ -9,8 +9,9 @@ export default class ErrorHandler {
     static set(errorCallback) {
         console.log('ErrorHandler', `Setting global error handler ${Config.ENV}`);
         setJSExceptionHandler((error, isFatal) => {
+            // A crash is a defect even when a network failure caused it.
             if (isFatal)
-                ErrorHandler.postError(error, errorCallback);
+                ErrorHandler.postError(error, errorCallback, {reportTransient: true});
             else
                 General.logDebug('ErrorHandler', error);
         }, true);
@@ -20,10 +21,10 @@ export default class ErrorHandler {
         ErrorHandler.postError(error, _.noop);
     }
 
-    static postError(error, errorCallback) {
+    static postError(error, errorCallback, notifyOptions) {
         General.logDebug('ErrorHandler', error.message);
 
-        ErrorUtil.notifyBugsnag(error, "ErrorHandler")
+        ErrorUtil.notifyBugsnag(error, "ErrorHandler", notifyOptions)
             .then((error) => {
                 const stackTraceString = ErrorUtil.getNavigableStackTraceSync(error);
                 const avniError = AvniError.createFromUserMessageAndStackTrace(error.message, stackTraceString);
