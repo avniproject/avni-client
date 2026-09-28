@@ -382,32 +382,8 @@ class SqliteMigrationService extends BaseService {
             this.getService('entitySyncStatusService').setup();
             return true;
         }
-        if (leg.target === BACKENDS.SQLITE && await this._restoreFastSyncDump(leg)) {
-            await SqliteMigrationService.persistStateForUser(leg.username, {...state, preparedTarget: leg.target});
-            return false;
-        }
         await this.restartTarget(leg);
         return false;
-    }
-
-    // A device migrating to SQLite is usually an existing field worker whose catchment already
-    // has a fast sync dump in S3. Restoring it leaves the dump's checkpoints in place, so the
-    // pull that follows fetches the delta instead of the whole catchment. Having no dump is the
-    // normal case, and so is failing to apply one: either way the caller clears and seeds.
-    async _restoreFastSyncDump(leg) {
-        try {
-            const backupRestoreSqliteService = this.getService('backupRestoreSqliteService');
-            if (!backupRestoreSqliteService) return false;
-            const applied = await backupRestoreSqliteService.restoreForMigration(leg.username);
-            General.logInfo("SqliteMigrationService", applied
-                ? `Restored a fast sync dump onto ${leg.target}; its checkpoints make the pull a delta`
-                : `No fast sync dump to restore onto ${leg.target}; falling back to a full pull`);
-            return applied;
-        } catch (e) {
-            General.logWarn("SqliteMigrationService",
-                `Restoring a fast sync dump onto ${leg.target} failed; falling back to a full pull: ${e.message}`);
-            return false;
-        }
     }
 
     // Empties the target, seeds every checkpoint at REALLY_OLD_DATE, and marks it prepared. A

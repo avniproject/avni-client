@@ -164,23 +164,6 @@ export default class BackupRestoreSqliteService extends BaseService {
      *   cb(100, "restoreFailed", true, error)      — apply failed, surface error
      */
     async restore(cb) {
-        await this._restore(cb, {commitsBackendState: true});
-    }
-
-    /**
-     * The migration leg's entry point (SqliteMigrationService.prepareTarget). Same restore,
-     * minus the state commit: commitLeg is the single writer of activeBackend there and runs
-     * only once the whole sync has succeeded. The username comes from the leg because the
-     * runtime is already on the target, whose Settings row is still the unbootstrapped default.
-     *
-     * Resolves true when a dump was applied, false when there is none or it could not be
-     * applied — the leg then clears and seeds the target for a full pull, as it always did.
-     */
-    async restoreForMigration(username) {
-        return this._restore(() => {}, {commitsBackendState: false, username});
-    }
-
-    async _restore(cb, {commitsBackendState, username}) {
         const settingsService = this.getService(SettingsService);
         const mediaService = this.getService(MediaService);
         const downloadedZip = `${fs.DocumentDirectoryPath}/${General.randomUUID()}.zip`;
@@ -194,10 +177,6 @@ export default class BackupRestoreSqliteService extends BaseService {
         // overlaying after we flip to SQLite, LandingView reads idpType=null
         // and crashes.
         const authState = this._captureAuthState(settingsService);
-        const localUsername = username || settingsService.getSettings().userId;
-        // The rollback puts the file back but leaves nothing open on it, so a failure after this
-        // point owes the caller a reopen and one before it does not.
-        let liveDbClosed = false;
 
         try {
             cb(1, 'restoreCheckDb');
@@ -205,7 +184,7 @@ export default class BackupRestoreSqliteService extends BaseService {
             if (existsResponse !== 'true') {
                 General.logInfo('BackupRestoreSqliteService', 'No fast sync database available; falling through');
                 cb(100, 'restoreNoSqliteDump');
-                return false;
+                return;
             }
 
             const {url, tier} = await getJSON(`${settingsService.getSettings().serverURL}/media/fastSyncDownload`) || {};
@@ -228,6 +207,7 @@ export default class BackupRestoreSqliteService extends BaseService {
 
             cb(85, 'restoringDb');
             const artifactUsername = await this._readSnapshotUsername(dbEntry.path, unzipDir);
+            const localUsername = settingsService.getSettings().userId;
             if (tier !== CATCHMENT_TIER && (!artifactUsername || artifactUsername !== localUsername)) {
                 throw new Error(
                     `SQLite snapshot user mismatch: snapshot.user_info.username='${artifactUsername}', settings.userId='${localUsername}'`
@@ -239,7 +219,6 @@ export default class BackupRestoreSqliteService extends BaseService {
             // otherwise run against the swapped-in snapshot's path, and the backup copied
             // below would be missing whatever was still only in the WAL.
             this._closeLiveSqlite();
-            liveDbClosed = true;
             if (await fs.exists(liveDbPath)) {
                 await fs.copyFile(liveDbPath, backupPath);
                 await fs.unlink(liveDbPath);
@@ -284,31 +263,22 @@ export default class BackupRestoreSqliteService extends BaseService {
 
             // Recorded last, once the restored database is usable (step 8 above). Throws if
             // the write fails, which takes the failure path below.
-            if (commitsBackendState) {
-                cb(96, 'restoringDb');
-                await SqliteMigrationService.commitStateForUser(localUsername, {
-                    activeBackend: BACKENDS.SQLITE,
-                    desiredBackend: BACKENDS.SQLITE,
-                    preparedTarget: null,
-                    startedAt: null,
-                    attemptCount: 0,
-                    lastError: null,
-                });
-            }
+            cb(96, 'restoringDb');
+            await SqliteMigrationService.commitStateForUser(localUsername, {
+                activeBackend: BACKENDS.SQLITE,
+                desiredBackend: BACKENDS.SQLITE,
+                preparedTarget: null,
+                startedAt: null,
+                attemptCount: 0,
+                lastError: null,
+            });
 
             await this._cleanup(downloadedZip, unzipDir, backupPath);
             cb(100, 'restoreComplete');
-            return true;
         } catch (error) {
             General.logErrorAsInfo('BackupRestoreSqliteService', error);
             await this._restoreBackup(liveDbPath, backupPath);
             await this._cleanup(downloadedZip, unzipDir);
-            // A leg must stay on its target: onRestoreFailure opens the committed backend, which
-            // mid-migration is the source, and the leg's full-pull fallback would then clear it.
-            if (!commitsBackendState) {
-                if (liveDbClosed) await this._reopenRolledBackDatabase();
-                return false;
-            }
             if (this.onRestoreFailure) {
                 // cb must fire whatever happens here, or login waits on the restore forever.
                 try {
@@ -318,22 +288,6 @@ export default class BackupRestoreSqliteService extends BaseService {
                 }
             }
             cb(100, 'restoreFailed', true, error);
-            return false;
-        }
-    }
-
-    // Same callback as the success path: the file in place is once more what the runtime should
-    // be open on, and the beans are still holding the connection _closeLiveSqlite dropped.
-    async _reopenRolledBackDatabase() {
-        if (!this.onRestoreCompleted) return;
-        try {
-            const reopened = await this.onRestoreCompleted();
-            if (reopened === false) {
-                General.logError('BackupRestoreSqliteService',
-                    'Rolled the fast sync dump back but SQLite would not reopen');
-            }
-        } catch (e) {
-            General.logError('BackupRestoreSqliteService', `Reopening the rolled-back database failed: ${e.message}`);
         }
     }
 
