@@ -51,9 +51,11 @@ const General = require('../../src/utility/General').default;
 const SyncService = require('../../src/service/SyncService').default;
 const SqliteMigrationService = require('../../src/service/SqliteMigrationService').default;
 const SessionUsername = require('../../src/service/SessionUsername').default;
+const LastSyncCompleted = require('../../src/service/LastSyncCompleted').default;
 
 const MIGRATION_KEY = 'avni.sqliteMigration.anjali@phulwari';
 const SESSION_KEY = 'avni.currentUsername';
+const LAST_SYNC_COMPLETED_KEY = 'avni.lastSyncCompleted';
 
 // Records which backend was active each time a wipe ran, so a test can assert both were
 // cleared rather than the same one twice.
@@ -152,6 +154,25 @@ describe('clearData wipes both backends (#2083)', () => {
         await svc.clearData();
 
         expect(recordPresentAtFirstWipe).toBe(false);
+    });
+
+    // Kept outside both databases, so it outlives the wipe unless dropped here. Left standing,
+    // the next user can publish an empty, never-synced database as the catchment dump before
+    // their first sync runs — a login with no network is enough (#2141).
+    it('drops the last-sync-finished marker before it starts wiping', async () => {
+        await LastSyncCompleted.set();
+        const svc = buildSyncService();
+        let markerPresentAtFirstWipe = null;
+        svc.entityService.clearDataIn.mockImplementation(() => {
+            if (markerPresentAtFirstWipe === null) {
+                markerPresentAtFirstWipe = AsyncStorage.__store.has(LAST_SYNC_COMPLETED_KEY);
+            }
+        });
+
+        await svc.clearData();
+
+        expect(markerPresentAtFirstWipe).toBe(false);
+        expect(await LastSyncCompleted.didComplete()).toBe(false);
     });
 
     // A wipe through a handle a failed reopen left closed clears nothing, and the reopen at

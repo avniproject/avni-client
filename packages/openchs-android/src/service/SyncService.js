@@ -137,18 +137,19 @@ class SyncService extends BaseService {
 
         const mediaUploadRequired = this.mediaQueueService.isMediaUploadRequired();
         const updatedSyncSource = this.getUpdatedSyncSource(syncSource);
+        const isOnlyUploadRequired = updatedSyncSource === SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB;
         const appInfo = await this.metricsService.getAppInfo();
         // Down for the duration of this sync. A sync the app never finishes writes no telemetry
         // row at all, so without this the previous sync's "complete" would stand as the newest
         // answer and the catchment upload would read a dead device as healthy (#2141).
-        await LastSyncCompleted.clear();
+        // Upload-only background syncs pull nothing, so they cannot make a stale database
+        // current — the same reason getLatestCompletedFullSync excludes them — and they leave
+        // the flag as they found it. Lowering it on one, with nothing to raise it again, would
+        // block a healthy phone from an hour after each full sync until the next.
+        if (!isOnlyUploadRequired) await LastSyncCompleted.clear();
         this.dispatchAction(SyncTelemetryActions.START_SYNC, {connectionInfo, syncSource: updatedSyncSource, appInfo});
         const syncCompleted = () => Promise.resolve(this.dispatchAction(SyncTelemetryActions.SYNC_COMPLETED))
-            // Upload-only background syncs pull nothing, so they cannot make a stale database
-            // current — the same reason getLatestCompletedFullSync excludes them.
-            .then(() => updatedSyncSource === SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB
-                ? Promise.resolve()
-                : LastSyncCompleted.set())
+            .then(() => isOnlyUploadRequired ? Promise.resolve() : LastSyncCompleted.set())
             .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity))
             .then(() => Promise.resolve(progressBarStatus.onSyncComplete()))
             .then(() => Promise.resolve(this.logSyncCompleteEvent(syncStartTime)))
@@ -163,7 +164,6 @@ class SyncService extends BaseService {
         // Don't do it twice if no image sync required
         General.logDebug('mediaUploadRequired', mediaUploadRequired);
         const isManualSync = updatedSyncSource === SyncService.syncSources.SYNC_BUTTON;
-        const isOnlyUploadRequired = updatedSyncSource === SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB;
         let promise;
         if (mediaUploadRequired) {
             promise = this.mediaSync(statusMessageCallBack).then(() => onAfterMediaPush('Media', 0));
@@ -767,6 +767,9 @@ class SyncService extends BaseService {
         const SessionUsername = require('./SessionUsername').default;
         await SqliteMigrationService.clearAllMigrationState();
         await SessionUsername.clear();
+        // Kept outside both databases too, so the wipe alone leaves it standing and the next
+        // user could publish a never-synced database as the catchment dump (#2141).
+        await LastSyncCompleted.clear();
 
         // Reopen first: a wipe through a handle a failed reopen left closed clears nothing.
         await globalContext.openRealmIfMissing();
