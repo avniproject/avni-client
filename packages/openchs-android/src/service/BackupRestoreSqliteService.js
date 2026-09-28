@@ -23,7 +23,8 @@ import SubjectTypeService from './SubjectTypeService';
 import IndividualService from './IndividualService';
 import SubjectMigrationService from './SubjectMigrationService';
 import FormMappingService from './FormMappingService';
-import {clearDirectlyAssignedSubjects, clearPeerOwnedData, SqlitePeerOwnedData} from './fastSync/PeerOwnedData';
+import {clearDirectlyAssignedSubjects, clearEntitiesOutsidePrivileges, clearPeerOwnedData, SqlitePeerOwnedData} from './fastSync/PeerOwnedData';
+import {fetchSyncableItems} from './fastSync/SyncableItems';
 
 const PER_USER_TIER = 'perUser';
 const CATCHMENT_TIER = 'catchment';
@@ -244,6 +245,9 @@ export default class BackupRestoreSqliteService extends BaseService {
             await this._bootstrapTargetSettings(authState);
             if (tier === CATCHMENT_TIER) {
                 this._stampLocalIdentity(localUsername);
+                // After the settings bootstrap, which is what puts this user's credentials and
+                // server URL on the restored database for the syncable item request.
+                await this._clearEntitiesOutsidePrivileges();
             }
 
             // Recorded last, once the restored database is usable (step 8 above). Throws if
@@ -346,6 +350,33 @@ export default class BackupRestoreSqliteService extends BaseService {
             inWrite: (work) => sqliteProxy.write(work),
         });
         General.logInfo('BackupRestoreSqliteService', 'Cleared the uploader\'s directly assigned subjects from the catchment dump');
+    }
+
+    // The privilege half of the cleanup: a peer's dump carries whatever their group let them see,
+    // which can be more than this user's own group grants. Fails the restore only when the removal
+    // itself fails — an allowlist that could not be read leaves the data as it is.
+    async _clearEntitiesOutsidePrivileges() {
+        const sqliteProxy = GlobalContext.getInstance().sqliteDb;
+        if (!sqliteProxy) {
+            throw new Error('SQLite database is not open; refusing to run a catchment dump uncleaned');
+        }
+        const syncableItems = await fetchSyncableItems(this.getService(SettingsService).getSettings().serverURL);
+        const {reconciled, removedSubjectTypes} = clearEntitiesOutsidePrivileges(syncableItems, {
+            subjectTypeService: this.getService(SubjectTypeService),
+            individualService: this.getService(IndividualService),
+            subjectMigrationService: this.getService(SubjectMigrationService),
+            formMappingService: this.getService(FormMappingService),
+            entitySyncStatusService: this.getService(EntitySyncStatusService),
+        }, {
+            inWrite: (work) => sqliteProxy.write(work),
+        });
+        if (!reconciled) {
+            General.logWarn('BackupRestoreSqliteService',
+                'Could not read this user\'s syncable items; leaving the restored data for the next sync');
+            return;
+        }
+        General.logInfo('BackupRestoreSqliteService',
+            `Removed ${removedSubjectTypes.length} subject type(s) outside this user's privileges from the catchment dump`);
     }
 
     // A catchment dump carries the uploader's user_info row. Realm has always corrected this after

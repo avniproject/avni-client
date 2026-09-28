@@ -25,7 +25,8 @@ import moment from "moment";
 import FileLoggerService from '../utility/FileLoggerService';
 import AvniError from "../framework/errorHandling/AvniError";
 import toAvniError from "../framework/errorHandling/toAvniError";
-import {clearDirectlyAssignedSubjects, clearPeerOwnedData, RealmPeerOwnedData} from "./fastSync/PeerOwnedData";
+import {clearDirectlyAssignedSubjects, clearEntitiesOutsidePrivileges, clearPeerOwnedData, RealmPeerOwnedData} from "./fastSync/PeerOwnedData";
+import {fetchSyncableItems} from "./fastSync/SyncableItems";
 
 const REALM_FILE_NAME = "default.realm";
 const REALM_FILE_FULL_PATH = `${fs.DocumentDirectoryPath}/${REALM_FILE_NAME}`;
@@ -284,6 +285,9 @@ export default class BackupRestoreRealmService extends BaseService {
                             this._deleteIndividualAndDependentForDirectlyAssignableSubjectTypes();
                             General.logDebug("BackupRestoreRealmService", "Deleted individual and dependent forDirectlyAssignableSubjectTypes");
                         })
+                        // After _restoreSettings, which is what puts this user's server URL and
+                        // credentials back for the syncable item request.
+                        .then(() => this._clearEntitiesOutsidePrivileges())
                         .then(() => {
                             General.logDebug("BackupRestoreRealmService", "Personalisation of database complete");
                             cb(100, "restoreComplete");
@@ -353,6 +357,31 @@ export default class BackupRestoreRealmService extends BaseService {
             // services each open their own.
             inWrite: (work) => work(),
         });
+    }
+
+    // A peer's dump carries whatever their group let them see, which can be more than this user's
+    // own group grants. An allowlist that could not be read leaves the data as it is: the next sync
+    // can still clear a peer's rows, but a restore failed at login cannot be undone.
+    async _clearEntitiesOutsidePrivileges() {
+        const syncableItems = await fetchSyncableItems(this.getService(SettingsService).getSettings().serverURL);
+        const {reconciled, removedSubjectTypes} = clearEntitiesOutsidePrivileges(syncableItems, {
+            subjectTypeService: this.getService(SubjectTypeService),
+            individualService: this.getService(IndividualService),
+            subjectMigrationService: this.getService(SubjectMigrationService),
+            formMappingService: this.getService(FormMappingService),
+            entitySyncStatusService: this.getService(EntitySyncStatusService),
+        }, {
+            // No outer transaction, as with the caseload cleanup: Realm rejects a write opened
+            // inside a write, and the services each open their own.
+            inWrite: (work) => work(),
+        });
+        if (!reconciled) {
+            General.logWarn("BackupRestoreRealmService",
+                "Could not read this user's syncable items; leaving the restored data for the next sync");
+            return;
+        }
+        General.logInfo("BackupRestoreRealmService",
+            `Removed ${removedSubjectTypes.length} subject type(s) outside this user's privileges from the dump`);
     }
 
     _restoreSettings(prevSettings) {

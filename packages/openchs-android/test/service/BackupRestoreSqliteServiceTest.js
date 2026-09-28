@@ -22,6 +22,7 @@ jest.mock('react-native-zip-archive', () => ({unzip: jest.fn(async () => {}), zi
 jest.mock('../../src/framework/http/requests', () => ({
     get: (...args) => mockGet(...args),
     getJSON: (...args) => mockGetJSON(...args),
+    post: (...args) => mockPost(...args),
 }));
 jest.mock('../../src/utility/General', () => ({
     __esModule: true,
@@ -81,6 +82,7 @@ jest.mock('../../src/GlobalContext', () => ({
 
 const mockGet = jest.fn();
 const mockGetJSON = jest.fn();
+const mockPost = jest.fn(async () => { throw new Error('no syncable items stubbed'); });
 
 const BackupRestoreSqliteService = require('../../src/service/BackupRestoreSqliteService').default;
 const SettingsService = require('../../src/service/SettingsService').default;
@@ -1049,5 +1051,161 @@ describe('SQLite fast-sync restore clears a peer\'s directly assigned caseload (
 
         expect(last).toEqual([100, 'restoreFailed', true, deleteFailed]);
         expect(SqliteMigrationService.commitStateForUser).not.toHaveBeenCalled();
+    });
+});
+
+describe('SQLite fast-sync restore reconciles a peer\'s dump with this user\'s privileges', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+        mockGlobalContext.sqliteDb = null;
+        mockGet.mockImplementation(async (url) => url.endsWith('/exists') ? 'true' : 'https://signed-url');
+        mockPost.mockImplementation(async () => { throw new Error('no syncable items stubbed'); });
+    });
+
+    const asResults = (rows) => ({map: (fn) => rows.map(fn)});
+
+    function serviceWith({tier = 'catchment', subjectsByType = {}, formMappingsByType = {},
+        checkpointRows = []} = {}) {
+        mockGetJSON.mockImplementation(async () => ({url: 'https://signed-url', tier}));
+        const settings = {serverURL: 'https://server', userId: 'aw@org', idpType: 'cognito', clone() { return {...this}; }};
+        const settingsService = {getSettings: jest.fn(() => settings), init: jest.fn(async () => {}), saveOrUpdate: jest.fn()};
+        const removedSubjects = [];
+        const resetCheckpoints = [];
+        const entitySyncStatusService = {
+            setup: jest.fn(),
+            findAll: jest.fn(() => asResults(checkpointRows)),
+            updateAsPerSyncDetails: jest.fn((rows) => resetCheckpoints.push(...rows)),
+        };
+        const subjectMigrationService = {
+            removeEntitiesFor: jest.fn(({subjectUUID}) => removedSubjects.push(subjectUUID)),
+        };
+        const services = new Map([
+            [SettingsService, settingsService],
+            [MediaService, {downloadFromUrl: jest.fn(async () => {})}],
+            [EntitySyncStatusService, entitySyncStatusService],
+            [UserInfoService, {getUserInfo: jest.fn(() => UserInfo.createEmptyInstance()), saveOrUpdate: jest.fn()}],
+            [SubjectTypeService, {
+                getAllDirectlyAssignable: jest.fn(() => []),
+                getAll: jest.fn(() => Object.keys(subjectsByType).map(uuid => ({uuid}))),
+            }],
+            [IndividualService, {getAllBySubjectType: jest.fn((st) => asResults(subjectsByType[st.uuid] || []))}],
+            [SubjectMigrationService, subjectMigrationService],
+            [FormMappingService, {getFormMappingsForSubjectType: jest.fn((st) => asResults(formMappingsByType[st.uuid] || []))}],
+        ]);
+        const service = new BackupRestoreSqliteService({}, {getService: (cls) => services.get(cls)});
+        service._readSnapshotUsername = jest.fn(async () => tier === 'catchment' ? 'peer.in.same.catchment' : 'aw@org');
+        const sqliteDb = {
+            close: jest.fn(),
+            write: jest.fn((callback) => callback()),
+            deleteAllInSchema: jest.fn(),
+            objects: jest.fn(() => ({filtered: () => ({slice: () => []})})),
+            delete: jest.fn(),
+        };
+        service.subscribeOnRestore(jest.fn(async () => { mockGlobalContext.sqliteDb = sqliteDb; }));
+        service.subscribeOnRestoreFailure(jest.fn(async () => {}));
+        return {service, settingsService, sqliteDb, entitySyncStatusService, subjectMigrationService,
+            removedSubjects, resetCheckpoints};
+    }
+
+    async function restore(service) {
+        const messages = [];
+        await service.restore((p, m, failed, error) => messages.push([p, m, failed, error]));
+        return messages[messages.length - 1];
+    }
+
+    const answerWith = (syncDetails) => mockPost.mockResolvedValue({json: async () => ({syncDetails})});
+    const individualItem = (entityTypeUuid) => ({entityName: 'Individual', entityTypeUuid});
+
+    // The dump carries whatever its uploader could see; this user's group may grant ViewSubject
+    // on less than that, and nothing in an ordinary sync would ever remove the difference.
+    it('removes the subjects of a type this user has no privilege on', async () => {
+        const {service, removedSubjects} = serviceWith({
+            subjectsByType: {'st-mine': [{uuid: 'sub-mine'}], 'st-household': [{uuid: 'sub-theirs'}]},
+        });
+        answerWith([individualItem('st-mine')]);
+
+        const last = await restore(service);
+
+        expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
+        expect(removedSubjects).toEqual(['sub-theirs']);
+    });
+
+    it('puts the removed type\'s checkpoints back to the beginning of time', async () => {
+        const {service, resetCheckpoints} = serviceWith({
+            subjectsByType: {'st-mine': [], 'st-household': []},
+            checkpointRows: [
+                {uuid: 'cp-mine', entityName: 'Individual', entityTypeUuid: 'st-mine'},
+                {uuid: 'cp-theirs', entityName: 'Individual', entityTypeUuid: 'st-household'},
+            ],
+        });
+        answerWith([individualItem('st-mine')]);
+
+        await restore(service);
+
+        expect(resetCheckpoints).toEqual([{uuid: 'cp-theirs', entityName: 'Individual',
+            entityTypeUuid: 'st-household', loadedSince: new Date('1900-01-01T00:00:00.000Z')}]);
+    });
+
+    // Deleting on a response that never arrived would destroy data this user is entitled to, and
+    // the next sync can still clear a peer's rows; a failed restore at login cannot be undone.
+    it('deletes nothing and still completes when the syncable item list cannot be fetched', async () => {
+        const {service, removedSubjects, resetCheckpoints} = serviceWith({
+            subjectsByType: {'st-household': [{uuid: 'sub-theirs'}]},
+            checkpointRows: [{uuid: 'cp-theirs', entityName: 'Individual', entityTypeUuid: 'st-household'}],
+        });
+        mockPost.mockRejectedValue(new Error('offline'));
+
+        const last = await restore(service);
+
+        expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
+        expect(removedSubjects).toEqual([]);
+        expect(resetCheckpoints).toEqual([]);
+    });
+
+    it('deletes nothing when the list names no subject type at all', async () => {
+        const {service, removedSubjects} = serviceWith({
+            subjectsByType: {'st-household': [{uuid: 'sub-theirs'}]},
+        });
+        answerWith([{entityName: 'Concept', entityTypeUuid: ''}]);
+
+        const last = await restore(service);
+
+        expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
+        expect(removedSubjects).toEqual([]);
+    });
+
+    // The request carries this user's own credentials, which only reach the restored database
+    // when the settings bootstrap has overlaid them.
+    it('asks the server only after the auth state has been written to the restored database', async () => {
+        const {service, settingsService} = serviceWith({subjectsByType: {'st-mine': []}});
+        answerWith([individualItem('st-mine')]);
+
+        await restore(service);
+
+        expect(mockPost).toHaveBeenCalledTimes(1);
+        expect(settingsService.saveOrUpdate.mock.invocationCallOrder[0])
+            .toBeLessThan(mockPost.mock.invocationCallOrder[0]);
+    });
+
+    it.each(['perUser', 'snapshot'])('asks nothing for a %s artifact — it was built for this user', async (tier) => {
+        const {service, removedSubjects} = serviceWith({
+            tier,
+            subjectsByType: {'st-household': [{uuid: 'sub-theirs'}]},
+        });
+        answerWith([individualItem('st-mine')]);
+
+        const last = await restore(service);
+
+        expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
+        expect(mockPost).not.toHaveBeenCalled();
+        expect(removedSubjects).toEqual([]);
+    });
+
+    it('refuses to run when there is no open SQLite database', async () => {
+        const {service} = serviceWith({subjectsByType: {'st-household': []}});
+        mockGlobalContext.sqliteDb = null;
+
+        await expect(service._clearEntitiesOutsidePrivileges())
+            .rejects.toThrow(/refusing to run a catchment dump uncleaned/);
     });
 });

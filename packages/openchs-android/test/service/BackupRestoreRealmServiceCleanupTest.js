@@ -7,10 +7,21 @@
 
 jest.mock('react-native-fs', () => ({
     __esModule: true,
-    default: {DocumentDirectoryPath: '/docs', exists: jest.fn(), unlink: jest.fn(), copyFile: jest.fn()},
+    default: {
+        DocumentDirectoryPath: '/docs',
+        exists: jest.fn(async () => false),
+        unlink: jest.fn(async () => {}),
+        copyFile: jest.fn(async () => {}),
+        moveFile: jest.fn(async () => {}),
+        readDir: jest.fn(async () => [{name: 'dump.realm', path: '/docs/unzipped/dump.realm'}]),
+    },
 }));
-jest.mock('react-native-zip-archive', () => ({unzip: jest.fn(), zip: jest.fn()}));
-jest.mock('../../src/framework/http/requests', () => ({get: jest.fn(), getJSON: jest.fn()}));
+jest.mock('react-native-zip-archive', () => ({unzip: jest.fn(async () => {}), zip: jest.fn()}));
+const mockPost = jest.fn(async () => { throw new Error('no syncable items stubbed'); });
+const mockGet = jest.fn();
+jest.mock('../../src/framework/http/requests', () => ({
+    get: (...args) => mockGet(...args), getJSON: jest.fn(), post: (...args) => mockPost(...args),
+}));
 jest.mock('../../src/utility/General', () => ({
     __esModule: true,
     default: {
@@ -242,5 +253,175 @@ describe('Realm fast-sync restore clears a peer\'s directly assigned caseload', 
             entityTypeUuid: 'st-assignable',
             loadedSince: EntitySyncStatus.REALLY_OLD_DATE,
         }]);
+    });
+});
+
+describe('Realm fast-sync restore reconciles a peer\'s dump with this user\'s privileges', () => {
+    const SettingsService = require('../../src/service/SettingsService').default;
+    const SubjectTypeService = require('../../src/service/SubjectTypeService').default;
+    const IndividualService = require('../../src/service/IndividualService').default;
+    const SubjectMigrationService = require('../../src/service/SubjectMigrationService').default;
+    const FormMappingService = require('../../src/service/FormMappingService').default;
+    const EntitySyncStatusService = require('../../src/service/EntitySyncStatusService').default;
+
+    beforeEach(() => {
+        mockPost.mockReset();
+        mockPost.mockImplementation(async () => { throw new Error('no syncable items stubbed'); });
+    });
+
+    const asResults = (rows) => ({map: (fn) => rows.map(fn)});
+    const answerWith = (syncDetails) => mockPost.mockResolvedValue({json: async () => ({syncDetails})});
+    const individualItem = (entityTypeUuid) => ({entityName: 'Individual', entityTypeUuid});
+
+    function serviceWith({subjectsByType = {}, formMappingsByType = {}, checkpointRows = []} = {}) {
+        const removedSubjects = [];
+        const resetCheckpoints = [];
+        const services = new Map([
+            [SettingsService, {getSettings: () => ({serverURL: 'https://server'})}],
+            [SubjectTypeService, {
+                getAllDirectlyAssignable: () => [],
+                getAll: () => Object.keys(subjectsByType).map(uuid => ({uuid})),
+            }],
+            [IndividualService, {getAllBySubjectType: (st) => asResults(subjectsByType[st.uuid] || [])}],
+            [SubjectMigrationService, {removeEntitiesFor: ({subjectUUID}) => removedSubjects.push(subjectUUID)}],
+            [FormMappingService, {getFormMappingsForSubjectType: (st) => asResults(formMappingsByType[st.uuid] || [])}],
+            [EntitySyncStatusService, {
+                findAll: () => asResults(checkpointRows),
+                updateAsPerSyncDetails: (rows) => resetCheckpoints.push(...rows),
+            }],
+        ]);
+        const service = new BackupRestoreRealmService({}, {getService: (cls) => services.get(cls)});
+        return {service, removedSubjects, resetCheckpoints};
+    }
+
+    it('removes the subjects of a type this user has no privilege on', async () => {
+        const {service, removedSubjects} = serviceWith({
+            subjectsByType: {'st-mine': [{uuid: 'sub-mine'}], 'st-household': [{uuid: 'sub-theirs'}]},
+        });
+        answerWith([individualItem('st-mine')]);
+
+        await service._clearEntitiesOutsidePrivileges();
+
+        expect(removedSubjects).toEqual(['sub-theirs']);
+    });
+
+    it('puts the removed type\'s checkpoints back to the beginning of time', async () => {
+        const {service, resetCheckpoints} = serviceWith({
+            subjectsByType: {'st-mine': [], 'st-household': []},
+            checkpointRows: [
+                {uuid: 'cp-mine', entityName: 'Individual', entityTypeUuid: 'st-mine'},
+                {uuid: 'cp-theirs', entityName: 'Individual', entityTypeUuid: 'st-household'},
+            ],
+        });
+        answerWith([individualItem('st-mine')]);
+
+        await service._clearEntitiesOutsidePrivileges();
+
+        expect(resetCheckpoints).toEqual([{uuid: 'cp-theirs', entityName: 'Individual',
+            entityTypeUuid: 'st-household', loadedSince: new Date('1900-01-01T00:00:00.000Z')}]);
+    });
+
+    // Deleting on a response that never arrived would destroy data this user is entitled to.
+    it('deletes nothing when the syncable item list cannot be fetched', async () => {
+        const {service, removedSubjects, resetCheckpoints} = serviceWith({
+            subjectsByType: {'st-household': [{uuid: 'sub-theirs'}]},
+            checkpointRows: [{uuid: 'cp-theirs', entityName: 'Individual', entityTypeUuid: 'st-household'}],
+        });
+        mockPost.mockRejectedValue(new Error('offline'));
+
+        await service._clearEntitiesOutsidePrivileges();
+
+        expect(removedSubjects).toEqual([]);
+        expect(resetCheckpoints).toEqual([]);
+    });
+});
+
+describe('the Realm restore runs the privilege reconciliation itself', () => {
+    const SettingsService = require('../../src/service/SettingsService').default;
+    const MediaService = require('../../src/service/MediaService').default;
+    const SubjectTypeService = require('../../src/service/SubjectTypeService').default;
+    const IndividualService = require('../../src/service/IndividualService').default;
+    const SubjectMigrationService = require('../../src/service/SubjectMigrationService').default;
+    const FormMappingService = require('../../src/service/FormMappingService').default;
+    const EntitySyncStatusService = require('../../src/service/EntitySyncStatusService').default;
+    const UserInfoService = require('../../src/service/UserInfoService').default;
+
+    const asResults = (rows) => ({map: (fn) => rows.map(fn)});
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+        mockGet.mockImplementation(async (url) => url.endsWith('/exists') ? 'true' : 'https://signed-url');
+        mockPost.mockResolvedValue({json: async () => ({syncDetails: [{entityName: 'Individual', entityTypeUuid: 'st-mine'}]})});
+    });
+
+    function buildForRestore({subjectsByType = {}} = {}) {
+        const removedSubjects = [];
+        const settingsService = {
+            getSettings: () => ({serverURL: 'https://server', userId: 'aw@org', clone() { return {...this}; }}),
+            saveOrUpdate: jest.fn(),
+        };
+        const services = new Map([
+            [SettingsService, settingsService],
+            [MediaService, {downloadFromUrl: jest.fn(async () => {})}],
+            [EntitySyncStatusService, {
+                setup: jest.fn(),
+                findAll: () => asResults([]),
+                updateAsPerSyncDetails: jest.fn(),
+            }],
+            [UserInfoService, {saveOrUpdate: jest.fn()}],
+            [SubjectTypeService, {
+                getAllDirectlyAssignable: () => [],
+                getAll: () => Object.keys(subjectsByType).map(uuid => ({uuid})),
+            }],
+            [IndividualService, {getAllBySubjectType: (st) => asResults(subjectsByType[st.uuid] || [])}],
+            [SubjectMigrationService, {removeEntitiesFor: ({subjectUUID}) => removedSubjects.push(subjectUUID)}],
+            [FormMappingService, {getFormMappingsForSubjectType: () => asResults([])}],
+        ]);
+        const context = {
+            getService: (cls) => services.get(cls),
+            getRepository: () => ({findAll: () => ({filtered: () => ({map: () => []}), map: () => []}),
+                deleteInTransaction: jest.fn(), create: jest.fn()}),
+            transactionManager: {write: (work) => work()},
+        };
+        const service = new BackupRestoreRealmService({}, context);
+        service.subscribeOnRestore(jest.fn(async () => {}));
+        service.subscribeOnRestoreFailure(jest.fn(async () => {}));
+        return {service, removedSubjects};
+    }
+
+    async function restore(service) {
+        const messages = [];
+        await new Promise((resolve) => {
+            service.restore((progress, message, failed, error) => {
+                messages.push([progress, message, failed, error]);
+                if (progress === 100) resolve();
+            });
+        });
+        return messages[messages.length - 1];
+    }
+
+    // The reconciliation is worth nothing unless the restore that creates the leak performs it.
+    it('removes a subject type this user has no privilege on during a real restore', async () => {
+        const {service, removedSubjects} = buildForRestore({
+            subjectsByType: {'st-mine': [{uuid: 'sub-mine'}], 'st-household': [{uuid: 'sub-theirs'}]},
+        });
+
+        const last = await restore(service);
+
+        expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
+        expect(removedSubjects).toEqual(['sub-theirs']);
+    });
+
+    // The request carries this user's own credentials, which _restoreSettings puts back after the
+    // dump's own Settings row has replaced them.
+    it('asks the server only after the previous settings have been restored', async () => {
+        const {service} = buildForRestore({subjectsByType: {'st-mine': []}});
+        const settingsService = service.getService(SettingsService);
+
+        await restore(service);
+
+        expect(mockPost).toHaveBeenCalledTimes(1);
+        expect(settingsService.saveOrUpdate.mock.invocationCallOrder[0])
+            .toBeLessThan(mockPost.mock.invocationCallOrder[0]);
     });
 });

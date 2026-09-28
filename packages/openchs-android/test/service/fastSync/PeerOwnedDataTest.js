@@ -356,3 +356,222 @@ describe('clearing the uploader\'s caseload of directly assignable subject types
         expect(services.removedSubjects).toEqual(['sub-1']);
     });
 });
+
+describe('reconciling a restored dump against the restoring user\'s own privileges', () => {
+    const {EntitySyncStatus, Individual, SubjectMigration} = require('openchs-models');
+    const {clearEntitiesOutsidePrivileges} = require('../../../src/service/fastSync/PeerOwnedData');
+
+    const asResults = (rows) => ({map: (fn) => rows.map(fn)});
+
+    function fakeServices({subjectTypes = [], subjectsByType = {}, formMappingsByType = {}, checkpointRows = []} = {}) {
+        const calls = [];
+        const removedSubjects = [];
+        const upserted = [];
+        return {
+            calls,
+            removedSubjects,
+            upserted,
+            subjectTypeService: {
+                getAll: () => asResults(subjectTypes),
+                getAllDirectlyAssignable: () => [],
+            },
+            individualService: {
+                getAllBySubjectType: (subjectType) => asResults(subjectsByType[subjectType.uuid] || []),
+            },
+            subjectMigrationService: {
+                removeEntitiesFor: ({subjectUUID}) => {
+                    calls.push(`removeEntitiesFor:${subjectUUID}`);
+                    removedSubjects.push(subjectUUID);
+                },
+            },
+            formMappingService: {
+                getFormMappingsForSubjectType: (subjectType) => asResults(formMappingsByType[subjectType.uuid] || []),
+            },
+            entitySyncStatusService: {
+                findAll: () => asResults(checkpointRows),
+                updateAsPerSyncDetails: (rows) => {
+                    calls.push(`resetCheckpoints:${rows.map(r => r.uuid).join(',')}`);
+                    upserted.push(...rows);
+                },
+            },
+        };
+    }
+
+    const formMapping = (entityName, entityTypeUuid) => ({
+        getEntityNameAndEntityTypeUUID: () => ({entityName, entityTypeUuid}),
+    });
+
+    const immediately = {inWrite: (work) => work()};
+    const allowing = (...subjectTypeUuids) =>
+        subjectTypeUuids.map(uuid => ({entityName: Individual.schema.name, entityTypeUuid: uuid}));
+
+    it('removes every subject of a subject type the allowlist does not name', () => {
+        const services = fakeServices({
+            subjectTypes: [{uuid: 'st-permitted'}, {uuid: 'st-household'}],
+            subjectsByType: {
+                'st-permitted': [{uuid: 'sub-mine'}],
+                'st-household': [{uuid: 'sub-theirs-1'}, {uuid: 'sub-theirs-2'}],
+            },
+        });
+
+        clearEntitiesOutsidePrivileges(allowing('st-permitted'), services, immediately);
+
+        expect(services.removedSubjects).toEqual(['sub-theirs-1', 'sub-theirs-2']);
+    });
+
+    // The allowlist is keyed by the pair. A type named only under some other entity name is a
+    // type this user has no ViewSubject privilege on.
+    it('matches the allowlist on the entity type uuid as well as the entity name', () => {
+        const services = fakeServices({
+            subjectTypes: [{uuid: 'st-household'}],
+            subjectsByType: {'st-household': [{uuid: 'sub-theirs'}]},
+        });
+        const allowlist = [
+            ...allowing('st-permitted'),
+            {entityName: SubjectMigration.schema.name, entityTypeUuid: 'st-household'},
+        ];
+
+        clearEntitiesOutsidePrivileges(allowlist, services, immediately);
+
+        expect(services.removedSubjects).toEqual(['sub-theirs']);
+    });
+
+    it('removes nothing when every subject type in the database is allowed', () => {
+        const services = fakeServices({
+            subjectTypes: [{uuid: 'st-a'}, {uuid: 'st-b'}],
+            subjectsByType: {'st-a': [{uuid: 'sub-a'}], 'st-b': [{uuid: 'sub-b'}]},
+            checkpointRows: [{uuid: 'cp-a', entityName: 'Individual', entityTypeUuid: 'st-a'}],
+        });
+
+        clearEntitiesOutsidePrivileges(allowing('st-a', 'st-b'), services, immediately);
+
+        expect(services.calls).toEqual([]);
+    });
+
+    // Deleting on a response that never arrived would destroy data the user is entitled to,
+    // which is worse than carrying a peer's rows until the next sync.
+    it.each([
+        ['the fetch failed', null],
+        ['the fetch returned nothing usable', undefined],
+        ['the list is empty', []],
+        ['an entry has no entity name', [{entityTypeUuid: 'st-permitted'}]],
+        ['no subject type is named at all', [{entityName: 'Concept', entityTypeUuid: ''}]],
+    ])('deletes nothing when %s', (_reason, allowlist) => {
+        const services = fakeServices({
+            subjectTypes: [{uuid: 'st-household'}],
+            subjectsByType: {'st-household': [{uuid: 'sub-theirs'}]},
+            checkpointRows: [{uuid: 'cp-h', entityName: 'Individual', entityTypeUuid: 'st-household'}],
+        });
+
+        const result = clearEntitiesOutsidePrivileges(allowlist, services, immediately);
+
+        expect(result.reconciled).toBe(false);
+        expect(services.calls).toEqual([]);
+    });
+
+    it('reports that it reconciled when the allowlist was usable', () => {
+        const services = fakeServices({subjectTypes: [{uuid: 'st-permitted'}]});
+
+        expect(clearEntitiesOutsidePrivileges(allowing('st-permitted'), services, immediately).reconciled)
+            .toBe(true);
+    });
+
+    // Left as it is, the checkpoint claims the removed type was pulled up to the uploader's last
+    // sync, so a user later granted the privilege never re-fetches what was deleted here.
+    it('puts every checkpoint of a removed subject type back to the beginning of time', () => {
+        const services = fakeServices({
+            subjectTypes: [{uuid: 'st-household'}],
+            checkpointRows: [
+                {uuid: 'cp-ind', entityName: 'Individual', entityTypeUuid: 'st-household'},
+                {uuid: 'cp-mig', entityName: 'SubjectMigration', entityTypeUuid: 'st-household'},
+            ],
+        });
+
+        clearEntitiesOutsidePrivileges(allowing('st-permitted'), services, immediately);
+
+        // The date is spelled out rather than read back off EntitySyncStatus, so the assertion
+        // cannot be satisfied by whatever constant the code happened to write.
+        const beginningOfTime = new Date('1900-01-01T00:00:00.000Z');
+        expect(services.upserted).toEqual([
+            {uuid: 'cp-ind', entityName: 'Individual', entityTypeUuid: 'st-household',
+                loadedSince: beginningOfTime},
+            {uuid: 'cp-mig', entityName: 'SubjectMigration', entityTypeUuid: 'st-household',
+                loadedSince: beginningOfTime},
+        ]);
+    });
+
+    // The subjects took their encounters and enrolments with them, and those are keyed by
+    // encounter type and programme rather than by subject type.
+    it('puts the checkpoints of a removed type\'s form mappings back to the beginning of time', () => {
+        const services = fakeServices({
+            subjectTypes: [{uuid: 'st-household'}],
+            formMappingsByType: {'st-household': [formMapping('ProgramEncounter', 'enc-type')]},
+            checkpointRows: [{uuid: 'cp-pe', entityName: 'ProgramEncounter', entityTypeUuid: 'enc-type'}],
+        });
+
+        clearEntitiesOutsidePrivileges(allowing('st-permitted'), services, immediately);
+
+        expect(services.upserted.map(r => [r.uuid, r.entityName, r.entityTypeUuid]))
+            .toEqual([['cp-pe', 'ProgramEncounter', 'enc-type']]);
+    });
+
+    it('leaves the checkpoints of the types it kept alone', () => {
+        const services = fakeServices({
+            subjectTypes: [{uuid: 'st-permitted'}, {uuid: 'st-household'}],
+            checkpointRows: [
+                {uuid: 'cp-kept', entityName: 'Individual', entityTypeUuid: 'st-permitted'},
+                {uuid: 'cp-gone', entityName: 'Individual', entityTypeUuid: 'st-household'},
+                {uuid: 'cp-refdata', entityName: 'Concept', entityTypeUuid: ''},
+            ],
+        });
+
+        clearEntitiesOutsidePrivileges(allowing('st-permitted'), services, immediately);
+
+        expect(services.upserted.map(r => r.uuid)).toEqual(['cp-gone']);
+    });
+
+    it('removes the subjects before resetting their checkpoints', () => {
+        const services = fakeServices({
+            subjectTypes: [{uuid: 'st-household'}],
+            subjectsByType: {'st-household': [{uuid: 'sub-theirs'}]},
+            checkpointRows: [{uuid: 'cp-ind', entityName: 'Individual', entityTypeUuid: 'st-household'}],
+        });
+
+        clearEntitiesOutsidePrivileges(allowing('st-permitted'), services, immediately);
+
+        expect(services.calls).toEqual(['removeEntitiesFor:sub-theirs', 'resetCheckpoints:cp-ind']);
+    });
+
+    it('does the whole reconciliation inside one backend write', () => {
+        const services = fakeServices({
+            subjectTypes: [{uuid: 'st-household'}],
+            subjectsByType: {'st-household': [{uuid: 'sub-theirs'}]},
+        });
+        const inside = [];
+        let openWrites = 0;
+        let writeCount = 0;
+        services.subjectMigrationService.removeEntitiesFor = () => inside.push(openWrites);
+
+        clearEntitiesOutsidePrivileges(allowing('st-permitted'), services, {
+            inWrite: (work) => {
+                writeCount++;
+                openWrites++;
+                try { return work(); } finally { openWrites--; }
+            },
+        });
+
+        expect(writeCount).toEqual(1);
+        expect(inside).toEqual([1]);
+    });
+
+    it('skips a subject type row that carries no uuid', () => {
+        const services = fakeServices({
+            subjectTypes: [{uuid: ''}, undefined, {uuid: 'st-household'}],
+            subjectsByType: {'st-household': [{uuid: 'sub-theirs'}]},
+        });
+
+        clearEntitiesOutsidePrivileges(allowing('st-permitted'), services, immediately);
+
+        expect(services.removedSubjects).toEqual(['sub-theirs']);
+    });
+});
