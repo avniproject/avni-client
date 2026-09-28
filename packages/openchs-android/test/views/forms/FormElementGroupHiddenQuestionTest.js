@@ -139,6 +139,66 @@ describe("FormElementGroup drawing a page that holds a hidden question", () => {
 
         expect(propsDrawnBy(renderer, "TextFormElement").map((props) => props.isTableView)).toEqual([true, true]);
     });
+
+    it("draws it nowhere on the page, leaving no empty row or spacing where it would have been", () => {
+        const photoPage = page();
+        question(photoPage, "fe-name", 1, concept(Concept.dataType.Text));
+        question(photoPage, "fe-verdict", 2, concept(Concept.dataType.Coded, HIDDEN));
+        question(photoPage, "fe-age", 3, concept(Concept.dataType.Numeric));
+
+        const renderer = draw(photoPage, photoPage.getFormElements());
+
+        expect(drawn(renderer)).toEqual(["fe-name", "fe-age"]);
+        expect(pageParts(renderer).rows).toHaveLength(2);
+        expect(headingOf(renderer)).toEqual("Photo page");
+    });
+
+    it("draws it nowhere on a page drawn without a list worked out by the rules", () => {
+        const photoPage = page();
+        question(photoPage, "fe-name", 1, concept(Concept.dataType.Text));
+        question(photoPage, "fe-verdict", 2, concept(Concept.dataType.Coded, HIDDEN));
+
+        const renderer = draw(photoPage, null);
+
+        expect(drawn(renderer)).toEqual(["fe-name"]);
+    });
+
+    it("leaves the page blank, heading included, when every question on it is hidden", () => {
+        const photoPage = page();
+        question(photoPage, "fe-verdict", 1, concept(Concept.dataType.Coded, HIDDEN));
+        question(photoPage, "fe-score", 2, concept(Concept.dataType.Numeric, HIDDEN));
+
+        const renderer = draw(photoPage, photoPage.getFormElements());
+
+        expect(drawn(renderer)).toEqual([]);
+        expect(pageParts(renderer).rows).toHaveLength(0);
+        expect(headingOf(renderer)).toBeNull();
+    });
+
+    it("draws no part of a repeating block whose own concept is hidden", () => {
+        const photoPage = page();
+        question(photoPage, "fe-name", 1, concept(Concept.dataType.Text));
+        const blockConcept = concept(Concept.dataType.QuestionGroup, HIDDEN);
+        const block = repeatingBlock(photoPage, "fe-assessment", 2, blockConcept);
+        question(photoPage, "fe-image", 3, concept(Concept.dataType.Image), {group: block});
+
+        const renderer = draw(photoPage, photoPage.getFormElements(), [twoRowsOf(blockConcept)]);
+
+        expect(drawn(renderer)).toEqual(["fe-name"]);
+        expect(testIDs(renderer)).not.toContain("label:fe-assessment");
+        expect(pageParts(renderer).rows).toHaveLength(1);
+    });
+
+    it("leaves the hidden question in the list the form works from, which is what keeps its answer", () => {
+        const photoPage = page();
+        question(photoPage, "fe-name", 1, concept(Concept.dataType.Text));
+        question(photoPage, "fe-verdict", 2, concept(Concept.dataType.Coded, HIDDEN));
+        const filteredFormElements = photoPage.getFormElements();
+
+        draw(photoPage, filteredFormElements);
+
+        expect(filteredFormElements.map((formElement) => formElement.uuid)).toEqual(["fe-name", "fe-verdict"]);
+    });
 });
 
 describe("FormElementGroup drawing a page with no hidden question", () => {

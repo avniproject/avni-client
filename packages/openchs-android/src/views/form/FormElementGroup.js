@@ -127,7 +127,9 @@ class FormElementGroup extends AbstractComponent {
         if (this.lastScrolledErrorUuid && this.lastScrolledErrorUuid !== erroredUUID) {
             this.lastScrolledErrorUuid = null;
         }
-        const formElements = _.isNil(this.props.filteredFormElements) ? this.props.group.getFormElements() : this.props.filteredFormElements;
+        //A hidden concept's question stays in filteredFormElements, which keeps its answer, and is only left out of the drawing
+        const formElements = (_.isNil(this.props.filteredFormElements) ? this.props.group.getFormElements() : this.props.filteredFormElements)
+            .filter(fe => !fe.concept.isHidden());
         const unsupportedFormElements = formElements.filter(fe => !_.includes(_.values(Concept.dataType), fe.concept.datatype));
         return (<View>
                 {formElements.length < 1 ? <View/> :
