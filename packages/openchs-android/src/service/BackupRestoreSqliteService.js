@@ -10,17 +10,7 @@ import MediaService from './MediaService';
 import GlobalContext from '../GlobalContext';
 import MediaQueueService from './MediaQueueService';
 import EntitySyncStatusService from './EntitySyncStatusService';
-import {
-    DraftEncounter,
-    DraftEnrolment,
-    DraftProgramEncounter,
-    DraftSubject,
-    EntitySyncStatus,
-    IdentifierAssignment,
-    MyGroups,
-    UserInfo,
-    UserSubjectAssignment
-} from 'openchs-models';
+import {EntitySyncStatus, UserInfo} from 'openchs-models';
 import {removeBackupFile} from './BackupRestoreRealmService';
 import UserInfoService from './UserInfoService';
 import {get, getJSON} from '../framework/http/requests';
@@ -29,33 +19,14 @@ import FileSystem from '../model/FileSystem';
 import SqliteFactory from '../framework/db/SqliteFactory';
 import SqliteMigrationService, {BACKENDS} from './SqliteMigrationService';
 import toAvniError from '../framework/errorHandling/toAvniError';
+import {clearPeerOwnedData, SqlitePeerOwnedData} from './fastSync/PeerOwnedData';
 
 const PER_USER_TIER = 'perUser';
 const CATCHMENT_TIER = 'catchment';
 const SNAPSHOT_TIER = 'snapshot';
 const TIERS = [PER_USER_TIER, CATCHMENT_TIER, SNAPSHOT_TIER];
 
-// Rows that belong to the device the dump was taken on, not to whoever restores it.
-const PEER_OWNED_SCHEMAS = [
-    MyGroups.schema.name,
-    UserSubjectAssignment.schema.name,
-    // Free identifiers are pre-allocated to the uploader's device; kept, both devices hand out
-    // the same number and one registration overwrites the other.
-    IdentifierAssignment.schema.name,
-    DraftSubject.schema.name,
-    DraftEncounter.schema.name,
-    DraftEnrolment.schema.name,
-    DraftProgramEncounter.schema.name,
-];
-// Checkpoints left over from the uploader's sync. UserInfo is here without being in the list
-// above: _stampLocalIdentity rewrites that row deliberately, but the uploader's loaded_since
-// would have /v2/me asked for changes newer than this user's own record, which never returns it.
-export const PEER_OWNED_SYNC_STATUS_SCHEMAS = [
-    MyGroups.schema.name,
-    UserSubjectAssignment.schema.name,
-    IdentifierAssignment.schema.name,
-    UserInfo.schema.name,
-];
+export const PEER_OWNED_SYNC_STATUS_SCHEMAS = SqlitePeerOwnedData.checkpointSchemas;
 
 /**
  * SQLite parallel to BackupRestoreRealmService for the fast-sync apply path.
@@ -325,24 +296,26 @@ export default class BackupRestoreSqliteService extends BaseService {
         }
     }
 
-    // A catchment dump is another field worker's live database, so it carries their group
-    // memberships, subject assignments and unsaved drafts. Realm clears the equivalent after its
-    // swap (_deleteUserGroups / _deleteUserSubjectAssignments / _deleteDrafts); here the sync
-    // status must go too, because this flow otherwise keeps loaded_since and the next sync would
-    // never re-pull what was deleted. Failing here fails the restore — running on a peer's
-    // memberships is worse than not restoring.
+    // Which rows are the uploader's and why is SqlitePeerOwnedData's business; this is the SQLite
+    // mechanism for it. Failing here fails the restore — running on a peer's memberships is worse
+    // than not restoring.
     _clearPeerOwnedData() {
         const sqliteProxy = GlobalContext.getInstance().sqliteDb;
         if (!sqliteProxy) {
             throw new Error('SQLite database is not open; refusing to run a catchment dump uncleaned');
         }
-        sqliteProxy.write(() => {
-            PEER_OWNED_SCHEMAS.forEach(schemaName => sqliteProxy.deleteAllInSchema(schemaName));
-            const staleSyncStatuses = _.flatMap(PEER_OWNED_SYNC_STATUS_SCHEMAS, schemaName =>
-                sqliteProxy.objects(EntitySyncStatus.schema.name)
-                    .filtered('entityName = $0', schemaName)
-                    .slice());
-            sqliteProxy.delete(staleSyncStatuses);
+        clearPeerOwnedData(SqlitePeerOwnedData, {
+            inWrite: (work) => sqliteProxy.write(work),
+            deleteRows: (schemaName) => sqliteProxy.deleteAllInSchema(schemaName),
+            // Deleted rather than rewritten, because _seedEntitySyncStatusBaseline re-creates every
+            // missing row at REALLY_OLD_DATE immediately afterwards.
+            resetCheckpoints: (schemaNames) => {
+                const staleSyncStatuses = _.flatMap(schemaNames, schemaName =>
+                    sqliteProxy.objects(EntitySyncStatus.schema.name)
+                        .filtered('entityName = $0', schemaName)
+                        .slice());
+                sqliteProxy.delete(staleSyncStatuses);
+            },
         });
         General.logInfo('BackupRestoreSqliteService', 'Cleared the uploader\'s device-local rows from the catchment dump');
     }

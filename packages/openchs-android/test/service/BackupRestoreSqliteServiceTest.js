@@ -662,6 +662,19 @@ describe('SQLite fast-sync restore clears a peer database of its owner (catchmen
         expect(_.difference(PEER_OWNED_SYNC_STATUS_SCHEMAS, reseeded)).toEqual([]);
     });
 
+    // Running a peer's dump with their memberships and identifiers still in it is worse than
+    // not restoring at all, so no proxy to clean it with has to fail the restore.
+    it('fails the catchment restore when there is no database to clean the dump with', async () => {
+        const {service} = serviceWith({tier: 'catchment'});
+        service.subscribeOnRestore(jest.fn(async () => { mockGlobalContext.sqliteDb = null; }));
+
+        const last = await restore(service);
+
+        expect(last.slice(0, 3)).toEqual([100, 'restoreFailed', true]);
+        expect(String(last[3].message)).toMatch(/refusing to run a catchment dump uncleaned/);
+        expect(SqliteMigrationService.commitStateForUser).not.toHaveBeenCalled();
+    });
+
     it.each(['perUser', 'snapshot'])('leaves a %s artifact alone — it holds no other user\'s rows', async (tier) => {
         const rows = [{uuid: 'g1', entityName: MyGroups.schema.name}];
         const {service, sqliteDb} = serviceWith({tier, syncStatusRows: rows});
