@@ -1,7 +1,12 @@
 import {
     EntitySyncStatus,
+    IdentifierAssignment,
     UserInfo,
-    Concept
+    Concept,
+    MyGroups,
+    UserSubjectAssignment,
+    DraftSubject,
+    DraftEncounter
 } from 'openchs-models';
 import FileSystem from "../model/FileSystem";
 import General from "../utility/General";
@@ -25,8 +30,6 @@ import moment from "moment";
 import FileLoggerService from '../utility/FileLoggerService';
 import AvniError from "../framework/errorHandling/AvniError";
 import toAvniError from "../framework/errorHandling/toAvniError";
-import {clearDirectlyAssignedSubjects, clearEntitiesOutsidePrivileges, clearPeerOwnedData, RealmPeerOwnedData} from "./fastSync/PeerOwnedData";
-import {fetchSyncableItems} from "./fastSync/SyncableItems";
 
 const REALM_FILE_NAME = "default.realm";
 const REALM_FILE_FULL_PATH = `${fs.DocumentDirectoryPath}/${REALM_FILE_NAME}`;
@@ -273,8 +276,12 @@ export default class BackupRestoreRealmService extends BaseService {
                             " caused due to fast sync restore from a different environment");
                         })
                         .then(() => {
-                            this._clearPeerOwnedData();
-                            General.logDebug("BackupRestoreRealmService", "Deleted the dump owner's user info, id assignments, drafts, groups and subject assignments");
+                            this._deleteUserInfoAndIdAssignment();
+                            General.logDebug("BackupRestoreRealmService", "Deleted user info and id assignment");
+                        })
+                        .then(() => {
+                            this._deleteDrafts();
+                            General.logDebug("BackupRestoreRealmService", "Deleted drafts");
                         })
                         .then(() => {
                             this._restoreUserInfo(prevUserInfo);
@@ -282,12 +289,17 @@ export default class BackupRestoreRealmService extends BaseService {
                               " immediately after fast sync restore");
                         })
                         .then(() => {
+                            this._deleteUserGroups();
+                            General.logDebug("BackupRestoreRealmService", "Deleted user groups");
+                        })
+                        .then(() => {
+                            this._deleteUserSubjectAssignments();
+                            General.logDebug("BackupRestoreRealmService", "Deleted user subject assignments");
+                        })
+                        .then(() => {
                             this._deleteIndividualAndDependentForDirectlyAssignableSubjectTypes();
                             General.logDebug("BackupRestoreRealmService", "Deleted individual and dependent forDirectlyAssignableSubjectTypes");
                         })
-                        // After _restoreSettings, which is what puts this user's server URL and
-                        // credentials back for the syncable item request.
-                        .then(() => this._clearEntitiesOutsidePrivileges())
                         .then(() => {
                             General.logDebug("BackupRestoreRealmService", "Personalisation of database complete");
                             cb(100, "restoreComplete");
@@ -322,66 +334,43 @@ export default class BackupRestoreRealmService extends BaseService {
         return prevSettings;
     }
 
-    _clearPeerOwnedData() {
-        clearPeerOwnedData(RealmPeerOwnedData, {
-            inWrite: (work) => this.transactionManager.write(work),
-            deleteRows: (schemaName) => {
-                const repository = this.getRepository(schemaName);
-                repository.deleteInTransaction(repository.findAll());
-            },
-            resetCheckpoints: (schemaNames) => schemaNames.forEach(schemaName => this._resetSyncToStartOfTime(schemaName)),
-        });
+    _deleteUserInfoAndIdAssignment() {
+        this._deleteAndResetSync(UserInfo.schema.name);
+        this._deleteAndResetSync(IdentifierAssignment.schema.name);
     }
 
-    // Re-created rather than emptied, keeping the original uuid and entityTypeUuid: the row is the
-    // one the sync reads back, and a new uuid would leave the old one behind as a second checkpoint.
-    _resetSyncToStartOfTime(schemaName) {
-        this.getRepository(EntitySyncStatus.schema.name).findAll()
+    _deleteDrafts() {
+        this._deleteAndResetSync(DraftEncounter.schema.name);
+        this._deleteAndResetSync(DraftSubject.schema.name);
+    }
+
+    _deleteUserGroups() {
+        this._deleteAndResetSync(MyGroups.schema.name);
+    }
+
+    _deleteUserSubjectAssignments() {
+        this._deleteAndResetSync(UserSubjectAssignment.schema.name);
+    }
+
+    _deleteAndResetSync(schemaName) {
+        const syncStatuses = this.getRepository(EntitySyncStatus.schema.name).findAll()
             .filtered(`entityName = '${schemaName}'`)
-            .map(_.identity)
-            .forEach(({uuid, entityName, entityTypeUuid}) => {
+            .map(_.identity);
+        this.transactionManager.write(() => {
+            this.getRepository(schemaName).deleteInTransaction(this.getRepository(schemaName).findAll());
+            syncStatuses.forEach(({uuid, entityName, entityTypeUuid}) => {
                 const updatedEntity = EntitySyncStatus.create(entityName, EntitySyncStatus.REALLY_OLD_DATE, uuid, entityTypeUuid);
                 this.getRepository(EntitySyncStatus.schema.name).create(updatedEntity, true);
-            });
+            })
+        });
     }
 
     _deleteIndividualAndDependentForDirectlyAssignableSubjectTypes() {
-        clearDirectlyAssignedSubjects({
-            subjectTypeService: this.getService(SubjectTypeService),
-            individualService: this.getService(IndividualService),
-            subjectMigrationService: this.getService(SubjectMigrationService),
-            formMappingService: this.getService(FormMappingService),
-            entitySyncStatusService: this.getService(EntitySyncStatusService),
-        }, {
-            // No outer transaction: Realm rejects a write opened inside a write, and the
-            // services each open their own.
-            inWrite: (work) => work(),
+        const allDirectlyAssignableSubjectTypes = this.getService(SubjectTypeService).getAllDirectlyAssignable();
+        _.forEach(allDirectlyAssignableSubjectTypes, subjectType => {
+            this.deleteTxDataForSubjectType(subjectType);
+            this.resetSyncForSubjectType(subjectType);
         });
-    }
-
-    // A peer's dump carries whatever their group let them see, which can be more than this user's
-    // own group grants. An allowlist that could not be read leaves the data as it is: the next sync
-    // can still clear a peer's rows, but a restore failed at login cannot be undone.
-    async _clearEntitiesOutsidePrivileges() {
-        const syncableItems = await fetchSyncableItems(this.getService(SettingsService).getSettings().serverURL);
-        const {reconciled, removedSubjectTypes} = clearEntitiesOutsidePrivileges(syncableItems, {
-            subjectTypeService: this.getService(SubjectTypeService),
-            individualService: this.getService(IndividualService),
-            subjectMigrationService: this.getService(SubjectMigrationService),
-            formMappingService: this.getService(FormMappingService),
-            entitySyncStatusService: this.getService(EntitySyncStatusService),
-        }, {
-            // No outer transaction, as with the caseload cleanup: Realm rejects a write opened
-            // inside a write, and the services each open their own.
-            inWrite: (work) => work(),
-        });
-        if (!reconciled) {
-            General.logWarn("BackupRestoreRealmService",
-                "Could not read this user's syncable items; leaving the restored data for the next sync");
-            return;
-        }
-        General.logInfo("BackupRestoreRealmService",
-            `Removed ${removedSubjectTypes.length} subject type(s) outside this user's privileges from the dump`);
     }
 
     _restoreSettings(prevSettings) {
@@ -390,6 +379,38 @@ export default class BackupRestoreRealmService extends BaseService {
 
     _restoreUserInfo(prevUserInfo) {
         this.getService(UserInfoService).saveOrUpdate(prevUserInfo);
+    }
+
+    resetSyncForSubjectType(subjectType) {
+        const formMappingsForSubjectType = this.getService(FormMappingService).getFormMappingsForSubjectType(subjectType).map(_.identity);
+        _.forEach(formMappingsForSubjectType, (formMapping) => {
+            const {entityName, entityTypeUuid} = formMapping.getEntityNameAndEntityTypeUUID();
+            this.resetSync(entityName, entityTypeUuid);
+        })
+    }
+
+    resetSync(entityName, entityTypeUUID) {
+        this.transactionManager.write(() => {
+            this.getRepository(EntitySyncStatus.schema.name).findAll()
+                .filtered(`entityName = $0 and entityTypeUuid = $1`, entityName, entityTypeUUID)
+                .map(u => _.assign({}, u))
+                .forEach(({uuid, entityName, entityTypeUuid}) => {
+                    const updatedEntity = EntitySyncStatus.create(entityName, EntitySyncStatus.REALLY_OLD_DATE, uuid, entityTypeUuid);
+                    this.getRepository(EntitySyncStatus.schema.name).create(updatedEntity, true);
+                })
+        });
+    }
+
+    deleteTxDataForSubjectType(subjectType) {
+        this.getService(IndividualService)
+            .getAllBySubjectType(subjectType)
+            .map(_.identity)
+            .forEach(individual => {
+                const subjectUUID = _.get(individual, 'uuid');
+                if (!_.isEmpty(subjectUUID)) {
+                    this.getService(SubjectMigrationService).removeEntitiesFor({subjectUUID})
+                }
+            })
     }
 
     async _prepareBackupFiles(realmDestFile, fileLoggerService) {

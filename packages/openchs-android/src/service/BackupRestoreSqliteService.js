@@ -10,7 +10,17 @@ import MediaService from './MediaService';
 import GlobalContext from '../GlobalContext';
 import MediaQueueService from './MediaQueueService';
 import EntitySyncStatusService from './EntitySyncStatusService';
-import {EntitySyncStatus, UserInfo} from 'openchs-models';
+import {
+    DraftEncounter,
+    DraftEnrolment,
+    DraftProgramEncounter,
+    DraftSubject,
+    EntitySyncStatus,
+    IdentifierAssignment,
+    MyGroups,
+    UserInfo,
+    UserSubjectAssignment
+} from 'openchs-models';
 import {removeBackupFile} from './BackupRestoreRealmService';
 import UserInfoService from './UserInfoService';
 import {get, getJSON} from '../framework/http/requests';
@@ -19,19 +29,33 @@ import FileSystem from '../model/FileSystem';
 import SqliteFactory from '../framework/db/SqliteFactory';
 import SqliteMigrationService, {BACKENDS} from './SqliteMigrationService';
 import toAvniError from '../framework/errorHandling/toAvniError';
-import SubjectTypeService from './SubjectTypeService';
-import IndividualService from './IndividualService';
-import SubjectMigrationService from './SubjectMigrationService';
-import FormMappingService from './FormMappingService';
-import {clearDirectlyAssignedSubjects, clearEntitiesOutsidePrivileges, clearPeerOwnedData, SqlitePeerOwnedData} from './fastSync/PeerOwnedData';
-import {fetchSyncableItems} from './fastSync/SyncableItems';
 
 const PER_USER_TIER = 'perUser';
 const CATCHMENT_TIER = 'catchment';
 const SNAPSHOT_TIER = 'snapshot';
 const TIERS = [PER_USER_TIER, CATCHMENT_TIER, SNAPSHOT_TIER];
 
-export const PEER_OWNED_SYNC_STATUS_SCHEMAS = SqlitePeerOwnedData.checkpointSchemas;
+// Rows that belong to the device the dump was taken on, not to whoever restores it.
+const PEER_OWNED_SCHEMAS = [
+    MyGroups.schema.name,
+    UserSubjectAssignment.schema.name,
+    // Free identifiers are pre-allocated to the uploader's device; kept, both devices hand out
+    // the same number and one registration overwrites the other.
+    IdentifierAssignment.schema.name,
+    DraftSubject.schema.name,
+    DraftEncounter.schema.name,
+    DraftEnrolment.schema.name,
+    DraftProgramEncounter.schema.name,
+];
+// Checkpoints left over from the uploader's sync. UserInfo is here without being in the list
+// above: _stampLocalIdentity rewrites that row deliberately, but the uploader's loaded_since
+// would have /v2/me asked for changes newer than this user's own record, which never returns it.
+export const PEER_OWNED_SYNC_STATUS_SCHEMAS = [
+    MyGroups.schema.name,
+    UserSubjectAssignment.schema.name,
+    IdentifierAssignment.schema.name,
+    UserInfo.schema.name,
+];
 
 /**
  * SQLite parallel to BackupRestoreRealmService for the fast-sync apply path.
@@ -239,15 +263,11 @@ export default class BackupRestoreSqliteService extends BaseService {
             const clearedPeerOwnedData = tier === CATCHMENT_TIER;
             if (clearedPeerOwnedData) {
                 this._clearPeerOwnedData();
-                this._clearDirectlyAssignedSubjects();
             }
             this._seedEntitySyncStatusBaseline({mustSucceed: clearedPeerOwnedData});
             await this._bootstrapTargetSettings(authState);
             if (tier === CATCHMENT_TIER) {
                 this._stampLocalIdentity(localUsername);
-                // After the settings bootstrap, which is what puts this user's credentials and
-                // server URL on the restored database for the syncable item request.
-                await this._clearEntitiesOutsidePrivileges();
             }
 
             // Recorded last, once the restored database is usable (step 8 above). Throws if
@@ -305,78 +325,26 @@ export default class BackupRestoreSqliteService extends BaseService {
         }
     }
 
-    // Which rows are the uploader's and why is SqlitePeerOwnedData's business; this is the SQLite
-    // mechanism for it. Failing here fails the restore — running on a peer's memberships is worse
-    // than not restoring.
+    // A catchment dump is another field worker's live database, so it carries their group
+    // memberships, subject assignments and unsaved drafts. Realm clears the equivalent after its
+    // swap (_deleteUserGroups / _deleteUserSubjectAssignments / _deleteDrafts); here the sync
+    // status must go too, because this flow otherwise keeps loaded_since and the next sync would
+    // never re-pull what was deleted. Failing here fails the restore — running on a peer's
+    // memberships is worse than not restoring.
     _clearPeerOwnedData() {
         const sqliteProxy = GlobalContext.getInstance().sqliteDb;
         if (!sqliteProxy) {
             throw new Error('SQLite database is not open; refusing to run a catchment dump uncleaned');
         }
-        clearPeerOwnedData(SqlitePeerOwnedData, {
-            inWrite: (work) => sqliteProxy.write(work),
-            deleteRows: (schemaName) => sqliteProxy.deleteAllInSchema(schemaName),
-            // Deleted rather than rewritten, because _seedEntitySyncStatusBaseline re-creates every
-            // missing row at REALLY_OLD_DATE immediately afterwards.
-            resetCheckpoints: (schemaNames) => {
-                const staleSyncStatuses = _.flatMap(schemaNames, schemaName =>
-                    sqliteProxy.objects(EntitySyncStatus.schema.name)
-                        .filtered('entityName = $0', schemaName)
-                        .slice());
-                sqliteProxy.delete(staleSyncStatuses);
-            },
+        sqliteProxy.write(() => {
+            PEER_OWNED_SCHEMAS.forEach(schemaName => sqliteProxy.deleteAllInSchema(schemaName));
+            const staleSyncStatuses = _.flatMap(PEER_OWNED_SYNC_STATUS_SCHEMAS, schemaName =>
+                sqliteProxy.objects(EntitySyncStatus.schema.name)
+                    .filtered('entityName = $0', schemaName)
+                    .slice());
+            sqliteProxy.delete(staleSyncStatuses);
         });
         General.logInfo('BackupRestoreSqliteService', 'Cleared the uploader\'s device-local rows from the catchment dump');
-    }
-
-    // The caseload half of the same cleanup: which subjects are the uploader's is a runtime
-    // question rather than a schema list, so it reads the beans the registry has bound to SQLite.
-    // The checkpoints it writes are rewritten in place, so _seedEntitySyncStatusBaseline finds
-    // them and leaves them alone.
-    _clearDirectlyAssignedSubjects() {
-        const sqliteProxy = GlobalContext.getInstance().sqliteDb;
-        if (!sqliteProxy) {
-            throw new Error('SQLite database is not open; refusing to run a catchment dump uncleaned');
-        }
-        clearDirectlyAssignedSubjects({
-            subjectTypeService: this.getService(SubjectTypeService),
-            individualService: this.getService(IndividualService),
-            subjectMigrationService: this.getService(SubjectMigrationService),
-            formMappingService: this.getService(FormMappingService),
-            entitySyncStatusService: this.getService(EntitySyncStatusService),
-        }, {
-            // SqliteProxy.write is re-entrant, so the writes the services open for themselves
-            // join this one instead of committing a caseload deleted only halfway.
-            inWrite: (work) => sqliteProxy.write(work),
-        });
-        General.logInfo('BackupRestoreSqliteService', 'Cleared the uploader\'s directly assigned subjects from the catchment dump');
-    }
-
-    // The privilege half of the cleanup: a peer's dump carries whatever their group let them see,
-    // which can be more than this user's own group grants. Fails the restore only when the removal
-    // itself fails — an allowlist that could not be read leaves the data as it is.
-    async _clearEntitiesOutsidePrivileges() {
-        const sqliteProxy = GlobalContext.getInstance().sqliteDb;
-        if (!sqliteProxy) {
-            throw new Error('SQLite database is not open; refusing to run a catchment dump uncleaned');
-        }
-        const syncableItems = await fetchSyncableItems(this.getService(SettingsService).getSettings().serverURL);
-        const {reconciled, removedSubjectTypes} = clearEntitiesOutsidePrivileges(syncableItems, {
-            subjectTypeService: this.getService(SubjectTypeService),
-            individualService: this.getService(IndividualService),
-            subjectMigrationService: this.getService(SubjectMigrationService),
-            formMappingService: this.getService(FormMappingService),
-            entitySyncStatusService: this.getService(EntitySyncStatusService),
-        }, {
-            inWrite: (work) => sqliteProxy.write(work),
-        });
-        if (!reconciled) {
-            General.logWarn('BackupRestoreSqliteService',
-                'Could not read this user\'s syncable items; leaving the restored data for the next sync');
-            return;
-        }
-        General.logInfo('BackupRestoreSqliteService',
-            `Removed ${removedSubjectTypes.length} subject type(s) outside this user's privileges from the catchment dump`);
     }
 
     // A catchment dump carries the uploader's user_info row. Realm has always corrected this after
