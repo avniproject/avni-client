@@ -35,13 +35,12 @@ const CATCHMENT_TIER = 'catchment';
 const SNAPSHOT_TIER = 'snapshot';
 const TIERS = [PER_USER_TIER, CATCHMENT_TIER, SNAPSHOT_TIER];
 
-// Rows that belong to the device the dump was taken on, not to whoever restores it.
+// Rows that belong to whoever the dump was taken from, not to whoever restores it. Only a
+// catchment dump can carry them — a perUser dump or a snapshot is the restoring user's own, so
+// their groups, assignments and drafts are real work and deleting them would lose it.
 const PEER_OWNED_SCHEMAS = [
     MyGroups.schema.name,
     UserSubjectAssignment.schema.name,
-    // Free identifiers are pre-allocated to the uploader's device; kept, both devices hand out
-    // the same number and one registration overwrites the other.
-    IdentifierAssignment.schema.name,
     DraftSubject.schema.name,
     DraftEncounter.schema.name,
     DraftEnrolment.schema.name,
@@ -53,8 +52,20 @@ const PEER_OWNED_SCHEMAS = [
 export const PEER_OWNED_SYNC_STATUS_SCHEMAS = [
     MyGroups.schema.name,
     UserSubjectAssignment.schema.name,
-    IdentifierAssignment.schema.name,
     UserInfo.schema.name,
+];
+
+// Not another user's rows but this device's own, gone stale since the dump was taken: the
+// identifier pool moved on, so identifiers spent and pushed after the upload come back free. The
+// server re-sends only *unused* identifiers, so nothing later corrects them and the device hands
+// out numbers already in use. True of every tier, which is why Realm clears these on every restore
+// (BackupRestoreRealmService._deleteUserInfoAndIdAssignment). Resetting the checkpoint alongside is
+// what makes it safe: the whole current unused pool then comes back down on the next sync.
+const STALE_SCHEMAS = [
+    IdentifierAssignment.schema.name,
+];
+export const STALE_SYNC_STATUS_SCHEMAS = [
+    IdentifierAssignment.schema.name,
 ];
 
 /**
@@ -84,9 +95,10 @@ export const PEER_OWNED_SYNC_STATUS_SCHEMAS = [
  *
  * Unlike the Realm flow, this DOES NOT reset entity_sync_status wholesale to
  * REALLY_OLD_DATE — the whole value of the SQLite dump is its populated
- * loaded_since rows. A perUser or snapshot artifact is server-generated and carries
- * no device-local rows, so it needs no cleanup beyond that. A catchment artifact is
- * a peer's live database, so it does: see _clearPeerOwnedData.
+ * loaded_since rows. Two targeted exceptions: every tier drops the pre-allocated
+ * identifier pool, which has gone stale since the dump was taken
+ * (_clearStaleIdentifiers), and a catchment artifact, being a peer's live database,
+ * also drops that peer's own rows (_clearPeerOwnedData).
  */
 @Service('backupRestoreSqliteService')
 export default class BackupRestoreSqliteService extends BaseService {
@@ -259,12 +271,12 @@ export default class BackupRestoreSqliteService extends BaseService {
             //     overlay the captured auth state.
 
             // Before the seeding, not after: the seed only inserts a baseline row where none
-            // exists, so the uploader's rows for the cleared entities have to be gone by then.
-            const clearedPeerOwnedData = tier === CATCHMENT_TIER;
-            if (clearedPeerOwnedData) {
+            // exists, so the rows for the cleared entities have to be gone by then.
+            this._clearStaleIdentifiers();
+            if (tier === CATCHMENT_TIER) {
                 this._clearPeerOwnedData();
             }
-            this._seedEntitySyncStatusBaseline({mustSucceed: clearedPeerOwnedData});
+            this._seedEntitySyncStatusBaseline();
             await this._bootstrapTargetSettings(authState);
             if (tier === CATCHMENT_TIER) {
                 this._stampLocalIdentity(localUsername);
@@ -332,19 +344,30 @@ export default class BackupRestoreSqliteService extends BaseService {
     // never re-pull what was deleted. Failing here fails the restore — running on a peer's
     // memberships is worse than not restoring.
     _clearPeerOwnedData() {
+        this._clearSchemasAndCheckpoints(PEER_OWNED_SCHEMAS, PEER_OWNED_SYNC_STATUS_SCHEMAS,
+            'refusing to run a catchment dump uncleaned');
+        General.logInfo('BackupRestoreSqliteService', 'Cleared the uploader\'s device-local rows from the catchment dump');
+    }
+
+    _clearStaleIdentifiers() {
+        this._clearSchemasAndCheckpoints(STALE_SCHEMAS, STALE_SYNC_STATUS_SCHEMAS,
+            'refusing to restore a dump with its stale identifier pool');
+        General.logInfo('BackupRestoreSqliteService', 'Cleared the dump\'s pre-allocated identifier pool');
+    }
+
+    _clearSchemasAndCheckpoints(rowSchemas, checkpointSchemas, refusal) {
         const sqliteProxy = GlobalContext.getInstance().sqliteDb;
         if (!sqliteProxy) {
-            throw new Error('SQLite database is not open; refusing to run a catchment dump uncleaned');
+            throw new Error(`SQLite database is not open; ${refusal}`);
         }
         sqliteProxy.write(() => {
-            PEER_OWNED_SCHEMAS.forEach(schemaName => sqliteProxy.deleteAllInSchema(schemaName));
-            const staleSyncStatuses = _.flatMap(PEER_OWNED_SYNC_STATUS_SCHEMAS, schemaName =>
+            rowSchemas.forEach(schemaName => sqliteProxy.deleteAllInSchema(schemaName));
+            const staleSyncStatuses = _.flatMap(checkpointSchemas, schemaName =>
                 sqliteProxy.objects(EntitySyncStatus.schema.name)
                     .filtered('entityName = $0', schemaName)
                     .slice());
             sqliteProxy.delete(staleSyncStatuses);
         });
-        General.logInfo('BackupRestoreSqliteService', 'Cleared the uploader\'s device-local rows from the catchment dump');
     }
 
     // A catchment dump carries the uploader's user_info row. Realm has always corrected this after
@@ -365,7 +388,7 @@ export default class BackupRestoreSqliteService extends BaseService {
     // Idempotent: setup() only inserts REALLY_OLD_DATE rows for entities the
     // user can pull (no privilegeParam) AND that don't already have a row.
     // Existing snapshot rows with their loaded_since values are untouched.
-    _seedEntitySyncStatusBaseline({mustSucceed = false} = {}) {
+    _seedEntitySyncStatusBaseline() {
         try {
             const entitySyncStatusService = this.getService(EntitySyncStatusService);
             if (entitySyncStatusService && typeof entitySyncStatusService.setup === 'function') {
@@ -374,10 +397,11 @@ export default class BackupRestoreSqliteService extends BaseService {
             }
         } catch (e) {
             General.logError('BackupRestoreSqliteService', `Failed to seed baseline entity_sync_status: ${e.message}`);
-            // _clearPeerOwnedData deleted rows on the promise that this re-creates them. Without
-            // them the next sync destructures loadedSince off undefined and aborts entirely, and
-            // only the next app launch repairs it — so fail the restore and roll the file back.
-            if (mustSucceed) throw e;
+            // Every tier deletes checkpoints above on the promise that this re-creates them.
+            // Without them the next sync destructures loadedSince off undefined and aborts
+            // entirely, and only the next app launch repairs it, so fail the restore and roll
+            // the file back.
+            throw e;
         }
     }
 

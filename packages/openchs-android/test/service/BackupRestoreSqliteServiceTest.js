@@ -87,7 +87,10 @@ const SqliteMigrationService = require('../../src/service/SqliteMigrationService
 const MediaQueueService = require('../../src/service/MediaQueueService').default;
 const _ = require('lodash');
 const {UserInfo} = require('openchs-models');
-const {PEER_OWNED_SYNC_STATUS_SCHEMAS} = require('../../src/service/BackupRestoreSqliteService');
+const {
+    PEER_OWNED_SYNC_STATUS_SCHEMAS,
+    STALE_SYNC_STATUS_SCHEMAS,
+} = require('../../src/service/BackupRestoreSqliteService');
 
 function build() {
     const settings = {
@@ -109,11 +112,24 @@ function build() {
     ]);
     const service = new BackupRestoreSqliteService({}, {getService: (cls) => services.get(cls)});
     service._readSnapshotUsername = jest.fn(async () => 'test-user');
-    const onRestoreCompleted = jest.fn(async () => {});
+    const sqliteDb = {
+        close: jest.fn(),
+        write: (callback) => callback(),
+        deleteAllInSchema: jest.fn(),
+        objects: () => ({filtered: () => ({slice: () => []})}),
+        delete: jest.fn(),
+    };
+    const observed = {};
+    // Stands in for the reopen the runtime does inside this callback; the cleanup that follows it
+    // refuses to run without an open database.
+    const onRestoreCompleted = jest.fn(async () => {
+        observed.sqliteDbAtReopen = mockGlobalContext.sqliteDb;
+        mockGlobalContext.sqliteDb = sqliteDb;
+    });
     const onRestoreFailure = jest.fn(async () => {});
     service.subscribeOnRestore(onRestoreCompleted);
     service.subscribeOnRestoreFailure(onRestoreFailure);
-    return {service, settingsService, onRestoreCompleted, onRestoreFailure, cb: jest.fn()};
+    return {service, settingsService, onRestoreCompleted, onRestoreFailure, cb: jest.fn(), sqliteDb, observed};
 }
 
 function serviceWith({db, mediaQueueService} = {}) {
@@ -142,12 +158,12 @@ describe('SQLite fast-sync restore commits the backend last (#2120)', () => {
         const fs = require('react-native-fs').default;
         const close = jest.fn();
         mockGlobalContext.sqliteDb = {close};
-        const {service, cb} = build();
+        const {service, cb, observed} = build();
 
         await service.restore(cb);
 
         expect(close).toHaveBeenCalled();
-        expect(mockGlobalContext.sqliteDb).toBeNull();
+        expect(observed.sqliteDbAtReopen).toBeNull();
         expect(fs.unlink).toHaveBeenCalledWith('/docs/avni_sqlite.db-wal');
         expect(fs.unlink).toHaveBeenCalledWith('/docs/avni_sqlite.db-shm');
         const backupCopy = fs.copyFile.mock.calls.findIndex(([from]) => from === '/docs/avni_sqlite.db');
@@ -488,7 +504,7 @@ describe('SQLite fast-sync restore handles identity by tier', () => {
 });
 
 
-describe('SQLite fast-sync restore clears a peer database of its owner (catchment only)', () => {
+describe('SQLite fast-sync restore clears what the dump must not carry forward', () => {
     const {MyGroups, UserSubjectAssignment, DraftSubject, DraftEncounter, DraftEnrolment, DraftProgramEncounter,
         IdentifierAssignment, EntitySyncStatus} = require('openchs-models');
 
@@ -561,16 +577,77 @@ describe('SQLite fast-sync restore clears a peer database of its owner (catchmen
             MyGroups.schema.name, UserSubjectAssignment.schema.name]));
     });
 
-    // Free identifiers are pre-allocated to the uploader's device. Left in place, this device hands
-    // out numbers the uploader is still holding as free, and two subjects get the same identifier.
-    it("deletes the uploader's pre-allocated identifier assignments", async () => {
-        const {service, sqliteDb} = serviceWith({tier: 'catchment'});
+    // Free identifiers are pre-allocated to the device the dump came from, and that pool has moved
+    // on since the upload: identifiers used and pushed afterwards come back marked free. The server
+    // only ever re-sends *unused* identifiers, so nothing later flips them, and this device hands
+    // out numbers already spent — two subjects end up with the same identifier. True of a per-user
+    // dump and of a snapshot as much as of a peer's, so every tier drops the pool.
+    it.each(['catchment', 'perUser', 'snapshot'])(
+        "deletes the pre-allocated identifier pool from a %s dump", async (tier) => {
+            const {service, sqliteDb} = serviceWith({tier});
 
-        const last = await restore(service);
+            const last = await restore(service);
 
-        expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
-        expect(sqliteDb.clearedSchemas).toEqual(expect.arrayContaining([IdentifierAssignment.schema.name]));
-    });
+            expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
+            expect(sqliteDb.clearedSchemas).toEqual(expect.arrayContaining([IdentifierAssignment.schema.name]));
+        });
+
+    // The identifier pool is stale, not foreign. Groups, subject assignments and drafts in a
+    // per-user dump or a snapshot are this user's own, so deleting them would lose real work and
+    // silently drop the caseload the device is meant to come back with.
+    it.each(['perUser', 'snapshot'])(
+        "clears nothing but the identifier pool from a %s dump", async (tier) => {
+            const {service, sqliteDb} = serviceWith({tier});
+
+            const last = await restore(service);
+
+            expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
+            expect(sqliteDb.clearedSchemas).toEqual([IdentifierAssignment.schema.name]);
+        });
+
+    // Deleting the rows without their checkpoint leaves loaded_since at the uploader's last sync,
+    // and the server re-sends only identifiers newer than it — the device is left with no pool at
+    // all and cannot register anyone.
+    it.each(['perUser', 'snapshot'])(
+        "drops the identifier checkpoint and no other from a %s dump", async (tier) => {
+            const rows = [
+                {uuid: 'id1', entityName: IdentifierAssignment.schema.name},
+                {uuid: 'g1', entityName: MyGroups.schema.name},
+                {uuid: 'u1', entityName: UserSubjectAssignment.schema.name},
+                {uuid: 'ui1', entityName: UserInfo.schema.name},
+                {uuid: 'i1', entityName: 'Individual'},
+            ];
+            const {service, sqliteDb} = serviceWith({tier, syncStatusRows: rows});
+
+            const last = await restore(service);
+
+            expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
+            expect(sqliteDb.deletedSyncStatuses.map(r => r.uuid)).toEqual(['id1']);
+        });
+
+    // setup() only inserts a baseline row where none exists, so the stale identifier checkpoint has
+    // to be gone by the time it runs. Asserted on the identifier deletes themselves rather than on
+    // db.write, which the catchment cleanup would also open.
+    it.each(['catchment', 'perUser', 'snapshot'])(
+        'clears the identifier pool and its checkpoint before the baseline seed in a %s restore', async (tier) => {
+            const rows = [{uuid: 'id1', entityName: IdentifierAssignment.schema.name}];
+            const {service, sqliteDb, entitySyncStatusService} = serviceWith({tier, syncStatusRows: rows});
+
+            const last = await restore(service);
+
+            expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
+            const seededAt = entitySyncStatusService.setup.mock.invocationCallOrder[0];
+            expect(seededAt).toBeDefined();
+            const identifierRowClear = sqliteDb.deleteAllInSchema.mock.calls
+                .findIndex(([schemaName]) => schemaName === IdentifierAssignment.schema.name);
+            expect(identifierRowClear).toBeGreaterThanOrEqual(0);
+            expect(sqliteDb.deleteAllInSchema.mock.invocationCallOrder[identifierRowClear])
+                .toBeLessThan(seededAt);
+            const checkpointDelete = sqliteDb.delete.mock.calls
+                .findIndex(([deleted]) => _.some(deleted, r => r.uuid === 'id1'));
+            expect(checkpointDelete).toBeGreaterThanOrEqual(0);
+            expect(sqliteDb.delete.mock.invocationCallOrder[checkpointDelete]).toBeLessThan(seededAt);
+        });
 
     it("deletes the uploader's unsaved drafts", async () => {
         const {service, sqliteDb} = serviceWith({tier: 'catchment'});
@@ -629,28 +706,21 @@ describe('SQLite fast-sync restore clears a peer database of its owner (catchmen
         expect(sqliteDb.clearedSchemas).not.toContain(UserInfo.schema.name);
     });
 
-    // The cleanup deletes on the promise that the seed re-creates. A silent seed failure leaves
-    // the next sync destructuring loadedSince off undefined, which aborts the whole sync.
-    it('fails the catchment restore when the baseline seed cannot re-create what it deleted', async () => {
-        const rows = [{uuid: 'g1', entityName: MyGroups.schema.name}];
-        const {service, entitySyncStatusService} = serviceWith({tier: 'catchment', syncStatusRows: rows});
-        const seedFailed = new Error('entity_sync_status insert failed');
-        entitySyncStatusService.setup.mockImplementation(() => { throw seedFailed; });
+    // The cleanup deletes on the promise that the seed re-creates. A silent seed failure leaves the
+    // next sync destructuring loadedSince off undefined, which aborts the whole sync — and now that
+    // every tier drops the identifier checkpoint, every tier has that promise to keep.
+    it.each(['catchment', 'perUser', 'snapshot'])(
+        'fails a %s restore when the baseline seed cannot re-create what it deleted', async (tier) => {
+            const rows = [{uuid: 'id1', entityName: IdentifierAssignment.schema.name}];
+            const {service, entitySyncStatusService} = serviceWith({tier, syncStatusRows: rows});
+            const seedFailed = new Error('entity_sync_status insert failed');
+            entitySyncStatusService.setup.mockImplementation(() => { throw seedFailed; });
 
-        const last = await restore(service);
+            const last = await restore(service);
 
-        expect(last).toEqual([100, 'restoreFailed', true, seedFailed]);
-        expect(SqliteMigrationService.commitStateForUser).not.toHaveBeenCalled();
-    });
-
-    it.each(['perUser', 'snapshot'])('completes a %s restore whose baseline seed fails — it deleted nothing', async (tier) => {
-        const {service, entitySyncStatusService} = serviceWith({tier});
-        entitySyncStatusService.setup.mockImplementation(() => { throw new Error('entity_sync_status insert failed'); });
-
-        const last = await restore(service);
-
-        expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
-    });
+            expect(last).toEqual([100, 'restoreFailed', true, seedFailed]);
+            expect(SqliteMigrationService.commitStateForUser).not.toHaveBeenCalled();
+        });
 
     // The cleanup only deletes checkpoints; setup() is what puts them back. A schema it will not
     // re-seed would be deleted and never replaced, which is the crash the seed exists to prevent.
@@ -659,19 +729,30 @@ describe('SQLite fast-sync restore clears a peer database of its owner (catchmen
         const reseeded = EntityMetaData.getEntitiesToBePulled()
             .filter(e => _.isEmpty(e.privilegeParam))
             .map(e => e.entityName);
-        expect(_.difference(PEER_OWNED_SYNC_STATUS_SCHEMAS, reseeded)).toEqual([]);
+        const dropped = [...PEER_OWNED_SYNC_STATUS_SCHEMAS, ...STALE_SYNC_STATUS_SCHEMAS];
+        expect(dropped).toContain(IdentifierAssignment.schema.name);
+        expect(_.difference(dropped, reseeded)).toEqual([]);
     });
 
-    it.each(['perUser', 'snapshot'])('leaves a %s artifact alone — it holds no other user\'s rows', async (tier) => {
-        const rows = [{uuid: 'g1', entityName: MyGroups.schema.name}];
-        const {service, sqliteDb} = serviceWith({tier, syncStatusRows: rows});
+    it.each(['perUser', 'snapshot'])(
+        "keeps a %s artifact's own group memberships, assignments and their checkpoints", async (tier) => {
+            const rows = [
+                {uuid: 'g1', entityName: MyGroups.schema.name},
+                {uuid: 'u1', entityName: UserSubjectAssignment.schema.name},
+            ];
+            const {service, sqliteDb} = serviceWith({tier, syncStatusRows: rows});
 
-        const last = await restore(service);
+            const last = await restore(service);
 
-        expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
-        expect(sqliteDb.deleteAllInSchema).not.toHaveBeenCalled();
-        expect(sqliteDb.delete).not.toHaveBeenCalled();
-    });
+            expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
+            expect(sqliteDb.clearedSchemas).not.toContain(MyGroups.schema.name);
+            expect(sqliteDb.clearedSchemas).not.toContain(UserSubjectAssignment.schema.name);
+            expect(sqliteDb.clearedSchemas).not.toContain(DraftSubject.schema.name);
+            expect(sqliteDb.clearedSchemas).not.toContain(DraftEncounter.schema.name);
+            expect(sqliteDb.clearedSchemas).not.toContain(DraftEnrolment.schema.name);
+            expect(sqliteDb.clearedSchemas).not.toContain(DraftProgramEncounter.schema.name);
+            expect(sqliteDb.deletedSyncStatuses).toEqual([]);
+        });
 });
 
 
