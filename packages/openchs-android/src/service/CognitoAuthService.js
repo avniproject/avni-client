@@ -2,7 +2,7 @@ import {AuthenticationDetails, CognitoUser, CognitoUserPool} from 'amazon-cognit
 import Service from "../framework/bean/Service";
 import SettingsService from "./SettingsService";
 import _ from "lodash";
-import AuthenticationError, {NO_USER} from "./AuthenticationError";
+import AuthenticationError, {authErrCodeFromCognitoError, NO_USER} from "./AuthenticationError";
 import General from "../utility/General";
 import UserInfoService from "./UserInfoService";
 import BaseAuthProviderService from "./BaseAuthProviderService";
@@ -43,7 +43,7 @@ class CognitoAuthService extends BaseAuthProviderService {
                     cognitoUser.getSession(function (err, session) {
                         if (err) {
                             General.logWarn("CognitoAuthService", err);
-                            reject(new AuthenticationError(err.code, err.message));
+                            reject(new AuthenticationError(authErrCodeFromCognitoError(err), err.message));
                         } else {
                             const jwtToken = session.getIdToken().getJwtToken();
                             General.logInfo("CognitoAuthService", "Found token");
