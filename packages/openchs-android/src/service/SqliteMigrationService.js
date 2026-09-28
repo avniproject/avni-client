@@ -474,8 +474,9 @@ class SqliteMigrationService extends BaseService {
         }
         // Separate from the revert: a revert that fails is exactly when the diagnostics matter.
         try {
+            // Reported even when transient: an abandoned migration is the signal while the move rolls out.
             ErrorUtil.notifyBugsnag(error instanceof Error ? error : new Error(message),
-                `SqliteMigrationService::leg::${leg.source}->${leg.target}`);
+                `SqliteMigrationService::leg::${leg.source}->${leg.target}`, {reportTransient: true});
             // Only over a record we could actually read; never write defaults back.
             const raw = await AsyncStorage.getItem(asyncStorageKey(leg.username));
             if (raw) {

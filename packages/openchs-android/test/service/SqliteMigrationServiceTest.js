@@ -482,6 +482,19 @@ describe('SqliteMigrationService', () => {
             expect(ErrorUtil.notifyBugsnag).toHaveBeenCalled();
         });
 
+        // The shared notify filter drops timeouts; a migration abandoned on one must still report.
+        it('abandoning a leg on a sync timeout still reports it', async () => {
+            const leg = await service.beginLeg(BACKENDS.SQLITE);
+            await service.prepareTarget(leg);
+            const ErrorUtil = require('../../src/framework/errorHandling/ErrorUtil').default;
+            ErrorUtil.notifyBugsnag.mockClear();
+            const timeout = new Error('syncTimeoutError');
+
+            await service.abandonOpenLeg(timeout);
+
+            expect(ErrorUtil.notifyBugsnag).toHaveBeenCalledWith(timeout, expect.any(String), {reportTransient: true});
+        });
+
         // A failed read returns defaults, which name Realm; the leg already knows its source.
         it('abandoning a leg goes back to where it started even when the state record cannot be read', async () => {
             await persisted({activeBackend: BACKENDS.SQLITE, desiredBackend: BACKENDS.REALM});
