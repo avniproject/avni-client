@@ -141,6 +141,21 @@ describe("recording a forced login prompt", () => {
             expect(loggedParams()).toEqual([expect.objectContaining({error_code: "no_user"})]);
         });
 
+        it("does not count a loss the sync screen already recorded a second time at launch", async () => {
+            await SessionRecord.established();
+            await logForcedLoginPrompt(contextWith(), {errorCode: "NotAuthorizedException"});
+            await logForcedLoginPromptAtLaunch(contextWith(), {userExists: false, databaseSynced: true});
+            expect(loggedParams()).toEqual([expect.objectContaining({error_code: "NotAuthorizedException"})]);
+        });
+
+        it("re-establishes a session that survived the prompt, so a later loss is still counted", async () => {
+            await SessionRecord.established();
+            await logForcedLoginPrompt(contextWith(), {errorCode: "Http 401"});
+            await logForcedLoginPromptAtLaunch(contextWith(), {userExists: true, databaseSynced: true});
+            await logForcedLoginPromptAtLaunch(contextWith(), {userExists: false, databaseSynced: true});
+            expect(loggedParams().map((p) => p.error_code)).toEqual(["Http 401", "no_user"]);
+        });
+
         it("records nothing after a deliberate sign-out or data deletion", async () => {
             await SessionRecord.established();
             await SessionRecord.ended();

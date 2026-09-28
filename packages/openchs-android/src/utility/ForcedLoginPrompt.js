@@ -40,6 +40,8 @@ function lastCompletedSyncAt(lastSync) {
 
 export async function logForcedLoginPrompt(context, {errorCode}) {
     try {
+        // Ended first, so the launch after an unrecovered prompt does not count the same loss again as no_user.
+        await SessionRecord.ended();
         // Required lazily so the parameter builder stays importable without the service graph behind it.
         const {firebaseEvents, logEvent} = require("./Analytics");
         const SettingsService = require("../service/SettingsService").default;
@@ -73,14 +75,13 @@ export async function logForcedLoginPrompt(context, {errorCode}) {
 export async function logForcedLoginPromptAtLaunch(context, {userExists, databaseSynced}) {
     try {
         const state = await SessionRecord.getState();
+        // A live session is established whatever the record says, e.g. after a 401 left the tokens in place.
         if (userExists) {
-            if (_.isNil(state)) await SessionRecord.established();
+            if (state !== SESSION_ESTABLISHED) await SessionRecord.established();
             return;
         }
         const lost = state === SESSION_ESTABLISHED || (_.isNil(state) && databaseSynced);
         if (!lost) return;
-        // Ended before logging, so a user stuck on the login screen is counted once rather than on every launch.
-        await SessionRecord.ended();
         await logForcedLoginPrompt(context, {errorCode: NO_USER_REASON});
     } catch (e) {
         General.logWarn("ForcedLoginPrompt", `Could not record forced login prompt at launch: ${e.message}`);
