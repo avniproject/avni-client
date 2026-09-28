@@ -189,7 +189,7 @@ describe("FormElementGroup drawing a page that holds a hidden question", () => {
         expect(pageParts(renderer).rows).toHaveLength(1);
     });
 
-    it("leaves the hidden question in the list the form works from, which is what keeps its answer", () => {
+    it("does not change the list it is handed, so the hidden question stays in it", () => {
         const photoPage = page();
         question(photoPage, "fe-name", 1, concept(Concept.dataType.Text));
         question(photoPage, "fe-verdict", 2, concept(Concept.dataType.Coded, HIDDEN));

@@ -87,6 +87,23 @@ describe('AbstractDataEntryStateTest', () => {
         action.assert();
     });
 
+    it('keeps the answer to a hidden question when the rules run again after the worker answers another question', () => {
+        const hiddenConcept = EntityFactory.createConcept('AI Verdict', Concept.dataType.Text);
+        hiddenConcept.keyValues = [KeyValue.fromResource({key: 'hidden', value: true})];
+        formElementGroup.addFormElement(EntityFactory.createFormElement('AI Verdict', false, hiddenConcept));
+        const visibleConcept = EntityFactory.createConcept('Assessment', Concept.dataType.Text);
+        const visibleFormElement = EntityFactory.createFormElement('Assessment', false, visibleConcept);
+        formElementGroup.addFormElement(visibleFormElement);
+        const observations = [Observation.create(hiddenConcept, new PrimitiveValue('Suspicious'))];
+        const dataEntryState = new StubbedDataEntryState([], formElementGroup, new Wizard(1, 1), observations, null);
+
+        const newState = ObservationsHolderActions.onPrimitiveObsUpdateValue(dataEntryState, {formElement: visibleFormElement, value: 'Healthy'}, testContext);
+
+        const hiddenAnswer = newState.observationsHolder.findObservation(hiddenConcept);
+        expect(hiddenAnswer, 'the hidden answer must survive the rule pass').to.not.be.undefined;
+        expect(hiddenAnswer.getValue()).to.equal('Suspicious');
+    });
+
     it('an Inference unavailable error on a top-level element survives the real Next lifecycle and blocks (#2008, finding 1)', () => {
         // Drives the REAL handleNext (not a hand-mocked handleValidationResult): _handleNextInternal1
         // runs formElementGroup.validate — which stamps the AI-verdict element success with `undefined`
