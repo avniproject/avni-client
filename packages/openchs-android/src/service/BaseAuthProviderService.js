@@ -47,8 +47,7 @@ class BaseAuthProviderService extends BaseService {
         return this.settingsService.getSettings();
     }
 
-    // Providers that cache a session locally override this. Nothing here is required for the app
-    // to work; it only tells a device clock that moved after login from a session that really ended.
+    // Overridden by providers that cache a session locally.
     getCachedSessionClockInfo() {
         return {};
     }

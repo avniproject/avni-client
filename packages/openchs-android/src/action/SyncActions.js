@@ -47,10 +47,8 @@ class SyncActions {
             sync_start_time: syncStartTime,
             error_time: moment(errorTime).format(dateTimeFormat)
         };
-        // Makes a failed sync joinable to the redirect it may have caused, and is the only record
-        // of a 403 once it stops redirecting.
         const errorCode = _.get(action, 'errorCode');
-        if (!_.isEmpty(errorCode)) params.error_code = errorCode;
+        if (!_.isNil(errorCode) && errorCode !== '') params.error_code = String(errorCode);
         logEvent(firebaseEvents.SYNC_FAILED, params);
         return {...state, syncing: false};
     }
