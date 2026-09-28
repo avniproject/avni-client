@@ -24,7 +24,6 @@ import {IgnorableSyncError} from "openchs-models";
 import IssueUploadUtil from "../utility/IssueUploadUtil";
 import {getConnectionInfo} from "../utility/ConnectionInfo";
 import {logForcedLoginPrompt} from "../utility/ForcedLoginPrompt";
-import {isExpectedTransientNetworkError} from "../framework/errorHandling/ExpectedTransientNetworkError";
 
 class SyncComponent extends AbstractComponent {
     unsubscribe;
@@ -70,11 +69,7 @@ class SyncComponent extends AbstractComponent {
 
         //Do not notify bugsnag if it's a server error since it would have been notified on server bugsnag already.
         //MediaQueueService already notified with the original underlying error.
-        //An expected transient network failure is left out too: it is recorded in SyncTelemetry and
-        //on sync_failed, and reporting every one of them exhausts the rate limit that real defects
-        //share. #2142
-        if (!ignoreBugsnag && !isServerError && !isIgnorableSyncError && !isAvniError && !isMediaUploadError
-            && !isExpectedTransientNetworkError(error)) {
+        if (!ignoreBugsnag && !isServerError && !isIgnorableSyncError && !isAvniError && !isMediaUploadError) {
             ErrorUtil.notifyBugsnag(error, "SyncComponent");
         }
 

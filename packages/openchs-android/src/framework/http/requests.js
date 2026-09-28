@@ -5,12 +5,9 @@ import ServerError from "../../service/ServerError";
 import GlobalContext from "../../GlobalContext";
 import {IDP_PROVIDERS} from "../../model/IdpProviders";
 import CookieManager from "@react-native-cookies/cookies";
+import {SYNC_TIMEOUT_ERROR} from "../errorHandling/ExpectedTransientNetworkError";
 
 const ACCEPTABLE_RESPONSE_STATUSES = [200, 201];
-
-// Exported so the Bugsnag exclusion matches the string this actually rejects with, rather than
-// re-typing it and drifting.
-export const SYNC_TIMEOUT_ERROR = "syncTimeoutError";
 
 const getAuthToken = async () => {
     const authService = GlobalContext.getInstance().beanRegistry.getService("authService");
@@ -94,14 +91,14 @@ const _get = (endpoint, bypassAuth) => {
     General.logDebug('Requests', `GET: ${endpoint}`);
     return _addAuthIfRequired(makeHeader("json"), bypassAuth)
         .then((headers) => fetchFactory(endpoint, "GET", headers))
-        .then((response) => response.json(), Promise.reject)
+        .then((response) => response.json())
 };
 
 const _getText = (endpoint, bypassAuth, fetchWithoutTimeout) => {
     General.logDebug('Requests', `Calling getText: ${endpoint}`);
     return _addAuthIfRequired(makeHeader("text"), bypassAuth)
         .then((headers) => fetchFactory(endpoint, "GET", headers, fetchWithoutTimeout))
-        .then((response) => response.text(), Promise.reject)
+        .then((response) => response.text())
 };
 
 const _post = (endpoint, file, fetchWithoutTimeout, bypassAuth = false) => {
@@ -125,14 +122,12 @@ const _getJSONTimed = (endpoint) => {
     return _addAuthIfRequired(makeHeader("json"), false)
         .then((headers) => fetchFactory(endpoint, "GET", headers))
         // text() then JSON.parse rather than json(), so parseMs is the parse and nothing else.
-        // The Promise.reject handler is _get's, kept so this path fails identically: it replaces
-        // the error with a TypeError, and correcting that belongs in a fix covering every caller.
         .then((response) => response.text().then((text) => {
             const networkMs = General.elapsedMs(start);
             const parseStart = performance.now();
             const body = JSON.parse(text);
             return {body, timings: {networkMs, parseMs: General.elapsedMs(parseStart)}};
-        }), Promise.reject);
+        }));
 };
 
 const _postTimed = (endpoint, file) => {

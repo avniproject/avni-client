@@ -1,19 +1,16 @@
 import _ from "lodash";
 import AuthenticationError, {NETWORK_ERROR} from "../../service/AuthenticationError";
-import {SYNC_TIMEOUT_ERROR} from "../http/requests";
 
-// React Native's fetch rejects with exactly this when the request never reaches the network.
-// There is no code to match on, so the message is the only signal available.
+// Defined here rather than in requests.js, which raises it, so ErrorUtil can use it without an import cycle through ServerError.
+export const SYNC_TIMEOUT_ERROR = "syncTimeoutError";
+
+// React Native's fetch rejects with exactly this, whatever the cause below the HTTP layer.
 export const RN_FETCH_FAILURE_MESSAGE = 'Network request failed';
 
 // A DNS failure names the host it could not resolve, so only the prefix is fixed.
 export const DNS_FAILURE_PREFIX = 'Unable to resolve host';
 
-// These are what a field connection does, not what a defect looks like. They are recorded either
-// way — SyncTelemetry rows and the Firebase sync_failed event both carry the failure and its
-// reason — but they are numerous enough to exhaust Bugsnag's rate limit, which discards the real
-// defects arriving alongside them. Matched on message text because none of them carry a code;
-// the tests pin each signature so a rename fails loudly rather than quietly restoring the noise.
+// Numerous enough to exhaust Bugsnag's rate limit; matched on message text because only the Cognito one carries a code.
 export function isExpectedTransientNetworkError(error) {
     if (_.isNil(error)) return false;
     if (error instanceof AuthenticationError) return error.authErrCode === NETWORK_ERROR;

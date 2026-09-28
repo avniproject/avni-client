@@ -1,9 +1,9 @@
 import {
     isExpectedTransientNetworkError,
     RN_FETCH_FAILURE_MESSAGE,
-    DNS_FAILURE_PREFIX
+    DNS_FAILURE_PREFIX,
+    SYNC_TIMEOUT_ERROR
 } from "../../src/framework/errorHandling/ExpectedTransientNetworkError";
-import {SYNC_TIMEOUT_ERROR} from "../../src/framework/http/requests";
 import AuthenticationError, {NETWORK_ERROR, NO_USER, HTTP_403} from "../../src/service/AuthenticationError";
 
 describe("isExpectedTransientNetworkError — excluded from Bugsnag", () => {
