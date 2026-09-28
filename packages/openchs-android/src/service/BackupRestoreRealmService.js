@@ -25,7 +25,7 @@ import moment from "moment";
 import FileLoggerService from '../utility/FileLoggerService';
 import AvniError from "../framework/errorHandling/AvniError";
 import toAvniError from "../framework/errorHandling/toAvniError";
-import {clearPeerOwnedData, RealmPeerOwnedData} from "./fastSync/PeerOwnedData";
+import {clearDirectlyAssignedSubjects, clearPeerOwnedData, RealmPeerOwnedData} from "./fastSync/PeerOwnedData";
 
 const REALM_FILE_NAME = "default.realm";
 const REALM_FILE_FULL_PATH = `${fs.DocumentDirectoryPath}/${REALM_FILE_NAME}`;
@@ -342,10 +342,16 @@ export default class BackupRestoreRealmService extends BaseService {
     }
 
     _deleteIndividualAndDependentForDirectlyAssignableSubjectTypes() {
-        const allDirectlyAssignableSubjectTypes = this.getService(SubjectTypeService).getAllDirectlyAssignable();
-        _.forEach(allDirectlyAssignableSubjectTypes, subjectType => {
-            this.deleteTxDataForSubjectType(subjectType);
-            this.resetSyncForSubjectType(subjectType);
+        clearDirectlyAssignedSubjects({
+            subjectTypeService: this.getService(SubjectTypeService),
+            individualService: this.getService(IndividualService),
+            subjectMigrationService: this.getService(SubjectMigrationService),
+            formMappingService: this.getService(FormMappingService),
+            entitySyncStatusService: this.getService(EntitySyncStatusService),
+        }, {
+            // No outer transaction: Realm rejects a write opened inside a write, and the
+            // services each open their own.
+            inWrite: (work) => work(),
         });
     }
 
@@ -355,38 +361,6 @@ export default class BackupRestoreRealmService extends BaseService {
 
     _restoreUserInfo(prevUserInfo) {
         this.getService(UserInfoService).saveOrUpdate(prevUserInfo);
-    }
-
-    resetSyncForSubjectType(subjectType) {
-        const formMappingsForSubjectType = this.getService(FormMappingService).getFormMappingsForSubjectType(subjectType).map(_.identity);
-        _.forEach(formMappingsForSubjectType, (formMapping) => {
-            const {entityName, entityTypeUuid} = formMapping.getEntityNameAndEntityTypeUUID();
-            this.resetSync(entityName, entityTypeUuid);
-        })
-    }
-
-    resetSync(entityName, entityTypeUUID) {
-        this.transactionManager.write(() => {
-            this.getRepository(EntitySyncStatus.schema.name).findAll()
-                .filtered(`entityName = $0 and entityTypeUuid = $1`, entityName, entityTypeUUID)
-                .map(u => _.assign({}, u))
-                .forEach(({uuid, entityName, entityTypeUuid}) => {
-                    const updatedEntity = EntitySyncStatus.create(entityName, EntitySyncStatus.REALLY_OLD_DATE, uuid, entityTypeUuid);
-                    this.getRepository(EntitySyncStatus.schema.name).create(updatedEntity, true);
-                })
-        });
-    }
-
-    deleteTxDataForSubjectType(subjectType) {
-        this.getService(IndividualService)
-            .getAllBySubjectType(subjectType)
-            .map(_.identity)
-            .forEach(individual => {
-                const subjectUUID = _.get(individual, 'uuid');
-                if (!_.isEmpty(subjectUUID)) {
-                    this.getService(SubjectMigrationService).removeEntitiesFor({subjectUUID})
-                }
-            })
     }
 
     async _prepareBackupFiles(realmDestFile, fileLoggerService) {

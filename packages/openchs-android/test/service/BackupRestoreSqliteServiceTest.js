@@ -47,6 +47,10 @@ jest.mock('../../src/service/SettingsService', () => ({__esModule: true, default
 jest.mock('../../src/service/MediaService', () => ({__esModule: true, default: class MediaService {}}));
 jest.mock('../../src/service/EntitySyncStatusService', () => ({__esModule: true, default: class EntitySyncStatusService {}}));
 jest.mock('../../src/service/UserInfoService', () => ({__esModule: true, default: class UserInfoService {}}));
+jest.mock('../../src/service/SubjectTypeService', () => ({__esModule: true, default: class SubjectTypeService {}}));
+jest.mock('../../src/service/IndividualService', () => ({__esModule: true, default: class IndividualService {}}));
+jest.mock('../../src/service/SubjectMigrationService', () => ({__esModule: true, default: class SubjectMigrationService {}}));
+jest.mock('../../src/service/FormMappingService', () => ({__esModule: true, default: class FormMappingService {}}));
 jest.mock('../../src/service/MediaQueueService', () => ({
     __esModule: true,
     default: class MediaQueueService {
@@ -83,11 +87,26 @@ const SettingsService = require('../../src/service/SettingsService').default;
 const MediaService = require('../../src/service/MediaService').default;
 const EntitySyncStatusService = require('../../src/service/EntitySyncStatusService').default;
 const UserInfoService = require('../../src/service/UserInfoService').default;
+const SubjectTypeService = require('../../src/service/SubjectTypeService').default;
+const IndividualService = require('../../src/service/IndividualService').default;
+const SubjectMigrationService = require('../../src/service/SubjectMigrationService').default;
+const FormMappingService = require('../../src/service/FormMappingService').default;
 const SqliteMigrationService = require('../../src/service/SqliteMigrationService').default;
 const MediaQueueService = require('../../src/service/MediaQueueService').default;
 const _ = require('lodash');
 const {UserInfo} = require('openchs-models');
 const {PEER_OWNED_SYNC_STATUS_SCHEMAS} = require('../../src/service/BackupRestoreSqliteService');
+
+// A dump only carries someone else's caseload when a subject type is directly assignable, which
+// is the exception; helpers default to none, and the cleanup's own tests supply their own.
+function noDirectlyAssignableSubjectTypes() {
+    return [
+        [SubjectTypeService, {getAllDirectlyAssignable: jest.fn(() => []), getAll: jest.fn(() => [])}],
+        [IndividualService, {getAllBySubjectType: jest.fn(() => ({map: () => []}))}],
+        [SubjectMigrationService, {removeEntitiesFor: jest.fn()}],
+        [FormMappingService, {getFormMappingsForSubjectType: jest.fn(() => ({map: () => []}))}],
+    ];
+}
 
 function build() {
     const settings = {
@@ -106,6 +125,7 @@ function build() {
         [MediaService, {downloadFromUrl: jest.fn(async () => {})}],
         [EntitySyncStatusService, {setup: jest.fn()}],
         [UserInfoService, {getUserInfo: jest.fn(() => UserInfo.createEmptyInstance()), saveOrUpdate: jest.fn()}],
+        ...noDirectlyAssignableSubjectTypes(),
     ]);
     const service = new BackupRestoreSqliteService({}, {getService: (cls) => services.get(cls)});
     service._readSnapshotUsername = jest.fn(async () => 'test-user');
@@ -345,6 +365,7 @@ describe('SQLite fast-sync restore handles identity by tier', () => {
             [MediaService, {downloadFromUrl: jest.fn(async () => {})}],
             [EntitySyncStatusService, {setup: jest.fn()}],
             [UserInfoService, {getUserInfo: jest.fn(() => UserInfo.createEmptyInstance()), saveOrUpdate: jest.fn(), ...userInfoService}],
+            ...noDirectlyAssignableSubjectTypes(),
         ]);
         const service = new BackupRestoreSqliteService({}, {getService: (cls) => services.get(cls)});
         service._readSnapshotUsername = jest.fn(async () => snapshotUsername);
@@ -535,6 +556,7 @@ describe('SQLite fast-sync restore clears a peer database of its owner (catchmen
             [MediaService, {downloadFromUrl: jest.fn(async () => {})}],
             [EntitySyncStatusService, entitySyncStatusService],
             [UserInfoService, {getUserInfo: jest.fn(() => UserInfo.createEmptyInstance()), saveOrUpdate: jest.fn()}],
+            ...noDirectlyAssignableSubjectTypes(),
         ]);
         const service = new BackupRestoreSqliteService({}, {getService: (cls) => services.get(cls)});
         service._readSnapshotUsername = jest.fn(async () => tier === 'catchment' ? 'peer.in.same.catchment' : 'aw@org');
@@ -711,6 +733,7 @@ describe('SQLite fast-sync restore for a migration leg', () => {
                 getUserInfo: jest.fn(() => UserInfo.createEmptyInstance()),
                 saveOrUpdate: (entity) => userInfoSaved.push(entity),
             }],
+            ...noDirectlyAssignableSubjectTypes(),
         ]);
         const service = new BackupRestoreSqliteService({}, {getService: (cls) => services.get(cls)});
         service._readSnapshotUsername = jest.fn(async () => snapshotUsername);
@@ -810,5 +833,221 @@ describe('SQLite fast-sync restore for a migration leg', () => {
         await service.restoreForMigration('aw@org');
 
         expect(onRestoreCompleted).not.toHaveBeenCalled();
+    });
+});
+
+
+describe('SQLite fast-sync restore clears a peer\'s directly assigned caseload (catchment only)', () => {
+    const {EntitySyncStatus} = require('openchs-models');
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+        mockGlobalContext.sqliteDb = null;
+        mockGet.mockImplementation(async (url) => url.endsWith('/exists') ? 'true' : 'https://signed-url');
+    });
+
+    const asResults = (rows) => ({map: (fn) => rows.map(fn)});
+
+    function checkpointResults(rows) {
+        return {
+            filtered(query, arg) {
+                const [, field] = /^\s*(\w+)\s*=\s*\$0\s*$/.exec(query) || [];
+                if (!field) throw new Error(`fake checkpoint query not understood: ${query}`);
+                return checkpointResults(rows.filter(r => r[field] === arg));
+            },
+            map: (fn) => rows.map(fn),
+        };
+    }
+
+    const profileFormMapping = (subjectTypeUuid) => ({
+        getEntityNameAndEntityTypeUUID: () => ({entityName: 'Individual', entityTypeUuid: subjectTypeUuid}),
+    });
+
+    function serviceWith({tier, directlyAssignable = [], subjectsByType = {}, formMappingsByType = {},
+        checkpointRows = []} = {}) {
+        mockGetJSON.mockImplementation(async () => ({url: 'https://signed-url', tier}));
+        const settings = {serverURL: 'https://server', userId: 'aw@org', idpType: 'cognito', clone() { return {...this}; }};
+        const removedSubjects = [];
+        const resetCheckpoints = [];
+        const entitySyncStatusService = {
+            setup: jest.fn(),
+            findAll: jest.fn(() => checkpointResults(checkpointRows)),
+            updateAsPerSyncDetails: jest.fn((rows) => resetCheckpoints.push(...rows)),
+        };
+        const writeDepthAtRemoval = [];
+        const subjectMigrationService = {
+            removeEntitiesFor: jest.fn(({subjectUUID}) => {
+                removedSubjects.push(subjectUUID);
+                writeDepthAtRemoval.push(sqliteDb.openWrites);
+            }),
+        };
+        const services = new Map([
+            [SettingsService, {getSettings: jest.fn(() => settings), init: jest.fn(async () => {}), saveOrUpdate: jest.fn()}],
+            [MediaService, {downloadFromUrl: jest.fn(async () => {})}],
+            [EntitySyncStatusService, entitySyncStatusService],
+            [UserInfoService, {getUserInfo: jest.fn(() => UserInfo.createEmptyInstance()), saveOrUpdate: jest.fn()}],
+            [SubjectTypeService, {
+                getAllDirectlyAssignable: jest.fn(() => directlyAssignable),
+                getAll: jest.fn(() => Object.keys(subjectsByType).map(uuid => ({uuid}))),
+            }],
+            [IndividualService, {getAllBySubjectType: jest.fn((st) => asResults(subjectsByType[st.uuid] || []))}],
+            [SubjectMigrationService, subjectMigrationService],
+            [FormMappingService, {getFormMappingsForSubjectType: jest.fn((st) => asResults(formMappingsByType[st.uuid] || []))}],
+        ]);
+        const service = new BackupRestoreSqliteService({}, {getService: (cls) => services.get(cls)});
+        service._readSnapshotUsername = jest.fn(async () => tier === 'catchment' ? 'peer.in.same.catchment' : 'aw@org');
+        const sqliteDb = {
+            close: jest.fn(),
+            openWrites: 0,
+            write: jest.fn((callback) => {
+                sqliteDb.openWrites++;
+                try { return callback(); } finally { sqliteDb.openWrites--; }
+            }),
+            deleteAllInSchema: jest.fn(),
+            objects: jest.fn(() => ({filtered: () => ({slice: () => []})})),
+            delete: jest.fn(),
+        };
+        service.subscribeOnRestore(jest.fn(async () => { mockGlobalContext.sqliteDb = sqliteDb; }));
+        service.subscribeOnRestoreFailure(jest.fn(async () => {}));
+        return {service, sqliteDb, entitySyncStatusService, subjectMigrationService, removedSubjects,
+            resetCheckpoints, writeDepthAtRemoval};
+    }
+
+    async function restore(service) {
+        const messages = [];
+        await service.restore((p, m, failed, error) => messages.push([p, m, failed, error]));
+        return messages[messages.length - 1];
+    }
+
+    const assignable = {uuid: 'st-assignable'};
+    const openType = {uuid: 'st-open'};
+
+    // Subjects of a directly assignable type are assigned to named workers, so the uploader's are
+    // not this user's to keep.
+    it('removes the uploader\'s subjects of a directly assignable type', async () => {
+        const {service, removedSubjects} = serviceWith({
+            tier: 'catchment',
+            directlyAssignable: [assignable],
+            subjectsByType: {'st-assignable': [{uuid: 'sub-1'}, {uuid: 'sub-2'}]},
+        });
+
+        const last = await restore(service);
+
+        expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
+        expect(removedSubjects).toEqual(['sub-1', 'sub-2']);
+    });
+
+    // Subjects of an openly-visible type are the same for everyone in the catchment, and re-pulling
+    // them is exactly the sync the dump exists to avoid.
+    it('keeps the subjects of a type that is not directly assignable', async () => {
+        const {service, removedSubjects} = serviceWith({
+            tier: 'catchment',
+            directlyAssignable: [assignable],
+            subjectsByType: {'st-assignable': [{uuid: 'sub-1'}], 'st-open': [{uuid: 'sub-open'}]},
+        });
+
+        const last = await restore(service);
+
+        expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
+        expect(removedSubjects).not.toContain('sub-open');
+    });
+
+    it('puts the deleted type\'s checkpoints back to the beginning of time', async () => {
+        const {service, resetCheckpoints} = serviceWith({
+            tier: 'catchment',
+            directlyAssignable: [assignable],
+            subjectsByType: {'st-assignable': [{uuid: 'sub-1'}]},
+            formMappingsByType: {'st-assignable': [profileFormMapping('st-assignable')]},
+            checkpointRows: [
+                {uuid: 'cp-ind', entityName: 'Individual', entityTypeUuid: 'st-assignable'},
+                {uuid: 'cp-open', entityName: 'Individual', entityTypeUuid: 'st-open'},
+            ],
+        });
+
+        const last = await restore(service);
+
+        expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
+        expect(resetCheckpoints).toEqual([{
+            uuid: 'cp-ind',
+            entityName: 'Individual',
+            entityTypeUuid: 'st-assignable',
+            loadedSince: EntitySyncStatus.REALLY_OLD_DATE,
+        }]);
+    });
+
+    // The baseline seed only inserts where no row exists, and Individual is privilege-scoped so it
+    // is not one of the rows that seed would put back. Rewritten in place, there is nothing to
+    // put back and nothing for the seed to undo.
+    it('rewrites the checkpoint rather than deleting it, and does so before the baseline seed', async () => {
+        const {service, sqliteDb, entitySyncStatusService} = serviceWith({
+            tier: 'catchment',
+            directlyAssignable: [assignable],
+            formMappingsByType: {'st-assignable': [profileFormMapping('st-assignable')]},
+            checkpointRows: [{uuid: 'cp-ind', entityName: 'Individual', entityTypeUuid: 'st-assignable'}],
+        });
+
+        const last = await restore(service);
+
+        expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
+        expect(sqliteDb.delete).not.toHaveBeenCalledWith(
+            expect.arrayContaining([expect.objectContaining({uuid: 'cp-ind'})]));
+        expect(entitySyncStatusService.updateAsPerSyncDetails.mock.invocationCallOrder[0])
+            .toBeLessThan(entitySyncStatusService.setup.mock.invocationCallOrder[0]);
+    });
+
+    // Half-applied, the device keeps some of the uploader's subjects against checkpoints that say
+    // they were already pulled, and nothing afterwards notices.
+    it('removes the caseload inside a single SQLite write', async () => {
+        const {service, writeDepthAtRemoval} = serviceWith({
+            tier: 'catchment',
+            directlyAssignable: [assignable],
+            subjectsByType: {'st-assignable': [{uuid: 'sub-1'}, {uuid: 'sub-2'}]},
+        });
+
+        const last = await restore(service);
+
+        expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
+        expect(writeDepthAtRemoval).toEqual([1, 1]);
+    });
+
+    it.each(['perUser', 'snapshot'])('leaves a %s artifact\'s subjects alone — it is this user\'s own', async (tier) => {
+        const {service, removedSubjects, resetCheckpoints} = serviceWith({
+            tier,
+            directlyAssignable: [assignable],
+            subjectsByType: {'st-assignable': [{uuid: 'sub-1'}]},
+            formMappingsByType: {'st-assignable': [profileFormMapping('st-assignable')]},
+            checkpointRows: [{uuid: 'cp-ind', entityName: 'Individual', entityTypeUuid: 'st-assignable'}],
+        });
+
+        const last = await restore(service);
+
+        expect(last.slice(0, 2)).toEqual([100, 'restoreComplete']);
+        expect(removedSubjects).toEqual([]);
+        expect(resetCheckpoints).toEqual([]);
+    });
+
+    // Running a peer's dump with their caseload still in it is worse than not restoring at all,
+    // so no database to clean it with has to fail the restore.
+    it('refuses to run when there is no open SQLite database', () => {
+        const {service} = serviceWith({tier: 'catchment', directlyAssignable: [assignable]});
+        mockGlobalContext.sqliteDb = null;
+
+        expect(() => service._clearDirectlyAssignedSubjects())
+            .toThrow(/refusing to run a catchment dump uncleaned/);
+    });
+
+    it('fails the catchment restore when the caseload cannot be removed', async () => {
+        const {service, subjectMigrationService} = serviceWith({
+            tier: 'catchment',
+            directlyAssignable: [assignable],
+            subjectsByType: {'st-assignable': [{uuid: 'sub-1'}]},
+        });
+        const deleteFailed = new Error('subject delete failed');
+        subjectMigrationService.removeEntitiesFor.mockImplementation(() => { throw deleteFailed; });
+
+        const last = await restore(service);
+
+        expect(last).toEqual([100, 'restoreFailed', true, deleteFailed]);
+        expect(SqliteMigrationService.commitStateForUser).not.toHaveBeenCalled();
     });
 });

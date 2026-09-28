@@ -1,8 +1,10 @@
+import _ from 'lodash';
 import {
     DraftEncounter,
     DraftEnrolment,
     DraftProgramEncounter,
     DraftSubject,
+    EntitySyncStatus,
     IdentifierAssignment,
     MyGroups,
     UserInfo,
@@ -78,5 +80,42 @@ export function clearPeerOwnedData(policy, backend) {
     backend.inWrite(() => {
         policy.rowSchemas.forEach(schemaName => backend.deleteRows(schemaName));
         backend.resetCheckpoints(policy.checkpointSchemas);
+    });
+}
+
+/**
+ * Directly assignable subject types are assigned to named field workers, so two users in the same
+ * catchment hold different subjects of the same type and a shared dump carries the uploader's
+ * caseload. Which types those are is configuration read at runtime, not a list that could sit
+ * beside rowSchemas.
+ *
+ * Every step here is a bean the registry has already bound to the active database, so both
+ * backends share the whole of it. `backend` is left with one job:
+ *   inWrite(work) — run `work` in one write transaction, or run it as it comes where the
+ *                   backend cannot nest the writes the services open for themselves.
+ *
+ * The checkpoints are rewritten in place rather than deleted, keeping each row's own uuid: the
+ * SQLite restore's baseline seed only inserts where no row exists, and these entities are
+ * privilege-scoped, so a deleted row is one nothing would put back.
+ */
+export function clearDirectlyAssignedSubjects(services, backend) {
+    const {subjectTypeService, individualService, subjectMigrationService, formMappingService,
+        entitySyncStatusService} = services;
+    backend.inWrite(() => {
+        _.forEach(subjectTypeService.getAllDirectlyAssignable(), subjectType => {
+            _.forEach(individualService.getAllBySubjectType(subjectType).map(_.identity), individual => {
+                const subjectUUID = _.get(individual, 'uuid');
+                if (!_.isEmpty(subjectUUID)) subjectMigrationService.removeEntitiesFor({subjectUUID});
+            });
+            _.forEach(formMappingService.getFormMappingsForSubjectType(subjectType).map(_.identity), formMapping => {
+                const {entityName, entityTypeUuid} = formMapping.getEntityNameAndEntityTypeUUID();
+                const checkpoints = entitySyncStatusService.findAll()
+                    .filtered('entityName = $0', entityName)
+                    .filtered('entityTypeUuid = $0', entityTypeUuid)
+                    .map(({uuid, entityName, entityTypeUuid}) =>
+                        ({uuid, entityName, entityTypeUuid, loadedSince: EntitySyncStatus.REALLY_OLD_DATE}));
+                if (!_.isEmpty(checkpoints)) entitySyncStatusService.updateAsPerSyncDetails(checkpoints);
+            });
+        });
     });
 }

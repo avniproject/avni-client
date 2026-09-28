@@ -19,7 +19,11 @@ import FileSystem from '../model/FileSystem';
 import SqliteFactory from '../framework/db/SqliteFactory';
 import SqliteMigrationService, {BACKENDS} from './SqliteMigrationService';
 import toAvniError from '../framework/errorHandling/toAvniError';
-import {clearPeerOwnedData, SqlitePeerOwnedData} from './fastSync/PeerOwnedData';
+import SubjectTypeService from './SubjectTypeService';
+import IndividualService from './IndividualService';
+import SubjectMigrationService from './SubjectMigrationService';
+import FormMappingService from './FormMappingService';
+import {clearDirectlyAssignedSubjects, clearPeerOwnedData, SqlitePeerOwnedData} from './fastSync/PeerOwnedData';
 
 const PER_USER_TIER = 'perUser';
 const CATCHMENT_TIER = 'catchment';
@@ -234,6 +238,7 @@ export default class BackupRestoreSqliteService extends BaseService {
             const clearedPeerOwnedData = tier === CATCHMENT_TIER;
             if (clearedPeerOwnedData) {
                 this._clearPeerOwnedData();
+                this._clearDirectlyAssignedSubjects();
             }
             this._seedEntitySyncStatusBaseline({mustSucceed: clearedPeerOwnedData});
             await this._bootstrapTargetSettings(authState);
@@ -318,6 +323,29 @@ export default class BackupRestoreSqliteService extends BaseService {
             },
         });
         General.logInfo('BackupRestoreSqliteService', 'Cleared the uploader\'s device-local rows from the catchment dump');
+    }
+
+    // The caseload half of the same cleanup: which subjects are the uploader's is a runtime
+    // question rather than a schema list, so it reads the beans the registry has bound to SQLite.
+    // The checkpoints it writes are rewritten in place, so _seedEntitySyncStatusBaseline finds
+    // them and leaves them alone.
+    _clearDirectlyAssignedSubjects() {
+        const sqliteProxy = GlobalContext.getInstance().sqliteDb;
+        if (!sqliteProxy) {
+            throw new Error('SQLite database is not open; refusing to run a catchment dump uncleaned');
+        }
+        clearDirectlyAssignedSubjects({
+            subjectTypeService: this.getService(SubjectTypeService),
+            individualService: this.getService(IndividualService),
+            subjectMigrationService: this.getService(SubjectMigrationService),
+            formMappingService: this.getService(FormMappingService),
+            entitySyncStatusService: this.getService(EntitySyncStatusService),
+        }, {
+            // SqliteProxy.write is re-entrant, so the writes the services open for themselves
+            // join this one instead of committing a caseload deleted only halfway.
+            inWrite: (work) => sqliteProxy.write(work),
+        });
+        General.logInfo('BackupRestoreSqliteService', 'Cleared the uploader\'s directly assigned subjects from the catchment dump');
     }
 
     // A catchment dump carries the uploader's user_info row. Realm has always corrected this after

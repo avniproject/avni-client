@@ -163,3 +163,196 @@ describe('applying a policy to a backend', () => {
         expect(backend.calls.filter(c => c === 'beginWrite')).toHaveLength(1);
     });
 });
+
+describe('clearing the uploader\'s caseload of directly assignable subject types', () => {
+    const {EntitySyncStatus} = require('openchs-models');
+    const {clearDirectlyAssignedSubjects} = require('../../../src/service/fastSync/PeerOwnedData');
+
+    // Realm Results, near enough: .map is all the production code asks of them.
+    const asResults = (rows) => ({map: (fn) => rows.map(fn)});
+
+    function checkpointResults(rows) {
+        return {
+            filtered(query, arg) {
+                const [, field] = /^\s*(\w+)\s*=\s*\$0\s*$/.exec(query) || [];
+                if (!field) throw new Error(`fake checkpoint query not understood: ${query}`);
+                return checkpointResults(rows.filter(r => r[field] === arg));
+            },
+            map: (fn) => rows.map(fn),
+        };
+    }
+
+    function fakeServices({directlyAssignable = [], subjectsByType = {}, formMappingsByType = {}, checkpointRows = []} = {}) {
+        const calls = [];
+        const removedSubjects = [];
+        const upserted = [];
+        // getAll is what SubjectTypeService inherits from BaseService, and is the wrong answer
+        // here: an openly-visible type's subjects are the same for everyone in the catchment.
+        const allSubjectTypes = Object.keys(subjectsByType).map(uuid => ({uuid}));
+        return {
+            calls,
+            removedSubjects,
+            upserted,
+            subjectTypeService: {
+                getAllDirectlyAssignable: () => directlyAssignable,
+                getAll: () => allSubjectTypes,
+            },
+            individualService: {
+                getAllBySubjectType: (subjectType) => asResults(subjectsByType[subjectType.uuid] || []),
+            },
+            subjectMigrationService: {
+                removeEntitiesFor: ({subjectUUID}) => {
+                    calls.push(`removeEntitiesFor:${subjectUUID}`);
+                    removedSubjects.push(subjectUUID);
+                },
+            },
+            formMappingService: {
+                getFormMappingsForSubjectType: (subjectType) => asResults(formMappingsByType[subjectType.uuid] || []),
+            },
+            entitySyncStatusService: {
+                findAll: () => checkpointResults(checkpointRows),
+                updateAsPerSyncDetails: (rows) => {
+                    calls.push(`resetCheckpoints:${rows.map(r => r.uuid).join(',')}`);
+                    upserted.push(...rows);
+                },
+            },
+        };
+    }
+
+    const formMapping = (entityName, entityTypeUuid) => ({
+        getEntityNameAndEntityTypeUUID: () => ({entityName, entityTypeUuid}),
+    });
+
+    const immediately = {inWrite: (work) => work()};
+
+    it('removes every subject of a directly assignable type, and no other type\'s subjects', () => {
+        const assignable = {uuid: 'st-assignable'};
+        const services = fakeServices({
+            directlyAssignable: [assignable],
+            subjectsByType: {
+                'st-assignable': [{uuid: 'sub-1'}, {uuid: 'sub-2'}],
+                'st-open': [{uuid: 'sub-open'}],
+            },
+        });
+
+        clearDirectlyAssignedSubjects(services, immediately);
+
+        expect(services.removedSubjects).toEqual(['sub-1', 'sub-2']);
+    });
+
+    it('removes nothing when no subject type is directly assignable', () => {
+        const services = fakeServices({
+            directlyAssignable: [],
+            subjectsByType: {'st-open': [{uuid: 'sub-open'}]},
+        });
+
+        clearDirectlyAssignedSubjects(services, immediately);
+
+        expect(services.calls).toEqual([]);
+    });
+
+    // The device is only assigned some of the uploader's caseload, so the checkpoints of the
+    // forms mapped to that type go back to the beginning of time and the pull re-fetches what
+    // this user is actually assigned.
+    it('puts the checkpoints of that type\'s form mappings back to the beginning of time', () => {
+        const assignable = {uuid: 'st-assignable'};
+        const services = fakeServices({
+            directlyAssignable: [assignable],
+            formMappingsByType: {'st-assignable': [formMapping('Individual', 'st-assignable')]},
+            checkpointRows: [{uuid: 'cp-ind', entityName: 'Individual', entityTypeUuid: 'st-assignable'}],
+        });
+
+        clearDirectlyAssignedSubjects(services, immediately);
+
+        expect(services.upserted).toEqual([{
+            uuid: 'cp-ind',
+            entityName: 'Individual',
+            entityTypeUuid: 'st-assignable',
+            loadedSince: EntitySyncStatus.REALLY_OLD_DATE,
+        }]);
+    });
+
+    // Rewritten, not deleted: the SQLite restore's gap-filling seed only inserts where no row
+    // exists, and a deleted row for a privileged entity is one it will never put back.
+    it('keeps each checkpoint row\'s own uuid and entity type', () => {
+        const assignable = {uuid: 'st-assignable'};
+        const services = fakeServices({
+            directlyAssignable: [assignable],
+            formMappingsByType: {'st-assignable': [formMapping('ProgramEncounter', 'enc-type')]},
+            checkpointRows: [{uuid: 'cp-pe', entityName: 'ProgramEncounter', entityTypeUuid: 'enc-type'}],
+        });
+
+        clearDirectlyAssignedSubjects(services, immediately);
+
+        expect(services.upserted.map(r => [r.uuid, r.entityName, r.entityTypeUuid]))
+            .toEqual([['cp-pe', 'ProgramEncounter', 'enc-type']]);
+    });
+
+    // The value of a fast-sync dump is its populated checkpoints; resetting the rest would undo it.
+    it('leaves every checkpoint outside those form mappings alone', () => {
+        const assignable = {uuid: 'st-assignable'};
+        const services = fakeServices({
+            directlyAssignable: [assignable],
+            formMappingsByType: {'st-assignable': [formMapping('Individual', 'st-assignable')]},
+            checkpointRows: [
+                {uuid: 'cp-ind', entityName: 'Individual', entityTypeUuid: 'st-assignable'},
+                {uuid: 'cp-ind-other', entityName: 'Individual', entityTypeUuid: 'st-open'},
+                {uuid: 'cp-enc', entityName: 'Encounter', entityTypeUuid: 'st-assignable'},
+            ],
+        });
+
+        clearDirectlyAssignedSubjects(services, immediately);
+
+        expect(services.upserted.map(r => r.uuid)).toEqual(['cp-ind']);
+    });
+
+    // Reset first and the pull could bring the subject back before the delete removed it.
+    it('removes a type\'s subjects before resetting that type\'s checkpoints', () => {
+        const assignable = {uuid: 'st-assignable'};
+        const services = fakeServices({
+            directlyAssignable: [assignable],
+            subjectsByType: {'st-assignable': [{uuid: 'sub-1'}]},
+            formMappingsByType: {'st-assignable': [formMapping('Individual', 'st-assignable')]},
+            checkpointRows: [{uuid: 'cp-ind', entityName: 'Individual', entityTypeUuid: 'st-assignable'}],
+        });
+
+        clearDirectlyAssignedSubjects(services, immediately);
+
+        expect(services.calls).toEqual(['removeEntitiesFor:sub-1', 'resetCheckpoints:cp-ind']);
+    });
+
+    it('does the whole cleanup inside the backend\'s write', () => {
+        const assignable = {uuid: 'st-assignable'};
+        const services = fakeServices({
+            directlyAssignable: [assignable],
+            subjectsByType: {'st-assignable': [{uuid: 'sub-1'}]},
+        });
+        const inside = [];
+        let openWrites = 0;
+        let writeCount = 0;
+        services.subjectMigrationService.removeEntitiesFor = () => inside.push(openWrites);
+
+        clearDirectlyAssignedSubjects(services, {
+            inWrite: (work) => {
+                writeCount++;
+                openWrites++;
+                try { return work(); } finally { openWrites--; }
+            },
+        });
+
+        expect(writeCount).toEqual(1);
+        expect(inside).toEqual([1]);
+    });
+
+    it('skips a subject row that carries no uuid', () => {
+        const assignable = {uuid: 'st-assignable'};
+        const services = fakeServices({
+            directlyAssignable: [assignable],
+            subjectsByType: {'st-assignable': [{uuid: ''}, undefined, {uuid: 'sub-1'}]},
+        });
+
+        clearDirectlyAssignedSubjects(services, immediately);
+
+        expect(services.removedSubjects).toEqual(['sub-1']);
+    });
+});

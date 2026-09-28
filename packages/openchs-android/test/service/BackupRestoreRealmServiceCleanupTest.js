@@ -165,3 +165,82 @@ describe('Realm fast-sync restore clears a peer database of its owner', () => {
         expect(realm.maxWriteDepth).toEqual(1);
     });
 });
+
+describe('Realm fast-sync restore clears a peer\'s directly assigned caseload', () => {
+    const SubjectTypeService = require('../../src/service/SubjectTypeService').default;
+    const IndividualService = require('../../src/service/IndividualService').default;
+    const SubjectMigrationService = require('../../src/service/SubjectMigrationService').default;
+    const FormMappingService = require('../../src/service/FormMappingService').default;
+    const EntitySyncStatusService = require('../../src/service/EntitySyncStatusService').default;
+
+    const asResults = (rows) => ({map: (fn) => rows.map(fn)});
+
+    function checkpointResults(rows) {
+        return {
+            filtered(query, arg) {
+                const [, field] = /^\s*(\w+)\s*=\s*\$0\s*$/.exec(query) || [];
+                if (!field) throw new Error(`fake checkpoint query not understood: ${query}`);
+                return checkpointResults(rows.filter(r => r[field] === arg));
+            },
+            map: (fn) => rows.map(fn),
+        };
+    }
+
+    const profileFormMapping = (subjectTypeUuid) => ({
+        getEntityNameAndEntityTypeUUID: () => ({entityName: 'Individual', entityTypeUuid: subjectTypeUuid}),
+    });
+
+    function serviceWith({directlyAssignable = [], subjectsByType = {}, formMappingsByType = {},
+        checkpointRows = []} = {}) {
+        const removedSubjects = [];
+        const resetCheckpoints = [];
+        const services = new Map([
+            [SubjectTypeService, {
+                getAllDirectlyAssignable: () => directlyAssignable,
+                getAll: () => Object.keys(subjectsByType).map(uuid => ({uuid})),
+            }],
+            [IndividualService, {getAllBySubjectType: (st) => asResults(subjectsByType[st.uuid] || [])}],
+            [SubjectMigrationService, {removeEntitiesFor: ({subjectUUID}) => removedSubjects.push(subjectUUID)}],
+            [FormMappingService, {getFormMappingsForSubjectType: (st) => asResults(formMappingsByType[st.uuid] || [])}],
+            [EntitySyncStatusService, {
+                findAll: () => checkpointResults(checkpointRows),
+                updateAsPerSyncDetails: (rows) => resetCheckpoints.push(...rows),
+            }],
+        ]);
+        const service = new BackupRestoreRealmService({}, {getService: (cls) => services.get(cls)});
+        return {service, removedSubjects, resetCheckpoints};
+    }
+
+    const assignable = {uuid: 'st-assignable'};
+
+    it('removes the uploader\'s subjects of a directly assignable type and no others', () => {
+        const {service, removedSubjects} = serviceWith({
+            directlyAssignable: [assignable],
+            subjectsByType: {'st-assignable': [{uuid: 'sub-1'}], 'st-open': [{uuid: 'sub-open'}]},
+        });
+
+        service._deleteIndividualAndDependentForDirectlyAssignableSubjectTypes();
+
+        expect(removedSubjects).toEqual(['sub-1']);
+    });
+
+    it('puts that type\'s checkpoints back to the beginning of time, keeping their uuids', () => {
+        const {service, resetCheckpoints} = serviceWith({
+            directlyAssignable: [assignable],
+            formMappingsByType: {'st-assignable': [profileFormMapping('st-assignable')]},
+            checkpointRows: [
+                {uuid: 'cp-ind', entityName: 'Individual', entityTypeUuid: 'st-assignable'},
+                {uuid: 'cp-open', entityName: 'Individual', entityTypeUuid: 'st-open'},
+            ],
+        });
+
+        service._deleteIndividualAndDependentForDirectlyAssignableSubjectTypes();
+
+        expect(resetCheckpoints).toEqual([{
+            uuid: 'cp-ind',
+            entityName: 'Individual',
+            entityTypeUuid: 'st-assignable',
+            loadedSince: EntitySyncStatus.REALLY_OLD_DATE,
+        }]);
+    });
+});
