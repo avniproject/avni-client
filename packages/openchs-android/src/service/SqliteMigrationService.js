@@ -431,8 +431,9 @@ class SqliteMigrationService extends BaseService {
             GlobalContext.getInstance().switchBackend(leg.source);
             General.logError("SqliteMigrationService",
                 `Migration to ${leg.target} failed; back on ${leg.source}: ${message}`);
+            // Reported even when transient: an abandoned migration is the signal while the move rolls out.
             ErrorUtil.notifyBugsnag(error instanceof Error ? error : new Error(message),
-                `SqliteMigrationService::leg::${leg.source}->${leg.target}`);
+                `SqliteMigrationService::leg::${leg.source}->${leg.target}`, {reportTransient: true});
             // Only over a record we could actually read; never write defaults back.
             const raw = await AsyncStorage.getItem(asyncStorageKey(leg.username));
             if (raw) {
