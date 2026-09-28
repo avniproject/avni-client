@@ -1,5 +1,5 @@
 import {expect} from "chai";
-import {ValidationResult, Observation, PrimitiveValue, Concept, WorkItem, WorkList, WorkLists} from 'avni-models';
+import {ValidationResult, Observation, PrimitiveValue, Concept, KeyValue, WorkItem, WorkList, WorkLists} from 'avni-models';
 import Wizard from "../../src/state/Wizard";
 import WizardNextActionStub from "./WizardNextActionStub";
 import StubbedDataEntryState from "./StubbedDataEntryState";
@@ -54,6 +54,35 @@ describe('AbstractDataEntryStateTest', () => {
         const obs = [Observation.create(concept, new PrimitiveValue(true))];
         dataEntryState = new StubbedDataEntryState([ValidationResult.successful('h')], formElementGroup, new Wizard(1, 1), obs, workLists);
         action = WizardNextActionStub.forCompleted();
+        dataEntryState.handleNext(action, testContext);
+        action.assert();
+    });
+
+    it('lets the worker move on from a page whose hidden question is mandatory and unanswered', () => {
+        const concept = EntityFactory.createConcept('AI Verdict', Concept.dataType.Text);
+        concept.keyValues = [KeyValue.fromResource({key: 'hidden', value: true})];
+        formElementGroup.addFormElement(EntityFactory.createFormElement('AI Verdict', true, concept));
+        const workLists = new WorkLists(new WorkList('Test', [new WorkItem('100', WorkItem.type.ENCOUNTER, {
+            subjectUUID: '100100100',
+            encounterType: 'Foo',
+        })]));
+
+        const dataEntryState = new StubbedDataEntryState([], formElementGroup, new Wizard(1, 1), [], workLists);
+        const action = WizardNextActionStub.forCompleted();
+        dataEntryState.handleNext(action, testContext);
+        action.assert();
+    });
+
+    it('still stops the worker on a page whose visible question is mandatory and unanswered', () => {
+        const concept = EntityFactory.createConcept('Assessment', Concept.dataType.Text);
+        formElementGroup.addFormElement(EntityFactory.createFormElement('Assessment', true, concept));
+        const workLists = new WorkLists(new WorkList('Test', [new WorkItem('100', WorkItem.type.ENCOUNTER, {
+            subjectUUID: '100100100',
+            encounterType: 'Foo',
+        })]));
+
+        const dataEntryState = new StubbedDataEntryState([], formElementGroup, new Wizard(1, 1), [], workLists);
+        const action = WizardNextActionStub.forValidationFailed();
         dataEntryState.handleNext(action, testContext);
         action.assert();
     });
