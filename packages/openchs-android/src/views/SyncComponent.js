@@ -3,7 +3,7 @@ import Colors from "./primitives/Colors";
 import {SyncActionNames as SyncActions} from "../action/SyncActions";
 import General from "../utility/General";
 import {SyncTelemetryActionNames as SyncTelemetryActions} from "../action/SyncTelemetryActions";
-import AuthenticationError, {HTTP_403, NETWORK_ERROR, requiresReLogin} from "../service/AuthenticationError";
+import AuthenticationError, {HTTP_403, NETWORK_ERROR, requiresReLogin, UNREADABLE_AUTH_RESPONSE} from "../service/AuthenticationError";
 import CHSNavigator from "../utility/CHSNavigator";
 import ServerError, {getAvniError} from "../service/ServerError";
 import {Alert, Text, ToastAndroid, TouchableNativeFeedback, View} from "react-native";
@@ -97,9 +97,8 @@ class SyncComponent extends AbstractComponent {
                 tabIndex: 1,
                 menuProps: {startSync: true}
             }));
-        } else if (error instanceof AuthenticationError && error.authErrCode === NETWORK_ERROR) {
-            // Sits above the isConnected branch because NetInfo still reports connected when the
-            // token refresh cannot reach Cognito; without this the raw SDK string reaches the user.
+        } else if (error instanceof AuthenticationError && _.includes([NETWORK_ERROR, UNREADABLE_AUTH_RESPONSE], error.authErrCode)) {
+            // Above the isConnected branch: NetInfo still reports connected when the refresh cannot reach Cognito.
             this.ErrorAlert(AvniError.create(this.I18n.t('internetConnectionError')));
         } else if (error instanceof AuthenticationError && error.authErrCode === HTTP_403) {
             this.ErrorAlert(AvniError.create(this.I18n.t('serverRefusedRequest')));

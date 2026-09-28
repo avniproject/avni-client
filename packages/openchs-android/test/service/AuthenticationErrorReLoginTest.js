@@ -1,12 +1,13 @@
-import fs from "fs";
-import path from "path";
+import Client from "amazon-cognito-identity-js/src/Client";
 import AuthenticationError, {
+    authErrCodeFromCognitoError,
     HTTP_401,
     HTTP_403,
     NETWORK_ERROR,
     NO_USER,
     NOT_AUTHORIZED,
-    requiresReLogin
+    requiresReLogin,
+    UNREADABLE_AUTH_RESPONSE
 } from "../../src/service/AuthenticationError";
 
 describe("requiresReLogin", () => {
@@ -21,6 +22,10 @@ describe("requiresReLogin", () => {
 
     it("keeps the user signed in when the server refuses on permissions", () => {
         expect(requiresReLogin(new AuthenticationError(HTTP_403, "x"))).toBe(false);
+    });
+
+    it("keeps the user signed in when Cognito's reply could not be read", () => {
+        expect(requiresReLogin(new AuthenticationError(UNREADABLE_AUTH_RESPONSE, "x"))).toBe(false);
     });
 
     it("sends the user to login for an unrecognised code", () => {
@@ -55,15 +60,56 @@ describe("AuthenticationError shape", () => {
     });
 });
 
-describe("Cognito SDK error-code canary", () => {
-    // The original guard tested for 'NetworkingError', a spelling the SDK dropped in 2019,
-    // so it never matched and nothing noticed. Fail loudly if the spelling moves again.
-    it("still spells its network failure the way NETWORK_ERROR expects", () => {
-        // Resolved rather than path-joined so a hoisted install does not fail this as if the
-        // spelling had changed.
-        const pkg = require.resolve("amazon-cognito-identity-js/package.json");
-        const clientPath = path.join(path.dirname(pkg), "src", "Client.js");
-        if (!fs.existsSync(clientPath)) return;
-        expect(fs.readFileSync(clientPath, "utf8")).toContain(`err.code = '${NETWORK_ERROR}'`);
+// Drives the SDK's own request() rather than reading its source, so a missing or relocated file fails instead of passing.
+describe("Cognito SDK error shapes", () => {
+    const originalFetch = global.fetch;
+    afterEach(() => global.fetch = originalFetch);
+
+    const requestError = () => new Promise((resolve) =>
+        new Client("ap-south-1").request("InitiateAuth", {}, (err) => resolve(err)));
+
+    it("spells its network failure the way NETWORK_ERROR expects", async () => {
+        // The original guard tested for 'NetworkingError', a spelling the SDK dropped in 2019, and nothing noticed.
+        global.fetch = jest.fn(() => Promise.reject(new TypeError("Network request failed")));
+        expect((await requestError()).code).toBe(NETWORK_ERROR);
+    });
+
+    it("reports a reply it cannot parse as a codeless TypeError", async () => {
+        global.fetch = jest.fn(() => Promise.resolve({
+            ok: false,
+            status: 502,
+            headers: {get: () => null},
+            json: () => Promise.reject(new SyntaxError("Unexpected token <"))
+        }));
+        const err = await requestError();
+        expect(err).toBeInstanceOf(TypeError);
+        expect(err.code).toBeUndefined();
+    });
+
+    it("reports a rejected session with its service exception code", async () => {
+        global.fetch = jest.fn(() => Promise.resolve({
+            ok: false,
+            status: 400,
+            headers: {get: () => null},
+            json: () => Promise.resolve({__type: "NotAuthorizedException", message: "Refresh Token has expired"})
+        }));
+        expect((await requestError()).code).toBe(NOT_AUTHORIZED);
+    });
+});
+
+describe("authErrCodeFromCognitoError", () => {
+    it("keeps the session when the SDK could not parse Cognito's reply", () => {
+        const code = authErrCodeFromCognitoError(new TypeError("Cannot read property 'split' of undefined"));
+        expect(code).toBe(UNREADABLE_AUTH_RESPONSE);
+        expect(requiresReLogin(new AuthenticationError(code, "x"))).toBe(false);
+    });
+
+    it("still sends the user to login for the SDK's own Please-authenticate failures", () => {
+        const code = authErrCodeFromCognitoError(new Error("Local storage is missing an ID Token, Please authenticate"));
+        expect(requiresReLogin(new AuthenticationError(code, "x"))).toBe(true);
+    });
+
+    it("passes an SDK code through untouched", () => {
+        expect(authErrCodeFromCognitoError({code: "NotAuthorizedException"})).toBe("NotAuthorizedException");
     });
 });
