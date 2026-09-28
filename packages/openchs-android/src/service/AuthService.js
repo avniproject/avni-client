@@ -9,6 +9,7 @@ import CognitoAuthService from "./CognitoAuthService";
 import KeycloakAuthService from "./KeycloakAuthService";
 import { IDP_PROVIDERS } from "../model/IdpProviders";
 import General from "../utility/General";
+import SessionRecord from "./SessionRecord";
 
 @Service("authService")
 class AuthService extends BaseService {
@@ -57,6 +58,11 @@ class AuthService extends BaseService {
     async isAuthInitialized() {
         const settings = await this.settingsService.getSettings();
         return !_.isNil(settings.idpType);
+    }
+
+    // Every deliberate sign-out goes through here, so the next launch never counts it as a lost session.
+    logout() {
+        return this.getAuthProviderService().logout().finally(() => SessionRecord.ended());
     }
 
     getAuthProviderService(userSelectedIdp) {

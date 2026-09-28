@@ -43,7 +43,6 @@ import SqliteFactory from "../framework/db/SqliteFactory";
 import { getAvniError } from "../service/ServerError";
 import { AlertMessage } from "./common/AlertMessage";
 import MessageService from "../service/MessageService";
-import SessionEstablished from "../service/SessionEstablished";
 import LastSyncCompleted from "../service/LastSyncCompleted";
 import ResetSyncService from "../service/ResetSyncService";
 import EntitySyncStatusService from "../service/EntitySyncStatusService";
@@ -107,7 +106,7 @@ class MenuView extends AbstractComponent {
 
     _logout = () => {
         const authService = this.context.getService(AuthService);
-        authService.getAuthProviderService().logout()
+        authService.logout()
             .then(() => authService.fetchAuthSettingsFromServer())
             .catch((error) => {
                 const i18n = this.getService(MessageService).getI18n();
@@ -115,8 +114,6 @@ class MenuView extends AbstractComponent {
             })
             .then(() => {
                 logEvent(firebaseEvents.LOG_OUT);
-                // Stops the next launch counting this as a session the user did not end.
-                SessionEstablished.clear();
                 CHSNavigator.navigateToLoginView(this, false);
             })
     };
@@ -138,7 +135,7 @@ class MenuView extends AbstractComponent {
     }
 
     deleteData() {
-        this.getService(AuthService).getAuthProviderService().logout()
+        this.getService(AuthService).logout()
             .then(() => this.getService(SyncService).clearData())
             .then(() => this.getService(SyncService).reset(true))
             .then(() => CHSNavigator.navigateToLoginView(this, false));

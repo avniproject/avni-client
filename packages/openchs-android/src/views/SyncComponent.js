@@ -24,6 +24,7 @@ import {IgnorableSyncError} from "openchs-models";
 import IssueUploadUtil from "../utility/IssueUploadUtil";
 import {getConnectionInfo} from "../utility/ConnectionInfo";
 import {logForcedLoginPrompt} from "../utility/ForcedLoginPrompt";
+import {syncFailureReason} from "../framework/errorHandling/SyncFailureReason";
 
 class SyncComponent extends AbstractComponent {
     unsubscribe;
@@ -73,7 +74,7 @@ class SyncComponent extends AbstractComponent {
             ErrorUtil.notifyBugsnag(error, "SyncComponent");
         }
 
-        this.dispatchAction(SyncActions.ON_ERROR, {errorCode: _.get(error, 'authErrCode')});
+        this.dispatchAction(SyncActions.ON_ERROR, {errorCode: syncFailureReason(error)});
         if (isIgnorableSyncError) return;
 
         // First check if it's an AvniError - this should be handled first to ensure user-friendly messages
@@ -84,10 +85,7 @@ class SyncComponent extends AbstractComponent {
             General.logError(this.viewName(), "Could not authenticate");
             General.logError(this.viewName(), error);
             General.logError(this.viewName(), "Redirecting to login view");
-            logForcedLoginPrompt(this.context, {
-                errorCode: error.authErrCode,
-                isConnected: this.state.isConnected
-            });
+            logForcedLoginPrompt(this.context, {errorCode: error.authErrCode});
             CHSNavigator.navigateToLoginView(this, true, (source) => CHSNavigator.navigateToLandingView(source, true, {
                 tabIndex: 1,
                 menuProps: {startSync: true}

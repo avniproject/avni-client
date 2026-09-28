@@ -12,9 +12,7 @@ import { getAvniError } from "../service/ServerError";
 import MessageService from "../service/MessageService";
 import { AlertMessage } from "./common/AlertMessage";
 import { BackHandler } from "react-native";
-import {logForcedLoginPrompt, NO_USER_REASON} from "../utility/ForcedLoginPrompt";
-import {getConnectionInfo} from "../utility/ConnectionInfo";
-import SessionEstablished from "../service/SessionEstablished";
+import {logForcedLoginPromptAtLaunch} from "../utility/ForcedLoginPrompt";
 
 @Path('/rootView')
 @PathRoot
@@ -62,24 +60,13 @@ class RootView extends AbstractComponent {
         let userExists = false;
         await decisionParameters.userExists().then((x) => userExists = x);
         const databaseSynced = this.isDatabaseSynced();
+        // Not awaited: nothing about navigation should wait on an analytics event.
+        logForcedLoginPromptAtLaunch(this.context, {userExists, databaseSynced});
         if (userExists && databaseSynced) {
             return CHSNavigator.navigateToLandingView(this, true);
         }
 
         General.logDebug("RootView", `User exists: ${userExists}. Database Synced: ${databaseSynced}`);
-        // Only a session the user did not end. Data still being on the device proves nothing —
-        // a deliberate sign-out leaves it untouched — so this asks whether a session was
-        // established and never deliberately cleared. Not awaited: getConnectionInfo races a
-        // 3s timeout, and nothing about the navigation should wait on an analytics field.
-        if (!userExists) {
-            SessionEstablished.wasEstablished().then((wasEstablished) => {
-                if (!wasEstablished) return;
-                getConnectionInfo().then((connection) => logForcedLoginPrompt(this.context, {
-                    errorCode: NO_USER_REASON,
-                    isConnected: connection.isConnected
-                }));
-            });
-        }
         return CHSNavigator.navigateToLoginView(this, false);
     }
 
