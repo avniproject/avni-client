@@ -58,5 +58,8 @@
   "goToSummary": "SUMMARY",
   "enterNewPasswordFor" : "Enter new password for {{userName}}",
   "screenLoadError": "Something went wrong loading this screen.",
-  "goBack": "Go back"
+  "goBack": "Go back",
+  "switchingBackendMessage": "Switching backend, please wait...",
+  "unknownError": "An unknown error occurred.",
+  "doingNothing": "Idle"
 }

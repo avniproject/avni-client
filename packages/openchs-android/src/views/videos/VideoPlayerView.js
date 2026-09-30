@@ -68,7 +68,7 @@ class VideoPlayerView extends AbstractComponent {
         }
         General.logError(this.viewName(), event);
         General.logError(this.viewName(), message);
-        Alert.alert(this.I18n.t("UnableToPlayVideoError"), message, [{text: this.I18n.t('Okay'), onPress: this.goBack}]);
+        Alert.alert(this.I18n.t("UnableToPlayVideoError"), message, [{text: this.I18n.t('ok'), onPress: this.goBack}]);
     };
 
     render() {

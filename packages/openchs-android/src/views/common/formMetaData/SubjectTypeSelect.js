@@ -29,7 +29,7 @@ class SubjectTypeSelect extends AbstractComponent {
         const options = subjectTypes.getOptions();
 
         if (options.length === 0) {
-            return <Text>No subject types found</Text>;
+            return <Text>{this.I18n.t('noSubjectTypesFound')}</Text>;
         }
 
         return <SelectableItemGroup labelKey={"subjectTypes"}

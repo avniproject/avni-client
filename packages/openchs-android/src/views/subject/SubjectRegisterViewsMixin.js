@@ -20,7 +20,7 @@ class Mixin {
                         CHSNavigator.onSaveGoToProgramEnrolmentDashboardView(source, view.state.subject.uuid);
                     }
                 });
-                const registrationTitle = view.I18n.t(view.registrationType) + view.I18n.t('registration');
+                const registrationTitle = `${view.I18n.t(view.registrationType)} ${view.I18n.t('registration')}`;
                 const headerMessage = `${registrationTitle} - ${view.I18n.t('summaryAndRecommendations')}`;
                 CHSNavigator.navigateToSystemsRecommendationView(view, decisions, ruleValidationErrors, state.subject,
                     state.subject.observations, Actions.SAVE, onSaveCallback, headerMessage, null,

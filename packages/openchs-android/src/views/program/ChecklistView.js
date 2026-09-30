@@ -49,7 +49,7 @@ class ChecklistView extends AbstractComponent {
 
     goBack() {
         if (this.state.promptForSave) {
-            Alert.alert("Unsaved Changes", "Do you want to save before exiting? ", [
+            Alert.alert(this.I18n.t('unsavedChanges'), this.I18n.t('saveBeforeExitingMsg'), [
                 {
                     text: this.I18n.t('yes'), onPress: () => {
                     }
