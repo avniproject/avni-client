@@ -187,4 +187,37 @@ describe("IndividualListView deferred batch", () => {
         act(() => mockCapturedCallbacks[1]());
         expect(cards(tr)).toHaveLength(40);
     });
+
+    it("replaces the rows when a filter applied from the list returns fewer results", () => {
+        const dispatched = [];
+        const tr = mount(dispatched, 5);
+        act(() => mockCapturedCallbacks[0]());
+
+        act(() => tr.update(render(dispatched, 2)));
+
+        expect(cards(tr)).toEqual(["i-0", "i-1"]);
+    });
+
+    it("clears the rows when a filter applied from the list returns nothing", () => {
+        const dispatched = [];
+        const tr = mount(dispatched, 5);
+        act(() => mockCapturedCallbacks[0]());
+
+        act(() => tr.update(render(dispatched, 0)));
+
+        expect(cards(tr)).toHaveLength(0);
+    });
+
+    it("keeps the paginated rows when it re-renders with the same results", () => {
+        const dispatched = [];
+        const sameResults = results(40);
+        const tr = mount(dispatched, 0, {results: sameResults, totalSearchResultsCount: 40});
+        act(() => mockCapturedCallbacks[0]());
+        act(() => tr.root.findByType(IndividualListView).instance.onEndReached());
+        act(() => mockCapturedCallbacks[1]());
+
+        act(() => tr.update(render(dispatched, 0, {results: sameResults, totalSearchResultsCount: 40, headerTitle: "again"})));
+
+        expect(cards(tr)).toHaveLength(40);
+    });
 });
