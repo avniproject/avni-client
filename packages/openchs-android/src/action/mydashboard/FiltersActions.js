@@ -31,7 +31,11 @@ class FiltersActions {
     static onLoad(state, action, context) {
         const generalEncounterTypes = context.get(FormMappingService).findEncounterTypesForSubjectType(action.selectedSubjectType);
         const newLocationSearchCriteria = action.locationSearchCriteria.clone();
-        newLocationSearchCriteria.toggleLowestAddresses(action.selectedLocations)
+        // A caller that passes no selectedLocations keeps the criteria it handed in. Toggling to undefined made
+        // Apply throw in clone() when Location was left untouched (avni-client#2157).
+        if (!_.isNil(action.selectedLocations)) {
+            newLocationSearchCriteria.toggleLowestAddresses(action.selectedLocations);
+        }
         return {
             ...state,
             filters: FiltersActions.cloneFilters(action.filters),
