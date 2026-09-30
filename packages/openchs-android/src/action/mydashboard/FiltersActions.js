@@ -31,11 +31,7 @@ class FiltersActions {
     static onLoad(state, action, context) {
         const generalEncounterTypes = context.get(FormMappingService).findEncounterTypesForSubjectType(action.selectedSubjectType);
         const newLocationSearchCriteria = action.locationSearchCriteria.clone();
-        // A caller that passes no selectedLocations keeps the criteria it handed in. Toggling to undefined made
-        // Apply throw in clone() when Location was left untouched (avni-client#2157).
-        if (!_.isNil(action.selectedLocations)) {
-            newLocationSearchCriteria.toggleLowestAddresses(action.selectedLocations);
-        }
+        newLocationSearchCriteria.toggleLowestAddresses(FiltersActions.addressesToMatch(action.addressLevelState, context));
         return {
             ...state,
             filters: FiltersActions.cloneFilters(action.filters),
@@ -70,11 +66,13 @@ class FiltersActions {
             locationSearchCriteria: state.locationSearchCriteria.clone(),
             addressLevelState: action.addressLevelState
         };
-        const addressLevelService = beans.get(AddressLevelService);
-        const effectiveAddresses = action.addressLevelState.effectiveAddresses;
-        const toMatchAddresses = [...effectiveAddresses].concat(addressLevelService.getAllDescendants(effectiveAddresses));
-        newState.locationSearchCriteria.toggleLowestAddresses(toMatchAddresses);
+        newState.locationSearchCriteria.toggleLowestAddresses(FiltersActions.addressesToMatch(action.addressLevelState, beans));
         return newState;
+    }
+
+    static addressesToMatch(addressLevelState, beans) {
+        const effectiveAddresses = addressLevelState.effectiveAddresses;
+        return [...effectiveAddresses].concat(beans.get(AddressLevelService).getAllDescendants(effectiveAddresses));
     }
 
     static onDateChange(state, action) {

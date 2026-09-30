@@ -1,9 +1,6 @@
 import React from "react";
 import TestRenderer, {act} from "react-test-renderer";
 
-// Filter opened from a My Dashboard card list used to be handed neither the dashboard's locations nor
-// its subject type. Apply then threw in IndividualSearchCriteria.clone() when Location was left
-// untouched, and the filter fell back to the first subject type (avni-client#2157).
 global.requestAnimationFrame = (cb) => cb();
 
 let mockCapturedCallbacks;
@@ -42,13 +39,12 @@ import IndividualList from "../../../src/views/individuallist/IndividualList";
 import ServiceContext from "../../../src/framework/context/ServiceContext";
 
 const SUBJECT_TYPE = {uuid: "st-2", name: "Household"};
-const SELECTED_LOCATIONS = [{uuid: "v-1", name: "Village 1", level: 1, type: "Village", parentUuid: "b-1", isSelected: true}];
 
 const mount = () => {
     const storeState = {
         myDashboard: {
             itemsToDisplay: [], individuals: {data: []}, date: {value: null},
-            selectedLocations: SELECTED_LOCATIONS, selectedSubjectType: SUBJECT_TYPE,
+            selectedSubjectType: SUBJECT_TYPE,
         }
     };
     const context = {
@@ -73,13 +69,12 @@ describe("IndividualList filter press", () => {
         mockNavigateToFilterView.mockClear();
     });
 
-    it("hands Filter the dashboard's locations and subject type", () => {
+    it("hands Filter the dashboard's subject type, so it does not fall back to the first one", () => {
         mount();
         act(() => mockListProps[mockListProps.length - 1].iconFunction());
 
         expect(mockNavigateToFilterView).toHaveBeenCalledTimes(1);
         const props = mockNavigateToFilterView.mock.calls[0][1];
-        expect(props.selectedLocations).toBe(SELECTED_LOCATIONS);
         expect(props.selectedSubjectType).toBe(SUBJECT_TYPE);
         expect(props.listType).toBe("overdue");
     });
