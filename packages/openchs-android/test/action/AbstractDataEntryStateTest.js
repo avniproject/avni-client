@@ -127,6 +127,26 @@ describe('AbstractDataEntryStateTest', () => {
         action.assert();   // block held: validationFailed, not movedNext
     });
 
+    it('a hidden question whose model is unavailable does not block Next', () => {
+        const concept = EntityFactory.createConcept('AI Verdict', Concept.dataType.Text);
+        concept.keyValues = [KeyValue.fromResource({key: 'hidden', value: true})];
+        const formElement = EntityFactory.createFormElement('AI Verdict', false, concept);
+        formElementGroup.addFormElement(formElement);
+        const workLists = new WorkLists(new WorkList('Test', [new WorkItem('100', WorkItem.type.ENCOUNTER, {
+            subjectUUID: '100100100', encounterType: 'Foo',
+        })]));
+
+        let state = new StubbedDataEntryState([], formElementGroup, new Wizard(1, 1), [], workLists);
+        state = ObservationsHolderActions.onInferenceUnavailable(state, {
+            conceptName: 'AI Verdict', questionGroupConceptName: null, questionGroupIndex: null,
+            messageKey: 'aiModelUnavailable',
+        }, testContext);
+
+        const action = WizardNextActionStub.forCompleted();
+        state.handleNext(action, testContext);
+        action.assert();
+    });
+
     it('an Inference unavailable error survives page re-entry and still blocks (#2008, finding 3)', () => {
         // QA repro: raise the error, press PREVIOUS then NEXT, and the block is gone. Re-entering a
         // page runs updateFormElements -> getRuleValidationErrors, which emits a SUCCESS for every

@@ -185,6 +185,7 @@ class ObservationsHolderActions {
         if (!state || !state.formElementGroup || !state.validationResults) return state;
         const formElement = ObservationsHolderActions._findInferenceTargetFormElement(state, action);
         if (!formElement) return state;
+        if (formElement.concept.isHidden()) return state;
         // Match FormElementGroup.validate's stamping so the union dedup keeps this result: a top-level
         // element is stamped `undefined` (not null), an RQG child its concrete row index. A null here
         // fails `null === undefined` in _updateOldFormElementGroupValidations' comparator, so the fresh

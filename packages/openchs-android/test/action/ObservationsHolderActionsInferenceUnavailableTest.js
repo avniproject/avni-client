@@ -11,7 +11,7 @@ import ObservationsHolderActions from "../../src/action/common/ObservationsHolde
 describe('ObservationsHolderActions.onInferenceUnavailable', () => {
     const fe = (uuid, conceptName, extra = {}) => ({
         uuid,
-        concept: {name: conceptName},
+        concept: {name: conceptName, isHidden: () => false},
         isQuestionGroup: () => false,
         getParentFormElement: () => null,
         ...extra,
@@ -79,5 +79,31 @@ describe('ObservationsHolderActions.onInferenceUnavailable', () => {
     it('bails when no form is open (no formElementGroup)', () => {
         const state = {validationResults: []};
         expect(ObservationsHolderActions.onInferenceUnavailable(state, {conceptName: 'AI Verdict'}, {})).toBe(state);
+    });
+
+    it('raises nothing and leaves the state untouched when the target question is hidden', () => {
+        const state = makeState([fe('uuid-ai', 'AI Verdict', {concept: {name: 'AI Verdict', isHidden: () => true}})]);
+        const result = ObservationsHolderActions.onInferenceUnavailable(state, {
+            conceptName: 'AI Verdict', questionGroupConceptName: null, questionGroupIndex: null,
+            messageKey: 'aiModelUnavailable',
+        }, {});
+
+        expect(result).toBe(state);
+        expect(state.clone).not.toHaveBeenCalled();
+    });
+
+    it('raises nothing for a hidden question inside a repeating block', () => {
+        const child = fe('uuid-child', 'AI Verdict', {
+            concept: {name: 'AI Verdict', isHidden: () => true},
+            isQuestionGroup: () => true,
+            getParentFormElement: () => ({concept: {name: 'Image-wise AI Assessment'}}),
+        });
+        const state = makeState([child]);
+        const result = ObservationsHolderActions.onInferenceUnavailable(state, {
+            conceptName: 'AI Verdict', questionGroupConceptName: 'Image-wise AI Assessment',
+            questionGroupIndex: 0, messageKey: 'aiInferenceFailed',
+        }, {});
+
+        expect(result).toBe(state);
     });
 });
