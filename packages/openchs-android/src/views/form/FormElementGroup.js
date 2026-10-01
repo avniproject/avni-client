@@ -127,7 +127,21 @@ class FormElementGroup extends AbstractComponent {
         if (this.lastScrolledErrorUuid && this.lastScrolledErrorUuid !== erroredUUID) {
             this.lastScrolledErrorUuid = null;
         }
-        const formElements = _.isNil(this.props.filteredFormElements) ? this.props.group.getFormElements() : this.props.filteredFormElements;
+        //A hidden concept's question stays in filteredFormElements, which keeps its answer, and is only left out of the drawing.
+        //A child draws only through its group, so a child of a hidden group is left out too, and a group with no child left
+        //to draw is left out with its frame. The heading below goes when nothing is left.
+        const allFormElements = _.isNil(this.props.filteredFormElements) ? this.props.group.getFormElements() : this.props.filteredFormElements;
+        const isHidden = (fe) => fe.concept.isHidden();
+        const groupOf = (child) => _.find(allFormElements, (fe) => fe.uuid === child.groupUuid);
+        const drawsAChild = (group) => _.some(allFormElements, (fe) => fe.groupUuid === group.uuid && !fe.voided && !isHidden(fe));
+        const formElements = allFormElements.filter((fe) => {
+            if (isHidden(fe)) return false;
+            if (fe.isQuestionGroup()) {
+                const group = groupOf(fe);
+                return !_.isNil(group) && !isHidden(group);
+            }
+            return !fe.concept.isQuestionGroup() || drawsAChild(fe);
+        });
         const unsupportedFormElements = formElements.filter(fe => !_.includes(_.values(Concept.dataType), fe.concept.datatype));
         return (<View>
                 {formElements.length < 1 ? <View/> :

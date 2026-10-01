@@ -1,4 +1,5 @@
 import moment from "moment";
+import _ from "lodash";
 import {firebaseEvents, logEvent} from "../utility/Analytics";
 
 class SyncActions {
@@ -36,7 +37,7 @@ class SyncActions {
         return {...state, showOkButton: !!action.show};
     }
 
-    static onError(state) {
+    static onError(state, action) {
         const dateTimeFormat = "DD MMM YYYY hh:mm:ss a";
         const syncStartTime = moment(state.startTime).format(dateTimeFormat);
         const errorTime = Date.now();
@@ -46,6 +47,8 @@ class SyncActions {
             sync_start_time: syncStartTime,
             error_time: moment(errorTime).format(dateTimeFormat)
         };
+        const errorCode = _.get(action, 'errorCode');
+        if (!_.isNil(errorCode) && errorCode !== '') params.error_code = String(errorCode);
         logEvent(firebaseEvents.SYNC_FAILED, params);
         return {...state, syncing: false};
     }

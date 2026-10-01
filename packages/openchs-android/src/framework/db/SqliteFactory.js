@@ -105,6 +105,13 @@ class SqliteFactory {
         return new SqliteProxy(db, entityMappingConfig, tableMetaMap, realmSchemaMap);
     }
 
+    // The SQLite counterpart of EntityMappingConfig.getSchemaVersion(): the newest migration this
+    // build carries, to compare against what schema_version says the device actually applied.
+    static getCodeSchemaVersion() {
+        const entries = journal.entries || [];
+        return entries.length === 0 ? -1 : _.maxBy(entries, "idx").idx;
+    }
+
     static getDbPath() {
         return DB_NAME;
     }

@@ -52,6 +52,7 @@ import DeviceInfo from "react-native-device-info";
 import {pruneConceptMedia} from "../task/PruneMedia";
 import FileSystem from "../model/FileSystem";
 import {jsonArrayListPropFor} from "../framework/db/SchemaGenerator";
+import LastSyncCompleted from "./LastSyncCompleted";
 
 function transformResourceToEntity(entityMetaData, entityResources) {
     return (acc, resource) => {
@@ -136,9 +137,19 @@ class SyncService extends BaseService {
 
         const mediaUploadRequired = this.mediaQueueService.isMediaUploadRequired();
         const updatedSyncSource = this.getUpdatedSyncSource(syncSource);
+        const isOnlyUploadRequired = updatedSyncSource === SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB;
         const appInfo = await this.metricsService.getAppInfo();
+        // Down for the duration of this sync. A sync the app never finishes writes no telemetry
+        // row at all, so without this the previous sync's "complete" would stand as the newest
+        // answer and the catchment upload would read a dead device as healthy (#2141).
+        // Upload-only background syncs pull nothing, so they cannot make a stale database
+        // current — the same reason getLatestCompletedFullSync excludes them — and they leave
+        // the flag as they found it. Lowering it on one, with nothing to raise it again, would
+        // block a healthy phone from an hour after each full sync until the next.
+        if (!isOnlyUploadRequired) await LastSyncCompleted.clear();
         this.dispatchAction(SyncTelemetryActions.START_SYNC, {connectionInfo, syncSource: updatedSyncSource, appInfo});
         const syncCompleted = () => Promise.resolve(this.dispatchAction(SyncTelemetryActions.SYNC_COMPLETED))
+            .then(() => isOnlyUploadRequired ? Promise.resolve() : LastSyncCompleted.set())
             .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity))
             .then(() => Promise.resolve(progressBarStatus.onSyncComplete()))
             .then(() => Promise.resolve(this.logSyncCompleteEvent(syncStartTime)))
@@ -153,7 +164,6 @@ class SyncService extends BaseService {
         // Don't do it twice if no image sync required
         General.logDebug('mediaUploadRequired', mediaUploadRequired);
         const isManualSync = updatedSyncSource === SyncService.syncSources.SYNC_BUTTON;
-        const isOnlyUploadRequired = updatedSyncSource === SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB;
         let promise;
         if (mediaUploadRequired) {
             promise = this.mediaSync(statusMessageCallBack).then(() => onAfterMediaPush('Media', 0));
@@ -757,7 +767,13 @@ class SyncService extends BaseService {
         const SessionUsername = require('./SessionUsername').default;
         await SqliteMigrationService.clearAllMigrationState();
         await SessionUsername.clear();
+        // Kept outside both databases too, so the wipe alone leaves it standing and the next
+        // user could publish a never-synced database as the catchment dump (#2141).
+        await LastSyncCompleted.clear();
 
+        // Reopen first: a wipe through a handle a failed reopen left closed clears nothing.
+        await globalContext.openRealmIfMissing();
+        await globalContext.openSqliteIfMissing();
         this._clearBackend(startingBackend);
         try {
             globalContext.switchBackend(otherBackend);
@@ -765,7 +781,16 @@ class SyncService extends BaseService {
         } catch (e) {
             General.logError("SyncService", `Could not open the ${otherBackend} backend to clear it: ${e.message}`);
         } finally {
-            globalContext.switchBackend(BACKENDS.REALM);
+            // Landing on Realm can fail the same way opening the other backend did — after a
+            // reopen that did not come back there is no handle to land on. Try to reopen it
+            // first; logged, not thrown, because a throw here would replace whatever failed
+            // inside the wipe.
+            try {
+                await globalContext.openRealmIfMissing();
+                globalContext.switchBackend(BACKENDS.REALM);
+            } catch (e) {
+                General.logError("SyncService", `Could not land on the realm backend after clearing: ${e.message}`);
+            }
         }
 
         this.ruleEvaluationService.init();
@@ -871,6 +896,7 @@ class SyncService extends BaseService {
         // other database would pull this sync's data where the next launch will not look.
         const runtimeBackend = GlobalContext.getInstance().getActiveBackend();
         if (runtimeBackend !== state.activeBackend) {
+            await this._reopenCommittedBackendIfSafe(migrationService, isManualSync, runtimeBackend);
             throw new Error(`Running on ${runtimeBackend} but the committed backend is ${state.activeBackend}; not syncing into the wrong database`);
         }
         if (desired === state.activeBackend) return null;
@@ -895,6 +921,19 @@ class SyncService extends BaseService {
             return null;
         }
 
+        // SQLite may have failed to open at launch, and nothing short of a restart reopens it.
+        // Try here, before the leg is opened: a device whose problem has cleared migrates
+        // without the user restarting, and one where it has not syncs on the backend it is
+        // already on instead of opening a leg that cannot move and recording an attempt.
+        if (desired === BACKENDS.SQLITE && !(await GlobalContext.getInstance().openSqliteIfMissing())) {
+            General.logWarn("SyncService",
+                "Backend migration is due but SQLite will not open; syncing on the current backend");
+            // Deferring here skips the leg, and with it the abandonOpenLeg that used to be
+            // the only report a stuck device made.
+            await migrationService.recordBlocked("SQLite will not open; migration deferred");
+            return null;
+        }
+
         General.logInfo("SyncService",
             `Mid-sync migration: switching ${state.activeBackend} → ${desired} before transactional data sync`);
         statusMessageCallBack('switchingBackendMessage');
@@ -912,6 +951,26 @@ class SyncService extends BaseService {
 
         General.logInfo("SyncService", `Mid-sync migration switch complete — continuing sync on ${desired}`);
         return leg;
+    }
+
+    // Nothing else reopens the committed backend after launch fails to, so the user's own sync
+    // tries. This sync still fails: its checkpoints and first pulls came from the database it
+    // started on. The next one runs on the committed backend. Only once the upload has emptied
+    // the outbox here, so nothing saved on this database is left behind; never in the
+    // background, which would move the database under a screen the user is looking at.
+    async _reopenCommittedBackendIfSafe(migrationService, isManualSync, runtimeBackend) {
+        if (!isManualSync) return;
+        const pendingFieldData = this.entityQueueService.getPendingFieldDataCount();
+        if (pendingFieldData > 0) {
+            General.logWarn("SyncService",
+                `Not reopening the committed backend: ${pendingFieldData} local changes on ${runtimeBackend} still awaiting upload`);
+            return;
+        }
+        try {
+            await migrationService.openCommittedBackend();
+        } catch (e) {
+            General.logError("SyncService", `Reopening the committed backend failed: ${e.message}`);
+        }
     }
 
     _disableForeignKeysIfSqlite() {

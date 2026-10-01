@@ -1,15 +1,16 @@
 import UserInfoService from "../service/UserInfoService";
 import SettingsService from "../service/SettingsService";
 import BackupRestoreRealmService from "../service/BackupRestoreRealmService";
+import BackupRestoreSqliteService from "../service/BackupRestoreSqliteService";
 import AppInfoUploadService from "../service/AppInfoUploadService";
 import MediaQueueService from "../service/MediaQueueService";
-import SyncTelemetryService from "../service/SyncTelemetryService";
-import EntitySyncStatusService from "../service/EntitySyncStatusService";
 import General from "../utility/General";
 import MenuItemService from "../service/application/MenuItemService";
 import {MenuItem} from "openchs-models";
 import RuleEvaluationService from "../service/RuleEvaluationService";
 import AnonymizeRealmService from "../service/AnonymizeRealmService";
+import GlobalContext from "../GlobalContext";
+import {BACKENDS} from "../framework/BackendTypes";
 
 class MenuActions {
     static getInitialState() {
@@ -19,8 +20,6 @@ class MenuActions {
             backupInProgress: false,
             backupProgressUserMessage: '',
             percentDone: 0,
-            oneSyncCompleted: false,
-            unsyncedTxData: false,
             configuredMenuItems: [],
             configuredMenuItemRuleOutput: new Map()
         }
@@ -32,11 +31,6 @@ class MenuActions {
         newState.userInfo = context.get(UserInfoService).getUserInfo();
         newState.serverURL = settings.serverURL;
 
-        newState.oneSyncCompleted = context.get(SyncTelemetryService).atLeastOneSyncCompleted();
-        const entitySyncStatusService = context.get(EntitySyncStatusService);
-        const totalPending = entitySyncStatusService.getTotalEntitiesPending();
-        newState.unsyncedTxData = totalPending !== 0;
-
         newState.configuredMenuItems = context.get(MenuItemService).getAllMenuItems();
         return newState;
     }
@@ -47,12 +41,14 @@ class MenuActions {
 
     static onBackupDump(state, action, context) {
         let newState = MenuActions.clone(state);
-        const cb = (percentage, message) => {
+        const cb = (percentage, message, avniError) => {
             General.logDebug("MenuActions.onBackupDump", message);
-            action.onBackupDumpCb(percentage, message);
+            action.onBackupDumpCb(percentage, message, avniError);
         };
         if (action.dumpType === MediaQueueService.DumpType.Adhoc) {
             context.get(AppInfoUploadService).upload(cb);
+        } else if (GlobalContext.getInstance().getActiveBackend() === BACKENDS.SQLITE) {
+            context.get(BackupRestoreSqliteService).backup(MediaQueueService.DumpType.CatchmentSqlite, cb);
         } else {
             context.get(BackupRestoreRealmService).backup(action.dumpType, cb);
         }

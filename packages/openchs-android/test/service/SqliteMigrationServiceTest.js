@@ -23,6 +23,8 @@ jest.mock('@react-native-async-storage/async-storage', () => {
 const mockGlobalContext = {
     switchBackend: jest.fn(),
     getActiveBackend: jest.fn(() => 'realm'),
+    openSqliteIfMissing: jest.fn(async () => true),
+    openRealmIfMissing: jest.fn(async () => true),
 };
 jest.mock('../../src/GlobalContext', () => ({
     __esModule: true,
@@ -267,6 +269,18 @@ describe('SqliteMigrationService', () => {
 
             expect(await service.isMigrationPending()).toBe(true);
         });
+
+        // Launch failed to open the committed backend. A background sync would only fail on
+        // the wrong database; the next sync the user starts reopens it.
+        it('returns true when the app is running on a database other than the committed one', async () => {
+            await persisted({activeBackend: BACKENDS.SQLITE, desiredBackend: BACKENDS.SQLITE});
+            mockPrivilegeService.ownedGroups.mockReturnValue([
+                {groupUuid: SQLITE_MIGRATION_GROUP_UUID, groupName: SQLITE_MIGRATION_GROUP_NAME},
+            ]);
+            mockGlobalContext.getActiveBackend.mockReturnValue(BACKENDS.REALM);
+
+            expect(await service.isMigrationPending()).toBe(true);
+        });
     });
 
     describe('recording the desired backend', () => {
@@ -411,6 +425,7 @@ describe('SqliteMigrationService', () => {
         it('commits the target as the active backend and clears the attempt', async () => {
             const leg = await service.beginLeg(BACKENDS.SQLITE);
             await service.prepareTarget(leg);
+            mockGlobalContext.getActiveBackend.mockReturnValue(BACKENDS.SQLITE);
 
             await service.commitLeg(leg);
 
@@ -424,9 +439,23 @@ describe('SqliteMigrationService', () => {
 
         it('fails the commit when the state record cannot be written', async () => {
             const leg = await service.beginLeg(BACKENDS.SQLITE);
+            mockGlobalContext.getActiveBackend.mockReturnValue(BACKENDS.SQLITE);
             AsyncStorage.setItem.mockImplementationOnce(async () => { throw new Error('disk full'); });
 
             await expect(service.commitLeg(leg)).rejects.toThrow('disk full');
+
+            expect((await service.getState()).activeBackend).toBe(BACKENDS.REALM);
+        });
+
+        // An encryption swap mid-sync can reinitialise both databases and fall back to Realm.
+        // The rest of the sync then filled Realm, so recording SQLite would name a database
+        // holding reference data and no people.
+        it('refuses to commit when the runtime left the leg under it', async () => {
+            const leg = await service.beginLeg(BACKENDS.SQLITE);
+            await service.prepareTarget(leg);
+            mockGlobalContext.getActiveBackend.mockReturnValue(BACKENDS.REALM);
+
+            await expect(service.commitLeg(leg)).rejects.toThrow('running on realm');
 
             expect((await service.getState()).activeBackend).toBe(BACKENDS.REALM);
         });
@@ -445,6 +474,19 @@ describe('SqliteMigrationService', () => {
             expect(state.lastError).toBe('pull failed');
             const ErrorUtil = require('../../src/framework/errorHandling/ErrorUtil').default;
             expect(ErrorUtil.notifyBugsnag).toHaveBeenCalled();
+        });
+
+        // The shared notify filter drops timeouts; a migration abandoned on one must still report.
+        it('abandoning a leg on a sync timeout still reports it', async () => {
+            const leg = await service.beginLeg(BACKENDS.SQLITE);
+            await service.prepareTarget(leg);
+            const ErrorUtil = require('../../src/framework/errorHandling/ErrorUtil').default;
+            ErrorUtil.notifyBugsnag.mockClear();
+            const timeout = new Error('syncTimeoutError');
+
+            await service.abandonOpenLeg(timeout);
+
+            expect(ErrorUtil.notifyBugsnag).toHaveBeenCalledWith(timeout, expect.any(String), {reportTransient: true});
         });
 
         // A failed read returns defaults, which name Realm; the leg already knows its source.
@@ -494,6 +536,17 @@ describe('SqliteMigrationService', () => {
             expect(mockEntitySyncStatusService.setup).not.toHaveBeenCalled();
         });
 
+        // SQLite may have failed to open at launch; switching without it only throws again.
+        it('opens SQLite first when the committed backend is SQLite', async () => {
+            await persisted({activeBackend: BACKENDS.SQLITE, desiredBackend: BACKENDS.SQLITE});
+            mockGlobalContext.openSqliteIfMissing.mockClear();
+
+            await service.openCommittedBackend();
+
+            expect(mockGlobalContext.openSqliteIfMissing.mock.invocationCallOrder[0])
+                .toBeLessThan(mockGlobalContext.switchBackend.mock.invocationCallOrder[0]);
+        });
+
         // Fast sync restores a SQLite snapshot on a device that never synced, so Realm holds
         // no UserInfo row to fall back to. Only the session username can find the record.
         it('opens SQLite after a fast-sync restore, where Realm has no UserInfo row', async () => {
@@ -513,6 +566,22 @@ describe('SqliteMigrationService', () => {
 
             expect(mockGlobalContext.switchBackend).not.toHaveBeenCalled();
             expect(mockEntityService.clearDataIn).not.toHaveBeenCalled();
+        });
+    });
+
+    // The state record never leaves the device, so without the notification a device blocked
+    // on every sync is indistinguishable in the fleet from one with nothing to migrate.
+    describe('a blocked migration', () => {
+        it('records the reason and reports it once, not on every sync', async () => {
+            const ErrorUtil = require('../../src/framework/errorHandling/ErrorUtil').default;
+            ErrorUtil.notifyBugsnag.mockClear();
+            const reason = 'SQLite will not open; migration deferred';
+
+            await service.recordBlocked(reason);
+            await service.recordBlocked(reason);
+
+            expect((await service.getState()).lastError).toBe(reason);
+            expect(ErrorUtil.notifyBugsnag).toHaveBeenCalledTimes(1);
         });
     });
 

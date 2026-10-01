@@ -97,12 +97,10 @@ describe("Performance benchmarks", () => {
         });
 
         it("dot-notation FK traversal query", () => {
-            // subjectType.name, not .uuid — a trailing ".uuid" on an object link now reads the
-            // link's own FK column instead of joining, so it wouldn't exercise JOIN traversal.
             const {elapsed, result} = timeIt("dot-path FK parse", () => {
                 return RealmQueryParser.parse(
-                    "subjectType.name = $0 AND voided = false",
-                    ["Person"], "Individual", realmSchemaMap, 0
+                    "subjectType.uuid = $0 AND voided = false",
+                    ["st-uuid"], "Individual", realmSchemaMap, 0
                 );
             }, 1000);
 

@@ -3,7 +3,7 @@ import Colors from "./primitives/Colors";
 import {SyncActionNames as SyncActions} from "../action/SyncActions";
 import General from "../utility/General";
 import {SyncTelemetryActionNames as SyncTelemetryActions} from "../action/SyncTelemetryActions";
-import AuthenticationError from "../service/AuthenticationError";
+import AuthenticationError, {HTTP_403, NETWORK_ERROR, requiresReLogin, UNREADABLE_AUTH_RESPONSE} from "../service/AuthenticationError";
 import CHSNavigator from "../utility/CHSNavigator";
 import ServerError, {getAvniError} from "../service/ServerError";
 import {Alert, Text, ToastAndroid, TouchableNativeFeedback, View} from "react-native";
@@ -23,6 +23,8 @@ import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 import {IgnorableSyncError} from "openchs-models";
 import IssueUploadUtil from "../utility/IssueUploadUtil";
 import {getConnectionInfo} from "../utility/ConnectionInfo";
+import {logForcedLoginPrompt} from "../utility/ForcedLoginPrompt";
+import {syncFailureReason} from "../framework/errorHandling/SyncFailureReason";
 
 class SyncComponent extends AbstractComponent {
     unsubscribe;
@@ -72,21 +74,27 @@ class SyncComponent extends AbstractComponent {
             ErrorUtil.notifyBugsnag(error, "SyncComponent");
         }
 
-        this.dispatchAction(SyncActions.ON_ERROR);
+        this.dispatchAction(SyncActions.ON_ERROR, {errorCode: syncFailureReason(error)});
         if (isIgnorableSyncError) return;
 
         // First check if it's an AvniError - this should be handled first to ensure user-friendly messages
         if (isAvniError) {
             General.logDebug(this.viewName(), "Handling AvniError with user message: " + error.userMessage);
             this.ErrorAlert(error);
-        } else if (error instanceof AuthenticationError && error.authErrCode !== 'NetworkingError') {
+        } else if (error instanceof AuthenticationError && requiresReLogin(error)) {
             General.logError(this.viewName(), "Could not authenticate");
             General.logError(this.viewName(), error);
             General.logError(this.viewName(), "Redirecting to login view");
+            logForcedLoginPrompt(this.context, {errorCode: error.authErrCode});
             CHSNavigator.navigateToLoginView(this, true, (source) => CHSNavigator.navigateToLandingView(source, true, {
                 tabIndex: 1,
                 menuProps: {startSync: true}
             }));
+        } else if (error instanceof AuthenticationError && _.includes([NETWORK_ERROR, UNREADABLE_AUTH_RESPONSE], error.authErrCode)) {
+            // Above the isConnected branch: NetInfo still reports connected when the refresh cannot reach Cognito.
+            this.ErrorAlert(AvniError.create(this.I18n.t('internetConnectionError')));
+        } else if (error instanceof AuthenticationError && error.authErrCode === HTTP_403) {
+            this.ErrorAlert(AvniError.create(this.I18n.t('serverRefusedRequest')));
         } else if (!this.state.isConnected) {
             this.ErrorAlert(AvniError.create(this.I18n.t('internetConnectionError')));
         } else if (isMediaUploadError) {

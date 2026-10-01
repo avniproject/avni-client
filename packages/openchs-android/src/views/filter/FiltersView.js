@@ -90,7 +90,6 @@ class FilterView extends AbstractComponent {
             generalEncounterTypes: this.props.generalEncounterTypes,
             selectedGeneralEncounterTypes: this.props.selectedGeneralEncounterTypes,
             selectedCustomFilters: this.props.selectedCustomFilters,
-            selectedLocations: this.props.selectedLocations,
             subjectTypes,
             selectedSubjectType
         });
@@ -267,6 +266,7 @@ class FilterView extends AbstractComponent {
                                 {_.isEmpty(this.state.selectedPrograms) && _.isEmpty(this.state.selectedEncounterTypes) && this.renderEncounterGroup()}
                                 {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Address, this.state.selectedSubjectType.uuid) ?
                                     <AddressLevels
+                                        key={this.state.selectedSubjectType.uuid}
                                         addressLevelState={this.state.addressLevelState}
                                         onSelect={(addressLevelState) => {
                                             this.dispatchAction(FilterActionNames.INDIVIDUAL_SEARCH_ADDRESS_LEVEL, {

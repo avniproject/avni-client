@@ -40,6 +40,8 @@ import NewFormButton from "../common/NewFormButton";
 import SubjectProgramEligibilityWidget from "./SubjectProgramEligibilityWidget";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import GroupSubjectService from "../../service/GroupSubjectService";
+import ConceptService from "../../service/ConceptService";
+import {visibleObservations} from "../../utility/HiddenObservations";
 import UserInfoService from "../../service/UserInfoService";
 import AvniToast from "../common/AvniToast";
 import {SubjectType} from "openchs-models";
@@ -98,7 +100,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                 const groupRoles = this.context.getService(GroupSubjectService).getGroupRoles(this.state.individual.subjectType)
                 if (_.isEmpty(groupRoles))
                     Alert.alert(this.I18n.t("rolesNotConfigured"), this.I18n.t("rolesNotConfiguredDescription"), [
-                        {text: this.I18n.t('okay'), onPress: _.noop}
+                        {text: this.I18n.t('ok'), onPress: _.noop}
                     ]);
                 else
                     CHSNavigator.navigateToAddMemberView(this, this.state.individual)
@@ -448,7 +450,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                         onManualProgramEligibilityPress={_.noop}
                         onDisplayIndicatorToggle={(display) => this.dispatchAction(Actions.ON_DISPLAY_INDICATOR_TOGGLE, {display})}
                     />
-                    {!_.isEmpty(this.state.subjectSummary) && this.renderSummary()}
+                    {!_.isEmpty(visibleObservations(this.state.subjectSummary, this.getService(ConceptService))) && this.renderSummary()}
                     {this.renderProfileOrVoided(individual)}
                     {relativesFeatureToggle ? this.renderRelatives() : <View/>}
                     {groupSubjectToggle ? this.renderAttendance() : <View/>}

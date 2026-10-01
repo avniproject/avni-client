@@ -363,7 +363,8 @@
     "uploadCatchmentDatabaseConfirmationMessage": "ये आपके अवनी मोबाइल डेटाबेस को सर्वर पे अपलोड करेगा. आप ये शुरू करना चाहते हैं?",
     "uploadCatchmentDatabaseErrorTitle": "फ़ास्ट सिंक सेटप नहीं कर सकते",
     "uploadCatchmentDatabaseLocalUnsavedData": "आपके मोबाइल में ऐसा डेटा है जो अभी तक सेव नहीं हुआ है|",
-    "uploadCatchmentDatabaseLocalOneSyncNeeded": "आपके मोबाइल में अवनी सिंक एक बार भी पूरा नहीं हुआ है|",
+    "uploadCatchmentDatabaseLocalOneSyncNeeded": "आपके मोबाइल में पिछला अवनी सिंक पूरा नहीं हुआ है|",
+    "uploadCatchmentDatabaseResetPending": "आपके एडमिन द्वारा शुरू किया गया सिंक रीसेट अभी बाकी है|",
     "uploadCatchmentDatabaseActionRecommended": "एक बार पूरा सिंक होने के बाद कोशिश करें|",
     "feedback": "अपनी राय बताएं",
     "refreshReminderMessage": "आपको नवीनतम काउंट प्राप्त करने के लिए रिफ्रेश प्रेस करने की आवश्यकता हो सकती है",
@@ -487,6 +488,17 @@
     "whatsApp": "व्हाट्सऐप",
     "registerButtonGuideMessage": "हइ {{userName}}, नीचे दिए गए \"रजिस्टर\" बटन पर टैप करके अपना डेटा दर्ज करना शुरू करें।",
     "welcomeMessage": "हइ {{userName}}, स्वागत है।",
-    "removalReason": "Reason for removal"
+    "removalReason": "Reason for removal",
+    "closeModal": "बंद करें",
+    "guidedCameraNoBackCamera": "इस डिवाइस पर पिछला कैमरा उपलब्ध नहीं है।",
+    "guidedCameraPermissionRequired": "कैमरा अनुमति आवश्यक है।",
+    "guidedCameraFlashRequired": "इस डिवाइस में फ़्लैश नहीं है। निर्देशित फ़ोटो के लिए फ़्लैश आवश्यक है, इसलिए यह रोका गया है।",
+    "guidedCameraCaptureFailed": "फ़ोटो नहीं ली जा सकी। कृपया दोबारा लें।",
+    "guidedCameraContinueWithoutPhoto": "बिना फ़ोटो के जारी रखें",
+    "guidedCaptureGuidanceMissing": "मार्गदर्शन छवियाँ सिंक नहीं हुई हैं। यह फ़ोटो लेने के लिए सिंक करें और दोबारा प्रयास करें।",
+    "guidedCaptureMisconfigured": "मार्गदर्शन सेट-अप में समस्या है। इस फ़ोटो के लिए कैप्चर रोक दिया गया है — कृपया अपने पर्यवेक्षक को सूचित करें।",
+    "Retake": "दोबारा लें",
+    "Use photo": "फ़ोटो उपयोग करें",
+    "Open settings": "सेटिंग्स खोलें"
   }
 }

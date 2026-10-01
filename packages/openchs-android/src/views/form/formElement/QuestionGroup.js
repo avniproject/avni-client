@@ -82,9 +82,10 @@ class QuestionGroup extends AbstractFormElement {
 
     getChildFormElements() {
         //form elements without rule will not have questionGroupIndex. Since these FE does not have rule it's always visible
+        //a hidden concept's question stays in filteredFormElements, which keeps its answer, and is only left out of the drawing
         return _.sortBy(
-            _.filter(this.props.filteredFormElements, ({questionGroupIndex, groupUuid, voided}) =>
-                groupUuid === this.props.element.uuid && (_.isNil(questionGroupIndex) || questionGroupIndex === this.props.questionGroupIndex) && !voided),
+            _.filter(this.props.filteredFormElements, ({questionGroupIndex, groupUuid, voided, concept}) =>
+                groupUuid === this.props.element.uuid && (_.isNil(questionGroupIndex) || questionGroupIndex === this.props.questionGroupIndex) && !voided && !concept.isHidden()),
             "displayOrder"
         );
     }

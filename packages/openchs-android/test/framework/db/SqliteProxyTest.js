@@ -114,3 +114,51 @@ describe("SqliteProxy.create mandatory-property validation", () => {
             .toThrow(/firstName are mandatory for Individual/);
     });
 });
+
+// avniproject/avni-client#2138 — a table with no primary key has no conflict target, so
+// ON CONFLICT("uuid") named a column that does not exist and SQLite rejected the write.
+describe("SqliteProxy._buildUpsertTemplate on a table with no primary key", () => {
+    function proxyWith(tableMeta) {
+        const proxy = Object.create(SqliteProxy.prototype);
+        proxy.tableMetaMap = new Map([["T", tableMeta]]);
+        return proxy;
+    }
+
+    const noPk = {tableName: "entity_queue"};
+    const withPk = {tableName: "individual", primaryKey: "uuid"};
+
+    it("emits a plain INSERT, naming no conflict target", () => {
+        const {sql} = proxyWith(noPk)._buildUpsertTemplate("T", ["saved_at", "entity_uuid", "entity"]);
+
+        expect(sql).toBe('INSERT INTO entity_queue ("saved_at", "entity_uuid", "entity") VALUES (?, ?, ?)');
+        expect(sql).not.toContain("ON CONFLICT");
+    });
+
+    it("does not silently swallow other constraint failures", () => {
+        const {sql} = proxyWith(noPk)._buildUpsertTemplate("T", ["entity_uuid"]);
+
+        // Plain INSERT, not INSERT OR IGNORE: NOT NULL and foreign-key failures on this
+        // path still have to surface.
+        expect(sql).toBe('INSERT INTO entity_queue ("entity_uuid") VALUES (?)');
+        expect(sql).not.toContain("INSERT OR IGNORE");
+    });
+
+    it("returns the column names it was given, so the caller's value order still lines up", () => {
+        const columns = ["saved_at", "entity_uuid", "entity"];
+        const {columnNames} = proxyWith(noPk)._buildUpsertTemplate("T", columns);
+
+        expect(columnNames).toEqual(columns);
+    });
+
+    it("still upserts on the primary key when the table has one", () => {
+        const {sql} = proxyWith(withPk)._buildUpsertTemplate("T", ["uuid", "first_name"]);
+
+        expect(sql).toContain('ON CONFLICT("uuid") DO UPDATE SET "first_name" = excluded."first_name"');
+    });
+
+    it("still emits INSERT OR IGNORE for a PK-only column set", () => {
+        const {sql} = proxyWith(withPk)._buildUpsertTemplate("T", ["uuid"]);
+
+        expect(sql).toContain("INSERT OR IGNORE INTO individual");
+    });
+});

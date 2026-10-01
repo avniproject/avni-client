@@ -105,6 +105,14 @@ export default class EncryptionService extends BaseService {
             General.logDebug("EncryptionService", `Moving the ${suffix.substring(1)} copy to the old path`);
             await fs.moveFile(entry.copyPath, entry.path);
         }
+
+        // Both handles are closed and their files replaced. Drop them here rather than as
+        // each one closes: a throw part way through the loop above skips the reinitialise
+        // that would repopulate them, and leaving the closed handles is the state this
+        // method has always failed into — a half-swapped device needs the restart that
+        // removeStaleKeyIfDbsPlaintext heals, not a different shape of broken.
+        globalContext.sqliteDb = null;
+        globalContext.db = null;
     }
 
     async _removeIfExists(path) {

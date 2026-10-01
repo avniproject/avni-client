@@ -274,12 +274,14 @@ describe("SqliteResultsProxy — supported query types", () => {
             expect(getExecutedParams(executeQuery)).toEqual(["Person"]);
         });
 
-        it("single dot-path ending in .uuid reads the link's FK column, no JOIN", () => {
+        it("single dot-path ending in .uuid still JOINs rather than reading the FK column", () => {
+            // The LEFT JOIN reads NULL for a row whose parent is missing, matching Realm's
+            // null link; t0."subject_type_uuid" would read the orphaned uuid instead.
             const {proxy, executeQuery} = createProxy();
             proxy.filtered("subjectType.uuid = $0", "st-uuid").length;
             const sql = getExecutedSql(executeQuery);
-            expect(sql).not.toContain("JOIN");
-            expect(sql).toContain('t0."subject_type_uuid" = ?');
+            expect(sql).toContain("LEFT JOIN subject_type AS t1");
+            expect(sql).toContain('t1."uuid" = ?');
             expect(getExecutedParams(executeQuery)).toEqual(["st-uuid"]);
         });
 
@@ -292,13 +294,13 @@ describe("SqliteResultsProxy — supported query types", () => {
             expect(sql).toContain('t2."name" = ?');
         });
 
-        it("multi-level dot-path ending in .uuid stops one hop short of the last link", () => {
+        it("multi-level dot-path ending in .uuid JOINs all the way to the last link", () => {
             const {proxy, executeQuery} = createProxy({schemaName: "Encounter", tableName: "encounter"});
             proxy.filtered("individual.subjectType.uuid = $0", "st-uuid").length;
             const sql = getExecutedSql(executeQuery);
             expect(sql).toContain("LEFT JOIN individual AS t1");
-            expect(sql).not.toContain("LEFT JOIN subject_type");
-            expect(sql).toContain('t1."subject_type_uuid" = ?');
+            expect(sql).toContain("LEFT JOIN subject_type AS t2");
+            expect(sql).toContain('t2."uuid" = ?');
         });
 
         it("should use DISTINCT when JOINs are present", () => {
@@ -758,6 +760,45 @@ describe("TRUEPREDICATE window query", () => {
         const sql = getExecutedSql(executeQuery);
         expect(sql).not.toContain("ROW_NUMBER");
         expect(sql).toContain('ORDER BY t0."encounter_date_time" DESC');
+    });
+});
+
+// #2075 — count() matches .length only for a fully translated, unshaped query. This predicate
+// is what keeps a card's number from moving when the count path gets faster.
+describe("canCountInSql — the guard on routing a card count to COUNT(*)", () => {
+    it("is true for a plain filter, the shape a dashboard rule produces", () => {
+        const {proxy, executeQuery} = createProxy();
+        const filtered = proxy.filtered("voided = false");
+
+        expect(filtered.canCountInSql()).toBe(true);
+        expect(executeQuery).not.toHaveBeenCalled();   // asking must not hydrate either
+    });
+
+    it("is true for a bare collection with no filter at all", () => {
+        const {proxy} = createProxy();
+        expect(proxy.canCountInSql()).toBe(true);
+    });
+
+    it("is false when a limit is set — count() strips LIMIT deliberately", () => {
+        const {proxy} = createProxy();
+        expect(proxy.filtered("voided = false limit(2)").canCountInSql()).toBe(false);
+    });
+
+    it("is true for an unlimited distinct — _buildSql windows it, so COUNT(*) counts the same set", () => {
+        const {proxy} = createProxy({schemaName: "EntitySyncStatus", tableName: "entity_sync_status"});
+        expect(proxy.filtered("TRUEPREDICATE DISTINCT(entityName)").canCountInSql()).toBe(true);
+    });
+
+    it("is false when any predicate fell through to the JS fallback", () => {
+        const {proxy} = createProxy();
+        const filtered = proxy.filtered('SUBQUERY(observations, $obs, $obs.concept.uuid = "c1").@count > 0');
+
+        expect(filtered.canCountInSql()).toBe(false);
+    });
+
+    it("is false for a limited distinct — the #1977 shape where count() returns 3 and .length returns 2", () => {
+        const {proxy} = createProxy({schemaName: "EntitySyncStatus", tableName: "entity_sync_status"});
+        expect(proxy.filtered("TRUEPREDICATE DISTINCT(entityName) limit(2)").canCountInSql()).toBe(false);
     });
 });
 

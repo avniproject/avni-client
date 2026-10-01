@@ -1,5 +1,5 @@
 import {assert} from "chai";
-import {toPickerResponse, isGuidedCameraEnabled, resizeCapturedImage} from "../../../../src/views/form/formElement/GuidedCameraHelper";
+import {toPickerResponse, isGuidedCameraEnabled, resizeCapturedImage, deviceWithFormats} from "../../../../src/views/form/formElement/GuidedCameraHelper";
 
 describe('GuidedCameraHelper', () => {
     it('toPickerResponse builds a picker-shaped response and adds file:// once', () => {
@@ -40,6 +40,20 @@ describe('GuidedCameraHelper', () => {
         assert.equal(calls[0][2], 960);
         assert.equal(calls[0][3], 'JPEG');
         assert.equal(calls[0][4], 100); // quality 1 -> 0..100
+    });
+
+    it('deviceWithFormats hides a device that reports no formats, so useCameraFormat cannot throw', () => {
+        // The throw lands during render, so it takes the modal down rather than degrading.
+        assert.isUndefined(deviceWithFormats({id: 'back', formats: []}));
+        assert.isUndefined(deviceWithFormats({id: 'back'}));
+        assert.isUndefined(deviceWithFormats({id: 'back', formats: null}));
+        assert.isUndefined(deviceWithFormats(undefined));
+        assert.isUndefined(deviceWithFormats(null));
+    });
+
+    it('deviceWithFormats passes a usable device straight through', () => {
+        const device = {id: 'back', formats: [{photoWidth: 1600, photoHeight: 1200}]};
+        assert.strictEqual(deviceWithFormats(device), device);
     });
 
     it('resizeCapturedImage rejects when the resizer rejects', async () => {

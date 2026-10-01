@@ -426,11 +426,15 @@ class SqliteResultsProxy {
             const opts = this._effectiveHydrationOptions();
             this.hydrator.beginHydrationSession();
             try {
-                // Batch-preload list properties to avoid N+1 queries (skip when lists aren't needed)
+                // Batch-preload list properties to avoid N+1 queries. A shallow query that keeps a
+                // few lists (the total card keeps Individual.enrolments) preloads just those —
+                // otherwise each kept list costs one query per row.
                 let tPreload = tQuery;
-                if (!opts.skipLists && this._rows.length > 0 && this.hydrator.batchPreloadLists) {
+                const keptLists = opts.skipLists ? opts.listsToInclude : null;
+                const preload = !opts.skipLists || (keptLists && keptLists.size > 0);
+                if (preload && this._rows.length > 0 && this.hydrator.batchPreloadLists) {
                     const parentUuids = this._rows.map(row => row.uuid).filter(u => u != null);
-                    this.hydrator.batchPreloadLists(this.schemaName, parentUuids, opts.depth || 3);
+                    this.hydrator.batchPreloadLists(this.schemaName, parentUuids, opts.depth || 3, keptLists);
                     tPreload = Date.now();
                 }
 
@@ -503,6 +507,12 @@ class SqliteResultsProxy {
         if (index >= entities.length) return null;
         const obj = entities[index];
         return _.isNil(obj) ? null : this.createEntity(obj);
+    }
+
+    // count() agrees with .length until a limit reshapes the result — it strips LIMIT below, which is #1977's 3-vs-2. Distinct alone is windowed in _buildSql and counts correctly.
+    canCountInSql() {
+        return this.jsFallbackFilters.length === 0
+            && this.limitClause == null;
     }
 
     /**

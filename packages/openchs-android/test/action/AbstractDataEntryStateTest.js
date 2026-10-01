@@ -1,5 +1,5 @@
 import {expect} from "chai";
-import {ValidationResult, Observation, PrimitiveValue, Concept, WorkItem, WorkList, WorkLists} from 'avni-models';
+import {ValidationResult, Observation, PrimitiveValue, Concept, KeyValue, WorkItem, WorkList, WorkLists} from 'avni-models';
 import Wizard from "../../src/state/Wizard";
 import WizardNextActionStub from "./WizardNextActionStub";
 import StubbedDataEntryState from "./StubbedDataEntryState";
@@ -58,6 +58,52 @@ describe('AbstractDataEntryStateTest', () => {
         action.assert();
     });
 
+    it('lets the worker move on from a page whose hidden question is mandatory and unanswered', () => {
+        const concept = EntityFactory.createConcept('AI Verdict', Concept.dataType.Text);
+        concept.keyValues = [KeyValue.fromResource({key: 'hidden', value: true})];
+        formElementGroup.addFormElement(EntityFactory.createFormElement('AI Verdict', true, concept));
+        const workLists = new WorkLists(new WorkList('Test', [new WorkItem('100', WorkItem.type.ENCOUNTER, {
+            subjectUUID: '100100100',
+            encounterType: 'Foo',
+        })]));
+
+        const dataEntryState = new StubbedDataEntryState([], formElementGroup, new Wizard(1, 1), [], workLists);
+        const action = WizardNextActionStub.forCompleted();
+        dataEntryState.handleNext(action, testContext);
+        action.assert();
+    });
+
+    it('still stops the worker on a page whose visible question is mandatory and unanswered', () => {
+        const concept = EntityFactory.createConcept('Assessment', Concept.dataType.Text);
+        formElementGroup.addFormElement(EntityFactory.createFormElement('Assessment', true, concept));
+        const workLists = new WorkLists(new WorkList('Test', [new WorkItem('100', WorkItem.type.ENCOUNTER, {
+            subjectUUID: '100100100',
+            encounterType: 'Foo',
+        })]));
+
+        const dataEntryState = new StubbedDataEntryState([], formElementGroup, new Wizard(1, 1), [], workLists);
+        const action = WizardNextActionStub.forValidationFailed();
+        dataEntryState.handleNext(action, testContext);
+        action.assert();
+    });
+
+    it('keeps the answer to a hidden question when the rules run again after the worker answers another question', () => {
+        const hiddenConcept = EntityFactory.createConcept('AI Verdict', Concept.dataType.Text);
+        hiddenConcept.keyValues = [KeyValue.fromResource({key: 'hidden', value: true})];
+        formElementGroup.addFormElement(EntityFactory.createFormElement('AI Verdict', false, hiddenConcept));
+        const visibleConcept = EntityFactory.createConcept('Assessment', Concept.dataType.Text);
+        const visibleFormElement = EntityFactory.createFormElement('Assessment', false, visibleConcept);
+        formElementGroup.addFormElement(visibleFormElement);
+        const observations = [Observation.create(hiddenConcept, new PrimitiveValue('Suspicious'))];
+        const dataEntryState = new StubbedDataEntryState([], formElementGroup, new Wizard(1, 1), observations, null);
+
+        const newState = ObservationsHolderActions.onPrimitiveObsUpdateValue(dataEntryState, {formElement: visibleFormElement, value: 'Healthy'}, testContext);
+
+        const hiddenAnswer = newState.observationsHolder.findObservation(hiddenConcept);
+        expect(hiddenAnswer, 'the hidden answer must survive the rule pass').to.not.be.undefined;
+        expect(hiddenAnswer.getValue()).to.equal('Suspicious');
+    });
+
     it('an Inference unavailable error on a top-level element survives the real Next lifecycle and blocks (#2008, finding 1)', () => {
         // Drives the REAL handleNext (not a hand-mocked handleValidationResult): _handleNextInternal1
         // runs formElementGroup.validate — which stamps the AI-verdict element success with `undefined`
@@ -79,6 +125,26 @@ describe('AbstractDataEntryStateTest', () => {
         const action = WizardNextActionStub.forValidationFailed();
         state.handleNext(action, testContext);
         action.assert();   // block held: validationFailed, not movedNext
+    });
+
+    it('a hidden question whose model is unavailable does not block Next', () => {
+        const concept = EntityFactory.createConcept('AI Verdict', Concept.dataType.Text);
+        concept.keyValues = [KeyValue.fromResource({key: 'hidden', value: true})];
+        const formElement = EntityFactory.createFormElement('AI Verdict', false, concept);
+        formElementGroup.addFormElement(formElement);
+        const workLists = new WorkLists(new WorkList('Test', [new WorkItem('100', WorkItem.type.ENCOUNTER, {
+            subjectUUID: '100100100', encounterType: 'Foo',
+        })]));
+
+        let state = new StubbedDataEntryState([], formElementGroup, new Wizard(1, 1), [], workLists);
+        state = ObservationsHolderActions.onInferenceUnavailable(state, {
+            conceptName: 'AI Verdict', questionGroupConceptName: null, questionGroupIndex: null,
+            messageKey: 'aiModelUnavailable',
+        }, testContext);
+
+        const action = WizardNextActionStub.forCompleted();
+        state.handleNext(action, testContext);
+        action.assert();
     });
 
     it('an Inference unavailable error survives page re-entry and still blocks (#2008, finding 3)', () => {

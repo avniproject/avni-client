@@ -36,6 +36,8 @@ jest.mock('@react-native-async-storage/async-storage', () => {
 
 const mockGlobalContext = {
     switchBackend: jest.fn(),
+    openSqliteIfMissing: jest.fn(async () => true),
+    openRealmIfMissing: jest.fn(async () => true),
     getActiveBackend: jest.fn(() => 'realm'),
     beanRegistry: {register: jest.fn()},
 };
@@ -49,9 +51,11 @@ const General = require('../../src/utility/General').default;
 const SyncService = require('../../src/service/SyncService').default;
 const SqliteMigrationService = require('../../src/service/SqliteMigrationService').default;
 const SessionUsername = require('../../src/service/SessionUsername').default;
+const LastSyncCompleted = require('../../src/service/LastSyncCompleted').default;
 
 const MIGRATION_KEY = 'avni.sqliteMigration.anjali@phulwari';
 const SESSION_KEY = 'avni.currentUsername';
+const LAST_SYNC_COMPLETED_KEY = 'avni.lastSyncCompleted';
 
 // Records which backend was active each time a wipe ran, so a test can assert both were
 // cleared rather than the same one twice.
@@ -122,6 +126,20 @@ describe('clearData wipes both backends (#2083)', () => {
         expect(AsyncStorage.__store.has(SESSION_KEY)).toBe(false);
     });
 
+    // Landing on Realm fails when a reopen left no handle. The wipe still has to finish.
+    it('finishes even when it cannot land on Realm', async () => {
+        activeBackend = 'sqlite';
+        const svc = buildSyncService();
+        mockGlobalContext.switchBackend.mockImplementation((target) => {
+            if (target === 'realm') throw new Error('Cannot switch to Realm — the database is not open');
+            activeBackend = target;
+        });
+
+        await expect(svc.clearData()).resolves.toBeUndefined();
+
+        expect(svc.wipedBackends).toContain('sqlite');
+    });
+
     // A record outliving a half-finished run points the next launch at a backend that may
     // still hold the previous user's rows.
     it('drops the migration record before it starts wiping', async () => {
@@ -136,6 +154,37 @@ describe('clearData wipes both backends (#2083)', () => {
         await svc.clearData();
 
         expect(recordPresentAtFirstWipe).toBe(false);
+    });
+
+    // Kept outside both databases, so it outlives the wipe unless dropped here. Left standing,
+    // the next user can publish an empty, never-synced database as the catchment dump before
+    // their first sync runs — a login with no network is enough (#2141).
+    it('drops the last-sync-finished marker before it starts wiping', async () => {
+        await LastSyncCompleted.set();
+        const svc = buildSyncService();
+        let markerPresentAtFirstWipe = null;
+        svc.entityService.clearDataIn.mockImplementation(() => {
+            if (markerPresentAtFirstWipe === null) {
+                markerPresentAtFirstWipe = AsyncStorage.__store.has(LAST_SYNC_COMPLETED_KEY);
+            }
+        });
+
+        await svc.clearData();
+
+        expect(markerPresentAtFirstWipe).toBe(false);
+        expect(await LastSyncCompleted.didComplete()).toBe(false);
+    });
+
+    // A wipe through a handle a failed reopen left closed clears nothing, and the reopen at
+    // the end would then hand the unwiped database to the next user.
+    it('reopens both databases before the first wipe', async () => {
+        const svc = buildSyncService();
+
+        await svc.clearData();
+
+        const firstWipe = svc.entityService.clearDataIn.mock.invocationCallOrder[0];
+        expect(mockGlobalContext.openRealmIfMissing.mock.invocationCallOrder[0]).toBeLessThan(firstWipe);
+        expect(mockGlobalContext.openSqliteIfMissing.mock.invocationCallOrder[0]).toBeLessThan(firstWipe);
     });
 
     describe('one backend failing does not spare the other', () => {

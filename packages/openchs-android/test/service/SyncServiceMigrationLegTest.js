@@ -29,6 +29,7 @@ jest.mock('../../src/utility/General', () => ({
 
 const mockGlobalContext = {
     switchBackend: jest.fn(),
+    openSqliteIfMissing: jest.fn(async () => true),
     getActiveBackend: jest.fn(() => 'realm'),
     // The @Service decorator registers every service against this at import time.
     beanRegistry: {register: jest.fn()},
@@ -68,6 +69,8 @@ function buildMigrationService({activeBackend, groupsName}) {
         restartTarget: jest.fn(async () => {}),
         commitLeg: jest.fn(async (leg) => { service.state.activeBackend = leg.target; }),
         abandonOpenLeg: jest.fn(async () => {}),
+        recordBlocked: jest.fn(async () => {}),
+        openCommittedBackend: jest.fn(async () => {}),
     };
     // The app runs on the committed backend unless a test says otherwise.
     mockGlobalContext.getActiveBackend.mockReturnValue(activeBackend);
@@ -233,6 +236,22 @@ describe('the switch commits once, after the whole sync (#2120)', () => {
         expect(svc._disableShallowHydrationIfSqlite.mock.invocationCallOrder[0]).toBeLessThan(switchOrder);
     });
 
+    // SQLite that failed to open at launch would make the switch throw with a leg already
+    // open, costing an attempt and a recorded error on every sync until the user restarts.
+    it('syncs on the current backend, with no leg, when SQLite will not open', async () => {
+        const migrationService = buildMigrationService({activeBackend: 'realm', groupsName: 'sqlite'});
+        const svc = buildSyncService(migrationService);
+        mockGlobalContext.openSqliteIfMissing.mockImplementationOnce(async () => false);
+
+        await manualSync(svc);
+
+        expect(migrationService.beginLeg).not.toHaveBeenCalled();
+        expect(mockGlobalContext.switchBackend).not.toHaveBeenCalled();
+        expect(migrationService.state.activeBackend).toBe('realm');
+        // Skipping the leg skips abandonOpenLeg, which was the only report this device made.
+        expect(migrationService.recordBlocked).toHaveBeenCalled();
+    });
+
     it('opens no leg when the committed backend is already the one the group names', async () => {
         const migrationService = buildMigrationService({activeBackend: 'sqlite', groupsName: 'sqlite'});
         const svc = buildSyncService(migrationService);
@@ -318,6 +337,41 @@ describe('the switch commits once, after the whole sync (#2120)', () => {
         const txPulls = svc.getTxData.mock.calls.filter(([meta]) => carries('ProgramEnrolment')(meta));
         expect(txPulls).toHaveLength(0);
         expect(migrationService.beginLeg).not.toHaveBeenCalled();
+    });
+
+    // Otherwise every sync fails the same way until a cold start happens to open it.
+    it('reopens the committed backend when refusing, so the next sync runs on it', async () => {
+        const migrationService = buildMigrationService({activeBackend: 'sqlite', groupsName: 'sqlite'});
+        mockGlobalContext.getActiveBackend.mockReturnValue('realm');
+        const svc = buildSyncService(migrationService);
+
+        await expect(manualSync(svc)).rejects.toThrow('committed backend is sqlite');
+
+        expect(migrationService.openCommittedBackend).toHaveBeenCalledTimes(1);
+        expect(svc.pushData.mock.invocationCallOrder[0])
+            .toBeLessThan(migrationService.openCommittedBackend.mock.invocationCallOrder[0]);
+    });
+
+    it('does not reopen the committed backend while this database still holds unsent records', async () => {
+        const migrationService = buildMigrationService({activeBackend: 'sqlite', groupsName: 'sqlite'});
+        mockGlobalContext.getActiveBackend.mockReturnValue('realm');
+        const svc = buildSyncService(migrationService);
+        svc.entityQueueService.getPendingFieldDataCount.mockReturnValue(2);
+
+        await expect(manualSync(svc)).rejects.toThrow('committed backend is sqlite');
+
+        expect(migrationService.openCommittedBackend).not.toHaveBeenCalled();
+    });
+
+    it('does not reopen the committed backend from a background sync', async () => {
+        const migrationService = buildMigrationService({activeBackend: 'sqlite', groupsName: 'sqlite'});
+        mockGlobalContext.getActiveBackend.mockReturnValue('realm');
+        const svc = buildSyncService(migrationService);
+
+        await expect(svc.dataServerSync(ALL_ENTITIES_META_DATA, noop, noop, noop, noop, false, undefined, false))
+            .rejects.toThrow('committed backend is sqlite');
+
+        expect(migrationService.openCommittedBackend).not.toHaveBeenCalled();
     });
 
     it('a failed sync with no migration owed still fails with its own error', async () => {

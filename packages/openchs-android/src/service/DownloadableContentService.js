@@ -5,8 +5,38 @@ import {downloadWithoutAuth} from "./AuthAwareDownload";
 import {get} from "../framework/http/requests";
 import General from "../utility/General";
 import fs from 'react-native-fs';
+import {clearGuidanceBlobCache} from "../model/CaptureGuidance";
 import _ from "lodash";
 import {DownloadableContent} from 'avni-models';
+
+// Mirrors the server's ManagedContentNamespace. A contentKey arrives from the server and the app
+// writes where it says, so it must never point outside a directory this service owns.
+const MANAGED_NAMESPACES = Object.freeze(['models', 'guidance']);
+
+export function isManagedContentKey(contentKey) {
+    if (!_.isString(contentKey)) return false;
+    const separator = contentKey.indexOf('/');
+    if (separator < 0) return false;
+    const namespace = contentKey.slice(0, separator);
+    const fileName = contentKey.slice(separator + 1);
+    return _.includes(MANAGED_NAMESPACES, namespace)
+        && fileName.length > 0
+        && !fileName.includes('/')
+        && fileName !== '.' && fileName !== '..';
+}
+
+// Pure, so EdgeModelService shares it without either service being injected into the other.
+export function contentBlobPath(item) {
+    const contentKey = _.isString(item) ? item : _.get(item, 'contentKey');
+    if (!isManagedContentKey(contentKey)) {
+        throw new Error(`Refusing to resolve a path for unmanaged content key '${contentKey}'`);
+    }
+    return `${FileSystem.getDownloadableContentRootDir()}/${contentKey}`;
+}
+
+function managedContentDirs() {
+    return MANAGED_NAMESPACES.map(namespace => `${FileSystem.getDownloadableContentRootDir()}/${namespace}`);
+}
 
 // A failed request rejects with a ServerError whose message is the coerced Response ("[object Object]");
 // the useful detail is the HTTP status. Produce a diagnosable string: HTTP status, a usable message, or a
@@ -36,8 +66,9 @@ class DownloadableContentService extends BaseService {
         return DownloadableContent.schema.name;
     }
 
-    blobPath(sha256) {
-        return `${FileSystem.getModelsDir()}/${sha256}.bin`;
+    // Byte-identical to the pre-namespace path for a model, so an upgrade re-downloads nothing.
+    blobPath(item) {
+        return contentBlobPath(item);
     }
 
     keyPath(sha256) {
@@ -62,6 +93,7 @@ class DownloadableContentService extends BaseService {
         // A sync may have brought a previously-missing model on device. Let inference re-attempt
         // images it had given up on this session (see EdgeModelService.onModelContentSynced).
         this.getService("edgeModelService").onModelContentSynced();
+        clearGuidanceBlobCache(); // blobs may have moved; make the render-time check ask again
         if (!_.isEmpty(failures)) {
             statusMessageCallBack("contentNotDownloaded");
         }
@@ -69,7 +101,7 @@ class DownloadableContentService extends BaseService {
     }
 
     async downloadItem(item) {
-        const blobPath = this.blobPath(item.sha256);
+        const blobPath = this.blobPath(item);
         if (await fs.exists(blobPath)) {
             if (item.needsKey) {
                 await this.ensureKey(item.sha256);
@@ -82,9 +114,8 @@ class DownloadableContentService extends BaseService {
         }
     }
 
-    // The blob is ciphertext; its plaintext SHA-256 cannot be verified here. Integrity is
-    // enforced natively at decrypt time (GCM tag + plaintext-SHA). We only guard against a
-    // truncated download by comparing the declared content length to the written size.
+    // An encrypted blob is ciphertext — integrity is enforced natively at decrypt time, so only a
+    // truncation check is possible. An unencrypted blob is its own plaintext, so it is hashed.
     async downloadBlob(item, blobPath) {
         const signedUrl = await this.getBlobUrl(item.contentKey);
         const response = await downloadWithoutAuth(signedUrl, blobPath);
@@ -94,9 +125,20 @@ class DownloadableContentService extends BaseService {
             // cached as the blob and read as ciphertext on the next sync.
             this.verifyDownloadStatus(response);
             await this.verifyDownloadSize(response, blobPath);
+            if (!item.needsKey) {
+                await this.verifyPlaintextHash(item, blobPath);
+            }
         } catch (error) {
             await this.unlinkIfExists(blobPath);
             throw error;
+        }
+    }
+
+    // Closes the right-size-but-corrupt gap; the catch above deletes it so the next sync re-fetches.
+    async verifyPlaintextHash(item, blobPath) {
+        const actual = await fs.hash(blobPath, 'sha256');
+        if (_.toLower(actual) !== _.toLower(item.sha256)) {
+            throw new Error(`Content hash mismatch for ${blobPath}: expected ${item.sha256}, got ${actual}`);
         }
     }
 
@@ -150,23 +192,55 @@ class DownloadableContentService extends BaseService {
     }
 
     async cleanupSupersededBlobs(items) {
+        // Only directories this service owns: the content root also holds the user's own media.
+        const liveByDir = new Map(managedContentDirs().map(dir => [dir, new Set()]));
+        let unresolvable = false;
+        for (const item of items) {
+            const path = this.blobPathOrNull(item);
+            if (_.isNil(path)) {
+                unresolvable = true;
+                continue;
+            }
+            const separator = path.lastIndexOf('/');
+            const live = liveByDir.get(path.slice(0, separator));
+            if (live) live.add(path.slice(separator + 1));
+        }
+        // An unparseable key leaves its blob out of the live set, so sweeping would delete a file
+        // still in use that downloadItem could not fetch back.
+        if (unresolvable) {
+            General.logError("DownloadableContentService",
+                "Skipping blob cleanup: at least one content key could not be resolved to a path");
+        } else {
+            for (const [dir, live] of liveByDir) {
+                await this.removeStale(dir, name => live.has(name));
+            }
+        }
         const liveShas = new Set(items.map(item => item.sha256));
-        await this.removeStale(FileSystem.getModelsDir(), '.bin', liveShas);
-        await this.removeStale(FileSystem.getModelKeysDir(), '.key', liveShas);
+        await this.removeStale(FileSystem.getModelKeysDir(),
+            name => name.endsWith('.key') && liveShas.has(name.slice(0, -'.key'.length)));
     }
 
-    async removeStale(dir, suffix, liveShas) {
+    blobPathOrNull(item) {
+        try {
+            return this.blobPath(item);
+        } catch (error) {
+            General.logError("DownloadableContentService", error.message);
+            return null;
+        }
+    }
+
+    async removeStale(dir, isLive) {
         try {
             if (!await fs.exists(dir)) {
                 return;
             }
             const entries = await fs.readDir(dir);
             for (const entry of entries) {
-                if (!entry.name.endsWith(suffix)) {
+                // Unlinking a directory would take whatever is inside it.
+                if (_.isFunction(entry.isFile) && !entry.isFile()) {
                     continue;
                 }
-                const sha = entry.name.slice(0, -suffix.length);
-                if (!liveShas.has(sha)) {
+                if (!isLive(entry.name)) {
                     await this.unlinkIfExists(entry.path);
                 }
             }

@@ -10,7 +10,7 @@
  */
 
 import _ from "lodash";
-import {Individual} from "openchs-models";
+import {Individual, SubjectType} from "openchs-models";
 import {EMBEDDED_SCHEMA_NAMES, JSON_UUID_ARRAY_LIST_PROPERTIES} from "./SchemaGenerator";
 import {camelToSnake, schemaNameToTableName, normalizeRealmType} from "./SqliteUtils";
 import General from "../../utility/General";
@@ -20,6 +20,14 @@ import General from "../../utility/General";
 const DUMMY_UUIDS = new Set([
     Individual.getAddressLevelDummyUUID(),
 ]);
+
+// The placeholder address is written as NULL (above); hand it back on read, as Realm does,
+// so a user subject's address never reads as missing (fullAddress() does not null-check).
+function restoreUserSubjectPlaceholderAddress(individual) {
+    if (!_.isNil(individual.lowestAddressLevel)) return;
+    if (_.get(individual, "subjectType.type") !== SubjectType.types.User) return;
+    individual.lowestAddressLevel = {locationProperties: [], ...Individual.getPlaceholderAddressLevel().that};
+}
 
 // Referenced schemas whose own child-FK lists must still hydrate even when the
 // reference is reached at depth 0. Floors the resolved depth for these refs.
@@ -249,6 +257,8 @@ class EntityHydrator {
         } finally {
             if (cycleKey) this._inProgress.delete(cycleKey);
         }
+
+        if (schemaName === Individual.schema.name) restoreUserSubjectPlaceholderAddress(result);
 
         return result;
     }
@@ -493,8 +503,10 @@ class EntityHydrator {
      * @param {string} schemaName - parent schema name (e.g., "Individual")
      * @param {Array<string>} parentUuids - UUIDs of all parent rows to preload for
      * @param {number} depth - how many levels deep to preload (default 3)
+     * @param {Set<string>|null} onlyLists - schema-qualified lists to preload ("Individual.enrolments"),
+     *        for a shallow query that keeps a few; null preloads every list
      */
-    batchPreloadLists(schemaName, parentUuids, depth = 3) {
+    batchPreloadLists(schemaName, parentUuids, depth = 3, onlyLists = null) {
         if (!this._listBatchCache || !parentUuids || parentUuids.length === 0 || depth <= 0) return;
 
         const realmSchema = this.realmSchemaMap.get(schemaName);
@@ -514,6 +526,7 @@ class EntityHydrator {
 
             if (resolvedType !== "list" || !objectType) return;
             if (EMBEDDED_SCHEMA_NAMES.has(objectType)) return; // JSON on parent row
+            if (onlyLists && !onlyLists.has(`${schemaName}.${propName}`)) return;
 
             const childTableMeta = this.tableMetaMap.get(objectType);
             if (!childTableMeta) return;
@@ -553,7 +566,7 @@ class EntityHydrator {
             if (depth > 1 && allRows.length > 0) {
                 const childUuids = allRows.map(r => r.uuid).filter(u => u != null);
                 if (childUuids.length > 0) {
-                    this.batchPreloadLists(objectType, childUuids, depth - 1);
+                    this.batchPreloadLists(objectType, childUuids, depth - 1, onlyLists);
                 }
             }
         });
@@ -563,7 +576,7 @@ class EntityHydrator {
         // batch-loading referenced entities (Concept, EncounterType, Form, etc.)
         // into the session cache up front.
         const tFkStart = Date.now();
-        const fkPreloadEntries = this._batchPreloadFkReferences(schemaName, parentUuids);
+        const fkPreloadEntries = this._batchPreloadFkReferences(schemaName, parentUuids, !!onlyLists);
         const tFkEnd = Date.now();
         if (tFkEnd - tFkStart > 500) {
             const fkBreakdown = fkPreloadEntries.map(e => `${e.schema}=${e.loaded}/${e.total}uuids/${e.ms}ms`).join(', ');
@@ -585,12 +598,17 @@ class EntityHydrator {
      *
      * This turns 147K individual SELECT queries into a handful of batch IN queries.
      */
-    _batchPreloadFkReferences(parentSchemaName, parentUuids) {
+    _batchPreloadFkReferences(parentSchemaName, parentUuids, skipParentBackRefs = false) {
         if (!this._hydrationCache || !this._listBatchCache) return [];
 
         // Collect FK UUIDs from parent schema and all child schemas that have preloaded rows
         // fkTargets: Map<targetSchemaName, Set<uuid>>
         const fkTargets = new Map();
+
+        // A kept list's rows point back at their parents (ProgramEnrolment.individual), which this
+        // query is already hydrating; resolveReference returns the in-progress parent without a
+        // read. Fetching them here re-read every parent: 1.8 s of the total card's 5 s on the emulator.
+        const parentsInFlight = skipParentBackRefs ? new Set(parentUuids) : null;
 
         const collectFksFromSchema = (schemaName, rows) => {
             const schema = this.realmSchemaMap.get(schemaName);
@@ -614,6 +632,7 @@ class EntityHydrator {
             for (const row of rows) {
                 for (const {col, targetSchema} of fkProps) {
                     const uuid = row[col];
+                    if (parentsInFlight && targetSchema === parentSchemaName && parentsInFlight.has(uuid)) continue;
                     if (uuid && !this._hydrationCache.has(`${targetSchema}:${uuid}`)) {
                         if (!fkTargets.has(targetSchema)) fkTargets.set(targetSchema, new Set());
                         fkTargets.get(targetSchema).add(uuid);

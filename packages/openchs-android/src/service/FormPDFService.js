@@ -12,6 +12,7 @@ import MessageService from "./MessageService";
 import PDFGenerationService, {PAGE} from "./PDFGenerationService";
 import General from "../utility/General";
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
+import {visibleGroupObservations, visibleObservations} from "../utility/HiddenObservations";
 
 function escapeHtml(value) {
     if (_.isNil(value)) return "";
@@ -80,7 +81,7 @@ class FormPDFService extends BaseService {
     }
 
     _filterShareableObservations(observations) {
-        return _.filter(observations, o => o?.concept && !o.concept.isMediaConcept());
+        return visibleObservations(_.filter(observations, o => o?.concept && !o.concept.isMediaConcept()), this.getService(ConceptService));
     }
 
     _getObservationDisplayText(observation) {
@@ -114,7 +115,7 @@ class FormPDFService extends BaseService {
     // visually match top-level observation rows (label cell + value cell, with a small
     // left indent to indicate nesting). Recurses into nested question groups.
     _buildQuestionGroupInnerRows(innerObservations) {
-        const shareable = this._filterShareableObservations(innerObservations);
+        const shareable = this._filterShareableObservations(visibleGroupObservations(innerObservations, this.getService(ConceptService)));
         if (_.isEmpty(shareable)) return "";
         return shareable.map(o => {
             if (o.concept.isQuestionGroup()) {

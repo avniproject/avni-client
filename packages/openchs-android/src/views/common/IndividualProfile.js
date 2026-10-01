@@ -3,7 +3,7 @@ import {TouchableNativeFeedback, TouchableOpacity, View, Alert, Linking} from "r
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Text} from "native-base";
-import {Actions} from "../../action/individual/IndividualProfileActions";
+import {Actions, IndividualProfileActions} from "../../action/individual/IndividualProfileActions";
 import Reducers from "../../reducer";
 import Colors from "../primitives/Colors";
 import Distances from "../primitives/Distances";
@@ -134,9 +134,9 @@ class IndividualProfile extends AbstractComponent {
                             subjectLocation: subjectLocation
                         });
                         
-                        Alert.alert('Success', this.I18n.t('subjectLocationSaved'));
+                        Alert.alert(this.I18n.t('success'), this.I18n.t('subjectLocationSaved'));
                     } catch (error) {
-                        Alert.alert('Error', this.I18n.t('locationSaveError'));
+                        Alert.alert(this.I18n.t('Error'), this.I18n.t('locationSaveError'));
                     }
                 },
                 false,
@@ -293,9 +293,7 @@ class IndividualProfile extends AbstractComponent {
     }
 
     renderSubjectLocationIcon() {
-        // state holds the re-read subject after a location save; prop is stale under SQLite.
-        const individual = _.get(this.state, 'individual') || this.props.individual;
-        const hasLocation = individual.subjectLocation != null;
+        const hasLocation = this.displayedIndividual().subjectLocation != null;
 
         return (
             <TouchableOpacity 
@@ -411,8 +409,14 @@ class IndividualProfile extends AbstractComponent {
         }
     }
     
+    // state holds the re-read subject after a location save; prop is stale under SQLite.
+    displayedIndividual() {
+        return IndividualProfileActions.displayedIndividual(this.state, this.props.individual);
+    }
+
     navigateToLocation() {
-        const subjectLocation = this.props.individual.subjectLocation;
+        const subjectLocation = this.displayedIndividual().subjectLocation;
+        if (_.isNil(subjectLocation)) return;
         const lat = subjectLocation.latitude;
         const lng = subjectLocation.longitude;
         const url = `geo:${lat},${lng}?q=${lat},${lng}(${this.props.individual.nameString})`;
@@ -422,7 +426,7 @@ class IndividualProfile extends AbstractComponent {
                     return Linking.openURL(url);
             })
             .catch(err => {
-                Alert.alert('Error', `Unable to open map application`);
+                Alert.alert(this.I18n.t('Error'), this.I18n.t('unableToOpenMapApplication'));
             });
 
     }

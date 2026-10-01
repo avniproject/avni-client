@@ -165,15 +165,18 @@ class SqliteMigrationService extends BaseService {
     }
 
     /**
-     * Whether a switch is owed: the stored target, or the group membership the active
-     * database holds, differs from the committed backend. The background job (#2118)
-     * stays idle while this is true.
+     * Whether a switch is owed: the stored target, the group membership the active
+     * database holds, or the database the app is actually running on differs from the
+     * committed backend. The background job (#2118) stays idle while this is true; the
+     * last case is repaired by the next sync the user starts.
      */
     async isMigrationPending() {
         try {
             const state = await this.getState();
+            const GlobalContext = require('../GlobalContext').default;
             return state.desiredBackend !== state.activeBackend
-                || this.computeDesiredBackend() !== state.activeBackend;
+                || this.computeDesiredBackend() !== state.activeBackend
+                || GlobalContext.getInstance().getActiveBackend() !== state.activeBackend;
         } catch (e) {
             return false;
         }
@@ -197,6 +200,23 @@ class SqliteMigrationService extends BaseService {
         return updated;
     }
 
+    // A migration that cannot even start records why. Without it a device that defers on
+    // every sync looks exactly like one with nothing to migrate, and the deferral is
+    // invisible outside that device's own logs. Written once per distinct reason, so a
+    // device stuck for weeks does not rewrite the record on every sync.
+    async recordBlocked(message) {
+        try {
+            const username = await this._getCurrentUsername();
+            const state = await SqliteMigrationService._readStateForWrite(username);
+            if (state.lastError === message) return;
+            await SqliteMigrationService.persistStateForUser(username, {...state, lastError: message});
+            // The record never leaves the device; this is the only thing the fleet sees.
+            ErrorUtil.notifyBugsnag(new Error(message), "SqliteMigrationService::blocked");
+        } catch (e) {
+            General.logWarn("SqliteMigrationService", `Could not record the blocked migration: ${e.message}`);
+        }
+    }
+
     // Opens the backend the state record commits to: at launch, and after a failed SQLite
     // restore. An unfinished leg or restore committed nothing, so the device opens the
     // complete backend it was on and waits for the next sync the user starts. Never wipes,
@@ -208,6 +228,11 @@ class SqliteMigrationService extends BaseService {
         if (globalContext.getActiveBackend() !== state.activeBackend) {
             General.logInfo("SqliteMigrationService",
                 `Opening the committed backend: ${state.activeBackend}`);
+            if (state.activeBackend === BACKENDS.SQLITE) {
+                await globalContext.openSqliteIfMissing();
+            } else {
+                await globalContext.openRealmIfMissing();
+            }
             globalContext.switchBackend(state.activeBackend);
         }
     }
@@ -380,6 +405,12 @@ class SqliteMigrationService extends BaseService {
     // The single writer of activeBackend. Throws when the write fails: a leg that cannot
     // record its completion must fail, so the runtime returns to what the next launch opens.
     async commitLeg(leg) {
+        // An encryption swap mid-sync reinitialises both databases and falls back to Realm when
+        // the target will not reopen, so the runtime can leave the leg under it.
+        const runtime = require('../GlobalContext').default.getInstance().getActiveBackend();
+        if (runtime !== leg.target) {
+            throw new Error(`Migration to ${leg.target} cannot be committed: the app is running on ${runtime}`);
+        }
         const state = await SqliteMigrationService._readStateForWrite(leg.username);
         await SqliteMigrationService.commitStateForUser(leg.username, {
             ...state,
@@ -406,12 +437,22 @@ class SqliteMigrationService extends BaseService {
         this._openLeg = null;
         const message = error && error.message ? error.message : String(error);
         try {
-            const GlobalContext = require('../GlobalContext').default;
-            GlobalContext.getInstance().switchBackend(leg.source);
+            const globalContext = require('../GlobalContext').default.getInstance();
+            // The source may not be open to go back to, and switchBackend refuses a missing one.
+            if (leg.source === BACKENDS.SQLITE) await globalContext.openSqliteIfMissing();
+            else await globalContext.openRealmIfMissing();
+            globalContext.switchBackend(leg.source);
             General.logError("SqliteMigrationService",
                 `Migration to ${leg.target} failed; back on ${leg.source}: ${message}`);
+        } catch (e) {
+            General.logError("SqliteMigrationService",
+                `Could not return the runtime to ${leg.source}: ${e.message}`);
+        }
+        // Separate from the revert: a revert that fails is exactly when the diagnostics matter.
+        try {
+            // Reported even when transient: an abandoned migration is the signal while the move rolls out.
             ErrorUtil.notifyBugsnag(error instanceof Error ? error : new Error(message),
-                `SqliteMigrationService::leg::${leg.source}->${leg.target}`);
+                `SqliteMigrationService::leg::${leg.source}->${leg.target}`, {reportTransient: true});
             // Only over a record we could actually read; never write defaults back.
             const raw = await AsyncStorage.getItem(asyncStorageKey(leg.username));
             if (raw) {

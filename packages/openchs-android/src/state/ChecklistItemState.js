@@ -43,7 +43,7 @@ class ChecklistItemState extends AbstractDataEntryState {
     }
 
     get staticFormElementIds() {
-        return this.wizard.isFirstPage() ? [AbstractEncounter.fieldKeys.COMPLETION_DATE] : [];
+        return this.wizard.isFirstFormPage() ? [AbstractEncounter.fieldKeys.COMPLETION_DATE] : [];
     }
 
     validateEntityAgainstRule(ruleService) {
