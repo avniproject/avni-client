@@ -370,6 +370,37 @@ describe("MyDashboardActions.onLoad card counts", () => {
         assert.equal(customFilterService.resolutions, resolutionsAfterApply, "no wasted re-scan");
     });
 
+    it("recomputes the dashboard's counts when a filter is applied from a card's list", () => {
+        const counts = {...UNFILTERED};
+        const individualService = makeIndividualService(counts);
+        const context = buildContext({
+            individualService,
+            dashboardCacheService: makeDashboardCacheService(),
+            customFilterService: noCustomFilters()
+        });
+        const loaded = MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
+        assert.deepEqual(countsOf(loaded), UNFILTERED);
+
+        const filtered = {...UNFILTERED, scheduled: 1, recentlyCompletedVisits: 3, total: 1};
+        Object.assign(counts, filtered);
+        const applyAction = {
+            filters: new Map(),
+            locationSearchCriteria: {clone: () => ({getAllAddressLevelUUIDs: () => []})},
+            addressLevelState: {clone: () => ({levels: new Map(), anyActiveTypesArray: []}), anyActiveTypesArray: []},
+            filterDate: new Date("2026-08-24T00:00:00.000Z"),
+            programs: [], selectedPrograms: [], encounterTypes: [], selectedEncounterTypes: [],
+            generalEncounterTypes: [], selectedGeneralEncounterTypes: [], selectedGenders: [],
+            selectedLocations: [], selectedSubjectType: SUBJECT_TYPE, selectedCustomFilters: {},
+            listType: "overdue"
+        };
+
+        const afterList = MyDashboardActions.assignFilters(loaded, applyAction, context);
+
+        assert.deepEqual(countsOf(afterList), filtered, "the dashboard behind the list shows the new filter's numbers");
+        assert.isArray(afterList.itemsToDisplay, "the list itself is still reloaded");
+        assert.deepEqual(countsOf(MyDashboardActions.onLoad(afterList, {fetchFromDB: false}, context)), filtered);
+    });
+
     it("zeroes the cards for a custom filter that matches nothing, and restores them when it is cleared", () => {
         const individualService = makeIndividualService();
         const dashboardCacheService = makeDashboardCacheService();
