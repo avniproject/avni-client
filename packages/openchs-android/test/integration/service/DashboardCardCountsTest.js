@@ -82,10 +82,10 @@ describe("dashboard card counts are people, not rows", () => {
 
     afterEach(() => rawDb && rawDb.close());
 
-    function subject(name) {
+    function subject(name, registrationDate = LAST_WEEK) {
         const u = uuid("ind");
         proxy.write(() => proxy.create("Individual", {
-            uuid: u, firstName: name, lastName: "T", registrationDate: LAST_WEEK,
+            uuid: u, firstName: name, lastName: "T", registrationDate,
             voided: false, subjectType: {uuid: SUBJECT_TYPE}
         }, true, {skipHydration: true}));
         return u;
@@ -323,6 +323,17 @@ describe("dashboard card counts are people, not rows", () => {
         assert.equal(service.countAllIn(TODAY, [], ""), 2);
         assert.equal(service.allInV2(TODAY, [], "").length, 2);
         assert.equal(service.countRecentlyRegistered(TODAY, [], ""), 0);
+    });
+
+    it("My Dashboard's total counts a subject registered after the dashboard date, as its list shows it", () => {
+        subject("A");
+        subject("B", moment(TODAY).add(1, "day").toDate());
+
+        assert.equal(service.allIn(TODAY, [], "").length, 2);
+        assert.equal(service.countAllNonVoided(""), 2);
+        // A custom dashboard's Total card and its list both stop at the dashboard date.
+        assert.equal(service.countAllIn(TODAY, [], ""), 1);
+        assert.equal(service.allInV2(TODAY, [], "").length, 1);
     });
 
     it("fixture 5b — overdue over-counts the same way scheduled does", () => {

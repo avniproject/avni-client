@@ -38,7 +38,8 @@ function makeIndividualService(counts = UNFILTERED) {
         countRecentlyCompletedVisits: (...args) => (record("countRecentlyCompletedVisits", args), counts.recentlyCompletedVisits),
         countRecentlyRegistered: (...args) => (record("countRecentlyRegistered", args), counts.recentlyCompletedRegistration),
         countRecentlyEnrolled: (...args) => (record("countRecentlyEnrolled", args), counts.recentlyCompletedEnrolment),
-        countAllIn: (...args) => (record("countAllIn", args), counts.total),
+        countAllIn: (...args) => (record("countAllIn", args), counts.totalAsOfDate ?? counts.total),
+        countAllNonVoided: (...args) => (record("countAllNonVoided", args), counts.total),
         performVisitEncounterTypeUuids: (...args) => (record("performVisitEncounterTypeUuids", args), ALLOWED_VISIT_TYPES),
         dueChecklistForDefaultDashboard: () => ({individual: [], checklistItemNames: []}),
         // Entity lists, used by onListLoad when filters are applied from the list screen.
@@ -159,6 +160,18 @@ describe("MyDashboardActions.onLoad card counts", () => {
         assert.equal(new Date(individualService.callTo("countScheduledVisits").args[0]).getTime(), today.getTime());
     });
 
+    it("counts the Total card the way its list does, including subjects registered after the dashboard date", () => {
+        const context = buildContext({
+            individualService: makeIndividualService({...UNFILTERED, total: 813, totalAsOfDate: 809}),
+            dashboardCacheService: makeDashboardCacheService(),
+            customFilterService: noCustomFilters()
+        });
+
+        const state = MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
+
+        assert.equal(countsOf(state).total, 813);
+    });
+
     it("restricts the counts to the subjects a custom filter matched", () => {
         const individualService = makeIndividualService();
         const dashboardCacheService = makeDashboardCacheService();
@@ -178,7 +191,7 @@ describe("MyDashboardActions.onLoad card counts", () => {
         const scheduled = individualService.callTo("countScheduledVisits");
         assert.include(scheduled.args[2], 'programEnrolment.individual.uuid = "subject-1"');
         assert.include(scheduled.args[3], 'individual.uuid = "subject-2"');
-        assert.include(individualService.callTo("countAllIn").args[2], 'uuid = "subject-1"');
+        assert.include(individualService.callTo("countAllNonVoided").args[0], 'uuid = "subject-1"');
         assert.include(individualService.callTo("countRecentlyEnrolled").args[2], 'individual.uuid = "subject-1"');
     });
 
@@ -312,11 +325,11 @@ describe("MyDashboardActions.onLoad card counts", () => {
         });
 
         const state = MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
-        assert.notInclude(individualService.callTo("countAllIn").args[2], '"subject-2"');
+        assert.notInclude(individualService.callTo("countAllNonVoided").args[0], '"subject-2"');
 
         matched = ["subject-1", "subject-2"];
         MyDashboardActions.onLoad(state, {fetchFromDB: true}, context);
-        assert.include(individualService.callTo("countAllIn").args[2], '"subject-2"',
+        assert.include(individualService.callTo("countAllNonVoided").args[0], '"subject-2"',
             "the newly matching subject must reach the counts without an app restart");
     });
 

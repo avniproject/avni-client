@@ -147,7 +147,7 @@ function countCards(individualService, dashboardCacheFilter, customFilterSubject
         card.recentlyCompletedVisits += individualService.countRecentlyCompletedVisits(filterDate, [], encounterCriteria, generalEncounterCriteria, undefined, visitTables);
         card.recentlyCompletedRegistration += individualService.countRecentlyRegistered(filterDate, [], subjectCriteria);
         card.recentlyCompletedEnrolment += individualService.countRecentlyEnrolled(filterDate, [], restrictedTo('enrolmentFilters'));
-        card.total += individualService.countAllIn(filterDate, [], subjectCriteria);
+        card.total += individualService.countAllNonVoided(subjectCriteria);
     });
 
     return card;

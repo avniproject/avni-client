@@ -316,6 +316,11 @@ class IndividualService extends BaseService {
         return countAfterFilters(subjects, subjectCriteria, reportFilters, Individual.schema.name, this.getService(CustomFilterService));
     }
 
+    // My Dashboard's Total list (allIn) ignores the dashboard date, so its count does too.
+    countAllNonVoided(subjectCriteria) {
+        return countAfterFilters(this.repository.getAllNonVoided(), subjectCriteria, [], Individual.schema.name, this.getService(CustomFilterService));
+    }
+
     countRecentlyRegistered(date, reportFilters, subjectCriteria, duration = new Duration(1, Duration.Day)) {
         const {tillDate, fromDate} = getDateRange(date, duration);
         let subjects = this.repository.findAll()
