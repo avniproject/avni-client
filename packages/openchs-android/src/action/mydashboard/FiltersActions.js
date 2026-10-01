@@ -123,6 +123,7 @@ class FiltersActions {
             selectedPrograms,
             selectedLocations: [],
             addressLevelState: new AddressLevelState(),
+            locationSearchCriteria: IndividualSearchCriteria.empty(),
             encounterTypes,
             selectedEncounterTypes: [],
             generalEncounterTypes,
