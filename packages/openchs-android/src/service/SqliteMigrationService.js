@@ -210,6 +210,8 @@ class SqliteMigrationService extends BaseService {
             const state = await SqliteMigrationService._readStateForWrite(username);
             if (state.lastError === message) return;
             await SqliteMigrationService.persistStateForUser(username, {...state, lastError: message});
+            // The record never leaves the device; this is the only thing the fleet sees.
+            ErrorUtil.notifyBugsnag(new Error(message), "SqliteMigrationService::blocked");
         } catch (e) {
             General.logWarn("SqliteMigrationService", `Could not record the blocked migration: ${e.message}`);
         }
@@ -228,6 +230,8 @@ class SqliteMigrationService extends BaseService {
                 `Opening the committed backend: ${state.activeBackend}`);
             if (state.activeBackend === BACKENDS.SQLITE) {
                 await globalContext.openSqliteIfMissing();
+            } else {
+                await globalContext.openRealmIfMissing();
             }
             globalContext.switchBackend(state.activeBackend);
         }
@@ -401,6 +405,12 @@ class SqliteMigrationService extends BaseService {
     // The single writer of activeBackend. Throws when the write fails: a leg that cannot
     // record its completion must fail, so the runtime returns to what the next launch opens.
     async commitLeg(leg) {
+        // An encryption swap mid-sync reinitialises both databases and falls back to Realm when
+        // the target will not reopen, so the runtime can leave the leg under it.
+        const runtime = require('../GlobalContext').default.getInstance().getActiveBackend();
+        if (runtime !== leg.target) {
+            throw new Error(`Migration to ${leg.target} cannot be committed: the app is running on ${runtime}`);
+        }
         const state = await SqliteMigrationService._readStateForWrite(leg.username);
         await SqliteMigrationService.commitStateForUser(leg.username, {
             ...state,
@@ -427,10 +437,19 @@ class SqliteMigrationService extends BaseService {
         this._openLeg = null;
         const message = error && error.message ? error.message : String(error);
         try {
-            const GlobalContext = require('../GlobalContext').default;
-            GlobalContext.getInstance().switchBackend(leg.source);
+            const globalContext = require('../GlobalContext').default.getInstance();
+            // The source may not be open to go back to, and switchBackend refuses a missing one.
+            if (leg.source === BACKENDS.SQLITE) await globalContext.openSqliteIfMissing();
+            else await globalContext.openRealmIfMissing();
+            globalContext.switchBackend(leg.source);
             General.logError("SqliteMigrationService",
                 `Migration to ${leg.target} failed; back on ${leg.source}: ${message}`);
+        } catch (e) {
+            General.logError("SqliteMigrationService",
+                `Could not return the runtime to ${leg.source}: ${e.message}`);
+        }
+        // Separate from the revert: a revert that fails is exactly when the diagnostics matter.
+        try {
             // Reported even when transient: an abandoned migration is the signal while the move rolls out.
             ErrorUtil.notifyBugsnag(error instanceof Error ? error : new Error(message),
                 `SqliteMigrationService::leg::${leg.source}->${leg.target}`, {reportTransient: true});

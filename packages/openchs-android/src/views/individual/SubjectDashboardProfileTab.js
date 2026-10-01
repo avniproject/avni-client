@@ -100,7 +100,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                 const groupRoles = this.context.getService(GroupSubjectService).getGroupRoles(this.state.individual.subjectType)
                 if (_.isEmpty(groupRoles))
                     Alert.alert(this.I18n.t("rolesNotConfigured"), this.I18n.t("rolesNotConfiguredDescription"), [
-                        {text: this.I18n.t('okay'), onPress: _.noop}
+                        {text: this.I18n.t('ok'), onPress: _.noop}
                     ]);
                 else
                     CHSNavigator.navigateToAddMemberView(this, this.state.individual)

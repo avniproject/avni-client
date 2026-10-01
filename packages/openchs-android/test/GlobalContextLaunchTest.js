@@ -238,4 +238,68 @@ describe('reopening the databases after a restore never throws (#2120)', () => {
 
         expect(context.getActiveBackend()).toBe('sqlite');
     });
+
+    // Refusing the switch is half of it. Nothing reopened Realm after a failed reinit, so the
+    // fall back every abandoned leg depends on would stay refused for the rest of the process.
+    it('opens Realm on a later try after a failed reopen left none', async () => {
+        const {context} = await booted('realm');
+        context.switchBackend('sqlite');
+        const onRealmRecreated = mockBeans.get('backupRestoreRealmService').subscribeOnRestore.mock.calls[0][0];
+        realmFactory.createRealm.mockImplementationOnce(async () => { throw new Error('realm locked'); });
+        await onRealmRecreated();
+        expect(context.db).toBeNull();
+
+        expect(await context.openRealmIfMissing()).toBe(true);
+        context.switchBackend('realm');
+
+        expect(context.getActiveBackend()).toBe('realm');
+    });
+
+    // Review of #2120: switchBackend returns early when the backend has not changed, so a
+    // reopen of the one already active left every service reading the handle that died.
+    it('binds a reopened Realm when Realm is already the active backend', async () => {
+        const {context} = await booted('realm');
+        context.db = null;
+        context.sqliteDb = null;
+        realmFactory.createRealm.mockImplementationOnce(async () => { throw new Error('stale key'); });
+        expect(await context.reinitializeDatabase(realmFactory)).toBe(false);
+        mockUpdateDatabase.mockClear();
+
+        expect(await context.openRealmIfMissing()).toBe(true);
+
+        expect(mockUpdateDatabase).toHaveBeenCalledTimes(1);
+        expect(mockUpdateDatabase).toHaveBeenCalledWith(context.db);
+        expect(context.db.kind).toBe('realm');
+    });
+
+    it('binds a reopened SQLite when SQLite is already the active backend', async () => {
+        const {context} = await booted('sqlite');
+        context.sqliteDb = null;
+        mockUpdateDatabase.mockClear();
+
+        expect(await context.openSqliteIfMissing()).toBe(true);
+
+        expect(mockUpdateDatabase).toHaveBeenCalledTimes(1);
+        expect(mockUpdateDatabase).toHaveBeenCalledWith(context.sqliteDb);
+    });
+
+    // The inactive backend is bound by the switch that makes it active, not by its reopen.
+    it('does not bind a reopened backend that is not the active one', async () => {
+        const {context} = await booted('sqlite');
+        context.db = null;
+        mockUpdateDatabase.mockClear();
+
+        expect(await context.openRealmIfMissing()).toBe(true);
+
+        expect(mockUpdateDatabase).not.toHaveBeenCalled();
+        expect(context.getActiveBackend()).toBe('sqlite');
+    });
+
+    it('reports a failed bind of the reopened database', async () => {
+        const {context} = await booted('realm');
+        context.db = null;
+        mockUpdateDatabase.mockImplementationOnce(() => { throw new Error('repository rebuild failed'); });
+
+        expect(await context.openRealmIfMissing()).toBe(false);
+    });
 });

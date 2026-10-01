@@ -2182,10 +2182,10 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@op-engineering/op-sqlite@^11.3.0":
-  version "11.4.9"
-  resolved "https://registry.npmjs.org/@op-engineering/op-sqlite/-/op-sqlite-11.4.9.tgz"
-  integrity sha512-gVj/m7UDCC11h8Fb/elLtT8Q2Fm8wIURkKRWZvV0FP1sLpZB+07N6ezktjGJroN7TV4/VQjGrYuu3GxgHse4HA==
+"@op-engineering/op-sqlite@15.2.14":
+  version "15.2.14"
+  resolved "https://registry.npmjs.org/@op-engineering/op-sqlite/-/op-sqlite-15.2.14.tgz"
+  integrity sha512-b6ZtLBL/wIosshJnP+6xsthPdNxEBSxDHbeSEApJyzeXWRfQpRWxm5e5wkFH6OUfdzDNgx3p6VnqWObFIq8xoQ==
 
 "@petamoriken/float16@^3.8.7":
   version "3.9.3"

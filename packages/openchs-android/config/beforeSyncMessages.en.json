@@ -69,5 +69,8 @@
   "guidedCaptureMisconfigured": "Guidance set-up problem. Capture is paused for this photo \u2014 please report this to your supervisor.",
   "Retake": "Retake",
   "Use photo": "Use photo",
-  "Open settings": "Open settings"
+  "Open settings": "Open settings",
+  "switchingBackendMessage": "Switching backend, please wait...",
+  "unknownError": "An unknown error occurred.",
+  "doingNothing": "Idle"
 }

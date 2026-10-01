@@ -422,7 +422,7 @@ class AbstractComponent extends Component {
     handleError({syncRequiredError}) {
         if (syncRequiredError) {
             Alert.alert(this.I18n.t("syncRequired"), this.I18n.t(syncRequiredError), [
-                {text: this.I18n.t('okay'), onPress: _.noop}
+                {text: this.I18n.t('ok'), onPress: _.noop}
             ]);
         }
     }

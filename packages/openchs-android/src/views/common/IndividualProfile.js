@@ -134,9 +134,9 @@ class IndividualProfile extends AbstractComponent {
                             subjectLocation: subjectLocation
                         });
                         
-                        Alert.alert('Success', this.I18n.t('subjectLocationSaved'));
+                        Alert.alert(this.I18n.t('success'), this.I18n.t('subjectLocationSaved'));
                     } catch (error) {
-                        Alert.alert('Error', this.I18n.t('locationSaveError'));
+                        Alert.alert(this.I18n.t('Error'), this.I18n.t('locationSaveError'));
                     }
                 },
                 false,
@@ -426,7 +426,7 @@ class IndividualProfile extends AbstractComponent {
                     return Linking.openURL(url);
             })
             .catch(err => {
-                Alert.alert('Error', `Unable to open map application`);
+                Alert.alert(this.I18n.t('Error'), this.I18n.t('unableToOpenMapApplication'));
             });
 
     }

@@ -1,5 +1,5 @@
 import fs from 'react-native-fs';
-import {unzip} from 'react-native-zip-archive';
+import {unzip, zip} from 'react-native-zip-archive';
 import {open as openSqlite} from '@op-engineering/op-sqlite';
 import _ from 'lodash';
 
@@ -7,24 +7,80 @@ import Service from '../framework/bean/Service';
 import BaseService from './BaseService';
 import SettingsService from './SettingsService';
 import MediaService from './MediaService';
+import GlobalContext from '../GlobalContext';
+import MediaQueueService from './MediaQueueService';
 import EntitySyncStatusService from './EntitySyncStatusService';
-import {get} from '../framework/http/requests';
+import {
+    DraftEncounter,
+    DraftEnrolment,
+    DraftProgramEncounter,
+    DraftSubject,
+    EntitySyncStatus,
+    IdentifierAssignment,
+    MyGroups,
+    UserInfo,
+    UserSubjectAssignment
+} from 'openchs-models';
+import {removeBackupFile} from './BackupRestoreRealmService';
+import UserInfoService from './UserInfoService';
+import {get, getJSON} from '../framework/http/requests';
 import General from '../utility/General';
+import FileSystem from '../model/FileSystem';
 import SqliteFactory from '../framework/db/SqliteFactory';
 import SqliteMigrationService, {BACKENDS} from './SqliteMigrationService';
+import toAvniError from '../framework/errorHandling/toAvniError';
+
+const PER_USER_TIER = 'perUser';
+const CATCHMENT_TIER = 'catchment';
+const SNAPSHOT_TIER = 'snapshot';
+const TIERS = [PER_USER_TIER, CATCHMENT_TIER, SNAPSHOT_TIER];
+
+// Rows that belong to whoever the dump was taken from, not to whoever restores it. Only a
+// catchment dump can carry them — a perUser dump or a snapshot is the restoring user's own, so
+// their groups, assignments and drafts are real work and deleting them would lose it.
+const PEER_OWNED_SCHEMAS = [
+    MyGroups.schema.name,
+    UserSubjectAssignment.schema.name,
+    DraftSubject.schema.name,
+    DraftEncounter.schema.name,
+    DraftEnrolment.schema.name,
+    DraftProgramEncounter.schema.name,
+];
+// Checkpoints left over from the uploader's sync. UserInfo is here without being in the list
+// above: _stampLocalIdentity rewrites that row deliberately, but the uploader's loaded_since
+// would have /v2/me asked for changes newer than this user's own record, which never returns it.
+export const PEER_OWNED_SYNC_STATUS_SCHEMAS = [
+    MyGroups.schema.name,
+    UserSubjectAssignment.schema.name,
+    UserInfo.schema.name,
+];
+
+// Not another user's rows but this device's own, gone stale since the dump was taken: the
+// identifier pool moved on, so identifiers spent and pushed after the upload come back free. The
+// server re-sends only *unused* identifiers, so nothing later corrects them and the device hands
+// out numbers already in use. True of every tier, which is why Realm clears these on every restore
+// (BackupRestoreRealmService._deleteUserInfoAndIdAssignment). Resetting the checkpoint alongside is
+// what makes it safe: the whole current unused pool then comes back down on the next sync.
+const STALE_SCHEMAS = [
+    IdentifierAssignment.schema.name,
+];
+export const STALE_SYNC_STATUS_SCHEMAS = [
+    IdentifierAssignment.schema.name,
+];
 
 /**
  * SQLite parallel to BackupRestoreRealmService for the fast-sync apply path.
  * Flow:
- *   1. Ask /media/mobileDatabaseSqliteSnapshotUrl/exists. Server returns false
+ *   1. Ask /media/fastSyncDownload/exists. Server returns false
  *      when the calling user isn't in the "SQLite Migration" group OR no
  *      snapshot has been generated for them yet. Either case → cb("restoreNoSqliteDump")
  *      and LoginActions falls through to the legacy Realm fast-sync path.
- *   2. Otherwise GET .../download → signed S3 URL → MediaService.downloadFromUrl.
+ *   2. Otherwise GET /media/fastSyncDownload → {url, tier} → MediaService.downloadFromUrl.
  *   3. Unzip; find the single `.db` inside.
- *   4. Identity check: open the downloaded .db read-only, SELECT user_info.username,
- *      compare to Settings.userId. Reject on mismatch — defence-in-depth against
- *      a snapshot misrouting.
+ *   4. Identity: open the downloaded .db read-only and SELECT user_info.username. A per-user
+ *      or snapshot artifact is generated for one user, so a mismatch with Settings.userId is
+ *      a misrouting and is rejected; a catchment artifact is a peer's database by design, so
+ *      its identity is corrected after the swap instead of asserted.
  *   5. Backup the live SQLite file, move the downloaded .db into place.
  *   6. Callback to GlobalContext.onSqliteDatabaseRestored → reopen SQLite from
  *      the swapped file, flip _activeBackend, update bean registry.
@@ -37,11 +93,12 @@ import SqliteMigrationService, {BACKENDS} from './SqliteMigrationService';
  *      which opens the backend the record still commits to, and surface "restoreFailed"
  *      so the UI can offer Retry / Slow Sync.
  *
- * Unlike the Realm flow, this DOES NOT reset entity_sync_status to
- * REALLY_OLD_DATE — the whole value of the SQLite snapshot is its populated
- * loaded_since rows. And the device-local-only entities (drafts, MyGroups,
- * UserSubjectAssignment) don't exist in a server-generated snapshot, so no
- * cleanup pass is needed for them either.
+ * Unlike the Realm flow, this DOES NOT reset entity_sync_status wholesale to
+ * REALLY_OLD_DATE — the whole value of the SQLite dump is its populated
+ * loaded_since rows. Two targeted exceptions: every tier drops the pre-allocated
+ * identifier pool, which has gone stale since the dump was taken
+ * (_clearStaleIdentifiers), and a catchment artifact, being a peer's live database,
+ * also drops that peer's own rows (_clearPeerOwnedData).
  */
 @Service('backupRestoreSqliteService')
 export default class BackupRestoreSqliteService extends BaseService {
@@ -55,6 +112,46 @@ export default class BackupRestoreSqliteService extends BaseService {
 
     subscribeOnRestoreFailure(onRestoreFailure) {
         this.onRestoreFailure = onRestoreFailure;
+    }
+
+    backup(dumpType, cb) {
+        const fileName = `${General.randomUUID()}.db`;
+        const destFile = `${FileSystem.getBackupDir()}/${fileName}`;
+        const destZipFile = `${destFile}.zip`;
+        const mediaQueueService = this.getService(MediaQueueService);
+
+        return Promise.resolve()
+            .then(() => {
+                // Taken from GlobalContext rather than this.db: a partly-failed backend switch can
+                // leave _activeBackend reading SQLite while some beans still hold the Realm handle,
+                // and a Realm file uploaded under a SQLite key would corrupt every device that
+                // restored it. SqliteProxy.writeCopyTo already checkpoints the WAL and disables FK
+                // enforcement, so the copy itself needs nothing further.
+                const sqliteProxy = GlobalContext.getInstance().sqliteDb;
+                if (!sqliteProxy) {
+                    throw new Error('SQLite database is not open; refusing to upload a fast sync dump');
+                }
+                sqliteProxy.writeCopyTo({path: destFile});
+            })
+            .then(() => zip(destFile, destZipFile))
+            .then(() => cb(10, "backupUploading"))
+            .then(() => mediaQueueService.getDumpUploadUrl(dumpType, fileName))
+            .then((url) => mediaQueueService.foregroundUpload(url, destZipFile, (written, total) => {
+                cb(10 + (97 - 10) * (written / total), "backupUploading");
+            }))
+            .then(() => removeBackupFile(destFile))
+            .then(() => removeBackupFile(destZipFile))
+            .then(() => cb(100, "backupCompleted"))
+            .catch((error) => {
+                General.logError("BackupRestoreSqliteService", error);
+                removeBackupFile(destFile).catch(() => {});
+                removeBackupFile(destZipFile).catch(() => {});
+                cb(100, "backupFailed", this._toAvniError(error));
+            });
+    }
+
+    _toAvniError(error) {
+        return toAvniError(error);
     }
 
     /**
@@ -83,15 +180,18 @@ export default class BackupRestoreSqliteService extends BaseService {
 
         try {
             cb(1, 'restoreCheckDb');
-            const existsResponse = await get(`${settingsService.getSettings().serverURL}/media/mobileDatabaseSqliteSnapshotUrl/exists`);
+            const existsResponse = await get(`${settingsService.getSettings().serverURL}/media/fastSyncDownload/exists`);
             if (existsResponse !== 'true') {
-                General.logInfo('BackupRestoreSqliteService', 'No SQLite snapshot available; falling through');
+                General.logInfo('BackupRestoreSqliteService', 'No fast sync database available; falling through');
                 cb(100, 'restoreNoSqliteDump');
                 return;
             }
 
-            const url = await get(`${settingsService.getSettings().serverURL}/media/mobileDatabaseSqliteSnapshotUrl/download`);
-            General.logDebug('BackupRestoreSqliteService', 'Downloading snapshot from signed URL');
+            const {url, tier} = await getJSON(`${settingsService.getSettings().serverURL}/media/fastSyncDownload`) || {};
+            if (!url || !TIERS.includes(tier)) {
+                throw new Error(`Fast sync download response is not usable: tier='${tier}'`);
+            }
+            General.logDebug('BackupRestoreSqliteService', `Downloading ${tier} fast sync database from signed URL`);
             await mediaService.downloadFromUrl(url, downloadedZip, (received, total) => {
                 cb(1 + (received * 80) / Math.max(total, 1), 'restoreDownloadPreparedDb');
             });
@@ -106,19 +206,24 @@ export default class BackupRestoreSqliteService extends BaseService {
             }
 
             cb(85, 'restoringDb');
-            const snapshotUsername = await this._readSnapshotUsername(dbEntry.path, unzipDir);
-            const expectedUsername = settingsService.getSettings().userId;
-            if (!snapshotUsername || snapshotUsername !== expectedUsername) {
+            const artifactUsername = await this._readSnapshotUsername(dbEntry.path, unzipDir);
+            const localUsername = settingsService.getSettings().userId;
+            if (tier !== CATCHMENT_TIER && (!artifactUsername || artifactUsername !== localUsername)) {
                 throw new Error(
-                    `SQLite snapshot user mismatch: snapshot.user_info.username='${snapshotUsername}', settings.userId='${expectedUsername}'`
+                    `SQLite snapshot user mismatch: snapshot.user_info.username='${artifactUsername}', settings.userId='${localUsername}'`
                 );
             }
 
             cb(88, 'restoringDb');
+            // Close before the file moves, not after. The open connection's own close would
+            // otherwise run against the swapped-in snapshot's path, and the backup copied
+            // below would be missing whatever was still only in the WAL.
+            this._closeLiveSqlite();
             if (await fs.exists(liveDbPath)) {
                 await fs.copyFile(liveDbPath, backupPath);
                 await fs.unlink(liveDbPath);
             }
+            await this._removeSidecars(liveDbPath);
             // -wal / -shm regenerate on first open; copy main file only.
             await fs.copyFile(dbEntry.path, liveDbPath);
 
@@ -127,7 +232,7 @@ export default class BackupRestoreSqliteService extends BaseService {
                 // false means the snapshot file is in place but SQLite would not open on it,
                 // so the runtime has fallen back to Realm. Everything below assumes the beans
                 // are on SQLite — without this the user is told the restore worked and then
-                // finds sync blocked by the mismatch with the record written at :145.
+                // finds sync blocked by the mismatch with the commitStateForUser record below.
                 const reopened = await this.onRestoreCompleted();
                 if (reopened === false) {
                     throw new Error('SQLite snapshot applied but the database could not be reopened');
@@ -143,13 +248,23 @@ export default class BackupRestoreSqliteService extends BaseService {
             //     "Cannot read property 'loadedSince' of undefined".
             // (2) bootstrap Settings: init() (idempotent default seed) then
             //     overlay the captured auth state.
+
+            // Before the seeding, not after: the seed only inserts a baseline row where none
+            // exists, so the rows for the cleared entities have to be gone by then.
+            this._clearStaleIdentifiers();
+            if (tier === CATCHMENT_TIER) {
+                this._clearPeerOwnedData();
+            }
             this._seedEntitySyncStatusBaseline();
             await this._bootstrapTargetSettings(authState);
+            if (tier === CATCHMENT_TIER) {
+                this._stampLocalIdentity(localUsername);
+            }
 
             // Recorded last, once the restored database is usable (step 8 above). Throws if
             // the write fails, which takes the failure path below.
             cb(96, 'restoringDb');
-            await SqliteMigrationService.commitStateForUser(expectedUsername, {
+            await SqliteMigrationService.commitStateForUser(localUsername, {
                 activeBackend: BACKENDS.SQLITE,
                 desiredBackend: BACKENDS.SQLITE,
                 preparedTarget: null,
@@ -176,6 +291,52 @@ export default class BackupRestoreSqliteService extends BaseService {
         }
     }
 
+    // A catchment dump is another field worker's live database, so it carries their group
+    // memberships, subject assignments and unsaved drafts. Realm clears the equivalent after its
+    // swap (_deleteUserGroups / _deleteUserSubjectAssignments / _deleteDrafts); here the sync
+    // status must go too, because this flow otherwise keeps loaded_since and the next sync would
+    // never re-pull what was deleted. Failing here fails the restore — running on a peer's
+    // memberships is worse than not restoring.
+    _clearPeerOwnedData() {
+        this._clearSchemasAndCheckpoints(PEER_OWNED_SCHEMAS, PEER_OWNED_SYNC_STATUS_SCHEMAS,
+            'refusing to run a catchment dump uncleaned');
+        General.logInfo('BackupRestoreSqliteService', 'Cleared the uploader\'s device-local rows from the catchment dump');
+    }
+
+    _clearStaleIdentifiers() {
+        this._clearSchemasAndCheckpoints(STALE_SCHEMAS, STALE_SYNC_STATUS_SCHEMAS,
+            'refusing to restore a dump with its stale identifier pool');
+        General.logInfo('BackupRestoreSqliteService', 'Cleared the dump\'s pre-allocated identifier pool');
+    }
+
+    _clearSchemasAndCheckpoints(rowSchemas, checkpointSchemas, refusal) {
+        const sqliteProxy = GlobalContext.getInstance().sqliteDb;
+        if (!sqliteProxy) {
+            throw new Error(`SQLite database is not open; ${refusal}`);
+        }
+        sqliteProxy.write(() => {
+            rowSchemas.forEach(schemaName => sqliteProxy.deleteAllInSchema(schemaName));
+            const staleSyncStatuses = _.flatMap(checkpointSchemas, schemaName =>
+                sqliteProxy.objects(EntitySyncStatus.schema.name)
+                    .filtered('entityName = $0', schemaName)
+                    .slice());
+            sqliteProxy.delete(staleSyncStatuses);
+        });
+    }
+
+    // A catchment dump carries the uploader's user_info row. Realm has always corrected this after
+    // the swap rather than rejecting the dump (BackupRestoreRealmService._restoreUserInfo); without
+    // it the device would run as the uploader.
+    _stampLocalIdentity(username) {
+        const userInfoService = this.getService(UserInfoService);
+        const existing = userInfoService.getUserInfo();
+        userInfoService.saveOrUpdate(UserInfo.fromResource({
+            username,
+            organisationName: _.get(existing, 'organisationName') || 'dummy',
+            name: username
+        }));
+    }
+
     // Mirrors the seeding half of SqliteMigrationService.prepareTarget — but NOT
     // the wipe: the snapshot file is intentionally pre-populated.
     // Idempotent: setup() only inserts REALLY_OLD_DATE rows for entities the
@@ -190,6 +351,11 @@ export default class BackupRestoreSqliteService extends BaseService {
             }
         } catch (e) {
             General.logError('BackupRestoreSqliteService', `Failed to seed baseline entity_sync_status: ${e.message}`);
+            // Every tier deletes checkpoints above on the promise that this re-creates them.
+            // Without them the next sync destructures loadedSince off undefined and aborts
+            // entirely, and only the next app launch repairs it, so fail the restore and roll
+            // the file back.
+            throw e;
         }
     }
 
@@ -282,12 +448,33 @@ export default class BackupRestoreSqliteService extends BaseService {
         try {
             if (await fs.exists(backupPath)) {
                 General.logInfo('BackupRestoreSqliteService', 'Restoring SQLite backup after failure');
+                this._closeLiveSqlite();
                 if (await fs.exists(liveDbPath)) await fs.unlink(liveDbPath);
+                await this._removeSidecars(liveDbPath);
                 await fs.moveFile(backupPath, liveDbPath);
             }
         } catch (e) {
             General.logError('BackupRestoreSqliteService', `Failed to restore SQLite backup: ${e.message}`);
         }
+    }
+
+    // Whoever closes it drops the reference: reinitializeDatabase skips its own close when the
+    // handle is gone, and nothing may be handed a closed database in between.
+    _closeLiveSqlite() {
+        const globalContext = require('../GlobalContext').default.getInstance();
+        if (!globalContext.sqliteDb) return;
+        try {
+            globalContext.sqliteDb.close();
+        } catch (e) {
+            General.logWarn('BackupRestoreSqliteService', `Closing the live SQLite connection failed: ${e.message}`);
+        }
+        globalContext.sqliteDb = null;
+    }
+
+    // -wal and -shm belong to the file they were written beside. Left next to a different one
+    // they are read as its own, and the open fails or the database reads as corrupt.
+    async _removeSidecars(dbPath) {
+        await this._cleanup(`${dbPath}-wal`, `${dbPath}-shm`);
     }
 
     async _cleanup(...paths) {

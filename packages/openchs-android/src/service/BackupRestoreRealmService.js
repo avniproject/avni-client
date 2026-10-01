@@ -29,7 +29,7 @@ import UserInfoService from './UserInfoService';
 import moment from "moment";
 import FileLoggerService from '../utility/FileLoggerService';
 import AvniError from "../framework/errorHandling/AvniError";
-import ErrorUtil from "../framework/errorHandling/ErrorUtil";
+import toAvniError from "../framework/errorHandling/toAvniError";
 
 const REALM_FILE_NAME = "default.realm";
 const REALM_FILE_FULL_PATH = `${fs.DocumentDirectoryPath}/${REALM_FILE_NAME}`;
@@ -154,12 +154,7 @@ export default class BackupRestoreRealmService extends BaseService {
     }
 
     _toAvniError(error) {
-        try {
-            return ErrorUtil.getAvniErrorSync(error);
-        } catch (e) {
-            const message = _.get(error, "message", String(error));
-            return AvniError.create(message, message);
-        }
+        return toAvniError(error);
     }
 
     _getUsernameForBackup(providedUsername = null) {

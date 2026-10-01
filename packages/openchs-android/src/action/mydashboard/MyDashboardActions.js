@@ -147,7 +147,7 @@ function countCards(individualService, dashboardCacheFilter, customFilterSubject
         card.recentlyCompletedVisits += individualService.countRecentlyCompletedVisits(filterDate, [], encounterCriteria, generalEncounterCriteria, undefined, visitTables);
         card.recentlyCompletedRegistration += individualService.countRecentlyRegistered(filterDate, [], subjectCriteria);
         card.recentlyCompletedEnrolment += individualService.countRecentlyEnrolled(filterDate, [], restrictedTo('enrolmentFilters'));
-        card.total += individualService.countAllIn(filterDate, [], subjectCriteria);
+        card.total += individualService.countAllNonVoided(subjectCriteria);
     });
 
     return card;
@@ -471,12 +471,12 @@ class MyDashboardActions {
             }));
         const anyActiveTypes = newState.addressLevelState.anyActiveTypesArray;
         updateCachedFilterFields({selectedAddressesInfo, anyActiveTypes, selectedSubjectTypeUUID: newState.selectedSubjectType.uuid, filterDate: action.filterDate}, context);
-        const updatedState = _.isNil(action.listType) ?
-            MyDashboardActions.onLoad(newState, {
-                customFilterSubjectUUIDs: newState.individualUUIDs,
-                customFilterResolvedAgainst: newState.customFilterResolvedAgainst
-            }, context) :
-            MyDashboardActions.onListLoad(newState, action, context);
+        // A filter applied from a card's list is the dashboard's filter too, so its counts are recomputed as well.
+        const dashboardState = MyDashboardActions.onLoad(newState, {
+            customFilterSubjectUUIDs: newState.individualUUIDs,
+            customFilterResolvedAgainst: newState.customFilterResolvedAgainst
+        }, context);
+        const updatedState = _.isNil(action.listType) ? dashboardState : MyDashboardActions.onListLoad(dashboardState, action, context);
         logEvent(firebaseEvents.MY_DASHBOARD_FILTER, {time_taken: Date.now() - startTime, applied_filters: selectedFilterTypes});
         return updatedState;
     }

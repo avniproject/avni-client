@@ -57,18 +57,18 @@ describe('upsert against a table with no primary key', () => {
     it('accepts the upsert IdentifierAssignmentService asks for, instead of rejecting it', () => {
         expect(() => {
             proxy.write(() => {
-                proxy.create('EntityQueue', queueRow('ia-2138-a'), true, {skipHydration: true});
+                proxy.create('EntityQueue', queueRow('ia-2138-a'), true);
             });
         }).not.toThrow();
 
         expect(rowsFor('ia-2138-a')).toHaveLength(1);
     });
 
-    it('keeps one row per entityUUID across repeated upserts, as Realm did', () => {
+    it('keeps one row per entityUUID across repeated upserts', () => {
         proxy.write(() => {
-            proxy.create('EntityQueue', queueRow('ia-2138-b'), true, {skipHydration: true});
-            proxy.create('EntityQueue', queueRow('ia-2138-b'), true, {skipHydration: true});
-            proxy.create('EntityQueue', queueRow('ia-2138-b'), true, {skipHydration: true});
+            proxy.create('EntityQueue', queueRow('ia-2138-b'), true);
+            proxy.create('EntityQueue', queueRow('ia-2138-b'), true);
+            proxy.create('EntityQueue', queueRow('ia-2138-b'), true);
         });
 
         expect(rowsFor('ia-2138-b')).toHaveLength(1);
@@ -76,17 +76,17 @@ describe('upsert against a table with no primary key', () => {
 
     it('still keeps separate rows for different entityUUIDs', () => {
         proxy.write(() => {
-            proxy.create('EntityQueue', queueRow('ia-2138-c'), true, {skipHydration: true});
-            proxy.create('EntityQueue', queueRow('ia-2138-d'), true, {skipHydration: true});
+            proxy.create('EntityQueue', queueRow('ia-2138-c'), true);
+            proxy.create('EntityQueue', queueRow('ia-2138-d'), true);
         });
 
         expect(rowsFor('ia-2138-c')).toHaveLength(1);
         expect(rowsFor('ia-2138-d')).toHaveLength(1);
     });
 
-    it('a one-argument create still works on the same table', () => {
+    it('the plain create every other EntityQueue caller uses still works on the same table', () => {
         proxy.write(() => {
-            proxy.create('EntityQueue', queueRow('ia-2138-e'), false, {skipHydration: true});
+            proxy.create('EntityQueue', queueRow('ia-2138-e'));
         });
 
         expect(rowsFor('ia-2138-e')).toHaveLength(1);

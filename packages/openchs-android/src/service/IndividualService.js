@@ -316,6 +316,11 @@ class IndividualService extends BaseService {
         return countAfterFilters(subjects, subjectCriteria, reportFilters, Individual.schema.name, this.getService(CustomFilterService));
     }
 
+    // My Dashboard's Total list (allIn) ignores the dashboard date, so its count does too.
+    countAllNonVoided(subjectCriteria) {
+        return countAfterFilters(this.repository.getAllNonVoided(), subjectCriteria, [], Individual.schema.name, this.getService(CustomFilterService));
+    }
+
     countRecentlyRegistered(date, reportFilters, subjectCriteria, duration = new Duration(1, Duration.Day)) {
         const {tillDate, fromDate} = getDateRange(date, duration);
         let subjects = this.repository.findAll()
@@ -460,7 +465,7 @@ class IndividualService extends BaseService {
 
     allIn(ignored, reportFilters, queryAdditions) {
         const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
-        let individuals = this.repository.getAllNonVoided();
+        let individuals = forListDisplay(this.repository.getAllNonVoided(), SUBJECT_WITH_BADGES);
         if (!_.isEmpty(queryAdditions)) {
             individuals = individuals.filtered(queryAdditions);
         }
@@ -784,7 +789,7 @@ class IndividualService extends BaseService {
 
         General.logDebug("IndividualService", "recentlyEnrolled", "fromDate", fromDate, "tillDate", tillDate, programEnrolmentCriteria);
 
-        let enrolments = this.getRepository(ProgramEnrolment.schema.name).findAll()
+        let enrolments = forListDisplay(this.getRepository(ProgramEnrolment.schema.name).findAll(), SUBJECT_DIRECT_WITH_BADGES)
             .filtered('voided = false ' +
                 'AND individual.voided = false ' +
                 'AND enrolmentDateTime <= $0 ' +

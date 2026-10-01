@@ -38,7 +38,8 @@ function makeIndividualService(counts = UNFILTERED) {
         countRecentlyCompletedVisits: (...args) => (record("countRecentlyCompletedVisits", args), counts.recentlyCompletedVisits),
         countRecentlyRegistered: (...args) => (record("countRecentlyRegistered", args), counts.recentlyCompletedRegistration),
         countRecentlyEnrolled: (...args) => (record("countRecentlyEnrolled", args), counts.recentlyCompletedEnrolment),
-        countAllIn: (...args) => (record("countAllIn", args), counts.total),
+        countAllIn: (...args) => (record("countAllIn", args), counts.totalAsOfDate ?? counts.total),
+        countAllNonVoided: (...args) => (record("countAllNonVoided", args), counts.total),
         performVisitEncounterTypeUuids: (...args) => (record("performVisitEncounterTypeUuids", args), ALLOWED_VISIT_TYPES),
         dueChecklistForDefaultDashboard: () => ({individual: [], checklistItemNames: []}),
         // Entity lists, used by onListLoad when filters are applied from the list screen.
@@ -159,6 +160,18 @@ describe("MyDashboardActions.onLoad card counts", () => {
         assert.equal(new Date(individualService.callTo("countScheduledVisits").args[0]).getTime(), today.getTime());
     });
 
+    it("counts the Total card the way its list does, including subjects registered after the dashboard date", () => {
+        const context = buildContext({
+            individualService: makeIndividualService({...UNFILTERED, total: 813, totalAsOfDate: 809}),
+            dashboardCacheService: makeDashboardCacheService(),
+            customFilterService: noCustomFilters()
+        });
+
+        const state = MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
+
+        assert.equal(countsOf(state).total, 813);
+    });
+
     it("restricts the counts to the subjects a custom filter matched", () => {
         const individualService = makeIndividualService();
         const dashboardCacheService = makeDashboardCacheService();
@@ -178,7 +191,7 @@ describe("MyDashboardActions.onLoad card counts", () => {
         const scheduled = individualService.callTo("countScheduledVisits");
         assert.include(scheduled.args[2], 'programEnrolment.individual.uuid = "subject-1"');
         assert.include(scheduled.args[3], 'individual.uuid = "subject-2"');
-        assert.include(individualService.callTo("countAllIn").args[2], 'uuid = "subject-1"');
+        assert.include(individualService.callTo("countAllNonVoided").args[0], 'uuid = "subject-1"');
         assert.include(individualService.callTo("countRecentlyEnrolled").args[2], 'individual.uuid = "subject-1"');
     });
 
@@ -312,11 +325,11 @@ describe("MyDashboardActions.onLoad card counts", () => {
         });
 
         const state = MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
-        assert.notInclude(individualService.callTo("countAllIn").args[2], '"subject-2"');
+        assert.notInclude(individualService.callTo("countAllNonVoided").args[0], '"subject-2"');
 
         matched = ["subject-1", "subject-2"];
         MyDashboardActions.onLoad(state, {fetchFromDB: true}, context);
-        assert.include(individualService.callTo("countAllIn").args[2], '"subject-2"',
+        assert.include(individualService.callTo("countAllNonVoided").args[0], '"subject-2"',
             "the newly matching subject must reach the counts without an app restart");
     });
 
@@ -368,6 +381,37 @@ describe("MyDashboardActions.onLoad card counts", () => {
         const resolutionsAfterApply = customFilterService.resolutions;
         MyDashboardActions.onLoad({...afterList, fetchFromDB: false}, {}, context);
         assert.equal(customFilterService.resolutions, resolutionsAfterApply, "no wasted re-scan");
+    });
+
+    it("recomputes the dashboard's counts when a filter is applied from a card's list", () => {
+        const counts = {...UNFILTERED};
+        const individualService = makeIndividualService(counts);
+        const context = buildContext({
+            individualService,
+            dashboardCacheService: makeDashboardCacheService(),
+            customFilterService: noCustomFilters()
+        });
+        const loaded = MyDashboardActions.onLoad(MyDashboardActions.getInitialState(context), {}, context);
+        assert.deepEqual(countsOf(loaded), UNFILTERED);
+
+        const filtered = {...UNFILTERED, scheduled: 1, recentlyCompletedVisits: 3, total: 1};
+        Object.assign(counts, filtered);
+        const applyAction = {
+            filters: new Map(),
+            locationSearchCriteria: {clone: () => ({getAllAddressLevelUUIDs: () => []})},
+            addressLevelState: {clone: () => ({levels: new Map(), anyActiveTypesArray: []}), anyActiveTypesArray: []},
+            filterDate: new Date("2026-08-24T00:00:00.000Z"),
+            programs: [], selectedPrograms: [], encounterTypes: [], selectedEncounterTypes: [],
+            generalEncounterTypes: [], selectedGeneralEncounterTypes: [], selectedGenders: [],
+            selectedLocations: [], selectedSubjectType: SUBJECT_TYPE, selectedCustomFilters: {},
+            listType: "overdue"
+        };
+
+        const afterList = MyDashboardActions.assignFilters(loaded, applyAction, context);
+
+        assert.deepEqual(countsOf(afterList), filtered, "the dashboard behind the list shows the new filter's numbers");
+        assert.isArray(afterList.itemsToDisplay, "the list itself is still reloaded");
+        assert.deepEqual(countsOf(MyDashboardActions.onLoad(afterList, {fetchFromDB: false}, context)), filtered);
     });
 
     it("zeroes the cards for a custom filter that matches nothing, and restores them when it is cleared", () => {

@@ -384,9 +384,12 @@ class SqliteProxy {
         const placeholders = columnsToInsert.map(() => "?").join(", ");
         const colList = columnsToInsert.map(c => `"${c}"`).join(", ");
 
-        // For tables without a primary key (e.g., EntityQueue), Realm kept one row
-        // per logical key (entityUUID). Replicate this by deleting the existing row
-        // before inserting the new one.
+        // No primary key, so nothing stops a second row for the same entity. For
+        // EntityQueue, delete the existing row by entity_uuid first, keeping one row per
+        // entity. Realm never did this: with no primary key it appends on every create,
+        // and EntityQueueService dedups by entityUUID when it reads the queue. Only this
+        // DELETE gives the guarantee. bulkCreate has no equivalent, and a no-PK table
+        // without entity_uuid (BeneficiaryModePin) appends, so its callers keep it to one row.
         if (!tableMeta.primaryKey && flatRow.entity_uuid) {
             this._executeRaw(
                 `DELETE FROM ${tableMeta.tableName} WHERE "entity_uuid" = ?`,
@@ -644,11 +647,10 @@ class SqliteProxy {
         const placeholders = columnNames.map(() => "?").join(", ");
 
         // No primary key means no conflict target. ON CONFLICT("uuid") named a column the
-        // table does not have and SQLite rejected the whole statement (#2138). create()
-        // already DELETEs by entity_uuid for these tables, which is the Realm
-        // one-row-per-key behaviour the upsert was standing in for, so a plain INSERT
-        // keeps the semantics. Not INSERT OR IGNORE: that would also swallow NOT NULL and
-        // foreign-key failures this path still wants to hear about.
+        // table does not have and SQLite rejected the whole statement (#2138). A plain
+        // INSERT appends, so this template keeps no one-row-per-key rule; the DELETE in
+        // create() is the only thing that does. Not INSERT OR IGNORE: that would also
+        // swallow NOT NULL and foreign-key failures this path still wants to hear about.
         if (!tableMeta.primaryKey) {
             return {
                 sql: `INSERT INTO ${tableMeta.tableName} (${colList}) VALUES (${placeholders})`,
@@ -656,7 +658,7 @@ class SqliteProxy {
             };
         }
 
-        const pk = tableMeta.primaryKey || "uuid";
+        const pk = tableMeta.primaryKey;
         const updateCols = columnNames
             .filter(c => c !== pk)
             .map(c => `"${c}" = excluded."${c}"`)

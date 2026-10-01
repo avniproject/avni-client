@@ -48,6 +48,7 @@ class IndividualList extends AbstractComponent {
             addressLevelState: this.state.addressLevelState,
             programs: this.state.programs,
             selectedPrograms: this.state.selectedPrograms,
+            selectedSubjectType: this.state.selectedSubjectType,
             encounterTypes: this.state.encounterTypes,
             selectedEncounterTypes: this.state.selectedEncounterTypes,
             generalEncounterTypes: this.state.generalEncounterTypes,
