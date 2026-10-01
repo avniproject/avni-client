@@ -55,7 +55,7 @@ describe('ObservationsHolderActions.onInferenceUnavailable', () => {
     it('resolves an RQG child element by concept name + parent group', () => {
         const child = fe('uuid-child', 'AI Verdict', {
             isQuestionGroup: () => true,
-            getParentFormElement: () => ({concept: {name: 'Image-wise AI Assessment'}}),
+            getParentFormElement: () => ({concept: {name: 'Image-wise AI Assessment', isHidden: () => false}}),
         });
         const state = makeState([child]);
         const result = ObservationsHolderActions.onInferenceUnavailable(state, {
@@ -96,11 +96,26 @@ describe('ObservationsHolderActions.onInferenceUnavailable', () => {
         const child = fe('uuid-child', 'AI Verdict', {
             concept: {name: 'AI Verdict', isHidden: () => true},
             isQuestionGroup: () => true,
-            getParentFormElement: () => ({concept: {name: 'Image-wise AI Assessment'}}),
+            getParentFormElement: () => ({concept: {name: 'Image-wise AI Assessment', isHidden: () => false}}),
         });
         const state = makeState([child]);
         const result = ObservationsHolderActions.onInferenceUnavailable(state, {
             conceptName: 'AI Verdict', questionGroupConceptName: 'Image-wise AI Assessment',
+            questionGroupIndex: 0, messageKey: 'aiInferenceFailed',
+        }, {});
+
+        expect(result).toBe(state);
+    });
+
+    it('raises nothing for a question inside a hidden repeating block, even when the question itself is not hidden', () => {
+        const child = fe('uuid-child', 'AI Verdict', {
+            concept: {name: 'AI Verdict', isHidden: () => false},
+            isQuestionGroup: () => true,
+            getParentFormElement: () => ({concept: {name: 'AI Results', isHidden: () => true}}),
+        });
+        const state = makeState([child]);
+        const result = ObservationsHolderActions.onInferenceUnavailable(state, {
+            conceptName: 'AI Verdict', questionGroupConceptName: 'AI Results',
             questionGroupIndex: 0, messageKey: 'aiInferenceFailed',
         }, {});
 
