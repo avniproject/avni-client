@@ -314,11 +314,18 @@ export default class MediaFormElement extends AbstractFormElement {
     showInputOptions(onUpdateObservations) {
         if (!this.isGuidedCamera) return this.renderStandardInputOptions(onUpdateObservations);
         const rowState = this.guidedRowState;
-        if (rowState.blocked) return this.renderBlockedCapture(rowState);
+        // The gallery answers to "Do not allow upload from gallery" alone (#2166). Probing and blocking
+        // change only the camera. A row left with no button draws no button strip.
+        const gallery = this.renderGalleryButton(onUpdateObservations);
+        const camera = rowState.blocked ? null : this.renderGuidedCameraButton(onUpdateObservations, rowState.probing);
         return (
             <View>
-                {this.renderGuidance(rowState)}
-                {this.renderGuidedCaptureButton(onUpdateObservations, rowState.probing)}
+                {rowState.blocked ? this.renderBlockedCapture(rowState) : this.renderGuidance(rowState)}
+                {(gallery || camera) &&
+                    <View style={[styles.contentRow, {justifyContent: 'flex-end'}]}>
+                        {gallery}
+                        {camera}
+                    </View>}
             </View>
         );
     }
@@ -326,18 +333,23 @@ export default class MediaFormElement extends AbstractFormElement {
     renderStandardInputOptions(onUpdateObservations) {
         return (
             <View style={[styles.contentRow, {justifyContent: 'flex-end'}]}>
-                {!this.props.element.restrictGalleryUpload && <TouchableNativeFeedback onPress={() => {
-                    this.launchMediaLibrary(onUpdateObservations)
-                }}
-                                         background={TouchableNativeFeedback.SelectableBackground()}>
-                    <Icon name={'folder-open'} style={styles.icon}/>
-                </TouchableNativeFeedback>}
+                {this.renderGalleryButton(onUpdateObservations)}
                 <TouchableNativeFeedback onPress={() => this.launchCamera(onUpdateObservations)}
                                          background={TouchableNativeFeedback.SelectableBackground()}>
                     <Icon name={this.isImage ? 'camera' : this.isVideo ? 'video' : 'alert-octagon'}
                           style={styles.icon}/>
                 </TouchableNativeFeedback>
             </View>
+        );
+    }
+
+    renderGalleryButton(onUpdateObservations) {
+        if (this.props.element.restrictGalleryUpload) return null;
+        return (
+            <TouchableNativeFeedback onPress={() => this.launchMediaLibrary(onUpdateObservations)}
+                                     background={TouchableNativeFeedback.SelectableBackground()}>
+                <Icon name={'folder-open'} style={styles.icon}/>
+            </TouchableNativeFeedback>
         );
     }
 
@@ -354,15 +366,13 @@ export default class MediaFormElement extends AbstractFormElement {
         );
     }
 
-    renderGuidedCaptureButton(onUpdateObservations, disabled) {
+    renderGuidedCameraButton(onUpdateObservations, disabled) {
         return (
-            <View style={[styles.contentRow, {justifyContent: 'flex-end'}]}>
-                <TouchableNativeFeedback disabled={disabled}
-                                         onPress={() => this.openGuidedCamera(onUpdateObservations)}
-                                         background={TouchableNativeFeedback.SelectableBackground()}>
-                    <Icon name={'camera'} style={[styles.icon, disabled && styles.iconDisabled]}/>
-                </TouchableNativeFeedback>
-            </View>
+            <TouchableNativeFeedback disabled={disabled}
+                                     onPress={() => this.openGuidedCamera(onUpdateObservations)}
+                                     background={TouchableNativeFeedback.SelectableBackground()}>
+                <Icon name={'camera'} style={[styles.icon, disabled && styles.iconDisabled]}/>
+            </TouchableNativeFeedback>
         );
     }
 
