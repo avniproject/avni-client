@@ -56,4 +56,21 @@ describe('a hidden concept read back from SQLite', () => {
 
         expect(hiddenByQuestion).toEqual([['hc-fe-verdict', true], ['hc-fe-notes', false]]);
     });
+
+    it("still reports a recorded value's concept as hidden when a subject is read back", async () => {
+        await proxy.bulkCreate('Concept', [
+            {uuid: 'hc-obs-verdict', name: 'Recorded verdict', datatype: 'Text', voided: false, keyValues: [{key: 'hidden', value: 'true'}]},
+            {uuid: 'hc-obs-notes', name: 'Recorded notes', datatype: 'Text', voided: false, keyValues: []},
+        ]);
+        await proxy.bulkCreate('Individual', [{uuid: 'hc-subject', firstName: 'Kavita', voided: false,
+            observations: [
+                {concept: {uuid: 'hc-obs-verdict', name: 'Recorded verdict'}, valueJSON: '{"answer":"Suspicious"}'},
+                {concept: {uuid: 'hc-obs-notes', name: 'Recorded notes'}, valueJSON: '{"answer":"Looks fine"}'},
+            ]}]);
+
+        const subject = proxy.objectForPrimaryKey('Individual', 'hc-subject');
+        const hiddenByValue = Array.from(subject.observations).map((observation) => [observation.concept.uuid, observation.concept.isHidden()]);
+
+        expect(hiddenByValue).toEqual([['hc-obs-verdict', true], ['hc-obs-notes', false]]);
+    });
 });
