@@ -10,7 +10,7 @@
  */
 
 import _ from "lodash";
-import {Individual} from "openchs-models";
+import {Individual, SubjectType} from "openchs-models";
 import {EMBEDDED_SCHEMA_NAMES, JSON_UUID_ARRAY_LIST_PROPERTIES} from "./SchemaGenerator";
 import {camelToSnake, schemaNameToTableName, normalizeRealmType} from "./SqliteUtils";
 import General from "../../utility/General";
@@ -20,6 +20,14 @@ import General from "../../utility/General";
 const DUMMY_UUIDS = new Set([
     Individual.getAddressLevelDummyUUID(),
 ]);
+
+// The placeholder address is written as NULL (above); hand it back on read, as Realm does,
+// so a user subject's address never reads as missing (fullAddress() does not null-check).
+function restoreUserSubjectPlaceholderAddress(individual) {
+    if (!_.isNil(individual.lowestAddressLevel)) return;
+    if (_.get(individual, "subjectType.type") !== SubjectType.types.User) return;
+    individual.lowestAddressLevel = {locationProperties: [], ...Individual.getPlaceholderAddressLevel().that};
+}
 
 // Referenced schemas whose own child-FK lists must still hydrate even when the
 // reference is reached at depth 0. Floors the resolved depth for these refs.
@@ -249,6 +257,8 @@ class EntityHydrator {
         } finally {
             if (cycleKey) this._inProgress.delete(cycleKey);
         }
+
+        if (schemaName === Individual.schema.name) restoreUserSubjectPlaceholderAddress(result);
 
         return result;
     }
