@@ -17,6 +17,7 @@ import FormShareTemplateService from "./FormShareTemplateService";
 import PDFGenerationService from "./PDFGenerationService";
 import General from "../utility/General";
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
+import {visibleGroupObservations, visibleObservations} from "../utility/HiddenObservations";
 
 function snakeCase(str) {
     const out = _.snakeCase(_.deburr(String(str || "")));
@@ -201,7 +202,7 @@ class FormShareService extends BaseService {
     }
 
     _filterShareableObservations(observations) {
-        return _.filter(observations, o => o?.concept && !o.concept.isMediaConcept());
+        return visibleObservations(_.filter(observations, o => o?.concept && !o.concept.isMediaConcept()), this.getService(ConceptService));
     }
 
     _getObservationDisplayText(observation) {
@@ -235,10 +236,12 @@ class FormShareService extends BaseService {
                 const isRepeatable = valueWrapper && _.isFunction(valueWrapper.isRepeatable) && valueWrapper.isRepeatable();
                 if (isRepeatable) {
                     const repetitions = valueWrapper.getValue() || [];
-                    const blocks = repetitions.map(qg => this._renderObservationLines(qg.getValue ? qg.getValue() : [], pad + "  "));
+                    const blocks = repetitions.map(qg => this._renderObservationLines(
+                        visibleGroupObservations(qg.getValue ? qg.getValue() : [], this.getService(ConceptService)), pad + "  "));
                     return [header, ...blocks].filter(s => !_.isEmpty(s)).join("\n");
                 }
-                const inner = this._renderObservationLines(valueWrapper ? valueWrapper.getValue() : [], pad + "  ");
+                const inner = this._renderObservationLines(
+                    visibleGroupObservations(valueWrapper ? valueWrapper.getValue() : [], this.getService(ConceptService)), pad + "  ");
                 return _.isEmpty(inner) ? header : `${header}\n${inner}`;
             }
             const value = this._getObservationDisplayText(o) || "—";
