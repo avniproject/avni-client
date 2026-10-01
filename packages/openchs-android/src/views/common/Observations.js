@@ -22,6 +22,7 @@ import CustomActivityIndicator from "../CustomActivityIndicator";
 import PhoneCall from "../../model/PhoneCall";
 import {TaskActionNames as Actions} from "../../action/task/TaskActions";
 import ErrorUtil from "../../framework/errorHandling/ErrorUtil";
+import {visibleGroupObservations, visibleObservations} from "../../utility/HiddenObservations";
 
 class Observations extends AbstractComponent {
     static propTypes = {
@@ -285,7 +286,7 @@ class Observations extends AbstractComponent {
 
     renderQuestionGroup(questionGroupObservations, index) {
         return (
-            _.map(questionGroupObservations, obs => (
+            _.map(visibleGroupObservations(questionGroupObservations, this.context.getService(ConceptService)), obs => (
                 <View key={`${obs.concept.uuid}-${index}`} style={[{flexDirection: "row"}, this.styles.observationRow]}>
                     <View style={{width: 5, backgroundColor: 'rgba(0, 0, 0, 0.12)'}}/>
                     <View style={this.styles.observationColumn}>
@@ -337,9 +338,7 @@ class Observations extends AbstractComponent {
     }
 
     // Mapped rows, not a virtualized ListView: nested in a ScrollView its clip/unclip churn destabilises measured height.
-    renderNormalObservationTable() {
-        const observations = this.props.observations || [];
-
+    renderNormalObservationTable(observations) {
         return <View style={this.styles.observationTable}>
             <Separator height={1} backgroundColor={'rgba(0, 0, 0, 0.12)'}/>
             {observations.map((observation, idx) => (
@@ -351,8 +350,8 @@ class Observations extends AbstractComponent {
         </View>;
     }
 
-    renderObservationTable(quickFormEdit) {
-        const sectionWiseObs = this.props.form.sectionWiseOrderedObservations(this.props.observations);
+    renderObservationTable(observations, quickFormEdit) {
+        const sectionWiseObs = this.props.form.sectionWiseOrderedObservations(observations);
 
         return <View style={this.styles.observationTable}>
             <Separator height={1} backgroundColor={'rgba(0, 0, 0, 0.12)'}/>
@@ -366,14 +365,15 @@ class Observations extends AbstractComponent {
     }
 
     render() {
-        if (this.props.observations.length === 0) return <View/>;
+        const observations = visibleObservations(this.props.observations, this.context.getService(ConceptService));
+        if (observations.length === 0) return <View/>;
         return (
             <View style={[{flexDirection: "column", paddingVertical: 3}, this.props.style]}>
                 <CustomActivityIndicator loading={this.state.displayProgressIndicator}/>
                 {this.renderTitle()}
                 {_.isNil(this.props.form) ?
-                    this.renderNormalObservationTable() :
-                    this.renderObservationTable(this.props.quickFormEdit)}
+                    this.renderNormalObservationTable(observations) :
+                    this.renderObservationTable(observations, this.props.quickFormEdit)}
             </View>
         );
     }
