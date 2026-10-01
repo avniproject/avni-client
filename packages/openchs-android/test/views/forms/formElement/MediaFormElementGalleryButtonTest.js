@@ -1,5 +1,5 @@
 import React from "react";
-import {TouchableNativeFeedback} from "react-native";
+import {StyleSheet, TouchableNativeFeedback} from "react-native";
 import TestRenderer, {act} from "react-test-renderer";
 import _ from "lodash";
 
@@ -84,6 +84,8 @@ const flush = () => new Promise((resolve) => setImmediate(resolve));
 const settle = async (renderer) => { await act(async () => { await flush(); }); return renderer; };
 const hasIcon = (node, name) => node.findAll((n) => n.props.testID === `icon:${name}`).length > 0;
 const buttons = (renderer) => renderer.root.findAllByType(TouchableNativeFeedback);
+// The strip is the 40px-high row that holds the buttons. A row with no button must not draw an empty one.
+const buttonStrips = (renderer) => renderer.root.findAll((n) => n.type === "View" && _.get(StyleSheet.flatten(n.props.style), "height") === 40);
 const buttonHolding = (renderer, name) => buttons(renderer).find((touchable) => hasIcon(touchable, name));
 const tap = async (touchable) => { await act(async () => { touchable.props.onPress(); await flush(); }); };
 const guidedCameraOpen = (renderer) => renderer.root.findAll((n) => n.props.testID === "guided-camera:true").length > 0;
@@ -147,12 +149,14 @@ describe("The gallery button on a photo question follows 'Do not allow upload fr
         expect(hasIcon(renderer.root, "alert-circle-outline")).toBe(true);
         expect(hasIcon(renderer.root, "folder-open")).toBe(true);
         expect(hasIcon(renderer.root, "camera")).toBe(false);
+        expect(buttonStrips(renderer)).toHaveLength(1);
     });
 
     it("blocked by a bad rule, gallery not allowed: red box and no buttons", async () => {
         const renderer = await settle(draw(photoQuestion({guidedCamera: true, restrictGalleryUpload: true, captureGuidance: BAD_RULE})));
         expect(hasIcon(renderer.root, "alert-circle-outline")).toBe(true);
         expect(buttons(renderer)).toHaveLength(0);
+        expect(buttonStrips(renderer)).toHaveLength(0);
     });
 
     it("blocked because a guidance image is missing on the device: gallery still shows, camera does not", async () => {
