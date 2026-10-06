@@ -19,9 +19,11 @@ import {camelToSnake, schemaNameToTableName} from "./SqliteUtils";
 import JsFallbackFilterEvaluator from "./JsFallbackFilterEvaluator";
 import General from "../../utility/General";
 
+const isIndexName = (name) => typeof name !== "symbol" && !isNaN(name) && !isNaN(parseInt(name));
+
 const SqliteResultsProxyHandler = {
     get: function (target, name, receiver) {
-        if (typeof name !== "symbol" && !isNaN(name) && !isNaN(parseInt(name))) {
+        if (isIndexName(name)) {
             return target.getAt(Number.parseInt(name));
         } else if (name === "length") {
             return target.getLength();
@@ -37,17 +39,37 @@ const SqliteResultsProxyHandler = {
     },
 };
 
+// Method paths that must yield raw hydrated objects, not wrapped entities —
+// callers re-wrap per item, so serving entities here double-wraps.
+const RAW_ARRAY_DELEGATES = new Set([
+    Symbol.iterator, "map", "forEach", "filter", "find", "some", "every",
+    "slice", "join", "indexOf", "includes", "reduce", "entries", "keys", "values",
+]);
+
 const RawCollectionProxyHandler = {
     get: function (target, name, receiver) {
-        if (typeof name !== "symbol" && !isNaN(name) && !isNaN(parseInt(name))) {
-            const entity = target.getAt(Number.parseInt(name));
-            return (entity && entity.that) ? entity.that : entity;
+        if (isIndexName(name)) {
+            return target.getRawAt(Number.parseInt(name));
         } else if (name === "length") {
             return target.getLength();
         } else if (name === "realmCollection") {
             return receiver;
+        } else if (RAW_ARRAY_DELEGATES.has(name)) {
+            const entities = target._getEntities();
+            return entities[name].bind(entities);
         }
         return Reflect.get(target, name);
+    },
+    // Realm's Results enumerates as its indices; without these traps Object.keys
+    // leaks the proxy's internal fields, which ListViewDataSource then renders as rows.
+    ownKeys: function (target) {
+        return Array.from({length: target.getLength()}, (ignored, index) => String(index));
+    },
+    getOwnPropertyDescriptor: function (target, name) {
+        if (isIndexName(name) && Number.parseInt(name) < target.getLength()) {
+            return {value: target.getRawAt(Number.parseInt(name)), enumerable: true, writable: true, configurable: true};
+        }
+        return Reflect.getOwnPropertyDescriptor(target, name);
     },
 };
 
@@ -491,6 +513,11 @@ class SqliteResultsProxy {
 
     createEntity(hydratedObj) {
         return new this.entityClass(hydratedObj);
+    }
+
+    getRawAt(index) {
+        const entity = this.getAt(index);
+        return (entity && entity.that) ? entity.that : entity;
     }
 
     getRawCollection() {

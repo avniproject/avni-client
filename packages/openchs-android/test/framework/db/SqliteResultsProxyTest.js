@@ -806,4 +806,35 @@ describe("realmCollection — getUnderlyingRealmCollection contract", () => {
         expect(proxy.realmCollection.length).toBe(2);
         expect(proxy.realmCollection[5]).toBeNull();
     });
+
+    it("Object.keys on realmCollection returns indices, not internal proxy fields", () => {
+        const {proxy} = createWrappedProxy();
+        expect(Object.keys(proxy.realmCollection)).toEqual(["0", "1"]);
+    });
+
+    it("ListViewDataSource-style access: keys index back into the collection", () => {
+        const {proxy} = createWrappedProxy();
+        const raw = proxy.realmCollection;
+        const names = Object.keys(raw).map(key => raw[key].firstName);
+        expect(names).toEqual(["Alice", "Bob"]);
+    });
+
+    it("iteration over realmCollection yields raw objects", () => {
+        const {proxy} = createWrappedProxy();
+        const raw = proxy.realmCollection;
+        expect([...raw][0]).not.toBeInstanceOf(MockWrappedEntity);
+        expect(Array.from(raw)[1].firstName).toBe("Bob");
+        const collected = [];
+        for (const item of raw) collected.push(item);
+        expect(collected.every(item => !(item instanceof MockWrappedEntity))).toBe(true);
+    });
+
+    it("array methods on realmCollection yield raw objects", () => {
+        const {proxy} = createWrappedProxy();
+        const raw = proxy.realmCollection;
+        expect(raw.map(item => item)[0]).not.toBeInstanceOf(MockWrappedEntity);
+        expect(raw.slice(0, 1)[0]).not.toBeInstanceOf(MockWrappedEntity);
+        expect(raw.filter(item => item.firstName === "Bob")[0].uuid).toBe("2");
+        expect(raw.find(item => item.uuid === "1")).not.toBeInstanceOf(MockWrappedEntity);
+    });
 });
