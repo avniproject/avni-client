@@ -13,10 +13,11 @@ export const BLOCK_MESSAGE_KEYS = {
     [BlockReason.Misconfiguration]: "guidedCaptureMisconfigured"
 };
 
+// Ticking Guided camera promises a forced flash and needs a phone with one (#2166); a rule may relax either.
 const DEFAULTS = Object.freeze({
     label: null,
-    flash: "auto",
-    blockOnNoFlash: false,
+    flash: "on",
+    blockOnNoFlash: true,
     blockOnCaptureFailure: true,
     reckonerPath: null,
     overlayPath: null,

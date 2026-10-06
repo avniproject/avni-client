@@ -17,11 +17,11 @@ const RECKONER = `${GUIDANCE_DIR}/aaa.png`;
 const OVERLAY = `${GUIDANCE_DIR}/bbb.png`;
 
 describe("resolveCaptureGuidance — defaults", () => {
-    it("applies the safe defaults when the rule set no guidance", () => {
+    it("forces the flash, and blocks a phone without one, when the rule set no guidance", () => {
         [undefined, null].forEach(raw => {
             const resolved = resolveCaptureGuidance(raw, GUIDANCE_DIR);
             assert.deepEqual(resolved, {
-                label: null, flash: "auto", blockOnNoFlash: false, blockOnCaptureFailure: true,
+                label: null, flash: "on", blockOnNoFlash: true, blockOnCaptureFailure: true,
                 reckonerPath: null, overlayPath: null, blockCapture: null
             });
         });
@@ -29,15 +29,16 @@ describe("resolveCaptureGuidance — defaults", () => {
 
     it("applies the same defaults for an empty object", () => {
         const resolved = resolveCaptureGuidance({}, GUIDANCE_DIR);
-        assert.equal(resolved.flash, "auto");
-        assert.isFalse(resolved.blockOnNoFlash);
+        assert.equal(resolved.flash, "on");
+        assert.isTrue(resolved.blockOnNoFlash);
         assert.isTrue(resolved.blockOnCaptureFailure);
         assert.isNull(resolved.blockCapture);
     });
 
     it("does not leak state between calls", () => {
-        resolveCaptureGuidance({flash: "on", label: "x"}, GUIDANCE_DIR);
-        assert.equal(resolveCaptureGuidance({}, GUIDANCE_DIR).flash, "auto");
+        resolveCaptureGuidance({flash: "off", blockOnNoFlash: false, label: "x"}, GUIDANCE_DIR);
+        assert.equal(resolveCaptureGuidance({}, GUIDANCE_DIR).flash, "on");
+        assert.isTrue(resolveCaptureGuidance({}, GUIDANCE_DIR).blockOnNoFlash);
         assert.isNull(resolveCaptureGuidance({}, GUIDANCE_DIR).label);
     });
 });
@@ -53,7 +54,7 @@ describe("resolveCaptureGuidance — malformed guidance blocks", () => {
 
     it("still returns the safe defaults alongside the block", () => {
         const resolved = resolveCaptureGuidance("nonsense", GUIDANCE_DIR);
-        assert.equal(resolved.flash, "auto");
+        assert.equal(resolved.flash, "on");
         assert.isTrue(resolved.blockOnCaptureFailure);
     });
 });
@@ -67,7 +68,7 @@ describe("resolveCaptureGuidance — flash", () => {
         });
     });
 
-    it("blocks on an invalid mode rather than quietly using auto", () => {
+    it("blocks on an invalid mode rather than quietly using the default", () => {
         ["On", "ON", 1, "flash"].forEach(flash => {
             const resolved = resolveCaptureGuidance({flash}, GUIDANCE_DIR);
             assert.equal(resolved.blockCapture.reason, BlockReason.Misconfiguration);
@@ -125,15 +126,16 @@ describe("resolveCaptureGuidance — label and the block flags fail open", () =>
     });
 
     it("coerces non-boolean block flags to their defaults without blocking", () => {
-        const resolved = resolveCaptureGuidance({blockOnNoFlash: "true", blockOnCaptureFailure: "no"}, GUIDANCE_DIR);
-        assert.isFalse(resolved.blockOnNoFlash);
+        // Both default to true, so each value must read as false if coerced: one falsy, one the string "false".
+        const resolved = resolveCaptureGuidance({blockOnNoFlash: 0, blockOnCaptureFailure: "false"}, GUIDANCE_DIR);
+        assert.isTrue(resolved.blockOnNoFlash);
         assert.isTrue(resolved.blockOnCaptureFailure);
         assert.isNull(resolved.blockCapture);
     });
 
     it("honours the flags when they are real booleans", () => {
-        const resolved = resolveCaptureGuidance({blockOnNoFlash: true, blockOnCaptureFailure: false}, GUIDANCE_DIR);
-        assert.isTrue(resolved.blockOnNoFlash);
+        const resolved = resolveCaptureGuidance({blockOnNoFlash: false, blockOnCaptureFailure: false}, GUIDANCE_DIR);
+        assert.isFalse(resolved.blockOnNoFlash);
         assert.isFalse(resolved.blockOnCaptureFailure);
     });
 });

@@ -35,8 +35,8 @@ const styles = StyleSheet.create({
 
 export default function GuidedCameraModal({
     visible, onClose, onCapture, labels,
-    flash = 'auto',
-    blockOnNoFlash = false,
+    flash = 'on',
+    blockOnNoFlash = true,
     blockOnCaptureFailure = true,
     overlayPath = null,
     guidanceLabel = null,
