@@ -1198,11 +1198,13 @@ class RuleEvaluationService extends BaseService {
     }
 
     runEvalRule(ruleFunc, params, ruleLabel) {
+        const lazyStatsBefore = this.db && this.db.takeLazyStats ? this.db.takeLazyStats() : null;
         const start = Date.now();
         const result = ruleFunc(params);
         const elapsed = Date.now() - start;
+        const lazyStats = lazyStatsBefore ? this.db.takeLazyStats() : null;
         if (elapsed > 50) {
-            General.logWarn("RulePerf", `Eval rule [${ruleLabel}] took ${elapsed}ms`);
+            General.logWarn("RulePerf", `Eval rule [${ruleLabel}] took ${elapsed}ms${lazyStats ? ` (rowsBuilt=${lazyStats.rowsBuilt}, inQueries=${lazyStats.inQueries}, embeddedParsed=${lazyStats.embeddedParsed})` : ""}`);
         }
         return result;
     }

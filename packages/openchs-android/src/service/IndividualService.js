@@ -134,10 +134,7 @@ function getSubjectUUIDsForCustomFilters(customFilterService, reportFilters, ent
     return {uniqueSubjects, filterApplied};
 }
 
-// A subject-list row shows a name, an address and one visit line — never the encounter history
-// hanging off each enrolment and subject. Depth counts the hops to the subject; cards that show
-// enrolment badges need one hop more and that one list kept eager. Skipped lists still resolve
-// if something reads them.
+// Prefetch hints only: SQLite reads are lazy, so these no longer change what a row returns.
 const SUBJECT_VIA_ENROLMENT = {skipLists: true, depth: 2};
 const SUBJECT_DIRECT = {skipLists: true, depth: 1};
 const SUBJECT_VIA_ENROLMENT_WITH_BADGES = {skipLists: true, depth: 3, listsToInclude: new Set(['Individual.enrolments'])};

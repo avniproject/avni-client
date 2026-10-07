@@ -13,6 +13,7 @@ jest.mock("../../../src/framework/bean/Service", () => () => (target) => target)
 import {EntityMappingConfig} from "openchs-models";
 import SchemaGenerator from "../../../src/framework/db/SchemaGenerator";
 import SqliteProxy from "../../../src/framework/db/SqliteProxy";
+import {LAZY_STATE} from "../../../src/framework/db/LazyGroup";
 import RepositoryFactory from "../../../src/repository/RepositoryFactory";
 import IndividualService from "../../../src/service/IndividualService";
 import CustomFilterService from "../../../src/service/CustomFilterService";
@@ -72,8 +73,12 @@ describe("total card list", () => {
 
     afterEach(() => rawDb && rawDb.close());
 
-    // A prefetched list is a plain data property; a deferred one is an accessor.
-    const isPrefetched = (entity, propName) => !Object.getOwnPropertyDescriptor(entity.that || entity, propName).get;
+    // Whether something has read the property (lazy rows) or prefetched it (eager objects).
+    const isLoaded = (entity, propName) => {
+        const target = entity.that || entity;
+        const lazy = target[LAZY_STATE];
+        return lazy ? lazy.resolved.has(propName) : !Object.getOwnPropertyDescriptor(target, propName).get;
+    };
     const subjectFor = (rows, uuid) => [...rows].find(subject => subject.uuid === uuid);
 
     it("lists every non-voided subject, sorted by name", () => {
@@ -82,24 +87,22 @@ describe("total card list", () => {
         assert.deepEqual(rows.map(subject => subject.uuid), ["kavita", "radha"]);
     });
 
-    it("prefetches the enrolment badges the row shows", () => {
+    it("resolves the enrolment badges the row shows", () => {
         const kavita = subjectFor(service.allIn(TODAY, [], ""), "kavita");
 
-        assert.isTrue(isPrefetched(kavita, "enrolments"));
         assert.deepEqual(kavita.nonVoidedEnrolments().map(enl => enl.program.name), ["Mother"]);
     });
 
     it("leaves the visit history behind the row unloaded", () => {
         const kavita = subjectFor(service.allIn(TODAY, [], ""), "kavita");
 
-        assert.isFalse(isPrefetched(kavita, "encounters"));
-        assert.isFalse(isPrefetched(kavita.that.enrolments[0], "encounters"));
+        assert.isFalse(isLoaded(kavita, "encounters"));
+        assert.isFalse(isLoaded(kavita.that.enrolments[0], "encounters"));
     });
 
     it("renders an empty badge strip for a subject with no enrolments", () => {
         const radha = subjectFor(service.allIn(TODAY, [], ""), "radha");
 
-        assert.isTrue(isPrefetched(radha, "enrolments"));
         assert.deepEqual(radha.nonVoidedEnrolments(), []);
     });
 
@@ -108,7 +111,6 @@ describe("total card list", () => {
     it("keeps observations on the row for a configured search-result concept", () => {
         const kavita = subjectFor(service.allIn(TODAY, [], ""), "kavita");
 
-        assert.isTrue(isPrefetched(kavita, "observations"));
         assert.deepEqual([...kavita.observations], []);
     });
 

@@ -11,11 +11,24 @@ class MockEntity {
 // ──── Mock hydrator (identity: returns row with camelCase keys) ────
 
 function createMockHydrator(transform) {
+    const hydrate = jest.fn((schemaName, row, opts) => transform ? transform(row) : {...row});
     return {
         beginHydrationSession: jest.fn(),
         endHydrationSession: jest.fn(),
-        hydrate: jest.fn((schemaName, row, opts) => {
-            return transform ? transform(row) : {...row};
+        hydrate,
+        createLazyGroup: jest.fn((schemaName, rows) => {
+            const built = [];
+            return {
+                size: rows.length,
+                buildAt(index) {
+                    if (index < 0 || index >= rows.length) return null;
+                    if (!(index in built)) built[index] = hydrate(schemaName, rows[index], {});
+                    return built[index];
+                },
+                buildAll() {
+                    return rows.map((row, index) => this.buildAt(index));
+                },
+            };
         }),
     };
 }
@@ -585,15 +598,16 @@ describe("SqliteResultsProxy — supported query types", () => {
     // ──── Hydration integration ────
 
     describe("hydration integration", () => {
-        it("should call hydrator for each row with correct options", () => {
+        it("builds rows only when read", () => {
             const rows = [{uuid: "1"}, {uuid: "2"}];
             const {proxy, hydrator} = createProxy({rows});
-            proxy.length; // trigger execution
-            expect(hydrator.beginHydrationSession).toHaveBeenCalledTimes(1);
-            expect(hydrator.endHydrationSession).toHaveBeenCalledTimes(1);
-            expect(hydrator.hydrate).toHaveBeenCalledTimes(2);
-            expect(hydrator.hydrate).toHaveBeenCalledWith("Individual", {uuid: "1"}, {skipLists: false, depth: 3});
-            expect(hydrator.hydrate).toHaveBeenCalledWith("Individual", {uuid: "2"}, {skipLists: false, depth: 3});
+
+            expect(proxy.length).toBe(2);
+            expect(hydrator.hydrate).not.toHaveBeenCalled();
+
+            expect(proxy[1].uuid).toBe("2");
+            expect(hydrator.hydrate).toHaveBeenCalledTimes(1);
+            expect(hydrator.createLazyGroup).toHaveBeenCalledWith("Individual", rows);
         });
 
         it("should execute lazily — no SQL until data access", () => {

@@ -135,9 +135,9 @@ class SqliteResultsProxy {
         // Cross-query cache (shared across proxy instances within a dashboard refresh)
         this._queryCache = queryCache;
 
-        // Cached results
         this._rows = null;
-        this._entities = null;
+        this._group = null;
+        this._materialised = null;
         this._executed = false;
 
         this.logQueries = false;
@@ -410,6 +410,60 @@ class SqliteResultsProxy {
 
     _execute() {
         if (this._executed) return;
+        if (this.hydrator && this.hydrator.eagerReferenceMode) return this._executeEager();
+
+        const {sql, params} = this._buildSql();
+        if (this.logQueries) {
+            console.log("SqliteResultsProxy SQL:", sql, "params:", params);
+        }
+
+        const cacheKey = this._queryCache ? `${sql}|${JSON.stringify(params)}|lazy` : null;
+        let group = cacheKey ? this._queryCache.get(cacheKey) : undefined;
+        if (group) {
+            General.logDebug("HydrationProfile", ` CACHE HIT ${this.schemaName} (${group.size} rows)`);
+        } else {
+            const t0 = Date.now();
+            this._rows = this.executeQuery(sql, params) || [];
+            if (!this.hydrator) {
+                this._materialised = this._rows;
+                this._executed = true;
+                return;
+            }
+            group = this.hydrator.createLazyGroup(this.schemaName, this._rows);
+            const elapsed = Date.now() - t0;
+            if (elapsed > 2000) {
+                General.logDebug("HydrationProfile", ` ${this.schemaName} (${this._rows.length} rows, lazy): query=${elapsed}ms`);
+            }
+            if (cacheKey) this._queryCache.set(cacheKey, group);
+        }
+        this._group = group;
+
+        if (this.jsFallbackFilters.length > 0) {
+            const tFallbackStart = Date.now();
+            let entities = JsFallbackFilterEvaluator.apply(group.buildAll(), this.jsFallbackFilters, this.schemaName);
+            const tFallbackEnd = Date.now();
+            if (tFallbackEnd - tFallbackStart > 1000) {
+                General.logDebug("HydrationProfile", ` ${this.schemaName} JS fallback: ${tFallbackEnd - tFallbackStart}ms (${this.jsFallbackFilters.map(f => f.query?.substring(0, 60)).join('; ')})`);
+            }
+            if (this.limitClause != null) entities = entities.slice(0, this.limitClause);
+            this._materialised = entities;
+        }
+        this._executed = true;
+    }
+
+    _entityCount() {
+        this._execute();
+        return this._materialised ? this._materialised.length : this._group.size;
+    }
+
+    _entityAt(index) {
+        this._execute();
+        return this._materialised ? this._materialised[index] : this._group.buildAt(index);
+    }
+
+    // Eager path kept only as the parity tests' reference; remove with #2080's follow-up once lazy hydration has proven out in the field.
+    _executeEager() {
+        if (this._executed) return;
 
         const {sql, params} = this._buildSql();
 
@@ -434,6 +488,7 @@ class SqliteResultsProxy {
                     this._entities = this._entities.slice(0, this.limitClause);
                 }
             }
+            this._materialised = this._entities;
             this._executed = true;
             return;
         }
@@ -501,12 +556,14 @@ class SqliteResultsProxy {
             }
         }
 
+        this._materialised = this._entities;
         this._executed = true;
     }
 
     _getEntities() {
         this._execute();
-        return this._entities;
+        if (!this._materialised) this._materialised = this._group.buildAll();
+        return this._materialised;
     }
 
     // ──── Entity creation ────
@@ -530,9 +587,8 @@ class SqliteResultsProxy {
     // ──── Collection API ────
 
     getAt(index) {
-        const entities = this._getEntities();
-        if (index >= entities.length) return null;
-        const obj = entities[index];
+        if (index < 0 || index >= this._entityCount()) return null;
+        const obj = this._entityAt(index);
         return _.isNil(obj) ? null : this.createEntity(obj);
     }
 
@@ -543,8 +599,7 @@ class SqliteResultsProxy {
      */
     count() {
         if (this.jsFallbackFilters.length > 0) {
-            this._execute();
-            return this._entities.length;
+            return this._entityCount();
         }
         const {sql, params} = this._buildSql();
         // Wrap in SELECT COUNT(*) FROM (...) to avoid assumptions about _buildSql format.
@@ -599,10 +654,7 @@ class SqliteResultsProxy {
     }
 
     getLength() {
-        if (!this._executed) {
-            this._execute();
-        }
-        return this._entities.length;
+        return this._entityCount();
     }
 
     isEmpty() {
@@ -643,9 +695,9 @@ class SqliteResultsProxy {
     }
 
     find(filterCallback, thisArg) {
-        const entities = this._getEntities();
-        for (let i = 0; i < entities.length; i++) {
-            const entity = this.createEntity(entities[i]);
+        const count = this._entityCount();
+        for (let i = 0; i < count; i++) {
+            const entity = this.createEntity(this._entityAt(i));
             const result = thisArg
                 ? filterCallback.call(thisArg, entity, i, this)
                 : filterCallback(entity, i, this);
@@ -672,8 +724,7 @@ class SqliteResultsProxy {
     }
 
     slice(start, end) {
-        const entities = this._getEntities();
-        return entities.slice(start, end).map(obj => this.createEntity(obj));
+        return _.range(this._entityCount()).slice(start, end).map(index => this.createEntity(this._entityAt(index)));
     }
 
     join(separator) {
@@ -727,13 +778,13 @@ class SqliteResultsProxy {
     // ──── Iterator ────
 
     [Symbol.iterator]() {
-        const entities = this._getEntities();
+        const count = this._entityCount();
         let index = 0;
         const self = this;
         return {
             next() {
-                if (index < entities.length) {
-                    return {value: self.createEntity(entities[index++]), done: false};
+                if (index < count) {
+                    return {value: self.createEntity(self._entityAt(index++)), done: false};
                 }
                 return {done: true};
             },

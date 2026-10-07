@@ -34,6 +34,8 @@ A batch group is a set of raw rows of one schema loaded together:
 
 It holds the raw rows exactly as SQLite returned them (foreign-key uuid columns included), a memo of built objects keyed by uuid, and, per reference or list property once first read, a map from foreign-key or parent uuid to built objects in a child group.
 
+**Revised 7 Oct after the on-device JSCS run (see "Measured on JSCS" below):** a group is split into windows of at most 999 rows, as Hibernate's `@BatchSize` does. Batching, child groups and back-references work per window, and a built row is tied to its window, not to the whole result. The first version tied every row to the whole result, so keeping 8 subjects from a rule kept ~31k rows alive. Query counts are unchanged: loads were already chunked at 999.
+
 ### Building a row
 
 Rows are built on access, not up front. A built row is a plain object, as `EntityHydrator.hydrate()` produces now, except:
@@ -42,6 +44,8 @@ Rows are built on access, not up front. A built row is a plain object, as `Entit
 - lists and embedded JSON columns (observations and the like) are getters.
 
 Getters behave like `EntityHydrator._defineLazyList` today: memoise once resolved; a throw leaves the property unresolved so the next read retries; a setter allows assignment. Model classes read through `this.that[prop]` and need no change.
+
+**Revised 7 Oct:** the getter and setter for a property are one pair of functions per schema property, shared by every row, built once from a cached per-schema plan; resolved values live in the row's hidden state, allocated on first read. The first version created new functions for every property of every row, which doubled the heap against eager on a whole-table rule (1,499 MB against 744 MB).
 
 Each built object keeps its raw row in a non-enumerable slot, used by `flatten()` (see Writes).
 
@@ -108,4 +112,25 @@ During development:
 Once development is done, and before release, run by us:
 - Parity sweep on a real SQLite database: for every schema and row, every property read lazily deep-equals the eager result, list order included; the same for JS fallback filter results.
 - Rule parity on the JSCS 32k snapshot: the organisation's report-card rules in both modes give identical card numbers and line-list uuids.
-- On-device: JSCS (Facilities, Total Screened, search) and AKRSP (WIMC card open, first card after start), comparing Realm, SQLite eager and SQLite lazy in one sitting. `HydrationProfile` gains query and rows-built counters.
+- On-device: JSCS (Facilities, Total Screened, search) and AKRSP (WIMC card open, first card after start), comparing Realm, SQLite eager and SQLite lazy in one sitting. The `RulePerf` line for a slow rule gains rows-built, batched-query and observations-parsed counters.
+
+## Measured on JSCS (7 Oct)
+
+Database: `mahanew4@jscs` (46,782 subjects, 42,894 enrolments, 106,148 program visits). Node figures are the rule run in Jest against the file, with the heap the result keeps after garbage collection. Device figures are an `Avni_API36` emulator, debug build, read from the app's logs.
+
+| Card | Realm (device) | Eager SQLite (Node) | Lazy, first version (Node / device) | Lazy, windowed + shared getters (Node / device) |
+|---|---|---|---|---|
+| Total Screened for SCD | 148 ms | 15.4 s, 744 MB | 12.4 s, 1,499 MB / 130.7 s | 9.9 s, 601 MB / 95.9 s |
+| SCD Pregnant women | 4.0 s | 2.3 s, ~1 MB | 2.1 s, 261 MB / 54.7 s | 1.1 s, 126 MB / 3.8 s |
+| Lab Facility dashboard (4 counts) | 332 ms | **229.4 s on device** (Facilities alone 229.1 s: pre-load 174 s, build 49 s) | — / 1.7 s | — / 1.4 s |
+| App memory, SCD dashboard | — | — | 2.4 GB + 212 MB swap | 1.3 GB |
+| Tap SCD Pregnant women → list | 4.4 s | — | — | — / 3.3 s |
+| Search, no filters (tap → results) | ~0.5 s | — | — | — / 4.4 s (2.1 s SQL; most of the rest a debug-only log that walks every row) |
+| Maternal Health: Total Pregnant women | not measured | — | — | — / 41.7 s |
+
+What this shows:
+- On the same emulator, the eager build froze the app for almost 4 minutes to show the home dashboard (Facilities reads `.length` on 46,533 subjects and eager pre-loads all of them to depth 3), and again on every dashboard reopen; lazy shows it in 1.4 s. The eager run was stopped there.
+- The first version used more heap than eager and was no faster on whole-table rules; on a 4 GB emulator that pushed the app into swap and everything slowed ~20×. The windowed, shared-getter version beats eager on time for both cards and on heap for Total Screened.
+- A result still keeps its window's loaded children: SCD Pregnant women's 8 subjects keep 126 MB, against eager's ~1 MB. It is freed when the screen holding the rows goes; card counts keep only a number.
+- **Total Screened for SCD (and Maternal Health's Total Pregnant women, 41.7 s to count 0) stay slow on SQLite in both modes** (95.9 s on the emulator, against 148 ms on Realm) and block the JavaScript thread while they run, freezing the app. Their criteria fall back to JavaScript over every subject. #1978's SUBQUERY translation is already on `18.0` and handles these predicates: unwrapped, they translate to SQL and give the same counts (34,677 in 2.7 s in Node, against 10–16 s for the fallback). What stops them is the bracketed top-level `OR`/`AND` that `ReportCardQueryBuilder`/`RealmQueryService` build, which the parser rejects as a whole. That is #2076 (on hold). This matters for moving JSCS to SQLite.
+- Whether the lazy approach is worth its complexity was an open question after the first version; the same-device eager run (229 s against 1.4 s for the home dashboard) answers it in lazy's favour. Neither mode makes whole-table JavaScript rules fast; that needs the rules or the parser to push work into SQL.
