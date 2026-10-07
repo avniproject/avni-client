@@ -84,9 +84,17 @@ Embedded JSON columns are parsed on first read and memoised. An observation's `c
 
 `SqliteProxy.create` → `flatten()` reads each property present on the object. For a reference not yet loaded, `flatten()` writes the foreign-key uuid from the raw row and does not trigger the load. Loaded or assigned references, observations and JSON-array lists are read as today. Child lists are not written through the parent row. The mandatory-field check in `create` is unchanged.
 
+### Releasing windows after a rule
+
+Added 7 Oct. A built row keeps a strong link to its window so its unread properties can still load in a batch; Hermes in this build has no `WeakRef` or `FinalizationRegistry` (checked on the emulator), so that link cannot be weak. Instead `RuleEvaluationService.withLazyScope` opens a scope around every rule (`runEvalRule`) and every line-list function (`getDashboardCardQueryResult`), closing it in `finally`. Windows created while a scope is open register with it; when the outermost scope ends, each is sealed:
+- its built rows, loaded child and reference groups, and parent link are dropped;
+- its raw rows stay, so a later read of an unread property on a returned row still loads in one batch for the window, and a row built again is a new object (Realm gives no object identity either).
+
+Windows created outside a scope (screens reading services directly) are not sealed; they are freed with the screen. Realm has no scope and is untouched.
+
 ### Query cache
 
-The cache holds the group: raw rows plus whatever has been built. Values only fill in from the same rows. The key drops `depth` and the list options on the lazy path.
+The cache holds the group: raw rows plus whatever has been built. Values only fill in from the same rows. The key drops `depth` and the list options on the lazy path. A card that hits the cache after an earlier card's rule sealed its windows reuses the SQL rows and rebuilds the objects.
 
 ### Errors
 

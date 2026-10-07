@@ -74,7 +74,9 @@ Everything SQLite-specific lives in `packages/openchs-android/src/framework/db/`
 
 SQLite reads are lazy. A query runs its SQL and keeps the raw rows in a `LazyGroup` (`src/framework/db/LazyGroup.js`). A row becomes a plain object only when it is indexed or iterated. Scalars are converted at once; references, lists and embedded JSON (observations) are getters that load on first read and are then memoised.
 
-The first read of a reference or list on any row of a group loads it for every row of the group with one `IN (…)` query, chunked at 999, and the loaded rows form a child group, so nested reads batch the same way. A child reached through a list answers its reference back to the parent from the parent group without a query.
+A group is split into windows of at most 999 rows. The first read of a reference or list on any row of a window loads it for every row of that window with one `IN (…)` query, and the loaded rows form a child group, so nested reads batch the same way. A child reached through a list answers its reference back to the parent from the parent window without a query. All rows share one getter per schema property; resolved values live in the row's hidden state.
+
+When a rule or line-list function returns (`RuleEvaluationService.withLazyScope`), the windows it created are sealed: they drop their built rows and loaded children and keep only raw rows, so what a rule hands back does not hold its siblings' data. A later read of an unread property still batches per window.
 
 Reference data (Gender, SubjectType, Program, EncounterType, AddressLevel at first query; Concept on the first observation read; the post-sync set after every sync) is built eagerly once and served from `referenceDataCache`.
 
