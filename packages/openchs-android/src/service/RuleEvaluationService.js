@@ -1130,9 +1130,9 @@ class RuleEvaluationService extends BaseService {
             return queryResult;
         } else if (reportCard.nested) {
             const selectedCardItem = queryResult.reportCards.find((x, index) => reportCard.itemKey === reportCard.getCardId(index));
-            return executeLineListFunction(selectedCardItem.lineListFunction, reportCard, this.saveFailedRules);
+            return this.withLazyScope(() => executeLineListFunction(selectedCardItem.lineListFunction, reportCard, this.saveFailedRules));
         } else {
-            return _.isFunction(queryResult.lineListFunction) ? executeLineListFunction(queryResult.lineListFunction, reportCard, this.saveFailedRules) : null;
+            return _.isFunction(queryResult.lineListFunction) ? this.withLazyScope(() => executeLineListFunction(queryResult.lineListFunction, reportCard, this.saveFailedRules)) : null;
         }
     }
 
@@ -1197,10 +1197,21 @@ class RuleEvaluationService extends BaseService {
         }
     }
 
+    // On SQLite, rows built while a rule runs drop their batch caches once it returns, so what the rule hands back stays small.
+    withLazyScope(fn) {
+        const scoped = this.db && typeof this.db.beginLazyScope === "function";
+        if (scoped) this.db.beginLazyScope();
+        try {
+            return fn();
+        } finally {
+            if (scoped) this.db.endLazyScope();
+        }
+    }
+
     runEvalRule(ruleFunc, params, ruleLabel) {
         const lazyStatsBefore = this.db && this.db.takeLazyStats ? this.db.takeLazyStats() : null;
         const start = Date.now();
-        const result = ruleFunc(params);
+        const result = this.withLazyScope(() => ruleFunc(params));
         const elapsed = Date.now() - start;
         const lazyStats = lazyStatsBefore ? this.db.takeLazyStats() : null;
         if (elapsed > 50) {

@@ -94,10 +94,19 @@ class LazyWindow {
         this._indexByUuid = null;
         this._referenceGroups = new Map();
         this._listGroups = new Map();
+        if (hydrator._lazyScope) hydrator._lazyScope.push(this);
     }
 
     get size() {
         return this.rows.length;
+    }
+
+    // Hermes has no WeakRef, so a kept row would hold its siblings and everything loaded for them; keep only raw rows.
+    seal() {
+        this._built = new Array(this.rows.length);
+        this._referenceGroups = new Map();
+        this._listGroups = new Map();
+        this.parentLink = null;
     }
 
     buildAt(index) {

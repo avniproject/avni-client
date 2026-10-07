@@ -781,6 +781,19 @@ class EntityHydrator {
         return taken;
     }
 
+    beginLazyScope() {
+        this._lazyScopeDepth = (this._lazyScopeDepth || 0) + 1;
+        if (!this._lazyScope) this._lazyScope = [];
+    }
+
+    endLazyScope() {
+        this._lazyScopeDepth = Math.max((this._lazyScopeDepth || 1) - 1, 0);
+        if (this._lazyScopeDepth > 0 || !this._lazyScope) return;
+        const windows = this._lazyScope;
+        this._lazyScope = null;
+        windows.forEach(window => window.seal());
+    }
+
     cachedReference(schemaName, uuid) {
         const cache = this.referenceDataCache[schemaName];
         return cache ? cache.get(uuid) : undefined;

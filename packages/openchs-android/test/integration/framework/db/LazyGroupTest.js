@@ -267,6 +267,60 @@ describe("LazyGroup", () => {
         });
     });
 
+    describe("sealing at the end of a scope", () => {
+        const individualGroup = () => db.hydrator.createLazyGroup("Individual", db.rowsOf("individual"));
+
+        it("drops a window's built rows and loaded children, keeping what a returned row already read", () => {
+            db.hydrator.beginLazyScope();
+            const group = individualGroup();
+            const asha = group.buildAt(0);
+            const visits = asha.encounters.map(e => e.uuid);
+            group.buildAt(1).encounters;
+            db.hydrator.endLazyScope();
+
+            const window = asha[LAZY_STATE].group;
+            expect(window._listGroups.size).toBe(0);
+            expect(window._referenceGroups.size).toBe(0);
+            expect(window._built.every(built => built === undefined)).toBe(true);
+            expect(asha.encounters[0][LAZY_STATE].group.parentLink).toBeNull();
+            expect(asha.encounters.map(e => e.uuid)).toEqual(visits);
+        });
+
+        it("still loads an unread property in one batch for the window after sealing", () => {
+            db.hydrator.beginLazyScope();
+            const group = individualGroup();
+            const asha = group.buildAt(0);
+            const bina = group.buildAt(1);
+            db.hydrator.endLazyScope();
+            db.selects.length = 0;
+
+            expect(asha.enrolments.map(e => e.uuid)).toEqual(["enl-1"]);
+            expect(bina.enrolments.map(e => e.uuid)).toEqual(["enl-2"]);
+            expect(selectsFrom(db.selects, "program_enrolment")).toBe(1);
+        });
+
+        it("seals an inner scope's windows only when the outermost scope ends", () => {
+            db.hydrator.beginLazyScope();
+            db.hydrator.beginLazyScope();
+            const asha = individualGroup().buildAt(0);
+            asha.encounters;
+            db.hydrator.endLazyScope();
+            expect(asha[LAZY_STATE].group._listGroups.size).toBe(1);
+
+            db.hydrator.endLazyScope();
+            expect(asha[LAZY_STATE].group._listGroups.size).toBe(0);
+        });
+
+        it("seals nothing created outside a scope", () => {
+            const asha = individualGroup().buildAt(0);
+            asha.encounters;
+            db.hydrator.beginLazyScope();
+            db.hydrator.endLazyScope();
+
+            expect(asha[LAZY_STATE].group._listGroups.size).toBe(1);
+        });
+    });
+
     describe("memory", () => {
         const bulkVisits = (count) => {
             const subjects = Array.from({length: count}, (_x, i) => ["Individual", {uuid: `mem-${i}`, firstName: `M${i}`, subjectType: {uuid: "st-person"}, registrationDate: new Date(0), voided: false, observations: []}]);

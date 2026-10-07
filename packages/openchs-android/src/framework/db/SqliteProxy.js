@@ -785,6 +785,14 @@ class SqliteProxy {
         return this.hydrator.takeLazyStats();
     }
 
+    beginLazyScope() {
+        this.hydrator.beginLazyScope();
+    }
+
+    endLazyScope() {
+        this.hydrator.endLazyScope();
+    }
+
     /**
      * Look up an entity by uuid from the in-memory reference data cache.
      * Returns the cached hydrated entity, or undefined if the schema has no
