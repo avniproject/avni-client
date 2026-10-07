@@ -731,6 +731,70 @@ function splitTopLevelAnd(query) {
     return clauses;
 }
 
+// Index of the bracket closing the one at `open`, skipping quoted strings; -1 if unbalanced.
+function closingParenIndex(query, open) {
+    let depth = 0;
+    let quote = null;
+    for (let i = open; i < query.length; i++) {
+        const ch = query[i];
+        if (quote) {
+            if (ch === quote && query[i - 1] !== '\\') quote = null;
+        } else if (ch === '"' || ch === "'") {
+            quote = ch;
+        } else if (ch === '(') {
+            depth++;
+        } else if (ch === ')') {
+            depth--;
+            if (depth === 0) return i;
+        }
+    }
+    return -1;
+}
+
+// RealmQueryService.andQuery/orQuery wrap every composed predicate as "( … )".
+function stripOuterParens(query) {
+    let stripped = query.trim();
+    while (stripped.startsWith('(') && closingParenIndex(stripped, 0) === stripped.length - 1) {
+        stripped = stripped.slice(1, -1).trim();
+    }
+    return stripped;
+}
+
+// Split on top-level OR / ||, respecting brackets and quoted strings.
+function splitTopLevelOr(query) {
+    const branches = [];
+    let depth = 0;
+    let quote = null;
+    let start = 0;
+    const upper = query.toUpperCase();
+    for (let i = 0; i < query.length; i++) {
+        const ch = query[i];
+        if (quote) {
+            if (ch === quote && query[i - 1] !== '\\') quote = null;
+            continue;
+        }
+        if (ch === '"' || ch === "'") {
+            quote = ch;
+        } else if (ch === '(' || ch === '[') {
+            depth++;
+        } else if (ch === ')' || ch === ']') {
+            depth--;
+        } else if (depth === 0) {
+            const isWordOr = upper.substring(i, i + 2) === 'OR' &&
+                (i === 0 || /\s/.test(query[i - 1])) &&
+                (i + 2 >= query.length || /\s/.test(query[i + 2]));
+            const isPipeOr = ch === '|' && query[i + 1] === '|';
+            if (isWordOr || isPipeOr) {
+                branches.push(query.substring(start, i).trim());
+                start = i + 2;
+                i += 1;
+            }
+        }
+    }
+    branches.push(query.substring(start).trim());
+    return branches.filter(branch => branch.length > 0);
+}
+
 // ──────────────── Public API ────────────────
 
 class RealmQueryParser {
@@ -813,6 +877,12 @@ class RealmQueryParser {
                     tpResult.limit = limitValue;
                     return tpResult;
                 }
+            }
+
+            const composite = this._tryTranslateComposite(trimmed, args, rootSchemaName, schemaMap, aliasOffset);
+            if (composite) {
+                // As a row filter SQLite can't serve OR branches from indexes, so rows keep the order the JS fallback gave.
+                return {where: `(CASE WHEN ${composite.where} THEN 1 ELSE 0 END) = 1`, params: composite.params, joins: composite.joins, unsupported: false, limit: limitValue};
             }
 
             // Try partial parsing: split on top-level AND, translate supported clauses to SQL,
@@ -903,7 +973,7 @@ class RealmQueryParser {
      *   - a condition referencing an unqualified property not on the child schema (child-scoping guard);
      *   - a dot-path condition that would need a SQL JOIN inside the bare subquery;
      *   - a multi-hop (family C) SUBQUERY with an @count comparison other than >0 / ==0 (can't correlate to t0);
-     *   - an OR that mixes an outer-object predicate with a SUBQUERY (cross-scope; not a single IN).
+     *   - an OR that mixes an outer-object predicate with a SUBQUERY (cross-scope; not a single IN) — _tryTranslateComposite translates that one level up, as an OR of separate clauses.
      *
      * @returns {{ where: string, params: Array, joins: Array }} | null
      */
@@ -1505,6 +1575,49 @@ class RealmQueryParser {
             where: likeClauses.join(' AND '),
             params,
         };
+    }
+
+    // Translates a bracketed AND/OR of clauses whole, or returns null so the existing partial parse / JS fallback runs.
+    static _tryTranslateComposite(query, args, rootSchemaName, schemaMap, aliasOffset) {
+        const expression = stripOuterParens(query);
+        const branches = splitTopLevelOr(expression);
+        if (branches.length > 1) return this._translateAll(branches, " OR ", args, rootSchemaName, schemaMap, aliasOffset);
+        const conjuncts = splitTopLevelAnd(expression);
+        if (conjuncts.length > 1) return this._translateAll(conjuncts, " AND ", args, rootSchemaName, schemaMap, aliasOffset);
+        return this._translateClause(expression, args, rootSchemaName, schemaMap, aliasOffset);
+    }
+
+    static _translateAll(parts, operator, args, rootSchemaName, schemaMap, aliasOffset) {
+        const wheres = [];
+        const params = [];
+        const joins = [];
+        let aliasCounter = aliasOffset;
+        for (const part of parts) {
+            const result = this._tryTranslateComposite(part, args, rootSchemaName, schemaMap, aliasCounter);
+            if (!result) return null;
+            wheres.push(`(${result.where})`);
+            params.push(...result.params);
+            joins.push(...result.joins);
+            aliasCounter = result.aliasCounter;
+        }
+        return {where: wheres.join(operator), params, joins, aliasCounter};
+    }
+
+    static _translateClause(clause, args, rootSchemaName, schemaMap, aliasOffset) {
+        if (/^SUBQUERY\s*\(/i.test(clause)) {
+            const translated = this._tryTranslateSubqueryToIn(clause, rootSchemaName, schemaMap, args)
+                || this._tryTranslateObservationSubquery(clause, rootSchemaName, schemaMap);
+            return translated ? {where: translated.where, params: translated.params, joins: [], aliasCounter: aliasOffset} : null;
+        }
+        if (requiresJsFallback(clause)) return null;
+        try {
+            const generator = new SqlGenerator(schemaMap, rootSchemaName, args);
+            generator.aliasCounter = aliasOffset;
+            const result = generator.generate(new Parser(tokenize(clause)).parse());
+            return result.where ? {where: result.where, params: result.params, joins: result.joins, aliasCounter: generator.aliasCounter} : null;
+        } catch (e) {
+            return null;
+        }
     }
 
     static _parsePartial(query, args, rootSchemaName, schemaMap, aliasOffset) {
