@@ -59,8 +59,9 @@ export const INFERENCE_UNAVAILABLE_REASON = {
     INFERENCE_FAILED: 'aiInferenceFailed'
 };
 
-// Tags the "blob/key not cached yet" rejection so the catch can tell a provisioning gap
-// (recoverable by syncing) apart from a genuine inference failure.
+// Tags the rejections that mean "the model is not on this device yet" — no edgeModel row synced, or a
+// row whose blob or key is not cached — so the catch can tell a provisioning gap (recoverable by
+// syncing) apart from a genuine inference failure.
 export const MODEL_NOT_CACHED = 'MODEL_NOT_CACHED';
 
 @Service("edgeModelService")
@@ -175,7 +176,9 @@ class EdgeModelService extends BaseService {
     async runInferenceOnImage(imagePath) {
         const rows = this._edgeModelRows();
         if (rows.length === 0) {
-            throw new Error('EdgeModelService.runInferenceOnImage: no edgeModel content row is synced');
+            throw _.assign(
+                new Error('EdgeModelService.runInferenceOnImage: no edgeModel content row is synced'),
+                {code: MODEL_NOT_CACHED});
         }
         if (rows.length === 1) {
             const result = await this._runInferenceOnImageForRow(rows[0], imagePath);
@@ -587,7 +590,9 @@ class EdgeModelService extends BaseService {
         try {
             const key = row.needsKey ? await this._readKey(sha256) : null;
             if (row.needsKey && _.isNil(key)) {
-                throw new Error(`EdgeModelService: AES key not cached yet for sha256 '${sha256}' (key fetch pending or failed at sync)`);
+                throw _.assign(
+                    new Error(`EdgeModelService: AES key not cached yet for sha256 '${sha256}' (key fetch pending or failed at sync)`),
+                    {code: MODEL_NOT_CACHED});
             }
             General.logDebug('EdgeModelSvc', `_ensureLoaded ENCRYPTED FILE: sha256=${sha256} path=${blobPath}`);
             nativeLoadAttempted = true;

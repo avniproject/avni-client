@@ -463,6 +463,40 @@ describe('EdgeModelService', () => {
                     questionGroupIndex: null, messageKey: 'aiModelUnavailable',
                 });
             });
+
+            it('via scheduleImageInference: one fold whose key has not arrived flags model-unavailable (#2015)', async () => {
+                mockFsState.existing.add(blobPath('fold2'));  // fold2 blob present, key absent
+                service.dispatchAction = jest.fn();
+
+                const entity = {uuid: 'e1', getObservationValue: jest.fn(() => undefined)};
+                service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
+                await new Promise(res => setImmediate(res));
+                flushInference();
+
+                expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                    conceptName: 'AI Suspicion Result', questionGroupConceptName: null,
+                    questionGroupIndex: null, messageKey: 'aiModelUnavailable',
+                });
+            });
+
+            it('via scheduleImageInference: a key-missing fold beside a genuine fold failure still says inference failed (#2015)', async () => {
+                mockFsState.existing.add(blobPath('fold2'));  // fold2 blob present, key absent
+                NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation((sha) => sha === 'fold3'
+                    ? Promise.reject(new Error('inference error'))
+                    : Promise.resolve({label: 'Negative', confidence: 0.8, logit: -1}));
+                service.dispatchAction = jest.fn();
+
+                const entity = {uuid: 'e1', getObservationValue: jest.fn(() => undefined)};
+                service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
+                await new Promise(res => setImmediate(res));
+                flushInference();
+
+                // Syncing alone would not fix fold3, so this must not tell the worker to sync.
+                expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                    conceptName: 'AI Suspicion Result', questionGroupConceptName: null,
+                    questionGroupIndex: null, messageKey: 'aiInferenceFailed',
+                });
+            });
         });
     });
 
@@ -492,6 +526,39 @@ describe('EdgeModelService', () => {
         it('via scheduleImageInference: missing cache yields no native load, no throw, and flags model-unavailable (verdict absent)', async () => {
             const r = row();
             rows = [r];  // nothing cached
+            service.dispatchAction = jest.fn();
+
+            const entity = {uuid: 'e1', getObservationValue: jest.fn(() => undefined)};
+            service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
+            await new Promise(res => setImmediate(res));
+            flushInference();
+
+            expect(NativeModules.EdgeModelModule.loadEncryptedModelFromFile).not.toHaveBeenCalled();
+            expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                conceptName: 'AI Suspicion Result', questionGroupConceptName: null,
+                questionGroupIndex: null, messageKey: 'aiModelUnavailable',
+            });
+        });
+
+        it('via scheduleImageInference: no edgeModel row synced flags model-unavailable, not inference-failed (#2015)', async () => {
+            rows = [];
+            service.dispatchAction = jest.fn();
+
+            const entity = {uuid: 'e1', getObservationValue: jest.fn(() => undefined)};
+            service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
+            await new Promise(res => setImmediate(res));
+            flushInference();
+
+            expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                conceptName: 'AI Suspicion Result', questionGroupConceptName: null,
+                questionGroupIndex: null, messageKey: 'aiModelUnavailable',
+            });
+        });
+
+        it('via scheduleImageInference: a key not cached yet flags model-unavailable, not inference-failed (#2015)', async () => {
+            const r = row();
+            rows = [r];
+            mockFsState.existing.add(blobPath(r.sha256));  // blob present, key absent
             service.dispatchAction = jest.fn();
 
             const entity = {uuid: 'e1', getObservationValue: jest.fn(() => undefined)};
@@ -648,6 +715,22 @@ describe('EdgeModelService', () => {
             cacheRow(r);
             NativeModules.EdgeModelModule.runInferenceOnImage.mockResolvedValue({label: 'Positive', confidence: 0.91});
             service.dispatchAction = jest.fn();
+        });
+
+        it("Tanuh's legacy 7-arg ensemble call on a phone with no model flags model-unavailable on that row (#2015)", async () => {
+            rows = [];
+
+            service.scheduleImageInferenceIntoGroup(
+                ['mvit2_fold1_6', 'mvit2_fold1_8', 'mvit2_fold2_8'],
+                '/tmp/x.jpg', fakeRqgEntity('e1', [{}, {}, {}]), 'Image-wise AI Assessment', 'AI Verdict', 2,
+                {'Positive': 'Suspicious', 'Negative': 'Non-Suspicious'});
+            await new Promise(res => setImmediate(res));
+            flushInference();
+
+            expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                conceptName: 'AI Verdict', questionGroupConceptName: 'Image-wise AI Assessment',
+                questionGroupIndex: 2, messageKey: 'aiModelUnavailable',
+            });
         });
 
         it('queues a batched result with the question group coordinates on resolve', async () => {
