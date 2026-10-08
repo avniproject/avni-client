@@ -14,6 +14,10 @@ import {Individual, SubjectType} from "openchs-models";
 import {EMBEDDED_SCHEMA_NAMES, JSON_UUID_ARRAY_LIST_PROPERTIES} from "./SchemaGenerator";
 import {camelToSnake, schemaNameToTableName, normalizeRealmType} from "./SqliteUtils";
 import General from "../../utility/General";
+import {convertSqliteValue, isUnresolvedReference, parseJsonSafe, placeholderAddressLevel} from "./HydrationValues";
+import LazyGroup, {LAZY_STATE} from "./LazyGroup";
+
+const IN_CHUNK_SIZE = 999;
 
 // Dummy UUIDs used as placeholders in models — must be NULLified before INSERT
 // to avoid FK violations (these entities don't exist in the database).
@@ -26,7 +30,7 @@ const DUMMY_UUIDS = new Set([
 function restoreUserSubjectPlaceholderAddress(individual) {
     if (!_.isNil(individual.lowestAddressLevel)) return;
     if (_.get(individual, "subjectType.type") !== SubjectType.types.User) return;
-    individual.lowestAddressLevel = {locationProperties: [], ...Individual.getPlaceholderAddressLevel().that};
+    individual.lowestAddressLevel = placeholderAddressLevel();
 }
 
 // Referenced schemas whose own child-FK lists must still hydrate even when the
@@ -94,6 +98,7 @@ class EntityHydrator {
         this.realmSchemaMap = realmSchemaMap;
         this.executeQuery = executeQuery;
         this.referenceDataCache = referenceDataCache;
+        this.lazyStats = {rowsBuilt: 0, inQueries: 0, embeddedParsed: 0};
 
         // Session-scoped hydration cache: avoids re-hydrating the same entity at a
         // shallower depth within a single hydration batch. Handles back-references:
@@ -120,6 +125,9 @@ class EntityHydrator {
         // the parent's whole subtree. Lists stay lazy (never eager, never frozen []),
         // so a retained shallow entity still resolves them on read.
         this._shallowMode = false;
+
+        // Eager path kept only as the parity tests' reference; remove once lazy hydration has proven out in the field.
+        this.eagerReferenceMode = false;
     }
 
     setShallowMode(enabled) {
@@ -476,9 +484,9 @@ class EntityHydrator {
         // Check batch cache first (populated by batchPreloadLists)
         let rows;
         const cacheKey = `${childSchemaName}:${fkColumnName}`;
-        if (this._listBatchCache && this._listBatchCache.has(cacheKey)) {
-            const grouped = this._listBatchCache.get(cacheKey);
-            rows = grouped.get(parentUuid) || [];
+        const grouped = this._listBatchCache && this._listBatchCache.get(cacheKey);
+        if (grouped && grouped.has(parentUuid)) {
+            rows = grouped.get(parentUuid);
         } else {
             // Fallback to individual query (when not in a batch session)
             rows = this.executeQuery(
@@ -535,14 +543,16 @@ class EntityHydrator {
             if (!fkColumnName) return;
 
             const cacheKey = `${objectType}:${fkColumnName}`;
-            if (this._listBatchCache.has(cacheKey)) return; // already preloaded
+            const existing = this._listBatchCache.get(cacheKey);
+            const fetchUuids = existing ? uniqueUuids.filter(u => !existing.has(u)) : uniqueUuids;
+            if (fetchUuids.length === 0) return;
 
             // Batch fetch with chunking for >999 params (SQLite limit)
             const tListStart = Date.now();
             const CHUNK_SIZE = 999;
             const allRows = [];
-            for (let i = 0; i < uniqueUuids.length; i += CHUNK_SIZE) {
-                const chunk = uniqueUuids.slice(i, i + CHUNK_SIZE);
+            for (let i = 0; i < fetchUuids.length; i += CHUNK_SIZE) {
+                const chunk = fetchUuids.slice(i, i + CHUNK_SIZE);
                 const placeholders = chunk.map(() => "?").join(", ");
                 const rows = this.executeQuery(
                     `SELECT * FROM ${childTableMeta.tableName} WHERE "${fkColumnName}" IN (${placeholders})`,
@@ -552,7 +562,8 @@ class EntityHydrator {
             }
 
             // Group by parent UUID
-            const grouped = new Map();
+            const grouped = existing || new Map();
+            fetchUuids.forEach(uuid => grouped.set(uuid, []));
             for (const row of allRows) {
                 const parentId = row[fkColumnName];
                 if (!grouped.has(parentId)) grouped.set(parentId, []);
@@ -760,6 +771,68 @@ class EntityHydrator {
         return rows.map(row => this.hydrate(schemaName, row, options));
     }
 
+    createLazyGroup(schemaName, rows) {
+        return new LazyGroup(this, schemaName, rows || []);
+    }
+
+    takeLazyStats() {
+        const taken = {...this.lazyStats};
+        this.lazyStats = {rowsBuilt: 0, inQueries: 0, embeddedParsed: 0};
+        return taken;
+    }
+
+    beginLazyScope() {
+        this._lazyScopeDepth = (this._lazyScopeDepth || 0) + 1;
+        if (!this._lazyScope) this._lazyScope = [];
+    }
+
+    endLazyScope() {
+        this._lazyScopeDepth = Math.max((this._lazyScopeDepth || 1) - 1, 0);
+        if (this._lazyScopeDepth > 0 || !this._lazyScope) return;
+        const windows = this._lazyScope;
+        this._lazyScope = null;
+        windows.forEach(window => window.seal());
+    }
+
+    cachedReference(schemaName, uuid) {
+        const cache = this.referenceDataCache[schemaName];
+        return cache ? cache.get(uuid) : undefined;
+    }
+
+    selectIn(schemaName, column, values) {
+        const tableMeta = this.tableMetaMap.get(schemaName);
+        if (!tableMeta || values.length === 0) return [];
+        const rows = [];
+        for (let i = 0; i < values.length; i += IN_CHUNK_SIZE) {
+            const chunk = values.slice(i, i + IN_CHUNK_SIZE);
+            const placeholders = chunk.map(() => "?").join(", ");
+            const chunkRows = this.executeQuery(`SELECT * FROM ${tableMeta.tableName} WHERE "${column}" IN (${placeholders})`, chunk);
+            this.lazyStats.inQueries++;
+            if (chunkRows) rows.push(...chunkRows);
+        }
+        return rows;
+    }
+
+    parseEmbedded(value, objectType, isList) {
+        this.lazyStats.embeddedParsed++;
+        if (objectType === "Observation") this.ensureConceptCache();
+        const parsed = parseJsonSafe(value);
+        if (isList) return (parsed || []).map(item => item != null ? this._hydrateEmbedded(item, objectType) : null);
+        return parsed != null ? this._hydrateEmbedded(parsed, objectType) : null;
+    }
+
+    resolveJsonUuidArray(value, childType) {
+        const parsed = parseJsonSafe(value) || [];
+        if (!childType) return parsed;
+        return parsed.map(uuid => this.resolveReference(childType, uuid, 0)).filter(ref => !isUnresolvedReference(ref));
+    }
+
+    // Sync builds this after every sync; after an app restart the first observation read builds it.
+    ensureConceptCache() {
+        if (this.referenceDataCache.Concept || !this.tableMetaMap.get("Concept")) return;
+        this.buildReferenceCache([{schemaName: "Concept", depth: 2, skipLists: false}]);
+    }
+
     /**
      * Start a hydration session. Creates a temporary cache that lives only
      * for the duration of the session, preventing unbounded memory growth.
@@ -851,6 +924,8 @@ class EntityHydrator {
 
         // Unwrap PersistedObject
         const data = entity.that || entity;
+        const lazy = data[LAZY_STATE];
+        const unread = (propName) => lazy && !lazy.resolved.has(propName) && Object.getOwnPropertyDescriptor(data, propName)?.get;
         const result = {};
         const properties = realmSchema.properties || {};
 
@@ -869,24 +944,33 @@ class EntityHydrator {
 
             if (resolvedType === "object" && objectType) {
                 if (EMBEDDED_SCHEMA_NAMES.has(objectType)) {
+                    if (unread(propName)) {
+                        result[camelToSnake(propName)] = lazy.row[camelToSnake(propName)] ?? null;
+                        return;
+                    }
                     // Embedded -> serialize to JSON (schema-aware to avoid cycles)
                     const val = data[propName];
                     result[camelToSnake(propName)] = val != null ? JSON.stringify(flattenEmbedded(unwrapThat(val), objectType, this.realmSchemaMap)) : null;
                 } else {
                     // Referenced -> extract UUID
-                    const ref = data[propName];
                     const fkColName = `${camelToSnake(propName)}_uuid`;
                     let fkUuid = null;
-                    if (ref && ref.uuid) {
-                        fkUuid = ref.uuid;
-                    } else if (ref && typeof ref === "string") {
-                        fkUuid = ref;
+                    if (unread(propName)) {
+                        fkUuid = lazy.row[fkColName];
+                    } else {
+                        const ref = data[propName];
+                        if (ref && ref.uuid) fkUuid = ref.uuid;
+                        else if (ref && typeof ref === "string") fkUuid = ref;
                     }
                     result[fkColName] = (fkUuid && DUMMY_UUIDS.has(fkUuid)) ? null : fkUuid;
                 }
             } else if (resolvedType === "list" && objectType) {
                 const jsonArrayKey = `${schemaName}.${propName}`;
                 if (Object.prototype.hasOwnProperty.call(JSON_UUID_ARRAY_LIST_PROPERTIES, jsonArrayKey)) {
+                    if (unread(propName)) {
+                        result[camelToSnake(propName)] = lazy.row[camelToSnake(propName)] ?? "[]";
+                        return;
+                    }
                     // JSON array of child UUIDs (or raw scalars) on this row.
                     const childType = JSON_UUID_ARRAY_LIST_PROPERTIES[jsonArrayKey];
                     const list = data[propName];
@@ -896,6 +980,10 @@ class EntityHydrator {
                         : arr.map(v => (v && v.uuid) ? v.uuid : v);
                     result[camelToSnake(propName)] = JSON.stringify(values);
                 } else if (EMBEDDED_SCHEMA_NAMES.has(objectType)) {
+                    if (unread(propName)) {
+                        result[camelToSnake(propName)] = lazy.row[camelToSnake(propName)] ?? "[]";
+                        return;
+                    }
                     // Embedded list -> JSON array (schema-aware to avoid cycles)
                     const list = data[propName];
                     if (list) {
@@ -924,42 +1012,6 @@ class EntityHydrator {
 }
 
 // ──────────────── Helper functions ────────────────
-
-// resolveReference returns a bare {uuid} on miss; drop those from JSON-array lists.
-function isUnresolvedReference(ref) {
-    return ref == null || (typeof ref === "object" && Object.keys(ref).length === 1 && "uuid" in ref);
-}
-
-function parseJsonSafe(value) {
-    if (_.isNil(value)) return null;
-    if (typeof value === "object") return value; // already parsed
-    try {
-        return JSON.parse(value);
-    } catch (e) {
-        return null;
-    }
-}
-
-function convertSqliteValue(realmType, value) {
-    if (_.isNil(value)) return null;
-
-    switch (realmType) {
-        case "date":
-            // epoch ms -> Date
-            return typeof value === "number" ? new Date(value) : value;
-        case "bool":
-            // 0/1 -> boolean
-            return typeof value === "number" ? value !== 0 : !!value;
-        case "int":
-        case "float":
-        case "double":
-            return typeof value === "string" ? parseFloat(value) : value;
-        case "decimal128":
-            return value != null ? String(value) : null;
-        default:
-            return value;
-    }
-}
 
 function convertToSqliteValue(realmType, value) {
     if (_.isNil(value)) return null;

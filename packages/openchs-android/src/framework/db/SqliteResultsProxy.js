@@ -19,9 +19,11 @@ import {camelToSnake, schemaNameToTableName} from "./SqliteUtils";
 import JsFallbackFilterEvaluator from "./JsFallbackFilterEvaluator";
 import General from "../../utility/General";
 
+const isIndexName = (name) => typeof name !== "symbol" && !isNaN(name) && !isNaN(parseInt(name));
+
 const SqliteResultsProxyHandler = {
     get: function (target, name, receiver) {
-        if (typeof name !== "symbol" && !isNaN(name) && !isNaN(parseInt(name))) {
+        if (isIndexName(name)) {
             return target.getAt(Number.parseInt(name));
         } else if (name === "length") {
             return target.getLength();
@@ -37,17 +39,37 @@ const SqliteResultsProxyHandler = {
     },
 };
 
+// Method paths that must yield raw hydrated objects, not wrapped entities —
+// callers re-wrap per item, so serving entities here double-wraps.
+const RAW_ARRAY_DELEGATES = new Set([
+    Symbol.iterator, "map", "forEach", "filter", "find", "some", "every",
+    "slice", "join", "indexOf", "includes", "reduce", "entries", "keys", "values",
+]);
+
 const RawCollectionProxyHandler = {
     get: function (target, name, receiver) {
-        if (typeof name !== "symbol" && !isNaN(name) && !isNaN(parseInt(name))) {
-            const entity = target.getAt(Number.parseInt(name));
-            return (entity && entity.that) ? entity.that : entity;
+        if (isIndexName(name)) {
+            return target.getRawAt(Number.parseInt(name));
         } else if (name === "length") {
             return target.getLength();
         } else if (name === "realmCollection") {
             return receiver;
+        } else if (RAW_ARRAY_DELEGATES.has(name)) {
+            const entities = target._getEntities();
+            return entities[name].bind(entities);
         }
         return Reflect.get(target, name);
+    },
+    // Realm's Results enumerates as its indices; without these traps Object.keys
+    // leaks the proxy's internal fields, which ListViewDataSource then renders as rows.
+    ownKeys: function (target) {
+        return Array.from({length: target.getLength()}, (ignored, index) => String(index));
+    },
+    getOwnPropertyDescriptor: function (target, name) {
+        if (isIndexName(name) && Number.parseInt(name) < target.getLength()) {
+            return {value: target.getRawAt(Number.parseInt(name)), enumerable: true, writable: true, configurable: true};
+        }
+        return Reflect.getOwnPropertyDescriptor(target, name);
     },
 };
 
@@ -113,9 +135,9 @@ class SqliteResultsProxy {
         // Cross-query cache (shared across proxy instances within a dashboard refresh)
         this._queryCache = queryCache;
 
-        // Cached results
         this._rows = null;
-        this._entities = null;
+        this._group = null;
+        this._materialised = null;
         this._executed = false;
 
         this.logQueries = false;
@@ -388,6 +410,59 @@ class SqliteResultsProxy {
 
     _execute() {
         if (this._executed) return;
+        if (this.hydrator && this.hydrator.eagerReferenceMode) return this._executeEager();
+
+        const {sql, params} = this._buildSql();
+        if (this.logQueries) {
+            console.log("SqliteResultsProxy SQL:", sql, "params:", params);
+        }
+
+        const cacheKey = this._queryCache ? `${sql}|${JSON.stringify(params)}|lazy` : null;
+        let group = cacheKey ? this._queryCache.get(cacheKey) : undefined;
+        if (group) {
+            General.logDebug("HydrationProfile", ` CACHE HIT ${this.schemaName} (${group.size} rows)`);
+        } else {
+            const t0 = Date.now();
+            this._rows = this.executeQuery(sql, params) || [];
+            if (this.hydrator) {
+                group = this.hydrator.createLazyGroup(this.schemaName, this._rows);
+                const elapsed = Date.now() - t0;
+                if (elapsed > 2000) {
+                    General.logDebug("HydrationProfile", ` ${this.schemaName} (${this._rows.length} rows, lazy): query=${elapsed}ms`);
+                }
+                if (cacheKey) this._queryCache.set(cacheKey, group);
+            } else {
+                this._materialised = this._rows;
+            }
+        }
+        this._group = group;
+
+        if (this.jsFallbackFilters.length > 0) {
+            const tFallbackStart = Date.now();
+            let entities = JsFallbackFilterEvaluator.apply(group ? group.buildAll() : this._rows, this.jsFallbackFilters, this.schemaName);
+            const tFallbackEnd = Date.now();
+            if (tFallbackEnd - tFallbackStart > 1000) {
+                General.logDebug("HydrationProfile", ` ${this.schemaName} JS fallback: ${tFallbackEnd - tFallbackStart}ms (${this.jsFallbackFilters.map(f => f.query?.substring(0, 60)).join('; ')})`);
+            }
+            if (this.limitClause != null) entities = entities.slice(0, this.limitClause);
+            this._materialised = entities;
+        }
+        this._executed = true;
+    }
+
+    _entityCount() {
+        this._execute();
+        return this._materialised ? this._materialised.length : this._group.size;
+    }
+
+    _entityAt(index) {
+        this._execute();
+        return this._materialised ? this._materialised[index] : this._group.buildAt(index);
+    }
+
+    // Eager path kept only as the parity tests' reference; remove once lazy hydration has proven out in the field.
+    _executeEager() {
+        if (this._executed) return;
 
         const {sql, params} = this._buildSql();
 
@@ -412,6 +487,7 @@ class SqliteResultsProxy {
                     this._entities = this._entities.slice(0, this.limitClause);
                 }
             }
+            this._materialised = this._entities;
             this._executed = true;
             return;
         }
@@ -479,18 +555,25 @@ class SqliteResultsProxy {
             }
         }
 
+        this._materialised = this._entities;
         this._executed = true;
     }
 
     _getEntities() {
         this._execute();
-        return this._entities;
+        if (!this._materialised) this._materialised = this._group.buildAll();
+        return this._materialised;
     }
 
     // ──── Entity creation ────
 
     createEntity(hydratedObj) {
         return new this.entityClass(hydratedObj);
+    }
+
+    getRawAt(index) {
+        const entity = this.getAt(index);
+        return (entity && entity.that) ? entity.that : entity;
     }
 
     getRawCollection() {
@@ -503,9 +586,8 @@ class SqliteResultsProxy {
     // ──── Collection API ────
 
     getAt(index) {
-        const entities = this._getEntities();
-        if (index >= entities.length) return null;
-        const obj = entities[index];
+        if (index < 0 || index >= this._entityCount()) return null;
+        const obj = this._entityAt(index);
         return _.isNil(obj) ? null : this.createEntity(obj);
     }
 
@@ -522,8 +604,7 @@ class SqliteResultsProxy {
      */
     count() {
         if (this.jsFallbackFilters.length > 0) {
-            this._execute();
-            return this._entities.length;
+            return this._entityCount();
         }
         const {sql, params} = this._buildSql();
         // Wrap in SELECT COUNT(*) FROM (...) to avoid assumptions about _buildSql format.
@@ -578,10 +659,7 @@ class SqliteResultsProxy {
     }
 
     getLength() {
-        if (!this._executed) {
-            this._execute();
-        }
-        return this._entities.length;
+        return this._entityCount();
     }
 
     isEmpty() {
@@ -622,9 +700,9 @@ class SqliteResultsProxy {
     }
 
     find(filterCallback, thisArg) {
-        const entities = this._getEntities();
-        for (let i = 0; i < entities.length; i++) {
-            const entity = this.createEntity(entities[i]);
+        const count = this._entityCount();
+        for (let i = 0; i < count; i++) {
+            const entity = this.createEntity(this._entityAt(i));
             const result = thisArg
                 ? filterCallback.call(thisArg, entity, i, this)
                 : filterCallback(entity, i, this);
@@ -651,8 +729,15 @@ class SqliteResultsProxy {
     }
 
     slice(start, end) {
-        const entities = this._getEntities();
-        return entities.slice(start, end).map(obj => this.createEntity(obj));
+        const count = this._entityCount();
+        const bound = (value, fallback) => {
+            if (value === undefined) return fallback;
+            const index = Math.trunc(value) || 0;
+            return index < 0 ? Math.max(count + index, 0) : Math.min(index, count);
+        };
+        const sliced = [];
+        for (let index = bound(start, 0); index < bound(end, count); index++) sliced.push(this.createEntity(this._entityAt(index)));
+        return sliced;
     }
 
     join(separator) {
@@ -706,13 +791,13 @@ class SqliteResultsProxy {
     // ──── Iterator ────
 
     [Symbol.iterator]() {
-        const entities = this._getEntities();
+        const count = this._entityCount();
         let index = 0;
         const self = this;
         return {
             next() {
-                if (index < entities.length) {
-                    return {value: self.createEntity(entities[index++]), done: false};
+                if (index < count) {
+                    return {value: self.createEntity(self._entityAt(index++)), done: false};
                 }
                 return {done: true};
             },
