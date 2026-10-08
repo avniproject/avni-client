@@ -693,9 +693,15 @@ function splitTopLevelAnd(query) {
     let start = 0;
     const upper = query.toUpperCase();
 
+    let quote = null;
+
     for (let i = 0; i < query.length; i++) {
         const ch = query[i];
-        if (ch === '(' || ch === '[') {
+        if (quote) {
+            if (ch === quote && query[i - 1] !== '\\') quote = null;
+        } else if (ch === '"' || ch === "'") {
+            quote = ch;
+        } else if (ch === '(' || ch === '[') {
             depth++;
         } else if (ch === ')' || ch === ']') {
             depth--;
@@ -879,16 +885,19 @@ class RealmQueryParser {
                 }
             }
 
-            const composite = this._tryTranslateComposite(trimmed, args, rootSchemaName, schemaMap, aliasOffset);
-            if (composite) {
-                // As a row filter SQLite can't serve OR branches from indexes, so rows keep the order the JS fallback gave.
-                return {where: `(CASE WHEN ${composite.where} THEN 1 ELSE 0 END) = 1`, params: composite.params, joins: composite.joins, unsupported: false, limit: limitValue};
+            const unwrapped = stripOuterParens(trimmed);
+            if (splitTopLevelOr(unwrapped).length > 1) {
+                const composite = this._tryTranslateComposite(unwrapped, args, rootSchemaName, schemaMap, aliasOffset);
+                if (composite) {
+                    // As a row filter SQLite can't serve OR branches from indexes, so rows keep the order the JS fallback gave.
+                    return {where: `(CASE WHEN ${composite.where} THEN 1 ELSE 0 END) = 1`, params: composite.params, joins: composite.joins, unsupported: false, limit: limitValue};
+                }
             }
 
             // Try partial parsing: split on top-level AND, translate supported clauses to SQL,
             // route JS-fallback clauses (SUBQUERY, TRUEPREDICATE, @count, etc.) to
             // JsFallbackFilterEvaluator for post-hydration filtering.
-            const partialResult = this._parsePartial(trimmed, args, rootSchemaName, schemaMap, aliasOffset);
+            const partialResult = this._parsePartial(unwrapped, args, rootSchemaName, schemaMap, aliasOffset);
             if (partialResult) {
                 partialResult.limit = limitValue;
                 return partialResult;
