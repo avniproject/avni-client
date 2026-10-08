@@ -134,7 +134,7 @@ function getSubjectUUIDsForCustomFilters(customFilterService, reportFilters, ent
     return {uniqueSubjects, filterApplied};
 }
 
-// Prefetch hints only: SQLite reads are lazy, so these no longer change what a row returns.
+// Read only by the eager reference path (EntityHydrator.eagerReferenceMode); lazy SQLite reads ignore them.
 const SUBJECT_VIA_ENROLMENT = {skipLists: true, depth: 2};
 const SUBJECT_DIRECT = {skipLists: true, depth: 1};
 const SUBJECT_VIA_ENROLMENT_WITH_BADGES = {skipLists: true, depth: 3, listsToInclude: new Set(['Individual.enrolments'])};

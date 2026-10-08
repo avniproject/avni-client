@@ -126,7 +126,7 @@ class EntityHydrator {
         // so a retained shallow entity still resolves them on read.
         this._shallowMode = false;
 
-        // Eager path kept only as the parity tests' reference; remove with #2080's follow-up once lazy hydration has proven out in the field.
+        // Eager path kept only as the parity tests' reference; remove once lazy hydration has proven out in the field.
         this.eagerReferenceMode = false;
     }
 

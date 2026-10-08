@@ -87,10 +87,15 @@ Embedded JSON columns are parsed on first read and memoised. An observation's `c
 ### Releasing windows after a rule
 
 Added 7 Oct. A built row keeps a strong link to its window so its unread properties can still load in a batch; Hermes in this build has no `WeakRef` or `FinalizationRegistry` (checked on the emulator), so that link cannot be weak. Instead `RuleEvaluationService.withLazyScope` opens a scope around every rule (`runEvalRule`) and every line-list function (`getDashboardCardQueryResult`), closing it in `finally`. Windows created while a scope is open register with it; when the outermost scope ends, each is sealed:
-- its built rows, loaded child and reference groups, and parent link are dropped;
-- its raw rows stay, so a later read of an unread property on a returned row still loads in one batch for the window, and a row built again is a new object (Realm gives no object identity either).
+- its built rows and loaded child and reference groups are dropped;
+- its raw rows and its parent link stay, so a later read of an unread property on a returned row still loads in one batch for the window, and a child's back-reference still returns a parent built before the rule (the same object, with any in-memory edits); a row built again from a sealed window is a new object (Realm gives no object identity either).
 
-Windows created outside a scope (screens reading services directly) are not sealed; they are freed with the screen. Realm has no scope and is untouched.
+One-row groups (`objectForPrimaryKey`, the re-read after `create`, single-row queries) and everything loaded beneath them are never registered: they hold only their own row's data, as eager did, and holding them until the rule returns would raise peak memory for rules that look subjects up one by one. Windows created outside a scope (screens reading services directly) are not sealed; they are freed with the screen. Realm has no scope and is untouched.
+
+### Known limitations
+
+- **Batched lists are a snapshot.** The first read of a list on any row loads it for the whole window; a sibling row read later gets that load, not data saved since. Eager pre-loaded every list at query time, so this is no worse than the eager path; Realm is live, and neither SQLite mode is.
+- **The Concept cache builds on first need.** After an app restart, the first observation read builds the full Concept cache (depth 2, with answers) on the thread that asked: about 0.5–0.7 s once on JSCS, against a query per concept on the eager path.
 
 ### Query cache
 

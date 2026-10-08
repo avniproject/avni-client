@@ -282,8 +282,18 @@ describe("LazyGroup", () => {
             expect(window._listGroups.size).toBe(0);
             expect(window._referenceGroups.size).toBe(0);
             expect(window._built.every(built => built === undefined)).toBe(true);
-            expect(asha.encounters[0][LAZY_STATE].group.parentLink).toBeNull();
             expect(asha.encounters.map(e => e.uuid)).toEqual(visits);
+        });
+
+        it("keeps a child's back-reference on a parent built before the rule, after sealing", () => {
+            const asha = individualGroup().buildAt(0);
+            db.hydrator.beginLazyScope();
+            const firstVisit = asha.encounters[0];
+            db.hydrator.endLazyScope();
+            db.selects.length = 0;
+
+            expect(firstVisit.individual === asha).toBe(true);
+            expect(db.selects).toEqual([]);
         });
 
         it("still loads an unread property in one batch for the window after sealing", () => {
@@ -309,6 +319,16 @@ describe("LazyGroup", () => {
 
             db.hydrator.endLazyScope();
             expect(asha[LAZY_STATE].group._listGroups.size).toBe(0);
+        });
+
+        it("does not hold a one-row lookup, or what it loads, until the scope ends", () => {
+            db.hydrator.beginLazyScope();
+            const asha = db.hydrator.createLazyGroup("Individual", db.rowsOf("individual").slice(0, 1)).buildAt(0);
+            asha.encounters;
+            expect(db.hydrator._lazyScope).toEqual([]);
+            db.hydrator.endLazyScope();
+
+            expect(asha[LAZY_STATE].group._listGroups.size).toBe(1);
         });
 
         it("seals nothing created outside a scope", () => {

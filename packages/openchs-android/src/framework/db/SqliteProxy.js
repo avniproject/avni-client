@@ -545,7 +545,7 @@ class SqliteProxy {
         if (!rows || rows.length === 0) return null;
 
         if (this.hydrator.eagerReferenceMode) {
-            // Eager path kept only as the parity tests' reference; remove with #2080's follow-up once lazy hydration has proven out in the field.
+            // Eager path kept only as the parity tests' reference; remove once lazy hydration has proven out in the field.
             this.hydrator.beginHydrationSession();
             try {
                 return new entityClass(this.hydrator.hydrate(type, rows[0], this.hydrator.getDefaultHydrationOptions()));

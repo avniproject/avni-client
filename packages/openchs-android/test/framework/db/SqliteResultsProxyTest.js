@@ -597,6 +597,24 @@ describe("SqliteResultsProxy — supported query types", () => {
 
     // ──── Hydration integration ────
 
+    describe("slice", () => {
+        it("follows Array.prototype.slice for negative, missing and out-of-range bounds", () => {
+            const rows = [{uuid: "1"}, {uuid: "2"}, {uuid: "3"}, {uuid: "4"}];
+            const {proxy} = createProxy({rows});
+            const uuids = (...args) => proxy.slice(...args).map(e => e.uuid);
+            const expected = (...args) => rows.slice(...args).map(r => r.uuid);
+
+            [[], [1], [1, 3], [-2], [-3, -1], [2, 99], [99], [0, -5], [1.7, 3.2]].forEach(args =>
+                expect(uuids(...args)).toEqual(expected(...args)));
+        });
+
+        it("builds only the rows it returns", () => {
+            const {proxy, hydrator} = createProxy({rows: [{uuid: "1"}, {uuid: "2"}, {uuid: "3"}]});
+            proxy.slice(1, 2);
+            expect(hydrator.hydrate).toHaveBeenCalledTimes(1);
+        });
+    });
+
     describe("hydration integration", () => {
         it("builds rows only when read", () => {
             const rows = [{uuid: "1"}, {uuid: "2"}];

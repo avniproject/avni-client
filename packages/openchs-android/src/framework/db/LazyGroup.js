@@ -85,28 +85,28 @@ function planFor(hydrator, schemaName) {
 
 // Up to WINDOW_SIZE rows. A row holds only its window, so keeping a few rows keeps a window, not the whole result.
 class LazyWindow {
-    constructor(hydrator, schemaName, rows, parentLink) {
+    constructor(hydrator, schemaName, rows, parentLink, scoped) {
         this.hydrator = hydrator;
         this.schemaName = schemaName;
         this.rows = rows;
         this.parentLink = parentLink;
+        this.scoped = scoped;
         this._built = new Array(rows.length);
         this._indexByUuid = null;
         this._referenceGroups = new Map();
         this._listGroups = new Map();
-        if (hydrator._lazyScope) hydrator._lazyScope.push(this);
+        if (scoped && hydrator._lazyScope) hydrator._lazyScope.push(this);
     }
 
     get size() {
         return this.rows.length;
     }
 
-    // Hermes has no WeakRef, so a kept row would hold its siblings and everything loaded for them; keep only raw rows.
+    // Hermes has no WeakRef, so a kept row would hold its siblings and all loaded for them; keep raw rows and the parent link.
     seal() {
         this._built = new Array(this.rows.length);
         this._referenceGroups = new Map();
         this._listGroups = new Map();
-        this.parentLink = null;
     }
 
     buildAt(index) {
@@ -160,7 +160,7 @@ class LazyWindow {
         if (!referenced) {
             const uuids = _.uniq(this.rows.map(row => row[fkColumn]))
                 .filter(uuid => !_.isNil(uuid) && !this.hydrator.cachedReference(objectType, uuid));
-            referenced = new LazyGroup(this.hydrator, objectType, this.hydrator.selectIn(objectType, "uuid", uuids));
+            referenced = new LazyGroup(this.hydrator, objectType, this.hydrator.selectIn(objectType, "uuid", uuids), null, this.scoped);
             this._referenceGroups.set(fkColumn, referenced);
         }
         const built = referenced.buildByUuid(fk);
@@ -189,15 +189,16 @@ class LazyWindow {
             if (!indicesByParent.has(parentUuid)) indicesByParent.set(parentUuid, []);
             indicesByParent.get(parentUuid).push(index);
         });
-        return {group: new LazyGroup(this.hydrator, childSchemaName, rows, {group: this, fkColumn}), indicesByParent};
+        return {group: new LazyGroup(this.hydrator, childSchemaName, rows, {group: this, fkColumn}, this.scoped), indicesByParent};
     }
 }
 
 class LazyGroup {
-    constructor(hydrator, schemaName, rows, parentLink = null) {
+    // A one-row lookup holds only its own row's data, as eager did, so it and what it loads are never held for sealing.
+    constructor(hydrator, schemaName, rows, parentLink = null, scoped = rows.length > 1) {
         this.schemaName = schemaName;
         this.size = rows.length;
-        this._windows = _.chunk(rows, WINDOW_SIZE).map(chunk => new LazyWindow(hydrator, schemaName, chunk, parentLink));
+        this._windows = _.chunk(rows, WINDOW_SIZE).map(chunk => new LazyWindow(hydrator, schemaName, chunk, parentLink, scoped));
         this._windowByUuid = null;
     }
 

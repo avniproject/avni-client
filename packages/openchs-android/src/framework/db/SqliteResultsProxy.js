@@ -424,23 +424,22 @@ class SqliteResultsProxy {
         } else {
             const t0 = Date.now();
             this._rows = this.executeQuery(sql, params) || [];
-            if (!this.hydrator) {
+            if (this.hydrator) {
+                group = this.hydrator.createLazyGroup(this.schemaName, this._rows);
+                const elapsed = Date.now() - t0;
+                if (elapsed > 2000) {
+                    General.logDebug("HydrationProfile", ` ${this.schemaName} (${this._rows.length} rows, lazy): query=${elapsed}ms`);
+                }
+                if (cacheKey) this._queryCache.set(cacheKey, group);
+            } else {
                 this._materialised = this._rows;
-                this._executed = true;
-                return;
             }
-            group = this.hydrator.createLazyGroup(this.schemaName, this._rows);
-            const elapsed = Date.now() - t0;
-            if (elapsed > 2000) {
-                General.logDebug("HydrationProfile", ` ${this.schemaName} (${this._rows.length} rows, lazy): query=${elapsed}ms`);
-            }
-            if (cacheKey) this._queryCache.set(cacheKey, group);
         }
         this._group = group;
 
         if (this.jsFallbackFilters.length > 0) {
             const tFallbackStart = Date.now();
-            let entities = JsFallbackFilterEvaluator.apply(group.buildAll(), this.jsFallbackFilters, this.schemaName);
+            let entities = JsFallbackFilterEvaluator.apply(group ? group.buildAll() : this._rows, this.jsFallbackFilters, this.schemaName);
             const tFallbackEnd = Date.now();
             if (tFallbackEnd - tFallbackStart > 1000) {
                 General.logDebug("HydrationProfile", ` ${this.schemaName} JS fallback: ${tFallbackEnd - tFallbackStart}ms (${this.jsFallbackFilters.map(f => f.query?.substring(0, 60)).join('; ')})`);
@@ -461,7 +460,7 @@ class SqliteResultsProxy {
         return this._materialised ? this._materialised[index] : this._group.buildAt(index);
     }
 
-    // Eager path kept only as the parity tests' reference; remove with #2080's follow-up once lazy hydration has proven out in the field.
+    // Eager path kept only as the parity tests' reference; remove once lazy hydration has proven out in the field.
     _executeEager() {
         if (this._executed) return;
 
@@ -724,7 +723,15 @@ class SqliteResultsProxy {
     }
 
     slice(start, end) {
-        return _.range(this._entityCount()).slice(start, end).map(index => this.createEntity(this._entityAt(index)));
+        const count = this._entityCount();
+        const bound = (value, fallback) => {
+            if (value === undefined) return fallback;
+            const index = Math.trunc(value) || 0;
+            return index < 0 ? Math.max(count + index, 0) : Math.min(index, count);
+        };
+        const sliced = [];
+        for (let index = bound(start, 0); index < bound(end, count); index++) sliced.push(this.createEntity(this._entityAt(index)));
+        return sliced;
     }
 
     join(separator) {
