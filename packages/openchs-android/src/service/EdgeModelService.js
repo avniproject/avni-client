@@ -90,7 +90,7 @@ class EdgeModelService extends BaseService {
         // would fail identically; and the failure dispatch itself triggers a rule cycle, which
         // re-fires the scheduling rule — without this the pair would loop indefinitely.
         this._inferenceFailedForImage = new Set();
-        // The imagePath of the most recent dispatch for a target, keyed by targetKey. `_scheduled`
+        // The imagePath the row last asked about, keyed by targetKey: the image the row holds now. `_scheduled`
         // dedups by image and so cannot supersede: when a row's photo is replaced mid-inference,
         // both images are legitimately in flight and the one that resolves LAST writes its verdict.
         // Resolving out of order therefore put the discarded photo's verdict on the new photo
@@ -359,6 +359,10 @@ class EdgeModelService extends BaseService {
         const targetKey = isRqg
             ? `${entity.uuid}|${questionGroupConceptName}|${rqgIdx}|${targetConceptName}`
             : `${entity.uuid}|${targetConceptName}`;
+        // The row holds this image now, whichever check below returns early. A result still in flight
+        // for any other image of this row is superseded, including when the row goes back to an earlier
+        // image: A, B, then A again, or a saved visit reopened after a discarded photo change (#2000).
+        this._inFlightImageByTarget.set(targetKey, imagePath);
         const existing = isRqg
             ? this._readRqgChildValue(entity, questionGroupConceptName, rqgIdx, targetConceptName)
             : entity.getObservationValue(targetConceptName);
@@ -441,9 +445,6 @@ class EdgeModelService extends BaseService {
             return;
         }
         this._scheduled.add(inflightKey);
-        // Supersedes any earlier dispatch for this target: whatever was in flight for the previous
-        // image no longer describes what is in the row.
-        this._inFlightImageByTarget.set(targetKey, imagePath);
         const isSuperseded = () => this._inFlightImageByTarget.get(targetKey) !== imagePath;
         General.logDebug('EdgeModelSvc', `scheduleImageInference QUEUED: ${inflightKey}`);
         if (invalidateStaleNow) queueClear();
@@ -519,8 +520,8 @@ class EdgeModelService extends BaseService {
             })
             .finally(() => {
                 this._scheduled.delete(inflightKey);
-                // Only if this dispatch is still the current one — a superseding dispatch owns the
-                // entry now, and clearing it would let its own result be read as superseded.
+                // Only if this image is still the row's — a later image owns the entry now, and clearing
+                // it would let that image's own result be read as superseded.
                 if (!isSuperseded()) this._inFlightImageByTarget.delete(targetKey);
             });
     }
