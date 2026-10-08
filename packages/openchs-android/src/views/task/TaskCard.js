@@ -147,7 +147,7 @@ class TaskCard extends AbstractComponent {
                         <IconContainer
                             name="back-in-time"
                             type="Entypo"
-                            onPress={this.onReschedulePress}
+                            onPress={() => {this.onReschedulePress(task)}}
                         />
                     </View>
                 </View>
