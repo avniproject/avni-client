@@ -140,6 +140,11 @@ export function decideGuidedRowState(resolved, blobs = {}) {
     return {...base, showReckoner: !!resolved.reckonerPath, overlayReady: !!resolved.overlayPath};
 }
 
+// The row as blocked by a set-up problem found outside the rule, such as a bad photo setting.
+export function misconfiguredRowState(resolved) {
+    return decideGuidedRowState({...resolved, blockCapture: {reason: BlockReason.Misconfiguration, message: null}});
+}
+
 // Successes only: a missing blob must be re-probed so the row unblocks once sync fetches it.
 const presentBlobs = new Set();
 
