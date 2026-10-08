@@ -76,7 +76,7 @@ class ProgramEncounterState extends AbstractDataEntryState {
     }
 
     get staticFormElementIds() {
-        if (this.wizard.isFirstFormPage()) {
+        if (this.wizard.isFirstPage()) {
             return [AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME, ProgramEncounter.validationKeys.ENCOUNTER_LOCATION];
         } else {
             return [];

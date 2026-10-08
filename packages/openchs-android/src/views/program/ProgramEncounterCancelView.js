@@ -144,7 +144,7 @@ class ProgramEncounterCancelView extends AbstractComponent {
                                func={() => this.onAppHeaderBack()}
                                displayHomePressWarning={true}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
-                        {this.state.wizard.isFirstFormPage() ?
+                        {this.state.wizard.isFirstPage() ?
                             <View>
                                 <SummaryButton onPress={() => this.onGoToSummary()}/>
                                 <GeolocationFormElement
