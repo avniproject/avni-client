@@ -75,11 +75,10 @@ class DownloadableContentService extends BaseService {
         return `${FileSystem.getModelKeysDir()}/${sha256}.key`;
     }
 
+    // Runs at the end of a successful sync, so an empty list means no live record is left and the sweep
+    // below must still run: it is what removes the files of the last record voided.
     async downloadContent(statusMessageCallBack = _.noop) {
         const items = this.getAllNonVoided().filter(item => !_.isNil(item.contentKey) && !_.isNil(item.sha256));
-        if (_.isEmpty(items)) {
-            return [];
-        }
         const failures = [];
         for (const item of items) {
             try {

@@ -26,6 +26,7 @@ jest.mock('react-native', () => ({NativeModules: {}}));
 import fs from 'react-native-fs';
 import DownloadableContentService, {contentBlobPath, describeError, isManagedContentKey} from '../../src/service/DownloadableContentService';
 import FileSystem from '../../src/model/FileSystem';
+import {guidanceBlobCacheGeneration} from '../../src/model/CaptureGuidance';
 
 const MODELS_DIR = FileSystem.getModelsDir();
 const KEYS_DIR = FileSystem.getModelKeysDir();
@@ -477,6 +478,27 @@ describe('cleanup across namespaces', () => {
         await service.downloadContent(statusMessageCallBackFor());
 
         expect(mockFsState.existing.has(`${MODELS_DIR}/a-subdirectory`)).toBe(true);
+    });
+
+    // QA on #1997, 8 Oct 2026: voiding the last guidance picture left every file on the phone, because
+    // an empty list returned before the sweep.
+    it('removes every guidance picture once the last record is voided', async () => {
+        items = [];
+        mockFsState.existing.add(GUIDANCE_DIR);
+        mockFsState.existing.add(`${GUIDANCE_DIR}/gone.png`);
+        mockFsState.existing.add(`${GUIDANCE_DIR}/gone-too.jpg`);
+        mockFsState.dirContents[GUIDANCE_DIR] = [
+            {name: 'gone.png', path: `${GUIDANCE_DIR}/gone.png`},
+            {name: 'gone-too.jpg', path: `${GUIDANCE_DIR}/gone-too.jpg`}
+        ];
+        const generationBefore = guidanceBlobCacheGeneration();
+
+        await service.downloadContent(statusMessageCallBackFor());
+
+        expect(mockFsState.existing.has(`${GUIDANCE_DIR}/gone.png`)).toBe(false);
+        expect(mockFsState.existing.has(`${GUIDANCE_DIR}/gone-too.jpg`)).toBe(false);
+        expect(guidanceBlobCacheGeneration()).toBe(generationBefore + 1);
+        expect(mockDownloadWithoutAuth).not.toHaveBeenCalled();
     });
 
     it('leaves a model alone while cleaning guidance, and the other way round', async () => {
