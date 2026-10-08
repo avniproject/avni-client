@@ -7,6 +7,9 @@ const mockDownloadWithoutAuth = jest.fn();
 jest.mock('../../src/service/AuthAwareDownload', () => ({downloadWithoutAuth: (...args) => mockDownloadWithoutAuth(...args)}));
 
 const mockFsState = {existing: new Set(), dirContents: {}, sizes: {}, hashes: {}};
+// Blobs are named after their own content hash, so a file hashes to the sha in its name unless a test
+// marks it damaged. A download in progress carries a .part suffix until it is moved into place.
+const mockShaOf = (blobFilePath) => blobFilePath.split('/').pop().replace(/\.part$/, '').replace(/\.[A-Za-z]+$/, '');
 const blobResponse = (size, status = 200) => ({respInfo: {status, headers: {'Content-Length': String(size)}}});
 jest.mock('react-native-fs', () => ({
     DocumentDirectoryPath: '/mock/private',
@@ -18,7 +21,7 @@ jest.mock('react-native-fs', () => ({
     moveFile: jest.fn((from, to) => { mockFsState.existing.delete(from); mockFsState.existing.add(to); return Promise.resolve(); }),
     readDir: jest.fn((dir) => Promise.resolve(mockFsState.dirContents[dir] || [])),
     stat: jest.fn((p) => Promise.resolve({size: mockFsState.sizes[p] || 0})),
-    hash: jest.fn((p) => Promise.resolve(mockFsState.hashes[p])),
+    hash: jest.fn((p) => Promise.resolve(p in mockFsState.hashes ? mockFsState.hashes[p] : mockShaOf(p))),
 }));
 
 jest.mock('react-native', () => ({NativeModules: {}}));
@@ -47,7 +50,8 @@ const writesBlob = (size, hash) => (url, target) => {
     mockFsState.hashes[target] = hash === undefined ? shaOf(target) : hash;
     return Promise.resolve(blobResponse(size));
 };
-const shaOf = (blobFilePath) => blobFilePath.split('/').pop().replace(/\.bin$/, '');
+const shaOf = mockShaOf;
+const partial = (path) => `${path}.part`;
 
 describe('describeError', () => {
     it('reports the HTTP status for a ServerError whose message is [object Object]', () => {
@@ -100,7 +104,8 @@ describe('DownloadableContentService', () => {
         expect(mockGet).toHaveBeenCalledWith('https://server/media/modelBlobUrl?key=models/abc.bin');
         expect(mockDownloadWithoutAuth).toHaveBeenCalledTimes(1);
         expect(mockDownloadWithoutAuth.mock.calls[0][0]).toBe('https://signed-url');
-        expect(mockDownloadWithoutAuth.mock.calls[0][1]).toBe(blobPath('abc'));
+        expect(mockDownloadWithoutAuth.mock.calls[0][1]).toBe(partial(blobPath('abc')));
+        expect(mockFsState.existing.has(blobPath('abc'))).toBe(true);
     });
 
     it('does not reject when the ciphertext hash differs from the plaintext sha256', async () => {
@@ -153,7 +158,7 @@ describe('DownloadableContentService', () => {
         const failures = await service.downloadContent(statusMessageCallBack);
 
         expect(failures).toEqual(['edge-model']);
-        expect(fs.unlink).toHaveBeenCalledWith(blobPath('abc'));
+        expect(fs.unlink).toHaveBeenCalledWith(partial(blobPath('abc')));
         expect(mockFsState.existing.has(blobPath('abc'))).toBe(false);
         expect(statusMessageCallBack).toHaveBeenCalledWith('contentNotDownloaded');
     });
@@ -171,7 +176,7 @@ describe('DownloadableContentService', () => {
         const failures = await service.downloadContent(statusMessageCallBack);
 
         expect(failures).toEqual(['edge-model']);
-        expect(fs.unlink).toHaveBeenCalledWith(blobPath('abc'));
+        expect(fs.unlink).toHaveBeenCalledWith(partial(blobPath('abc')));
         expect(mockFsState.existing.has(blobPath('abc'))).toBe(false);
         expect(statusMessageCallBack).toHaveBeenCalledWith('contentNotDownloaded');
     });
@@ -187,7 +192,7 @@ describe('DownloadableContentService', () => {
         const failures = await service.downloadContent(statusMessageCallBack);
 
         expect(failures).toEqual(['edge-model']);
-        expect(fs.unlink).toHaveBeenCalledWith(blobPath('abc'));
+        expect(fs.unlink).toHaveBeenCalledWith(partial(blobPath('abc')));
     });
 
     // Guidance images sync as unencrypted DownloadableContent rows, so the blob IS its plaintext
@@ -222,7 +227,7 @@ describe('DownloadableContentService', () => {
         const failures = await service.downloadContent(statusMessageCallBack);
 
         expect(failures).toEqual(['guidance-3-reckoner']);
-        expect(fs.unlink).toHaveBeenCalledWith(blobPath('def'));
+        expect(fs.unlink).toHaveBeenCalledWith(partial(blobPath('def')));
         expect(mockFsState.existing.has(blobPath('def'))).toBe(false);
         expect(statusMessageCallBack).toHaveBeenCalledWith('contentNotDownloaded');
     });
@@ -233,7 +238,7 @@ describe('DownloadableContentService', () => {
             guidanceItem({name: 'guidance-2', contentKey: 'models/two.bin', sha256: 'two'})
         ];
         mockDownloadWithoutAuth.mockImplementation((url, target) =>
-            (target === blobPath('one') ? writesBlob(100, 'garbage') : writesBlob(100))(url, target));
+            (target === partial(blobPath('one')) ? writesBlob(100, 'garbage') : writesBlob(100))(url, target));
 
         const failures = await service.downloadContent(statusMessageCallBack);
 
@@ -254,13 +259,70 @@ describe('DownloadableContentService', () => {
         expect(mockFsState.existing.has(blobPath('def'))).toBe(true);
     });
 
-    it('does not re-hash an image that is already on the device', async () => {
+    it('keeps an intact image already on the device without downloading it again', async () => {
         items = [guidanceItem()];
         mockFsState.existing.add(blobPath('def'));
 
         expect(await service.downloadContent(statusMessageCallBack)).toEqual([]);
         expect(mockDownloadWithoutAuth).not.toHaveBeenCalled();
+        expect(fs.hash).toHaveBeenCalledWith(blobPath('def'), 'sha256');
+        expect(mockFsState.existing.has(blobPath('def'))).toBe(true);
+    });
+
+    // QA on #1997 and #1999, 8 Oct 2026: a picture damaged after it arrived blocked its photo row with
+    // "sync and retry", and no sync ever fixed it, because a file already there was never checked.
+    it('replaces an image damaged on the device: deletes it and downloads it again', async () => {
+        items = [guidanceItem()];
+        mockFsState.existing.add(blobPath('def'));
+        mockFsState.hashes[blobPath('def')] = 'junk-written-over-the-picture';
+
+        const failures = await service.downloadContent(statusMessageCallBack);
+
+        expect(failures).toEqual([]);
+        expect(fs.unlink).toHaveBeenCalledWith(blobPath('def'));
+        expect(mockDownloadWithoutAuth).toHaveBeenCalledTimes(1);
+        expect(mockFsState.existing.has(blobPath('def'))).toBe(true);
+        expect(statusMessageCallBack).not.toHaveBeenCalled();
+    });
+
+    it('leaves a damaged image deleted and reports it when the new download fails too', async () => {
+        items = [guidanceItem()];
+        mockFsState.existing.add(blobPath('def'));
+        mockFsState.hashes[blobPath('def')] = 'cut-short-by-an-old-interrupted-download';
+        mockDownloadWithoutAuth.mockImplementation(() => Promise.reject(new Error('network down')));
+
+        const failures = await service.downloadContent(statusMessageCallBack);
+
+        expect(failures).toEqual(['guidance-3-reckoner']);
+        expect(mockFsState.existing.has(blobPath('def'))).toBe(false);
+        expect(statusMessageCallBack).toHaveBeenCalledWith('contentNotDownloaded');
+    });
+
+    it('leaves an encrypted blob already on the device to the decrypt, unhashed', async () => {
+        items = [item({needsKey: true})];
+        mockFsState.existing.add(blobPath('abc'));
+        mockFsState.existing.add(keyPath('abc'));
+
+        expect(await service.downloadContent(statusMessageCallBack)).toEqual([]);
         expect(fs.hash).not.toHaveBeenCalled();
+        expect(mockDownloadWithoutAuth).not.toHaveBeenCalled();
+    });
+
+    // A download written straight to the final path and cut off half-way looked complete to every
+    // later sync. Only a checked file is moved into place now.
+    it('leaves nothing at the final path when a download is cut off', async () => {
+        items = [guidanceItem()];
+        mockDownloadWithoutAuth.mockImplementation((url, target) => {
+            mockFsState.existing.add(target);
+            mockFsState.sizes[target] = 40;
+            return Promise.reject(new Error('connection reset'));
+        });
+
+        const failures = await service.downloadContent(statusMessageCallBack);
+
+        expect(failures).toEqual(['guidance-3-reckoner']);
+        expect(mockFsState.existing.has(blobPath('def'))).toBe(false);
+        expect(fs.moveFile).not.toHaveBeenCalled();
     });
 
     it('accepts a download with no Content-Length header when the file is non-empty', async () => {
@@ -324,7 +386,8 @@ describe('DownloadableContentService', () => {
 
         expect(failures).toEqual(['edge-model']);
         expect(fs.writeFile).not.toHaveBeenCalled();
-        expect(fs.moveFile).not.toHaveBeenCalled();
+        expect(fs.moveFile).not.toHaveBeenCalledWith(`${keyPath('abc')}.tmp`, keyPath('abc'));
+        expect(mockFsState.existing.has(keyPath('abc'))).toBe(false);
         expect(statusMessageCallBack).toHaveBeenCalledWith('contentNotDownloaded');
     });
 
@@ -510,6 +573,7 @@ describe('cleanup across namespaces', () => {
         mockFsState.existing.add(GUIDANCE_DIR);
         mockFsState.existing.add(`${MODELS_DIR}/keep.bin`);
         mockFsState.existing.add(`${GUIDANCE_DIR}/keep.png`);
+        mockFsState.hashes[`${GUIDANCE_DIR}/keep.png`] = 'keep-png';
         mockFsState.dirContents[MODELS_DIR] = [{name: 'keep.bin', path: `${MODELS_DIR}/keep.bin`}];
         mockFsState.dirContents[GUIDANCE_DIR] = [{name: 'keep.png', path: `${GUIDANCE_DIR}/keep.png`}];
 

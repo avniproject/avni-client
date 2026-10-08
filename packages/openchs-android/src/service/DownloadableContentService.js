@@ -13,6 +13,10 @@ import {DownloadableContent} from 'avni-models';
 // writes where it says, so it must never point outside a directory this service owns.
 const MANAGED_NAMESPACES = Object.freeze(['models', 'guidance']);
 
+// A blob downloads under this suffix and is moved into place only once checked. Any left behind by an
+// interrupted sync is not a live name, so the cleanup sweep removes it.
+const PARTIAL_DOWNLOAD_SUFFIX = '.part';
+
 export function isManagedContentKey(contentKey) {
     if (!_.isString(contentKey)) return false;
     const separator = contentKey.indexOf('/');
@@ -101,34 +105,51 @@ class DownloadableContentService extends BaseService {
 
     async downloadItem(item) {
         const blobPath = this.blobPath(item);
-        if (await fs.exists(blobPath)) {
-            if (item.needsKey) {
-                await this.ensureKey(item.sha256);
-            }
-            return;
+        if (!(await fs.exists(blobPath)) || !(await this.isIntactOnDevice(item, blobPath))) {
+            await this.downloadBlob(item, blobPath);
         }
-        await this.downloadBlob(item, blobPath);
         if (item.needsKey) {
             await this.ensureKey(item.sha256);
         }
     }
 
-    // An encrypted blob is ciphertext — integrity is enforced natively at decrypt time, so only a
-    // truncation check is possible. An unencrypted blob is its own plaintext, so it is hashed.
-    async downloadBlob(item, blobPath) {
-        const signedUrl = await this.getBlobUrl(item.contentKey);
-        const response = await downloadWithoutAuth(signedUrl, blobPath);
+    // An unencrypted blob is checked against its sha256 at every sync, not only when it arrives: a
+    // guidance picture damaged on the device afterwards blocks its photo row with "sync and retry",
+    // and only this check lets a sync fix it. The pictures are small, so hashing them each sync is
+    // cheap. An encrypted blob is left to the native decrypt, as at download.
+    async isIntactOnDevice(item, blobPath) {
+        if (item.needsKey) return true;
         try {
+            await this.verifyPlaintextHash(item, blobPath);
+            return true;
+        } catch (error) {
+            General.logError("DownloadableContentService", `Downloading '${item.name}' again: ${error && error.message}`);
+            await this.unlinkIfExists(blobPath);
+            return false;
+        }
+    }
+
+    // An encrypted blob is ciphertext — integrity is enforced natively at decrypt time, so only a
+    // truncation check is possible. An unencrypted blob is its own plaintext, so it is hashed. The
+    // download lands beside the final path and moves there only once checked, so a download cut off
+    // half-way never leaves a file that the next sync would take for a complete one.
+    async downloadBlob(item, blobPath) {
+        const partialPath = `${blobPath}${PARTIAL_DOWNLOAD_SUFFIX}`;
+        await this.unlinkIfExists(partialPath);
+        const signedUrl = await this.getBlobUrl(item.contentKey);
+        try {
+            const response = await downloadWithoutAuth(signedUrl, partialPath);
             // A signed URL can resolve with a non-2xx error body (e.g. expired URL returns a
             // small XML error). Reject it before the size check so the error body is never
             // cached as the blob and read as ciphertext on the next sync.
             this.verifyDownloadStatus(response);
-            await this.verifyDownloadSize(response, blobPath);
+            await this.verifyDownloadSize(response, partialPath);
             if (!item.needsKey) {
-                await this.verifyPlaintextHash(item, blobPath);
+                await this.verifyPlaintextHash(item, partialPath);
             }
+            await fs.moveFile(partialPath, blobPath);
         } catch (error) {
-            await this.unlinkIfExists(blobPath);
+            await this.unlinkIfExists(partialPath);
             throw error;
         }
     }
