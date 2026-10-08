@@ -39,10 +39,27 @@ function makeProxy({rows = [{uuid: "a"}, {uuid: "b"}, {uuid: "c"}], extra = {}} 
         const limit = sql.match(/LIMIT\s+(\d+)/i);
         return limit ? rows.slice(0, Number(limit[1])) : rows;
     });
+    const hydrate = jest.fn((schemaName, row) => ({...row}));
+    // Rows load through a lazy group since #2080; build each one on first read, as the real
+    // LazyGroup does, so .length still executes the query and a read still hydrates.
     const hydrator = {
         beginHydrationSession: jest.fn(),
         endHydrationSession: jest.fn(),
-        hydrate: jest.fn((schemaName, row) => ({...row}))
+        hydrate,
+        createLazyGroup: jest.fn((schemaName, rows) => {
+            const built = [];
+            return {
+                size: rows.length,
+                buildAt(index) {
+                    if (index < 0 || index >= rows.length) return null;
+                    if (!(index in built)) built[index] = hydrate(schemaName, rows[index], {});
+                    return built[index];
+                },
+                buildAll() {
+                    return rows.map((row, index) => this.buildAt(index));
+                },
+            };
+        }),
     };
     const proxy = SqliteResultsProxy.create({
         schemaName: "Individual",
