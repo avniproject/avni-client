@@ -19,7 +19,6 @@ import {open} from '@op-engineering/op-sqlite';
 import {EntityMappingConfig} from 'openchs-models';
 import {SchemaGenerator} from '../../../../src/framework/db/SchemaGenerator';
 import SqliteProxy from '../../../../src/framework/db/SqliteProxy';
-import {LAZY_STATE} from '../../../../src/framework/db/LazyGroup';
 
 describe('search hydration: listsToInclude opts enrolments back in (#1955)', () => {
     let rawDb, proxy;
@@ -56,7 +55,8 @@ describe('search hydration: listsToInclude opts enrolments back in (#1955)', () 
         expect(result).toBeTruthy();
         expect(result.enrolments.length).toBe(1);               // opted in
         expect(result.enrolments[0].program.name).toBe('ANC');  // program resolved at depth 0
-        expect(isLoaded(result, 'encounters')).toBe(false); // still skipped — deferred, not empty
+        expect(isPrefetched(result, 'enrolments')).toBe(true);
+        expect(isPrefetched(result, 'encounters')).toBe(false); // still skipped — deferred, not empty
         expect(result.encounters.length).toBe(1);               // and correct once read
     });
 
@@ -68,14 +68,13 @@ describe('search hydration: listsToInclude opts enrolments back in (#1955)', () 
         });
         const result = proxy.objects('Individual').withHydration({skipLists: true, depth: 1}).filtered(`uuid = "${ind}"`)[0];
 
-        expect(isLoaded(result, 'enrolments')).toBe(false);
+        expect(isPrefetched(result, 'enrolments')).toBe(false);
         expect(Array.from(result.enrolments, e => e.uuid)).toEqual(['sh-enr-2']);
     });
 
-    // Whether something has read the property (lazy rows) or prefetched it (eager objects).
-    function isLoaded(entity, propName) {
+    // A prefetched list is a plain data property; a deferred one is an accessor.
+    function isPrefetched(entity, propName) {
         const target = entity.that || entity;
-        const lazy = target[LAZY_STATE];
-        return lazy ? lazy.resolved.has(propName) : !Object.getOwnPropertyDescriptor(target, propName).get;
+        return !Object.getOwnPropertyDescriptor(target, propName).get;
     }
 });

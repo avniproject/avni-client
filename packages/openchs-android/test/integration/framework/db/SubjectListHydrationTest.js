@@ -11,7 +11,6 @@ import {open} from '@op-engineering/op-sqlite';
 import {EntityMappingConfig} from 'openchs-models';
 import {SchemaGenerator} from '../../../../src/framework/db/SchemaGenerator';
 import SqliteProxy from '../../../../src/framework/db/SqliteProxy';
-import {LAZY_STATE} from '../../../../src/framework/db/LazyGroup';
 
 describe('subject list hydration: rows load what they display (#2105)', () => {
     let rawDb, proxy;
@@ -58,11 +57,10 @@ describe('subject list hydration: rows load what they display (#2105)', () => {
             .filtered(`uuid = "${ROW_ENCOUNTER}"`)[0];
     }
 
-    // Whether something has read the property (lazy rows) or prefetched it (eager objects).
-    function isLoaded(entity, propName) {
+    // A prefetched list is a plain data property; a deferred one is an accessor.
+    function isPrefetched(entity, propName) {
         const target = entity.that || entity;
-        const lazy = target[LAZY_STATE];
-        return lazy ? lazy.resolved.has(propName) : !Object.getOwnPropertyDescriptor(target, propName).get;
+        return !Object.getOwnPropertyDescriptor(target, propName).get;
     }
 
     // What a scheduled or overdue row renders: subject name and address, program and visit name.
@@ -81,15 +79,15 @@ describe('subject list hydration: rows load what they display (#2105)', () => {
         it('does not expand the enrolment history behind the row', () => {
             const row = rowFor(SUBJECT_VIA_ENROLMENT);
 
-            expect(isLoaded(row.programEnrolment, 'encounters')).toBe(false);
+            expect(isPrefetched(row.programEnrolment, 'encounters')).toBe(false);
         });
 
         it('does not expand the subject lists behind the row', () => {
             const row = rowFor(SUBJECT_VIA_ENROLMENT);
             const individual = row.programEnrolment.individual;
 
-            expect(isLoaded(individual, 'enrolments')).toBe(false);
-            expect(isLoaded(individual, 'encounters')).toBe(false);
+            expect(isPrefetched(individual, 'enrolments')).toBe(false);
+            expect(isPrefetched(individual, 'encounters')).toBe(false);
         });
 
         it('still resolves a deferred list correctly when something reads it', () => {
@@ -110,9 +108,10 @@ describe('subject list hydration: rows load what they display (#2105)', () => {
             listsToInclude: new Set(['Individual.enrolments'])
         };
 
-        it('resolves the badge list with its programs', () => {
+        it('prefetches the badge list with its programs resolved', () => {
             const individual = rowFor(WITH_BADGES).programEnrolment.individual;
 
+            expect(isPrefetched(individual, 'enrolments')).toBe(true);
             expect(Array.from(individual.enrolments, e => e.program.name)).toEqual(['Mother', 'Mother']);
         });
 
@@ -121,8 +120,8 @@ describe('subject list hydration: rows load what they display (#2105)', () => {
         it('leaves every other list behind the row deferred', () => {
             const row = rowFor(WITH_BADGES);
 
-            expect(isLoaded(row.programEnrolment, 'encounters')).toBe(false);
-            expect(isLoaded(row.programEnrolment.individual, 'encounters')).toBe(false);
+            expect(isPrefetched(row.programEnrolment, 'encounters')).toBe(false);
+            expect(isPrefetched(row.programEnrolment.individual, 'encounters')).toBe(false);
         });
     });
 });

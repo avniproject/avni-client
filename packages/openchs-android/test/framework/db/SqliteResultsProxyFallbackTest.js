@@ -10,25 +10,13 @@ class MockEntity {
 
 // ──── Mock hydrator ────
 
-function createMockHydrator(transform) {
-    const hydrate = jest.fn((schemaName, row, opts) => transform ? transform(row) : {...row});
+function createMockHydrator(entityEnricher) {
     return {
         beginHydrationSession: jest.fn(),
         endHydrationSession: jest.fn(),
-        hydrate,
-        createLazyGroup: jest.fn((schemaName, rows) => {
-            const built = [];
-            return {
-                size: rows.length,
-                buildAt(index) {
-                    if (index < 0 || index >= rows.length) return null;
-                    if (!(index in built)) built[index] = hydrate(schemaName, rows[index], {});
-                    return built[index];
-                },
-                buildAll() {
-                    return rows.map((row, index) => this.buildAt(index));
-                },
-            };
+        hydrate: jest.fn((schemaName, row, opts) => {
+            // Identity hydration — return row as-is, optionally enriched
+            return entityEnricher ? entityEnricher(row) : {...row};
         }),
     };
 }

@@ -43,7 +43,6 @@ class TaskStatusPicker extends AbstractComponent {
         }).bookmark().to(TaskFormView, true);
         this.dispatchAction(Actions.ON_STATUS_CHANGE,
             {statusUUID: value, task: this.props.task, moveToDetailsPage});
-        this.dispatchAction(TaskListActions.ON_REFRESH);
         this.dispatchAction(TaskListActions.ON_HIDE_TASK_STATUS_CHANGE_MODAL, {
             task: this.props.task
         })

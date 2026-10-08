@@ -36,9 +36,7 @@ Everything SQLite-specific lives in `packages/openchs-android/src/framework/db/`
 | `SqliteFactory.js` | Opens op-sqlite with SQLCipher key, runs Drizzle migrations, seeds `Settings` / `UserInfo`, returns `SqliteProxy`. |
 | `SqliteProxy.js` | Drop-in replacement for `RealmProxy`. Implements `objects/create/write/delete/objectForPrimaryKey`, plus `bulkCreate` (batched INSERTs) and `exec*` SQL-native methods. |
 | `SqliteResultsProxy.js` | Drop-in for `RealmResults`. Lazy query builder — chained `.filtered()` / `.sorted()` don't execute until you read a row. |
-| `EntityHydrator.js` | Flat SQL rows → objects. Builds the reference-data cache, resolves FK columns and attaches child lists for the eager reference path (`eagerReferenceMode`, parity tests only) and reference-cache builds; has a session-scoped cache. |
-| `LazyGroup.js` | Batch group of raw rows. Rows are built on access; references and lists load for the whole group with one chunked `IN (…)` query, via memoised lazy getters. |
-| `HydrationValues.js` | Value-conversion helpers shared by eager and lazy hydration. |
+| `EntityHydrator.js` | Flat SQL rows → nested objects. Resolves FK columns, parses embedded JSON, attaches child lists. Has a session-scoped cache and a batch preload path. |
 | `RealmQueryParser.js` | Translates Realm query strings to SQL WHERE. Routes patterns that can't be translated (SUBQUERY, `@count`, `DISTINCT`, `ANY`, `@links`) to the JS fallback. |
 | `JsFallbackFilterEvaluator.js` | Post-filter over hydrated entities for the un-translatable patterns above. |
 | `SchemaGenerator.js` | Realm schema definitions → SQL `CREATE TABLE` metadata (column types, FKs, embedded-property tracking). |
@@ -64,27 +62,42 @@ Everything SQLite-specific lives in `packages/openchs-android/src/framework/db/`
 ## Sync Flow Differences on SQLite
 
 - **Bulk persist.** `SyncService.persistAll()` checks `this.db.isSqlite` and routes to `SqliteProxy.bulkCreate`, which issues a single `executeBatch` for the whole batch instead of one statement per entity.
-- **Shallow mode during sync.** `EntityHydrator.setShallowMode(true)` is still toggled for the duration of sync (paused around `SubjectMigrationService.migrateSubjects` at `SyncService.js:285-295`, so the `"SQLite shallow hydration disabled" / "enabled"` debug logs fire twice in a normal sync), but it no longer changes what a read returns — reads are lazy; see Hydration below.
-- **Reference-data cache built before post-sync reset.** `SyncService._buildReferenceCacheIfSqlite()` (called before `resetServicesAfterFullSyncCompletion`) pre-populates `EntityHydrator.referenceDataCache` with AddressLevel / Concept / SubjectType / etc., so reference data is served from memory after sync.
+- **Shallow hydration during sync.** `EntityHydrator.setShallowMode(true)` is toggled for the duration of sync so FK resolution doesn't hydrate child lists — sync only needs scalars + direct FK ids. Flipped back off when sync completes. **Carve-out:** `SubjectMigrationService.migrateSubjects` walks `subject.enrolments → enrolment.encounters → observation` arrays to delete entire subtrees, so shallow mode is paused around that step (`SyncService.js:285-295`) and re-enabled after. As a result, the `"SQLite shallow hydration disabled" / "enabled"` debug logs fire **twice** in a normal sync (once around subject migration mid-sync, once at the end) — that's expected, not a bug.
+- **Reference-data cache built before post-sync reset.** `SyncService._buildReferenceCacheIfSqlite()` (called before `resetServicesAfterFullSyncCompletion`) pre-populates `EntityHydrator.referenceDataCache` with AddressLevel / Concept / SubjectType / etc. Without this, form hydration after sync pulled depth-0 stubs and rendered stale forms.
 - **FK enforcement during sync.** `SyncService._disableForeignKeysIfSqlite` toggles `PRAGMA foreign_keys = OFF` for the duration of every sync run, and `_enableForeignKeysIfSqlite` flips it back `ON` after. Both go through `RepositoryFactory.setForeignKeysEnabled(...)` so the no-op-on-Realm and PRAGMA-on-SQLite branching lives at the repository layer. Sync **is** ordered parent-first by design — the toggle is purely a safety net so an unexpected ordering bug surfaces as a logged violation rather than aborting the user's sync mid-flight.
 - **Post-sync FK integrity check.** `SyncService._checkForeignKeyIntegrityIfSqlite` (called once after sync completes) runs `PRAGMA foreign_key_check` via `RepositoryFactory.runForeignKeyCheck()` and reports any orphan rows. Violations log to `General.logError` *and* fire `ErrorUtil.notifyBugsnag(..., "SyncService::FKIntegrityCheck")` — that's where to look first when investigating, not in sync telemetry.
-- **Count-only dashboard cards.** `MyDashboard` initial card counts use `SELECT COUNT(*)` via `SqliteResultsProxy.count()` rather than building rows. Lists load their rows only when read.
+- **Count-only dashboard cards.** `MyDashboard` initial card counts use `SELECT COUNT(*)` via `SqliteResultsProxy.count()` rather than hydrating the full results set. Lists are lazy-loaded on tap.
 
-## Hydration
+## Hydration Modes & Depths
 
-SQLite reads are lazy. A query runs its SQL and keeps the raw rows in a `LazyGroup` (`src/framework/db/LazyGroup.js`). A row becomes a plain object only when it is indexed or iterated. Scalars are converted at once; references, lists and embedded JSON (observations) are getters that load on first read and are then memoised.
+Hydration is the row → object step `EntityHydrator` performs when a query result is read. Two flags shape how much of the entity graph it materialises:
 
-A group is split into windows of at most 999 rows. The first read of a reference or list on any row of a window loads it for every row of that window with one `IN (…)` query, and the loaded rows form a child group, so nested reads batch the same way. A child reached through a list answers its reference back to the parent from the parent window without a query. All rows share one getter per schema property; resolved values live in the row's hidden state.
+- **`depth: N`** — number of FK hops to traverse. At depth 0, FK columns resolve to a cached stub (scalars only, no further FK objects) or `null` if not cached; list children are left empty. At depth N, the hydrator recursively hydrates each FK target and list element with `depth: N-1`. Default is 3.
+- **`skipLists: true | false`** — when true, list-typed properties (e.g. `Individual.encounters`, `FormElementGroup.formElements`) are left as `[]` instead of fetched. Independent of `depth`: you can ask for deep FK traversal but no list children, or for shallow FKs with full lists.
 
-When a rule or line-list function returns (`RuleEvaluationService.withLazyScope`), the windows it created are sealed: they drop their built rows and loaded children and keep only raw rows, so what a rule hands back does not hold its siblings' data. A later read of an unread property still batches per window.
+Two ways to opt into a non-default hydration:
 
-Reference data (Gender, SubjectType, Program, EncounterType, AddressLevel at first query; Concept on the first observation read; the post-sync set after every sync) is built eagerly once and served from `referenceDataCache`.
+- **Per query.** `results.withHydration({skipLists: true, depth: 1})` on a `SqliteResultsProxy`. The chained results proxy is still lazy — hydration options apply when rows are read. Used by search and any read path that needs the row but not its subtree.
+- **Process-wide.** `db.setShallowMode(true)` flips the hydrator into a shallow default (`{skipLists: true, depth: 1}`) for *every* hydrate call until turned off. Used during sync because openchs-models' `fromResource` calls `findByKey("uuid", ...)` for each child; without shallow mode every call would batch-preload the parent's full subtree.
 
-`withHydration(...)`, `depth`, `skipLists`, `listsToInclude` and sync's shallow mode no longer change what a read returns. `count()`, `max`, `min`, `sum` and `distinctValues` run as SQL and build no rows, except that `distinctValues` builds rows when the query needs a JS fallback filter or a windowed DISTINCT.
+### Where each depth is used
 
-`flatten()` writes a lazy object's unread properties straight from its stored row, so saving an object never loads what the code did not read.
+| Depth + flag | Used by | Rationale |
+|---|---|---|
+| `depth: 0, skipLists: true` | `EntityHydrator._batchPreloadFkReferences` — the FK-preload step inside batch hydration | Cheap stub for join targets, promoted to richer hydration when the batch loader replaces it. **Footgun:** the depth-0 stub used to win the session-cache lookup against deeper later loads — see Footgun #2 below. |
+| `depth: 1, skipLists: true` | `setShallowMode` default during sync (`EntityHydrator.js:112`); `SqliteProxy.DEFAULT_REFERENCE_CACHE_CONFIGS` (Gender, SubjectType, Program, EncounterType, AddressLevel — `SqliteProxy.js:106-110`); search results (`IndividualService.js:278`); internal lookup paths in `SqliteProxy.js:291,300,449` | Lookup-only — scalars + direct FK ids resolved as stubs, no child lists. The most common shallow shape. |
+| `depth: 1, skipLists: false` | Post-sync ref cache for `ChecklistItemDetail` (`SyncService.js:786`) | Need child list but no further FK traversal. |
+| `depth: 2, skipLists: false` | Post-sync ref cache for `Concept` (`SyncService.js:785`) | Concept → ConceptAnswer → Concept needs two hops to resolve answer concepts. |
+| `depth: 3, skipLists: false` | Default for `SqliteResultsProxy` queries when no `withHydration()` call (`SqliteResultsProxy.js:91`); post-sync ref cache for `Form` (`SyncService.js:787`) | Form → FormElementGroup → FormElement → Concept; full hydration so views render the form complete. |
 
-`EntityHydrator.eagerReferenceMode` switches back to the old depth-3 eager build. It exists only so the parity tests can compare against it and is not set by the app.
+### Two reference caches
+
+`buildReferenceCache(...)` is invoked twice with different configs:
+
+- **Boot-time:** `SqliteProxy.DEFAULT_REFERENCE_CACHE_CONFIGS` (5 entries, all `depth: 1, skipLists: true`) is applied when the proxy is constructed if the relevant tables are non-empty (`SqliteProxy.js:121`). Covers the small reference entities every code path looks up by uuid (Gender, SubjectType, Program, EncounterType, AddressLevel).
+- **Post-sync:** `SyncService._buildReferenceCacheIfSqlite()` (`SyncService.js:771-790`) extends the cache with a larger, mixed-depth set — adds OrganisationConfig / IndividualRelation* / GroupRole at depth 1, plus the deeper entries (Concept at depth 2, ChecklistItemDetail at depth 1 with lists, Form at depth 3 with lists). Runs *before* `resetServicesAfterFullSyncCompletion` so views that re-read forms after sync see fully populated subtrees instead of depth-0 stubs.
+
+If you add a new schema that's frequently looked up by uuid, decide which list (if either) it joins, and pick the smallest depth that keeps the call sites happy — every hop is an extra round of FK resolution and (when `skipLists: false`) child-list queries.
 
 ## Encryption
 
@@ -162,7 +175,7 @@ Rules that only need a count + a clickable line list should use `params.db.execR
 Things a dev who hasn't worked on this code is likely to trip over:
 
 1. **Partial-object upserts can silently overwrite existing data.** If you `General.pick(entity, ['uuid', 'someList'])` and pass that to a write, `flatten()` used to include every schema property with its default (e.g. `observations: "[]"`), causing `COALESCE`-based upsert to wipe prior values. Fixed in 4433c2d65 — but the shape of the problem applies to any code path that hand-crafts partial objects. Verify the write only writes what you intend.
-2. **FK preload into the session cache at depth-0 can hide deeper hydrations (eager path only).** Applies to `EntityHydrator._batchPreloadFkReferences`, which now runs only under `eagerReferenceMode` and reference-cache builds; lazy reads do not use it. It used to cache FK'd entities without their child lists. When the same entity was later batch-loaded at depth 2 (e.g. `FormElementGroup` with `formElements` populated), the depth-0 stub won the cache lookup and the form rendered with no children. Fixed in 9cb6ef5a0 — but if you extend the preloader, respect the batch-load queue.
+2. **FK preload into the session cache at depth-0 can hide deeper hydrations.** `EntityHydrator._batchPreloadFkReferences` used to cache FK'd entities without their child lists. When the same entity was later batch-loaded at depth 2 (e.g. `FormElementGroup` with `formElements` populated), the depth-0 stub won the cache lookup and the form rendered with no children. Fixed in 9cb6ef5a0 — but if you extend the preloader, respect the batch-load queue.
 3. **Mutating managed Realm objects outside a write block.** `SubjectMigrationService.markMigrated` had a `hasMigrated = true` assignment drift outside the `transactionManager.write()` block after a refactor and threw. Rule of thumb: when you migrate a service onto the repository layer, check every property assignment sits inside a `transactionManager.write(...)`.
 4. **`DrizzleSchemaExport.js` duplicates type-conversion logic.** It's a CJS module consumed by `drizzle-kit` at generation time, so it can't import the ESM helpers from `SqliteUtils.js`. Keep the two in sync when you change a type mapping — the schema-validation test will catch drift, but only after you re-run `make migration_export_schema`.
 5. **Op-sqlite WAL files travel with the DB.** `make get_sqlite_db` does `PRAGMA wal_checkpoint(TRUNCATE)` and deletes the `-wal` / `-shm` files for you. If you pull the DB with plain `adb pull`, you may see stale data — checkpoint first.

@@ -76,8 +76,7 @@ class TaskCard extends AbstractComponent {
         }
     }
     renderSubjectDetails(task) {
-        // On SQLite a subject no longer on the device hydrates to a bare {uuid} stub instead of null
-        return task.isOpenSubjectType() && !_.isNil(_.get(task, 'subject.lowestAddressLevel')) ? (
+        return task.isOpenSubjectType() && !_.isNil(task.subject) ? (
             <TouchableNativeFeedback
                 onPress={() => this.goToSubjectDashboard(this, task.subject)}
                 background={TouchableNativeFeedback.SelectableBackground()}
@@ -147,7 +146,7 @@ class TaskCard extends AbstractComponent {
                         <IconContainer
                             name="back-in-time"
                             type="Entypo"
-                            onPress={() => {this.onReschedulePress(task)}}
+                            onPress={this.onReschedulePress}
                         />
                     </View>
                 </View>

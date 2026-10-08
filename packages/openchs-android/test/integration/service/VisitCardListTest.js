@@ -16,7 +16,6 @@ jest.mock("../../../src/framework/bean/Service", () => () => (target) => target)
 import {EntityMappingConfig} from "openchs-models";
 import SchemaGenerator from "../../../src/framework/db/SchemaGenerator";
 import SqliteProxy from "../../../src/framework/db/SqliteProxy";
-import {LAZY_STATE} from "../../../src/framework/db/LazyGroup";
 import RepositoryFactory from "../../../src/repository/RepositoryFactory";
 import IndividualService from "../../../src/service/IndividualService";
 import CustomFilterService from "../../../src/service/CustomFilterService";
@@ -94,12 +93,8 @@ describe("visit card lists", () => {
 
     afterEach(() => rawDb && rawDb.close());
 
-    // Whether something has read the property (lazy rows) or prefetched it (eager objects).
-    const isLoaded = (entity, propName) => {
-        const target = entity.that || entity;
-        const lazy = target[LAZY_STATE];
-        return lazy ? lazy.resolved.has(propName) : !Object.getOwnPropertyDescriptor(target, propName).get;
-    };
+    // A prefetched list is a plain data property; a deferred one is an accessor.
+    const isPrefetched = (entity, propName) => !Object.getOwnPropertyDescriptor(entity.that || entity, propName).get;
     const rowFor = (rows, subjectUuid) => {
         const row = rows.find(r => r.individual.uuid === subjectUuid);
         assert.exists(row, `${subjectUuid} is not on the card`);
@@ -112,21 +107,14 @@ describe("visit card lists", () => {
         : row.individual.that.enrolments[0];
 
     // Program visit rows reach the subject through the enrolment; that enrolment's history is the cost.
-    const assertBadges = (row, {badges}) => {
-        if (badges) {
-            assert.deepEqual(row.individual.nonVoidedEnrolments().map(enl => enl.program.name), ["Mother"], "badge strip");
-        } else {
-            assert.isFalse(isLoaded(row.individual, "enrolments"), "badge strip");
-        }
-    };
     const assertProgramRowShallow = (row, {badges}) => {
-        assert.isFalse(isLoaded(row.individual, "encounters"), "subject history loaded");
-        assert.isFalse(isLoaded(enrolmentOf(row), "encounters"), "enrolment history loaded");
-        assertBadges(row, {badges});
+        assert.isFalse(isPrefetched(enrolmentOf(row), "encounters"), "enrolment history loaded");
+        assert.isFalse(isPrefetched(row.individual, "encounters"), "subject history loaded");
+        assert.strictEqual(isPrefetched(row.individual, "enrolments"), badges, "badge strip");
     };
     const assertGeneralRowShallow = (row, {badges}) => {
-        assert.isFalse(isLoaded(row.individual, "encounters"), "subject history loaded");
-        assertBadges(row, {badges});
+        assert.isFalse(isPrefetched(row.individual, "encounters"), "subject history loaded");
+        assert.strictEqual(isPrefetched(row.individual, "enrolments"), badges, "badge strip");
     };
 
     // Scheduled and overdue hide the badge strip (IndividualDetails, isScheduledOrOverdueView).

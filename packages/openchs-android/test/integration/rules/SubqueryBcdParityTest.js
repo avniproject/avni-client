@@ -400,10 +400,9 @@ describe('SUBQUERY B/C/D parity on SQLite', () => {
             expect(res.length).toBe(7);
         });
 
-        it('OR mixing an outer predicate with a SUBQUERY translates and returns the union of both branches', () => {
+        it('OR mixing an outer predicate with a SUBQUERY returns the union of both branches', () => {
             const query = 'voided = true OR SUBQUERY(encounters, $enc, $enc.voided = false).@count > 0';
-            const parsed = RealmQueryParser.parse(query, [], 'Individual', realmSchemaMap());
-            expect(parsed.unsupported || parsed.partialParse).toBeFalsy();
+            assertStaysOnFallback(query, 'Individual');
             const res = proxy.objects('Individual').filtered(query);
             // ind2 is the only voided individual; no individual has a general encounter, so the
             // SUBQUERY branch adds nobody. Dropping the first branch would return nothing.
