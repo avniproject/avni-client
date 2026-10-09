@@ -12,12 +12,16 @@ import {
     Encounter,
     EntityApprovalStatus,
     EntityMetaData,
+    Family,
+    IdentifierAssignment,
     Individual,
     ProgramEncounter,
     ProgramEnrolment,
     SubjectMigration,
+    SubjectProgramEligibility,
     GroupSubject,
-    IndividualRelationship
+    IndividualRelationship,
+    Task
 } from "openchs-models";
 import SettingsService from "./SettingsService";
 import {getJSON} from "../framework/http/requests";
@@ -137,6 +141,9 @@ class SubjectMigrationService extends BaseService {
         General.logDebug('SubjectMigrationService', `Deleting all entities for subject with UUID ${subjectUUID}`);
         const find = (schema, filter) => this.getRepository(schema).findAll().filtered(filter, subjectUUID).map(_.identity);
         const uuidsOf = (rows) => rows.map(row => row.uuid);
+        // One hop from the parent's uuid: a path through programEnrolment.individual makes SQLite scan the whole child table
+        const findByParents = (schema, parentProperty, parentUUIDs) => _.flatMap(_.chunk(parentUUIDs, 500), uuids =>
+            this.getRepository(schema).findAll().filtered(RealmQueryService.orKeyValueQuery(parentProperty, uuids)).map(_.identity));
         // On Realm, observations and locations are separate objects that don't go with their owner
         const deleteWithParts = (rows, parts = []) => {
             _.forEach(rows, row => parts.forEach(part => {
@@ -148,25 +155,35 @@ class SubjectMigrationService extends BaseService {
         const enrolmentParts = ['observations', 'programExitObservations', 'enrolmentLocation', 'exitLocation'];
 
         this.transactionManager.write(() => {
-            const programEncounters = find(ProgramEncounter.schema.name, 'programEnrolment.individual.uuid = $0');
-            const encounters = find(Encounter.schema.name, 'individual.uuid = $0');
-            const checklistItems = find(ChecklistItem.schema.name, 'checklist.programEnrolment.individual.uuid = $0');
             const enrolments = find(ProgramEnrolment.schema.name, 'individual.uuid = $0');
+            const enrolmentUUIDs = uuidsOf(enrolments);
+            const programEncounters = findByParents(ProgramEncounter.schema.name, 'programEnrolment.uuid', enrolmentUUIDs);
+            const encounters = find(Encounter.schema.name, 'individual.uuid = $0');
+            const checklists = findByParents(Checklist.schema.name, 'programEnrolment.uuid', enrolmentUUIDs);
+            const checklistItems = findByParents(ChecklistItem.schema.name, 'checklist.uuid', uuidsOf(checklists));
             const comments = find(Comment.schema.name, 'subject.uuid = $0');
             const commentThreadUUIDs = _.uniq(comments.map(comment => _.get(comment, 'commentThread.uuid')).filter(_.identity));
             const approvalStatuses = this.findApprovalStatuses([
                 [EntityApprovalStatus.entityType.Subject, [subjectUUID]],
-                [EntityApprovalStatus.entityType.ProgramEnrolment, uuidsOf(enrolments)],
+                [EntityApprovalStatus.entityType.ProgramEnrolment, enrolmentUUIDs],
                 [EntityApprovalStatus.entityType.Encounter, uuidsOf(encounters)],
                 [EntityApprovalStatus.entityType.ProgramEncounter, uuidsOf(programEncounters)],
                 [EntityApprovalStatus.entityType.ChecklistItem, uuidsOf(checklistItems)],
             ]);
 
+            // These belong to the user, so they stay; only their link to the subject goes
+            const repositoryFactory = this.context.getRepositoryFactory();
+            repositoryFactory.clearLinks(IdentifierAssignment.schema.name, 'individual_uuid', [subjectUUID]);
+            repositoryFactory.clearLinks(IdentifierAssignment.schema.name, 'program_enrolment_uuid', enrolmentUUIDs);
+            repositoryFactory.clearLinks(Task.schema.name, 'subject_uuid', [subjectUUID]);
+            repositoryFactory.clearLinks(SubjectProgramEligibility.schema.name, 'subject_uuid', [subjectUUID]);
+            repositoryFactory.clearLinks(Family.schema.name, 'head_of_family_uuid', [subjectUUID]);
+
             deleteWithParts(programEncounters, visitParts);
-            deleteWithParts(find(DraftProgramEncounter.schema.name, 'programEnrolment.individual.uuid = $0'), visitParts);
+            deleteWithParts(findByParents(DraftProgramEncounter.schema.name, 'programEnrolment.uuid', enrolmentUUIDs), visitParts);
             deleteWithParts(encounters, visitParts);
             deleteWithParts(checklistItems, ['observations']);
-            deleteWithParts(find(Checklist.schema.name, 'programEnrolment.individual.uuid = $0'));
+            deleteWithParts(checklists);
             deleteWithParts(enrolments, enrolmentParts);
 
             deleteWithParts(comments);
@@ -174,7 +191,9 @@ class SubjectMigrationService extends BaseService {
                 .filter(threadUUID => this.getRepository(Comment.schema.name).findAll().filtered('commentThread.uuid = $0', threadUUID).length === 0)
                 .map(threadUUID => this.getRepository(CommentThread.schema.name).findAll().filtered('uuid = $0', threadUUID)[0])
                 .filter(_.identity));
-            deleteWithParts(find(GroupSubject.schema.name, 'groupSubject.uuid = $0 OR memberSubject.uuid = $0'));
+            // Two queries: the OR makes SQLite scan group_subject
+            deleteWithParts(find(GroupSubject.schema.name, 'groupSubject.uuid = $0'));
+            deleteWithParts(find(GroupSubject.schema.name, 'memberSubject.uuid = $0'));
             deleteWithParts(this.getService(IndividualRelationshipService).findBySubject(subject).map(_.identity));
             deleteWithParts(find(DraftEncounter.schema.name, 'individual.uuid = $0'), visitParts);
             deleteWithParts(find(DraftEnrolment.schema.name, 'individual.uuid = $0'), enrolmentParts);

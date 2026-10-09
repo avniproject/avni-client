@@ -58,6 +58,13 @@ class RepositoryFactory {
         return this.db._executeQuery("PRAGMA foreign_key_check") || [];
     }
 
+    // Realm clears links to a deleted object itself
+    clearLinks(schemaName, columnName, uuids) {
+        if (!this._isSqlite) return false;
+        this.db.clearLinks(schemaName, columnName, uuids);
+        return true;
+    }
+
     setShallowHydrationMode(enabled) {
         if (!this._isSqlite || typeof this.db.setShallowMode !== "function") return false;
         this.db.setShallowMode(enabled);

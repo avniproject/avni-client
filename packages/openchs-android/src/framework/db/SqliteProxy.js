@@ -751,6 +751,19 @@ class SqliteProxy {
         });
     }
 
+    // Straight UPDATE: create() would refuse a null in a mandatory link such as SubjectProgramEligibility.subject
+    clearLinks(schemaName, columnName, uuids) {
+        if (_.isEmpty(uuids)) return;
+        const tableMeta = this.tableMetaMap.get(schemaName);
+        if (!tableMeta || !tableMeta.getColumn(columnName)) throw new Error(`SqliteProxy.clearLinks: No column "${columnName}" on "${schemaName}"`);
+        this.write(() => {
+            _.chunk(uuids, 500).forEach(chunk => {
+                const placeholders = chunk.map(() => "?").join(", ");
+                this._executeRaw(`UPDATE ${tableMeta.tableName} SET "${columnName}" = NULL WHERE "${columnName}" IN (${placeholders})`, chunk);
+            });
+        });
+    }
+
     // ──── Reference data cache ────
 
     /**
