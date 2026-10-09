@@ -46,6 +46,20 @@ class ResetSyncService extends BaseService {
 
     resetSync() {
         if (!this.isResetSyncRequired()) return;
+        const repositoryFactory = this.context.getRepositoryFactory();
+        // Off before the transaction opens: SQLite ignores the pragma inside one
+        const isSqlite = repositoryFactory.setForeignKeysEnabled(false);
+        try {
+            // One transaction on SQLite, so an interrupted reset rolls back and stays pending.
+            // Not on Realm: its repositories open their own writes, and Realm refuses a write inside a write.
+            if (isSqlite) this.runInTransaction(() => this._deleteDataAndMarkMigrated());
+            else this._deleteDataAndMarkMigrated();
+        } finally {
+            if (isSqlite) repositoryFactory.setForeignKeysEnabled(true);
+        }
+    }
+
+    _deleteDataAndMarkMigrated() {
         const notMigratedSyncReset = this.getNotMigratedResetSyncs();
         const isAllDataDeleteRequired = _.some(notMigratedSyncReset, resetSnc => _.isNil(resetSnc.subjectTypeUUID));
         if (isAllDataDeleteRequired) {
