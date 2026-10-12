@@ -129,6 +129,8 @@ class ProgramEncounterActions {
     static onSummaryPage(state, action, context) {
         if (state.wizardCompletionInProgress) return state;
         const newState = state.clone();
+        // Same one-shot jump as EncounterActions.onSummaryPage (#2184). Cleared here, not left to clone() dropping it.
+        newState.allElementsFilledForImmutableEncounter = false;
         return runWizardCompletion(newState, action, () => newState.handleSummaryPageAsync(action, context), 'ProgramEncounterActions.onSummaryPage');
     }
 
