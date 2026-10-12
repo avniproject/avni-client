@@ -33,6 +33,8 @@ import RuleEvaluationService from "../../service/RuleEvaluationService";
 import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 import FullScreenLoader from "../common/FullScreenLoader";
 import CustomActivityIndicator from "../CustomActivityIndicator";
+import BackgroundDraftSaver from "../common/BackgroundDraftSaver";
+import {FormResumeType} from "../../service/draft/FormResume";
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
@@ -42,6 +44,16 @@ class ProgramEncounterView extends AbstractComponent {
 
     viewName() {
         return 'ProgramEncounterView';
+    }
+
+    onViewDidMount() {
+        this.backgroundDraftSaver = new BackgroundDraftSaver(this, Actions.ON_APP_BACKGROUND, FormResumeType.ProgramEncounter);
+        this.backgroundDraftSaver.start();
+    }
+
+    componentWillUnmount() {
+        this.backgroundDraftSaver && this.backgroundDraftSaver.stop();
+        super.componentWillUnmount();
     }
 
     constructor(props, context) {

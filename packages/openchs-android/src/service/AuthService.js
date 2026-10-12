@@ -10,6 +10,7 @@ import KeycloakAuthService from "./KeycloakAuthService";
 import { IDP_PROVIDERS } from "../model/IdpProviders";
 import General from "../utility/General";
 import SessionRecord from "./SessionRecord";
+import FormResume from "./draft/FormResume";
 
 @Service("authService")
 class AuthService extends BaseService {
@@ -62,7 +63,10 @@ class AuthService extends BaseService {
 
     // Every deliberate sign-out goes through here, so the next launch never counts it as a lost session.
     logout() {
-        return this.getAuthProviderService().logout().finally(() => SessionRecord.ended());
+        return this.getAuthProviderService().logout().finally(() => {
+            SessionRecord.ended();
+            FormResume.forget();
+        });
     }
 
     getAuthProviderService(userSelectedIdp) {

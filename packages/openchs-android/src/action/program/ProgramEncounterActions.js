@@ -165,6 +165,17 @@ class ProgramEncounterActions {
         return newState;
     }
 
+    static onAppBackground(state, action, context) {
+        const programEncounter = state.programEncounter;
+        if (!state.saveDrafts || _.isNil(state.wizard)) return state;
+        const savedEncounter = context.get(EntityService).findByUUID(programEncounter.uuid, ProgramEncounter.schema.name);
+        if (!_.isNil(savedEncounter) && !_.isNil(savedEncounter.encounterDateTime)) return state;
+        const draftProgramEncounterService = context.get(DraftProgramEncounterService);
+        draftProgramEncounterService.saveDraft(programEncounter);
+        action.onDraftSaved(draftProgramEncounterService.findDraftFor(programEncounter).uuid, state.wizard.currentPage);
+        return state;
+    }
+
     static onSave(state, action, context) {
         const newState = state.clone();
         const workflowInfo = {workflow: 'Program encounter', programEncounterUuid: newState.programEncounter.uuid};
@@ -239,6 +250,7 @@ const ProgramEncounterActionsNames = {
     ON_SKIP_VERIFICATION: "PEncA.ON_SKIP_VERIFICATION",
     ON_TIMED_FORM: "PEncA.ON_TIMED_FORM",
     ON_START_TIMER: "PEncA.ON_START_TIMER",
+    ON_APP_BACKGROUND: "PEncA.ON_APP_BACKGROUND",
     USE_THIS_STATE: "PEncA.USE_THIS_STATE",
 };
 
@@ -267,6 +279,7 @@ const ProgramEncounterActionsMap = new Map([
     [ProgramEncounterActionsNames.ON_TIMED_FORM, TimerActions.onTimedForm],
     [ProgramEncounterActionsNames.ON_START_TIMER, TimerActions.onStartTimer],
     [ProgramEncounterActionsNames.USE_THIS_STATE, ProgramEncounterActions.onUseThisState],
+    [ProgramEncounterActionsNames.ON_APP_BACKGROUND, ProgramEncounterActions.onAppBackground],
     [EDGE_MODEL_ACTION.INFERENCE_RESULT_AVAILABLE, ObservationsHolderActions.onInferenceResultAvailable],
     [EDGE_MODEL_ACTION.INFERENCE_RESULTS_BATCH, ObservationsHolderActions.onObservationWriteBatch],
     [EDGE_MODEL_ACTION.INFERENCE_UNAVAILABLE, ObservationsHolderActions.onInferenceUnavailable],

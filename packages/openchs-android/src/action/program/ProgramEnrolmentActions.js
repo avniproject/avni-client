@@ -172,6 +172,16 @@ export class ProgramEnrolmentActions {
         return state;
     }
 
+    static onAppBackground(state, action, context) {
+        const enrolment = state.enrolment;
+        if (!state.saveDrafts || _.isNil(state.wizard) || state.usage !== ProgramEnrolmentState.UsageKeys.Enrol) return state;
+        if (context.get(ProgramEnrolmentService).existsByUuid(enrolment.uuid)) return state;
+        const draftEnrolmentService = context.get(DraftEnrolmentService);
+        draftEnrolmentService.saveDraft(enrolment);
+        action.onDraftSaved(draftEnrolmentService.findByIndividualAndProgram(enrolment.individual, enrolment.program).uuid, state.wizard.currentPage);
+        return state;
+    }
+
     static onSave(state, action, context) {
         const newState = state.clone();
         context.get(IndividualService).updateObservations(newState.enrolment.individual);
@@ -220,6 +230,7 @@ const actions = {
     TOGGLE_GROUPS: "PEA.TOGGLE_GROUPS",
     ON_TIMED_FORM: "PEA.ON_TIMED_FORM",
     ON_START_TIMER: "PEA.ON_START_TIMER",
+    ON_APP_BACKGROUND: "PEA.ON_APP_BACKGROUND",
 };
 
 export default new Map([
@@ -248,6 +259,7 @@ export default new Map([
     [actions.TOGGLE_GROUPS, GroupAffiliationActions.updateValue],
     [actions.ON_TIMED_FORM, TimerActions.onTimedForm],
     [actions.ON_START_TIMER, TimerActions.onStartTimer],
+    [actions.ON_APP_BACKGROUND, ProgramEnrolmentActions.onAppBackground],
     [EDGE_MODEL_ACTION.INFERENCE_RESULT_AVAILABLE, ObservationsHolderActions.onInferenceResultAvailable],
     [EDGE_MODEL_ACTION.INFERENCE_RESULTS_BATCH, ObservationsHolderActions.onObservationWriteBatch],
     [EDGE_MODEL_ACTION.INFERENCE_UNAVAILABLE, ObservationsHolderActions.onInferenceUnavailable],

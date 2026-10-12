@@ -29,6 +29,8 @@ import {AvniAlert} from "../common/AvniAlert";
 import SingleSelectMediaFormElement from "../form/formElement/SingleSelectMediaFormElement";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import EntityService from "../../service/EntityService";
+import BackgroundDraftSaver from "../common/BackgroundDraftSaver";
+import {FormResumeType} from "../../service/draft/FormResume";
 
 @Path('/personRegister')
 class PersonRegisterView extends AbstractComponent {
@@ -48,6 +50,16 @@ class PersonRegisterView extends AbstractComponent {
 
     viewName() {
         return 'PersonRegisterView';
+    }
+
+    onViewDidMount() {
+        this.backgroundDraftSaver = new BackgroundDraftSaver(this, Actions.ON_APP_BACKGROUND, FormResumeType.PersonRegistration);
+        this.backgroundDraftSaver.start();
+    }
+
+    componentWillUnmount() {
+        this.backgroundDraftSaver && this.backgroundDraftSaver.stop();
+        super.componentWillUnmount();
     }
 
     getTitleForGroupSubject(){
@@ -88,6 +100,7 @@ class PersonRegisterView extends AbstractComponent {
                 taskUuid: params.taskUuid,
                 onCompletion: (newState) => {
                     this.dispatchAction(Actions.USE_THIS_STATE, {state: newState});
+                    PersonRegisterViewsMixin.showResumedFormPage(this, newState);
                 }
             });
     }

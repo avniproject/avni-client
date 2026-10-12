@@ -169,6 +169,17 @@ export class EncounterActions {
         return newState;
     }
 
+    static onAppBackground(state, action, context) {
+        const encounter = state.encounter;
+        if (!state.saveDrafts || _.isNil(state.wizard)) return state;
+        const savedEncounter = context.get(EntityService).findByUUID(encounter.uuid, Encounter.schema.name);
+        if (!_.isNil(savedEncounter) && !_.isNil(savedEncounter.encounterDateTime)) return state;
+        const draftEncounterService = context.get(DraftEncounterService);
+        draftEncounterService.saveDraft(encounter);
+        action.onDraftSaved(draftEncounterService.findDraftFor(encounter).uuid, state.wizard.currentPage);
+        return state;
+    }
+
     static onSave(state, action, context) {
         const newState = state.clone();
         context.get(IndividualService).updateObservations(newState.encounter.individual);
@@ -204,6 +215,7 @@ const individualEncounterViewActions = {
     ON_TIMED_FORM: "EA.ON_TIMED_FORM",
     ON_START_TIMER: "EA.ON_START_TIMER",
     USE_THIS_STATE: "EA.USE_THIS_STATE",
+    ON_APP_BACKGROUND: "EA.ON_APP_BACKGROUND",
 };
 
 const individualEncounterViewActionsMap = new Map([
@@ -231,6 +243,7 @@ const individualEncounterViewActionsMap = new Map([
     [individualEncounterViewActions.ON_TIMED_FORM, TimerActions.onTimedForm],
     [individualEncounterViewActions.ON_START_TIMER, TimerActions.onStartTimer],
     [individualEncounterViewActions.USE_THIS_STATE, EncounterActions.onUseThisState],
+    [individualEncounterViewActions.ON_APP_BACKGROUND, EncounterActions.onAppBackground],
     [EDGE_MODEL_ACTION.INFERENCE_RESULT_AVAILABLE, ObservationsHolderActions.onInferenceResultAvailable],
     [EDGE_MODEL_ACTION.INFERENCE_RESULTS_BATCH, ObservationsHolderActions.onObservationWriteBatch],
     [EDGE_MODEL_ACTION.INFERENCE_UNAVAILABLE, ObservationsHolderActions.onInferenceUnavailable],

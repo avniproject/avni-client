@@ -201,6 +201,15 @@ export class SubjectRegisterActions {
     static onUseThisState(state, action, context) {
         return action.state;
     }
+
+    static onAppBackground(state, action, context) {
+        const subject = state.subject;
+        if (!state.saveDrafts || _.isNil(state.wizard) || _.isEmpty(subject.firstName)) return state;
+        if (!_.isNil(context.get(IndividualService).findByUUID(subject.uuid))) return state;
+        context.get(DraftSubjectService).saveDraftSubject(DraftSubject.create(subject, state.household.totalMembers));
+        action.onDraftSaved(subject.uuid, state.wizard.currentPage);
+        return state;
+    }
 }
 
 const actions = {
@@ -232,6 +241,7 @@ const actions = {
     TOGGLE_GROUPS: "SRA.TOGGLE_GROUPS",
     ON_TIMED_FORM: "SRA.ON_TIMED_FORM",
     ON_START_TIMER: "SRA.ON_START_TIMER",
+    ON_APP_BACKGROUND: "SRA.ON_APP_BACKGROUND",
 };
 
 export default new Map([
@@ -262,6 +272,7 @@ export default new Map([
     [actions.TOGGLE_GROUPS, GroupAffiliationActions.updateValue],
     [actions.ON_TIMED_FORM, TimerActions.onTimedForm],
     [actions.ON_START_TIMER, TimerActions.onStartTimer],
+    [actions.ON_APP_BACKGROUND, SubjectRegisterActions.onAppBackground],
     [EDGE_MODEL_ACTION.INFERENCE_RESULT_AVAILABLE, ObservationsHolderActions.onInferenceResultAvailable],
     [EDGE_MODEL_ACTION.INFERENCE_RESULTS_BATCH, ObservationsHolderActions.onObservationWriteBatch],
     [EDGE_MODEL_ACTION.INFERENCE_UNAVAILABLE, ObservationsHolderActions.onInferenceUnavailable],
