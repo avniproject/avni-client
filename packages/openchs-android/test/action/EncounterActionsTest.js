@@ -368,6 +368,38 @@ describe('EncounterActionsTest', () => {
         }
     });
 
+    it('immutable repeat visit opens the summary once, not in a loop (issue #2184)', async () => {
+        const {state, formElement} = createIntialState(Concept.dataType.Numeric, true, false);
+        const filled = ObservationsHolderActions.onPrimitiveObsUpdateValue(state, {value: '10', formElement: formElement}, testContext);
+        filled.allElementsFilledForImmutableEncounter = true;
+
+        // Stands in for IndividualEncounterView: after every state change, componentDidUpdate dispatches
+        // SUMMARY_PAGE while the encounter is immutable and fully filled and no completion is running.
+        // Capped so a regression fails the test instead of hanging it.
+        const MAX_COMPLETIONS = 5;
+        let completedCount = 0;
+        let current;
+        const action = {
+            completed: () => { completedCount++; },
+            settleCompletion: (settled) => onStateChange(EncounterActions.onUseThisState(current, {state: settled}, testContext)),
+            movedNext: () => {}
+        };
+        const onStateChange = (newState) => {
+            current = newState;
+            if (completedCount < MAX_COMPLETIONS && newState.allElementsFilledForImmutableEncounter && !newState.wizardCompletionInProgress) {
+                onStateChange(EncounterActions.onSummaryPage(newState, action, testContext));
+            }
+        };
+
+        onStateChange(filled);
+        for (let i = 0; i < 200 && completedCount < MAX_COMPLETIONS; i++) {
+            await new Promise(resolve => setImmediate(resolve));
+        }
+
+        expect(completedCount).is.equal(1);
+        expect(current.wizardCompletionInProgress).is.equal(false);
+    });
+
     it('next on second view should give validation error', () => {
         const {state, formElement, formElement2} = createIntialState(Concept.dataType.Numeric, true, true);
 

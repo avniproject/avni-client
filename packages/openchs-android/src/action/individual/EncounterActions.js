@@ -120,6 +120,9 @@ export class EncounterActions {
     static onSummaryPage(state, action, context) {
         if (state.wizardCompletionInProgress) return state;
         const newState = state.clone();
+        // The view jumps a fully-filled immutable encounter to the summary whenever this flag is set and no
+        // completion is running. Clear it on the first jump, or every settle re-triggers the jump (#2184).
+        newState.allElementsFilledForImmutableEncounter = false;
         return runWizardCompletion(newState, action, () => newState.handleSummaryPageAsync(action, context), 'EncounterActions.onSummaryPage');
     }
 
