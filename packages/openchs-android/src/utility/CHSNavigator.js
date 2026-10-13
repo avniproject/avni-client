@@ -719,7 +719,7 @@ class CHSNavigator {
             }
             case FormResumeType.ProgramEnrolment: {
                 const draft = getService(DraftEnrolmentService).findByUUID(draftUUID);
-                if (_.isNil(draft) || !onPhone(draft.individual, IndividualService)) return false;
+                if (_.isNil(draft) || getService(ProgramEnrolmentService).existsByUuid(draft.uuid) || !onPhone(draft.individual, IndividualService)) return false;
                 const enrolment = draft.constructEnrolment();
                 enrolment.individual = getService(IndividualService).findByUUID(draft.individual.uuid);
                 const workLists = new WorkLists(new WorkList('Enrol', [

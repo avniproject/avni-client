@@ -1,5 +1,6 @@
 import {AppState} from 'react-native';
 import FormResume from '../../service/draft/FormResume';
+import General from '../../utility/General';
 
 class BackgroundDraftSaver {
     constructor(view, actionName, resumeType) {
@@ -20,14 +21,20 @@ class BackgroundDraftSaver {
 
     stop() {
         this.subscription && this.subscription.remove();
-        FormResume.forget();
+        // Android can close the screen while keeping the app running (low memory, a theme change while locked);
+        // that unmounts the form too, and the note is what reopens it.
+        if (AppState.currentState === 'active') FormResume.forget();
     }
 
     onAppStateChange(nextAppState) {
         if (nextAppState === 'background') {
-            this.view.dispatchAction(this.actionName, {
-                onDraftSaved: (draftUUID, pageNumber) => FormResume.remember(this.resumeType, draftUUID, pageNumber)
-            });
+            try {
+                this.view.dispatchAction(this.actionName, {
+                    onDraftSaved: (draftUUID, pageNumber) => FormResume.remember(this.resumeType, draftUUID, pageNumber)
+                });
+            } catch (e) {
+                General.logError('BackgroundDraftSaver', e);
+            }
         } else if (nextAppState === 'active') {
             FormResume.forget();
         }

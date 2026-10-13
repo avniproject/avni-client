@@ -24,6 +24,7 @@ import TaskService from "../../service/task/TaskService";
 import General from '../../utility/General';
 import AddressLevelService from '../../service/AddressLevelService';
 import {dispatchHandleNext} from "../common/DispatchHelpers";
+import {canReopenRegistration, canSaveRegistrationDraft} from "../../state/RegistrationDraft";
 
 export class SubjectRegisterActions {
     static getInitialState(context) {
@@ -204,10 +205,10 @@ export class SubjectRegisterActions {
 
     static onAppBackground(state, action, context) {
         const subject = state.subject;
-        if (!state.saveDrafts || _.isNil(state.wizard) || _.isEmpty(subject.firstName)) return state;
+        if (!state.saveDrafts || _.isNil(state.wizard) || !canSaveRegistrationDraft(subject)) return state;
         if (!_.isNil(context.get(IndividualService).findByUUID(subject.uuid))) return state;
         context.get(DraftSubjectService).saveDraftSubject(DraftSubject.create(subject, state.household.totalMembers));
-        action.onDraftSaved(subject.uuid, state.wizard.currentPage);
+        if (canReopenRegistration(state)) action.onDraftSaved(subject.uuid, state.wizard.currentPage);
         return state;
     }
 }

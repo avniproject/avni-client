@@ -40,8 +40,10 @@ export class ProgramEnrolmentActions {
             // Check for existing draft and restore if found (only for enrolment, not exit) - lookup by individual+program
             const draftConfigService = context.get(DraftConfigService);
             const programEnrolmentService = context.get(ProgramEnrolmentService);
+            const draftEnrolmentService = context.get(DraftEnrolmentService);
+            // A reopened draft arrives under its own uuid; prefer it over the first draft for this subject and program.
             const draft = isProgramEnrolment && draftConfigService.shouldLoadDraft()
-                ? context.get(DraftEnrolmentService).findByIndividualAndProgram(action.enrolment.individual, action.enrolment.program)
+                ? draftEnrolmentService.findByUUID(action.enrolment.uuid) || draftEnrolmentService.findByIndividualAndProgram(action.enrolment.individual, action.enrolment.program)
                 : null;
             // A draft only ever represents an enrolment that isn't saved yet. Since the lookup is by
             // individual+program, a match on a saved enrolment is a stale slot left by a different one.
@@ -176,9 +178,8 @@ export class ProgramEnrolmentActions {
         const enrolment = state.enrolment;
         if (!state.saveDrafts || _.isNil(state.wizard) || state.usage !== ProgramEnrolmentState.UsageKeys.Enrol) return state;
         if (context.get(ProgramEnrolmentService).existsByUuid(enrolment.uuid)) return state;
-        const draftEnrolmentService = context.get(DraftEnrolmentService);
-        draftEnrolmentService.saveDraft(enrolment);
-        action.onDraftSaved(draftEnrolmentService.findByIndividualAndProgram(enrolment.individual, enrolment.program).uuid, state.wizard.currentPage);
+        const draft = context.get(DraftEnrolmentService).saveDraft(enrolment);
+        action.onDraftSaved(draft.uuid, state.wizard.currentPage);
         return state;
     }
 

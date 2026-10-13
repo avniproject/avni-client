@@ -24,6 +24,7 @@ import TaskService from "../../service/task/TaskService";
 import General from "../../utility/General";
 import moment from "moment";
 import AddressLevelService from "../../service/AddressLevelService";
+import {canReopenRegistration, canSaveRegistrationDraft} from "../../state/RegistrationDraft";
 
 export class PersonRegisterActions {
     static getInitialState(context) {
@@ -263,10 +264,10 @@ export class PersonRegisterActions {
 
     static onAppBackground(state, action, context) {
         const individual = state.individual;
-        if (!state.saveDrafts || _.isNil(state.wizard) || _.isEmpty(individual.firstName)) return state;
+        if (!state.saveDrafts || _.isNil(state.wizard) || !canSaveRegistrationDraft(individual)) return state;
         if (!_.isNil(context.get(IndividualService).findByUUID(individual.uuid))) return state;
         context.get(DraftSubjectService).saveDraftSubject(DraftSubject.create(individual));
-        action.onDraftSaved(individual.uuid, state.wizard.currentPage);
+        if (canReopenRegistration(state)) action.onDraftSaved(individual.uuid, state.wizard.currentPage);
         return state;
     }
 }
