@@ -177,9 +177,7 @@ export class EncounterActions {
         if (!state.saveDrafts || _.isNil(state.wizard)) return state;
         const savedEncounter = context.get(EntityService).findByUUID(encounter.uuid, Encounter.schema.name);
         if (!_.isNil(savedEncounter) && !_.isNil(savedEncounter.encounterDateTime)) return state;
-        const draftEncounterService = context.get(DraftEncounterService);
-        draftEncounterService.saveDraft(encounter);
-        action.onDraftSaved(draftEncounterService.findDraftFor(encounter).uuid, state.wizard.currentPage);
+        context.get(DraftEncounterService).saveDraft(encounter);
         return state;
     }
 

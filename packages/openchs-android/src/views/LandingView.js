@@ -34,7 +34,6 @@ import {CopilotProvider, CopilotStep, walkthroughable, useCopilot} from "react-n
 import CopilotTooltip from "./common/CopilotTooltip";
 import {SafeAreaInsetsContext} from "react-native-safe-area-context";
 import {edgeToEdgeStatusBarInset} from "./primitives/Distances";
-import FormResume from "../service/draft/FormResume";
 
 const WalkthroughableView = walkthroughable(View);
 
@@ -102,25 +101,6 @@ class LandingView extends AbstractComponent {
         return syncState && syncState.syncing;
     }
 
-    onViewDidMount() {
-        this._tryResumeForm();
-    }
-
-    _tryResumeForm() {
-        if (this._resumeChecked || this._isSyncModalVisible()) return;
-        this._resumeChecked = true;
-        FormResume.take().then(entry => {
-            if (!entry) return;
-            let resumed = false;
-            try {
-                resumed = CHSNavigator.resumeForm(this, entry);
-            } catch (e) {
-                General.logError('LandingView', `Could not reopen the form: ${e.message}`);
-            }
-            if (!resumed) FormResume.forget();
-        });
-    }
-
     _tryShowRegisterGuide() {
         if (this._guideCheckDone || this.state.showRegisterGuide) return;
         if (this._isSyncModalVisible()) return;
@@ -157,7 +137,6 @@ class LandingView extends AbstractComponent {
         }
         this._wasSyncing = isSyncing;
         this._tryShowRegisterGuide();
-        this._tryResumeForm();
     }
 
     UNSAFE_componentWillMount() {

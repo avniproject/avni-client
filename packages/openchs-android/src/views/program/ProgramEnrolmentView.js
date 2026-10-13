@@ -15,7 +15,6 @@ import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import CHSNavigator from "../../utility/CHSNavigator";
 import {AvniAlert} from "../common/AvniAlert";
 import BackgroundDraftSaver from "../common/BackgroundDraftSaver";
-import {FormResumeType} from "../../service/draft/FormResume";
 
 @Path('/ProgramEnrolmentView')
 class ProgramEnrolmentView extends AbstractComponent {
@@ -41,7 +40,7 @@ class ProgramEnrolmentView extends AbstractComponent {
     }
 
     onViewDidMount() {
-        this.backgroundDraftSaver = new BackgroundDraftSaver(this, Actions.ON_APP_BACKGROUND, FormResumeType.ProgramEnrolment);
+        this.backgroundDraftSaver = new BackgroundDraftSaver(this, Actions.ON_APP_BACKGROUND);
         this.backgroundDraftSaver.start();
     }
 

@@ -172,9 +172,7 @@ class ProgramEncounterActions {
         if (!state.saveDrafts || _.isNil(state.wizard)) return state;
         const savedEncounter = context.get(EntityService).findByUUID(programEncounter.uuid, ProgramEncounter.schema.name);
         if (!_.isNil(savedEncounter) && !_.isNil(savedEncounter.encounterDateTime)) return state;
-        const draftProgramEncounterService = context.get(DraftProgramEncounterService);
-        draftProgramEncounterService.saveDraft(programEncounter);
-        action.onDraftSaved(draftProgramEncounterService.findDraftFor(programEncounter).uuid, state.wizard.currentPage);
+        context.get(DraftProgramEncounterService).saveDraft(programEncounter);
         return state;
     }
 

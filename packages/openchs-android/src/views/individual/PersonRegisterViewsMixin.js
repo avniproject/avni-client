@@ -59,12 +59,6 @@ class Mixin {
         }));
     }
 
-    static showResumedFormPage(view, state) {
-        if (!view.props.params.resumed || view.resumedFormPageShown || !state.wizard || state.wizard.isNonFormPage()) return;
-        view.resumedFormPageShown = true;
-        TypedTransition.from(view).with({}).to(PersonRegisterFormView);
-    }
-
     static summary(view) {
         const actionParams = Mixin.getNextProps(view, false);
         view.dispatchAction(Actions.SUMMARY_PAGE, _.merge(actionParams, {

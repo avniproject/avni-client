@@ -34,7 +34,6 @@ import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 import FullScreenLoader from "../common/FullScreenLoader";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import BackgroundDraftSaver from "../common/BackgroundDraftSaver";
-import {FormResumeType} from "../../service/draft/FormResume";
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
@@ -47,7 +46,7 @@ class ProgramEncounterView extends AbstractComponent {
     }
 
     onViewDidMount() {
-        this.backgroundDraftSaver = new BackgroundDraftSaver(this, Actions.ON_APP_BACKGROUND, FormResumeType.ProgramEncounter);
+        this.backgroundDraftSaver = new BackgroundDraftSaver(this, Actions.ON_APP_BACKGROUND);
         this.backgroundDraftSaver.start();
     }
 

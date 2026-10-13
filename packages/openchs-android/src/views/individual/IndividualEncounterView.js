@@ -33,7 +33,6 @@ import BackgroundTimer from "react-native-background-timer";
 import {Actions as IGHActions} from "../../action/individual/IndividualGeneralHistoryActions";
 import FullScreenLoader from "../common/FullScreenLoader";
 import BackgroundDraftSaver from "../common/BackgroundDraftSaver";
-import {FormResumeType} from "../../service/draft/FormResume";
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -53,7 +52,7 @@ class IndividualEncounterView extends AbstractComponent {
     }
 
     onViewDidMount() {
-        this.backgroundDraftSaver = new BackgroundDraftSaver(this, Actions.ON_APP_BACKGROUND, FormResumeType.Encounter);
+        this.backgroundDraftSaver = new BackgroundDraftSaver(this, Actions.ON_APP_BACKGROUND);
         this.backgroundDraftSaver.start();
     }
 

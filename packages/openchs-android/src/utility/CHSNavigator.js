@@ -1,5 +1,5 @@
 // @flow
-import {Encounter, EncounterType, Individual, Program, ProgramEncounter, ProgramEnrolment, SubjectType, WorkItem, WorkList, WorkLists} from 'avni-models';
+import {Encounter, EncounterType, Individual, Program, ProgramEncounter, ProgramEnrolment, SubjectType, WorkItem} from 'avni-models';
 import TypedTransition from "../framework/routing/TypedTransition";
 import ProgramEnrolmentView from "../views/program/ProgramEnrolmentView";
 import ProgramExitView from "../views/program/ProgramExitView";
@@ -36,11 +36,6 @@ import BeneficiaryIdentificationPage from "../views/BeneficiaryIdentificationPag
 import EncounterService from "../service/EncounterService";
 import FormShareService from "../service/FormShareService";
 import GenericDashboardView from "../views/program/GenericDashboardView";
-import {FormResumeType} from "../service/draft/FormResume";
-import DraftSubjectService from "../service/draft/DraftSubjectService";
-import DraftEncounterService from "../service/draft/DraftEncounterService";
-import DraftProgramEncounterService from "../service/draft/DraftProgramEncounterService";
-import DraftEnrolmentService from "../service/draft/DraftEnrolmentService";
 import AddNewMemberView from "../views/groupSubject/AddNewMemberView";
 import {firebaseEvents, logEvent} from "./Analytics";
 import PhoneNumberVerificationView from "../views/common/PhoneNumberVerificationView";
@@ -662,78 +657,6 @@ class CHSNavigator {
                 TypedTransition.from(recommendationsView).resetStack(toBePoped);
             }
         }
-    }
-
-    static resumeForm(source, {type, draftUUID, pageNumber}) {
-        const getService = (service) => source.context.getService(service);
-        // A sync between the close and the restart can take the subject or enrolment off the phone.
-        const onPhone = (entity, service) => {
-            const saved = _.isNil(entity) ? null : getService(service).findByUUID(entity.uuid);
-            return !_.isNil(saved) && !saved.voided;
-        };
-        const registrationWorkLists = (subjectType) => new WorkLists(new WorkList(subjectType.name).withRegistration(subjectType.name));
-        // A reset leaves the scenes below the new top visible, and the form views are transparent, so reset
-        // to the opaque dashboard and push the form over it once it has focused.
-        const openOverDashboard = (individualUUID, tab, openForm) => {
-            const unsubscribe = source.context.subscribeSceneDidFocus((route) => {
-                if (route.path !== GenericDashboardView.path()) return;
-                unsubscribe();
-                openForm();
-            });
-            TypedTransition.from(source).resetStack([], [TypedTransition.createRoute(GenericDashboardView, {individualUUID, tab}, true)]);
-        };
-
-        switch (type) {
-            case FormResumeType.PersonRegistration:
-            case FormResumeType.SubjectRegistration: {
-                const draft = getService(DraftSubjectService).findByUUID(draftUUID);
-                if (_.isNil(draft)) return false;
-                const view = type === FormResumeType.PersonRegistration ? PersonRegisterView : SubjectRegisterView;
-                TypedTransition.from(source).with({
-                    subjectUUID: draftUUID,
-                    individualUUID: draftUUID,
-                    isDraftEntity: true,
-                    resumed: true,
-                    pageNumber,
-                    workLists: registrationWorkLists(draft.subjectType)
-                }).to(view);
-                return true;
-            }
-            case FormResumeType.Encounter: {
-                const draft = getService(DraftEncounterService).findByUUID(draftUUID);
-                if (_.isNil(draft) || !onPhone(draft.individual, IndividualService)) return false;
-                const individualUUID = draft.individual.uuid;
-                openOverDashboard(individualUUID, 3, () => TypedTransition.from(source)
-                    .with({encounter: draft.constructEncounter(), individualUUID, pageNumber}).to(IndividualEncounterView, true));
-                return true;
-            }
-            case FormResumeType.ProgramEncounter: {
-                const draft = getService(DraftProgramEncounterService).findByUUID(draftUUID);
-                if (_.isNil(draft) || !onPhone(draft.programEnrolment, ProgramEnrolmentService)) return false;
-                const programEncounter = draft.constructProgramEncounter();
-                programEncounter.programEnrolment = getService(ProgramEnrolmentService).findByUUID(draft.programEnrolment.uuid);
-                if (!onPhone(programEncounter.programEnrolment.individual, IndividualService)) return false;
-                openOverDashboard(programEncounter.programEnrolment.individual.uuid, 2, () => TypedTransition.from(source)
-                    .with({programEncounter, pageNumber}).to(ProgramEncounterView));
-                return true;
-            }
-            case FormResumeType.ProgramEnrolment: {
-                const draft = getService(DraftEnrolmentService).findByUUID(draftUUID);
-                if (_.isNil(draft) || getService(ProgramEnrolmentService).existsByUuid(draft.uuid) || !onPhone(draft.individual, IndividualService)) return false;
-                const enrolment = draft.constructEnrolment();
-                enrolment.individual = getService(IndividualService).findByUUID(draft.individual.uuid);
-                const workLists = new WorkLists(new WorkList('Enrol', [
-                    new WorkItem(General.randomUUID(), WorkItem.type.PROGRAM_ENROLMENT, {
-                        programName: enrolment.program.name,
-                        subjectUUID: enrolment.individual.uuid
-                    })
-                ]));
-                openOverDashboard(enrolment.individual.uuid, 2, () => TypedTransition.from(source)
-                    .with({enrolment, workLists, pageNumber}).to(ProgramEnrolmentView, true));
-                return true;
-            }
-        }
-        return false;
     }
 
     static navigateToFirstPage(source, itemsToBeRemoved) {
