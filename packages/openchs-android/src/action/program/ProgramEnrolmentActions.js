@@ -40,7 +40,8 @@ export class ProgramEnrolmentActions {
             // Check for existing draft and restore if found (only for enrolment, not exit) - lookup by individual+program
             const draftConfigService = context.get(DraftConfigService);
             const programEnrolmentService = context.get(ProgramEnrolmentService);
-            const draft = isProgramEnrolment && draftConfigService.shouldLoadDraft()
+            // Only a new enrolment can have a draft; editing a saved one must not pick up another enrolment's.
+            const draft = isProgramEnrolment && draftConfigService.shouldLoadDraft() && !programEnrolmentService.existsByUuid(action.enrolment.uuid)
                 ? context.get(DraftEnrolmentService).findByIndividualAndProgram(action.enrolment.individual, action.enrolment.program)
                 : null;
             // A draft only ever represents an enrolment that isn't saved yet. Since the lookup is by
