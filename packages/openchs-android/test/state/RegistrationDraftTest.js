@@ -1,3 +1,4 @@
+import {Individual} from "openchs-models";
 import {canSaveRegistrationDraft} from "../../src/state/RegistrationDraft";
 
 describe("RegistrationDraft", () => {
@@ -14,5 +15,9 @@ describe("RegistrationDraft", () => {
     it("does not save a draft without a registration date or a name", () => {
         expect(canSaveRegistrationDraft(subject({registrationDate: null}))).toBe(false);
         expect(canSaveRegistrationDraft(subject({firstName: ""}))).toBe(false);
+    });
+
+    it("does not save a draft while the address is still the placeholder a new subject starts with", () => {
+        expect(canSaveRegistrationDraft(subject({lowestAddressLevel: {uuid: Individual.getAddressLevelDummyUUID()}}))).toBe(false);
     });
 });

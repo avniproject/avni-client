@@ -1,6 +1,9 @@
 import _ from "lodash";
+import {Individual} from "avni-models";
 
-// A draft subject needs a name, a registration date and a lowest address level; SQLite rejects it without them.
+// SQLite rejects a draft subject without a name, a registration date and a real lowest address level.
 export function canSaveRegistrationDraft(subject) {
-    return !_.isEmpty(subject.firstName) && !_.isNil(subject.registrationDate) && !_.isNil(subject.lowestAddressLevel);
+    const addressUUID = _.get(subject, 'lowestAddressLevel.uuid');
+    return !_.isEmpty(subject.firstName) && !_.isNil(subject.registrationDate)
+        && !_.isEmpty(addressUUID) && addressUUID !== Individual.getAddressLevelDummyUUID();
 }
