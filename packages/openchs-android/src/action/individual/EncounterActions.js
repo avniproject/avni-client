@@ -96,7 +96,6 @@ export class EncounterActions {
 
         if (action.allElementsFilledForImmutableEncounter) {
             newState.allElementsFilledForImmutableEncounter = true;
-            newState.wizard.currentPage = form.numberOfPages;
             return newState;
         }
 
