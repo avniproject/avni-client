@@ -106,7 +106,6 @@ class ProgramEncounterActions {
 
         if(action.allElementsFilledForImmutableEncounter) {
             newState.allElementsFilledForImmutableEncounter = true;
-            newState.wizard.currentPage = form.numberOfPages;
             return newState;
         }
         return QuickFormEditingActions.moveToPage(newState, action, context, ProgramEncounterActions);
