@@ -16,7 +16,7 @@ class BackgroundDraftSaver {
     }
 
     onAppStateChange(nextAppState) {
-        if (nextAppState !== 'background') return;
+        if (nextAppState !== 'background' || !this.view.isDataLoaded()) return;
         try {
             this.view.dispatchAction(this.actionName, {});
         } catch (e) {
