@@ -90,6 +90,44 @@ class PrivilegeService extends BaseService {
         })
     }
 
+    // Keeps only what server sync would send: types granted by an allow row (SyncDetailsService).
+    // A missing parent counts as not granted, since this filter dropped it.
+    onlyViewableEntities(schemaName, entities) {
+        if (this.hasAllPrivileges()) return entities;
+        const grantedByEntityName = _.memoize((entityName) => {
+            const metaData = EntityMetaData.findByName(entityName);
+            if (_.isNil(metaData)) return [];
+            return this.getEntityTypeUuidListForMetadata(metaData.privilegeEntity, metaData.privilegeName, metaData.privilegeParam, true);
+        });
+        const isGranted = (entity, [entityName, path]) => _.includes(grantedByEntityName(entityName), _.get(entity, path));
+        return entities.filter((entity) => this._privilegeChecksFor(schemaName, entity).every((check) => isGranted(entity, check)));
+    }
+
+    _privilegeChecksFor(schemaName, entity) {
+        const subject = (prefix) => [Individual.schema.name, `${prefix}subjectType.uuid`];
+        const enrolment = (prefix) => [[ProgramEnrolment.schema.name, `${prefix}program.uuid`], subject(`${prefix}individual.`)];
+        switch (schemaName) {
+            case Individual.schema.name:
+                return [subject('')];
+            case Encounter.schema.name:
+                return [[Encounter.schema.name, 'encounterType.uuid'], subject('individual.')];
+            case ProgramEnrolment.schema.name:
+                return enrolment('');
+            case ProgramEncounter.schema.name:
+                return [[ProgramEncounter.schema.name, 'encounterType.uuid'], ...enrolment('programEnrolment.')];
+            case Checklist.schema.name:
+                return [[Checklist.schema.name, 'detail.uuid'], ...enrolment('programEnrolment.')];
+            case ChecklistItem.schema.name:
+                return [[ChecklistItem.schema.name, 'detail.checklistDetail.uuid'], ...enrolment('checklist.programEnrolment.')];
+            case IndividualRelationship.schema.name:
+                return [subject('individualA.')];
+            case EntityApprovalStatus.schema.name:
+                return [[`${entity.entityType}${EntityApprovalStatus.schema.name}`, 'entityTypeUuid']];
+            default:
+                return [];
+        }
+    }
+
     deleteEntity(entityName, filterQuery) {
         this.transactionManager.write(() => {
             const objects = this.getRepository(entityName).findAll()

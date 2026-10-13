@@ -158,6 +158,7 @@ import './attendance/SessionShareService';
 import './GlificService';
 import './MetricsService';
 import './PhoneVerificationService';
+import './P2PStarSyncService';
 
 // Export empty object to indicate module loaded
 export default {};

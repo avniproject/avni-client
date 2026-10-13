@@ -646,9 +646,22 @@ class SyncService extends BaseService {
         });
     }
 
+    async _persistAllBatch(entityMetaData, entityResources, entities, loadedSince) {
+        await this.applyIncoming(entityMetaData, entityResources, entities);
+
+        const currentEntitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName, entityMetaData.syncStatus.entityTypeUuid);
+        const entitySyncStatus = new EntitySyncStatus();
+        entitySyncStatus.entityName = entityMetaData.entityName;
+        entitySyncStatus.entityTypeUuid = entityMetaData.syncStatus.entityTypeUuid;
+        entitySyncStatus.uuid = currentEntitySyncStatus.uuid;
+        entitySyncStatus.loadedSince = new Date(loadedSince);
+        this.bulkSaveOrUpdate(this.getCreateEntityFunctions(EntitySyncStatus.schema.name, [entitySyncStatus]));
+    }
+
+    // The one save path for incoming tx records on SQLite, used by server sync and hub sync alike.
     // FK-on-child relationships need no parent re-save, but JSON-array lists store
     // the link on the parent row (e.g. concept.answers), so re-save those parents.
-    async _persistAllBatch(entityMetaData, entityResources, entities, loadedSince) {
+    async applyIncoming(entityMetaData, entityResources, entities) {
         await this.db.bulkCreate(entityMetaData.schemaName, entities);
 
         // associateChild also maintains the parent's latestEntityApprovalStatus link;
@@ -665,15 +678,6 @@ class SyncService extends BaseService {
             // Keep the cache in step so a later page doesn't overwrite what this one wrote.
             this._refreshParentCacheForJsonArray(entityMetaData, mergedParents);
         }
-
-        // Update sync status (1 row)
-        const currentEntitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName, entityMetaData.syncStatus.entityTypeUuid);
-        const entitySyncStatus = new EntitySyncStatus();
-        entitySyncStatus.entityName = entityMetaData.entityName;
-        entitySyncStatus.entityTypeUuid = entityMetaData.syncStatus.entityTypeUuid;
-        entitySyncStatus.uuid = currentEntitySyncStatus.uuid;
-        entitySyncStatus.loadedSince = new Date(loadedSince);
-        this.bulkSaveOrUpdate(this.getCreateEntityFunctions(EntitySyncStatus.schema.name, [entitySyncStatus]));
     }
 
     // Original sync path for Realm (synchronous)
