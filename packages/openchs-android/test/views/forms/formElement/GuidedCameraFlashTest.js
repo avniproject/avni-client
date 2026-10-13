@@ -97,6 +97,16 @@ beforeEach(() => {
         {path: "/mock/photo.jpg", width: 1600, height: 1200, isRawPhoto: false, orientation: "portrait", isMirrored: false}));
 });
 
+// React Native loads its components on first use; a cold CI runner compiles them inside the first test's 5 s, so pay that once here.
+beforeAll(async () => {
+    backCamera = phone({hasFlash: true});
+    takePhoto.mockImplementation(() => Promise.resolve({path: "/mock/photo.jpg", width: 1600, height: 1200, isRawPhoto: false, orientation: "portrait", isMirrored: false}));
+    const renderer = await render(<SingleSelectMediaFormElement element={guidedPhotoQuestion(undefined)} actionName="PHOTO_CHANGED"/>);
+    await press(cameraButton(renderer));
+    await press(shutter(renderer));
+    act(() => renderer.unmount());
+}, 30000);
+
 describe("A guided photo question shoots with the flash on unless its rule says otherwise (#2166)", () => {
     const openCamera = async (captureGuidance) => {
         const renderer = await render(<SingleSelectMediaFormElement element={guidedPhotoQuestion(captureGuidance)} actionName="PHOTO_CHANGED"/>);
