@@ -158,7 +158,8 @@ import './attendance/SessionShareService';
 import './GlificService';
 import './MetricsService';
 import './PhoneVerificationService';
-import './P2PStarSyncService';
+import './clinicsharing/ClinicRecordService';
+import './clinicsharing/ClinicSpokeService';
 import './clinicsharing/ClinicHubService';
 
 // Export empty object to indicate module loaded

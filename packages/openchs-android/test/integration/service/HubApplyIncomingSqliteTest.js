@@ -27,7 +27,7 @@ import RepositoryFactory from "../../../src/repository/RepositoryFactory";
 import EntityService from "../../../src/service/EntityService";
 import PrivilegeService from "../../../src/service/PrivilegeService";
 import SyncService from "../../../src/service/SyncService";
-import P2PStarSyncService from "../../../src/service/P2PStarSyncService";
+import ClinicRecordService from "../../../src/service/clinicsharing/ClinicRecordService";
 import {open} from "@op-engineering/op-sqlite";
 
 describe("Hub sync save path on SQLite", () => {
@@ -47,10 +47,10 @@ describe("Hub sync save path on SQLite", () => {
 
         const services = new Map();
         const context = {getRepositoryFactory: () => repositoryFactory, getService: (key) => services.get(key)};
-        [EntityService, PrivilegeService, SyncService, P2PStarSyncService]
+        [EntityService, PrivilegeService, SyncService, ClinicRecordService]
             .forEach((cls) => services.set(cls, new cls(proxy, context)));
         syncService = services.get(SyncService);
-        p2pService = services.get(P2PStarSyncService);
+        p2pService = services.get(ClinicRecordService);
         p2pService.ledgerDb = {};
         seedReferenceData();
     });

@@ -7,7 +7,7 @@ import DeviceInfo from "react-native-device-info";
 import _ from "lodash";
 import moment from "moment";
 import General from "../../utility/General";
-import P2PStarSyncService, {parentsFirstIndex} from "../P2PStarSyncService";
+import ClinicRecordService, {parentsFirstIndex} from "./ClinicRecordService";
 import {generateSessionKey, MessageType, startHub} from "../../framework/clinicsharing/ClinicTransport";
 import {LEDGER_PRUNE_INTERVAL_MS, LEDGER_RETENTION_DAYS, SHAREABLE_ENTITIES} from "../../framework/clinicsharing/ClinicSharingConstants";
 
@@ -97,13 +97,13 @@ class ClinicHubService extends BaseService {
         return session;
     }
 
-    async startHub(log = _.noop) {
+    async startHub(log = _.noop, {port} = {}) {
         await this.stopHub();
         await this._requestNotificationPermission();
         await this.pruneLedger();
         const session = await this._beginSession();
         this.transport = await startHub({
-            ...session, appVersion: DeviceInfo.getVersion(), log,
+            ...session, port, appVersion: DeviceInfo.getVersion(), log,
             onConnection: (connection) => connection.onMessage((message) => this._replyTo(connection, message, log)),
         });
         const nativeHub = NativeModules.ClinicHub;
@@ -156,7 +156,7 @@ class ClinicHubService extends BaseService {
     }
 
     async _handlePush({deviceId, batches, upTo}, log) {
-        const applied = await this.getService(P2PStarSyncService).applyBatches(batches, log);
+        const applied = await this.getService(ClinicRecordService).applyBatches(batches, log);
         await this._appendLedgerRows(batches, deviceId);
         return {type: MessageType.pushAck, upTo, applied};
     }
@@ -195,7 +195,7 @@ class ClinicHubService extends BaseService {
                 resources: byType[entityName]
                     .map((row) => this.findByKey('uuid', row.entity_uuid, entityName))
                     .filter((entity) => !_.isNil(entity))
-                    .map((entity) => entity.toResource),
+                    .map((entity) => this.getService(ClinicRecordService).toSharedResource(entityName, entity)),
             }))
             .filter((batch) => batch.resources.length > 0);
         log(`Serving ${rows.length} ledger rows (${batches.length} types) to ${deviceId}`);

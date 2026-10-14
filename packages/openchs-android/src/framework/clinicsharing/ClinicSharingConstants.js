@@ -1,6 +1,11 @@
 export const LEDGER_RETENTION_DAYS = 7;
 export const LEDGER_PRUNE_INTERVAL_MS = 60 * 60 * 1000;
+export const CLINIC_SYNC_INTERVAL_SECONDS = 30;
 
-// Expand only after the toResource→fromResource adapter is verified for each type
-// (the server renames some reference keys between push and pull formats).
-export const SHAREABLE_ENTITIES = ['Individual', 'Encounter', 'ProgramEnrolment', 'ProgramEncounter'];
+// Upload-queue names of the records phones share through the hub. Each has a round-trip test.
+// Not shared: per-device or server-owned records such as IdentifierAssignment, Task, News and telemetry.
+export const SHAREABLE_ENTITIES = [
+    'Individual', 'ProgramEnrolment', 'ProgramEncounter', 'Encounter', 'Checklist', 'ChecklistItem',
+    'IndividualRelationship', 'GroupSubject', 'EntityApprovalStatus', 'Comment', 'CommentThread',
+    'SubjectProgramEligibility', 'Session', 'AttendanceRecord',
+];

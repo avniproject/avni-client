@@ -16,7 +16,7 @@ jest.mock('react-native-keychain', () => ({
 }));
 
 import ClinicHubService from "../../../src/service/clinicsharing/ClinicHubService";
-import P2PStarSyncService from "../../../src/service/P2PStarSyncService";
+import ClinicRecordService from "../../../src/service/clinicsharing/ClinicRecordService";
 import {LEDGER_PRUNE_INTERVAL_MS, LEDGER_RETENTION_DAYS} from "../../../src/framework/clinicsharing/ClinicSharingConstants";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -30,8 +30,8 @@ describe("Clinic hub ledger", () => {
         applied = [];
         ownQueue = [];
         stored = {};
-        const p2p = {applyBatches: async (batches) => { applied.push(batches); return batches.length; }};
-        hub = new ClinicHubService({}, {getService: (cls) => (cls === P2PStarSyncService ? p2p : undefined)});
+        const p2p = {applyBatches: async (batches) => { applied.push(batches); return batches.length; }, toSharedResource: (entityName, entity) => entity.toResource};
+        hub = new ClinicHubService({}, {getService: (cls) => (cls === ClinicRecordService ? p2p : undefined)});
         hub.ledgerName = `clinic_hub_ledger_test_${process.pid}_${ledgerCount++}.db`;
         hub.findAll = () => ownQueue;
         hub.findByKey = (key, uuid, entityName) => stored[uuid] && {toResource: {uuid, entityName, version: stored[uuid]}};
