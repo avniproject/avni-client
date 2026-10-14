@@ -6,17 +6,20 @@ import EntityQueueService from "./EntityQueueService";
 import {open} from '@op-engineering/op-sqlite';
 import General from "../utility/General";
 import _ from "lodash";
-import moment from "moment";
 import DeviceInfo from "react-native-device-info";
-import {connectToHub, generateSessionKey, MessageType, startHub} from "../framework/clinicsharing/ClinicTransport";
+import {connectToHub, MessageType} from "../framework/clinicsharing/ClinicTransport";
+import {SHAREABLE_ENTITIES} from "../framework/clinicsharing/ClinicSharingConstants";
 import {IndividualSearchActionNames as IndividualSearchActions} from '../action/individual/IndividualSearchActions';
 import {LandingViewActionsNames as LandingViewActions} from '../action/LandingViewActions';
 import PrivilegeService from "./PrivilegeService";
 import SyncService from "./SyncService";
 
-// Slice scope: expand only after the toResource→fromResource adapter is verified
-// for each type (server renames some reference keys between push and pull formats).
-const SHAREABLE_ENTITIES = ['Individual', 'Encounter', 'ProgramEnrolment', 'ProgramEncounter'];
+const txMetaDataParentsFirst = () => EntityMetaData.model().filter((md) => md.type === 'tx').reverse();
+
+export const parentsFirstIndex = (entityName) => {
+    const index = txMetaDataParentsFirst().findIndex((md) => md.entityName === entityName);
+    return index === -1 ? Number.MAX_SAFE_INTEGER : index;
+};
 
 // fromResource reads reference uuids from _links.<key>.href; toResource writes flat
 // <key> fields, and the server renames some keys between the two formats.
@@ -74,22 +77,13 @@ class P2PStarSyncService extends BaseService {
         return result.rows._array || result.rows || [];
     }
 
-    _txMetaDataParentsFirst() {
-        return EntityMetaData.model().filter((md) => md.type === 'tx').reverse();
-    }
-
-    _canonicalIndex(entityName) {
-        const index = this._txMetaDataParentsFirst().findIndex((md) => md.entityName === entityName);
-        return index === -1 ? Number.MAX_SAFE_INTEGER : index;
-    }
-
     // --- outbox: reuse the exact resources server push would send ---
 
     collectOutbox() {
         const entityQueueService = this.getService(EntityQueueService);
         const queuedNames = _.uniq(entityQueueService.getPresentEntities().map((item) => item.entity))
             .filter((name) => SHAREABLE_ENTITIES.includes(name))
-            .sort((a, b) => this._canonicalIndex(a) - this._canonicalIndex(b));
+            .sort((a, b) => parentsFirstIndex(a) - parentsFirstIndex(b));
         return queuedNames.map((entityName) => {
             const metaData = EntityMetaData.findByName(entityName);
             const {entities} = entityQueueService.getAllQueuedItems(metaData);
@@ -124,7 +118,7 @@ class P2PStarSyncService extends BaseService {
             return 0;
         }
         const entityService = this.getService(EntityService);
-        const ordered = _.sortBy(batches, (batch) => this._canonicalIndex(batch.entityName));
+        const ordered = _.sortBy(batches, (batch) => parentsFirstIndex(batch.entityName));
         let total = 0;
         for (const batch of ordered) {
             if (!SHAREABLE_ENTITIES.includes(batch.entityName)) continue;
@@ -148,96 +142,6 @@ class P2PStarSyncService extends BaseService {
             log(`applied ${kept.length} ${batch.entityName}`);
         }
         return total;
-    }
-
-    // --- hub side ---
-
-    // Returns what #2173 puts in the hub's QR code.
-    async startHub(log) {
-        if (this.hub) await this.hub.stop();
-        const session = {key: await generateSessionKey(), hubId: await this.deviceId(), epoch: General.randomUUID()};
-        this.hub = await startHub({
-            ...session, appVersion: DeviceInfo.getVersion(), log,
-            onConnection: (connection) => connection.onMessage((message) => this._hubHandleMessage(connection, message, log)),
-        });
-        return session;
-    }
-
-    async stopHub() {
-        if (this.hub) await this.hub.stop();
-        this.hub = null;
-    }
-
-    async _hubHandleMessage(connection, message, log) {
-        try {
-            if (message.type === MessageType.push) {
-                const {applied} = await this._hubHandlePush(message, log);
-                connection.send({type: MessageType.pushAck, applied});
-            } else if (message.type === MessageType.pull) {
-                connection.send({type: MessageType.pullResult, ...await this._hubHandlePull(message, log)});
-            }
-        } catch (error) {
-            log(`Hub failed on ${message.type}: ${error.message}`);
-            General.logError('P2PStarSyncService', error);
-            connection.close();
-        }
-    }
-
-    async _hubHandlePush({deviceId, batches}, log) {
-        const applied = await this.applyBatches(batches, log);
-        const db = await this._ledger();
-        for (const batch of batches) {
-            for (const resource of batch.resources) {
-                await db.execute('insert into ledger (entity_type, entity_uuid, origin) values (?,?,?)',
-                    [batch.entityName, resource.uuid, deviceId]);
-            }
-        }
-        return {applied: applied};
-    }
-
-    async _mirrorOwnQueue() {
-        const db = await this._ledger();
-        const selfId = await this.deviceId();
-        const mirroredAt = await this._getMeta('mirroredAt');
-        const cutoff = mirroredAt ? moment(mirroredAt).toDate() : new Date(0);
-        const items = this.findAll(EntityQueue.schema.name).slice()
-            .filter((item) => SHAREABLE_ENTITIES.includes(item.entity) && item.savedAt > cutoff)
-            .sort((a, b) => a.savedAt - b.savedAt);
-        for (const item of items) {
-            await db.execute('insert into ledger (entity_type, entity_uuid, origin) values (?,?,?)',
-                [item.entity, item.entityUUID, selfId]);
-        }
-        if (items.length > 0) await this._setMeta('mirroredAt', moment(_.last(items).savedAt).toISOString());
-    }
-
-    async _hubHandlePull({deviceId, since}, log) {
-        await this._mirrorOwnQueue();
-        const db = await this._ledger();
-        const rows = this._sqliteRows(await db.execute(
-            'select seq, entity_type, entity_uuid, origin from ledger where seq > ? order by seq', [since]));
-        const maxSeqRow = this._sqliteRows(await db.execute('select max(seq) as m from ledger'))[0];
-        const maxSeq = maxSeqRow.m || since;
-
-        // Dedupe to the winning (latest) row per entity BEFORE excluding the
-        // requester's own rows — otherwise a peer's older, defeated edit gets
-        // served over the requester's newer one and devices diverge permanently.
-        const latest = new Map();
-        rows.forEach((row) => latest.set(`${row.entity_type}|${row.entity_uuid}`, row));
-        const winners = [...latest.values()].filter((row) => row.origin !== deviceId);
-        const byType = _.groupBy(winners, 'entity_type');
-
-        const batches = Object.keys(byType)
-            .sort((a, b) => this._canonicalIndex(a) - this._canonicalIndex(b))
-            .map((entityName) => {
-                const resources = byType[entityName]
-                    .map((row) => this.findByKey('uuid', row.entity_uuid, entityName))
-                    .filter((entity) => !_.isNil(entity))
-                    .map((entity) => entity.toResource);
-                return {entityName: entityName, resources: resources};
-            })
-            .filter((batch) => batch.resources.length > 0);
-        log(`serving ${rows.length} ledger rows (${batches.length} types) to ${deviceId.slice(0, 8)}…`);
-        return {batches: batches, maxSeq: maxSeq};
     }
 
     // --- spoke side ---

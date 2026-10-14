@@ -14,10 +14,11 @@ jest.mock('react-native-keychain', () => ({
 }));
 
 import P2PStarSyncService from '../../src/service/P2PStarSyncService';
+import ClinicHubService from '../../src/service/clinicsharing/ClinicHubService';
 import * as ClinicTransport from '../../src/framework/clinicsharing/ClinicTransport';
 
-function serviceWithStubbedData(deviceId) {
-    const service = new P2PStarSyncService({}, {getService: () => ({})});
+function serviceWithStubbedData(deviceId, ServiceClass = P2PStarSyncService) {
+    const service = new ServiceClass({}, {getService: () => ({})});
     const meta = {};
     service.deviceId = async () => deviceId;
     service._getMeta = async (key) => meta[key] || null;
@@ -33,7 +34,9 @@ describe('Hub sync over the clinic transport', () => {
 
     beforeEach(() => {
         logs = [];
-        hub = serviceWithStubbedData('hub-device');
+        hub = serviceWithStubbedData('hub-device', ClinicHubService);
+        hub.hubId = async () => 'hub-device';
+        hub.pruneLedger = async () => {};
         phone = serviceWithStubbedData('phone-device');
         global.__hubPort = 17500 + Math.floor(Math.random() * 400);
         const realStartHub = ClinicTransport.startHub;
@@ -48,29 +51,29 @@ describe('Hub sync over the clinic transport', () => {
     it('pushes the outbox, pulls what the hub serves, applies it and moves the cursor', async () => {
         const pushed = [{entityName: 'Individual', resources: [{uuid: 'ind-from-phone'}]}];
         const served = [{entityName: 'Encounter', resources: [{uuid: 'enc-from-hub'}]}];
-        hub._hubHandlePush = jest.fn(async () => ({applied: 1}));
-        hub._hubHandlePull = jest.fn(async () => ({batches: served, maxSeq: 42}));
+        hub._handlePush = jest.fn(async () => ({type: 'pushAck', applied: 1}));
+        hub._handlePull = jest.fn(async () => ({type: 'pullResult', batches: served, maxSeq: 42}));
         phone.collectOutbox = () => pushed;
         phone.applyBatches = jest.fn(async () => 1);
 
         const session = await hub.startHub(log);
         await phone.syncWithHub({host: '127.0.0.1', ...session}, log);
 
-        expect(hub._hubHandlePush.mock.calls[0][0]).toMatchObject({deviceId: 'phone-device', batches: pushed});
-        expect(hub._hubHandlePull.mock.calls[0][0]).toMatchObject({deviceId: 'phone-device', since: 0});
+        expect(hub._handlePush.mock.calls[0][0]).toMatchObject({deviceId: 'phone-device', batches: pushed});
+        expect(hub._handlePull.mock.calls[0][0]).toMatchObject({deviceId: 'phone-device', since: 0});
         expect(phone.applyBatches.mock.calls[0][0]).toEqual(served);
         expect(phone.meta.cursor).toBe('42');
     });
 
     it('tells the phone to scan again when it holds the code from before a hub restart', async () => {
-        hub._hubHandlePush = jest.fn();
+        hub._handlePush = jest.fn();
         phone.collectOutbox = () => [];
         const oldSession = await hub.startHub(log);
         await hub.startHub(log);
 
         await phone.syncWithHub({host: '127.0.0.1', ...oldSession}, log);
 
-        expect(hub._hubHandlePush).not.toHaveBeenCalled();
+        expect(hub._handlePush).not.toHaveBeenCalled();
         expect(logs.some((l) => /Scan the hub's current QR code/.test(l))).toBe(true);
         expect(phone.meta.cursor).toBeUndefined();
     });
