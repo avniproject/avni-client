@@ -71,9 +71,12 @@ export class EncounterActions {
         let editableEncounter = action.encounter;
 
         // Only look up draft if draft loading is enabled - handles both scheduled and unscheduled encounters
-        const draftEncounter = shouldLoadDraft(context)
+        const draftInSlot = shouldLoadDraft(context)
             ? context.get(DraftEncounterService).findDraftFor(action.encounter)
             : null;
+        // The lookup goes by subject, visit type and scheduled date, so a saved visit can find another visit's unsaved
+        // draft. Take it only for a visit not saved yet, or when it is this visit's own (#2016).
+        const draftEncounter = draftInSlot && (isNewEntity || draftInSlot.uuid === action.encounter.uuid) ? draftInSlot : null;
         if (draftEncounter) {
             editableEncounter = draftEncounter.constructEncounter();
         }
