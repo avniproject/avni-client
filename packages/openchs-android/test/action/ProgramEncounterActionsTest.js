@@ -1,5 +1,6 @@
 import {expect} from "chai";
-import {Concept, FormElement, Individual, Observation, PrimitiveValue, WorkItem, WorkList, WorkLists} from 'avni-models';
+import {Concept, DraftProgramEncounter, EncounterType, FormElement, Individual, Observation, PrimitiveValue, WorkItem, WorkList, WorkLists} from 'avni-models';
+import _ from "lodash";
 import {ProgramEncounterActions} from "../../src/action/program/ProgramEncounterActions";
 import ObservationsHolderActions from "../../src/action/common/ObservationsHolderActions";
 import ProgramEncounterState from "../../src/state/ProgramEncounterState";
@@ -134,5 +135,77 @@ describe('ProgramEncounterActionsTest', () => {
         const back = ProgramEncounterActions.onPrevious(current, {}, testContext);
         expect(back.formElementGroup.name).is.equal('Vitals');
         expect(back.wizard.isFirstPage()).is.equal(true);
+    });
+
+    describe('draft lookup when a visit opens (issue #2016)', () => {
+        const conceptUUID = 'bfc28bad-5fac-4760-921d-eec83f52c3da';
+        const visitForm = () => {
+            const form = EntityFactory.createForm('ZeeForm');
+            const page = EntityFactory.createFormElementGroup('Vitals', 1, form);
+            page.addFormElement(createFormElement(Concept.dataType.Numeric, false, conceptUUID));
+            return form;
+        };
+        const answerOf = (programEncounter) => programEncounter.observations.length === 0 ? undefined : programEncounter.observations[0].getValue();
+        const enrolment = () => EntityFactory.createEnrolment({
+            individual: Individual.createEmptyInstance(),
+            program: EntityFactory.createProgram({name: 'ZeeProgram'})
+        });
+        const visit = (form, programEnrolment, encounterType, {answer, earliestVisitDateTime} = {}) => {
+            const programEncounter = EntityFactory.createProgramEncounter({programEnrolment});
+            programEncounter.encounterType = encounterType;
+            programEncounter.earliestVisitDateTime = earliestVisitDateTime;
+            if (!_.isNil(answer)) {
+                const concept = form.getFormElementGroups()[0].getFormElements()[0].concept;
+                programEncounter.observations.push(Observation.create(concept, new PrimitiveValue(answer, Concept.dataType.Numeric)));
+            }
+            return programEncounter;
+        };
+        const open = (form, programEncounter, serviceData, editing) =>
+            ProgramEncounterActions.onLoad(ProgramEncounterActions.getInitialState(), {programEncounter, editing}, new TestContext({form, draftEnabled: true, ...serviceData}));
+
+        it("opens a saved visit with its own answers when another visit's unsaved draft is in the slot", () => {
+            const form = visitForm();
+            const programEnrolment = enrolment();
+            const encounterType = EncounterType.create('Monthly Visit');
+            const saved = visit(form, programEnrolment, encounterType, {answer: 16});
+            const leftBehind = DraftProgramEncounter.create(visit(form, programEnrolment, encounterType, {answer: 3}));
+
+            const state = open(form, saved, {draftProgramEncounter: leftBehind, [saved.uuid]: saved}, true);
+
+            expect(state.programEncounter.uuid).is.equal(saved.uuid);
+            expect(answerOf(state.programEncounter)).is.equal(16);
+            expect(state.isDraft).is.equal(false);
+            expect(state.saveDrafts).is.equal(false);
+        });
+
+        it('a new visit still resumes the draft left behind', () => {
+            const form = visitForm();
+            const programEnrolment = enrolment();
+            const encounterType = EncounterType.create('Monthly Visit');
+            const leftBehindVisit = visit(form, programEnrolment, encounterType, {answer: 3});
+            const leftBehind = DraftProgramEncounter.create(leftBehindVisit);
+
+            const state = open(form, visit(form, programEnrolment, encounterType), {draftProgramEncounter: leftBehind}, false);
+
+            expect(state.programEncounter.uuid).is.equal(leftBehindVisit.uuid);
+            expect(answerOf(state.programEncounter)).is.equal(3);
+            expect(state.isDraft).is.equal(true);
+        });
+
+        it('a planned visit still resumes its own draft', () => {
+            const form = visitForm();
+            const programEnrolment = enrolment();
+            const encounterType = EncounterType.create('Monthly Visit');
+            const earliestVisitDateTime = new Date(2026, 9, 20);
+            const planned = visit(form, programEnrolment, encounterType, {earliestVisitDateTime});
+            const ownDraft = DraftProgramEncounter.create(visit(form, programEnrolment, encounterType, {answer: 5, earliestVisitDateTime}));
+            ownDraft.uuid = planned.uuid;
+
+            const state = open(form, planned, {draftProgramEncounter: ownDraft, [planned.uuid]: planned}, false);
+
+            expect(state.programEncounter.uuid).is.equal(planned.uuid);
+            expect(answerOf(state.programEncounter)).is.equal(5);
+            expect(state.isDraft).is.equal(true);
+        });
     });
 });
