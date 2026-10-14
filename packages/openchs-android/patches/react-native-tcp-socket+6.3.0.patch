@@ -1,0 +1,69 @@
+diff --git a/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketModule.java b/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketModule.java
+index 121edb4..b5c31ae 100644
+--- a/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketModule.java
++++ b/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketModule.java
+@@ -128,6 +128,8 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+     @SuppressWarnings("unused")
+     @ReactMethod
+     public void write(final int cId, @NonNull final String base64String, final int msgId) {
++        // Avni patch: a socket the peer already closed is gone from the map; throwing here kills the app.
++        if (!(socketMap.get(cId) instanceof TcpSocketClient)) return;
+         TcpSocketClient socketClient = getTcpClient(cId);
+         byte[] data = Base64.decode(base64String, Base64.NO_WRAP);
+         socketClient.write(msgId, data);
+@@ -140,6 +142,8 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+         executorService.execute(new Runnable() {
+             @Override
+             public void run() {
++                // Avni patch: ending a socket the peer already closed must not throw on this thread and kill the app.
++                if (!(socketMap.get(cId) instanceof TcpSocketClient)) return;
+                 TcpSocketClient socketClient = getTcpClient(cId);
+                 socketClient.destroy();
+             }
+diff --git a/node_modules/react-native-tcp-socket/src/Socket.js b/node_modules/react-native-tcp-socket/src/Socket.js
+index 6ed2141..920511a 100644
+--- a/node_modules/react-native-tcp-socket/src/Socket.js
++++ b/node_modules/react-native-tcp-socket/src/Socket.js
+@@ -6,6 +6,8 @@ import { Buffer } from 'buffer';
+ const Sockets = NativeModules.TcpSockets;
+ import { nativeEventEmitter, getNextId } from './Globals';
+ 
++const isLatin1 = (encoding) => encoding === 'latin1' || encoding === 'binary';
++
+ /**
+  * @typedef {"ascii" | "utf8" | "utf-8" | "utf16le" | "ucs2" | "ucs-2" | "base64" | "latin1" | "binary" | "hex"} BufferEncoding
+  *
+@@ -330,7 +332,9 @@ export default class Socket extends EventEmitter {
+     write(buffer, encoding, cb) {
+         if (this._pending || this._destroyed) throw new Error('Socket is closed.');
+ 
+-        const generatedBuffer = this._generateSendBuffer(buffer, encoding);
++        // Avni patch: a latin1 string goes straight through Hermes' native btoa, skipping the slow JS Buffer polyfill.
++        const nativeBase64 = typeof buffer === 'string' && isLatin1(encoding) && typeof global.btoa === 'function';
++        const generatedBuffer = nativeBase64 ? {byteLength: buffer.length} : this._generateSendBuffer(buffer, encoding);
+         this._writeBufferSize += generatedBuffer.byteLength;
+         const currentMsgId = this._msgId;
+         this._msgId = (this._msgId + 1) % Number.MAX_SAFE_INTEGER;
+@@ -357,7 +361,7 @@ export default class Socket extends EventEmitter {
+         if (!ok) this.writableNeedDrain = true;
+         this._lastSentMsgId = currentMsgId;
+         this._bytesWritten += generatedBuffer.byteLength;
+-        Sockets.write(this._id, generatedBuffer.toString('base64'), currentMsgId);
++        Sockets.write(this._id, nativeBase64 ? global.btoa(buffer) : generatedBuffer.toString('base64'), currentMsgId);
+         return ok;
+     }
+ 
+@@ -436,6 +440,13 @@ export default class Socket extends EventEmitter {
+         if (evt.id !== this._id) return;
+         this._resetTimeout();
+         if (!this._paused) {
++            // Avni patch: decode latin1 reads with Hermes' native atob, skipping the slow JS Buffer polyfill.
++            if (isLatin1(this._encoding) && typeof global.atob === 'function') {
++                const text = global.atob(evt.data);
++                this._bytesRead += text.length;
++                this.emit('data', text);
++                return;
++            }
+             const bufferData = Buffer.from(evt.data, 'base64');
+             this._bytesRead += bufferData.byteLength;
+             const finalData = this._encoding ? bufferData.toString(this._encoding) : bufferData;

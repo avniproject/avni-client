@@ -7,7 +7,8 @@ import {open} from '@op-engineering/op-sqlite';
 import General from "../utility/General";
 import _ from "lodash";
 import moment from "moment";
-import P2PSpike from "../framework/p2p/P2PSpike";
+import DeviceInfo from "react-native-device-info";
+import {connectToHub, generateSessionKey, MessageType, startHub} from "../framework/clinicsharing/ClinicTransport";
 import {IndividualSearchActionNames as IndividualSearchActions} from '../action/individual/IndividualSearchActions';
 import {LandingViewActionsNames as LandingViewActions} from '../action/LandingViewActions';
 import PrivilegeService from "./PrivilegeService";
@@ -151,13 +152,35 @@ class P2PStarSyncService extends BaseService {
 
     // --- hub side ---
 
+    // Returns what #2173 puts in the hub's QR code.
     async startHub(log) {
-        await this.deviceId();
-        P2PSpike.setStarHandlers({
-            onPush: (message) => this._hubHandlePush(message, log),
-            onPull: (message) => this._hubHandlePull(message, log),
+        if (this.hub) await this.hub.stop();
+        const session = {key: await generateSessionKey(), hubId: await this.deviceId(), epoch: General.randomUUID()};
+        this.hub = await startHub({
+            ...session, appVersion: DeviceInfo.getVersion(), log,
+            onConnection: (connection) => connection.onMessage((message) => this._hubHandleMessage(connection, message, log)),
         });
-        P2PSpike.startHub(log);
+        return session;
+    }
+
+    async stopHub() {
+        if (this.hub) await this.hub.stop();
+        this.hub = null;
+    }
+
+    async _hubHandleMessage(connection, message, log) {
+        try {
+            if (message.type === MessageType.push) {
+                const {applied} = await this._hubHandlePush(message, log);
+                connection.send({type: MessageType.pushAck, applied});
+            } else if (message.type === MessageType.pull) {
+                connection.send({type: MessageType.pullResult, ...await this._hubHandlePull(message, log)});
+            }
+        } catch (error) {
+            log(`Hub failed on ${message.type}: ${error.message}`);
+            General.logError('P2PStarSyncService', error);
+            connection.close();
+        }
     }
 
     async _hubHandlePush({deviceId, batches}, log) {
@@ -219,28 +242,40 @@ class P2PStarSyncService extends BaseService {
 
     // --- spoke side ---
 
-    async getSavedHubIp() {
-        return this._getMeta('hubIp');
+    _reply(connection, message, replyType) {
+        return new Promise((resolve, reject) => {
+            const unsubscribe = connection.onMessage((reply) => {
+                if (reply.type !== replyType) return;
+                unsubscribe();
+                resolve(reply);
+            });
+            connection.onClose(() => reject(new Error('The hub closed the connection')));
+            connection.send(message);
+        });
     }
 
-    async syncWithHub(host, log) {
-        if (host) await this._setMeta('hubIp', host);
+    async syncWithHub({host, key, hubId, epoch}, log) {
         const deviceId = await this.deviceId();
         const since = parseInt((await this._getMeta('cursor')) || '0', 10);
         const outbox = this.collectOutbox();
-        log(`A★ sync: pushing ${_.sumBy(outbox, (b) => b.resources.length)} entities, pulling since seq ${since}`);
-        P2PSpike.starSync(host, {deviceId: deviceId, since: since, batches: outbox}, log, async ({batches, maxSeq}) => {
-            try {
-                const applied = await this.applyBatches(batches, log);
-                await this._setMeta('cursor', maxSeq);
-                this.dispatchAction(IndividualSearchActions.ON_LOAD);
-                this.dispatchAction(LandingViewActions.ON_LOAD, {syncRequired: false});
-                log(`A★ done: applied ${applied}, cursor now ${maxSeq}`);
-            } catch (error) {
-                log(`A★ apply failed: ${error.message}`);
-                General.logError('P2PStarSyncService', error);
-            }
-        });
+        let connection;
+        try {
+            connection = await connectToHub({host, key, hubId, epoch, appVersion: DeviceInfo.getVersion()});
+            log(`Pushing ${_.sumBy(outbox, (b) => b.resources.length)} records, pulling since ${since}`);
+            const {applied: hubApplied} = await this._reply(connection, {type: MessageType.push, deviceId, batches: outbox}, MessageType.pushAck);
+            log(`Hub applied ${hubApplied} pushed records`);
+            const {batches, maxSeq} = await this._reply(connection, {type: MessageType.pull, deviceId, since}, MessageType.pullResult);
+            const applied = await this.applyBatches(batches, log);
+            await this._setMeta('cursor', maxSeq);
+            this.dispatchAction(IndividualSearchActions.ON_LOAD);
+            this.dispatchAction(LandingViewActions.ON_LOAD, {syncRequired: false});
+            log(`Applied ${applied}, cursor now ${maxSeq}`);
+        } catch (error) {
+            log(error.message);
+            General.logError('P2PStarSyncService', error);
+        } finally {
+            if (connection) connection.close();
+        }
     }
 }
 

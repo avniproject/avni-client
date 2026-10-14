@@ -7,7 +7,7 @@
 jest.mock("../../../src/framework/bean/Service", () => () => (target) => target);
 jest.mock("../../../src/store/AppStore", () => ({__esModule: true, default: {}}));
 jest.mock("../../../src/framework/db/RealmFactory", () => ({__esModule: true, default: {}}));
-jest.mock("../../../src/framework/p2p/P2PSpike", () => ({__esModule: true, default: {}}));
+jest.mock("../../../src/framework/clinicsharing/ClinicTransport", () => ({}));
 jest.mock('react-native-randombytes', () => ({
     randomBytes: (n, cb) => { const b = new Uint8Array(n || 16); if (cb) cb(null, b); return b; },
 }));
