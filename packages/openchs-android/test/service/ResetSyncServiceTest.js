@@ -72,6 +72,8 @@ function buildService({resetSyncs, checkpoints, neverSynced = false}) {
     };
 
     service.backupRestoreRealmService = {isDatabaseNeverSynced: () => neverSynced};
+    // Realm: no foreign keys to switch, and the reset runs without an outer transaction
+    service.context = {getRepositoryFactory: () => ({setForeignKeysEnabled: () => false})};
 
     service.getAllNonVoided = () => resultsOver(
         state.resetSyncs,

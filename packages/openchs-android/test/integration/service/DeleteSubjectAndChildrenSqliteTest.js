@@ -102,6 +102,32 @@ describe("deleteSubjectAndChildren on SQLite", () => {
         create("IndividualRelationship", {uuid: `${subject}-rel`, relationship: {uuid: "rel-type"}, individualA: {uuid: subject}, individualB: {uuid: member}, enterDateTime: at, voided: false});
     }
 
+    // A subject leaves these behind: they belong to the user, not to the subject
+    function seedLinkedRecords(s) {
+        create("IdentifierSource", {uuid: "id-source", name: "Auto"});
+        create("TaskType", {uuid: "task-type", name: "Call", type: "Call", voided: false});
+        create("TaskStatus", {uuid: "task-status", name: "Open", isTerminal: false, taskType: {uuid: "task-type"}, voided: false});
+        create("AddressLevel", {uuid: "village", name: "Village", level: 1, type: "Village", voided: false});
+        create("IdentifierAssignment", {uuid: `${s}-id`, identifierSource: {uuid: "id-source"}, identifier: `${s}-1`, assignmentOrder: 1, individual: {uuid: s}, used: true, voided: false});
+        create("IdentifierAssignment", {uuid: `${s}-enl-id`, identifierSource: {uuid: "id-source"}, identifier: `${s}-2`, assignmentOrder: 2, programEnrolment: {uuid: `${s}-enl1`}, used: true, voided: false});
+        create("Task", {uuid: `${s}-task`, name: "Call", taskType: {uuid: "task-type"}, taskStatus: {uuid: "task-status"}, scheduledOn: at, subject: {uuid: s}, voided: false});
+        create("SubjectProgramEligibility", {uuid: `${s}-eligibility`, subject: {uuid: s}, program: {uuid: "pr"}, checkDate: at, eligible: true, voided: false});
+        create("Family", {uuid: `${s}-family`, registrationDate: at, lowestAddressLevel: {uuid: "village"}, headOfFamily: {uuid: s}});
+    }
+
+    const linksOf = (s) => {
+        const select = (sql) => rawDb.executeSync(sql).rows.map(row => row.link);
+        return {
+            identifier_assignment: select(`SELECT COALESCE(individual_uuid, program_enrolment_uuid) AS link FROM identifier_assignment WHERE uuid IN ('${s}-id', '${s}-enl-id') ORDER BY assignment_order`),
+            task: select(`SELECT subject_uuid AS link FROM task WHERE uuid = '${s}-task'`),
+            subject_program_eligibility: select(`SELECT subject_uuid AS link FROM subject_program_eligibility WHERE uuid = '${s}-eligibility'`),
+            family: select(`SELECT head_of_family_uuid AS link FROM family WHERE uuid = '${s}-family'`),
+        };
+    };
+
+    // Through SELECT: the test adapter returns no rows for a bare PRAGMA
+    const danglingReferences = () => rawDb.executeSync("SELECT * FROM pragma_foreign_key_check").rows;
+
     const rowsMentioning = (prefix) => SUBJECT_OWNED_TABLES.reduce((acc, table) => {
         const columns = rawDb.executeSync(`PRAGMA table_info(${table})`).rows.map(c => `"${c.name}"`);
         const where = columns.map(c => `CAST(${c} AS TEXT) LIKE '${prefix}%'`).join(" OR ");
@@ -143,7 +169,25 @@ describe("deleteSubjectAndChildren on SQLite", () => {
         service.deleteSubjectAndChildren(subject);
 
         assert.deepEqual(rowsMentioning("gone"), {});
-        assert.deepEqual(rawDb.executeSync("PRAGMA foreign_key_check").rows, []);
+        assert.deepEqual(danglingReferences(), []);
+    });
+
+    it("keeps the user's records that point at the subject, with the link cleared", () => {
+        seedScenario();
+        seedLinkedRecords("gone");
+        seedLinkedRecords("kept");
+        rawDb.executeSync("PRAGMA foreign_keys = ON");
+        const subject = proxy.objects("Individual").filtered("uuid = $0", "gone")[0];
+
+        service.deleteSubjectAndChildren(subject);
+
+        assert.deepEqual(danglingReferences(), []);
+        assert.deepEqual(linksOf("gone"), {
+            identifier_assignment: [null, null], task: [null], subject_program_eligibility: [null], family: [null],
+        });
+        assert.deepEqual(linksOf("kept"), {
+            identifier_assignment: ["kept", "kept-enl1"], task: ["kept"], subject_program_eligibility: ["kept"], family: ["kept"],
+        });
     });
 
     it("deletes a subject with more visits than SQLite allows terms in one expression", () => {

@@ -368,6 +368,95 @@ describe('EncounterActionsTest', () => {
         }
     });
 
+    it('immutable repeat visit opens the summary once, not in a loop (issue #2184)', async () => {
+        const {state, formElement} = createIntialState(Concept.dataType.Numeric, true, false);
+        const filled = ObservationsHolderActions.onPrimitiveObsUpdateValue(state, {value: '10', formElement: formElement}, testContext);
+        filled.allElementsFilledForImmutableEncounter = true;
+
+        // Stands in for IndividualEncounterView: after every state change, componentDidUpdate dispatches
+        // SUMMARY_PAGE while the encounter is immutable and fully filled and no completion is running.
+        // Capped so a regression fails the test instead of hanging it.
+        const MAX_COMPLETIONS = 5;
+        let completedCount = 0;
+        let current;
+        const action = {
+            completed: () => { completedCount++; },
+            settleCompletion: (settled) => onStateChange(EncounterActions.onUseThisState(current, {state: settled}, testContext)),
+            movedNext: () => {}
+        };
+        const onStateChange = (newState) => {
+            current = newState;
+            if (completedCount < MAX_COMPLETIONS && newState.allElementsFilledForImmutableEncounter && !newState.wizardCompletionInProgress) {
+                onStateChange(EncounterActions.onSummaryPage(newState, action, testContext));
+            }
+        };
+
+        onStateChange(filled);
+        for (let i = 0; i < 200 && completedCount < MAX_COMPLETIONS; i++) {
+            await new Promise(resolve => setImmediate(resolve));
+        }
+
+        expect(completedCount).is.equal(1);
+        expect(current.wizardCompletionInProgress).is.equal(false);
+    });
+
+    it('Back from the summary of an immutable repeat visit goes back one page at a time (issue #2184)', async () => {
+        const form = EntityFactory.createForm('ZeeForm');
+        const page1 = EntityFactory.createFormElementGroup('Vitals', 1, form);
+        page1.addFormElement(createFormElement(Concept.dataType.Numeric, true, 'bfc28bad-5fac-4760-921d-eec83f52c3da'));
+        const page2 = EntityFactory.createFormElementGroup('Notes', 2, form);
+        const page2Element = createFormElement(Concept.dataType.Numeric, true, 'd1ab1bfd-aa13-4e86-ac67-9b46387ee446');
+        page2Element.uuid = '0f7c0e47-0f7e-4c6a-9d07-5b1d1c0f1e2a';
+        page2.addFormElement(page2Element);
+
+        const encounterType = EncounterType.create('ZeeType');
+        encounterType.immutable = true;
+        const individual = Individual.createEmptyInstance();
+        const previous = Encounter.create();
+        previous.encounterType = encounterType;
+        previous.encounterDateTime = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        previous.individual = individual;
+        [page1, page2].forEach((page) => previous.observations.push(Observation.create(page.getFormElements()[0].concept, new PrimitiveValue(10, Concept.dataType.Numeric))));
+        individual.encounters = [previous];
+        const encounter = Encounter.create();
+        encounter.encounterType = encounterType;
+        encounter.encounterDateTime = new Date();
+        encounter.individual = individual;
+
+        testContext = new TestContext({form});
+        const loaded = EncounterActions.onEncounterLandingViewLoad(EncounterActions.getInitialState(), {encounter}, testContext);
+        expect(loaded.allElementsFilledForImmutableEncounter).is.equal(true);
+        loaded.getNextScheduledVisits = () => ({});
+
+        // Stands in for IndividualEncounterView, as in the test above.
+        let completedCount = 0;
+        let current;
+        const action = {
+            completed: () => { completedCount++; },
+            settleCompletion: (settled) => onStateChange(EncounterActions.onUseThisState(current, {state: settled}, testContext)),
+            movedNext: () => {}
+        };
+        const onStateChange = (newState) => {
+            current = newState;
+            if (completedCount < 5 && newState.allElementsFilledForImmutableEncounter && !newState.wizardCompletionInProgress) {
+                onStateChange(EncounterActions.onSummaryPage(newState, action, testContext));
+            }
+        };
+        onStateChange(loaded);
+        for (let i = 0; i < 200 && (completedCount === 0 || current.wizardCompletionInProgress); i++) {
+            await new Promise(resolve => setImmediate(resolve));
+        }
+        expect(completedCount).is.equal(1);
+
+        // Phone Back closes the summary and returns to the form in this state.
+        expect(current.wizard.currentPage).is.equal(2);
+        expect(current.formElementGroup.name).is.equal('Notes');
+
+        const back = EncounterActions.onPrevious(current, {}, testContext);
+        expect(back.formElementGroup.name).is.equal('Vitals');
+        expect(back.wizard.isFirstPage()).is.equal(true);
+    });
+
     it('next on second view should give validation error', () => {
         const {state, formElement, formElement2} = createIntialState(Concept.dataType.Numeric, true, true);
 

@@ -11,6 +11,7 @@ import _ from "lodash";
 const FunctionalityMenus = [
     new StaticMenuItem("dashboard", "view-dashboard", "dashboards", StaticMenuItem.InternalNavigationMenuType, CustomDashboardView),
     new StaticMenuItem("videoList", "video", "VideoList", StaticMenuItem.InternalNavigationMenuType, VideoListView),
+    // Beneficiary mode is unused in the field and can be disabled if needed (Readme.md, "Unused features").
     new StaticMenuItem("beneficiaryMode", "account-supervisor", "beneficiaryMode", StaticMenuItem.InternalNavigationMenuType, BeneficiaryModeStartView)];
 const SyncMenus = [
     new StaticMenuItem("entitySyncStatus", "sync", "entitySyncStatus", StaticMenuItem.InternalNavigationMenuType, EntitySyncStatusView),
@@ -25,6 +26,7 @@ const SupportMenus = [
 ];
 const DevMenus = [
     new StaticMenuItem("deleteData", "delete", "Delete Data", StaticMenuItem.CustomActionMenuType),
+    // Family folder is unused, predates households (group subjects), and can be disabled if needed (Readme.md, "Unused features").
     new StaticMenuItem("familyFolder", "account-multiple", "Family Folder", StaticMenuItem.InternalNavigationMenuType, FamilyFolderView),
     new StaticMenuItem("devSettings", "cog-outline", "Dev Settings", StaticMenuItem.InternalNavigationMenuType, DevSettingsView),
     new StaticMenuItem("createAnonymizedDatabase", "incognito", "Anonymize Database", StaticMenuItem.CustomActionMenuType)

@@ -14,6 +14,7 @@ import FormMappingService from "../../service/FormMappingService";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import CHSNavigator from "../../utility/CHSNavigator";
 import {AvniAlert} from "../common/AvniAlert";
+import BackgroundDraftSaver from "../common/BackgroundDraftSaver";
 
 @Path('/ProgramEnrolmentView')
 class ProgramEnrolmentView extends AbstractComponent {
@@ -36,6 +37,16 @@ class ProgramEnrolmentView extends AbstractComponent {
 
     viewName() {
         return "ProgramEnrolmentView";
+    }
+
+    onViewDidMount() {
+        this.backgroundDraftSaver = new BackgroundDraftSaver(this, Actions.ON_APP_BACKGROUND);
+        this.backgroundDraftSaver.start();
+    }
+
+    componentWillUnmount() {
+        this.backgroundDraftSaver && this.backgroundDraftSaver.stop();
+        super.componentWillUnmount();
     }
 
     static canLoad({enrolment}, parent) {

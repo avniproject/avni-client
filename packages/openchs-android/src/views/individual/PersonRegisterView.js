@@ -29,6 +29,7 @@ import {AvniAlert} from "../common/AvniAlert";
 import SingleSelectMediaFormElement from "../form/formElement/SingleSelectMediaFormElement";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import EntityService from "../../service/EntityService";
+import BackgroundDraftSaver from "../common/BackgroundDraftSaver";
 
 @Path('/personRegister')
 class PersonRegisterView extends AbstractComponent {
@@ -48,6 +49,16 @@ class PersonRegisterView extends AbstractComponent {
 
     viewName() {
         return 'PersonRegisterView';
+    }
+
+    onViewDidMount() {
+        this.backgroundDraftSaver = new BackgroundDraftSaver(this, Actions.ON_APP_BACKGROUND);
+        this.backgroundDraftSaver.start();
+    }
+
+    componentWillUnmount() {
+        this.backgroundDraftSaver && this.backgroundDraftSaver.stop();
+        super.componentWillUnmount();
     }
 
     getTitleForGroupSubject(){

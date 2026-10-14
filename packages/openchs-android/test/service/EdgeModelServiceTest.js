@@ -989,6 +989,107 @@ describe('EdgeModelService', () => {
             expect(verdicts().map(v => v.value)).toEqual(['Positive']);
         });
 
+        // QA on #2000, 8 Oct 2026: the superseded image settling FIRST must not clear the row's binding,
+        // or the current image's own verdict is then dropped as superseded and the row gets none.
+        it('writes the current image\'s verdict when the superseded one settles first', async () => {
+            const gate = deferInference();
+            const entity = rqgEntity('e1');
+            service.scheduleImageInferenceIntoGroup('/tmp/A.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
+            service.scheduleImageInferenceIntoGroup('/tmp/B.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
+
+            await gate.settle('/tmp/A.jpg', 'Positive');
+            await gate.settle('/tmp/B.jpg', 'Negative');
+            flushInference();
+
+            expect(verdicts().map(v => v.value)).toEqual(['Negative']);
+        });
+
+        // QA on #2000, 8 Oct 2026: going back to photo A while A is still in flight hits the in-flight
+        // dedup, which must still make A the row's current image, or B's verdict lands on the row holding A.
+        [['A first', ['/tmp/A.jpg', '/tmp/B.jpg']], ['B first', ['/tmp/B.jpg', '/tmp/A.jpg']]].forEach(([order, settleOrder]) => {
+            it(`writes only A's verdict after A, B, then A again (${order})`, async () => {
+                const gate = deferInference();
+                const entity = rqgEntity('e1');
+                service.scheduleImageInferenceIntoGroup('/tmp/A.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+                await new Promise(res => setImmediate(res));
+                service.scheduleImageInferenceIntoGroup('/tmp/B.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+                await new Promise(res => setImmediate(res));
+                service.scheduleImageInferenceIntoGroup('/tmp/A.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+                await new Promise(res => setImmediate(res));
+
+                const labels = {'/tmp/A.jpg': 'Positive', '/tmp/B.jpg': 'Negative'};
+                for (const imagePath of settleOrder) await gate.settle(imagePath, labels[imagePath]);
+                flushInference();
+
+                expect(verdicts().map(v => v.value)).toEqual(['Positive']);
+                expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(2);
+            });
+        });
+
+        it('writes only A\'s verdict after A, B, then A again on a question outside a group', async () => {
+            const gate = deferInference();
+            const entity = {uuid: 'e1', getObservationValue: jest.fn(() => null)};
+            service.scheduleImageInference('/tmp/A.jpg', entity, 'AI Verdict');
+            await new Promise(res => setImmediate(res));
+            service.scheduleImageInference('/tmp/B.jpg', entity, 'AI Verdict');
+            await new Promise(res => setImmediate(res));
+            service.scheduleImageInference('/tmp/A.jpg', entity, 'AI Verdict');
+            await new Promise(res => setImmediate(res));
+
+            await gate.settle('/tmp/B.jpg', 'Negative');
+            await gate.settle('/tmp/A.jpg', 'Positive');
+            flushInference();
+
+            expect(verdicts().map(v => v.value)).toEqual(['Positive']);
+        });
+
+        // The realistic way one photo comes back to a row: a saved visit is edited, the photo replaced,
+        // the edit discarded and the visit reopened. Its rule call stops at a cold-start or already-
+        // inferred check, and must still make that photo current, or the discarded photo's verdict lands.
+        describe('a saved visit reopened after a discarded photo change', () => {
+            const savedVisit = () => ({uuid: 'e1', getObservationValue: jest.fn(() => 'Persisted')});
+            const written = () => verdicts().filter(v => !v.clear).map(v => v.value);
+
+            it('while the reopened photo is still being recomputed', async () => {
+                const gate = deferInference();
+                mockFsState.existing.add('/tmp/X.jpg');
+                mockFsState.existing.add('/tmp/B.jpg');
+                const entity = savedVisit();
+                service.scheduleImageInference('/tmp/X.jpg', entity, 'AI Verdict');
+                await new Promise(res => setImmediate(res));
+                service.scheduleImageInference('/tmp/B.jpg', entity, 'AI Verdict');
+                await new Promise(res => setImmediate(res));
+                service.scheduleImageInference('/tmp/X.jpg', entity, 'AI Verdict');
+                await new Promise(res => setImmediate(res));
+
+                await gate.settle('/tmp/B.jpg', 'Negative');
+                await gate.settle('/tmp/X.jpg', 'Positive');
+                flushInference();
+
+                expect(written()).toEqual(['Positive']);
+            });
+
+            it('after the reopened photo\'s verdict was already worked out', async () => {
+                const gate = deferInference();
+                mockFsState.existing.add('/tmp/X.jpg');
+                const entity = savedVisit();
+                service.scheduleImageInference('/tmp/X.jpg', entity, 'AI Verdict');
+                await new Promise(res => setImmediate(res));
+                await gate.settle('/tmp/X.jpg', 'Positive');
+                service.scheduleImageInference('/tmp/B.jpg', entity, 'AI Verdict');
+                await new Promise(res => setImmediate(res));
+                service.scheduleImageInference('/tmp/X.jpg', entity, 'AI Verdict');
+                await new Promise(res => setImmediate(res));
+
+                await gate.settle('/tmp/B.jpg', 'Negative');
+                flushInference();
+
+                expect(written()).toEqual(['Positive']);
+            });
+        });
+
         it('keeps sibling rows independent — row 1 does not supersede row 0', async () => {
             const gate = deferInference();
             const entity = rqgEntity('e1');

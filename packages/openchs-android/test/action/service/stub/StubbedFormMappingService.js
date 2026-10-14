@@ -25,6 +25,14 @@ class StubbedFormMappingService extends StubbedBaseService {
     findActiveEncounterTypesForProgram(program){
         return this.serviceData.programEncounterTypes;
     }
+
+    getIndividualEncounterFormMapping() {
+        return {form: this.serviceData.form};
+    }
+
+    getProgramEncounterFormMapping() {
+        return {form: this.serviceData.form};
+    }
 }
 
 export default StubbedFormMappingService;

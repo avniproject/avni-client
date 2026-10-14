@@ -24,6 +24,7 @@ import TaskService from "../../service/task/TaskService";
 import General from "../../utility/General";
 import moment from "moment";
 import AddressLevelService from "../../service/AddressLevelService";
+import {canSaveRegistrationDraft} from "../../state/RegistrationDraft";
 
 export class PersonRegisterActions {
     static getInitialState(context) {
@@ -260,6 +261,14 @@ export class PersonRegisterActions {
     static onUseThisState(state, action, context) {
         return action.state;
     }
+
+    static onAppBackground(state, action, context) {
+        const individual = state.individual;
+        if (!state.saveDrafts || _.isNil(state.wizard) || !canSaveRegistrationDraft(individual)) return state;
+        if (!_.isNil(context.get(IndividualService).findByUUID(individual.uuid))) return state;
+        context.get(DraftSubjectService).saveDraftSubject(DraftSubject.create(individual));
+        return state;
+    }
 }
 
 const actions = {
@@ -298,6 +307,7 @@ const actions = {
     TOGGLE_GROUPS: "IRA.TOGGLE_GROUPS",
     ON_TIMED_FORM: "IRA.ON_TIMED_FORM",
     ON_START_TIMER: "IRA.ON_START_TIMER",
+    ON_APP_BACKGROUND: "IRA.ON_APP_BACKGROUND",
 };
 
 export default new Map([
@@ -335,6 +345,7 @@ export default new Map([
     [actions.TOGGLE_GROUPS, GroupAffiliationActions.updateValue],
     [actions.ON_TIMED_FORM, TimerActions.onTimedForm],
     [actions.ON_START_TIMER, TimerActions.onStartTimer],
+    [actions.ON_APP_BACKGROUND, PersonRegisterActions.onAppBackground],
     [EDGE_MODEL_ACTION.INFERENCE_RESULT_AVAILABLE, ObservationsHolderActions.onInferenceResultAvailable],
     [EDGE_MODEL_ACTION.INFERENCE_RESULTS_BATCH, ObservationsHolderActions.onObservationWriteBatch],
     [EDGE_MODEL_ACTION.INFERENCE_UNAVAILABLE, ObservationsHolderActions.onInferenceUnavailable],
