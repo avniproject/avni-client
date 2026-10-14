@@ -26,13 +26,14 @@ const contextWith = ({saved = null, enrolmentExists = false} = {}) => {
     return {get: (serviceClass) => services.get(serviceClass)};
 };
 const wizard = {currentPage: 2};
+const answered = () => [{concept: {uuid: "c1"}, valueJSON: "{}"}];
 const filledSubject = () => ({uuid: "s1", firstName: "Asha", registrationDate: new Date(), lowestAddressLevel: {uuid: "village"}});
 
 const handlers = [
     {name: "general visit", handler: EncounterActions.onAppBackground, saver: DraftEncounterService, save: "saveDraft",
-        state: (saveDrafts) => ({saveDrafts, wizard, encounter: {uuid: "e1"}})},
+        state: (saveDrafts) => ({saveDrafts, wizard, encounter: {uuid: "e1", observations: answered()}})},
     {name: "program visit", handler: ProgramEncounterActions.onAppBackground, saver: DraftProgramEncounterService, save: "saveDraft",
-        state: (saveDrafts) => ({saveDrafts, wizard, programEncounter: {uuid: "pe1"}})},
+        state: (saveDrafts) => ({saveDrafts, wizard, programEncounter: {uuid: "pe1", observations: answered()}})},
     {name: "enrolment", handler: ProgramEnrolmentActions.onAppBackground, saver: DraftEnrolmentService, save: "saveDraft",
         state: (saveDrafts) => ({saveDrafts, wizard, usage: ProgramEnrolmentState.UsageKeys.Enrol, enrolment: {uuid: "en1"}})},
     {name: "person registration", handler: PersonRegisterActions.onAppBackground, saver: DraftSubjectService, save: "saveDraftSubject",
@@ -71,6 +72,18 @@ describe("Saving a draft when the app goes to the background", () => {
                 expect(handler(s, {}, contextWith())).toBe(s);
             });
         });
+    });
+
+    it("saves no general visit that has nothing answered yet", () => {
+        const context = contextWith();
+        EncounterActions.onAppBackground({saveDrafts: true, wizard, encounter: {uuid: "e1", observations: []}}, {}, context);
+        expect(context.get(DraftEncounterService).saveDraft).not.toHaveBeenCalled();
+    });
+
+    it("saves no program visit that has nothing answered yet", () => {
+        const context = contextWith();
+        ProgramEncounterActions.onAppBackground({saveDrafts: true, wizard, programEncounter: {uuid: "pe1", observations: []}}, {}, context);
+        expect(context.get(DraftProgramEncounterService).saveDraft).not.toHaveBeenCalled();
     });
 
     it("saves nothing for the program exit form", () => {

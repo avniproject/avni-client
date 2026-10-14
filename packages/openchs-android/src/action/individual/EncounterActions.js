@@ -173,7 +173,8 @@ export class EncounterActions {
 
     static onAppBackground(state, action, context) {
         const encounter = state.encounter;
-        if (!state.saveDrafts || _.isNil(state.wizard)) return state;
+        // Nothing answered yet: a draft would only add an empty entry under Drafts.
+        if (!state.saveDrafts || _.isNil(state.wizard) || _.isEmpty(encounter.observations)) return state;
         const savedEncounter = context.get(EntityService).findByUUID(encounter.uuid, Encounter.schema.name);
         if (!_.isNil(savedEncounter) && !_.isNil(savedEncounter.encounterDateTime)) return state;
         context.get(DraftEncounterService).saveDraft(encounter);
