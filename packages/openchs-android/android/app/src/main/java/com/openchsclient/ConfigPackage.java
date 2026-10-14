@@ -22,6 +22,7 @@ public class ConfigPackage implements ReactPackage {
         modules.add(new ConfigModule(reactContext));
         modules.add(new BugsnagInitializer(reactContext));
         modules.add(new EdgeModelModule(reactContext));
+        modules.add(new ClinicHubWifiModule(reactContext));
         return modules;
     }
 }
