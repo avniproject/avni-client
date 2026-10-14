@@ -13,7 +13,12 @@
             android:theme="@style/AppTheme"
             android:screenOrientation="portrait"
             android:configChanges="orientation|screenSize|keyboardHidden"
-            android:exported="false" />
+            android:exported="false">
+            <!-- Android 16 ignores screenOrientation on large screens without this (temporary, gone on API 37+) -->
+            <property
+                android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+                android:value="true" />
+        </activity>
     </application>
 
 </manifest>

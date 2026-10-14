@@ -160,42 +160,17 @@ class ObservationsHolderActions {
         return newState;
     }
 
-    // Re-syncs ONLY the written targets' Rule validation from the fresh statuses, so a blocking
-    // gate error clears the moment its async value lands on an otherwise read-only page. For the
-    // written element+row the fresh result replaces whatever error type sat there; other
-    // elements/rows are untouched. Routed through handleValidationResults so devSkipValidation
-    // is honoured; targets deduped so a same-row clear+verdict batch re-syncs (and logs) once.
-    static _resyncWrittenTargetsValidation(newState, writtenTargets, formElementStatuses, context) {
-        if (!_.isFunction(newState.handleValidationResults) || _.isEmpty(formElementStatuses)) return;
-        const seen = new Set();
-        const validationResults = [];
-        writtenTargets.forEach(({uuid, questionGroupIndex}) => {
-            const targetKey = `${uuid}|${questionGroupIndex}`;
-            if (seen.has(targetKey)) return;
-            seen.add(targetKey);
-            const fresh = _.find(formElementStatuses, s => s.uuid === uuid &&
-                (_.isNil(s.questionGroupIndex) ? _.isNil(questionGroupIndex) : s.questionGroupIndex === questionGroupIndex));
-            if (!fresh) return;
-            const [validationResult] = ObservationsHolderActions.getRuleValidationErrors([fresh]);
-            General.logDebug('ObservationsHolderActions',
-                validationResult.success
-                    ? `resync gate CLEARED: ${uuid}[${_.isNil(questionGroupIndex) ? '-' : questionGroupIndex}]`
-                    : `resync gate KEPT: ${uuid}[${_.isNil(questionGroupIndex) ? '-' : questionGroupIndex}] error=${validationResult.messageKey}`);
-            validationResults.push(validationResult);
-        });
-        if (validationResults.length > 0) newState.handleValidationResults(validationResults, context);
-    }
-
     /**
      * Handler for EDGE_MODEL.INFERENCE_UNAVAILABLE, dispatched by EdgeModelService when an image
-     * yields no verdict (inference failed at runtime). Raises a validation error on the form element
-     * that scheduled the inference, which blocks Next via
+     * yields no verdict (model blob/key not synced, or inference failed). Raises a validation error
+     * on the form element that scheduled the inference, which blocks Next via
      * AbstractDataEntryState.anyFailedResultForCurrentFEG() and renders red like any other one.
      *
      * Typed Inference rather than Form: a Form-typed result is dropped by
      * _updateOldFormElementGroupValidations before the Next check reads it, and a Rule-typed one is
-     * overwritten by the next rule cycle. Only a type outside both lifecycles survives to do its job.
-     * Cleared by the #2009 re-sync (_resyncWrittenTargetsValidation) when a verdict later lands.
+     * overwritten by the next rule cycle (which re-emits a success for every element status). Only a
+     * type outside both of those lifecycles survives to do its job. Cleared in _applyInferenceWrite
+     * when a later verdict lands for the same target.
      */
     static onInferenceUnavailable(state, action, context) {
         if (!state || !state.formElementGroup || !state.validationResults) return state;
@@ -230,12 +205,47 @@ class ObservationsHolderActions {
     }
 
     /**
+     * #2009 — after an async write lands, re-sync ONLY the written targets' Rule-type validation
+     * results from the fresh statuses. The gate case: a rule-emitted blocking error (e.g. the
+     * oral-screening AI-verdict "pending" error) must clear the moment its verdict observation
+     * arrives — without the user touching the page, which on a read-only page they can't.
+     * Targeted by design: it cannot clear mandatory/other-element errors (different
+     * formIdentifier) or other rows (both sides carry a concrete questionGroupIndex), and it
+     * re-syncs rather than blindly removes — a still-failing rule keeps its error. Null-safe for
+     * registered flows whose state doesn't extend AbstractDataEntryState. Routed through
+     * handleValidationResults so devSkipValidation is honoured; targets are deduped so a same-row
+     * clear+verdict batch re-syncs (and logs) once.
+     */
+    static _resyncWrittenTargetsValidation(newState, writtenTargets, formElementStatuses, context) {
+        if (!_.isFunction(newState.handleValidationResults) || _.isEmpty(formElementStatuses)) return;
+        const seen = new Set();
+        const validationResults = [];
+        writtenTargets.forEach(({uuid, questionGroupIndex}) => {
+            const targetKey = `${uuid}|${questionGroupIndex}`;
+            if (seen.has(targetKey)) return;
+            seen.add(targetKey);
+            const fresh = _.find(formElementStatuses, s => s.uuid === uuid &&
+                (_.isNil(s.questionGroupIndex) ? _.isNil(questionGroupIndex) : s.questionGroupIndex === questionGroupIndex));
+            if (!fresh) return;
+            const [validationResult] = ObservationsHolderActions.getRuleValidationErrors([fresh]);
+            // Gate-state audit trail for the on-device file log (#2009): one line per written row
+            // saying whether its blocking rule error cleared on verdict-land or is still in force.
+            General.logDebug('ObservationsHolderActions',
+                validationResult.success
+                    ? `resync gate CLEARED: ${uuid}[${_.isNil(questionGroupIndex) ? '-' : questionGroupIndex}]`
+                    : `resync gate KEPT: ${uuid}[${_.isNil(questionGroupIndex) ? '-' : questionGroupIndex}] error=${validationResult.messageKey}`);
+            validationResults.push(validationResult);
+        });
+        if (validationResults.length > 0) newState.handleValidationResults(validationResults, context);
+    }
+
+    /**
      * Writes a single inference result into `newState.observationsHolder` WITHOUT re-running
      * the form-element rules — the caller does that once (so a batch re-evals once, not N
      * times). Returns the written target `{uuid, questionGroupIndex}` (the form element the
      * value landed on — `questionGroupIndex` null for top-level writes), or null if the
      * result's target concept/row isn't on the current page (so the caller can leave the
-     * state untouched). The target feeds the caller's Rule-validation re-sync.
+     * state untouched). The target feeds the caller's Rule-validation re-sync (#2009).
      * Routing mirrors onInferenceResultAvailable:
      *   • Coded concept: value is the answer NAME, resolved to the answer UUID.
      *   • Primitive (text/numeric/date): value stored verbatim.
@@ -251,7 +261,8 @@ class ObservationsHolderActions {
         );
         if (!formElement) return null;
         if (result.clear === true) {
-            // Invalidation write: blank the obs so the dependent element re-gates until the fresh result arrives.
+            // #2010 invalidation write: blank the obs so the dependent element re-gates against the
+            // absent verdict until the fresh one lands, rather than satisfying a gate on the old photo.
             newState.observationsHolder._removeExistingObs(formElement.concept);
             return {uuid: formElement.uuid, questionGroupIndex: null};
         }
@@ -262,7 +273,20 @@ class ObservationsHolderActions {
         } else {
             newState.observationsHolder.addOrUpdatePrimitiveObs(formElement.concept, result.value);
         }
+        ObservationsHolderActions._clearInferenceValidation(newState, formElement.uuid, result.questionGroupIndex);
         return {uuid: formElement.uuid, questionGroupIndex: null};
+    }
+
+    /**
+     * A verdict landed, so any earlier "no verdict available" error on this element is stale.
+     * Nothing else clears it — an Inference-typed result deliberately outlives the rule cycle.
+     */
+    static _clearInferenceValidation(newState, formElementUuid, questionGroupIndex) {
+        _.remove(newState.validationResults, vr =>
+            vr.validationType === ValidationResult.ValidationTypes.Inference
+            && vr.formIdentifier === formElementUuid
+            && (_.isNil(vr.questionGroupIndex) || _.isNil(questionGroupIndex)
+                || vr.questionGroupIndex === questionGroupIndex));
     }
 
     static _applyInferenceWriteIntoGroup(newState, result) {
@@ -285,7 +309,7 @@ class ObservationsHolderActions {
 
         const childConcept = childFormElement.concept;
         if (result.clear === true) {
-            // Invalidation write (see _applyInferenceWrite).
+            // #2010 invalidation write (see _applyInferenceWrite).
             rqg.getGroupObservationAtIndex(result.questionGroupIndex).removeExistingObs(childConcept);
             return {uuid: childFormElement.uuid, questionGroupIndex: result.questionGroupIndex};
         }
@@ -313,6 +337,7 @@ class ObservationsHolderActions {
         newState.observationsHolder.updateRepeatableGroupQuestion(
             result.questionGroupIndex, parentFormElement, childFormElement, value
         );
+        ObservationsHolderActions._clearInferenceValidation(newState, childFormElement.uuid, result.questionGroupIndex);
         return {uuid: childFormElement.uuid, questionGroupIndex: result.questionGroupIndex};
     }
 

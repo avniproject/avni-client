@@ -4,13 +4,13 @@ import com.openchsclient.preprocessing.ImagePreprocessor
 import java.io.File
 
 /**
- * Abstract inference backend (~/.claude/plans/composed-tumbling-bachman.md).
+ * Abstract inference backend.
  *
  * `EdgeModelModule` does not know about ONNX Runtime, PyTorch, TFLite, or any specific
  * runtime — it talks to this interface. The `engine` field in registry override JSON selects
  * which implementation handles a given model:
  *
- *   • "onnx" → OnnxEngine (tanuh source set)
+ *   • "onnx" → OnnxEngine (src/main, shipped in every flavour)
  *
  * Future engines (TFLite, ExecuTorch, …) drop in as additional implementations behind this
  * interface; the bridge code is untouched.

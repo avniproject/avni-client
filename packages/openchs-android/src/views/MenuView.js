@@ -45,7 +45,18 @@ class MenuView extends AbstractComponent {
     static propType = {
         menuIcon: PropTypes.func
     };
-    static iconStyle = {color: Colors.TextHint, alignSelf: 'center', fontSize: 24, padding: 8};
+    // Matches the user card's account-icon treatment above (BrandLight circle, BrandPrimaryDark
+    // glyph) instead of a flat gray icon with no background.
+    static iconStyle = {color: Colors.BrandPrimaryDark, alignSelf: 'center', fontSize: 20};
+    static iconContainerStyle = {
+        height: 40,
+        width: 40,
+        borderRadius: 20,
+        backgroundColor: Colors.BrandLight,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginLeft: 8
+    };
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.menuView);
@@ -57,7 +68,9 @@ class MenuView extends AbstractComponent {
                                       background={TouchableNativeFeedback.SelectableBackground()}>
                 <View
                     style={styles.container}>
-                    {icon}
+                    <View style={MenuView.iconContainerStyle}>
+                        {icon}
+                    </View>
                     <View style={styles.textContainer}>
                         <Text
                             style={[Fonts.typography("paperFontSubhead"), styles.optionStyle]}>{I18n.t(titleKey)}</Text>
@@ -168,7 +181,7 @@ class MenuView extends AbstractComponent {
             onYes: () => {
                 this.dispatchAction(MenuActionNames.ON_BACKUP_DUMP, {
                     dumpType: dumpType,
-                    onBackupDumpCb: (percentDone, message) => {
+                    onBackupDumpCb: (percentDone, message, avniError) => {
                         this.dispatchAction(MenuActionNames.ON_BACKUP_PROGRESS, {
                             percentDone: percentDone,
                             message: message
@@ -177,7 +190,7 @@ class MenuView extends AbstractComponent {
                             if (message === "backupCompleted") {
                                 CustomConfirmDialog.showAlert({title: this.I18n.t('uploadSuccessful')});
                             } else if (message === "backupFailed") {
-                                CustomConfirmDialog.showAlert({title: this.I18n.t('uploadFailed')});
+                                this.showBackupFailedAlert(avniError);
                             }
                         }
                     }
@@ -185,6 +198,13 @@ class MenuView extends AbstractComponent {
             },
             onNo: () => {
             }
+        });
+    }
+
+    showBackupFailedAlert(avniError) {
+        CustomConfirmDialog.showAlert({
+            title: this.I18n.t('uploadFailed'),
+            message: avniError ? avniError.getDisplayMessage() : ""
         });
     }
 
@@ -219,7 +239,9 @@ class MenuView extends AbstractComponent {
         return <TouchableNativeFeedback onPress={this.onNews.bind(this)}
                                         background={TouchableNativeFeedback.SelectableBackground()}>
             <View style={styles.container}>
-                {this.icon("newspaper-variant-outline")}
+                <View style={MenuView.iconContainerStyle}>
+                    {this.icon("newspaper-variant-outline")}
+                </View>
                 <View style={[styles.textContainer, {paddingBottom: 10}]}>
                     <Badge
                         hideWhenZero
@@ -370,7 +392,11 @@ class MenuView extends AbstractComponent {
                             marginRight: Distances.ScaledContentDistanceFromEdge,
                             marginLeft: Distances.ScaledContentDistanceFromEdge,
                             marginTop: Distances.ScaledContentDistanceFromEdge,
-                            paddingBottom: 100
+                            // This screen renders behind LandingView's absolute bottom tab bar (same as
+                            // CustomDashboardView's home tab) - reserve the same shared clearance instead of
+                            // the old flat 100, which fell short of the bar's Android 16+ gesture-inset height.
+                            // Plus a bit of extra breathing room below the last card, past the bar itself.
+                            paddingBottom: Distances.BottomTabBarClearance + Distances.ScaledContentDistanceFromEdge
                         }}
                         ListHeaderComponent={() => (
                             <View>

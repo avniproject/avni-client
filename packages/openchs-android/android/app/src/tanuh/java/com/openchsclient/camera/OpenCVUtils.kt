@@ -154,6 +154,72 @@ object OpenCVUtils {
         }
     }
 
+    /**
+     * Result of [scaleImageMatForQuality]: the resized-but-not-normalized [Mat] to score, plus
+     * the ORIGINAL (pre-resize) decoded dimensions — useful for spotting whether blur-variance
+     * scoring is being skewed by how much a particular device's actual capture resolution had to
+     * be downscaled to reach [TARGET_WIDTH]x[TARGET_HEIGHT] (Laplacian-variance blur scoring is
+     * scale-sensitive, so the same real blur severity can score differently across devices whose
+     * cameras resolve the requested capture size differently).
+     */
+    data class QualityScoringInput(val mat: Mat, val sourceWidth: Int, val sourceHeight: Int)
+
+    /**
+     * Decodes and resizes [filePath] to [TARGET_WIDTH]x[TARGET_HEIGHT] for quality scoring —
+     * WITHOUT the per-channel brightness normalization [scaleImageMat] applies afterwards (its
+     * steps 3–6: float promotion, mean-normalization, clipping, rounding).
+     *
+     * ### Why this exists as a separate function instead of reusing [scaleImageMat]
+     *
+     * [scaleImageMat]'s per-channel mean normalization (step 4) deliberately rescales every
+     * image's average pixel value toward [TARGET_CHANNEL_MEAN] (128) — appropriate for its
+     * original purpose, but it actively undermines [ImageQualityAnalyzer]'s brightness check: a
+     * genuinely too-dark or too-bright photo has its mean pixel value pulled back toward 128
+     * *before* brightness is ever measured, so the check ends up comparing an artificially
+     * corrected value rather than the real exposure. The same multiplicative rescaling also
+     * inflates or deflates Laplacian-based blur variance proportionally (variance scales with the
+     * square of the intensity factor applied), so blur scoring is distorted the same way. This
+     * was flagged (2026-09-29) as the likely cause of the retake warning missing genuinely bad
+     * photos — [ImageQualityAnalyzer.analyze] must be called on the Mat this function returns,
+     * never on [scaleImageMat]'s output.
+     *
+     * [scaleImageMat] itself is intentionally left untouched — quality scoring is its only
+     * current caller, but keeping its existing contract exactly as-is avoids any risk to whatever
+     * might reuse it later (e.g. as a model-input preprocessor, which needs the full normalized
+     * pipeline).
+     *
+     * @param filePath Absolute path of the source image on disk.
+     * @return A [TARGET_WIDTH]x[TARGET_HEIGHT] [CvType.CV_8UC3] BGR Mat plus the source image's
+     *         original decoded width/height, or `null` if decoding or resizing fails. Caller owns
+     *         the returned Mat and must release it.
+     */
+    fun scaleImageMatForQuality(filePath: String): QualityScoringInput? {
+        val cleanup = mutableListOf<Mat>()
+        var result: Mat? = null
+
+        return try {
+            val original = Imgcodecs.imread(filePath).also(cleanup::add)
+            if (original.empty()) {
+                throw IOException("Failed to decode image file: $filePath")
+            }
+            require(original.channels() == 3) {
+                "Input image must have exactly 3 channels (BGR), found ${original.channels()}"
+            }
+
+            val sourceWidth = original.width()
+            val sourceHeight = original.height()
+
+            result = resizeToModelInput(original)
+            QualityScoringInput(result, sourceWidth, sourceHeight)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error scaling image for quality scoring at $filePath", e)
+            result?.release()
+            null
+        } finally {
+            cleanup.forEach { it.release() }
+        }
+    }
+
     // ─────────────────────────────────────────────────────────────────────
     // Pipeline steps — each returns a NEW Mat owned by the caller.
     // ─────────────────────────────────────────────────────────────────────

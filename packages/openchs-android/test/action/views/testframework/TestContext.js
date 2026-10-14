@@ -35,6 +35,8 @@ import CustomDashboardCacheService from '../../../../src/service/CustomDashboard
 import StubbedCustomDashboardCacheService from '../../service/stub/dashboard/StubbedCustomDashboardCacheService';
 import DraftConfigService from "../../../../src/service/DraftConfigService";
 import StubbedDraftConfigService from "../../service/stub/StubbedDraftConfigService";
+import DraftEnrolmentService from "../../../../src/service/draft/DraftEnrolmentService";
+import StubbedDraftEnrolmentService from "../../service/stub/StubbedDraftEnrolmentService";
 
 class TestContext {
     static stubs = new Map([
@@ -55,7 +57,8 @@ class TestContext {
         [OrganisationConfigService, (serviceData) => new StubbedOrganisationConfigService(serviceData)],
         [DashboardFilterService, (serviceData, capturedData) => new StubbedDashboardFilterService(serviceData, capturedData)],
         [CustomDashboardCacheService, (serviceData) => new StubbedCustomDashboardCacheService(serviceData)],
-        [DraftConfigService, (serviceData) => new StubbedDraftConfigService(serviceData)]
+        [DraftConfigService, (serviceData) => new StubbedDraftConfigService(serviceData)],
+        [DraftEnrolmentService, (serviceData) => new StubbedDraftEnrolmentService(serviceData)]
     ]);
 
     constructor(serviceData, capturedData) {

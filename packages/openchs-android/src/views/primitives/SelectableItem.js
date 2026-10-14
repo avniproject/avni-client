@@ -68,19 +68,26 @@ class SelectableItem extends React.Component {
         const hasError = !_.isNil(validationResult);
         const isAbnormalChecked = checked && abnormal;
 
+        // A read-only field (editable: false) only ever renders its already-selected answer(s)
+        // (see SelectFormElement's getSelectedAnswers filter) - so "disabled" here almost always
+        // means "checked". Styled as a light-gray chip with brand-teal text (distinct from the
+        // solid teal fill used for an enabled checked answer) so it still reads as "selected"
+        // rather than the old flat gray disabled-button look. Disabled+unchecked (not normally
+        // reachable, but kept as a safe fallback) still gets the plain gray treatment.
         const backgroundColor = disabled
-            ? Colors.DisabledButtonColor
+            ? (checked ? Colors.GreyContentBackground : Colors.DisabledButtonColor)
             : checked
                 // BrandPrimaryDark matches the Next/primary button colour (WizardButtons) - was
                 // ActionButtonColor, a leftover pre-rebrand teal that reads as a different shade.
                 ? (isAbnormalChecked ? Colors.AbnormalSelectedBackground : Colors.BrandPrimaryDark)
                 : Colors.BrandLight;
-        const borderWidth = hasError ? 1.5 : 0;
-        const borderColor = hasError ? Colors.ValidationError : 'transparent';
+        const isDisabledChecked = disabled && checked && !hasError;
+        const borderWidth = hasError ? 1.5 : isDisabledChecked ? 1 : 0;
+        const borderColor = hasError ? Colors.ValidationError : isDisabledChecked ? Colors.BrandPrimaryDark : 'transparent';
         const textColor = hasError
             ? Colors.ValidationError
             : disabled
-                ? Colors.InputNormal
+                ? (checked ? Colors.BrandPrimaryDark : Colors.InputNormal)
                 : checked
                     ? (isAbnormalChecked ? Colors.AbnormalSelectedText : Colors.TextOnPrimaryColor)
                     : Colors.BrandPrimary;

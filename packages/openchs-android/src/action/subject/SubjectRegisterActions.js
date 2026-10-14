@@ -1,4 +1,5 @@
 import IndividualService from "../../service/IndividualService";
+import {logRegistrationCompleted} from "../../utility/Analytics";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import {EDGE_MODEL_ACTION} from "../../service/EdgeModelService";
 import {RULE_SERVICE_ACTION} from "../../service/RuleService";
@@ -142,6 +143,7 @@ export class SubjectRegisterActions {
         try {
             const newState = state.clone();
             context.get(IndividualService).register(newState.subject, action.nextScheduledVisits, action.skipCreatingPendingStatus, newState.groupAffiliation.groupSubjectObservations);
+            if (newState.isNewEntity) logRegistrationCompleted(_.get(newState.subject, 'subjectType.name'), newState.registrationStartTime);
             const {member} = newState.household;
             if (!_.isNil(member)) {
                 member.memberSubject = context.get(IndividualService).findByUUID(newState.subject.uuid);

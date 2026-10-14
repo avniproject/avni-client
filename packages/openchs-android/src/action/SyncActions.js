@@ -1,5 +1,4 @@
-import moment from "moment";
-import {firebaseEvents, logEvent} from "../utility/Analytics";
+import {firebaseEvents, formatLocalTimestamp, logEvent} from "../utility/Analytics";
 
 class SyncActions {
 
@@ -11,13 +10,14 @@ class SyncActions {
             message: '',
             syncMessage: '',
             startSync: false,
-            backgroundSyncInProgress: false
+            backgroundSyncInProgress: false,
+            contentDownloadWarning: false
         };
     }
 
     static preSync(state) {
         const startTime = Date.now();
-        return {...state, syncing: true, syncMessage: "syncingData", startTime};
+        return {...state, syncing: true, syncMessage: "syncingData", startTime, contentDownloadWarning: false};
     }
 
     static postSync(state) {
@@ -25,8 +25,7 @@ class SyncActions {
     }
 
     static onError(state) {
-        const dateTimeFormat = "DD MMM YYYY hh:mm:ss a";
-        const syncStartTime = moment(state.startTime).format(dateTimeFormat);
+        const syncStartTime = formatLocalTimestamp(state.startTime);
         const errorTime = Date.now();
         const syncTime = errorTime - state.startTime;
         const params = {
@@ -36,7 +35,7 @@ class SyncActions {
             trigger: 'manual',
             duration_ms: syncTime,
             sync_start_time: syncStartTime,
-            error_time: moment(errorTime).format(dateTimeFormat)
+            error_time: formatLocalTimestamp(errorTime)
         };
         logEvent(firebaseEvents.SYNC_FAILED, params);
         return {...state, syncing: false};
@@ -65,7 +64,10 @@ class SyncActions {
     static onMessageCallback(state, action, context) {
         return {
             ...state,
-            message: action.message
+            message: action.message,
+            // A content-download failure is signalled by this transient status message, which the completion
+            // state then overwrites. Latch a flag (reset at preSync) so the "sync complete" modal can surface it.
+            contentDownloadWarning: state.contentDownloadWarning || action.message === "contentNotDownloaded"
         }
     }
 }

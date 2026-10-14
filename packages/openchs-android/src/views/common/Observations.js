@@ -1,5 +1,4 @@
 import {Text, TouchableOpacity, View} from "react-native";
-import ListView from "deprecated-react-native-listview";
 import PropTypes from 'prop-types';
 import React, {Fragment} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -267,10 +266,10 @@ class Observations extends AbstractComponent {
                 isFirst && {borderTopLeftRadius: cornerRadius, borderTopRightRadius: cornerRadius},
                 groupStyles]}>
                 <View style={{flex: initialFlex, flexWrap: 'wrap'}}>
-                    <Text style={[{fontWeight: 'bold'}, groupStyles]}>{this.I18n.t(groupName)}</Text>
+                    <Text style={[{fontWeight: 'bold'}, groupStyles]} numberOfLines={2} ellipsizeMode="tail">{this.I18n.t(groupName)}</Text>
                 </View>
                 {groupUUID && quickFormEdit &&
-                <View style={{flex: 0.1, minWidth: 5}}>
+                <View style={{flex: 0.15, minWidth: 5}}>
                     <TouchableOpacity
                         onPress={() => this.onFEGEdit(groupUUID)}>
                         <Text style={{color: Colors.ActionButtonColor,}}>{this.I18n.t('edit')}</Text>
@@ -356,41 +355,34 @@ class Observations extends AbstractComponent {
             this.renderNormalView(observation, extraConceptStyle);
     }
 
+    // Mapped rows, not a virtualized ListView: nested in a ScrollView its clip/unclip churn destabilises measured height.
     renderNormalObservationTable() {
         const observations = this.props.observations || [];
-        const orderedObservation = observations.map(observation => [observation]);
-        const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(orderedObservation);
 
-        return <ListView
-            enableEmptySections={true}
-            dataSource={dataSource}
-            style={this.styles.observationTable}
-            pageSize={20}
-            initialListSize={10}
-            removeClippedSubviews={true}
-            renderSeparator={(ig, idx) => (this.props.highlight ? null : <Separator key={idx} height={1}/>)}
-            renderHeader={() => (this.props.highlight ? null : <Separator height={1} backgroundColor={'rgba(0, 0, 0, 0.12)'}/>)}
-            renderRow={([observation]) => this.renderObservationValue(observation, this.props.highlight ? {paddingLeft: 0} : {paddingLeft: 8})}
-        />;
+        return <View style={this.styles.observationTable}>
+            {!this.props.highlight && <Separator height={1} backgroundColor={'rgba(0, 0, 0, 0.12)'}/>}
+            {observations.map((observation, idx) => (
+                <Fragment key={observation.concept.uuid}>
+                    {this.renderObservationValue(observation, this.props.highlight ? {paddingLeft: 0} : {paddingLeft: 8})}
+                    {!this.props.highlight && idx < observations.length - 1 && <Separator height={1}/>}
+                </Fragment>
+            ))}
+        </View>;
     }
 
     renderObservationTable(quickFormEdit) {
         const sectionWiseObs = this.props.form.sectionWiseOrderedObservations(this.props.observations);
-        const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(sectionWiseObs);
         const lastIndex = sectionWiseObs.length - 1;
 
-        return <ListView
-            enableEmptySections={true}
-            dataSource={dataSource}
-            style={this.styles.observationTable}
-            pageSize={20}
-            initialListSize={10}
-            removeClippedSubviews={true}
-            renderSeparator={(ig, idx) => (<Separator key={idx} height={1}/>)}
-            renderHeader={() => (<Separator height={1} backgroundColor={'rgba(0, 0, 0, 0.12)'}/>)}
-            renderRow={({groupName, groupUUID, observations, groupStyles}, sectionID, rowID) =>
-                this.observationTable(groupUUID, groupName, observations, groupStyles, quickFormEdit, Number(rowID) === 0, Number(rowID) === lastIndex)}
-        />;
+        return <View style={this.styles.observationTable}>
+            <Separator height={1} backgroundColor={'rgba(0, 0, 0, 0.12)'}/>
+            {sectionWiseObs.map(({groupName, groupUUID, observations, groupStyles}, idx) => (
+                <Fragment key={groupUUID || idx}>
+                    {this.observationTable(groupUUID, groupName, observations, groupStyles, quickFormEdit, idx === 0, idx === lastIndex)}
+                    {idx < lastIndex && <Separator height={1}/>}
+                </Fragment>
+            ))}
+        </View>;
     }
 
     render() {

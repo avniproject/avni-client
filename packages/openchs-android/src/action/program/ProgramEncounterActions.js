@@ -2,6 +2,7 @@ import ProgramEncounterState from "../../state/ProgramEncounterState";
 import FormMappingService from "../../service/FormMappingService";
 import ObservationsHolderActions from '../common/ObservationsHolderActions';
 import ProgramEncounterService from "../../service/program/ProgramEncounterService";
+import {logScreeningCompleted} from "../../utility/Analytics";
 import _ from 'lodash';
 import EntityService from "../../service/EntityService";
 import {DraftProgramEncounter, Point, ProgramEncounter, WorkList, WorkLists} from "avni-models";
@@ -190,6 +191,7 @@ class ProgramEncounterActions {
         });
 
         service.saveOrUpdate(newState.programEncounter, scheduledVisits, action.skipCreatingPendingStatus);
+        logScreeningCompleted(newState.programEncounter.uuid);
 
         // Delete draft after successful save
         context.get(DraftProgramEncounterService).deleteDraftByUUID(newState.programEncounter.uuid);

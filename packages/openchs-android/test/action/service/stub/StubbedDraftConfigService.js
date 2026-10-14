@@ -1,18 +1,20 @@
+import _ from "lodash";
+
 class StubbedDraftConfigService {
     constructor(serviceData) {
         this.serviceData = serviceData;
     }
 
     isDraftEnabled() {
-        return false;
+        return _.get(this.serviceData, 'draftEnabled', false);
     }
 
     shouldSaveDraft(isFirstFlow, isExistingDraft) {
-        return false;
+        return isExistingDraft || (isFirstFlow && this.isDraftEnabled());
     }
 
     shouldLoadDraft() {
-        return false;
+        return this.isDraftEnabled();
     }
 
     shouldDisplayDrafts() {

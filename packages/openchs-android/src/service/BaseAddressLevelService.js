@@ -61,8 +61,13 @@ class BaseAddressLevelService extends BaseService {
         }
     }
 
-    isRoot(parent) {
-        return _.includes(this.maxLevels(), parent.level);
+    // Root-ness is per-node, not per-level: two types can share a level number (#1951).
+    hasNoParent(node) {
+        return _.isEmpty(node.parentUuid);
+    }
+
+    isRoot(node) {
+        return this.hasNoParent(node);
     }
 
     lowestLevelAmongst(addressLevels) {

@@ -44,6 +44,17 @@ import org.opencv.imgproc.Imgproc
  * refinement. Until that calibration pass happens against a real batch of
  * avni field photos, treat [isUnusable] as directional, not authoritative:
  * a badly-tuned prompt firing on good photos is worse than no prompt at all.
+ *
+ * ### 2026-09-29 fix: measurement was being taken on the wrong Mat
+ *
+ * [analyze] must be called on [OpenCVUtils.scaleImageMatForQuality]'s output, NOT
+ * [OpenCVUtils.scaleImageMat]'s — the latter's brightness-normalization step rescales every
+ * image's mean pixel value toward 128 before this class ever sees it, which was silently
+ * defeating the brightness check (and skewing blur variance) for genuinely too-dark/too-bright
+ * photos — the likely cause of the warning "missing bad photos sometimes". See
+ * [OpenCVUtils.scaleImageMatForQuality]'s doc for the full explanation. This fix corrects
+ * *what* is measured; the threshold *values* above are unchanged and still need the real-photo
+ * calibration pass described above.
  */
 object ImageQualityAnalyzer {
 
@@ -67,14 +78,43 @@ object ImageQualityAnalyzer {
     const val KEY_IMAGE_WIDTH = "imageWidth"
     const val KEY_IMAGE_HEIGHT = "imageHeight"
 
+    // Source (pre-resize) decoded dimensions — added 2026-09-29 alongside the measurement-order
+    // fix above, so blur-variance-vs-device-resolution correlation can actually be checked in the
+    // Firebase data (KEY_IMAGE_WIDTH/HEIGHT above are always TARGET_WIDTH/HEIGHT, the scoring
+    // size, not the original capture size).
+    const val KEY_SOURCE_IMAGE_WIDTH = "sourceImageWidth"
+    const val KEY_SOURCE_IMAGE_HEIGHT = "sourceImageHeight"
+
+    // Gyroscope-based motion detection (2026-09-30) — see MotionDetector.kt's class doc for why
+    // this exists alongside (not instead of) the pixel-based blur check above.
+    const val KEY_MOTION_DETECTED = "motionDetected"
+    const val KEY_MAX_ANGULAR_VELOCITY = "maxAngularVelocityRadPerSec"
+
     /**
-     * Scores [mat] (expected: the output of [OpenCVUtils.scaleImageMat]) for blur, brightness,
-     * contrast, and noise, and flags whether it looks unusable per the (placeholder) thresholds.
+     * Scores [mat] (expected: the output of [OpenCVUtils.scaleImageMatForQuality] — NOT
+     * [OpenCVUtils.scaleImageMat], see this class's doc comment) for blur, brightness, contrast,
+     * and noise, and flags whether it looks unusable per the (placeholder) thresholds.
+     *
+     * [sourceWidth]/[sourceHeight] are the ORIGINAL (pre-resize) decoded dimensions — logged
+     * alongside the score, not used in the [KEY_IS_UNUSABLE] decision, purely so device-specific
+     * resolution differences can be correlated against blur-variance readings later.
+     *
+     * [motionDetected] (from [MotionDetector.captureResult]) DOES feed into [KEY_IS_UNUSABLE] —
+     * added 2026-09-30 because the Laplacian blur check above misses directional motion blur (see
+     * MotionDetector.kt's class doc). [maxAngularVelocityRadPerSec] is logged alongside it purely
+     * for visibility into how far over/under the threshold each capture was.
      *
      * Every intermediate Mat/MatOfDouble is released in `finally` — [mat] itself is the
-     * caller's responsibility (mirrors [OpenCVUtils.scaleImageMat]'s ownership contract).
+     * caller's responsibility (mirrors [OpenCVUtils.scaleImageMatForQuality]'s ownership
+     * contract).
      */
-    fun analyze(mat: Mat): Map<String, Any> {
+    fun analyze(
+        mat: Mat,
+        sourceWidth: Int = mat.width(),
+        sourceHeight: Int = mat.height(),
+        motionDetected: Boolean = false,
+        maxAngularVelocityRadPerSec: Float? = null,
+    ): Map<String, Any> {
         val gray = Mat()
         val laplacian = Mat()
         val blurred = Mat()
@@ -106,7 +146,8 @@ object ImageQualityAnalyzer {
             val isUnusable =
                 blurVariance < MIN_BLUR_VARIANCE ||
                     brightness < MIN_BRIGHTNESS ||
-                    brightness > MAX_BRIGHTNESS
+                    brightness > MAX_BRIGHTNESS ||
+                    motionDetected
 
             return mapOf(
                 KEY_BLUR_VARIANCE to blurVariance,
@@ -119,6 +160,10 @@ object ImageQualityAnalyzer {
                 KEY_OS_VERSION to Build.VERSION.SDK_INT,
                 KEY_IMAGE_WIDTH to mat.width(),
                 KEY_IMAGE_HEIGHT to mat.height(),
+                KEY_SOURCE_IMAGE_WIDTH to sourceWidth,
+                KEY_SOURCE_IMAGE_HEIGHT to sourceHeight,
+                KEY_MOTION_DETECTED to motionDetected,
+                KEY_MAX_ANGULAR_VELOCITY to (maxAngularVelocityRadPerSec?.toDouble() ?: 0.0),
             )
         } finally {
             gray.release()

@@ -15,9 +15,9 @@ import General from "../../utility/General";
 import Fonts from "../primitives/Fonts";
 import {Names as Actions} from "../../action/program/SubjectDashboardViewActions";
 import MCIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import OIcon from "react-native-vector-icons/Octicons";
 import _ from "lodash";
 import NewFormButton from "../common/NewFormButton";
+import Distances from "../primitives/Distances";
 import {logScreenEvent} from "../../utility/Analytics";
 
 class SubjectDashboardView extends AbstractComponent {
@@ -47,11 +47,19 @@ class SubjectDashboardView extends AbstractComponent {
 
     }
 
-    static iconStyle = {color: Colors.programEnrolmentBottomBarIconColor, opacity: 0.8, alignSelf: 'center', fontSize: 20};
+    // Mirrors LandingView's home-screen bottom bar pattern (bottomBarItemContent/activeIconPillStyle):
+    // white bar, active tab's icon sits in a small BrandLight pill, text switches to BrandPrimaryDark.
+    static selectedTabColor = Colors.BrandPrimaryDark;
+    static unselectedTabColor = Colors.TextPrimaryDark;
+    static bottomBarBackgroundColor = Colors.bottomBarColor;
+    static tabBarHeight = 68;
+    static activeIconPillStyle = {width: 72, height: 36, borderRadius: 18, backgroundColor: Colors.BrandLight};
+
+    static iconStyle = {color: SubjectDashboardView.unselectedTabColor, alignSelf: 'center', fontSize: 20};
 
     icon = (Icon, iconName, isSelected) => {
         return <Icon name={iconName}
-                     style={[SubjectDashboardView.iconStyle, isSelected && {color: Colors.iconSelectedColor}]}/>
+                     style={[SubjectDashboardView.iconStyle, isSelected && {color: SubjectDashboardView.selectedTabColor}]}/>
     };
 
     // Tab switches (Profile/Programs/General) don't remount this screen, so componentDidMount's
@@ -67,22 +75,22 @@ class SubjectDashboardView extends AbstractComponent {
 
     renderOptions = options => options.filter((option) => _.last(option)).map(([icon, name, onPress, isSelected], index) => {
         return (
-            <View key={index} style={{
-                flex: 1,
-                flexDirection: 'column',
-                borderBottomWidth: isSelected ? 4 : 0,
-                borderColor: Colors.iconSelectedColor,
-            }}>
-                <TouchableOpacity onPress={onPress}
-                                  style={{flex: 1, alignItems: 'center'}}>
-                    <View key={index} style={{paddingTop: 5}}>
+            <View key={index} style={{flex: 1, flexDirection: 'column'}}>
+                <TouchableOpacity onPress={onPress} activeOpacity={0.6}
+                                  style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                    <View style={[{
+                        width: 72,
+                        height: 36,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginBottom: 4
+                    }, isSelected && SubjectDashboardView.activeIconPillStyle]}>
                         {icon}
-                        <Text style={{
-                            fontSize: Fonts.Small,
-                            fontWeight: isSelected ? 'bold' : 'normal',
-                            color: isSelected ? Colors.iconSelectedColor : Colors.programEnrolmentBottomBarIconColor
-                        }}>{name}</Text>
                     </View>
+                    <Text style={{
+                        fontSize: Fonts.Small,
+                        color: isSelected ? SubjectDashboardView.selectedTabColor : SubjectDashboardView.unselectedTabColor
+                    }}>{name}</Text>
                 </TouchableOpacity>
             </View>
         );
@@ -92,8 +100,8 @@ class SubjectDashboardView extends AbstractComponent {
         General.logDebug(this.viewName(), 'render');
         const {enrolmentUUID, individualUUID, backFunction} = this.state;
         const options = [
-            [this.icon(MCIcon, 'face-agent', this.state.individualProfile), this.I18n.t('profile'), this.onTabPress(Actions.ON_PROFILE_CLICK, this.state.individualProfile, 'Profile'), this.state.individualProfile, true],
-            [this.icon(OIcon, 'project', this.state.program), this.I18n.t('programs'), this.onTabPress(Actions.ON_PROGRAM_CLICK, this.state.program, 'Programs'), this.state.program, this.state.displayProgramTab],
+            [this.icon(MCIcon, 'account', this.state.individualProfile), this.I18n.t('profile'), this.onTabPress(Actions.ON_PROFILE_CLICK, this.state.individualProfile, 'Profile'), this.state.individualProfile, true],
+            [this.icon(MCIcon, 'clipboard-list-outline', this.state.program), this.I18n.t('programs'), this.onTabPress(Actions.ON_PROGRAM_CLICK, this.state.program, 'Programs'), this.state.program, this.state.displayProgramTab],
             [this.icon(MCIcon, 'view-list', this.state.history), this.I18n.t('general'), this.onTabPress(Actions.ON_HISTORY_CLICK, this.state.history, 'General'), this.state.history, this.state.displayGeneralTab],
         ];
         this.displayMessage(this.props.message);
@@ -101,7 +109,10 @@ class SubjectDashboardView extends AbstractComponent {
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t('individualDashboard')} func={this.props.backFunction}/>
                 <CHSContent>
-                    <ScrollView style={{backgroundColor: Colors.GreyContentBackground}}>
+                    <ScrollView style={{backgroundColor: Colors.GreyContentBackground}}
+                                contentContainerStyle={this.state.displayProgramTab ? {
+                                    paddingBottom: SubjectDashboardView.tabBarHeight + Distances.EdgeToEdgeNavigationBarInset
+                                } : {}}>
                         <IndividualProfile individual={this.state.individual}
                                            displayOnly={false}
                                            viewContext={IndividualProfile.viewContext.NonWizard}
@@ -123,11 +134,14 @@ class SubjectDashboardView extends AbstractComponent {
                 </CHSContent>
                 <NewFormButton
                     display={(this.state.individualProfile && this.state.displayGeneralInfoInProfileTab) || this.state.history}
-                    style={this.state.displayProgramTab ? {bottom: 24 + 55} : {}}
+                    style={this.state.displayProgramTab ? {bottom: 24 + SubjectDashboardView.tabBarHeight + Distances.EdgeToEdgeNavigationBarInset} : {}}
                 />
                 {this.state.displayProgramTab &&
-                <View style={styles.tabContainer}>
-                    {this.renderOptions(options)}
+                <View style={styles.tabContainerWrapper}>
+                    <View style={styles.tabContainer}>
+                        {this.renderOptions(options)}
+                    </View>
+                    <View style={styles.tabContainerInsetSpacer}/>
                 </View>}
             </CHSContainer>
         );
@@ -139,17 +153,29 @@ export default SubjectDashboardView
 
 
 const styles = StyleSheet.create({
-    tabContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        height: 55,
+    // Wrapper spans the full bar-plus-inset height and pins to the true bottom edge; the bar and
+    // the inset spacer stack inside it and share the same background so the gesture-nav zone
+    // reads as a seamless extension of the bar rather than a colored patch behind the buttons.
+    tabContainerWrapper: {
+        height: SubjectDashboardView.tabBarHeight + Distances.EdgeToEdgeNavigationBarInset,
         width: '100%',
         position: 'absolute',
         bottom: 0,
-        backgroundColor: Colors.programEnrolmentBottomBarColor,
+    },
+    tabContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        height: SubjectDashboardView.tabBarHeight,
+        width: '100%',
+        backgroundColor: SubjectDashboardView.bottomBarBackgroundColor,
         elevation: 3,
         alignItems: 'center',
         borderTopWidth: StyleSheet.hairlineWidth,
         borderTopColor: Colors.Separator
+    },
+    tabContainerInsetSpacer: {
+        height: Distances.EdgeToEdgeNavigationBarInset,
+        width: '100%',
+        backgroundColor: SubjectDashboardView.bottomBarBackgroundColor,
     }
 });

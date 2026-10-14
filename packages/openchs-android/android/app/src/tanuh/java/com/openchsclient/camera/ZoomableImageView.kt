@@ -58,6 +58,18 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
         oldMeasuredHeight = 0
         imgMatrix.reset()
         imageMatrix = imgMatrix
+        // 2026-09-30 fix: resetting the matrix to identity here only looks right once onMeasure()
+        // recomputes the real scale-to-fit + centering transform afterward — and that recompute
+        // is NOT guaranteed to happen on its own. On the very first photo, this view is going
+        // from never-measured to visible for the first time, which reliably triggers a fresh
+        // measure pass. On a retake, this view was already measured once before at the exact same
+        // final size, so Android's layout system is free to skip re-measuring it — leaving the
+        // identity matrix in place, which draws the new photo at its raw decoded pixel size
+        // pinned to the top-left corner instead of scaled/centered (reported as "photo shows in
+        // the upper part of the screen", reproducing only on retake, never on a fresh capture —
+        // exactly this asymmetry). requestLayout() forces a fresh onMeasure() unconditionally,
+        // regardless of whether the view's effective size actually changed.
+        requestLayout()
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {

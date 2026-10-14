@@ -153,7 +153,7 @@ export class IndividualSearchActions {
         if (customFilterService.isSearchFiltersEmpty(selectedCustomFilterForSubjectType)) {
             const searchResponse = individualService.search(newState.searchCriteria);
             logEvent(firebaseEvents.SEARCH_FILTER, {
-                time_taken: Date.now() - startTime,
+                duration_ms: Date.now() - startTime,
                 applied_filters: searchFilterTypes
             });
             action.cb(searchResponse, searchResponse.length);
@@ -164,7 +164,7 @@ export class IndividualSearchActions {
         const searchResponse = _.isEmpty(individualUUIDs) ? [] :
             individualService.search(newState.searchCriteria, individualUUIDs);
         logEvent(firebaseEvents.SEARCH_FILTER, {
-            time_taken: Date.now() - startTime,
+            duration_ms: Date.now() - startTime,
             applied_filters: searchFilterTypes
         });
         action.cb(searchResponse, searchResponse.length);

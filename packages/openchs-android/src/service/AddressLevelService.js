@@ -13,6 +13,11 @@ class AddressLevelService extends BaseAddressLevelService {
         return AddressLevel.schema.name;
     }
 
+    // AddressLevel keeps its parent in locationMappings, not parentUuid.
+    hasNoParent(node) {
+        return _.isEmpty(node.locationMappings);
+    }
+
     getAllDisplayAddresses(selectedAddresses) {
         let allDisplayAddresses = this.highestLevel();
         const sortedAddresses = _.orderBy(selectedAddresses, 'level', 'desc');

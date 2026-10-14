@@ -26,6 +26,7 @@ import FormMappingService from "../../service/FormMappingService";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import EncounterService from "../../service/EncounterService";
+import OrganisationConfigService from "../../service/OrganisationConfigService";
 import {AvniAlert} from "../common/AvniAlert";
 import {RejectionMessage} from "../approval/RejectionMessage";
 import SummaryButton from "../common/SummaryButton";
@@ -33,6 +34,7 @@ import Timer from "../common/Timer";
 import BackgroundTimer from "react-native-background-timer";
 import {Actions as IGHActions} from "../../action/individual/IndividualGeneralHistoryActions";
 import PreviousEncounters from "../common/PreviousEncounters";
+import {logScreeningStarted, logTaskDuration, logTaskStarted} from "../../utility/Analytics";
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -54,13 +56,27 @@ class IndividualEncounterView extends AbstractComponent {
     UNSAFE_componentWillMount() {
         const {encounterType, individualUUID, encounter, workLists, pageNumber, editing} = this.props;
         if (encounter) {
-            this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter, workLists, pageNumber, editing});
+            // When the visit date is hidden org-wide the user can't set it, so auto-capture today
+            // for encounters that arrive without one (e.g. scheduled/planned encounters).
+            let encounterToLoad = encounter;
+            if (_.isNil(encounter.encounterDateTime) && this.context.getService(OrganisationConfigService).isVisitDateHidden()) {
+                encounterToLoad = encounter.cloneForEdit();
+                encounterToLoad.encounterDateTime = new Date();
+            }
+            // Same started/completed/abandoned task telemetry ProgramEncounterView emits, so a
+            // general (non-program) encounter is also identified by its real encounter type -
+            // logTaskStarted also makes it the active_task_* stamped on events fired meanwhile.
+            logTaskStarted('encounter', encounterToLoad.name || _.get(encounterToLoad, 'encounterType.displayName'));
+            if (!editing) logScreeningStarted(encounterToLoad);
+            this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter: encounterToLoad, workLists, pageNumber, editing});
             return super.UNSAFE_componentWillMount();
         }
         const encounterByType = this.context.getService(EncounterService)
             .findDueEncounter({encounterTypeName: encounterType, individualUUID})
             .cloneForEdit();
         encounterByType.encounterDateTime = moment().toDate();
+        logTaskStarted('encounter', encounterByType.name || _.get(encounterByType, 'encounterType.displayName'));
+        if (!editing) logScreeningStarted(encounterByType);
         this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter: encounterByType, editing});
         return super.UNSAFE_componentWillMount();
     }
@@ -78,6 +94,10 @@ class IndividualEncounterView extends AbstractComponent {
         const phoneNumberObservation = _.find(this.state.encounter.observations, obs => obs.isPhoneNumberVerificationRequired(this.state.filteredFormElements));
         return {
             completed: (newState, encounterDecisions, ruleValidationErrors, checklists, nextScheduledVisits, fromSDV) => {
+                if (this.screenRenderStartTime) {
+                    const {encounter} = this.state;
+                    logTaskDuration('encounter', encounter.name || _.get(encounter, 'encounterType.displayName'), Date.now() - this.screenRenderStartTime);
+                }
                 const headerMessage = `${this.I18n.t(this.state.encounter.encounterType.displayName)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
                 const form = formMappingService.findFormForEncounterType(this.state.encounter.encounterType, Form.formTypes.Encounter, this.state.encounter.individual.subjectType);
@@ -133,6 +153,10 @@ class IndividualEncounterView extends AbstractComponent {
 
     onAppHeaderBack(saveDraftOn) {
         const onYesPress = () => {
+            if (this.screenRenderStartTime) {
+                const {encounter} = this.state;
+                logTaskDuration('encounter', encounter && (encounter.name || _.get(encounter, 'encounterType.displayName')), Date.now() - this.screenRenderStartTime, 'abandoned');
+            }
             this.dispatchAction(IGHActions.ON_RENDER, {
                 individualUUID: this.props.individualUUID || this.props.encounter.individual.uuid
             });
@@ -164,6 +188,7 @@ class IndividualEncounterView extends AbstractComponent {
             this.onGoToSummary(true);
         }
         const title = this.I18n.t(this.state.encounter.encounterType.displayName);
+        const hideVisitDate = this.context.getService(OrganisationConfigService).isVisitDateHidden() && !_.isNil(this.state.encounter.encounterDateTime);
         const observationHolder = new ObservationsHolder(this.state.encounter.observations);
         const filteredFormElements = this.state.filteredFormElements || this.state.formElementGroup.getFormElements();
         // Mirrors the checks state.validateEntity() runs on Next-press (minus the GPS location check,
@@ -210,11 +235,12 @@ class IndividualEncounterView extends AbstractComponent {
                                     errorActionName={Actions.SET_LOCATION_ERROR}
                                     validationResult={AbstractDataEntryState.getValidationError(this.state, Encounter.validationKeys.ENCOUNTER_LOCATION)}
                                 />
+                                {!hideVisitDate &&
                                 <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGE}
                                                  element={Object.assign(new StaticFormElement(AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME), {styles: {color: Colors.BrandPrimary}})}
                                                  dateValue={new PrimitiveValue(this.state.encounter.encounterDateTime)}
                                                  validationResult={ValidationResult.findByFormIdentifier(this.state.validationResults, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}
-                                                 style={{paddingTop: 0}}/>
+                                                 style={{paddingTop: 0}}/>}
                             </View>
                         </View> : <View/>}
                     <View style={styles.container}>
@@ -266,7 +292,12 @@ const styles = StyleSheet.create({
         flexDirection: 'column'
     },
     fixedButtonBar: {
-        height: 84,
+        // Explicit padding, not height/minHeight+centering: (84 - buttonHeight(56)) / 2 = 14, the original visual
+        // gap above and below the button row. Centering math collapsed this gap once the box grew to fit
+        // WizardButtons' own added bottom inset (API 36+ gesture/nav bar clearance) - explicit padding keeps
+        // this 14px gap guaranteed regardless of content height, while that inset adds further space below it.
+        paddingTop: 14,
+        paddingBottom: 14,
         justifyContent: 'center',
         backgroundColor: '#ffffff',
         shadowColor: '#000',

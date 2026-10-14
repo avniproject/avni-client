@@ -16,6 +16,14 @@ import PrivilegeService from "../../service/PrivilegeService";
 import {StartProgramActions as Actions} from "../../action/program/StartProgramActions";
 import Pressable from "react-native/Libraries/Components/Pressable/Pressable";
 
+// Styles.basicPrimaryButtonView's own backgroundColor (Styles.accentColor, '#009688') is a
+// leftover pre-rebrand teal, a shade off from BrandPrimaryDark ('#00767D') used elsewhere on this
+// dashboard (e.g. the enrolled-program chip) - overridden here rather than in the shared style,
+// since that style is also used by unrelated screens (password reset) not part of this change.
+// width: '100%' - TouchableNativeFeedback's child doesn't reliably stretch to its parent's full
+// width on its own here, which left the label hugging the left edge of an otherwise wide button.
+const primaryButtonView = {...Styles.basicPrimaryButtonView, backgroundColor: Colors.BrandPrimaryDark, width: '100%'};
+
 @Path('/ProgramActionsView')
 class ProgramActionsView extends AbstractComponent {
     constructor(props, context) {
@@ -69,7 +77,9 @@ class ProgramActionsView extends AbstractComponent {
                 <View style={buttonStyle}>
                     <Text style={{
                         fontSize: Fonts.Medium,
-                        color: textColor
+                        color: textColor,
+                        textAlign: 'center',
+                        width: '100%'
                     }}>{text}</Text>
                 </View>
             </TouchableNativeFeedback>
@@ -77,7 +87,7 @@ class ProgramActionsView extends AbstractComponent {
     }
 
     renderNormalButton() {
-        return this.renderButton(() => this.startProgramEncounter(this.props.allowedEncounterTypeUuids), Styles.basicPrimaryButtonView,
+        return this.renderButton(() => this.startProgramEncounter(this.props.allowedEncounterTypeUuids), primaryButtonView,
             this.I18n.t('newProgramVisit'), Colors.TextOnPrimaryColor)
     }
 
@@ -86,7 +96,7 @@ class ProgramActionsView extends AbstractComponent {
         const encounterOrType = firstAllowed.encounter || firstAllowed.encounterType;
         const name = encounterOrType instanceof EncounterType ? encounterOrType.operationalEncounterTypeName : encounterOrType.name;
         return this.renderButton(() => CHSNavigator.proceedEncounter(encounterOrType, firstAllowed.parent, null, this),
-            Styles.basicPrimaryButtonView,
+            primaryButtonView,
             this.I18n.t(name),
             Colors.TextOnPrimaryColor
         );
@@ -107,12 +117,12 @@ class ProgramActionsView extends AbstractComponent {
                 style={{flex: 1, flexDirection: 'column', marginTop: 8}}>
                 {this.props.enrolment.isActive && (_.size(this.state.allAllowed) > 0) ? this.renderOption() : <View/>}
                 {this.props.enrolment.hasChecklist && (this.privilegeService.hasAllPrivileges() || !_.isEmpty(allowedChecklistTypeUuids)) ?
-                    this.renderButton(() => this.openChecklist(), Styles.basicPrimaryButtonView,
+                    this.renderButton(() => this.openChecklist(), primaryButtonView,
                         this.I18n.t('vaccinations'), Colors.TextOnPrimaryColor)
                     :
                     <View/>}
                 {_.map(this.props.programDashboardButtons, (button, index) => this.renderButton(() => this.openGrowthChart(button),
-                    Styles.basicPrimaryButtonView, this.I18n.t(button.label), Colors.TextOnPrimaryColor, index))}
+                    primaryButtonView, this.I18n.t(button.label), Colors.TextOnPrimaryColor, index))}
             </View>
         );
     }

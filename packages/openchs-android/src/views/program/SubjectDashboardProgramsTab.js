@@ -25,7 +25,6 @@ import Distances from "../primitives/Distances";
 import ObservationsSectionOptions from "../common/ObservationsSectionOptions";
 import CustomConfirmDialog from "../common/CustomConfirmDialog";
 import Icon from 'react-native-vector-icons/SimpleLineIcons'
-import Separator from "../primitives/Separator";
 import UserInfoService from "../../service/UserInfoService";
 import AvniToast from "../common/AvniToast";
 import {SubjectType} from "openchs-models";
@@ -293,13 +292,21 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
         const createdByMessage = _.isEmpty(createdBy) ? "" : this.I18n.t("by", {user: createdBy});
 
         return (<View style={{marginTop: 10}}>
-            <Text style={[Styles.dashboardSubsectionTitleText, {paddingLeft: 10}]}>{this.I18n.t('enrolmentDetails')}</Text>
+            {/* No paddingLeft override here - PreviousEncounters.js's "Visits Planned"/"Completed
+                Visits" headers use Styles.dashboardSubsectionTitleText as-is, so this needs to
+                match rather than add its own indent, to line up with them vertically. */}
+            <Text style={Styles.dashboardSubsectionTitleText}>{this.I18n.t('enrolmentDetails')}</Text>
 
+            {/* Matches PreviousEncounters.js's card styling (Visits Planned/Completed Visits) -
+                white background, bordered, same vertical-only margin so all three sections line
+                up flush against the screen's own left/right inset instead of adding their own. */}
             <View style={{
-                padding: Distances.ScaledContentDistanceFromEdge,
-                margin: 4,
-                backgroundColor: Styles.greyBackground,
-                borderRadius: 10
+                padding: 16,
+                marginVertical: 8,
+                backgroundColor: Colors.WhiteContentBackground,
+                borderRadius: 8,
+                borderWidth: 1,
+                borderColor: Colors.BorderDefault
             }}>
                 <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_ENROLMENT_TOGGLE)}>
 
@@ -356,7 +363,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
                     marginHorizontal: 16,
                     backgroundColor: Colors.GreyContentBackground
                 }}>
-                    <View style={{backgroundColor: Styles.whiteColor, borderRadius: 10}}>
+                    <View style={{backgroundColor: Styles.whiteColor, borderRadius: 10, paddingBottom: 10}}>
                         {this.state.enrolment.individual.voided &&
                             <Text style={{
                                 fontSize: Fonts.Large,
@@ -370,7 +377,8 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
                             flexDirection: 'row',
                             justifyContent: 'space-between',
                             alignItems: 'stretch',
-                            borderRadius: 10
+                            borderRadius: 10,
+                            paddingHorizontal: 10
                         }}>
                             <View style={{justifyContent: 'flex-start', flex: 1}}>
                                 <ProgramList enrolments={enrolments}
@@ -397,7 +405,6 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
                         <View/>
                     )}
                 </ScrollView>
-                <Separator height={110} backgroundColor={Colors.WhiteContentBackground}/>
                 <FormShareActionSheetController
                     ref={r => this._shareSheet = r}
                     onSharePdf={(isExit) => this._shareEnrolmentAs("pdf", isExit)}

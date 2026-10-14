@@ -104,10 +104,17 @@
         android:layout_gravity="center"
         android:layout_height="match_parent">
 
+        <!-- 2026-10-13: the camera area is a centred 1:1 square (full width, height = width), matching
+             Aarogya Aarohan's square capture. CameraCaptureActivity shares this PreviewView's
+             ViewPort with ImageCapture, so the saved JPEG (and thus what inference processes) is
+             cropped to exactly this square — what is shown while capturing is what is saved.
+             To go back to the full-screen preview, restore layout_height="wrap_content" here and
+             on the PreviewView below, and drop app:layout_constraintDimensionRatio. -->
         <FrameLayout
             android:id="@+id/camera_preview_fl"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            app:layout_constraintDimensionRatio="1:1"
             android:background="@color/camera_dark"
             android:gravity="center"
             android:visibility="visible"
@@ -119,7 +126,7 @@
             <androidx.camera.view.PreviewView
                 android:id="@+id/previewView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_gravity="center"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -127,7 +134,7 @@
             <com.openchsclient.camera.CustomGraphic
                 android:id="@+id/cameraGrid"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:elevation="@dimen/camera_spacing_8"
                 app:layout_constraintBottom_toBottomOf="@+id/previewView"

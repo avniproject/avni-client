@@ -9,6 +9,10 @@ class StubbedOrganisationConfigService extends StubbedBaseService {
     isSaveDraftOn() {
         return false;
     }
+
+    isVisitDateHidden() {
+        return false;
+    }
 }
 
 export default StubbedOrganisationConfigService;

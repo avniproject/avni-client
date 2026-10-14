@@ -1,47 +1,47 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
 import {NativeModules} from "react-native";
-import fs from "react-native-fs";
 import General from "../utility/General";
+import fs from 'react-native-fs';
+import _ from "lodash";
+import {DownloadableContent} from 'avni-models';
+import FileSystem from "../model/FileSystem";
 import {firebaseEvents, logEvent} from "../utility/Analytics";
+
+const EDGE_MODEL_CATEGORY = 'edgeModel';
 
 /**
  * EdgeModelService — JS surface for on-device inference.
  *
- * Overall design (~/.claude/plans/composed-tumbling-bachman.md):
- *   • The native module (`EdgeModelModule`) is generic: a `modelKey` selects which model
- *     to use; per-model semantics (engine, preprocessor, decoder) come from a per-flavour
- *     `assets/models/registry.json` override block.
- *   • This service caches the registry on app boot, then lazy-loads each model on first
- *     use. Once loaded the engine handle stays for the app lifetime *until* the OS evicts
- *     it under memory pressure — at which point the next inference call self-heals via
- *     the native side's cached load-args.
- *   • Plain or AES-GCM-encrypted assets are both supported; the registry entry's
- *     `asset.type` field selects the load path.
+ * The model is resolved from synced `DownloadableContent` rows of category `edgeModel`
+ * (admin-configured, server-managed) rather than an in-APK registry: each row's `payload`
+ * carries the engine/preprocessor/decoder override; its `sha256` keys the cached encrypted
+ * blob (`<modelsDir>/<sha256>.bin`) and the app-private AES key (`<modelKeysDir>/<sha256>.key`),
+ * both written at sync time by DownloadableContentService. The blob/key never ship in the binary.
  *
- * Rule usage (sync inference, raw return):
- *   const result = await params.services.edgeModelService.runInferenceOnImage(
- *     'mvit2_fold5_2_latest_traced', imagePath
- *   );
+ * An ensemble = multiple `edgeModel` rows; each is loaded by its own cached path + key. If a
+ * fold's blob or key isn't cached yet (download pending/failed at sync), inference does not run —
+ * no verdict is written. Rather than let that absence read as a negative, the scheduling path
+ * dispatches INFERENCE_UNAVAILABLE so the form blocks Next (see _scheduleImageInference).
+ * Inference never downloads at point of use — recovery is to sync and refill.
  *
- * Rule usage (async inline path — see scheduleImageInference below):
+ * Rule usage (single-row category, raw return):
+ *   const result = await params.services.edgeModelService.runInferenceOnImage(imagePath);
+ *
+ * Rule usage (async inline path — writes the verdict to a target obs, see scheduleImageInference):
  *   params.services.edgeModelService.scheduleImageInference(
- *     'mvit2_fold5_2_latest_traced', imagePath, encounter, 'AI Suspicion Result',
+ *     imagePath, encounter, 'AI Suspicion Result',
  *     { 'Positive': 'Suspicious', 'Negative': 'Non Suspicious' }   // optional labelMap
  *   );
- *   // …rule returns sync immediately; on resolve the (optionally mapped) label is written
- *   // to the target obs and the form re-renders. The dependent form element reads
- *   // encounter.getObservationValue('AI Suspicion Result') — for text fields the obs value
- *   // is what's displayed, so write the user-facing text directly via labelMap.
  *
- * Rule usage (async inline path, target lives inside a Repeatable Question Group row):
+ * Rule usage (target inside a Repeatable Question Group row):
  *   params.services.edgeModelService.scheduleImageInferenceIntoGroup(
- *     'mvit2_fold5_2_latest_traced', imagePath, encounter,
- *     'Lesion Group', 'AI Suspicion Result', rowIdx,
- *     { 'Positive': 'Suspicious', 'Negative': 'Non Suspicious' }   // optional labelMap
+ *     imagePath, encounter, 'Lesion Group', 'AI Suspicion Result', rowIdx, labelMap
  *   );
- *   // Same contract as scheduleImageInference, but the verdict lands in the 'AI Suspicion
- *   // Result' obs inside row `rowIdx` of the 'Lesion Group' repeatable question group.
+ *
+ * Both schedule methods also accept the legacy `newmodel`-era shape with a leading model key
+ * (e.g. `scheduleImageInferenceIntoGroup(modelKey, imagePath, encounter, ...)`); the key is
+ * ignored (the model resolves from synced DownloadableContent). See _stripLegacyModelKey.
  */
 export const EDGE_MODEL_ACTION = {
     INFERENCE_RESULT_AVAILABLE: 'EDGE_MODEL.INFERENCE_RESULT_AVAILABLE',
@@ -53,22 +53,23 @@ export const EDGE_MODEL_ACTION = {
     INFERENCE_UNAVAILABLE: 'EDGE_MODEL.INFERENCE_UNAVAILABLE'
 };
 
-// messageKey resolved by the form element view via I18n. Models are bundled in the APK here, so a
-// missing model can't happen at point of use (unlike the remote-fetch line); any failure is a
-// runtime one — retaking the photo is the recovery.
+// messageKeys resolved by the form element view via I18n.
 export const INFERENCE_UNAVAILABLE_REASON = {
+    MODEL_UNAVAILABLE: 'aiModelUnavailable',
     INFERENCE_FAILED: 'aiInferenceFailed'
 };
+
+// Tags the "blob/key not cached yet" rejection so the catch can tell a provisioning gap
+// (recoverable by syncing) apart from a genuine inference failure.
+export const MODEL_NOT_CACHED = 'MODEL_NOT_CACHED';
 
 @Service("edgeModelService")
 class EdgeModelService extends BaseService {
     constructor(db, context) {
         super(db, context);
-        this._registry = null;
-        this._registryReady = null;
         this._loaded = new Set();
         // Dedup keys for in-flight scheduleImageInference jobs — keyed by
-        // entityUuid|modelKey|imagePath. Cleared in finally(). Form-element rules tend to
+        // entityUuid|imagePath[|qg|row]. Cleared in finally(). Form-element rules tend to
         // re-fire frequently (after every primitive obs change anywhere on the page), so
         // without this guard we'd launch a fresh inference per re-render.
         this._scheduled = new Set();
@@ -76,106 +77,154 @@ class EdgeModelService extends BaseService {
         // entityUuid|targetConceptName. Lets scheduleImageInference detect "user retook the
         // photo" and re-run inference instead of being short-circuited by the existing
         // (now-stale) verdict. In-memory only — on app restart we lazily seed the cache
-        // with the current imagePath the first time we see a populated target obs, on the
-        // assumption that the persisted verdict was produced from the persisted image.
+        // with the current imagePath the first time we see a populated target obs.
         this._lastInferredImageByTarget = new Map();
         // On a cold session cache we recompute (rather than trust) a persisted verdict, since an
         // edit may have swapped the image under it. This caps that recompute to one attempt per
         // image+target per session so a synced-in encounter whose media isn't downloaded (inference
         // keeps failing) doesn't re-fire on every page re-eval. Keyed by targetKey|imagePath.
         this._coldStartRecomputeAttempted = new Set();
+        // Targets whose inference already failed for a given image, keyed by targetKey|imagePath.
+        // Two jobs: recovery is sync-then-refill (we never re-download at point of use), so a retry
+        // would fail identically; and the failure dispatch itself triggers a rule cycle, which
+        // re-fires the scheduling rule — without this the pair would loop indefinitely.
+        this._inferenceFailedForImage = new Set();
         // Inference results wait here for a short trailing-debounce window so a burst of N
-        // verdicts (one per image on the summary screen) is applied in a single dispatch —
-        // the form then re-evaluates all rules once instead of N times. See
-        // _queueInferenceResult / _flushPendingResults.
+        // verdicts (one per image on the summary screen) is applied in a single dispatch.
         this._pendingResults = [];
         this._flushTimer = null;
         this._flushDelayMs = 120;
     }
 
-    /**
-     * BeanRegistry calls init() synchronously at app boot. We can't block here, but we
-     * can kick off the registry read and stash the Promise — any subsequent inference
-     * call will await this before consulting `_registry`. Failures are surfaced lazily
-     * (on the first inference call), not at app boot, so a missing or malformed registry
-     * doesn't break the rest of the app.
-     */
-    init() {
-        General.logDebug('EdgeModelSvc', 'init: loading assets/models/registry.json');
-        this._registryReady = NativeModules.EdgeModelModule.getRegistry()
-            .then(parsed => {
-                this._registry = parsed;
-                const keys = Object.keys(parsed?.models || {});
-                General.logDebug('EdgeModelSvc',
-                    `init OK: defaultModel=${parsed?.defaultModel} modelKeys=[${keys.join(',')}]`);
-            })
-            .catch(e => {
-                General.logError('EdgeModelSvc', `init FAIL: ${e && e.message}`);
-                console.error('EdgeModelService: failed to load assets/models/registry.json', e);
-                throw e;
-            });
+    getSchema() {
+        return DownloadableContent.schema.name;
     }
 
     /**
-     * Run inference on a caller-supplied flat number[]. `shape` is optional; if absent
-     * the engine treats the input as a 1-D vector. Returns the configured decoder's
-     * structured map.
+     * Called after a model-content sync. The per-image failure and cold-start-recompute caps are
+     * "give up until the situation changes" guards keyed to a missing/failed model — and a sync is
+     * exactly that change. Without this, an image that failed inference before the sync would stay
+     * suppressed for the rest of the session (its verdict never re-appears until the photo is
+     * retaken or the app restarts), even though the model is now on device. Clearing lets the next
+     * rule cycle re-attempt once; if it fails again the caps simply refill.
      */
-    async runInference(modelKey, inputData, shape) {
-        await this._ensureLoaded(modelKey);
-        return NativeModules.EdgeModelModule.runInference(modelKey, inputData, shape || null);
+    onModelContentSynced() {
+        if (this._inferenceFailedForImage.size === 0 && this._coldStartRecomputeAttempted.size === 0) return;
+        General.logDebug('EdgeModelSvc',
+            `onModelContentSynced: clearing retry caps (failed=${this._inferenceFailedForImage.size}, coldStart=${this._coldStartRecomputeAttempted.size})`);
+        this._inferenceFailedForImage.clear();
+        this._coldStartRecomputeAttempted.clear();
+    }
+
+    blobPath(sha256) {
+        return `${FileSystem.getModelsDir()}/${sha256}.bin`;
+    }
+
+    keyPath(sha256) {
+        return `${FileSystem.getModelKeysDir()}/${sha256}.key`;
     }
 
     /**
-     * Run inference on an image file path. Native handles decode → resize → normalise →
-     * layout-transpose, all driven by the resolved preprocessor plugin. `imagePath` is an
-     * absolute path on the device (e.g. from react-native-image-picker, with `file://`
-     * stripped).
-     *
-     * `labelMap` is optional (e.g. { 'Positive': 'Suspicious', 'Negative': 'Non Suspicious' } - see
-     * scheduleImageInference above) and only affects what's sent to analytics: the `label` on the
-     * model_inference_consolidated / model_inference_individual event is the mapped, user-facing verdict when a mapping is supplied and covers
-     * this result (falling back to the model's own raw label otherwise, e.g. for direct rule usage
-     * that doesn't pass one) - the RETURNED result always carries the raw label, unchanged.
-     *
-     * `ensembleModelKeys` is set ONLY by runEnsembleInferenceOnImage below, to the full list of
-     * fold model keys in that ensemble run - never by a caller. When set, this call is one fold of
-     * a larger ensemble run, and its reading is logged as model_inference_individual (a per-fold
-     * diagnostic, carrying ensemble_models so sibling folds of the same run can be grouped back
-     * together) instead of model_inference_consolidated. That keeps model_inference_consolidated at exactly ONE row per
-     * image scored - either a genuine standalone single-model call (ensemble=false) or the
-     * ensemble's combined verdict (ensemble=true) - so counting model_inference_consolidated rows always
-     * answers "how many images were scored" correctly, with no filtering required. Per-fold
-     * behaviour (e.g. debugging why the ensemble disagreed) lives in model_inference_individual instead.
+     * The synced `edgeModel` content rows that make up the model. An ensemble is several rows;
+     * a single model is one. Order is stable so the per-fold breakdown is deterministic.
      */
-    async runInferenceOnImage(modelKey, imagePath, labelMap, ensembleModelKeys = null) {
-        General.logDebug('EdgeModelSvc', `runInferenceOnImage: modelKey=${modelKey} imagePath=${imagePath}`);
+    _edgeModelRows() {
+        return _.sortBy(
+            // Predicate matches the downloader (DownloadableContentService.downloadContent),
+            // which requires both contentKey and sha256 — a row missing either is never cached,
+            // so treating it as a loadable fold would silently degrade inference.
+            this.getAllNonVoided().filter(row => row.category === EDGE_MODEL_CATEGORY && !_.isNil(row.sha256) && !_.isNil(row.contentKey)),
+            row => row.sha256
+        );
+    }
+
+    /**
+     * Build the native override JSON (engine/preprocessor/decoder DSL — see ModelContract.kt)
+     * from a row's `payload`. The payload carries the override block directly; an absent or
+     * empty payload yields null, which the native side rejects loudly.
+     */
+    _overrideJsonFor(row) {
+        const payload = row.getPayload();
+        return _.isEmpty(payload) ? null : JSON.stringify(payload);
+    }
+
+    /**
+     * Read the app-private AES key written at sync time. Absent ⇒ not cached yet (degrade).
+     */
+    async _readKey(sha256) {
+        const path = this.keyPath(sha256);
+        if (!await fs.exists(path)) {
+            return null;
+        }
+        const key = await fs.readFile(path, 'utf8');
+        return _.isEmpty(key) ? null : key;
+    }
+
+    /**
+     * Run inference on an image file path for the resolved edge model. Native handles
+     * decode → resize → normalise → layout-transpose, driven by the resolved preprocessor.
+     * `imagePath` is an absolute on-device path (`file://` stripped).
+     */
+    async runInferenceOnImage(imagePath) {
+        const rows = this._edgeModelRows();
+        if (rows.length === 0) {
+            throw new Error('EdgeModelService.runInferenceOnImage: no edgeModel content row is synced');
+        }
+        if (rows.length === 1) {
+            const result = await this._runInferenceOnImageForRow(rows[0], imagePath);
+            return this._withPositive(result, rows[0]);
+        }
+        return this.runEnsembleInferenceOnImage(imagePath);
+    }
+
+    /**
+     * Guarantee the `positive` boolean on a verdict. The native single-model result omits it;
+     * derive it from the row's decoder labels (positive = label matches labels[1]) so the
+     * single-row and ensemble paths share the same {label, confidence, positive} shape.
+     */
+    _withPositive(result, row) {
+        if (!_.isNil(result.positive)) {
+            return result;
+        }
+        const labels = row.getPayload()?.output?.params?.labels || ['Negative', 'Positive'];
+        return {...result, positive: result.label === labels[1]};
+    }
+
+    /**
+     * Run inference for a single synced row and log the `model_inference_consolidated` /
+     * `model_inference_individual` analytics event (ported from the pre-model-fetch
+     * EdgeModelService — see firebaseEvents.MODEL_INFERENCE_* in utility/Analytics.js).
+     * `ensembleContentKeys` is set ONLY by runEnsembleInferenceOnImage, to the full list of
+     * fold contentKeys in that ensemble run — never by a caller. When set, this row's own
+     * reading is logged as model_inference_individual (a per-fold diagnostic, carrying
+     * ensemble_models so sibling folds of the same run can be grouped back together) instead
+     * of model_inference_consolidated — the ensemble's own combined verdict is what logs
+     * model_inference_consolidated (see runEnsembleInferenceOnImage), keeping that event at
+     * exactly one row per image scored.
+     */
+    async _runInferenceOnImageForRow(row, imagePath, ensembleContentKeys = null) {
+        General.logDebug('EdgeModelSvc', `runInferenceOnImage: sha256=${row.sha256} imagePath=${imagePath}`);
         const t0 = Date.now();
-        await this._ensureLoaded(modelKey);
-        const isFold = Array.isArray(ensembleModelKeys);
+        await this._ensureLoaded(row);
+        const isFold = Array.isArray(ensembleContentKeys);
         const eventName = isFold ? firebaseEvents.MODEL_INFERENCE_INDIVIDUAL : firebaseEvents.MODEL_INFERENCE_CONSOLIDATED;
-        const ensembleTag = isFold ? {ensemble_models: ensembleModelKeys.join(',')} : {ensemble: false};
+        const ensembleTag = isFold ? {ensemble_models: ensembleContentKeys.join(',')} : {ensemble: false};
         try {
-            const result = await NativeModules.EdgeModelModule.runInferenceOnImage(modelKey, imagePath);
+            const result = await NativeModules.EdgeModelModule.runInferenceOnImage(row.sha256, imagePath);
             const durationMs = Date.now() - t0;
-            const rawLabel = result && result.label;
-            const mappedLabel = (labelMap && Object.prototype.hasOwnProperty.call(labelMap, rawLabel))
-                ? labelMap[rawLabel] : rawLabel;
             General.logDebug('EdgeModelSvc',
-                `runInferenceOnImage OK (${durationMs}ms): label=${rawLabel}`);
-            const eventParams = {
-                model_key: modelKey, ...ensembleTag, label: mappedLabel,
+                `runInferenceOnImage OK (${durationMs}ms): label=${result && result.label}`);
+            logEvent(eventName, {
+                model_key: row.contentKey, ...ensembleTag, label: result && result.label,
                 outcome: 'success', duration_ms: durationMs
-            };
-            if (mappedLabel !== rawLabel) eventParams.raw_label = rawLabel;
-            logEvent(eventName, eventParams);
+            });
             return result;
         } catch (e) {
             const durationMs = Date.now() - t0;
             General.logError('EdgeModelSvc',
-                `runInferenceOnImage FAIL (${durationMs}ms) ${modelKey}: ${e && e.message}`);
+                `runInferenceOnImage FAIL (${durationMs}ms) ${row.sha256}: ${e && e.message}`);
             logEvent(eventName, {
-                model_key: modelKey, ...ensembleTag,
+                model_key: row.contentKey, ...ensembleTag,
                 outcome: 'error', duration_ms: durationMs
             });
             throw e;
@@ -183,87 +232,114 @@ class EdgeModelService extends BaseService {
     }
 
     /**
-     * Unanimous-AND ensemble over several single-logit sigmoid-binary models (e.g. cross-validation
-     * folds of the same model). Runs each via runInferenceOnImage; the image is Positive (suspicious)
-     * only when EVERY fold is positive (sigmoid(logit) > threshold) — the false-positive control from
-     * TANUH's validated spec (soft-vote over-referred). `combine` is sourced from the folds' shared
-     * decoder override; 'unanimous-and' is the default and only shipped value. Returns the combined
-     * verdict plus a per-model breakdown; the combined `label` is shaped like a single model's, so
-     * callers (e.g. _scheduleImageInference) and `labelMap` treat it identically. `confidence` is the
-     * least-confident fold — a diagnostic, NOT a calibrated probability for a hard-AND verdict.
+     * Unanimous-AND ensemble over the synced `edgeModel` rows (cross-validation folds of the same
+     * model): the image is positive only when every fold's decoded verdict is positive. This cuts
+     * false positives vs a soft mean-vote — the reason the deployment moved from 1 to 3 models.
+     * The combiner is read from the synced payload override (`output.params.combine`) and defaults
+     * to `unanimous-and`, the only shipped value. Returns the combined verdict plus a per-model
+     * breakdown; the combined `label` is shaped like a single model's, so callers
+     * (e.g. _scheduleImageInference) and `labelMap` treat it identically. Logs exactly one
+     * model_inference_consolidated event for the combined verdict (success or failure); each
+     * fold's own reading is logged separately by _runInferenceOnImageForRow as
+     * model_inference_individual.
      */
-    async runEnsembleInferenceOnImage(modelKeys, imagePath, opts = {}) {
-        if (!Array.isArray(modelKeys) || modelKeys.length === 0) {
-            throw new Error('EdgeModelService.runEnsembleInferenceOnImage: modelKeys must be a non-empty array');
+    async runEnsembleInferenceOnImage(imagePath) {
+        const rows = this._edgeModelRows();
+        if (rows.length === 0) {
+            throw new Error('EdgeModelService.runEnsembleInferenceOnImage: no edgeModel content row is synced');
         }
-        // Combine rule comes from the folds' shared decoder override (tanuh-ensemble-override.json);
-        // explicit opts win. 'unanimous-and' is the default and only shipped value.
-        await this._registryReady;
-        const decoderParams = this._registry?.models?.[modelKeys[0]]?.override?.output?.params || {};
-        const combine = opts.combine ?? decoderParams.combine ?? 'unanimous-and';
-        const threshold = opts.threshold ?? decoderParams.threshold ?? 0.5;
-        const labels = opts.labels ?? decoderParams.labels ?? ['Negative', 'Positive'];
-        const labelMap = opts.labelMap;
+        // Combiner + labels track the synced payload like the single-row path does.
+        const decoderParams = rows[0].getPayload()?.output?.params || {};
+        const combine = decoderParams.combine ?? 'unanimous-and';
         if (combine !== 'unanimous-and') {
             throw new Error(`EdgeModelService.runEnsembleInferenceOnImage: unsupported combine='${combine}' (only 'unanimous-and' is shipped)`);
         }
+        const labels = decoderParams.labels ?? ['Negative', 'Positive'];
 
         const t0 = Date.now();
+        const ensembleContentKeys = rows.map(row => row.contentKey);
         try {
-            const results = await Promise.all(modelKeys.map(k => this.runInferenceOnImage(k, imagePath, labelMap, modelKeys)));
+            // allSettled, not all: Promise.all reports only the first rejection, so a single named fold
+            // masked the state of every other one — that's what hid a mis-provisioned fold (its row
+            // carried another fold's sha, so the ensemble silently ran 2 distinct models, not 3).
+            // Report every failing fold before throwing.
+            const settled = await Promise.allSettled(rows.map(row => this._runInferenceOnImageForRow(row, imagePath, ensembleContentKeys)));
+            const failures = settled
+                .map((s, i) => ({s, sha256: rows[i].sha256}))
+                .filter(({s}) => s.status === 'rejected');
+            if (failures.length > 0) {
+                const detail = failures.map(({s, sha256}) => `${sha256}: ${s.reason && s.reason.message}`).join(' | ');
+                // When every failing fold is merely uncached this is a provisioning gap — syncing then
+                // refilling recovers it. A genuine runtime failure in the mix makes 'sync and retry'
+                // misleading, so it degrades to the plain inference-failed message.
+                const allModelNotCached = failures.every(({s}) => s.reason && s.reason.code === MODEL_NOT_CACHED);
+                throw _.assign(
+                    new Error(`EdgeModelService.runEnsembleInferenceOnImage: ${failures.length}/${settled.length} folds failed — ${detail}`),
+                    allModelNotCached ? {code: MODEL_NOT_CACHED} : {});
+            }
+            const results = settled.map(s => s.value);
             // Fail loud on a fold with a non-finite logit rather than letting it silently count as a
-            // negative vote — sigmoid(NaN) > threshold is false below, so a malformed fold would
-            // masquerade as a confident negative, the worst outcome for a screening verdict. Throwing
-            // here follows the same contract as a fold that throws: no verdict is written, the target
-            // obs stays absent.
+            // negative vote — sigmoid(NaN) > threshold is false, so the native decoder hands back
+            // label="Negative" and the fold would masquerade as a confident negative, the worst outcome
+            // for a screening verdict. Throwing here follows the same contract as a fold that throws
+            // natively: no verdict is written, the target obs stays absent.
             results.forEach((r, i) => {
                 if (!Number.isFinite(r.logit)) {
-                    throw new Error(`EdgeModelService.runEnsembleInferenceOnImage: fold ${modelKeys[i]} returned a non-finite logit (${r.logit}); models=[${modelKeys.join(',')}]`);
+                    throw new Error(`EdgeModelService.runEnsembleInferenceOnImage: fold ${rows[i].sha256} returned a non-finite logit (${r.logit}); rows=[${rows.map(row => row.sha256).join(',')}]`);
                 }
             });
-            const sigmoid = (x) => 1 / (1 + Math.exp(-x));
-            // Per-model positive is sigmoid(logit) > threshold — unambiguous, independent of how each
-            // fold result defines `confidence`. Unanimous AND: suspicious iff ALL folds are positive.
-            const perModel = results.map((r, i) => ({
-                modelKey: modelKeys[i], logit: r.logit, confidence: r.confidence, label: r.label,
-                positive: sigmoid(r.logit) > threshold
-            }));
-            const positive = perModel.every(p => p.positive);
-            // No single probability is meaningful for a hard-AND verdict; report the least-confident
-            // fold's confidence as a diagnostic (NOT a calibrated probability).
-            const confidence = Math.min(...perModel.map(p => p.confidence));
+            // Each fold binarises against its own threshold natively; the ensemble is positive only if
+            // all folds decoded positive (labels[1]). confidence is the weakest fold's — informational.
+            const positive = results.every(r => r.label === labels[1]);
             const label = positive ? labels[1] : labels[0];
-            const mappedLabel = (labelMap && Object.prototype.hasOwnProperty.call(labelMap, label))
-                ? labelMap[label] : label;
+            const confidence = Math.min(...results.map(r => r.confidence));
             const durationMs = Date.now() - t0;
             General.logDebug('EdgeModelSvc',
-                `runEnsembleInferenceOnImage OK (${durationMs}ms): combine=unanimous-and positive=${positive} label=${label} models=[${modelKeys.join(',')}]`);
-            const eventParams = {
-                model_key: modelKeys.join(','), ensemble: true, label: mappedLabel,
+                `runEnsembleInferenceOnImage OK (${durationMs}ms): combine=${combine} label=${label} positive=${positive} rows=${rows.length}`);
+            logEvent(firebaseEvents.MODEL_INFERENCE_CONSOLIDATED, {
+                model_key: ensembleContentKeys.join(','), ensemble: true, label,
                 outcome: 'success', duration_ms: durationMs
+            });
+            return {
+                label, confidence, positive,
+                perModel: results.map((r, i) => ({sha256: rows[i].sha256, logit: r.logit, confidence: r.confidence, label: r.label}))
             };
-            if (mappedLabel !== label) eventParams.raw_label = label;
-            logEvent(firebaseEvents.MODEL_INFERENCE_CONSOLIDATED, eventParams);
-            return {label, confidence, positive, modelKeys, perModel};
         } catch (e) {
             const durationMs = Date.now() - t0;
             General.logError('EdgeModelSvc',
-                `runEnsembleInferenceOnImage FAIL (${durationMs}ms) models=[${modelKeys.join(',')}]: ${e && e.message}`);
+                `runEnsembleInferenceOnImage FAIL (${durationMs}ms) rows=[${rows.map(row => row.sha256).join(',')}]: ${e && e.message}`);
             logEvent(firebaseEvents.MODEL_INFERENCE_CONSOLIDATED, {
-                model_key: modelKeys.join(','), ensemble: true, outcome: 'error', duration_ms: durationMs
+                model_key: ensembleContentKeys.join(','), ensemble: true,
+                outcome: 'error', duration_ms: durationMs
             });
             throw e;
         }
     }
 
     /**
+     * Backward-compatible dispatch. The `newmodel`-era signature prepended a `modelKey`
+     * (single sha/name or an ensemble array); 17.0 dropped it and resolves the model from
+     * synced DownloadableContent. Deployed org rules still call the 7-/5-arg legacy shape,
+     * so accept both. The unambiguous discriminator is `args[1]`: it's the imagePath (a
+     * string) in the legacy shape and the entity (an object) in the 17.0 shape. When legacy,
+     * drop args[0] (the modelKey — resolved internally now) and read the rest shifted.
+     * (Arg-count can't be used: labelMap is optional, so a new N-arg call collides with a
+     * legacy (N)-arg call that omitted labelMap.)
+     */
+    _stripLegacyModelKey(args) {
+        return typeof args[1] === 'string' ? args.slice(1) : args;
+    }
+
+    /**
      * Inline-async path for form-element rules, target is a top-level concept on the entity.
      * Thin wrapper over _scheduleImageInference — see that method for the full contract.
-     * `modelKey` may be a string (single model) or an array of model keys (soft-vote ensemble).
+     * Accepts both the 17.0 shape `(imagePath, entity, targetConceptName, labelMap)` and the
+     * legacy `(modelKey, imagePath, entity, targetConceptName, labelMap)`.
      */
-    scheduleImageInference(modelKey, imagePath, entity, targetConceptName, labelMap) {
+    scheduleImageInference(...args) {
+        const [imagePath, entity, targetConceptName, labelMap] = this._stripLegacyModelKey(args);
         return this._scheduleImageInference({
-            modelKey, imagePath, entity, targetConceptName, labelMap,
+            imagePath, entity, targetConceptName, labelMap,
             questionGroupConceptName: null, rqgIdx: null
         });
     }
@@ -271,10 +347,14 @@ class EdgeModelService extends BaseService {
     /**
      * Same as scheduleImageInference, but writes the verdict into the `targetConceptName`
      * obs inside row `rqgIdx` of the `questionGroupConceptName` Repeatable Question Group.
+     * Accepts both the 17.0 shape `(imagePath, entity, questionGroupConceptName,
+     * targetConceptName, rqgIdx, labelMap)` and the legacy shape with a leading `modelKey`.
      */
-    scheduleImageInferenceIntoGroup(modelKey, imagePath, entity, questionGroupConceptName, targetConceptName, rqgIdx, labelMap) {
+    scheduleImageInferenceIntoGroup(...args) {
+        const [imagePath, entity, questionGroupConceptName, targetConceptName, rqgIdx, labelMap] =
+            this._stripLegacyModelKey(args);
         return this._scheduleImageInference({
-            modelKey, imagePath, entity, targetConceptName, labelMap,
+            imagePath, entity, targetConceptName, labelMap,
             questionGroupConceptName, rqgIdx
         });
     }
@@ -285,30 +365,24 @@ class EdgeModelService extends BaseService {
      * element re-renders. When `questionGroupConceptName`/`rqgIdx` are set, the obs is
      * written into that row of the named Repeatable Question Group instead of at top level.
      *
-     * Why this exists: Avni's form-element rule engine is synchronous
-     * (`RuleEvaluationService.runFormElementStatusRule`). A rule that returned a
-     * `Promise<FormElementStatus>` would put the Promise object — not the resolved
-     * status — into the rule-evaluator output, and the dependent element never
-     * updated. This method lets the rule kick off async work without changing
-     * the rule contract; the result lands as a sibling observation that the
-     * dependent form element's *synchronous* rule reads via `entity.getObservationValue`.
+     * Why this exists: Avni's form-element rule engine is synchronous. A rule returning a
+     * Promise would put the Promise — not the resolved status — into the rule-evaluator
+     * output, and the dependent element never updated. This method lets the rule kick off
+     * async work without changing the rule contract; the result lands as a sibling observation
+     * the dependent form element's synchronous rule reads via `entity.getObservationValue`.
      *
-     * Dedup contract (keyed per target — for RQG that includes the question group + row):
-     *   • Same (entity, modelKey, imagePath[, qg, row]) in flight → no-op.
-     *   • Target obs already populated AND we've seen the SAME imagePath produce it →
-     *     no-op (rule re-firing after some unrelated obs change on the same page).
-     *   • Target obs already populated BUT current imagePath differs from what we last
-     *     ran inference on → re-run (user retook the photo; the stale verdict will be
-     *     overwritten by the new dispatch).
-     *   • Target obs populated, never seen this target in this app session (cold start
-     *     on an encounter with a persisted verdict) → trust the persisted verdict and
-     *     seed the cache with the current imagePath, so a later retake still re-runs.
+     * A persisted verdict whose image binding is unknown (cold start) or known-different (retake) is
+     * invalidated — blanked — before the recompute, so an absent-verdict rule re-gates against the
+     * missing verdict instead of trusting one that may belong to the old photo (#2010). The cold-start
+     * blank waits on a media-present check; a missing file keeps the verdict.
      *
-     * Errors are swallowed (logged only). On failure the target obs stays absent and
-     * the dependent form element behaves as it would for a not-yet-arrived result —
-     * keeps the form save path unblocked.
+     * On failure (including a not-yet-cached model) no verdict is written — an absent verdict must
+     * never read as a negative one. Instead of silently swallowing it, the failure is dispatched as
+     * INFERENCE_UNAVAILABLE so the form raises a validation error on the target element and blocks
+     * Next. Recovery is sync-then-refill; inference never re-downloads at point of use, so a failure
+     * is terminal for the current image and is not retried (see _inferenceFailedForImage).
      */
-    _scheduleImageInference({modelKey, imagePath, entity, targetConceptName, labelMap, questionGroupConceptName, rqgIdx}) {
+    _scheduleImageInference({imagePath, entity, targetConceptName, labelMap, questionGroupConceptName, rqgIdx}) {
         const isRqg = questionGroupConceptName != null;
         if (!entity || !targetConceptName || !imagePath
             || (isRqg && !(typeof rqgIdx === 'number' && rqgIdx >= 0))) {
@@ -317,10 +391,6 @@ class EdgeModelService extends BaseService {
             return;
         }
 
-        // modelKey may be a single key or an array of keys (soft-vote ensemble); join for the
-        // dedup/inflight key and logs so an ensemble dedups as one unit.
-        const modelKeyStr = Array.isArray(modelKey) ? modelKey.join('+') : modelKey;
-
         const targetKey = isRqg
             ? `${entity.uuid}|${questionGroupConceptName}|${rqgIdx}|${targetConceptName}`
             : `${entity.uuid}|${targetConceptName}`;
@@ -328,21 +398,28 @@ class EdgeModelService extends BaseService {
             ? this._readRqgChildValue(entity, questionGroupConceptName, rqgIdx, targetConceptName)
             : entity.getObservationValue(targetConceptName);
 
-        const lastImage = this._lastInferredImageByTarget.get(targetKey);
-        if (lastImage === imagePath) {
-            // We've already run inference for this exact image+target. The verdict is either
-            // persisted (existing != null — steady-state rule re-fire), or computed and waiting
-            // in the pending-results batch to be flushed (existing == null, between resolve and
-            // the debounced dispatch). In BOTH cases there's no work to do. Checking this before
-            // the `existing != null` guard is what covers the resolved-but-not-yet-written
-            // window — otherwise an unrelated re-eval during the flush debounce would launch a
-            // duplicate inference for an image we just inferred. No log: this is the hot path.
+        const failureKey = `${targetKey}|${imagePath}`;
+        if (this._inferenceFailedForImage.has(failureKey)) {
+            // The validation error raised by the first failure is still on the form element and
+            // survives rule cycles, so there's nothing to re-dispatch. Retaking the photo yields a
+            // new imagePath (new key) and gets a fresh attempt.
             return;
         }
-        // Invalidation: a populated target whose image binding is unknown (cold start) or
-        // known-different (in-session retake) must not keep satisfying a mandatory gate against
-        // the wrong photo. The clear rides the shared flush timer at 0ms — outside the
-        // rule/reducer call stack, ahead of inference, never coalesced behind the 120ms debounce.
+
+        const lastImage = this._lastInferredImageByTarget.get(targetKey);
+        if (lastImage === imagePath) {
+            // Already inferred for this exact image+target — verdict is either persisted or
+            // queued in the pending batch. Either way there's no work. Checking before the
+            // `existing != null` guard covers the resolved-but-not-yet-written window.
+            return;
+        }
+
+        // #2010 — a persisted verdict whose image binding is unknown (cold start) or known-different
+        // (in-session retake) must not keep satisfying a mandatory gate against the wrong photo.
+        // Blank it (rather than keep the old value until the new one lands) so an absent-verdict rule
+        // re-gates while inference re-runs. The clear rides the shared flush timer at 0ms — off the
+        // reducer call stack, ahead of the fresh verdict, never coalesced behind the 120ms debounce.
+        const coldStartKey = `${targetKey}|${imagePath}`;
         const queueClear = () => {
             General.logDebug('EdgeModelSvc',
                 `scheduleImageInference INVALIDATING stale verdict for '${targetConceptName}'${isRqg ? `[${rqgIdx}]` : ''}`);
@@ -352,43 +429,48 @@ class EdgeModelService extends BaseService {
             if (this._flushTimer) clearTimeout(this._flushTimer);
             this._flushTimer = setTimeout(() => this._flushPendingResults(), 0);
         };
-        const attemptKey = `${targetKey}|${imagePath}`;
-        if (existing == null && this._coldStartRecomputeAttempted.has(attemptKey)) {
-            // An invalidation already blanked this target and the recompute for this exact image
-            // failed once — don't churn on every re-eval; a retake (new path) re-enables.
+
+        // Once a verdict has been blanked (existing == null), a recompute that already failed for
+        // this exact image must not re-fire on every re-eval; a retake (new path) re-enables it.
+        if (existing == null && this._coldStartRecomputeAttempted.has(coldStartKey)) {
             General.logDebug('EdgeModelSvc',
                 `scheduleImageInference SKIP recompute already attempted for '${targetConceptName}' (${imagePath})`);
             return;
         }
+
         let invalidateIfMediaPresent = false;
         let invalidateStaleNow = false;
         if (existing != null) {
             if (lastImage === undefined) {
-                // Persisted verdict, cold session cache: an edit may have swapped the image under
-                // it, so recompute instead of trusting it — capped to one attempt per image.
-                if (this._coldStartRecomputeAttempted.has(attemptKey)) {
+                // First time we're seeing this target in-session and it's already populated →
+                // persisted verdict from a previous session. We can't tell whether it still matches
+                // the current image (an edit may have swapped the image under it), so recompute
+                // instead of trusting it. Cap it to one attempt per image so a missing media file
+                // doesn't retry. Blank only when the media is present (recompute will definitively
+                // resolve); a missing file must keep the persisted verdict rather than blank it blindly.
+                if (this._coldStartRecomputeAttempted.has(coldStartKey)) {
                     General.logDebug('EdgeModelSvc',
                         `scheduleImageInference SKIP cold-start recompute already attempted for '${targetConceptName}' (${imagePath})`);
                     return;
                 }
-                this._coldStartRecomputeAttempted.add(attemptKey);
+                this._coldStartRecomputeAttempted.add(coldStartKey);
                 General.logDebug('EdgeModelSvc',
                     `scheduleImageInference cold-start recompute for '${targetConceptName}' (persisted verdict, imagePath=${imagePath})`);
-                // Blank only when the media file is present (recompute will definitively resolve);
-                // a missing file must keep the persisted verdict.
                 invalidateIfMediaPresent = true;
             } else {
-                // Photo retaken in-session; the clear runs below, after the in-flight dedup.
+                // existing populated but lastImage defined and != imagePath → the photo was retaken.
+                // The image is known-different, so blank the stale verdict now (the clear runs below,
+                // after the in-flight dedup so a re-eval mid-flight doesn't double-queue it).
                 General.logDebug('EdgeModelSvc',
-                    `scheduleImageInference image CHANGED for '${targetConceptName}' (was ${lastImage}, now ${imagePath})`);
-                this._coldStartRecomputeAttempted.add(attemptKey);
+                    `scheduleImageInference image CHANGED for '${targetConceptName}' (was ${lastImage}, now ${imagePath}) — re-running`);
+                this._coldStartRecomputeAttempted.add(coldStartKey);
                 invalidateStaleNow = true;
             }
         }
 
         const inflightKey = isRqg
-            ? `${entity.uuid}|${modelKeyStr}|${imagePath}|${questionGroupConceptName}|${rqgIdx}`
-            : `${entity.uuid}|${modelKeyStr}|${imagePath}`;
+            ? `${entity.uuid}|${imagePath}|${questionGroupConceptName}|${rqgIdx}`
+            : `${entity.uuid}|${imagePath}`;
         if (this._scheduled.has(inflightKey)) {
             General.logDebug('EdgeModelSvc', `scheduleImageInference SKIP already in flight: ${inflightKey}`);
             return;
@@ -397,9 +479,6 @@ class EdgeModelService extends BaseService {
         General.logDebug('EdgeModelSvc', `scheduleImageInference QUEUED: ${inflightKey}`);
         if (invalidateStaleNow) queueClear();
 
-        const runInference = () => Array.isArray(modelKey)
-            ? this.runEnsembleInferenceOnImage(modelKey, imagePath, {labelMap})
-            : this.runInferenceOnImage(modelKey, imagePath, labelMap);
         const SKIP_INFERENCE = {__skipInference: true};
         const inference = invalidateIfMediaPresent
             ? (async () => {
@@ -417,20 +496,20 @@ class EdgeModelService extends BaseService {
                     return SKIP_INFERENCE;
                 }
                 queueClear();
-                return runInference();
+                return this.runInferenceOnImage(imagePath);
             })()
-            : runInference();
+            : this.runInferenceOnImage(imagePath);
         inference
             .then(result => {
                 if (result === SKIP_INFERENCE) return;   // cold-start, media absent → verdict kept, no dispatch
                 const rawLabel = result && result.label != null ? result.label : result;
                 // Apply the optional label map so the obs holds the user-facing string
-                // (TextFormElement renders the obs verbatim, see views/form/formElement/TextFormElement.js:49).
+                // (TextFormElement renders the obs verbatim).
                 const value = labelMap && Object.prototype.hasOwnProperty.call(labelMap, rawLabel)
                     ? labelMap[rawLabel]
                     : rawLabel;
-                // Bind the dispatched verdict to the image it was derived from so a
-                // later retake (different imagePath) re-runs inference.
+                // Bind the dispatched verdict to the image it was derived from so a later
+                // retake (different imagePath) re-runs inference.
                 this._lastInferredImageByTarget.set(targetKey, imagePath);
                 General.logDebug('EdgeModelSvc',
                     `scheduleImageInference QUEUE: target=${targetConceptName}${isRqg ? ` qg=${questionGroupConceptName}[${rqgIdx}]` : ''} rawLabel=${rawLabel} mappedValue=${value}`);
@@ -440,19 +519,20 @@ class EdgeModelService extends BaseService {
             })
             .catch(err => {
                 General.logError('EdgeModelSvc',
-                    `scheduleImageInference FAILED ${modelKeyStr} ${imagePath}: ${err && err.message}\n${err && err.stack}`);
-                // No verdict was produced. Cap this image so we don't re-run and re-dispatch on every
-                // rule cycle — the failure is a runtime one (the model is bundled, so it's present),
-                // and a retake yields a new path that gets a fresh attempt. Then tell the form so it
-                // blocks Next rather than let the worker reach referral on an absent verdict.
-                // Dispatched (not returned): the scheduling rule is synchronous and returned long ago;
-                // the Inference-typed error is cleared by the #2009 re-sync when a verdict later lands.
-                this._coldStartRecomputeAttempted.add(attemptKey);
+                    `scheduleImageInference FAILED ${imagePath}: ${err && err.message}\n${err && err.stack}`);
+                this._inferenceFailedForImage.add(failureKey);
+                // No verdict was produced. Tell the form so it can block Next rather than let the
+                // worker reach the referral screen on an absent verdict. Inference deliberately does
+                // not re-download here — recovery is sync-then-refill, so this is terminal for the
+                // attempt. Dispatched (not returned): the rule that scheduled this is synchronous
+                // and returned long ago.
                 this.dispatchAction(EDGE_MODEL_ACTION.INFERENCE_UNAVAILABLE, {
                     conceptName: targetConceptName,
                     questionGroupConceptName,
                     questionGroupIndex: rqgIdx,
-                    messageKey: INFERENCE_UNAVAILABLE_REASON.INFERENCE_FAILED
+                    messageKey: err && err.code === MODEL_NOT_CACHED
+                        ? INFERENCE_UNAVAILABLE_REASON.MODEL_UNAVAILABLE
+                        : INFERENCE_UNAVAILABLE_REASON.INFERENCE_FAILED
                 });
             })
             .finally(() => {
@@ -462,11 +542,8 @@ class EdgeModelService extends BaseService {
 
     /**
      * Accumulate a resolved inference result and (re)arm a short trailing-debounce timer.
-     * On the summary screen N images resolve in a burst; without this each result would
-     * dispatch separately and re-run every form-element rule (O(N × all-rules) on the JS
-     * thread) plus re-render N times — which also remounts/blanks the read-only images.
-     * Coalescing the burst into one INFERENCE_RESULTS_BATCH dispatch makes the form
-     * re-evaluate once. A single result simply flushes ~120ms later — negligible.
+     * On the summary screen N images resolve in a burst; coalescing them into one
+     * INFERENCE_RESULTS_BATCH dispatch makes the form re-evaluate once instead of N times.
      */
     _queueInferenceResult(result) {
         this._pendingResults.push(result);
@@ -501,49 +578,54 @@ class EdgeModelService extends BaseService {
     }
 
     /**
-     * Lazy-load the engine handle for `modelKey` exactly once per app lifetime. Idempotent:
-     * if the native side has evicted the handle under memory pressure it self-heals via
-     * its cached load-args, so we don't re-issue the load call here.
+     * Lazy-load the engine handle for an edge-model row exactly once per app lifetime, keyed by
+     * its sha256. Resolves the cached encrypted blob + app-private key (written at sync time) and
+     * loads them via the native file-path bridge; the overrideJson is built from `payload`.
+     *
+     * Idempotent: if the native side evicted the handle under memory pressure it self-heals via
+     * its cached load-args, so we don't re-issue the load call here. A missing cached blob or key
+     * (download pending/failed) throws a recognisable error the schedule path swallows — the
+     * verdict is simply absent; the failure was surfaced at sync time.
      */
-    async _ensureLoaded(modelKey) {
-        await this._registryReady;
-        if (this._loaded.has(modelKey)) return;  // Steady-state cache hit on every inference; no log to avoid per-call noise.
+    async _ensureLoaded(row) {
+        const sha256 = row.sha256;
+        if (this._loaded.has(sha256)) return;  // Steady-state cache hit on every inference; no log to avoid per-call noise.
 
-        const entry = this._registry?.models?.[modelKey];
-        if (!entry) {
-            const available = Object.keys(this._registry?.models || {});
-            General.logError('EdgeModelSvc',
-                `_ensureLoaded: no entry for '${modelKey}'. Available: [${available.join(',')}]`);
-            throw new Error(`EdgeModelService: no entry for modelKey '${modelKey}' in assets/models/registry.json`);
+        const blobPath = this.blobPath(sha256);
+        if (!await fs.exists(blobPath)) {
+            throw _.assign(
+                new Error(`EdgeModelService: model blob not cached yet for sha256 '${sha256}' (download pending or failed at sync)`),
+                {code: MODEL_NOT_CACHED});
         }
-        const overrideJson = entry.override ? JSON.stringify(entry.override) : null;
+        const overrideJson = this._overrideJsonFor(row);
         const t0 = Date.now();
 
+        let nativeLoadAttempted = false;
         try {
-            if (entry.asset?.type === 'encrypted') {
-                General.logDebug('EdgeModelSvc',
-                    `_ensureLoaded ENCRYPTED: modelKey=${modelKey} path=${entry.asset.path}`);
-                await NativeModules.EdgeModelModule.loadEncryptedModel(
-                    modelKey,
-                    entry.asset.path,
-                    entry.asset.encryptionKey,
-                    entry.asset.sha256OfPlaintext,
-                    overrideJson
-                );
-            } else {
-                General.logDebug('EdgeModelSvc',
-                    `_ensureLoaded PLAIN: modelKey=${modelKey} path=${entry.asset?.path}`);
-                await NativeModules.EdgeModelModule.loadModel(
-                    modelKey,
-                    entry.asset.path,
-                    overrideJson
-                );
+            const key = row.needsKey ? await this._readKey(sha256) : null;
+            if (row.needsKey && _.isNil(key)) {
+                throw new Error(`EdgeModelService: AES key not cached yet for sha256 '${sha256}' (key fetch pending or failed at sync)`);
             }
-            this._loaded.add(modelKey);
-            General.logDebug('EdgeModelSvc', `_ensureLoaded OK (${Date.now() - t0}ms): ${modelKey}`);
+            General.logDebug('EdgeModelSvc', `_ensureLoaded ENCRYPTED FILE: sha256=${sha256} path=${blobPath}`);
+            nativeLoadAttempted = true;
+            await NativeModules.EdgeModelModule.loadEncryptedModelFromFile(
+                sha256,
+                blobPath,
+                key,
+                sha256,
+                overrideJson
+            );
+            this._loaded.add(sha256);
+            General.logDebug('EdgeModelSvc', `_ensureLoaded OK (${Date.now() - t0}ms): ${sha256}`);
         } catch (e) {
             General.logError('EdgeModelSvc',
-                `_ensureLoaded FAIL (${Date.now() - t0}ms) ${modelKey}: ${e && e.message}`);
+                `_ensureLoaded FAIL (${Date.now() - t0}ms) ${sha256}: ${e && e.message}`);
+            // A native load failure (GCM/sha mismatch) means the cached blob is corrupt/poisoned;
+            // drop it so the next sync re-fetches. Pre-native guard throws are transient pending
+            // states — the cache is fine, so leave it alone.
+            if (nativeLoadAttempted) {
+                await fs.unlink(this.blobPath(sha256)).catch(() => {});
+            }
             throw e;
         }
     }

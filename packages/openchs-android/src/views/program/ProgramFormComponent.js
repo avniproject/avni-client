@@ -95,10 +95,10 @@ class ProgramFormComponent extends AbstractComponent {
         const displayTimer = this.props.state.timerState && this.props.state.timerState.displayTimer(this.props.state.formElementGroup);
         return (<CHSContainer>
             <CHSContent>
-                <ScrollView ref={this.scrollRef} keyboardShouldPersistTaps="handled">
                 <AppHeader
                     title={this.I18n.t('enrolInSpecificProgram', {program: this.I18n.t(this.props.state.enrolment.program.displayName)})}
                     func={this.props.backFunction} displayHomePressWarning={!this.props.state.saveDrafts}/>
+                <ScrollView ref={this.scrollRef} style={{flex: 1}} keyboardShouldPersistTaps="handled">
                 {this.props.state.wizard.isFirstFormPage() &&
                 <IndividualProfile textColor={Colors.TextOnPrimaryColor}
                     viewContext={IndividualProfile.viewContext.Wizard} displayOnly={true}
@@ -141,8 +141,13 @@ class ProgramFormComponent extends AbstractComponent {
                                       groupAffiliation={this.props.state.groupAffiliation}
                                       subjectUUID={this.props.state.enrolment.individual.uuid}
                     />}
-                    {!displayTimer &&
+                </View>
+                </ScrollView>
+                {!displayTimer &&
+                <View style={styles.fixedButtonBar}>
                     <WizardButtons
+                        containerStyle={{paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}
+                        buttonHeight={56}
                         previous={{
                             visible: !this.props.state.wizard.isFirstPage(),
                             func: () => this.props.previous(),
@@ -152,12 +157,26 @@ class ProgramFormComponent extends AbstractComponent {
                             func: () => this.next(),
                             label: this.I18n.t('next')
                         }}
-                    />}
-                </View>
-                </ScrollView>
+                    />
+                </View>}
             </CHSContent>
         </CHSContainer>);
     }
 }
+
+const styles = StyleSheet.create({
+    // Same fixed bottom bar as IndividualEncounterView - keeps Previous/Next pinned below the scroll area.
+    fixedButtonBar: {
+        paddingTop: 14,
+        paddingBottom: 14,
+        justifyContent: 'center',
+        backgroundColor: '#ffffff',
+        shadowColor: '#000',
+        shadowOffset: {width: 0, height: -3},
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 8
+    }
+});
 
 export default ProgramFormComponent;

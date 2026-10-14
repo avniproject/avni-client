@@ -1,4 +1,5 @@
 import _ from "lodash";
+import moment from "moment";
 import {AttendanceRecord, Encounter, ProgramEncounter, Session, WorkItem} from "avni-models";
 import General from "../../utility/General";
 import GroupSubjectService from "../../service/GroupSubjectService";
@@ -19,6 +20,7 @@ export class RosterActions {
             roster: [],
             notes: "",
             absenceReasonAnswers: [],
+            otherReasonConceptUUID: null,
             sessionReasonAnswers: [],
             sessionReasonConceptUUID: null,
             followUpEncounterTypeUuid: null,
@@ -35,7 +37,7 @@ export class RosterActions {
         const conceptService = context.get(ConceptService);
 
         const members = groupSubjectService.getGroupSubjects(groupSubject)
-            .filter(gs => !gs.memberSubject.voided && _.isNil(gs.membershipEndDate));
+            .filter(gs => !gs.memberSubject.voided && RosterActions._isEligibleOn(gs, scheduledDate));
 
         const realmSession = sessionService.findExistingSession(groupSubject.uuid, scheduledDate, attendanceType.uuid);
         const existingRecords = realmSession
@@ -49,6 +51,7 @@ export class RosterActions {
                 name: gs.memberSubject.nameString,
                 status: prior ? prior.status : AttendanceRecord.status.PRESENT,
                 reasonConceptUUIDs: prior ? [...(prior.reasonConceptUUIDs || [])] : [],
+                otherReasonText: prior ? (prior.otherReasonText || "") : "",
                 needsFollowUp: prior ? !!prior.needsFollowUp : false,
                 followUpEncounterUUID: prior ? (prior.followUpEncounterUUID || null) : null,
             };
@@ -58,6 +61,11 @@ export class RosterActions {
         const absenceReasonAnswers = absenceReasonConceptUUID
             ? RosterActions._answersFor(conceptService, absenceReasonConceptUUID)
             : [];
+
+        // The "Other → fill it in" answer is declared explicitly in the attendance type
+        // config (one of the absence-reason answers); the free-text box shows only when it
+        // is the selected reason. Empty when the org hasn't configured an Other reason.
+        const otherReasonConceptUUID = attendanceType.getConfig().otherReasonConcept || null;
 
         const sessionOutcomeConceptUUID = attendanceType.getSessionOutcomeReasonConceptUUID();
         const sessionReasonAnswers = sessionOutcomeConceptUUID
@@ -74,6 +82,7 @@ export class RosterActions {
             roster,
             notes: realmSession ? (realmSession.notes || "") : "",
             absenceReasonAnswers,
+            otherReasonConceptUUID,
             sessionReasonAnswers,
             sessionReasonConceptUUID: realmSession ? (realmSession.reasonConceptUUID || null) : null,
             followUpEncounterTypeUuid: attendanceType.getFollowUpEncounterTypeUUID(),
@@ -101,6 +110,7 @@ export class RosterActions {
                 ...r,
                 status: flipped,
                 reasonConceptUUIDs: becamePresent ? [] : r.reasonConceptUUIDs,
+                otherReasonText: becamePresent ? "" : r.otherReasonText,
                 needsFollowUp: becamePresent ? false : r.needsFollowUp,
             };
         });
@@ -116,9 +126,29 @@ export class RosterActions {
             const reasonConceptUUIDs = current.includes(action.reasonConceptUUID)
                 ? current.filter(uuid => uuid !== action.reasonConceptUUID)
                 : [...current, action.reasonConceptUUID];
-            return {...r, reasonConceptUUIDs};
+            // "Other" free text only lives while the configured Other reason is selected.
+            const otherReasonText = RosterActions._hasOtherReasonSelected(state, reasonConceptUUIDs)
+                ? r.otherReasonText
+                : "";
+            return {...r, reasonConceptUUIDs, otherReasonText};
         });
         return {...state, roster};
+    }
+
+    static onSetOtherReasonText(state, action) {
+        const roster = state.roster.map(r =>
+            r.subjectUUID === action.subjectUUID
+                ? {...r, otherReasonText: action.text}
+                : r
+        );
+        return {...state, roster};
+    }
+
+    // The "Other → fill it in" answer is declared in the attendance type config
+    // (otherReasonConcept); the free text lives only while that answer is selected.
+    static _hasOtherReasonSelected(state, reasonConceptUUIDs) {
+        const otherUUID = state.otherReasonConceptUUID;
+        return !!otherUUID && (reasonConceptUUIDs || []).includes(otherUUID);
     }
 
     static onToggleNeedsFollowUp(state, action) {
@@ -143,6 +173,7 @@ export class RosterActions {
             ...r,
             status: AttendanceRecord.status.PRESENT,
             reasonConceptUUIDs: [],
+            otherReasonText: "",
             needsFollowUp: false,
         }));
         return {...state, roster};
@@ -203,12 +234,13 @@ export class RosterActions {
             }
         });
 
-        // Members in the prior record set who are no longer in the roster (left the group).
-        // Their AttendanceRecords + linked follow-ups cascade-void inside saveOrUpdate.
-        const newSubjectUUIDs = new Set(attendanceRecords.map(r => r.subjectUUID));
-        const voidedRecordUUIDs = previousRecords
-            .filter(r => !newSubjectUUIDs.has(r.subjectUUID))
-            .map(r => r.uuid);
+        // Preserve the attendance history of students not on this date's roster (since
+        // departed, or not yet enrolled): scope all write/void logic to currently-rendered
+        // members only. Reopening an old sheet must never touch a departed student's records
+        // or their linked follow-ups — hence no cross-roster void, and voidStaleFollowUps is
+        // fed only the prior records of rendered members.
+        const renderedSubjectUUIDs = new Set(attendanceRecords.map(r => r.subjectUUID));
+        const scopedPreviousRecords = previousRecords.filter(r => renderedSubjectUUIDs.has(r.subjectUUID));
 
         const memberSubjectType = state.groupSubject.subjectType.group
             ? RosterActions._inferMemberSubjectType(context, state.groupSubject)
@@ -238,8 +270,7 @@ export class RosterActions {
             session,
             attendanceRecords,
             followUps: followUpsForSave,
-            previousRecords,
-            voidedRecordUUIDs,
+            previousRecords: scopedPreviousRecords,
         });
 
         const pendingAutoShareWorkItem = RosterActions._buildAutoShareWorkItem(attendanceType, session);
@@ -293,6 +324,7 @@ export class RosterActions {
             subjectUUID: record.subjectUUID,
             status: record.status,
             reasonConceptUUIDs: record.reasonConceptUUIDs ? [...record.reasonConceptUUIDs] : [],
+            otherReasonText: record.otherReasonText || null,
             followUpEncounterUUID: record.followUpEncounterUUID || null,
             needsFollowUp: !!record.needsFollowUp,
         };
@@ -302,6 +334,23 @@ export class RosterActions {
         const members = context.get(GroupSubjectService).getGroupSubjects(groupSubject)
             .filter(gs => !gs.memberSubject.voided);
         return members.length > 0 ? members[0].memberSubject.subjectType : null;
+    }
+
+    // A member appears on a sheet only for dates within their class-membership window:
+    // [start, end], where start = membershipStartDate (falling back to the member's
+    // registrationDate when unset) and end = membershipEndDate (open if unset). Both
+    // bounds inclusive; compared as YYYY-MM-DD calendar dates (scheduledDate is already
+    // canonical), so a since-departed student still shows on the past sheets where they
+    // were enrolled, and a newly-added student never shows on pre-join sheets.
+    static _isEligibleOn(gs, scheduledDate) {
+        const start = gs.membershipStartDate || (gs.memberSubject && gs.memberSubject.registrationDate);
+        if (start && RosterActions._toCalendarDate(start) > scheduledDate) return false;
+        if (!_.isNil(gs.membershipEndDate) && RosterActions._toCalendarDate(gs.membershipEndDate) < scheduledDate) return false;
+        return true;
+    }
+
+    static _toCalendarDate(d) {
+        return moment(d).format("YYYY-MM-DD");
     }
 
     static _answersFor(conceptService, conceptUUID) {
@@ -328,6 +377,7 @@ RosterActions.Names = {
     ON_LOAD: `${Prefix}.ON_LOAD`,
     TOGGLE_PRESENCE: `${Prefix}.TOGGLE_PRESENCE`,
     TOGGLE_REASON: `${Prefix}.TOGGLE_REASON`,
+    SET_OTHER_REASON_TEXT: `${Prefix}.SET_OTHER_REASON_TEXT`,
     TOGGLE_NEEDS_FOLLOW_UP: `${Prefix}.TOGGLE_NEEDS_FOLLOW_UP`,
     SET_SESSION_REASON: `${Prefix}.SET_SESSION_REASON`,
     MARK_ALL_ABSENT: `${Prefix}.MARK_ALL_ABSENT`,
@@ -340,6 +390,7 @@ RosterActions.Map = new Map([
     [RosterActions.Names.ON_LOAD, RosterActions.onLoad],
     [RosterActions.Names.TOGGLE_PRESENCE, RosterActions.onTogglePresence],
     [RosterActions.Names.TOGGLE_REASON, RosterActions.onToggleReason],
+    [RosterActions.Names.SET_OTHER_REASON_TEXT, RosterActions.onSetOtherReasonText],
     [RosterActions.Names.TOGGLE_NEEDS_FOLLOW_UP, RosterActions.onToggleNeedsFollowUp],
     [RosterActions.Names.SET_SESSION_REASON, RosterActions.onSetSessionReason],
     [RosterActions.Names.MARK_ALL_ABSENT, RosterActions.onMarkAllAbsent],

@@ -5,6 +5,8 @@ import Config from '../framework/Config';
 import EnvironmentConfig from "../framework/EnvironmentConfig";
 import _ from "lodash";
 import {NativeModules} from 'react-native';
+import DeviceInfo from 'react-native-device-info';
+import moment from 'moment';
 import General from './General';
 import {getConnectionInfo} from "./ConnectionInfo";
 
@@ -30,6 +32,133 @@ const getUserInfo = () => {
     } catch (e) {
         return defaultOrg;
     }
+};
+
+// ---- device_details -------------------------------------------------------------------------
+// One compact string describing the handset, e.g. "OnePlusCPH2493_8GBRAM_MT6983", sent as the
+// `device_details` EVENT param on EVERY event (logEvent and the screen events) so it shows up
+// inside each event's own params - one custom dimension (Event scope). Kept to 36 chars (the model part is truncated
+// first; RAM and processor - the parts that explain inference/sync timing - are always kept).
+// Processor comes from ConfigModule.SOC_MANUFACTURER/SOC_MODEL (API 31+, added natively); older
+// devices fall back to Build.HARDWARE via DeviceInfo.getHardwareSync().
+const USER_PROPERTY_VALUE_MAX = 36;
+const alnum = (value) => _.isNil(value) ? '' : String(value).replace(/[^A-Za-z0-9]+/g, '');
+let cachedDeviceDetails;
+
+const buildDeviceDetails = () => {
+    const brand = alnum(DeviceInfo.getBrand());
+    const model = alnum(DeviceInfo.getModel());
+    const deviceName = _.startsWith(_.toLower(model), _.toLower(brand)) ? model : `${brand}${model}`;
+    const ramGb = Math.round(DeviceInfo.getTotalMemorySync() / (1024 * 1024 * 1024));
+    const socParts = _.filter([ConfigModule?.SOC_MANUFACTURER, ConfigModule?.SOC_MODEL], v => !_.isEmpty(v));
+    const processor = _.truncate(alnum(socParts.join('')) || alnum(DeviceInfo.getHardwareSync()) || 'UnknownCPU',
+        {length: 16, omission: ''});
+    const suffix = `_${ramGb}GBRAM_${processor}`;
+    const deviceBudget = Math.max(USER_PROPERTY_VALUE_MAX - suffix.length, 4);
+    return `${_.truncate(deviceName, {length: deviceBudget, omission: ''})}${suffix}`.substring(0, USER_PROPERTY_VALUE_MAX);
+};
+
+const getDeviceDetails = () => {
+    if (cachedDeviceDetails) return cachedDeviceDetails;
+    try {
+        cachedDeviceDetails = buildDeviceDetails();
+    } catch (e) {
+        General.logError('Analytics', 'Failed to build device_details:', e);
+        return 'unknown';
+    }
+    return cachedDeviceDetails;
+};
+
+// ---- timestamps and durations ---------------------------------------------------------------
+// Firebase stamps every event itself (UTC, shown in the property's timezone), which loses the
+// user's own local clock. `event_time_local` is the device's wall-clock time with its UTC offset,
+// e.g. "2026-10-06 14:32:05 IST" - read as-is, no server-side conversion needed, and it sorts
+// chronologically as text. Taken when the event is raised, not when it is later flushed.
+// Durations are also sent in seconds (3 decimals, i.e. ms precision) next to the existing
+// *_ms value - added alongside, not replacing it, so the registered "Milliseconds" metric and
+// everything already charted on it keep working.
+// moment can't name a timezone without moment-timezone, and Intl's short names are unreliable on
+// Android ("GMT+5:30"), so the device's IANA zone is mapped to the abbreviation instead. Only India
+// is mapped (this app's users); anywhere else falls back to an explicit "UTC+hh:mm" so the value is
+// never ambiguous.
+const TIMEZONE_ABBREVIATIONS = {'Asia/Kolkata': 'IST', 'Asia/Calcutta': 'IST'};
+const getTimezoneLabel = (time) => {
+    try {
+        const abbreviation = TIMEZONE_ABBREVIATIONS[Intl.DateTimeFormat().resolvedOptions().timeZone];
+        if (abbreviation) return abbreviation;
+    } catch (e) {
+        // Intl unavailable - fall through to the offset.
+    }
+    return `UTC${moment(time).format('Z')}`;
+};
+export const formatLocalTimestamp = (time = Date.now()) => `${moment(time).format('YYYY-MM-DD HH:mm:ss')} ${getTimezoneLabel(time)}`;
+const msToSeconds = (ms) => _.round(ms / 1000, 3);
+
+// device_details and tenant ride on every event as ordinary params, so each event is self-describing
+// in DebugView/BigQuery without joining against user properties. tenant is re-read per event, so the
+// first events of a fresh install (TANUH_Unknown) correct themselves after the first sync.
+// build_version = versionName + "." + versionCode, e.g. "1.0.17.8500022". Firebase's own app_version
+// carries only versionName, so this lets any event be segregated by the exact build.
+let cachedBuildVersion;
+const getBuildVersion = () => {
+    if (cachedBuildVersion) return cachedBuildVersion;
+    try {
+        cachedBuildVersion = `${DeviceInfo.getVersion()}.${DeviceInfo.getBuildNumber()}`.substring(0, USER_PROPERTY_VALUE_MAX);
+    } catch (e) {
+        General.logError('Analytics', 'Failed to build build_version:', e);
+        return 'unknown';
+    }
+    return cachedBuildVersion;
+};
+
+const withDeviceDetails = (params) => ({
+    ...params,
+    build_version: getBuildVersion(),
+    device_details: getDeviceDetails(),
+    tenant: buildTenant(_.get(getUserInfo(), 'organisationName'))
+});
+
+const withTiming = (params, eventTime) => {
+    const timed = {...params, event_time_local: eventTime};
+    if (_.isFinite(timed.duration_ms)) timed.duration_sec = msToSeconds(timed.duration_ms);
+    if (_.isFinite(timed.time_taken_ms)) timed.time_taken_sec = msToSeconds(timed.time_taken_ms);
+    return timed;
+};
+
+// ---- tenant ---------------------------------------------------------------------------------
+// Each tenant/affiliate is modelled server-side as its own organisation, and UserInfo.organisationName
+// (from the /me sync) already carries it, so nothing is hardcoded per tenant here. `tenant` is the
+// same value prefixed with the programme name - "TANUH_<organisation name from server>" - sent as a
+// separate `tenant` EVENT param (on every event, see withDeviceDetails) so the existing
+// `organisation` user property series is left untouched. When the server's
+// organisation is "tanuh" it reads TANUH_tanuh, then TANUH_apgovt, TANUH_nggovt, ... for the others.
+// Falls back to "TANUH_Unknown" until the first sync has populated UserInfo.
+const TENANT_PREFIX = 'TANUH';
+const buildTenant = (organisationName) => {
+    const org = _.trim(String(_.defaultTo(organisationName, '')).replace(/\s+/g, '_').replace(/[^A-Za-z0-9_]+/g, ''), '_');
+    if (_.isEmpty(org) || org === 'Unknown') return `${TENANT_PREFIX}_Unknown`;
+    return `${TENANT_PREFIX}_${org}`.substring(0, USER_PROPERTY_VALUE_MAX);
+};
+
+// ---- active task ----------------------------------------------------------------------------
+// AbstractComponent.logScreenEvent only knows the generic view class ("ProgramEncounterView"), so
+// a screening encounter was indistinguishable from any other encounter. logTaskStarted() already
+// receives the real task (encounter type / subject type name), so it also records it here and
+// logEvent/logScreenEvent stamp it onto every event fired while the task is open, as
+// active_task_type + active_task_name (same raw name task_duration.task_name carries, so the two
+// join). Cleared when logTaskDuration reports completed/abandoned for that task type.
+let activeTask = null;
+
+// Events that describe the task itself or app-level state, not what the user is doing inside it.
+const EVENTS_WITHOUT_ACTIVE_TASK = ['login', 'login_error', 'logout', 'sync_start', 'sync_complete', 'sync_failed', 'task_duration'];
+
+const withActiveTask = (eventName, params) => {
+    if (_.isNil(activeTask) || _.includes(EVENTS_WITHOUT_ACTIVE_TASK, eventName)) return params;
+    return {
+        active_task_type: activeTask.type,
+        ...(!_.isNil(activeTask.name) && {active_task_name: _.truncate(String(activeTask.name), {length: 100, omission: ''})}),
+        ...params
+    };
 };
 
 const setUserProperties = () => {
@@ -66,8 +195,9 @@ const setUserProperties = () => {
 
 export const logEvent = (name, params) => {
     if (logAnalytics) {
+        const eventTime = formatLocalTimestamp();
         setUserProperties()
-            .then(() => firebaseAnalytics.logEvent(name, params))
+            .then(() => firebaseAnalytics.logEvent(name, withTiming(withDeviceDetails(withActiveTask(name, params)), eventTime)))
             .catch(error => {
                 General.logError('Analytics', `Failed to log custom event ${name}:`, error);
             });
@@ -88,19 +218,21 @@ export const screenRenderStart = () => Date.now();
  */
 export const logScreenEvent = (screenName, startTime) => {
     if (logAnalytics) {
+        const eventTime = formatLocalTimestamp();
         const timeTaken = startTime ? Date.now() - startTime : undefined;
         const buildType = ConfigModule?.BUILD_TYPE || 'unknown';
         const environment = Config.ENV || 'unknown';
         
         getConnectionInfo().then(({isConnected}) => {
-            const eventParams = {
+            const eventParams = withTiming(withDeviceDetails({
+                ...withActiveTask('screen_view'),
                 screen_name: screenName,
                 screen_class: screenName,
                 is_offline: (!isConnected).toString(),
                 build_type: buildType,
                 environment: environment,
                 ...(timeTaken !== undefined && {time_taken_ms: timeTaken})
-            };
+            }), eventTime);
             
             return setUserProperties()
                 .then(() => {
@@ -138,12 +270,22 @@ export const logScreenEvent = (screenName, startTime) => {
  * "abandoned" tracking is a follow-up, not wired in yet.
  */
 export const logTaskDuration = (taskType, taskName, durationMs, outcome = 'completed') => {
+    if (activeTask && activeTask.type === taskType) activeTask = null;
     logEvent(firebaseEvents.TASK_DURATION, _.omitBy({
         task_type: taskType,
         task_name: taskName,
         duration_ms: durationMs,
         outcome
     }, _.isNil));
+    // The 'completed' outcome here fires when the form is handed to the summary screen, NOT when
+    // the registration is saved - the true completion is logged by logRegistrationCompleted() at
+    // save time. Only the abandoned outcome is mirrored into the dedicated event.
+    if (taskType === 'encounter' && outcome === 'abandoned') {
+        finishScreening(firebaseEvents.PATIENT_SCREENING_ABANDONED);
+    }
+    if (taskType === 'registration' && outcome === 'abandoned') {
+        logEvent(firebaseEvents.REGISTRATION_ABANDONED, _.omitBy({subject_type: taskName, duration_ms: durationMs}, _.isNil));
+    }
 };
 
 /**
@@ -157,10 +299,75 @@ export const logTaskDuration = (taskType, taskName, durationMs, outcome = 'compl
  * this brings login/registration/encounter to parity with it.
  */
 export const logTaskStarted = (taskType, taskName) => {
+    // login isn't a "what is the user doing" context worth stamping onto later events.
+    if (taskType !== 'login') activeTask = {type: taskType, name: taskName};
     logEvent(firebaseEvents.TASK_DURATION, _.omitBy({
         task_type: taskType,
         task_name: taskName,
         outcome: 'started'
+    }, _.isNil));
+    // Patient/subject registration also gets its own dedicated event, so "how many registrations
+    // were started" is a plain event count rather than a filter on task_duration.
+    if (taskType === 'registration') {
+        logEvent(firebaseEvents.REGISTRATION_STARTED, _.omitBy({subject_type: taskName}, _.isNil));
+    }
+};
+
+// ---- patient screening lifecycle --------------------------------------------------------------
+// A "screening" is a (program or general) encounter being filled in - oral screening, mental
+// health, ... whatever the org configured as the encounter's name. Three dedicated events mirror the
+// patient_registration_* ones: started when the encounter form opens, completed when it is actually
+// SAVED, abandoned when the user backs out. They carry which screening it is (screening_name, plus
+// program and subject_type) and, for completed/abandoned, how long it took from the first open.
+// Kept apart from activeTask because that is cleared when the form is handed to the summary screen,
+// whereas the screening is only finished once it is saved.
+let activeScreening = null;
+
+export const getScreeningDetails = (encounter) => ({
+    uuid: _.get(encounter, 'uuid'),
+    name: _.get(encounter, 'name') || _.get(encounter, 'encounterType.displayName'),
+    program: _.get(encounter, 'programEnrolment.program.name'),
+    subjectType: _.get(encounter, 'programEnrolment.individual.subjectType.name') || _.get(encounter, 'individual.subjectType.name')
+});
+
+const screeningParams = (screening, extra) => _.omitBy({
+    screening_name: screening.name,
+    program: screening.program,
+    subject_type: screening.subjectType,
+    ...extra
+}, _.isNil);
+
+export const logScreeningStarted = (encounter) => {
+    const details = getScreeningDetails(encounter);
+    // The encounter form re-mounts when the user steps back from the summary screen to change an
+    // answer; that is the same screening continuing, so neither a second 'started' nor a reset clock.
+    if (!_.isNil(details.uuid) && _.get(activeScreening, 'uuid') === details.uuid) return;
+    activeScreening = {...details, startTime: Date.now()};
+    logEvent(firebaseEvents.PATIENT_SCREENING_STARTED, screeningParams(details));
+};
+
+const finishScreening = (eventName, uuid) => {
+    if (_.isNil(activeScreening) || (!_.isNil(uuid) && activeScreening.uuid !== uuid)) return;
+    const screening = activeScreening;
+    activeScreening = null;
+    logEvent(eventName, screeningParams(screening, {duration_ms: Date.now() - screening.startTime}));
+};
+
+// Called from the SAVE actions once the encounter is written to the database.
+export const logScreeningCompleted = (encounterUuid) => finishScreening(firebaseEvents.PATIENT_SCREENING_COMPLETED, encounterUuid);
+
+/**
+ * Logs a registration that was actually SAVED (called from the SAVE actions, after the subject was
+ * written to the database), with the total time from opening the registration form to saving it -
+ * including the summary/recommendation screen, unlike the task_duration 'completed' outcome which
+ * stops when the form is handed to that screen. Only for new registrations (startTime is null when
+ * editing an existing subject).
+ */
+export const logRegistrationCompleted = (subjectTypeName, startTime) => {
+    if (_.isNil(startTime)) return;
+    logEvent(firebaseEvents.REGISTRATION_COMPLETED, _.omitBy({
+        subject_type: subjectTypeName,
+        duration_ms: Date.now() - startTime
     }, _.isNil));
 };
 
@@ -249,6 +456,15 @@ export const firebaseEvents = {
     SYNC_COMPLETE: 'sync_complete',
     SYNC_FAILED: 'sync_failed',
     TASK_DURATION: 'task_duration',
+    // Subject/patient registration lifecycle: started when the registration form opens, completed
+    // when it is actually saved (duration_ms = open -> save), abandoned if the user backs out.
+    // Screening (encounter) lifecycle - see "patient screening lifecycle" above.
+    PATIENT_SCREENING_STARTED: 'patient_screening_started',
+    PATIENT_SCREENING_COMPLETED: 'patient_screening_completed',
+    PATIENT_SCREENING_ABANDONED: 'patient_screening_abandoned',
+    REGISTRATION_STARTED: 'patient_registration_started',
+    REGISTRATION_COMPLETED: 'patient_registration_completed',
+    REGISTRATION_ABANDONED: 'patient_registration_abandoned',
     // The single, consolidated result for one image - a standalone single-model call, or (for
     // the 3-fold oral-screening ensemble) the unanimous-AND combination of every fold. Exactly
     // ONE row per image scored, always - see EdgeModelService.runInferenceOnImage/

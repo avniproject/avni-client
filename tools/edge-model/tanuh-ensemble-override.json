@@ -1,10 +1,12 @@
 {
-  "_comment": "TANUH MViT2 oral-cancer fold ensemble (model6/model8/model8-2 → mvit2_fold1_6/fold1_8/fold2_8) on ONNX Runtime Mobile (engine=onnx). Preprocessing reconciled to the authoritative Python cv2 reference (integration doc §2, Tejashree/IISc), TANUH-confirmed 9 Jul: BGR channel order to the model; EXIF orientation applied before preprocessing (native, EdgeModelModule); bicubic resize to 256 (hand-rolled bicubicResize — NO OpenCV, 16 KB Play blocker); gray-world mean→128, clip; round to 1 decimal (np.round(x,1)); uint8 cast round-to-nearest (convertScaleAbs); ÷255 only, no mean/std. Image verdict = unanimous AND across the 3 folds (combine=unanimous-and); per-model sigmoid-binary at 0.5. Case-level OR is the form/rule layer (ops#231).",
+  "_comment": "TANUH MViT2 oral-cancer fold ensemble (model6/model8/model8-2 → mvit2_fold1_6/fold1_8/fold2_8) on ONNX Runtime Mobile (engine=onnx). Preprocessing aligned to the QC team's enhanced reference OCS_blackbox.ipynb (Oct 2026; benchmarking_model_scores_127Images.xlsx): EXIF orientation applied before preprocessing (native, EdgeModelModule); LETTERBOX — aspect-preserving cv2.INTER_CUBIC resize so the longer side is 256 (PixelOps.resizeCubicCv, bit-exact port, no OpenCV dependency), centred on a black 256x256 canvas; gray-world mean→128 computed over the whole canvas (padding included); clip; np.round(x,1); uint8 via convertScaleAbs; ÷255 only, no mean/std; BGR to the model. rounding=numpy reproduces numpy/cv2 float32 + round-half-to-even arithmetic. Image verdict = unanimous AND across the 3 folds (combine=unanimous-and); per-model sigmoid-binary, Positive when probability >= 0.5 (threshold_inclusive, as the notebook). Case-level OR is the form/rule layer (ops#231). Parity tooling: tools/edge-model/qc-parity/.",
   "engine": "onnx",
   "input": {
     "preprocessor": "mean-target-bgr-rounded",
     "params": {
       "size": [256, 256],
+      "resize_mode": "letterbox",
+      "pad_value": 0,
       "interpolation": "cubic",
       "channel_order": "BGR",
       "layout": "CHW",
@@ -12,13 +14,15 @@
       "mean_target": 128,
       "round_decimals": 1,
       "uint8_cast": true,
-      "uint8_round": true
+      "uint8_round": true,
+      "rounding": "numpy"
     }
   },
   "output": {
     "decoder": "sigmoid-binary",
     "params": {
       "threshold": 0.5,
+      "threshold_inclusive": true,
       "labels": ["Negative", "Positive"],
       "combine": "unanimous-and"
     }

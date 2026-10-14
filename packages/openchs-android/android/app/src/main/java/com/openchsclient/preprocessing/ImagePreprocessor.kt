@@ -4,7 +4,7 @@ import android.graphics.Bitmap
 import org.json.JSONObject
 
 /**
- * Engine-agnostic image preprocessing plugin (~/.claude/plans/composed-tumbling-bachman.md).
+ * Engine-agnostic image preprocessing plugin.
  *
  * Each implementation captures one *family* of preprocessing pipelines (e.g. ImageNet-style
  * mean/std normalisation, or a custom domain pipeline like the PoC's mean-128 / BGR / round-1dp).

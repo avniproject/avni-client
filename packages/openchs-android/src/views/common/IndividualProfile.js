@@ -174,10 +174,13 @@ class IndividualProfile extends AbstractComponent {
             }}>
                 <AvniIcon name={iconMode} style={{
                     fontSize: DGS.resizeWidth(Styles.programProfileButtonText.fontSize),
-                    color: Colors.DarkPrimaryColor,
+                    // Colors.DarkPrimaryColor / Styles.programProfileButtonText (Styles.accentColor)
+                    // are shared with several unrelated screens - overridden locally to the brand
+                    // teal here instead of changing those shared constants.
+                    color: Colors.BrandPrimaryDark,
                     paddingRight: 4
                 }} type='MaterialIcons'/>
-                <Text style={Styles.programProfileButtonText}>{displayTextMessageKey}</Text>
+                <Text style={[Styles.programProfileButtonText, {color: Colors.BrandPrimaryDark}]}>{displayTextMessageKey}</Text>
             </View>
         </TouchableNativeFeedback>);
     }

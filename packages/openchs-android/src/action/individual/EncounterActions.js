@@ -1,4 +1,5 @@
 import EncounterService from "../../service/EncounterService";
+import {logScreeningCompleted} from "../../utility/Analytics";
 import EncounterActionState from "../../state/EncounterActionState";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import FormMappingService from "../../service/FormMappingService";
@@ -173,6 +174,7 @@ export class EncounterActions {
         const newState = state.clone();
         context.get(IndividualService).updateObservations(newState.encounter.individual);
         context.get(EncounterService).saveOrUpdate(newState.encounter, action.nextScheduledVisits, action.skipCreatingPendingStatus);
+        logScreeningCompleted(newState.encounter.uuid);
         context.get(DraftEncounterService).deleteDraftByUUID(newState.encounter.uuid);
         action.cb();
         return state;

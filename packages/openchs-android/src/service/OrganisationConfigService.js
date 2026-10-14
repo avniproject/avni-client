@@ -81,6 +81,10 @@ class OrganisationConfigService extends BaseService {
         return !!this.getSettings().guideUserToRegisterButton;
     }
 
+    isVisitDateHidden() {
+        return !!this.getSettings().hideVisitDate;
+    }
+
     // Camera usability enhancement (Phase 3) — originally designed as a server-controlled
     // rollout flag (enableNativeCameraCapture in the synced OrganisationConfig settings blob,
     // same mechanism as isSaveDraftOn()/isSummaryButtonSetup() above), gated so that only the

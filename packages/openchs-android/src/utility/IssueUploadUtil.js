@@ -14,14 +14,17 @@ class IssueUploadUtil {
         
         const backupRestoreService = context.getService(BackupRestoreRealmService);
         
-        backupRestoreService.backup(MediaQueueService.DumpType.Adhoc, (percentDone, message) => {
+        backupRestoreService.backup(MediaQueueService.DumpType.Adhoc, (percentDone, message, backupError) => {
             General.logDebug("IssueUploadUtil", `${percentDone}% - ${message}`);
             if (onProgressUpdate) {
                 onProgressUpdate(percentDone, message);
             }
             if (percentDone === 100) {
                 if (message === "backupFailed") {
-                    CustomConfirmDialog.showAlert({title: I18n.t('uploadFailed'), message: ""});
+                    CustomConfirmDialog.showAlert({
+                        title: I18n.t('uploadFailed'),
+                        message: backupError ? backupError.getDisplayMessage() : ""
+                    });
                 } else {
                     CustomConfirmDialog.showAlert({title: I18n.t('uploadSuccessful'), message: ""});
                 }

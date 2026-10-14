@@ -47,9 +47,9 @@ class MenuActions {
         let newState = MenuActions.clone(state);
         const {organisationName, username} = state.userInfo;
         let backupAndRestoreRealmService = context.get(BackupRestoreRealmService);
-        backupAndRestoreRealmService.backup(action.dumpType, (percentage, message) => {
+        backupAndRestoreRealmService.backup(action.dumpType, (percentage, message, avniError) => {
             General.logDebug("MenuActions.onBackupDump", message);
-            action.onBackupDumpCb(percentage, message);
+            action.onBackupDumpCb(percentage, message, avniError);
         });
         newState.backupInProgress = true;
         newState.backupProgressUserMessage = "backupStarting";

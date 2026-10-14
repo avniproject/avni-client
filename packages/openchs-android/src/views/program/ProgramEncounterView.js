@@ -25,6 +25,7 @@ import Colors from "../primitives/Colors";
 import FormMappingService from "../../service/FormMappingService";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 import ProgramEncounterService from "../../service/program/ProgramEncounterService";
+import OrganisationConfigService from "../../service/OrganisationConfigService";
 import moment from "moment";
 import NewVisitPageView from "./NewVisitPageView";
 import {AvniAlert} from "../common/AvniAlert";
@@ -35,7 +36,7 @@ import Timer from "../common/Timer";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 import CustomActivityIndicator from "../CustomActivityIndicator";
-import {logTaskDuration, logTaskStarted} from "../../utility/Analytics";
+import {logScreeningStarted, logTaskDuration, logTaskStarted} from "../../utility/Analytics";
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
@@ -55,14 +56,22 @@ class ProgramEncounterView extends AbstractComponent {
     UNSAFE_componentWillMount() {
         const {encounterType, enrolmentUUID, programEncounter, workLists, pageNumber, editing} = this.props.params;
         if (programEncounter) {
+            // When the visit date is hidden org-wide the user can't set it, so auto-capture today
+            // for encounters that arrive without one (e.g. scheduled/planned encounters).
+            let encounterToLoad = programEncounter;
+            if (_.isNil(programEncounter.encounterDateTime) && this.context.getService(OrganisationConfigService).isVisitDateHidden()) {
+                encounterToLoad = programEncounter.cloneForEdit();
+                encounterToLoad.encounterDateTime = new Date();
+            }
             // Mirrors the started/completed/abandoned parity used for registration and login -
             // this view's own screenRenderStartTime (set by AbstractComponent) is the clock this
             // pairs with. Note: this branch is also hit when the user backs up from the
             // recommendation screen to edit an earlier answer (see the fromSDV/onPreviousCallback
             // resetStack above), so a back-and-forth edit logs a fresh 'started' too - the same
             // known limitation already called out where the completed/abandoned duration is logged.
-            logTaskStarted('encounter', programEncounter.name || _.get(programEncounter, 'encounterType.displayName'));
-            this.dispatchAction(Actions.ON_LOAD, {programEncounter, workLists, pageNumber, editing});
+            logTaskStarted('encounter', encounterToLoad.name || _.get(encounterToLoad, 'encounterType.displayName'));
+            if (!editing) logScreeningStarted(encounterToLoad);
+            this.dispatchAction(Actions.ON_LOAD, {programEncounter: encounterToLoad, workLists, pageNumber, editing});
             return super.UNSAFE_componentWillMount();
         }
         const programEncounterByType = this.context.getService(ProgramEncounterService)
@@ -70,6 +79,7 @@ class ProgramEncounterView extends AbstractComponent {
             .cloneForEdit();
         programEncounterByType.encounterDateTime = moment().toDate();
         logTaskStarted('encounter', programEncounterByType.name || _.get(programEncounterByType, 'encounterType.displayName'));
+        if (!editing) logScreeningStarted(programEncounterByType);
         this.dispatchAction(Actions.ON_LOAD, {programEncounter: programEncounterByType, editing});
         return super.UNSAFE_componentWillMount();
     }
@@ -215,6 +225,7 @@ class ProgramEncounterView extends AbstractComponent {
         const title = programEncounterName;
         this.displayMessage(this.props.params.message);
         const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);
+        const hideVisitDate = this.context.getService(OrganisationConfigService).isVisitDateHidden() && !_.isNil(this.state.programEncounter.encounterDateTime);
         const observationHolder = new ObservationsHolder(this.state.programEncounter.observations);
         const filteredFormElements = this.state.filteredFormElements || this.state.formElementGroup.getFormElements();
         // Mirrors the checks state.validateEntity() runs on Next-press (minus the GPS location check,
@@ -254,11 +265,12 @@ class ProgramEncounterView extends AbstractComponent {
                                     errorActionName={Actions.SET_LOCATION_ERROR}
                                     validationResult={AbstractDataEntryState.getValidationError(this.state, ProgramEncounter.validationKeys.ENCOUNTER_LOCATION)}
                                 />
+                                {!hideVisitDate &&
                                 <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGED}
                                                  element={Object.assign(new StaticFormElement('encounterDate'), {styles: {color: Colors.BrandPrimary}})}
                                                  dateValue={new PrimitiveValue(this.state.programEncounter.encounterDateTime)}
                                                  validationResult={AbstractDataEntryState.getValidationError(this.state, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}
-                                                 style={{paddingTop: 0}}/>
+                                                 style={{paddingTop: 0}}/>}
                             </View>
                             :
                             <View/>
@@ -307,7 +319,12 @@ class ProgramEncounterView extends AbstractComponent {
 
 const styles = StyleSheet.create({
     fixedButtonBar: {
-        height: 84,
+        // Explicit padding, not height/minHeight+centering: (84 - buttonHeight(56)) / 2 = 14, the original visual
+        // gap above and below the button row. Centering math collapsed this gap once the box grew to fit
+        // WizardButtons' own added bottom inset (API 36+ gesture/nav bar clearance) - explicit padding keeps
+        // this 14px gap guaranteed regardless of content height, while that inset adds further space below it.
+        paddingTop: 14,
+        paddingBottom: 14,
         justifyContent: 'center',
         backgroundColor: '#ffffff',
         shadowColor: '#000',

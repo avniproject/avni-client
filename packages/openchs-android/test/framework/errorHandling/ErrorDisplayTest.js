@@ -33,14 +33,20 @@ describe('ErrorDisplay', () => {
         it('should show failure toast when backup fails', () => {
             const message = 'backupFailed';
             let toastMessage = null;
-            
+
             if (message === 'backupCompleted') {
                 toastMessage = 'Upload successful';
             } else {
                 toastMessage = 'Upload failed';
             }
-            
+
             expect(toastMessage).to.equal('Upload failed');
+        });
+
+        it('should surface the failure reason as the dialog body on failure', () => {
+            const backupError = {getDisplayMessage: () => 'network request failed'};
+            const body = backupError ? backupError.getDisplayMessage() : "";
+            expect(body).to.equal('network request failed');
         });
 
         it('should not trigger restart during intermediate progress', () => {

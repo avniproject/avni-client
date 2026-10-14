@@ -13,6 +13,9 @@ import DeviceInfo from 'react-native-device-info';
 import RemoveMediaConfirmDialog from "../../common/RemoveMediaConfirmDialog";
 import OrganisationConfigService from "../../../service/OrganisationConfigService";
 import _ from "lodash";
+import GuidedCameraModal from "./GuidedCameraModal";
+import {toPickerResponse, isGuidedCameraEnabled, resizeCapturedImage} from "./GuidedCameraHelper";
+import ImageResizer from "@bam.tech/react-native-image-resizer";
 import {logEvent, firebaseEvents} from "../../../utility/Analytics";
 
 const styles = StyleSheet.create({
@@ -153,7 +156,8 @@ const DEFAULT_DURATION_LIMIT = 60;
 export default class MediaFormElement extends AbstractFormElement {
     constructor(props, context) {
         super(props, context);
-        this.state = {pendingClearAnswer: null};
+        // Explicit false: RN Modal's `visible` defaults to true, so undefined would flash the camera open.
+        this.state = {showGuidedCamera: false, pendingClearAnswer: null};
         this.cancelRemove = this.cancelRemove.bind(this);
         this.performRemove = this.performRemove.bind(this);
     }
@@ -213,18 +217,20 @@ export default class MediaFormElement extends AbstractFormElement {
         return label;
     }
 
+    // Returns a promise so the guided path can await the move; a failed move must not look saved.
     addMediaFromPicker(response, onUpdateObservations) {
-        if (!response.didCancel && !response.errorCode) {
-            const directory = this.isVideo ? FileSystem.getVideosDir() :
-                (this.props.element.name === "profilePicture" ? FileSystem.getProfilePicsDir() : FileSystem.getImagesDir());
-            const fileSystemAction = this.state.mode === Mode.Camera ? fs.moveFile : fs.copyFile;
-            _.get(response, 'assets').map(asset => {
-                const ext = asset.uri.split('.').pop();
-                const fileName = `${General.randomUUID()}.${ext}`;
-                fileSystemAction(asset.uri, `${directory}/${fileName}`)
-                    .then(() => onUpdateObservations(fileName));
-            });
+        if (response.didCancel || response.errorCode) {
+            return Promise.resolve();
         }
+        const directory = this.isVideo ? FileSystem.getVideosDir() :
+            (this.props.element.name === "profilePicture" ? FileSystem.getProfilePicsDir() : FileSystem.getImagesDir());
+        const fileSystemAction = this.state.mode === Mode.Camera ? fs.moveFile : fs.copyFile;
+        return Promise.all(_.get(response, 'assets').map(asset => {
+            const ext = asset.uri.split('.').pop();
+            const fileName = `${General.randomUUID()}.${ext}`;
+            return fileSystemAction(asset.uri, `${directory}/${fileName}`)
+                .then(() => onUpdateObservations(fileName));
+        }));
     }
 
 
@@ -261,6 +267,54 @@ export default class MediaFormElement extends AbstractFormElement {
             quality: this.getFromKeyValue('imageQuality', DEFAULT_IMG_QUALITY),
             videoQuality: this.getFromKeyValue('videoQuality', DEFAULT_VIDEO_QUALITY)
         });
+    }
+
+    // 2026-09-29: restored to the real per-question 'guidedCamera' evaluation. This flag now
+    // ONLY controls whether the gallery-upload button is hidden (its original product intent for
+    // this getter's other caller below) — it no longer decides which camera implementation runs.
+    // See showInputOptions()'s capture button: that's hardcoded to always use our native CameraX
+    // screen (launchCamera()/useNativeCameraScreen()), never Guided Camera
+    // (react-native-vision-camera, avni-product-ops#216), because Guided Camera hard-blocks
+    // capture entirely on devices with no flash unit (device.hasFlash === false) with no
+    // fallback — that's what surfaced as "camera view not as expected" / "flash not on" for a
+    // subset of users, independent of device model. Guided Camera's own code (openGuidedCamera,
+    // GuidedCameraModal below) is untouched and simply never invoked now, so this is easy to
+    // revisit with its author.
+    get isGuidedCamera() {
+        return isGuidedCameraEnabled(this.isImage, this.getFromKeyValue('guidedCamera', false));
+    }
+
+    get guidedCameraLabels() {
+        return {
+            noBackCamera: this.I18n.t('guidedCameraNoBackCamera'),
+            permissionRequired: this.I18n.t('guidedCameraPermissionRequired'),
+            flashRequired: this.I18n.t('guidedCameraFlashRequired'),
+            captureFailed: this.I18n.t('guidedCameraCaptureFailed'),
+            close: this.I18n.t('closeModal'),
+            retake: this.I18n.t('Retake'),
+            usePhoto: this.I18n.t('Use photo'),
+            openSettings: this.I18n.t('Open settings')
+        };
+    }
+
+    openGuidedCamera(onUpdateObservations) {
+        this._guidedOnUpdate = onUpdateObservations;
+        // Resize params only — avoids getDefaultOptions' videoQuality check throwing out of this sync handler.
+        this._guidedOptions = {
+            maxWidth: this.getFromKeyValue('maxWidth', DEFAULT_IMG_WIDTH),
+            maxHeight: this.getFromKeyValue('maxHeight', DEFAULT_IMG_HEIGHT),
+            quality: this.getFromKeyValue('imageQuality', DEFAULT_IMG_QUALITY)
+        };
+        this.setState({mode: Mode.Camera, showGuidedCamera: true});
+    }
+
+    // Records the observation only after resize + move succeed; on failure it rejects (modal logs + shows retake).
+    async onGuidedCapture(photoPath) {
+        const resizedUri = await resizeCapturedImage(ImageResizer, photoPath, this._guidedOptions);
+        fs.unlink(photoPath).catch(() => {});
+        if (!this.state.showGuidedCamera) return; // closed mid-resize: cancel the capture rather than commit it
+        await this.addMediaFromPicker(toPickerResponse(resizedUri), this._guidedOnUpdate);
+        this.setState({showGuidedCamera: false});
     }
 
     /**
@@ -389,9 +443,10 @@ export default class MediaFormElement extends AbstractFormElement {
     }
 
     showInputOptions(onUpdateObservations) {
+        const guided = this.isGuidedCamera;
         return (
             <View style={styles.mediaActionRow}>
-                {!this.props.element.restrictGalleryUpload &&
+                {!guided && !this.props.element.restrictGalleryUpload &&
                 <TouchableNativeFeedback onPress={() => this.launchMediaLibrary(onUpdateObservations)}
                                           background={TouchableNativeFeedback.SelectableBackground()}>
                     <View style={styles.uploadButton}>
@@ -399,7 +454,12 @@ export default class MediaFormElement extends AbstractFormElement {
                         <Icon name={'folder-upload-outline'} size={20} color={Colors.BrandPrimary}/>
                     </View>
                 </TouchableNativeFeedback>}
-                <TouchableNativeFeedback onPress={() => this.launchCamera(onUpdateObservations)}
+                <TouchableNativeFeedback onPress={() => {
+                    // Always our native camera enhancement — see the isGuidedCamera getter's
+                    // comment above for why Guided Camera is never used here even when the
+                    // 'guidedCamera' config flag is on for this question.
+                    this.launchCamera(onUpdateObservations)
+                }}
                                           background={TouchableNativeFeedback.SelectableBackground()}>
                     <View style={styles.addImageButton}>
                         <Text style={styles.addImageButtonText}>{this.I18n.t('addImageButtonLabel')}</Text>
@@ -407,6 +467,12 @@ export default class MediaFormElement extends AbstractFormElement {
                               size={20} color={'#ffffff'}/>
                     </View>
                 </TouchableNativeFeedback>
+                {guided && <GuidedCameraModal
+                    visible={!!this.state.showGuidedCamera}
+                    labels={this.guidedCameraLabels}
+                    onClose={() => this.setState({showGuidedCamera: false})}
+                    onCapture={(photoPath) => this.onGuidedCapture(photoPath)}
+                />}
             </View>
         );
     }

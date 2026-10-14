@@ -417,7 +417,7 @@ class MyDashboardActions {
         const anyActiveTypes = newState.addressLevelState.anyActiveTypesArray;
         updateCachedFilterFields({selectedAddressesInfo, anyActiveTypes, selectedSubjectTypeUUID: newState.selectedSubjectType.uuid, filterDate: action.filterDate}, context);
         const updatedState = _.isNil(action.listType) ? MyDashboardActions.onLoad(newState, {}, context) : MyDashboardActions.onListLoad(newState, action, context);
-        logEvent(firebaseEvents.MY_DASHBOARD_FILTER, {time_taken: Date.now() - startTime, applied_filters: selectedFilterTypes});
+        logEvent(firebaseEvents.MY_DASHBOARD_FILTER, {duration_ms: Date.now() - startTime, applied_filters: selectedFilterTypes});
         return updatedState;
     }
 

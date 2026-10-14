@@ -33,6 +33,7 @@ class SubjectTypeSelect extends AbstractComponent {
         }
 
         return <SelectableItemGroup labelKey={"subjectTypes"}
+                                    skipLabel={true}
                                     I18n={this.I18n}
                                     labelValuePairs={options}
                                     multiSelect={isMulti}

@@ -241,10 +241,11 @@ const styles = StyleSheet.create({
         marginVertical: 20,
     },
     headerTextStyle: {
+        flex: 1,
         fontSize: Styles.titleSize,
         fontStyle: 'normal',
         color: Styles.blackColor,
-        marginRight: 50
+        marginRight: 10
     },
     buttonContainer: {
         elevation: 2,

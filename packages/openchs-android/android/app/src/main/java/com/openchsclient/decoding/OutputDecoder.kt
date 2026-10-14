@@ -4,7 +4,7 @@ import com.facebook.react.bridge.WritableMap
 import org.json.JSONObject
 
 /**
- * Engine-agnostic output-tensor decoder plugin (~/.claude/plans/composed-tumbling-bachman.md).
+ * Engine-agnostic output-tensor decoder plugin.
  *
  * Each implementation captures one *family* of post-processing — argmax classification,
  * sigmoid binary, regression pass-through, etc. The exact behaviour for a given model is

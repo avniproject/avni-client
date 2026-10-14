@@ -113,11 +113,15 @@ class SubjectInfoCard extends AbstractComponent {
                   style={[{
                       height: 22,
                       marginRight: 4,
-                      borderRadius: 2,
-                      paddingHorizontal: 4,
+                      borderRadius: 11,
+                      paddingHorizontal: 10,
                       marginVertical: 2,
-                      backgroundColor: program.colour,
+                      // Was program.colour (per-program, server-configured) - now a fixed brand
+                      // teal for every program badge, matching the rest of the app's brand colour.
+                      backgroundColor: Colors.BrandPrimaryDark,
                       color: Colors.TextOnPrimaryColor,
+                      textAlign: 'center',
+                      textAlignVertical: 'center',
                   }, styles.enrolledProgram]}
                   numberOfLines={1} ellipsizeMode='tail'>{this.I18n.t(program.displayName)}</Text>
         );

@@ -7,7 +7,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /**
- * Named registry of image preprocessors (~/.claude/plans/composed-tumbling-bachman.md).
+ * Named registry of image preprocessors.
  *
  * Lookup is by string identifier in the registry override JSON:
  *
@@ -16,7 +16,7 @@ import org.json.JSONObject
  * Two implementations ship initially:
  *
  *   • `imagenet-rgb-chw`        — standard mean/std normalisation, RGB, CHW.
- *   • `mean-target-bgr-rounded` — exact port of the TANUH PoC pipeline.
+ *   • `mean-target-bgr-rounded` — TANUH QC pipeline (letterbox / gray-world 128 / BGR / round-1dp).
  *
  * Adding a new pipeline = write a new class implementing `ImagePreprocessor`, add it to
  * `REGISTRY` by name. The bridge does not need to know about it.
@@ -48,80 +48,44 @@ private fun JSONObject.optIntPair(key: String, defW: Int, defH: Int): Pair<Int, 
     return w to h
 }
 
+/** Bitmap → [ArgbImage] (packed ARGB_8888, row-major). */
+private fun Bitmap.toArgbImage(): ArgbImage {
+    val px = IntArray(width * height)
+    getPixels(px, 0, width, 0, 0, width, height)
+    return ArgbImage(width, height, px)
+}
+
 /**
  * Resize to (w, h). `"bilinear"` (default) and `"nearest"` use Android's native scaler;
- * `"cubic"` runs [bicubicResize] for cv2.INTER_CUBIC parity (Android's Bitmap API has no
- * native bicubic).
+ * `"cubic"` runs [PixelOps.resizeCubicCv], a bit-exact port of cv2.INTER_CUBIC (Android's
+ * Bitmap API has no native bicubic).
  */
-private fun resize(src: Bitmap, w: Int, h: Int, interpolation: String): Bitmap {
-    if (src.width == w && src.height == h) return src
+private fun resize(src: Bitmap, w: Int, h: Int, interpolation: String): ArgbImage {
+    if (src.width == w && src.height == h) return src.toArgbImage()
     return when (interpolation) {
-        "cubic"   -> bicubicResize(src, w, h)
-        "nearest" -> Bitmap.createScaledBitmap(src, w, h, false)
-        else      -> Bitmap.createScaledBitmap(src, w, h, true)   // bilinear
+        "cubic"   -> PixelOps.resizeCubicCv(src.toArgbImage(), w, h)
+        "nearest" -> Bitmap.createScaledBitmap(src, w, h, false).let { s -> s.toArgbImage().also { if (s !== src) s.recycle() } }
+        else      -> Bitmap.createScaledBitmap(src, w, h, true).let { s -> s.toArgbImage().also { if (s !== src) s.recycle() } }
     }
 }
 
 /**
- * Bicubic resize matching cv2.INTER_CUBIC: 4×4 cubic-convolution kernel with a = -0.75,
- * pixel-centre coordinate alignment, and clamped edge sampling. Close to OpenCV but not
- * bit-identical (OpenCV uses fixed-point taps and its own border rounding).
+ * Resize to the (w, h) canvas according to `resize_mode`:
+ *   • `"stretch"`   (default, legacy) — resize straight to (w, h), ignoring aspect ratio.
+ *   • `"letterbox"` (QC notebook, Oct 2026) — aspect-preserving resize so the image fits inside
+ *     (w, h), centred on a canvas filled with `pad_value` (default 0 = black).
  */
-private fun bicubicResize(src: Bitmap, dstW: Int, dstH: Int): Bitmap {
-    val srcW = src.width
-    val srcH = src.height
-    val srcPx = IntArray(srcW * srcH)
-    src.getPixels(srcPx, 0, srcW, 0, 0, srcW, srcH)
-
-    val a = -0.75
-    fun cubic(d: Double): Double {
-        val t = if (d < 0) -d else d
-        return when {
-            t <= 1.0 -> (a + 2.0) * t * t * t - (a + 3.0) * t * t + 1.0
-            t < 2.0  -> a * t * t * t - 5.0 * a * t * t + 8.0 * a * t - 4.0 * a
-            else     -> 0.0
+private fun resizeToCanvas(src: Bitmap, w: Int, h: Int, interpolation: String, mode: String, padValue: Int): ArgbImage =
+    when (mode) {
+        "stretch"   -> resize(src, w, h, interpolation)
+        "letterbox" -> {
+            val g = PixelOps.letterboxGeometry(src.width, src.height, w, h)
+            val fitted = resize(src, g.newW, g.newH, interpolation)
+            val pad = padValue.coerceIn(0, 255)
+            PixelOps.pasteOnCanvas(fitted, w, h, g.offsetX, g.offsetY, (pad shl 16) or (pad shl 8) or pad)
         }
+        else -> throw IllegalArgumentException("Unsupported resize_mode='$mode' (use stretch or letterbox)")
     }
-
-    val scaleX = srcW.toDouble() / dstW
-    val scaleY = srcH.toDouble() / dstH
-    val out = IntArray(dstW * dstH)
-    val wy = DoubleArray(4)  // reused per row
-    val wx = DoubleArray(4)  // reused per pixel — avoids dstW*dstH short-lived allocations
-
-    for (dy in 0 until dstH) {
-        val sy = (dy + 0.5) * scaleY - 0.5
-        val y0 = Math.floor(sy).toInt()
-        val fy = sy - y0
-        wy[0] = cubic(1.0 + fy); wy[1] = cubic(fy); wy[2] = cubic(1.0 - fy); wy[3] = cubic(2.0 - fy)
-        for (dx in 0 until dstW) {
-            val sx = (dx + 0.5) * scaleX - 0.5
-            val x0 = Math.floor(sx).toInt()
-            val fx = sx - x0
-            wx[0] = cubic(1.0 + fx); wx[1] = cubic(fx); wx[2] = cubic(1.0 - fx); wx[3] = cubic(2.0 - fx)
-
-            var accR = 0.0; var accG = 0.0; var accB = 0.0
-            for (m in -1..2) {
-                val yy = (y0 + m).coerceIn(0, srcH - 1)
-                val rowOff = yy * srcW
-                val wyv = wy[m + 1]
-                for (n in -1..2) {
-                    val xx = (x0 + n).coerceIn(0, srcW - 1)
-                    val px = srcPx[rowOff + xx]
-                    val w = wyv * wx[n + 1]
-                    accR += (((px shr 16) and 0xFF) * w)
-                    accG += (((px shr 8) and 0xFF) * w)
-                    accB += ((px and 0xFF) * w)
-                }
-            }
-            val r = Math.round(accR).toInt().coerceIn(0, 255)
-            val g = Math.round(accG).toInt().coerceIn(0, 255)
-            val b = Math.round(accB).toInt().coerceIn(0, 255)
-            out[dy * dstW + dx] = (0xFF shl 24) or (r shl 16) or (g shl 8) or b
-        }
-    }
-    return Bitmap.createBitmap(out, dstW, dstH, Bitmap.Config.ARGB_8888)
-}
 
 /* ── imagenet-rgb-chw ─────────────────────────────────────────────────────────────── */
 
@@ -151,9 +115,7 @@ object ImagenetRgbChwPreprocessor : ImagePreprocessor {
         val std  = params.optFloatArray("std")  ?: DEFAULT_STD
         val interpolation = params.optString("interpolation", "bilinear")
 
-        val resized = resize(bitmap, w, h, interpolation)
-        val pixels = IntArray(w * h)
-        resized.getPixels(pixels, 0, w, 0, 0, w, h)
+        val pixels = resize(bitmap, w, h, interpolation).pixels
 
         val data = FloatArray(channels * h * w)
         val plane = h * w
@@ -173,123 +135,66 @@ object ImagenetRgbChwPreprocessor : ImagePreprocessor {
 /* ── mean-target-bgr-rounded ──────────────────────────────────────────────────────── */
 
 /**
- * Exact port of the TANUH PoC's preprocessing pipeline (`MainActivity.kt:146-211` in
- * `~/IdeaProjects/aiapp`). The math is unusual but matches what the model was trained
- * against — replicate bit-for-bit. Params:
+ * TANUH QC pipeline (`OCS_blackbox.ipynb`, QC team, Oct 2026). Params:
  *
  *   {
  *     "size": [256, 256],
- *     "interpolation": "cubic",      // bicubic (cv2.INTER_CUBIC) — the reference Python's resize.
- *                                    // "bilinear"/"nearest" also supported; see resize().
- *     "channel_order": "BGR",        // PoC writes blue → channel 0, green → 1, red → 2
+ *     "resize_mode": "letterbox",    // "stretch" (legacy default) | "letterbox" (QC: aspect-preserving,
+ *                                    //   centred on a pad_value canvas; gray-world mean includes the padding)
+ *     "pad_value": 0,                // letterbox canvas fill (0 = black, as the notebook)
+ *     "interpolation": "cubic",      // cv2.INTER_CUBIC (bit-exact port); "bilinear"/"nearest" also supported
+ *     "channel_order": "BGR",        // blue → channel 0, green → 1, red → 2
  *     "layout": "CHW",
  *     "scale": 0.00392156862745098,  // 1/255 — applied AFTER the uint8 cast
  *     "mean_target": 128,            // per-channel scale = mean_target / per-image mean
  *     "round_decimals": 1,           // np.round(x, 1)
  *     "uint8_cast": true,            // cast to uint8 before /255
- *     "uint8_round": true            // round-to-nearest (cv2.convertScaleAbs); false → truncate (legacy)
+ *     "uint8_round": true,           // legacy mode only: round (true) vs truncate (false)
+ *     "rounding": "numpy"            // "numpy" = float32 math + round-half-to-even, exactly as numpy/cv2/torchvision;
+ *                                    // "legacy" (default) = float64 + round-half-up (previous behaviour)
  *   }
  *
- * Pipeline (each step matches a comment block in the PoC):
- *   1. Resize to (W, H) bilinear.
- *   2. Compute per-channel pixel-mean over the resized image.
- *   3. Scale each channel so mean → mean_target. (Per-image dynamic, not per-batch fixed.)
- *   4. Clip [0, 255].
- *   5. Round to N decimal places.
- *   6. uint8-cast: round-to-nearest when uint8_round=true (cv2.convertScaleAbs), else truncate; mask 0xFF.
- *   7. Divide by 255 → [0, 1] float.
- *   8. Write to CHW float buffer in channel_order (BGR for the PoC).
+ * Pipeline:
+ *   1. Resize to the canvas (stretch, or letterbox + pad).
+ *   2. Per-channel pixel mean over the whole canvas.
+ *   3. Scale each channel so mean → mean_target.
+ *   4. Clip [0, 255].   5. Round to N decimals.   6. uint8 cast.   7. × scale.
+ *   8. Write CHW/HWC float buffer in channel_order.
+ * Steps 2-8 live in [MeanTargetMath] (pure Kotlin, JVM-unit-tested against the QC notebook).
  */
 object MeanTargetBgrRoundedPreprocessor : ImagePreprocessor {
     override fun preprocess(bitmap: Bitmap, params: JSONObject): ImagePreprocessor.Result {
         val (w, h) = params.optIntPair("size", 256, 256)
         val interpolation = params.optString("interpolation", "bilinear")
-        val channelOrder = params.optString("channel_order", "BGR")
-        val layout = params.optString("layout", "CHW")
-        val scale = params.optDouble("scale", 1.0 / 255.0).toFloat()
-        val meanTarget = params.optDouble("mean_target", 128.0)
-        val roundDecimals = params.optInt("round_decimals", 1)
-        val uint8Cast = params.optBoolean("uint8_cast", true)
-        val uint8Round = params.optBoolean("uint8_round", false)  // true → round-to-nearest (convertScaleAbs); false → truncate (legacy)
+        val resizeMode = params.optString("resize_mode", "stretch")
+        val padValue = params.optInt("pad_value", 0)
+        val rounding = params.optString("rounding", "legacy")
+        require(rounding == "legacy" || rounding == "numpy") { "Unsupported rounding='$rounding' (use legacy or numpy)" }
+        val p = MeanTargetMath.Params(
+            meanTarget = params.optDouble("mean_target", 128.0),
+            roundDecimals = params.optInt("round_decimals", 1),
+            uint8Cast = params.optBoolean("uint8_cast", true),
+            uint8Round = params.optBoolean("uint8_round", false),
+            numpyRounding = rounding == "numpy",
+            scale = params.optDouble("scale", 1.0 / 255.0).toFloat(),
+            channelOrder = params.optString("channel_order", "BGR"),
+            layout = params.optString("layout", "CHW")
+        )
 
-        val resized = resize(bitmap, w, h, interpolation)
-        val pixels = IntArray(w * h)
-        resized.getPixels(pixels, 0, w, 0, 0, w, h)
+        val canvas = resizeToCanvas(bitmap, w, h, interpolation, resizeMode, padValue)
+        var stats: MeanTargetMath.Stats? = null
+        val data = MeanTargetMath.toTensor(canvas, p) { stats = it }
 
-        // 2. Per-channel pixel-mean over the resized image.
-        var sumR = 0.0; var sumG = 0.0; var sumB = 0.0
-        for (px in pixels) {
-            sumR += ((px shr 16) and 0xFF).toDouble()
-            sumG += ((px shr 8) and 0xFF).toDouble()
-            sumB += (px and 0xFF).toDouble()
-        }
-        val count = pixels.size.toDouble()
-        val meanR = sumR / count
-        val meanG = sumG / count
-        val meanB = sumB / count
-
-        // 3. Per-channel scaling factor.
-        val scaleR = if (meanR != 0.0) meanTarget / meanR else 1.0
-        val scaleG = if (meanG != 0.0) meanTarget / meanG else 1.0
-        val scaleB = if (meanB != 0.0) meanTarget / meanB else 1.0
-
-        // 4-7. Build per-pixel normalised channel values (in source-pixel RGB order).
-        val roundFactor = Math.pow(10.0, roundDecimals.toDouble())
-        val normR = FloatArray(pixels.size)
-        val normG = FloatArray(pixels.size)
-        val normB = FloatArray(pixels.size)
-        // uint8 cast: round-to-nearest (cv2.convertScaleAbs / saturate_cast) when uint8_round=true;
-        // truncate (legacy) otherwise. r/g/b are already clipped to [0,255], so 0xFF is a safety mask.
-        fun toU8(v: Double): Int = (if (uint8Round) Math.round(v).toInt() else v.toInt()) and 0xFF
-        for (i in pixels.indices) {
-            val px = pixels[i]
-            var r = ((px shr 16) and 0xFF) * scaleR
-            var g = ((px shr 8) and 0xFF)  * scaleG
-            var b = (px and 0xFF)            * scaleB
-
-            r = if (r < 0.0) 0.0 else if (r > 255.0) 255.0 else r
-            g = if (g < 0.0) 0.0 else if (g > 255.0) 255.0 else g
-            b = if (b < 0.0) 0.0 else if (b > 255.0) 255.0 else b
-
-            r = Math.round(r * roundFactor) / roundFactor
-            g = Math.round(g * roundFactor) / roundFactor
-            b = Math.round(b * roundFactor) / roundFactor
-
-            normR[i] = if (uint8Cast) (toU8(r) * scale) else (r.toFloat() * scale)
-            normG[i] = if (uint8Cast) (toU8(g) * scale) else (g.toFloat() * scale)
-            normB[i] = if (uint8Cast) (toU8(b) * scale) else (b.toFloat() * scale)
-        }
-
-        // 8. Write to CHW or HWC in the requested channel order.
-        val plane = h * w
-        val data = FloatArray(3 * plane)
-        val orderedPlanes = when (channelOrder.uppercase()) {
-            "BGR" -> arrayOf(normB, normG, normR)
-            "RGB" -> arrayOf(normR, normG, normB)
-            else  -> throw IllegalArgumentException("Unsupported channel_order='$channelOrder' (use BGR or RGB)")
-        }
-        if (layout.uppercase() == "CHW") {
-            for (c in 0 until 3) {
-                System.arraycopy(orderedPlanes[c], 0, data, c * plane, plane)
-            }
-        } else { // HWC
-            for (i in 0 until plane) {
-                data[i * 3]     = orderedPlanes[0][i]
-                data[i * 3 + 1] = orderedPlanes[1][i]
-                data[i * 3 + 2] = orderedPlanes[2][i]
-            }
-        }
-
-        // Diagnostic logging — emits per-channel input stats so we can compare against the
-        // TANUH PoC (~/IdeaProjects/aiapp) on the same image. If the model saturates on
-        // both apps, the model is the issue. If it saturates here but not on the PoC, the
-        // divergence is in this preprocessor and one of these stats will differ. Gated
-        // behind BuildConfig.DEBUG so release builds skip the planeSummary traversals.
+        // Diagnostic logging — per-channel input stats for parity debugging against the QC
+        // notebook on the same image. Gated behind BuildConfig.DEBUG.
         if (BuildConfig.DEBUG) {
-            Log.d("Preproc", "MeanTargetBgrRounded: w=$w h=$h interp=$interpolation order=$channelOrder layout=$layout " +
-                "scale=$scale meanTarget=$meanTarget round=$roundDecimals uint8Cast=$uint8Cast uint8Round=$uint8Round")
-            Log.d("Preproc", "  rawPixelMean: R=%.4f G=%.4f B=%.4f".format(meanR, meanG, meanB))
-            Log.d("Preproc", "  perChannelScale: R=%.6f G=%.6f B=%.6f".format(scaleR, scaleG, scaleB))
+            val plane = h * w
+            val s = stats!!
+            Log.d("Preproc", "MeanTargetBgrRounded: w=$w h=$h resize=$resizeMode interp=$interpolation " +
+                "order=${p.channelOrder} layout=${p.layout} scale=${p.scale} meanTarget=${p.meanTarget} " +
+                "round=${p.roundDecimals} rounding=$rounding uint8Cast=${p.uint8Cast} uint8Round=${p.uint8Round}")
+            Log.d("Preproc", "  rawPixelMean: R=%.4f G=%.4f B=%.4f".format(s.meanR, s.meanG, s.meanB))
+            Log.d("Preproc", "  perChannelScale: R=%.6f G=%.6f B=%.6f".format(s.scaleR, s.scaleG, s.scaleB))
             Log.d("Preproc", "  tensorStats: ${planeSummary("plane0", data, 0, plane)}")
             Log.d("Preproc", "  tensorStats: ${planeSummary("plane1", data, plane, plane)}")
             Log.d("Preproc", "  tensorStats: ${planeSummary("plane2", data, 2 * plane, plane)}")

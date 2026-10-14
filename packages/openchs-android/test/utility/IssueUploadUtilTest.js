@@ -113,14 +113,26 @@ describe('IssueUploadUtil', () => {
         it('should show failure message when backup fails', () => {
             const message = 'backupFailed';
             let toastMessage = null;
-            
+
             if (message === 'backupCompleted') {
                 toastMessage = 'uploadSuccessful';
             } else {
                 toastMessage = 'uploadFailed';
             }
-            
+
             expect(toastMessage).to.equal('uploadFailed');
+        });
+
+        it('should surface the reason as the dialog body when backup fails with an error', () => {
+            const backupError = {getDisplayMessage: () => 'HTTP Status:403 ...'};
+            const body = backupError ? backupError.getDisplayMessage() : "";
+            expect(body).to.equal('HTTP Status:403 ...');
+        });
+
+        it('should show an empty body when there is no error detail', () => {
+            const backupError = null;
+            const body = backupError ? backupError.getDisplayMessage() : "";
+            expect(body).to.equal("");
         });
     });
 });

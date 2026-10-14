@@ -1,12 +1,11 @@
-import {View, StyleSheet} from "react-native";
+import {View, StyleSheet, TouchableNativeFeedback} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import {Button, Text} from "native-base";
+import {Text} from "native-base";
 import DGS from "../primitives/DynamicGlobalStyles";
 import Styles from "../primitives/Styles";
 import _ from "lodash";
-import Distances from "../primitives/Distances";
 import Colors from "../primitives/Colors";
 
 class ProgramList extends AbstractComponent {
@@ -21,40 +20,51 @@ class ProgramList extends AbstractComponent {
     }
 
     static style = {
+        // Matches ProgramActionsView's primaryButtonView (minHeight/borderRadius/centering) -
+        // this chip sits right next to that view's "New Program Visit" button, so the two need
+        // to look like the same kind of control rather than two different button styles.
         programButton: {
             self: {
-                height: 40,
+                minHeight: 36,
+                // A fixed minWidth (not '100%' - this row can hold several program chips side by
+                // side, and 100% would force each onto its own line) so a short label like "NCD"
+                // doesn't shrink-wrap to a much narrower chip than the button next to it.
+                minWidth: 110,
                 marginRight: DGS.resizeWidth(8),
-                borderRadius: 2,
+                borderRadius: 8,
                 marginTop: DGS.resizeHeight(8),
-                paddingHorizontal: DGS.resizeWidth(4),
-                width: '90%'
+                paddingHorizontal: DGS.resizeWidth(8),
+                paddingVertical: 4,
+                alignItems: 'center',
+                justifyContent: 'center'
             }
         },
-        selectedProgramButton: (colour) => { return {
+        // Was per-program, server-configured (program.colour) - now a fixed brand teal, matching
+        // the same badge elsewhere in the app (see SubjectInfoCard.js's enrolled-program chip).
+        selectedProgramButton: {
             self: {
-                backgroundColor: colour,
+                backgroundColor: Colors.BrandPrimaryDark,
             },
             text: {
                 color: '#ffffff',
                 fontSize: 14
             }
-        }},
-        unselectedProgramButton: (colour) => { return {
+        },
+        unselectedProgramButton: {
             self: {
                 borderWidth: 1,
-                borderColor: colour,
+                borderColor: Colors.BrandPrimaryDark,
                 backgroundColor: Styles.whiteColor
             },
             text: {
-                color: colour,
+                color: Colors.BrandPrimaryDark,
                 fontSize: 14
             }
-        }}
+        }
     };
 
     getButtonStyle(enrolment) {
-        return enrolment.uuid === this.props.selectedEnrolment.uuid ? ProgramList.style.selectedProgramButton(enrolment.program.colour) : ProgramList.style.unselectedProgramButton(enrolment.program.colour);
+        return enrolment.uuid === this.props.selectedEnrolment.uuid ? ProgramList.style.selectedProgramButton : ProgramList.style.unselectedProgramButton;
     }
 
     render() {
@@ -63,15 +73,21 @@ class ProgramList extends AbstractComponent {
             <View style={{flexDirection: 'column'}}>
                 <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
                     {sortedEnrolments.length === 0 ?
-                        <View style={styles.container}>
-                            <Text>{this.I18n.t('notEnrolledInAnyProgram')}</Text>
+                        <View style={styles.emptyContainer}>
+                            <Text style={styles.emptyText}>{this.I18n.t('notEnrolledInAnyProgram')}</Text>
                         </View>
                          :
                         sortedEnrolments.map((enrolment) => {
                             const buttonStyle = this.getButtonStyle(enrolment);
-                            return <Button key={enrolment.uuid}
-                                           style={[ProgramList.style.programButton.self, buttonStyle.self]}
-                                           onPress={() => this.props.onProgramSelect(enrolment)}><Text style={buttonStyle.text} numberOfLines={1} ellipsizeMode='tail'>{this.I18n.t(enrolment.program.displayName)}</Text></Button>
+                            return (
+                                <TouchableNativeFeedback key={enrolment.uuid} onPress={() => this.props.onProgramSelect(enrolment)}>
+                                    <View style={[ProgramList.style.programButton.self, buttonStyle.self]}>
+                                        <Text style={[buttonStyle.text, {textAlign: 'center'}]} numberOfLines={1} ellipsizeMode='tail'>
+                                            {this.I18n.t(enrolment.program.displayName)}
+                                        </Text>
+                                    </View>
+                                </TouchableNativeFeedback>
+                            );
                         })}
                 </View>
             </View>
@@ -82,10 +98,19 @@ class ProgramList extends AbstractComponent {
 export default ProgramList;
 
 const styles = StyleSheet.create({
-    container: {
-        padding: Distances.ScaledContentDistanceFromEdge,
-        margin: 4,
-        elevation: 2,
-        backgroundColor: Colors.cardBackgroundColor,
+    // This column is only as wide as half the row (shares space with ProgramActionsView next to
+    // it), so the message wraps - a bounded, softly-coloured box makes that wrap read as an
+    // intentional empty-state chip instead of bare text trailing off awkwardly.
+    emptyContainer: {
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        backgroundColor: Colors.BrandLight,
+        borderRadius: 8,
+        alignSelf: 'flex-start',
+        marginTop: DGS.resizeHeight(8),
+    },
+    emptyText: {
+        color: Colors.BrandPrimaryDark,
+        fontSize: Styles.smallTextSize,
     }
 });

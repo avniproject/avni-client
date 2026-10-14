@@ -39,14 +39,17 @@ class NewVisitMenuView extends AbstractComponent {
             <Text style={[Fonts.typography("paperFontTitle"), styles.headerStyle]}>{title}</Text>;
     };
 
-    static Item = ({name, displayDate, statusColor, onSelect}) => {
+    static Item = ({name, displayDate, statusColor, onSelect, alwaysApplyColor}) => {
+        // Unplanned visits (encounter types) have no displayDate, but should still show their
+        // own strip/arrow colour rather than falling back to the default grey.
+        const applyColor = alwaysApplyColor || !_.isEmpty(displayDate);
         return (
             <TouchableNativeFeedback
                 onPress={onSelect}
                 background={TouchableNativeFeedback.SelectableBackground()}
             >
                 <View style={styles.container}>
-                    <View style={[styles.strip, !_.isEmpty(displayDate) && {backgroundColor: statusColor}]}/>
+                    <View style={[styles.strip, applyColor && {backgroundColor: statusColor}]}/>
                     <View style={styles.textContainer}>
                         <Text style={[Fonts.typography("paperFontSubhead"), styles.encounterStyle]}>
                             {name}
@@ -57,7 +60,7 @@ class NewVisitMenuView extends AbstractComponent {
                             <View style={{marginLeft: "auto"}}/>
                         )}
                     </View>
-                    <Icon style={[styles.iconStyle, !_.isEmpty(displayDate) && {color: statusColor}]}
+                    <Icon style={[styles.iconStyle, applyColor && {color: statusColor}]}
                           name="chevron-right"/>
                 </View>
             </TouchableNativeFeedback>
@@ -82,7 +85,8 @@ class NewVisitMenuView extends AbstractComponent {
         const encounterName = this.I18n.t(encounterType.operationalEncounterTypeName);
         return <NewVisitMenuView.Item name={encounterName}
                                       displayDate=''
-                                      statusColor={Colors.FutureVisitColor}
+                                      statusColor={Colors.BrandLight}
+                                      alwaysApplyColor
                                       onSelect={() => CHSNavigator.proceedEncounter(encounterType, parent, this.props.onSaveCallback, this)}/>;
     };
 

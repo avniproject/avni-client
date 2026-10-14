@@ -25,8 +25,9 @@ import com.facebook.react.bridge.WritableMap
  *     Otherwise resolves with `{uri, quality}`:
  *       - `uri`: absolute file path of the captured JPEG.
  *       - `quality`: Phase 2 image-quality scoring result (blurVariance, brightnessMean,
- *         contrastStdDev, noiseEstimate, isUnusable, imageWidth, imageHeight — see
- *         ImageQualityAnalyzer.kt's KEY_* constants for the source of these field names), or
+ *         contrastStdDev, noiseEstimate, isUnusable, imageWidth, imageHeight, sourceImageWidth,
+ *         sourceImageHeight — see ImageQualityAnalyzer.kt's KEY_* constants for the source of
+ *         these field names), or
  *         `null` if scoring didn't complete (OpenCV decode failure, or the user tapped Done
  *         before the async analysis in CameraCaptureActivity finished). Callers must treat a
  *         null `quality` as "unknown", not as "usable" — see MediaV2FormElement.js/
@@ -119,6 +120,14 @@ class CameraModule(private val reactContext: ReactApplicationContext) :
         quality.putBoolean("isUnusable", data.getBooleanExtra(CameraCaptureActivity.EXTRA_QUALITY_IS_UNUSABLE, false))
         quality.putInt("imageWidth", data.getIntExtra(CameraCaptureActivity.EXTRA_QUALITY_IMAGE_WIDTH, 0))
         quality.putInt("imageHeight", data.getIntExtra(CameraCaptureActivity.EXTRA_QUALITY_IMAGE_HEIGHT, 0))
+        // Added 2026-09-29 alongside the brightness-measurement fix — original (pre-resize)
+        // capture dimensions, so blur-variance-vs-device-resolution can be checked in Firebase.
+        quality.putInt("sourceImageWidth", data.getIntExtra(CameraCaptureActivity.EXTRA_QUALITY_SOURCE_IMAGE_WIDTH, 0))
+        quality.putInt("sourceImageHeight", data.getIntExtra(CameraCaptureActivity.EXTRA_QUALITY_SOURCE_IMAGE_HEIGHT, 0))
+        // Added 2026-09-30 — gyroscope-based motion detection (see MotionDetector.kt), a direct
+        // complement to the pixel-based blur check for photos taken while the camera was moving.
+        quality.putBoolean("motionDetected", data.getBooleanExtra(CameraCaptureActivity.EXTRA_QUALITY_MOTION_DETECTED, false))
+        quality.putDouble("maxAngularVelocityRadPerSec", data.getDoubleExtra(CameraCaptureActivity.EXTRA_QUALITY_MAX_ANGULAR_VELOCITY, 0.0))
         result.putMap("quality", quality)
         return result
     }

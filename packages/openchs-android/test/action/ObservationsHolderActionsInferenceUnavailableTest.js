@@ -1,10 +1,9 @@
 /**
  * Unit tests for ObservationsHolderActions.onInferenceUnavailable — the handler for
- * EDGE_MODEL.INFERENCE_UNAVAILABLE. When an image produces no verdict (inference failed at
- * runtime), this raises an Inference-typed ValidationResult on the image form element so Next is
- * blocked and the error renders red. The result must survive rule cycles (unlike a Form/Rule-typed
- * one) and be resolved from the scheduling rule's concept name. It is cleared by the #2009 re-sync
- * when a verdict later lands.
+ * EDGE_MODEL.INFERENCE_UNAVAILABLE. When an image produces no verdict (model not synced, or
+ * inference failed), this raises an Inference-typed ValidationResult on the image form element so
+ * Next is blocked and the error renders red. The result must survive rule cycles (unlike a
+ * Form/Rule-typed one) and be resolved from the scheduling rule's concept name.
  */
 import {ValidationResult} from 'openchs-models';
 import ObservationsHolderActions from "../../src/action/common/ObservationsHolderActions";
@@ -19,10 +18,13 @@ describe('ObservationsHolderActions.onInferenceUnavailable', () => {
     });
 
     const makeState = (formElements) => {
+        const validationResults = [];
         const cloned = {
-            validationResults: [],
+            validationResults,
             handleValidationResult(vr) {
-                this.validationResults = this.validationResults.filter(e => e.formIdentifier !== vr.formIdentifier);
+                // Mirror AbstractDataEntryState.handleValidationResult's replace-then-push.
+                this.validationResults = this.validationResults.filter(
+                    e => e.formIdentifier !== vr.formIdentifier);
                 if (!vr.success) this.validationResults.push(vr);
             },
         };
@@ -38,7 +40,7 @@ describe('ObservationsHolderActions.onInferenceUnavailable', () => {
         const state = makeState([fe('uuid-ai', 'AI Verdict')]);
         const result = ObservationsHolderActions.onInferenceUnavailable(state, {
             conceptName: 'AI Verdict', questionGroupConceptName: null, questionGroupIndex: null,
-            messageKey: 'aiInferenceFailed',
+            messageKey: 'aiModelUnavailable',
         }, {});
 
         expect(result).toBe(state._cloned);
@@ -46,7 +48,7 @@ describe('ObservationsHolderActions.onInferenceUnavailable', () => {
         const vr = result.validationResults[0];
         expect(vr.success).toBe(false);
         expect(vr.formIdentifier).toBe('uuid-ai');
-        expect(vr.messageKey).toBe('aiInferenceFailed');
+        expect(vr.messageKey).toBe('aiModelUnavailable');
         expect(vr.validationType).toBe(ValidationResult.ValidationTypes.Inference);
     });
 
@@ -69,9 +71,9 @@ describe('ObservationsHolderActions.onInferenceUnavailable', () => {
         const state = makeState([fe('uuid-other', 'Something Else')]);
         const result = ObservationsHolderActions.onInferenceUnavailable(state, {
             conceptName: 'AI Verdict', questionGroupConceptName: null, questionGroupIndex: null,
-            messageKey: 'aiInferenceFailed',
+            messageKey: 'aiModelUnavailable',
         }, {});
-        expect(result).toBe(state);
+        expect(result).toBe(state);   // unchanged, no clone consumed downstream
     });
 
     it('bails when no form is open (no formElementGroup)', () => {

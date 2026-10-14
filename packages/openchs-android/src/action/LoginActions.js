@@ -77,7 +77,9 @@ class LoginActions {
             .authenticate(state.userId, state.password)
             .then((response) => {
                 if (response.status === "LOGIN_SUCCESS") {
-                    logEvent(firebaseEvents.LOG_IN);
+                    // duration_ms = tap on Login -> authentication succeeded. The full wait the user
+                    // feels (incl. the DB restore that follows) is the task_duration 'login' event.
+                    logEvent(firebaseEvents.LOG_IN, {outcome: 'success', duration_ms: Date.now() - loginStartTime});
                     LoginActions.startDumpRestore(context, action, action.source, timeLoginCompletion(action.successCb));
                     return;
                 }
@@ -89,7 +91,7 @@ class LoginActions {
             }, (error) => {
                 General.logError("LoginActions", error);
                 const errorMsg = _.includes(error.message, "Network request failed") ? error.message.concat('. Network is slow or disconnected. Please check internet connection') : error.authErrCode;
-                logEvent(firebaseEvents.LOG_IN_ERROR, {error_message: errorMsg});
+                logEvent(firebaseEvents.LOG_IN_ERROR, {error_message: errorMsg, outcome: 'error', duration_ms: Date.now() - loginStartTime});
                 action.failure(errorMsg);
             });
         return newState;

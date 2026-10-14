@@ -194,6 +194,8 @@ class CustomDashboardActions {
             const countResult = state.cardToCountResultMap[itemKey];
             const displayName = (countResult && countResult.cardName) || reportCard.name;
             const isArrayLike = isArrayLikeResult(result);
+            // Checklist results are an object keyed by individual/checklistItemNames, not a list.
+            const isChecklistCard = standardReportCardType && standardReportCardType.isChecklistType();
             if (reportCard.isActionDoVisit() && isArrayLike) {
                 const doVisitResult = extractValidIndividuals(result);
                 const onActionCompletion = reportCard.onActionCompletion;
@@ -225,12 +227,14 @@ class CustomDashboardActions {
                             standardReportCardType && standardReportCardType.getApprovalStatusForType(), ruleInputArray, reportCard, displayName), 0);
                     }
                 }
-            } else if (isArrayLike) {
+            } else if (isArrayLike || isChecklistCard) {
                 const isApprovalCard = standardReportCardType && standardReportCardType.isApprovalType();
+                // Comment results are Comment entities, not subjects, so the shortcut would navigate with a Comment's uuid.
+                const isCommentCard = standardReportCardType && standardReportCardType.isCommentType();
                 // MarkAttendance always opens the list, never the single-subject shortcut.
                 const singleSubject = (result.length === 1 && !reportCard.isActionMarkAttendance())
                     ? (result[0].individual || result[0]) : null;
-                if (!isApprovalCard && singleSubject && singleSubject.uuid) {
+                if (!isApprovalCard && !isCommentCard && singleSubject && singleSubject.uuid) {
                     General.logDebug('CustomDashboardActions', `onCardPress - Single subject, navigating directly to subject profile`);
                     setTimeout(() => action.onShowSubjectAction(singleSubject), 0);
                 } else {

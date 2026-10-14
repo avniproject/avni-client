@@ -3,6 +3,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Text, TouchableOpacity, View} from "react-native";
 import Colors from "./Colors";
 import Styles from "./Styles";
+import Distances from "./Distances";
 import PropTypes from "prop-types";
 import React from 'react';
 
@@ -19,7 +20,7 @@ class FloatingButton extends AbstractComponent {
     render() {
         const {buttonTextKey, onClick} = this.props;
 
-        return <View style={{height: 60, position: 'absolute', bottom: 0, right: 35}}>
+        return <View style={{height: 60, position: 'absolute', bottom: Distances.EdgeToEdgeNavigationBarInset, right: 35}}>
             <TouchableOpacity activeOpacity={0.5}
                               onPress={onClick}
                               style={{

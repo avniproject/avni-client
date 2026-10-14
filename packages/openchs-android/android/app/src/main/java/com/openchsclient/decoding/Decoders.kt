@@ -8,7 +8,7 @@ import org.json.JSONObject
 import kotlin.math.exp
 
 /**
- * Named registry of output decoders (~/.claude/plans/composed-tumbling-bachman.md).
+ * Named registry of output decoders.
  *
  * Lookup is by string identifier in the registry override JSON:
  *
@@ -82,25 +82,39 @@ object ArgmaxLabelsDecoder : OutputDecoder {
  * Single-logit binary classification — exactly the PoC's path:
  *
  *   probability = 1 / (1 + exp(-logit))
- *   label = labels[1] if probability > threshold else labels[0]
+ *   label = labels[1] if probability > threshold else labels[0]      (default)
+ *   label = labels[1] if probability >= threshold else labels[0]     (threshold_inclusive = true —
+ *                                         the QC notebook's rule: `probability >= 0.5 → Suspicious`)
  *
  * Params:
  *
  *   {
  *     "threshold": 0.5,
+ *     "threshold_inclusive": false,         // true → ">=" (QC OCS_blackbox.ipynb); NaN is negative either way
  *     "labels": ["Negative", "Positive"]   // [negative, positive]
  *   }
  */
 object SigmoidBinaryDecoder : OutputDecoder {
+    /** Sigmoid probability of the logit, as reported in `confidence`. */
+    fun probability(logit: Float): Float = (1.0 / (1.0 + exp(-logit.toDouble()))).toFloat()
+
+    /** The decision rule alone (no React Native types) — shared with the QC benchmark harness. */
+    fun isPositive(logit: Float, params: JSONObject): Boolean {
+        val probability = probability(logit)
+        val threshold = params.optDouble("threshold", 0.5).toFloat()
+        return if (params.optBoolean("threshold_inclusive", false)) probability >= threshold else probability > threshold
+    }
+
     override fun decode(output: FloatArray, shape: LongArray, params: JSONObject): WritableMap {
         if (output.isEmpty()) throw IllegalStateException("sigmoid-binary decoder received empty output")
         val logit = output[0]
-        val probability = (1.0 / (1.0 + exp(-logit.toDouble()))).toFloat()
+        val probability = probability(logit)
         val threshold = params.optDouble("threshold", 0.5).toFloat()
         val labels = params.optStringList("labels") ?: listOf("Negative", "Positive")
+        val positive = isPositive(logit, params)
 
         val map = Arguments.createMap()
-        map.putString("label", if (probability > threshold) labels.getOrElse(1) { "Positive" } else labels.getOrElse(0) { "Negative" })
+        map.putString("label", if (positive) labels.getOrElse(1) { "Positive" } else labels.getOrElse(0) { "Negative" })
         map.putDouble("confidence", probability.toDouble())
         map.putDouble("logit", logit.toDouble())
         map.putDouble("threshold", threshold.toDouble())

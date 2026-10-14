@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     },
     filterButtonContainer: {
         right: Distances.ScaledContentDistanceFromEdge,
-        bottom: Distances.ScaledContentDistanceFromEdge,
+        bottom: Distances.ScaledContentDistanceFromEdge + Distances.EdgeToEdgeNavigationBarInset,
         padding: Distances.ScaledContentDistanceFromEdge,
         position: 'absolute',
         alignItems: 'center',

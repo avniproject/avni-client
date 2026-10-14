@@ -39,20 +39,15 @@
       const imageUri = imageUriObs.getValue();
       const imagePath = params.services.mediaService.getAbsolutePath(imageUri, 'Image');
       console.log(TAG, "imageUri =", imageUri, "imagePath =", imagePath);
+      console.log(TAG, "calling edgeModelService.runInferenceOnImage(imagePath)");
 
-      // 3-fold MViT2 cross-validation ensemble (model6/model8/model8-2 -> mvit2_fold1_6/
-      // mvit2_fold1_8/mvit2_fold2_8), soft-voted by EdgeModelService.runEnsembleInferenceOnImage
-      // per tools/edge-model/README.md's "3-fold ensemble flow". This REPLACES the old single
-      // 'mvit2_fold5_2_latest_traced' model call, which is retired and (as of this edit) not even
-      // registered in registry.json — that mismatch was the immediate cause of every inference
-      // call failing outright.
-      const modelKeys = ['mvit2_fold1_6', 'mvit2_fold1_8', 'mvit2_fold2_8'];
-      console.log(TAG, `calling edgeModelService.runEnsembleInferenceOnImage([${modelKeys.join(',')}], ...)`);
-
-      // result: { label: "Positive"|"Negative", confidence, positive, modelKeys, perModel }
-      // combine/threshold/labels come from the folds' shared registry override
-      // (tanuh-ensemble-override.json's output.params) unless overridden here.
-      return params.services.edgeModelService.runEnsembleInferenceOnImage(modelKeys, imagePath)
+      // The model is the set of synced `edgeModel` content rows — no modelKey is passed.
+      // One row runs a single model; multiple rows run a soft-vote ensemble. Only the common
+      // shape is guaranteed across both paths:
+      //   { label: "Positive"|"Negative", confidence, positive }
+      // (`positive` is the boolean verdict.) `perModel` (per-fold breakdown) is ensemble-only;
+      // `logit`/`raw`/`threshold` are single-model-only — none of these are guaranteed.
+      return params.services.edgeModelService.runInferenceOnImage(imagePath)
         .then(result => {
           console.log(TAG, "ensemble result:", JSON.stringify({
             label: result.label,

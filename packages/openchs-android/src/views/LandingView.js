@@ -18,6 +18,7 @@ import EntityService from "../service/EntityService";
 import {SubjectType} from "avni-models";
 import _ from "lodash";
 import Colors from "./primitives/Colors";
+import Distances from "./primitives/Distances";
 import RegisterView from "./RegisterView";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -380,9 +381,14 @@ class LandingView extends AbstractComponent {
         General.logDebug('LandingView', `render - showGuide: ${showGuide}, showRegisterGuide: ${this.state.showRegisterGuide}, displayRegister: ${displayRegister}, registerButtonIndex: ${registerButtonIndex}, bottomBarCount: ${bottomBarIcons.length}, secondaryDashboard: ${!_.isNil(secondaryDashboard)}`);
         const bottomBarContent = (
             <View style={{
-                height: LandingView.layoutConstants.bottomBarHeight,
+                // Bar's background stays flush to the true bottom edge (bottom: 0) and grows taller by the
+                // Android 16+ gesture-nav inset; paddingBottom reserves that same amount inside the box, so
+                // alignItems: 'center' still centers the icons within the original bottomBarHeight zone -
+                // same gaps as before, just sitting `inset` px above the gesture bar instead of under it.
+                height: LandingView.layoutConstants.bottomBarHeight + Distances.EdgeToEdgeNavigationBarInset,
                 position: 'absolute',
                 bottom: 0,
+                paddingBottom: Distances.EdgeToEdgeNavigationBarInset,
                 width: '100%',
                 backgroundColor: Colors.bottomBarColor,
                 flexDirection: 'row',
