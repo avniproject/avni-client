@@ -1,4 +1,4 @@
-// Sync pulls the server can answer without first counting every matching record.
+// Sync pulls the server answers with a slice (hasNext) instead of a page carrying totals.
 const noCountPullPaths = {
     Individual: "individual/v2",
     ProgramEnrolment: "programEnrolment/v2",
