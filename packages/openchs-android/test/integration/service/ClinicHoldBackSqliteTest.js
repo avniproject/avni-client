@@ -207,6 +207,17 @@ describe("Holding back uploads that depend on another phone", () => {
         expect(mine.posted.map((r) => [r.uuid, r.firstName])).toEqual([["own-1", "Kamla Bai"]]);
     });
 
+    it("does not hold visits on a patient this phone already has from the server when the hub serves it again, as after a hub restart", async () => {
+        const shared = fromAnotherPhone('Individual', 'Individual', patient('p-1'));
+        await mine.sync.persistAll(pulled('Individual'), [fromServer(mine.recordService, 'Individual', shared)]);
+
+        await mine.recordService.applyBatches([{entityName: 'Individual', resources: [shared]}], log);
+        mine.saveLocally("Encounter", visit("v-1", "p-1"));
+        await mine.push();
+
+        expect(mine.postedUuids()).toEqual(["v-1"]);
+    });
+
     it("reports what is held, since when, and what it waits on", async () => {
         await receivePatient();
         mine.saveLocally("Individual", patient("own-1", "Kamla"));

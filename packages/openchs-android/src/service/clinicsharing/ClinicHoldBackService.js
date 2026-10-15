@@ -5,8 +5,7 @@ import _ from "lodash";
 
 const linkedUuids = (resource) => _.compact(_.map(resource, (value, key) => (/uuid$/i.test(key) && _.isString(value) ? value : null)));
 
-// Uploads whose record, or a record it links to, came from another phone wait until the server has
-// that record: the server refuses a child before its parent, and credits the first uploader as creator.
+// The server refuses a child before its parent and credits the first uploader as creator, so these wait for it.
 @Service("clinicHoldBackService")
 class ClinicHoldBackService extends BaseService {
     getSchema() {

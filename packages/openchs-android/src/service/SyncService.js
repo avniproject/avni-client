@@ -54,6 +54,7 @@ import FileSystem from "../model/FileSystem";
 import {jsonArrayListPropFor} from "../framework/db/SchemaGenerator";
 import LastSyncCompleted from "./LastSyncCompleted";
 import OrganisationConfigService from "./OrganisationConfigService";
+import {SHAREABLE_ENTITIES} from "../framework/clinicsharing/ClinicSharingConstants";
 
 function transformResourceToEntity(entityMetaData, entityResources) {
     return (acc, resource) => {
@@ -618,11 +619,12 @@ class SyncService extends BaseService {
         }
         entityResources = _.sortBy(entityResources, 'lastModifiedDateTime');
         const loadedSince = _.last(entityResources).lastModifiedDateTime;
-        const releasing = this._clinicSharingEnabled()
+        const shared = this._clinicSharingEnabled() && SHAREABLE_ENTITIES.includes(entityMetaData.schemaName);
+        const releasing = shared
             ? await this.getService('clinicHoldBackService').receivedAmong(entityResources.map((resource) => resource.uuid))
             : {release: [], keepLocal: []};
         // The server's copy supersedes a hub copy still waiting for its parent.
-        if (this._clinicSharingEnabled()) await this.getService('clinicParkedRecordService').unpark(entityResources.map((resource) => resource.uuid));
+        if (shared) await this.getService('clinicParkedRecordService').unpark(entityResources.map((resource) => resource.uuid));
         // The local copy is a held edit still to upload; the server's older copy must not replace it.
         if (!_.isEmpty(releasing.keepLocal)) this._adoptServerMediaUrls(entityMetaData, entityResources.filter((resource) => releasing.keepLocal.includes(resource.uuid)));
         entityResources = entityResources.filter((resource) => !releasing.keepLocal.includes(resource.uuid));

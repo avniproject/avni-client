@@ -106,8 +106,10 @@ class ClinicRecordService extends BaseService {
         }
         if (kept.length === 0) return 0;
 
+        // A record already on this phone came from the server or was received before, so the server has it or it is already held.
+        const newHere = kept.filter(({entity}) => _.isNil(this.findByKey('uuid', entity.uuid, metaData.schemaName))).map(({entity}) => entity.uuid);
         await this.getService(SyncService).applyIncoming(metaData, kept.map(({resource}) => resource), kept.map(({entity}) => entity));
-        await this.getService('clinicHoldBackService').recordReceived(entityName, kept.map(({entity}) => entity.uuid));
+        await this.getService('clinicHoldBackService').recordReceived(entityName, newHere);
         await this.getService('clinicMediaService').recordReceivedMedia(entityName, kept.map(({entity}) => entity));
         log(`applied ${kept.length} ${entityName}`);
         return kept.length;
