@@ -21,6 +21,20 @@ class ClinicSpokeService extends BaseService {
         this.stateDb = null;
         this.joined = null;
         this.inFlight = null;
+        this.lastSync = null;
+        this.lastSyncedAt = null;
+        this.hubRestarted = false;
+        this.hubNetworkLost = false;
+        this.listeners = new Set();
+    }
+
+    onChange(listener) {
+        this.listeners.add(listener);
+        return () => this.listeners.delete(listener);
+    }
+
+    _changed() {
+        this.listeners.forEach((listener) => listener());
     }
 
     getSchema() {
@@ -51,13 +65,64 @@ class ClinicSpokeService extends BaseService {
         return result.rows._array || result.rows || [];
     }
 
-    async deviceId() {
+    async _getMeta(key) {
         const db = await this._state();
-        const rows = this._sqliteRows(await db.execute("select value from meta where key = 'deviceId'"));
-        if (rows.length > 0) return rows[0].value;
-        const id = General.randomUUID();
-        await db.execute("insert into meta (key, value) values ('deviceId', ?)", [id]);
-        return id;
+        const rows = this._sqliteRows(await db.execute('select value from meta where key = ?', [key]));
+        return rows.length > 0 ? rows[0].value : null;
+    }
+
+    async _setMeta(key, value) {
+        const db = await this._state();
+        if (_.isNil(value)) await db.execute('delete from meta where key = ?', [key]);
+        else await db.execute('insert into meta (key, value) values (?, ?) on conflict(key) do update set value = excluded.value', [key, value]);
+    }
+
+    async deviceId() {
+        const id = await this._getMeta('deviceId');
+        if (id) return id;
+        const newId = General.randomUUID();
+        await this._setMeta('deviceId', newId);
+        return newId;
+    }
+
+    savedJoinCode() {
+        return this._getMeta('joinCode');
+    }
+
+    // Android's in-app Wi-Fi join ends with the app, so the code is kept for Rejoin until the hub restarts.
+    async joinWithCode(qrText, log) {
+        const hubJoin = require("../../framework/clinicsharing/ClinicHubJoin").default;
+        const joinInfo = await hubJoin.joinHub(qrText);
+        await this._setMeta('joinCode', qrText);
+        this.hubRestarted = false;
+        this.hubNetworkLost = false;
+        this.lastSync = null;
+        this.lastSyncedAt = null;
+        this.join(joinInfo, log);
+        this.stopWatchingNetwork = hubJoin.watchHubNetwork(joinInfo, () => this._hubNetworkLost());
+        this._changed();
+        return joinInfo;
+    }
+
+    async leaveHub() {
+        this.leave();
+        await this._setMeta('joinCode', null);
+        await require("../../framework/clinicsharing/ClinicHubWifi").leaveNetwork().catch(_.noop);
+        this._changed();
+    }
+
+    // Usually the phone left the hotspot's range, so the code stays for Rejoin.
+    _hubNetworkLost() {
+        this.leave();
+        this.hubNetworkLost = true;
+        this._changed();
+    }
+
+    async _hubRestarted() {
+        this.leave();
+        await this._setMeta('joinCode', null);
+        this.hubRestarted = true;
+        this._changed();
     }
 
     // A new epoch means the hub restarted with an empty view of this phone, so send and pull everything again.
@@ -163,9 +228,20 @@ class ClinicSpokeService extends BaseService {
     syncNow(log) {
         if (!this.joined) return Promise.resolve(null);
         if (!this.inFlight) {
-            this.inFlight = this.syncWithHub(this.joined, log).finally(() => { this.inFlight = null; });
+            this.inFlight = this.syncWithHub(this.joined, log)
+                .then((result) => this._noteResult(result))
+                .finally(() => { this.inFlight = null; });
         }
         return this.inFlight;
+    }
+
+    // A refused key or epoch means the hub restarted with a new code, which no retry will get past.
+    async _noteResult(result) {
+        this.lastSync = {at: new Date(), ...result};
+        if (!result.error) this.lastSyncedAt = this.lastSync.at;
+        if (['key', 'stale'].includes(_.get(result, 'error.code'))) await this._hubRestarted();
+        else this._changed();
+        return result;
     }
 
     join(joinInfo, log) {
@@ -180,6 +256,8 @@ class ClinicSpokeService extends BaseService {
     }
 
     leave() {
+        if (this.stopWatchingNetwork) this.stopWatchingNetwork();
+        this.stopWatchingNetwork = null;
         this._stopTimer();
         if (this.appStateSubscription) this.appStateSubscription.remove();
         this.appStateSubscription = null;

@@ -6,6 +6,7 @@ import EntitySyncStatusView from "../entitysyncstatus/EntitySyncStatusView";
 import DevSettingsView from "../settings/DevSettingsView";
 import CustomDashboardView from "../customDashboard/CustomDashboardView";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
+import ClinicSharingView from "../clinicsharing/ClinicSharingView";
 import _ from "lodash";
 
 const FunctionalityMenus = [
@@ -15,7 +16,8 @@ const FunctionalityMenus = [
     new StaticMenuItem("beneficiaryMode", "account-supervisor", "beneficiaryMode", StaticMenuItem.InternalNavigationMenuType, BeneficiaryModeStartView)];
 const SyncMenus = [
     new StaticMenuItem("entitySyncStatus", "sync", "entitySyncStatus", StaticMenuItem.InternalNavigationMenuType, EntitySyncStatusView),
-    new StaticMenuItem("uploadCatchmentDatabase", "backup-restore", "uploadCatchmentDatabase", StaticMenuItem.CustomActionMenuType)
+    new StaticMenuItem("uploadCatchmentDatabase", "backup-restore", "uploadCatchmentDatabase", StaticMenuItem.CustomActionMenuType),
+    new StaticMenuItem("clinicSharing", "access-point-network", "clinicSharing", StaticMenuItem.InternalNavigationMenuType, ClinicSharingView)
 ];
 const UserMenus = [
     new StaticMenuItem("changePassword", "account-key", "changePassword", StaticMenuItem.CustomActionMenuType),
@@ -41,9 +43,18 @@ class StaticMenuItemFactory {
     }
 
     static getSyncMenus(context) {
-        const hideUploadCatchmentDatabase = context.getService(OrganisationConfigService).isDbEncryptionEnabled();
+        const organisationConfigService = context.getService(OrganisationConfigService);
+        const hideUploadCatchmentDatabase = organisationConfigService.isDbEncryptionEnabled();
         return SyncMenus.filter(menuItem =>
-            !(menuItem.uniqueName === "uploadCatchmentDatabase" && hideUploadCatchmentDatabase));
+            !(menuItem.uniqueName === "uploadCatchmentDatabase" && hideUploadCatchmentDatabase)
+            && !(menuItem.uniqueName === "clinicSharing" && !this.isClinicSharingAvailable(organisationConfigService)));
+    }
+
+    // Clinic sharing's own files are not encrypted, and parked records hold whole records.
+    static isClinicSharingAvailable(organisationConfigService) {
+        return organisationConfigService.db.isSqlite === true
+            && organisationConfigService.getSettings().enableClinicSharing === true
+            && !organisationConfigService.isDbEncryptionEnabled();
     }
 
     static getUserMenus() {

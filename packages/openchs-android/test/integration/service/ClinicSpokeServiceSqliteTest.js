@@ -15,6 +15,13 @@ jest.mock('react-native-keychain', () => ({
     getGenericPassword: jest.fn(async () => false), setGenericPassword: jest.fn(async () => {}), resetGenericPassword: jest.fn(async () => {}),
 }));
 
+jest.mock('../../../src/framework/clinicsharing/ClinicHubJoin', () => ({
+    __esModule: true,
+    default: {joinHub: jest.fn(), watchHubNetwork: jest.fn(() => jest.fn()), startHubNetwork: jest.fn(), stopHubNetwork: jest.fn(async () => {})},
+}));
+jest.mock('../../../src/framework/clinicsharing/ClinicHubWifi', () => ({leaveNetwork: jest.fn(async () => {}), onHotspotStopped: jest.fn(() => jest.fn())}));
+
+import hubJoin from "../../../src/framework/clinicsharing/ClinicHubJoin";
 import ClinicHubService from "../../../src/service/clinicsharing/ClinicHubService";
 import ClinicSpokeService from "../../../src/service/clinicsharing/ClinicSpokeService";
 import ClinicRecordService from "../../../src/service/clinicsharing/ClinicRecordService";
@@ -238,5 +245,84 @@ describe('Phones syncing with the hub', () => {
         await b.sync();
 
         expect(b.spoke.dispatchAction).toHaveBeenCalled();
+    });
+
+    describe('joining from the screen', () => {
+        const code = 'scanned-code';
+        const joinWith = (p) => {
+            hubJoin.joinHub.mockImplementation(async () => ({host: '127.0.0.1', port, ...session, ssid: 'AndroidShare_1'}));
+            return p.spoke.joinWithCode(code, log);
+        };
+        const settled = (p) => p.spoke.inFlight || Promise.resolve();
+        afterEach(() => phones.forEach((p) => p.spoke.leave()));
+
+        it('remembers the scanned code for Rejoin, records the sync, and forgets the code on leaving', async () => {
+            const a = phone();
+            await joinWith(a);
+            await settled(a);
+
+            expect([await a.spoke.savedJoinCode(), a.spoke.joined.ssid, a.spoke.lastSyncedAt instanceof Date]).toEqual([code, 'AndroidShare_1', true]);
+
+            await a.spoke.leaveHub();
+            expect([await a.spoke.savedJoinCode(), a.spoke.joined]).toEqual([null, null]);
+        });
+
+        it("keeps the code for Rejoin when the phone loses the hub's Wi-Fi", async () => {
+            const a = phone();
+            let lost;
+            hubJoin.watchHubNetwork.mockImplementation((info, onLost) => { lost = onLost; return jest.fn(); });
+            await joinWith(a);
+            await settled(a);
+
+            lost();
+
+            expect([a.spoke.hubNetworkLost, a.spoke.joined, await a.spoke.savedJoinCode()]).toEqual([true, null, code]);
+        });
+
+        it('asks for a new scan when the hub restarted with a new code, and keeps the last good sync time', async () => {
+            const a = phone();
+            await joinWith(a);
+            await settled(a);
+            const lastGood = a.spoke.lastSyncedAt;
+            await hub.stopHub();
+            await startHub();
+
+            await a.spoke.syncNow(log);
+
+            expect([a.spoke.hubRestarted, a.spoke.joined, await a.spoke.savedJoinCode(), a.spoke.lastSyncedAt]).toEqual([true, null, null, lastGood]);
+            expect(a.spoke.lastSync.error.code).toBe('key');
+        });
+    });
+
+    describe('the hub screen', () => {
+        it('counts the phones that synced in the last 5 minutes', async () => {
+            const a = phone(), b = phone(), c = phone();
+            await a.sync();
+            await b.sync();
+            await c.sync();
+            const [first] = hub.lastSyncByDevice.keys();
+            hub.lastSyncByDevice.set(first, Date.now() - 6 * 60 * 1000);
+
+            expect(hub.recentPhoneCount()).toBe(2);
+        });
+
+        it('stops its server again when the hotspot cannot start', async () => {
+            await hub.stopHub();
+            hubJoin.startHubNetwork.mockImplementation(async () => { throw new Error('Wi-Fi is off'); });
+
+            await expect(hub.startSharing(log, {port})).rejects.toThrow('Wi-Fi is off');
+            expect([hub.transport, hub.getSharing()]).toEqual([null, null]);
+        });
+
+        it('starts and stops the hotspot with its server', async () => {
+            await hub.stopHub();
+            hubJoin.startHubNetwork.mockImplementation(async ({hubId}) => ({ssid: 'AndroidShare_1', passphrase: 'pass1234', qrValue: hubId}));
+
+            const sharing = await hub.startSharing(log, {port});
+            expect([sharing.ssid, sharing.qrValue, hub.transport !== null]).toEqual(['AndroidShare_1', await hub.hubId(), true]);
+
+            await hub.stopSharing();
+            expect([hub.transport, hub.getSharing(), hubJoin.stopHubNetwork.mock.calls.length]).toEqual([null, null, 1]);
+        });
     });
 });

@@ -7,12 +7,13 @@ import DeviceInfo from "react-native-device-info";
 import _ from "lodash";
 import General from "../../utility/General";
 import ClinicRecordService, {parentsFirstIndex} from "./ClinicRecordService";
-import {generateSessionKey, MessageType, startHub} from "../../framework/clinicsharing/ClinicTransport";
+import {CLINIC_PORT, generateSessionKey, MessageType, startHub} from "../../framework/clinicsharing/ClinicTransport";
 import {LEDGER_PRUNE_INTERVAL_MS, LEDGER_RETENTION_DAYS, SHAREABLE_ENTITIES} from "../../framework/clinicsharing/ClinicSharingConstants";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const STOP_REQUESTED_EVENT = 'ClinicHubStopRequested';
 const MEDIA_MESSAGES = [MessageType.mediaPush, MessageType.mediaData, MessageType.mediaRequest];
+export const RECENT_PHONE_WINDOW_MS = 5 * 60 * 1000;
 
 @Service("clinicHubService")
 class ClinicHubService extends BaseService {
@@ -22,6 +23,53 @@ class ClinicHubService extends BaseService {
         this.ledgerDb = null;
         this.lock = Promise.resolve();
         this.lastPrunedAt = 0;
+        this.lastSyncByDevice = new Map();
+        this.listeners = new Set();
+        this.sharing = null;
+    }
+
+    onChange(listener) {
+        this.listeners.add(listener);
+        return () => this.listeners.delete(listener);
+    }
+
+    _changed() {
+        this.listeners.forEach((listener) => listener());
+    }
+
+    recentPhoneCount(withinMs = RECENT_PHONE_WINDOW_MS) {
+        const since = Date.now() - withinMs;
+        return [...this.lastSyncByDevice.values()].filter((syncedAt) => syncedAt >= since).length;
+    }
+
+    getSharing() {
+        return this.sharing;
+    }
+
+    // The hub's server and its hotspot start and stop together; required lazily, as the join module needs native Wi-Fi.
+    async startSharing(log = _.noop, {port = CLINIC_PORT} = {}) {
+        const session = await this.startHub(log, {port});
+        const hubJoin = require("../../framework/clinicsharing/ClinicHubJoin").default;
+        try {
+            this.sharing = await hubJoin.startHubNetwork({...session, port});
+        } catch (error) {
+            await this.stopHub();
+            throw error;
+        }
+        this.stopWatchingHotspot = require("../../framework/clinicsharing/ClinicHubWifi").onHotspotStopped(() => this.stopSharing());
+        this.lastSyncByDevice.clear();
+        this._changed();
+        return this.sharing;
+    }
+
+    async stopSharing() {
+        if (this.stopWatchingHotspot) this.stopWatchingHotspot();
+        this.stopWatchingHotspot = null;
+        const wasSharing = !_.isNil(this.sharing);
+        this.sharing = null;
+        await this.stopHub();
+        if (wasSharing) await require("../../framework/clinicsharing/ClinicHubJoin").default.stopHubNetwork().catch((error) => General.logError('ClinicHubService', error));
+        this._changed();
     }
 
     getSchema() {
@@ -112,14 +160,14 @@ class ClinicHubService extends BaseService {
         });
         const nativeHub = NativeModules.ClinicHub;
         if (nativeHub) {
-            this.stopSubscription = new NativeEventEmitter(nativeHub).addListener(STOP_REQUESTED_EVENT, () => this.stopHub());
+            this.stopSubscription = new NativeEventEmitter(nativeHub).addListener(STOP_REQUESTED_EVENT, () => this.stopSharing());
             nativeHub.startForegroundService();
         }
         return session;
     }
 
     async clearLedger() {
-        await this.stopHub();
+        await this.stopSharing();
         const db = await this._ledger();
         const tables = this._sqliteRows(await db.execute("select name from sqlite_master where type = 'table' and name not like 'sqlite_%'")).map((row) => row.name);
         await db.executeBatch(tables.map((table) => [`delete from ${table}`, []]));
@@ -180,6 +228,7 @@ class ClinicHubService extends BaseService {
 
     async _handlePush({deviceId, batches, upTo}, log) {
         const startedAt = Date.now();
+        this._noteSync(deviceId);
         const applied = await this.getService(ClinicRecordService).applyBatches(batches, log, deviceId);
         await this._appendLedgerRows(batches, deviceId);
         await this.getService('clinicParkedRecordService').afterSync(startedAt, log);
@@ -217,7 +266,13 @@ class ClinicHubService extends BaseService {
         }
     }
 
+    _noteSync(deviceId) {
+        this.lastSyncByDevice.set(deviceId, Date.now());
+        this._changed();
+    }
+
     async _handlePull({deviceId, since}, log) {
+        this._noteSync(deviceId);
         await this._mirrorOwnQueue();
         const db = await this._ledger();
         const rows = this._sqliteRows(await db.execute(

@@ -36,8 +36,7 @@ describe('Syncing with the hub while joined', () => {
 
     const settle = async () => {
         finishSync({});
-        await Promise.resolve();
-        await Promise.resolve();
+        for (let tick = 0; tick < 6; tick++) await Promise.resolve();
     };
 
     it('syncs as soon as it joins, then every 30 seconds', async () => {
