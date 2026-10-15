@@ -1,8 +1,7 @@
 import Zeroconf from "react-native-zeroconf";
 import General from "../../utility/General";
 
-// The hub announces itself on its hotspot over mDNS, and a phone that joined looks it up by the hub id in the QR code
-// (avni-client#2173). A subnet scan does not work: react-native-tcp-socket queues connects on two threads with no timeout.
+// mDNS rather than a subnet scan: react-native-tcp-socket queues connects on two threads with no timeout.
 export const HUB_SERVICE = Object.freeze({type: "avnihub", protocol: "tcp", domain: "local."});
 export const HUB_PORT = 7373;
 

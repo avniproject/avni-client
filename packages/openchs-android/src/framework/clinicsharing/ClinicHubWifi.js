@@ -1,7 +1,6 @@
 import {NativeEventEmitter, NativeModules} from "react-native";
 import DeviceInfo from "react-native-device-info";
 
-// The only place that talks to ClinicHubWifiModule (avni-client#2173).
 // Android 10 (API 29) brings both the hotspot's network name and password, and joining a named network from an app.
 export const HUB_MIN_API_LEVEL = 29;
 

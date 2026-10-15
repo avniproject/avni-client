@@ -3,8 +3,7 @@ import * as ClinicHubWifi from "./ClinicHubWifi";
 import clinicHubDiscovery from "./ClinicHubDiscovery";
 import {encodeJoinPayload, parseJoinPayload} from "./ClinicJoinPayload";
 
-// From Start hub to a QR code on the hub, and from a scanned code to the hub's address on a phone (avni-client#2173).
-// The card's limit: a phone finds the hub within 30 seconds of scanning.
+// A phone must find the hub within 30 seconds of scanning.
 export const JOIN_TIMEOUT_MS = 30 * 1000;
 
 // NSD can be told which network to scan from Android 13 (API 33).
@@ -92,8 +91,7 @@ export class ClinicHubJoin {
         }
     }
 
-    // Below Android 10 the person joins in Wi-Fi settings first. Android gives no name both when the phone is on no
-    // Wi-Fi and when it may not reveal the name, so whether Wi-Fi is connected decides which one it is.
+    // Below Android 10 no name means either no Wi-Fi or a hidden name, so whether Wi-Fi is connected decides which.
     async _checkJoinedByHand(ssid) {
         const current = await this.wifi.currentSsid();
         if (current === ssid) return;

@@ -3,8 +3,7 @@ import {StyleSheet, View} from "react-native";
 import {Camera, useCameraDevice, useCameraPermission, useCodeScanner} from "react-native-vision-camera";
 import {parseJoinPayload} from "../../framework/clinicsharing/ClinicJoinPayload";
 
-// Reads the hub's QR code (avni-client#2173). The scanner's model ships in the app
-// (VisionCamera_enableCodeScanner in android/gradle.properties), so a phone that has never been online can scan.
+// The scanner model ships in the app (VisionCamera_enableCodeScanner), so a phone that has never been online can scan.
 const ClinicHubScanner = ({onScanned, isActive = true, style}) => {
     const device = useCameraDevice("back");
     const {hasPermission, requestPermission} = useCameraPermission();

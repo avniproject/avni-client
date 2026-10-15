@@ -1,5 +1,4 @@
-// The hub's QR code: what a phone needs to join the hub's hotspot, find the hub and talk to it (avni-client#2173).
-// epoch is a string the hub makes new on every Start hub; key is the 32-byte session key card 3 encrypts with.
+// epoch is new on every Start hub; key is ClinicTransport's 32-byte session key.
 export const JOIN_PAYLOAD_VERSION = 1;
 
 export const JoinPayloadError = Object.freeze({
@@ -8,8 +7,7 @@ export const JoinPayloadError = Object.freeze({
     newerVersion: "newerVersion",
 });
 
-// The 32-byte key exactly as ClinicTransport makes and reads it: libsodium's default base64, URL-safe without
-// padding, which is always 43 characters. Any other form would only fail later, at the handshake.
+// libsodium's default base64 (URL-safe, unpadded) is always 43 characters; any other form would only fail at the handshake.
 const KEY_PATTERN = /^[A-Za-z0-9_-]{43}$/;
 // A WPA2 passphrase is 8 to 63 printable ASCII characters; Android refuses anything else, and a scanned code is untrusted.
 const PASSPHRASE_PATTERN = /^[\x20-\x7E]{8,63}$/;

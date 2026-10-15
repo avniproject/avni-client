@@ -21,19 +21,7 @@ import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
 
-/**
- * Wi-Fi for clinic sharing (avni-client#2173). The hub raises a local-only hotspot; another phone joins it from the
- * network name and password in the hub's QR code, without anyone typing them.
- *
- * Both need Android 10 (API 29): the hotspot's network name and password, and joining a named network from an app.
- * Below that a phone joins by hand in Wi-Fi settings, and currentSsid() lets the app check it picked the right one.
- *
- * Nothing is bound to the joined network here. A joined network is local-only, and the app's own server traffic
- * keeps using mobile data.
- *
- * Every method does its work on the main thread, where Android's hotspot and network callbacks also run, so the
- * state below is only ever touched from one thread.
- */
+// Every method runs on the main thread, where Android's hotspot and network callbacks also run, so this state has one thread.
 class ClinicHubWifiModule(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
     companion object {

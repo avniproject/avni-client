@@ -5,8 +5,7 @@ const P = PermissionsAndroid.PERMISSIONS;
 
 export const ClinicRole = Object.freeze({hub: "hub", phone: "phone"});
 
-// From Android 13 (API 33) Wi-Fi actions need "nearby devices", declared neverForLocation; before that they need
-// precise location. A phone also scans the hub's code with the camera.
+// Android 13+ needs "nearby devices" (neverForLocation) for Wi-Fi; earlier versions need precise location.
 const requiredPermissions = (role, apiLevel) => {
     const wifi = apiLevel >= 33 ? [P.NEARBY_WIFI_DEVICES] : [P.ACCESS_FINE_LOCATION];
     return role === ClinicRole.hub ? wifi : [P.CAMERA, ...wifi];

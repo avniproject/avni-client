@@ -1,10 +1,6 @@
 package com.openchsclient
 
-/**
- * Which hotspot start an Android callback belongs to (avni-client#2173). Android allows one local-only hotspot request
- * per app at a time, can answer after the app asked to stop, and a callback from an earlier hotspot must not touch the
- * current one. Bookkeeping only; ClinicHubWifiModule uses it on the main thread.
- */
+// Android can answer a hotspot start after the app asked to stop, so a callback from an earlier start must not touch the current one.
 internal class HotspotLifecycle {
     enum class OnFailed { REJECT_START, REPORT_STOPPED, IGNORE }
 
@@ -57,10 +53,7 @@ internal class HotspotLifecycle {
     }
 }
 
-/**
- * The current join request. A new join or a leave names the join it ends: once its callback is unregistered Android
- * sends nothing more, so its caller has to be told then or it waits for ever.
- */
+// Once a join's callback is unregistered Android sends nothing more, so the join it ends is named and its caller told.
 internal class JoinLifecycle {
     private var nextId = 0
     private var current: Int? = null
