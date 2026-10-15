@@ -50,6 +50,7 @@ describe("Hub sync save path on SQLite", () => {
         [EntityService, PrivilegeService, SyncService, ClinicRecordService]
             .forEach((cls) => services.set(cls, new cls(proxy, context)));
         services.set('clinicHoldBackService', {recordReceived: async () => {}});
+        services.set('clinicMediaService', {recordReceivedMedia: async () => {}});
         syncService = services.get(SyncService);
         p2pService = services.get(ClinicRecordService);
         p2pService.ledgerDb = {};

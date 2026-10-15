@@ -28,6 +28,9 @@ import OrganisationConfigService from "../../../src/service/OrganisationConfigSe
 import ClinicRecordService from "../../../src/service/clinicsharing/ClinicRecordService";
 import ClinicSpokeService from "../../../src/service/clinicsharing/ClinicSpokeService";
 import ClinicHoldBackService from "../../../src/service/clinicsharing/ClinicHoldBackService";
+import ClinicMediaService from "../../../src/service/clinicsharing/ClinicMediaService";
+import MediaQueueService from "../../../src/service/MediaQueueService";
+import EncounterService from "../../../src/service/EncounterService";
 import {open} from "@op-engineering/op-sqlite";
 
 let dbCount = 0;
@@ -46,7 +49,8 @@ function phone({clinicSharing = true} = {}) {
     [
         [EntityService, 'entityService'], [EntityQueueService, 'entityQueueService'], [PrivilegeService, 'privilegeService'],
         [SyncService, 'syncService'], [ClinicRecordService, 'clinicRecordService'], [ClinicSpokeService, 'clinicSpokeService'],
-        [ClinicHoldBackService, 'clinicHoldBackService'],
+        [ClinicHoldBackService, 'clinicHoldBackService'], [ClinicMediaService, 'clinicMediaService'], [MediaQueueService, 'mediaQueueService'],
+        [EncounterService, 'encounterService'],
     ].forEach(([cls, name]) => {
         const service = new cls(proxy, context);
         services.set(cls, service);
@@ -85,6 +89,8 @@ function phone({clinicSharing = true} = {}) {
     create("AddressLevel", {uuid: "village", title: "Village", level: 1, voided: false, type: "Village"});
     create("Program", {uuid: "pr-mother", name: "Mother", voided: false});
     create("EncounterType", {uuid: "et-anc", name: "ANC", voided: false});
+    create("Concept", {uuid: "c-photo", name: "Photo", datatype: "Image", voided: false});
+    create("Concept", {uuid: "c-photo-2", name: "Second photo", datatype: "Image", voided: false});
     create("Groups", {uuid: "admins", name: "Administrators", hasAllPrivileges: true});
     create("MyGroups", {uuid: "my-admins", groupUuid: "admins", groupName: "Administrators", voided: false});
 
@@ -94,6 +100,9 @@ function phone({clinicSharing = true} = {}) {
         recordService: services.get(ClinicRecordService),
         holdBack: services.get(ClinicHoldBackService),
         queued: () => proxy.objects("EntityQueue").map((item) => item.entityUUID).sort(),
+        queuedMedia: () => proxy.objects("MediaQueue").map((item) => item.fileName).sort(),
+        queueMediaOf: (schema, uuid) => services.get(MediaQueueService).addMediaToQueue(read(schema, uuid), schema),
+        media: services.get(ClinicMediaService),
         push: () => sync.pushData(txMetaData()),
         postedUuids: () => posted.map((r) => r.uuid),
         close: async () => { (await services.get(ClinicSpokeService)._state()).close(); rawDb.close(); },
@@ -224,5 +233,71 @@ describe("Holding back uploads that depend on another phone", () => {
         expect(plain.postedUuids()).toEqual(["own-1", "v-1"]);
         expect(holdBackState).not.toHaveBeenCalled();
         plain.rawDb.close();
+    });
+});
+
+const NURSE_PHOTO = "11111111-1111-4111-8111-111111111111.jpg";
+const DOCTOR_PHOTO = "22222222-2222-4222-8222-222222222222.jpg";
+const photos = (first, second) => [
+    {concept: {uuid: "c-photo"}, valueJSON: JSON.stringify({answer: first})},
+    ...(second ? [{concept: {uuid: "c-photo-2"}, valueJSON: JSON.stringify({answer: second})}] : []),
+];
+const answerOf = (encounter, conceptUUID) => JSON.parse(encounter.observations.find((o) => o.concept.uuid === conceptUUID).valueJSON).answer;
+
+describe("Photos in records from another phone", () => {
+    let mine;
+    const log = () => {};
+    const receive = (entityName, data) => mine.recordService.applyBatches([{entityName, resources: [fromAnotherPhone(entityName, entityName, data)]}], log);
+
+    beforeEach(async () => {
+        mine = phone();
+        await receive('Individual', patient('p-1'));
+    });
+    afterEach(async () => { await mine.close(); });
+
+    it("are not queued for upload when this phone saves the record, while a photo this phone adds is", async () => {
+        await receive('Encounter', visit("v-1", "p-1", {observations: photos(NURSE_PHOTO)}));
+
+        mine.saveLocally("Encounter", visit("v-1", "p-1", {observations: photos(NURSE_PHOTO, DOCTOR_PHOTO)}));
+        mine.queueMediaOf("Encounter", "v-1");
+
+        expect(mine.queuedMedia()).toEqual([DOCTOR_PHOTO]);
+    });
+
+    it("take the server's link into a kept local edit, so the edit's upload doesn't replace the link", async () => {
+        await receive('Encounter', visit("v-1", "p-1", {name: "nurse", observations: photos(NURSE_PHOTO)}));
+        mine.saveLocally("Encounter", visit("v-1", "p-1", {name: "doctor", observations: photos(NURSE_PHOTO, DOCTOR_PHOTO)}));
+        await mine.push();
+
+        const nurseLink = `https://s3.example.org/org-1/${NURSE_PHOTO}`;
+        const uploaded = fromAnotherPhone('Encounter', 'Encounter', visit("v-1", "p-1", {name: "nurse", observations: photos(nurseLink)}));
+        await mine.sync.persistAll(pulled('Encounter'), [fromServer(mine.recordService, 'Encounter', uploaded)]);
+        await mine.sync.persistAll(pulled('Individual'), [fromServer(mine.recordService, 'Individual', fromAnotherPhone('Individual', 'Individual', patient('p-1')))]);
+        await mine.sync._pushReleasedHoldBacks(EntityMetaData.model().filter((md) => md.type === 'tx'));
+
+        const local = mine.read("Encounter", "v-1");
+        expect([local.name, answerOf(local, "c-photo"), answerOf(local, "c-photo-2")]).toEqual(["doctor", nurseLink, DOCTOR_PHOTO]);
+        const posted = mine.posted.find((r) => r.uuid === "v-1");
+        expect(posted.observations.map((o) => [o.conceptUUID, o.value])).toEqual([["c-photo", nurseLink], ["c-photo-2", DOCTOR_PHOTO]]);
+    });
+
+    it("stay this phone's own when its photo comes back in another phone's edit", async () => {
+        mine.saveLocally("Encounter", visit("v-own", "p-1", {observations: photos(DOCTOR_PHOTO)}));
+        mine.queueMediaOf("Encounter", "v-own");
+
+        await receive('Encounter', visit("v-own", "p-1", {observations: photos(DOCTOR_PHOTO, NURSE_PHOTO)}));
+
+        expect([mine.media.isFromAnotherPhone(DOCTOR_PHOTO), mine.media.isFromAnotherPhone(NURSE_PHOTO)]).toEqual([false, true]);
+    });
+
+    it("are queued as today for an organisation not using clinic sharing", async () => {
+        const plain = phone({clinicSharing: false});
+        await plain.recordService.applyBatches([{entityName: 'Encounter',
+            resources: [fromAnotherPhone('Encounter', 'Encounter', visit("v-1", "p-1", {observations: photos(NURSE_PHOTO)}))]}], log);
+
+        plain.queueMediaOf("Encounter", "v-1");
+
+        expect(plain.queuedMedia()).toEqual([NURSE_PHOTO]);
+        await plain.close();
     });
 });

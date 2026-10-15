@@ -13,6 +13,7 @@ import {LEDGER_PRUNE_INTERVAL_MS, LEDGER_RETENTION_DAYS, SHAREABLE_ENTITIES} fro
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const STOP_REQUESTED_EVENT = 'ClinicHubStopRequested';
+const MEDIA_MESSAGES = [MessageType.mediaPush, MessageType.mediaData, MessageType.mediaRequest];
 
 @Service("clinicHubService")
 class ClinicHubService extends BaseService {
@@ -41,6 +42,12 @@ class ClinicHubService extends BaseService {
             created_at integer not null)`);
         await db.execute('create index if not exists ledger_created_at on ledger (created_at)');
         await db.execute('create table if not exists meta (key text primary key, value text)');
+        await db.execute(`create table if not exists hub_media (
+            file_name text primary key,
+            media_type text not null,
+            entity_name text not null,
+            entity_uuid text not null,
+            received_at integer not null)`);
         this.ledgerDb = db;
         return db;
     }
@@ -80,6 +87,7 @@ class ClinicHubService extends BaseService {
     async pruneLedger() {
         const db = await this._ledger();
         await db.execute('delete from ledger where created_at < ?', [Date.now() - LEDGER_RETENTION_DAYS * DAY_MS]);
+        await this.getService('clinicMediaService').cleanUpCopies(db);
         this.lastPrunedAt = Date.now();
     }
 
@@ -136,6 +144,7 @@ class ClinicHubService extends BaseService {
     }
 
     async _replyTo(connection, message, log) {
+        if (MEDIA_MESSAGES.includes(message.type)) return this._handleMedia(connection, message, log);
         try {
             const reply = await this._handleMessage(message, log);
             if (reply) connection.send(reply);
@@ -144,6 +153,18 @@ class ClinicHubService extends BaseService {
             General.logError('ClinicHubService', error);
             connection.close();
         }
+    }
+
+    // Outside the record lock, so a large file doesn't stall other phones; in order per connection, as chunks must be.
+    _handleMedia(connection, message, log) {
+        connection.mediaWork = (connection.mediaWork || Promise.resolve())
+            .then(() => this.getService('clinicMediaService').handleOnHub(connection, message, log))
+            .catch((error) => {
+                log(`Hub failed on ${message.type}: ${error.message}`);
+                General.logError('ClinicHubService', error);
+                connection.close();
+            });
+        return connection.mediaWork;
     }
 
     _handleMessage(message, log) {

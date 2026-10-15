@@ -100,6 +100,7 @@ class ClinicRecordService extends BaseService {
 
         await this.getService(SyncService).applyIncoming(metaData, kept.map(({resource}) => resource), kept.map(({entity}) => entity));
         await this.getService('clinicHoldBackService').recordReceived(entityName, kept.map(({entity}) => entity.uuid));
+        await this.getService('clinicMediaService').recordReceivedMedia(entityName, kept.map(({entity}) => entity));
         log(`applied ${kept.length} ${entityName}`);
         return kept.length;
     }

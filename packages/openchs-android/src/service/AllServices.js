@@ -162,6 +162,7 @@ import './clinicsharing/ClinicRecordService';
 import './clinicsharing/ClinicSpokeService';
 import './clinicsharing/ClinicHubService';
 import './clinicsharing/ClinicHoldBackService';
+import './clinicsharing/ClinicMediaService';
 
 // Export empty object to indicate module loaded
 export default {};

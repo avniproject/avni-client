@@ -31,7 +31,7 @@ describe("Clinic hub ledger", () => {
         ownQueue = [];
         stored = {};
         const p2p = {applyBatches: async (batches) => { applied.push(batches); return batches.length; }, toSharedResource: (entityName, entity) => entity.toResource};
-        hub = new ClinicHubService({}, {getService: (cls) => (cls === ClinicRecordService ? p2p : undefined)});
+        hub = new ClinicHubService({}, {getService: (cls) => (cls === ClinicRecordService ? p2p : {cleanUpCopies: async () => 0})});
         hub.ledgerName = `clinic_hub_ledger_test_${process.pid}_${ledgerCount++}.db`;
         hub.findAll = () => ownQueue;
         hub.findByKey = (key, uuid, entityName) => stored[uuid] && {toResource: {uuid, entityName, version: stored[uuid]}};
@@ -59,6 +59,7 @@ describe("Clinic hub ledger", () => {
     it('never interleaves two pushes that arrive at the same moment', async () => {
         const events = [];
         hub.getService = () => ({
+            cleanUpCopies: async () => 0,
             applyBatches: async (batches) => {
                 const uuid = batches[0].resources[0].uuid;
                 events.push(`apply ${uuid} start`);

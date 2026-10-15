@@ -10,3 +10,6 @@ export const SHAREABLE_ENTITIES = [
     'SubjectProgramEligibility', 'Session', 'AttendanceRecord',
 ];
 export const HELD_UPLOAD_WARNING_DAYS = 3;
+export const HUB_MIN_FREE_STORAGE_MB = 500;
+export const MEDIA_BYTES_PER_HUB_SYNC = 20 * 1024 * 1024;
+export const MEDIA_CHUNK_BYTES = 256 * 1024;

@@ -46,7 +46,8 @@ function device() {
         stub(service) {
             service.findAll = () => queue;
             service.findByKey = (key, uuid) => records[uuid] && {toResource: {uuid, version: records[uuid].version}};
-            service.getService = (cls) => (cls === ClinicRecordService ? recordService : undefined);
+            const media = {pushToHub: async () => 0, cleanUpCopies: async () => 0};
+            service.getService = (cls) => (cls === ClinicRecordService ? recordService : cls === 'clinicMediaService' ? media : undefined);
             service.dispatchAction = jest.fn();
             return service;
         },

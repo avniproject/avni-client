@@ -217,6 +217,11 @@ class MediaService extends BaseService {
         return fs.exists(filePath);
     }
 
+    // A photo not yet uploaded by the phone that took it can only come from the clinic hub.
+    fetchFromClinicHub(source, type) {
+        return this.getService('clinicMediaService').fetchFromHub(source, type);
+    }
+
     async downloadMediaFromS3ToPath(s3Key, filePathInDevice, ignoreFetchErrors = true) {
         try {
             return await this.downloadMedia(s3Key, filePathInDevice);
@@ -254,6 +259,8 @@ class MediaService extends BaseService {
                 }
                 return filePathInDevice;
             } else {
+                const fromHub = await this.fetchFromClinicHub(s3Key, type);
+                if (fromHub) return fromHub;
                 // File doesn't exist, download it
                 return await this.downloadMediaFromS3ToPath(s3Key, filePathInDevice, ignoreFetchErrors);
             }

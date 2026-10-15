@@ -130,6 +130,18 @@ class Connection {
         this.closeHandlers.push(handler);
     }
 
+    request(message, replyType, matches = () => true) {
+        return new Promise((resolve, reject) => {
+            const unsubscribe = this.onMessage((reply) => {
+                if (reply.type !== replyType || !matches(reply)) return;
+                unsubscribe();
+                resolve(reply);
+            });
+            this.onClose(() => reject(new Error('The hub closed the connection')));
+            this.send(message);
+        });
+    }
+
     close() {
         this.socket.destroy();
     }

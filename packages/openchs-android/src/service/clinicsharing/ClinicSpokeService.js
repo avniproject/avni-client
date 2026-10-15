@@ -29,17 +29,23 @@ class ClinicSpokeService extends BaseService {
 
     // --- spoke state: its own small sqlite file ---
 
-    async _state() {
+    // Synchronous so a save can check it inside its write transaction.
+    _stateSync() {
         if (this.stateDb) return this.stateDb;
         const db = open({name: this.stateName});
-        await db.execute(`create table if not exists hub_state (
+        db.executeSync(`create table if not exists hub_state (
             hub_id text primary key,
             epoch text not null,
             cursor integer not null,
             pushed_up_to integer not null)`);
-        await db.execute('create table if not exists meta (key text primary key, value text)');
+        db.executeSync('create table if not exists meta (key text primary key, value text)');
+        db.executeSync('create table if not exists media_sent (hub_id text not null, file_name text not null, primary key (hub_id, file_name))');
         this.stateDb = db;
         return db;
+    }
+
+    async _state() {
+        return this._stateSync();
     }
 
     _sqliteRows(result) {
@@ -61,6 +67,7 @@ class ClinicSpokeService extends BaseService {
         const [row] = this._sqliteRows(await db.execute('select epoch, cursor, pushed_up_to from hub_state where hub_id = ?', [hubId]));
         if (row && row.epoch === epoch) return {cursor: row.cursor, pushedUpTo: row.pushed_up_to};
         await db.execute('insert into hub_state (hub_id, epoch, cursor, pushed_up_to) values (?, ?, 0, 0) on conflict(hub_id) do update set epoch = excluded.epoch, cursor = 0, pushed_up_to = 0', [hubId, epoch]);
+        await db.execute('delete from media_sent where hub_id = ?', [hubId]);
         return {cursor: 0, pushedUpTo: 0};
     }
 
@@ -95,18 +102,6 @@ class ClinicSpokeService extends BaseService {
 
     // --- sync ---
 
-    _reply(connection, message, replyType) {
-        return new Promise((resolve, reject) => {
-            const unsubscribe = connection.onMessage((reply) => {
-                if (reply.type !== replyType) return;
-                unsubscribe();
-                resolve(reply);
-            });
-            connection.onClose(() => reject(new Error('The hub closed the connection')));
-            connection.send(message);
-        });
-    }
-
     async syncWithHub({host, port, key, hubId, epoch}, log = _.noop) {
         let connection;
         try {
@@ -115,15 +110,17 @@ class ClinicSpokeService extends BaseService {
             const {batches: outbox, upTo} = this.collectOutbox(pushedUpTo);
             connection = await connectToHub({host, port, key, hubId, epoch, appVersion: DeviceInfo.getVersion()});
 
-            const ack = await this._reply(connection, {type: MessageType.push, deviceId, batches: outbox, upTo}, MessageType.pushAck);
+            const ack = await connection.request({type: MessageType.push, deviceId, batches: outbox, upTo}, MessageType.pushAck);
             await this._saveHubState(hubId, 'pushed_up_to', ack.upTo);
 
-            const {batches, maxSeq} = await this._reply(connection, {type: MessageType.pull, deviceId, since: cursor}, MessageType.pullResult);
+            const {batches, maxSeq} = await connection.request({type: MessageType.pull, deviceId, since: cursor}, MessageType.pullResult);
             const applied = await this.getService(ClinicRecordService).applyBatches(batches, log);
             await this._saveHubState(hubId, 'cursor', maxSeq);
             if (applied > 0) await this._refreshOpenLists();
-            log(`Sent ${_.sumBy(outbox, (b) => b.resources.length)}, received ${applied}`);
-            return {sent: _.sumBy(outbox, (b) => b.resources.length), received: applied};
+
+            const mediaSent = await this.getService('clinicMediaService').pushToHub(connection, hubId, log);
+            log(`Sent ${_.sumBy(outbox, (b) => b.resources.length)}, received ${applied}, files sent ${mediaSent}`);
+            return {sent: _.sumBy(outbox, (b) => b.resources.length), received: applied, mediaSent};
         } catch (error) {
             log(error.message);
             General.logError('ClinicSpokeService', error);

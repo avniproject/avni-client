@@ -619,6 +619,7 @@ class SyncService extends BaseService {
             ? await this.getService('clinicHoldBackService').receivedAmong(entityResources.map((resource) => resource.uuid))
             : {release: [], keepLocal: []};
         // The local copy is a held edit still to upload; the server's older copy must not replace it.
+        if (!_.isEmpty(releasing.keepLocal)) this._adoptServerMediaUrls(entityMetaData, entityResources.filter((resource) => releasing.keepLocal.includes(resource.uuid)));
         entityResources = entityResources.filter((resource) => !releasing.keepLocal.includes(resource.uuid));
 
         const entities = entityResources.reduce(transformResourceToEntity.call(this, entityMetaData, entityResources), []);
@@ -741,6 +742,16 @@ class SyncService extends BaseService {
 
     _clinicSharingEnabled() {
         return this.db.isSqlite === true && _.get(this.getService(OrganisationConfigService).getSettings(), 'enableClinicSharing') === true;
+    }
+
+    // Reading media values needs each observation's concept, which shallow hydration leaves out.
+    _adoptServerMediaUrls(entityMetaData, serverResources) {
+        this._disableShallowHydrationIfSqlite();
+        try {
+            this.getService('clinicMediaService').adoptServerUrls(entityMetaData.entityName, serverResources);
+        } finally {
+            this._enableShallowHydrationIfSqlite();
+        }
     }
 
     // Push runs before pull, so whatever the pull released would otherwise wait for the next sync.
