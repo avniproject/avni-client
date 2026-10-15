@@ -222,6 +222,8 @@ class EntitySyncStatusService extends BaseService {
 
         this.deleteEntries(`entityTypeUuid = '${subjectTypeUUID}'`);
         this._deleteEntriesFor(['GroupSubject'], groupSubjectTypeUUIDs);
+        // Filed under individual A's type, but the delete takes both sides, so the other side's type is unknown here
+        this.deleteEntries(`entityName = 'IndividualRelationship'`);
         this._deleteEntriesFor(['Encounter', 'EncounterEntityApprovalStatus', 'ProgramEncounter', 'ProgramEncounterEntityApprovalStatus'], encounterTypeUUIDs);
         this._deleteEntriesFor(['ProgramEnrolment', 'ProgramEnrolmentEntityApprovalStatus'], programUUIDs);
         this._deleteEntriesFor(['Checklist', 'ChecklistItem', 'ChecklistItemEntityApprovalStatus'], checklistDetailUUIDs);

@@ -168,4 +168,11 @@ describe("a subject type reset rewinds every download point its deleted records 
 
         assertKept([["GroupSubject", "household"], ["GroupSubject", "village"]]);
     });
+
+    // A relationship is filed under one side's type, and the reset deletes it from either side
+    it("drops the relationship points of every subject type", () => {
+        resetAndRun("child");
+
+        assertRewound([["IndividualRelationship", "mother"], ["IndividualRelationship", "child"]]);
+    });
 });
