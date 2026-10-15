@@ -7,6 +7,7 @@ jest.mock('../../../src/views/beneficiaryMode/BeneficiaryModeStartView', () => (
 jest.mock('../../../src/views/entitysyncstatus/EntitySyncStatusView', () => ({__esModule: true, default: () => null}));
 jest.mock('../../../src/views/settings/DevSettingsView', () => ({__esModule: true, default: () => null}));
 jest.mock('../../../src/views/customDashboard/CustomDashboardView', () => ({__esModule: true, default: () => null}));
+jest.mock('../../../src/views/clinicsharing/ClinicSharingView', () => ({__esModule: true, default: () => null}));
 
 // beanRegistry must exist at require time: importing StaticMenuItemFactory pulls in
 // @Service-decorated modules that call GlobalContext.getInstance().beanRegistry.register()
@@ -23,10 +24,14 @@ jest.mock('../../../src/GlobalContext', () => ({
 const StaticMenuItemFactory = require('../../../src/views/menu/StaticMenuItemFactory').default;
 const OrganisationConfigService = require('../../../src/service/OrganisationConfigService').default;
 
-function contextWithEncryption(encrypted) {
+function contextWithEncryption(encrypted, {sqlite = false, clinicSharing = false} = {}) {
     return {
         getService: (type) => {
-            if (type === OrganisationConfigService) return {isDbEncryptionEnabled: () => encrypted};
+            if (type === OrganisationConfigService) return {
+                isDbEncryptionEnabled: () => encrypted,
+                getSettings: () => (clinicSharing ? {enableClinicSharing: true} : {}),
+                db: {isSqlite: sqlite},
+            };
             throw new Error(`unexpected service ${String(type)}`);
         }
     };
@@ -55,5 +60,15 @@ describe('StaticMenuItemFactory.getSyncMenus', () => {
     it('keeps entitySyncStatus regardless of encryption', () => {
         expect(names(contextWithEncryption(true))).toContain('entitySyncStatus');
         expect(names(contextWithEncryption(false))).toContain('entitySyncStatus');
+    });
+
+    it('offers clinic sharing when the organisation has it on and the phone is on the new database', () => {
+        expect(names(contextWithEncryption(false, {sqlite: true, clinicSharing: true}))).toContain('clinicSharing');
+    });
+
+    it('hides clinic sharing when the organisation has it off, the phone is on Realm, or the database is encrypted', () => {
+        expect(names(contextWithEncryption(false, {sqlite: true, clinicSharing: false}))).not.toContain('clinicSharing');
+        expect(names(contextWithEncryption(false, {sqlite: false, clinicSharing: true}))).not.toContain('clinicSharing');
+        expect(names(contextWithEncryption(true, {sqlite: true, clinicSharing: true}))).not.toContain('clinicSharing');
     });
 });

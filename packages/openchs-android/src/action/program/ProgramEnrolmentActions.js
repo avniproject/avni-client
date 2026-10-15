@@ -40,7 +40,8 @@ export class ProgramEnrolmentActions {
             // Check for existing draft and restore if found (only for enrolment, not exit) - lookup by individual+program
             const draftConfigService = context.get(DraftConfigService);
             const programEnrolmentService = context.get(ProgramEnrolmentService);
-            const draft = isProgramEnrolment && draftConfigService.shouldLoadDraft()
+            // Only a new enrolment can have a draft; editing a saved one must not pick up another enrolment's.
+            const draft = isProgramEnrolment && draftConfigService.shouldLoadDraft() && !programEnrolmentService.existsByUuid(action.enrolment.uuid)
                 ? context.get(DraftEnrolmentService).findByIndividualAndProgram(action.enrolment.individual, action.enrolment.program)
                 : null;
             // A draft only ever represents an enrolment that isn't saved yet. Since the lookup is by
@@ -172,6 +173,14 @@ export class ProgramEnrolmentActions {
         return state;
     }
 
+    static onAppBackground(state, action, context) {
+        const enrolment = state.enrolment;
+        if (!state.saveDrafts || _.isNil(state.wizard) || state.usage !== ProgramEnrolmentState.UsageKeys.Enrol) return state;
+        if (context.get(ProgramEnrolmentService).existsByUuid(enrolment.uuid)) return state;
+        context.get(DraftEnrolmentService).saveDraft(enrolment);
+        return state;
+    }
+
     static onSave(state, action, context) {
         const newState = state.clone();
         context.get(IndividualService).updateObservations(newState.enrolment.individual);
@@ -220,6 +229,7 @@ const actions = {
     TOGGLE_GROUPS: "PEA.TOGGLE_GROUPS",
     ON_TIMED_FORM: "PEA.ON_TIMED_FORM",
     ON_START_TIMER: "PEA.ON_START_TIMER",
+    ON_APP_BACKGROUND: "PEA.ON_APP_BACKGROUND",
 };
 
 export default new Map([
@@ -248,6 +258,7 @@ export default new Map([
     [actions.TOGGLE_GROUPS, GroupAffiliationActions.updateValue],
     [actions.ON_TIMED_FORM, TimerActions.onTimedForm],
     [actions.ON_START_TIMER, TimerActions.onStartTimer],
+    [actions.ON_APP_BACKGROUND, ProgramEnrolmentActions.onAppBackground],
     [EDGE_MODEL_ACTION.INFERENCE_RESULT_AVAILABLE, ObservationsHolderActions.onInferenceResultAvailable],
     [EDGE_MODEL_ACTION.INFERENCE_RESULTS_BATCH, ObservationsHolderActions.onObservationWriteBatch],
     [EDGE_MODEL_ACTION.INFERENCE_UNAVAILABLE, ObservationsHolderActions.onInferenceUnavailable],

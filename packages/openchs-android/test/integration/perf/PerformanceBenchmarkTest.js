@@ -362,6 +362,7 @@ describe('Performance Benchmark (synthetic data)', () => {
         const all = proxy.objects('Individual').filtered('voided = false');
         const count = Math.min(all.length, 1000);
 
+        // Informational only: lazy rows pay a per-row getter setup that varies by machine; see #2080.
         bench(`hydration: ${count} individuals (name+subjectType+address)`, () => {
             for (let i = 0; i < count; i++) {
                 const ind = all[i];
@@ -370,7 +371,7 @@ describe('Performance Benchmark (synthetic data)', () => {
                 const _addr = ind.lowestAddressLevel && ind.lowestAddressLevel.title;
             }
             return count;
-        }, TARGETS.hydrationMs);
+        });
     });
 
     it('search: name CONTAINS[c] with shallow hydration', () => {

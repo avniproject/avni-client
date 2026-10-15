@@ -57,6 +57,8 @@ class MediaQueueService extends BaseService {
             return;
         }
 
+        // Another phone took it and uploads it; queuing it here would upload it twice, or never.
+        if (this.getService('clinicMediaService').isFromAnotherPhone(fileName)) return;
         General.logInfo('MediaQueueService', `Adding ${fileName} to queue`);
         if (this.fileExistsInQueue(fileName)) return;
         this.runInTransaction(() => {
@@ -65,21 +67,24 @@ class MediaQueueService extends BaseService {
         });
     }
 
-    addMediaToQueue(entity, schemaName) {
-        if(schemaName === Individual.schema.name && !_.isEmpty(entity.getProfilePicture())) {
-            this.addToQueue(entity, schemaName, entity.getProfilePicture(), 'Profile-Pics', "profilePicture")
+    mediaItems(entity, schemaName) {
+        if (!_.isFunction(entity.findMediaObservations)) return [];
+        const items = [];
+        if (schemaName === Individual.schema.name && !_.isEmpty(entity.getProfilePicture())) {
+            items.push({fileName: entity.getProfilePicture(), type: 'Profile-Pics', entityTargetField: "profilePicture"});
         }
         _.forEach(entity.findMediaObservations(), (observation) => {
-            if (observation.concept.datatype === Concept.dataType.ImageV2) {
-                _.forEach(JSON.parse(observation.getValue()), mediaObject => {
-                    this.addToQueue(entity, schemaName, mediaObject.uri, observation.concept.datatype, "observations", observation.concept.uuid)
-                })
-            } else {
-                _.forEach(_.flatten([observation.getValue()]), filename => {
-                    this.addToQueue(entity, schemaName, filename, observation.concept.datatype, "observations", observation.concept.uuid)
-                })
-            }
+            const values = observation.concept.datatype === Concept.dataType.ImageV2
+                ? _.map(JSON.parse(observation.getValue()), (mediaObject) => mediaObject.uri)
+                : _.flatten([observation.getValue()]);
+            values.forEach((fileName) => items.push({fileName, type: observation.concept.datatype, entityTargetField: "observations", conceptUUID: observation.concept.uuid}));
         });
+        return items;
+    }
+
+    addMediaToQueue(entity, schemaName) {
+        this.mediaItems(entity, schemaName).forEach(({fileName, type, entityTargetField, conceptUUID}) =>
+            this.addToQueue(entity, schemaName, fileName, type, entityTargetField, conceptUUID));
     }
 
     popItem(mediaQueueItem) {
@@ -198,8 +203,10 @@ class MediaQueueService extends BaseService {
     // unwritten (no EntityQueue push of an unchanged entity).
     replaceObservation(mediaQueueItem, url) {
         General.logDebug("MediaQueueService", `Replacing observation with value ${url}`);
+        return this.replaceMediaValue(mediaQueueItem, url.substring(0, url.indexOf("?")));
+    }
 
-        const canonicalUrl = url.substring(0, url.indexOf("?"));
+    replaceMediaValue(mediaQueueItem, canonicalUrl) {
         const entity = this.findByUUID(mediaQueueItem.entityUUID, mediaQueueItem.entityName).cloneForEdit();
         if (mediaQueueItem.entityTargetField === "profilePicture") {
             entity.updateProfilePicture(canonicalUrl);

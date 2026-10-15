@@ -11,6 +11,7 @@ import {open} from '@op-engineering/op-sqlite';
 import {EntityMappingConfig} from 'openchs-models';
 import {SchemaGenerator} from '../../../../src/framework/db/SchemaGenerator';
 import SqliteProxy from '../../../../src/framework/db/SqliteProxy';
+import {LAZY_STATE} from '../../../../src/framework/db/LazyGroup';
 
 const SUBJECTS = 50;
 const BADGES = {skipLists: true, depth: 1, listsToInclude: new Set(['Individual.enrolments'])};
@@ -48,11 +49,16 @@ describe('included lists are batch-preloaded (#2105)', () => {
     const loadSubjects = () => {
         statements = [];
         const subjects = [...proxy.objects('Individual').withHydration(BADGES).filtered('voided = false')];
+        subjects.forEach(subject => subject.enrolments.length);
         const sent = statements;
         statements = null;
         return {subjects, sent};
     };
-    const isPrefetched = (entity, propName) => !Object.getOwnPropertyDescriptor(entity.that || entity, propName).get;
+    const isLoaded = (entity, propName) => {
+        const target = entity.that || entity;
+        const lazy = target[LAZY_STATE];
+        return lazy ? lazy.resolved.has(propName) : !Object.getOwnPropertyDescriptor(target, propName).get;
+    };
 
     it('fetches the kept list without a query per row', () => {
         const {subjects, sent} = loadSubjects();
@@ -60,13 +66,13 @@ describe('included lists are batch-preloaded (#2105)', () => {
 
         expect(subjects).toHaveLength(SUBJECTS);
         expect(perRow).toHaveLength(0);
+        expect(sent.filter(sql => /FROM program_enrolment WHERE "individual_uuid" IN/.test(sql))).toHaveLength(1);
     });
 
     it('still gives every row its own enrolments', () => {
         const {subjects} = loadSubjects();
 
         for (const subject of subjects) {
-            expect(isPrefetched(subject, 'enrolments')).toBe(true);
             expect([...subject.enrolments].map(enl => enl.uuid)).toEqual([`enl-${subject.uuid.slice(4)}`]);
         }
     });
@@ -88,6 +94,6 @@ describe('included lists are batch-preloaded (#2105)', () => {
         const {subjects, sent} = loadSubjects();
 
         expect(sent.some(sql => /FROM encounter WHERE/.test(sql))).toBe(false);
-        expect(isPrefetched(subjects[0], 'encounters')).toBe(false);
+        expect(isLoaded(subjects[0], 'encounters')).toBe(false);
     });
 });

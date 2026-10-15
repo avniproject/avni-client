@@ -1,0 +1,149 @@
+# Lazy hydration proxy for SQLite reads — design
+
+Card: avni-client#2080. Branch: `18.0`. Date: 7 Oct 2026.
+Background: avni-client#2019 (spike), #2061 (lazy lists), #2075 (count in SQL, 18.1 only), #2105, #2151; avni-product-ops `analysis/sqlite-rollout-readiness/gate2_stories.md`, `qa/findings/2026-09-30-akrsp-slow-device-sqlite.md`, `context/decisions-log.md` (24 Aug).
+
+## Goal
+
+Organisations are being moved from Realm to SQLite from mid-October, with every active organisation targeted by mid-December. On SQLite, any read of a `db.objects(X)` result — including `.length` — first builds every row as a plain object to depth 3: every to-one reference followed three hops, every observations column parsed, lists pre-loaded two levels. Rules that run JavaScript over rows pay this on every card. Measured: AKRSP's WIMC card 233 s on SQLite against 13 s on Realm; JSCS cards 30–110 s; SQL is ~2% of that time.
+
+Make SQLite load a row's detail only when something reads it, so organisations migrate without rewriting their rules. Rules are rewritten only for what is still slow after this.
+
+## Requirements
+
+- Every card number, list and line-list is identical to today's SQLite eager result, including row order.
+- Realm is untouched.
+- `.length` followed by indexing fetches the rows once.
+- Reading the same reference or list across many rows costs one query per level, not one per row.
+- Nothing in the query cache holds a wrong value.
+- A read that fails surfaces at the read, and a later read retries.
+- Identity: Realm 12 gives none (`results[0] === results[0]` and `e1.p === e2.p` for the same row are both `false`, checked 7 Oct), and model classes wrap afresh on every read, so rules can only compare by `uuid`. Matching uuids is the requirement; object reuse within a group is an efficiency, not a guarantee.
+
+Not in scope: rule-evaluation cost that exists on both backends (#2074); SQL translation of more predicates (#1978, #2076, #2077); count paths (#2075).
+
+## Design
+
+A read-only, batch-fetching lazy proxy in the Hibernate style (lazy to-one proxies, lazy collections, `@BatchSize`), built on the getter mechanism the lazy lists already use. No dirty checking or write-behind: saving stays as it is.
+
+### Batch group
+
+A batch group is a set of raw rows of one schema loaded together:
+- the rows a query returned;
+- the rows loaded to answer one reference across a group;
+- the rows loaded to answer one list across a group.
+
+It holds the raw rows exactly as SQLite returned them (foreign-key uuid columns included), a memo of built objects keyed by uuid, and, per reference or list property once first read, a map from foreign-key or parent uuid to built objects in a child group.
+
+**Revised 7 Oct after the on-device JSCS run (see "Measured on JSCS" below):** a group is split into windows of at most 999 rows, as Hibernate's `@BatchSize` does. Batching, child groups and back-references work per window, and a built row is tied to its window, not to the whole result. The first version tied every row to the whole result, so keeping 8 subjects from a rule kept ~31k rows alive. Query counts are unchanged: loads were already chunked at 999.
+
+### Building a row
+
+Rows are built on access, not up front. A built row is a plain object, as `EntityHydrator.hydrate()` produces now, except:
+- scalars are converted immediately;
+- to-one references are getters; a null foreign key is `null` without a getter;
+- lists and embedded JSON columns (observations and the like) are getters.
+
+Getters behave like `EntityHydrator._defineLazyList` today: memoise once resolved; a throw leaves the property unresolved so the next read retries; a setter allows assignment. Model classes read through `this.that[prop]` and need no change.
+
+**Revised 7 Oct:** the getter and setter for a property are one pair of functions per schema property, shared by every row, built once from a cached per-schema plan; resolved values live in the row's hidden state, allocated on first read. The first version created new functions for every property of every row, which doubled the heap against eager on a whole-table rule (1,499 MB against 744 MB).
+
+Each built object keeps its raw row in a non-enumerable slot, used by `flatten()` (see Writes).
+
+### References
+
+The first read of a reference property on any row of a group:
+1. collects the distinct foreign-key uuids from all raw rows of the group (in memory, no query);
+2. serves any held in the reference-data cache from there;
+3. loads the rest with one `SELECT * … WHERE uuid IN (…)`, chunked at 999;
+4. makes those rows a child group, so their own references and lists batch the same way;
+5. answers every row's getter from the resulting map.
+
+A missing referenced row gives today's `{uuid}` placeholder, not an error. A back-reference from a child to the parent that loaded it (for example `encounter.individual` reached through `individual.encounters`) returns the parent's built object without a query.
+
+### Lists
+
+The first read of a list property on any row of a group runs one `SELECT * FROM child WHERE fk IN (…)` over all the group's uuids — the same SQL `batchPreloadLists` runs today, so rows come back in today's order — groups the rows by parent into a child group, and gives each row its slice. Children are built as they are iterated. `EXPLICIT_LIST_FK_OVERRIDES` still apply; JSON uuid-array lists resolve through the reference path.
+
+### Observations and concepts
+
+Embedded JSON columns are parsed on first read and memoised. An observation's `concept` comes from the Concept reference-data cache. Concept is added to the caches built lazily on first need (today it is only built after a sync), so a rule run after an app restart does not query concepts per row; a concept missing from the cache is loaded once and added.
+
+### Results proxy
+
+- `_execute()` runs only the SQL and creates the group.
+- `.length` is the row count; nothing is built.
+- `[i]`, iteration, `map`, `filter`, `find`, `slice` and the raw-collection view build rows as they reach them.
+- JS fallback filters run on built rows and trigger only the getters they read.
+- `count()`, `max`, `min`, `sum`, `distinctValues` are unchanged.
+
+### Options
+
+`depth`, `skipLists` and `listsToInclude` no longer affect results on the lazy path; `withHydration(...)` callers keep working. Sync's shallow mode uses the lazy path. Reference data built at boot or after sync stays eager and cached.
+
+### Writes
+
+`SqliteProxy.create` → `flatten()` reads each property present on the object. For a reference not yet loaded, `flatten()` writes the foreign-key uuid from the raw row and does not trigger the load. Loaded or assigned references, observations and JSON-array lists are read as today. Child lists are not written through the parent row. The mandatory-field check in `create` is unchanged.
+
+### Releasing windows after a rule
+
+Added 7 Oct. A built row keeps a strong link to its window so its unread properties can still load in a batch; Hermes in this build has no `WeakRef` or `FinalizationRegistry` (checked on the emulator), so that link cannot be weak. Instead `RuleEvaluationService.withLazyScope` opens a scope around every rule (`runEvalRule`) and every line-list function (`getDashboardCardQueryResult`), closing it in `finally`. Windows created while a scope is open register with it; when the outermost scope ends, each is sealed:
+- its built rows and loaded child and reference groups are dropped;
+- its raw rows and its parent link stay, so a later read of an unread property on a returned row still loads in one batch for the window, and a child's back-reference still returns a parent built before the rule (the same object, with any in-memory edits); a row built again from a sealed window is a new object (Realm gives no object identity either).
+
+One-row groups (`objectForPrimaryKey`, the re-read after `create`, single-row queries) and everything loaded beneath them are never registered: they hold only their own row's data, as eager did, and holding them until the rule returns would raise peak memory for rules that look subjects up one by one. Windows created outside a scope (screens reading services directly) are not sealed; they are freed with the screen. Realm has no scope and is untouched.
+
+### Known limitations
+
+- **Batched lists are a snapshot.** The first read of a list on any row loads it for the whole window; a sibling row read later gets that load, not data saved since. Eager pre-loaded every list at query time, so this is no worse than the eager path; Realm is live, and neither SQLite mode is.
+- **The Concept cache builds on first need.** After an app restart, the first observation read builds the full Concept cache (depth 2, with answers) on the thread that asked: about 0.5–0.7 s once on JSCS, against a query per concept on the eager path.
+
+### Query cache
+
+The cache holds the group: raw rows plus whatever has been built. Values only fill in from the same rows. The key drops `depth` and the list options on the lazy path. A card that hits the cache after an earlier card's rule sealed its windows reuses the SQL rows and rebuilds the objects.
+
+### Errors
+
+Dashboard rules and line-list functions already run inside try/catch that records failed rules (`RuleEvaluationService` around `:1087`, `executeLineListFunction`). List screens that render rows are the new exposure; the realistic failure is the database being swapped during a backend switch, which is checked explicitly.
+
+### Fallback
+
+No runtime switch. A user with a problem on SQLite is moved back to Realm by removing them from the SQLite Migration group (`SqliteMigrationService.computeDesiredBackend`), the existing mechanism for any SQLite problem.
+
+Today's eager path stays in the code during the rollout only as the reference the parity tests compare against. It is not reachable at runtime. Each piece of it kept for this reason carries a one-line comment to remove it once lazy hydration has proven out in the field.
+
+## Delivery
+
+One change on `18.0`, built in full before release: batch groups, lazy rows, lazy batched references and lists, lazy observations, the Concept cache on first need, `flatten()` handling, and the eager path kept as the test reference. It is released in an 18.0.x patch after the checks under Testing pass; the version is set by the release plan.
+
+It covers the AKRSP pattern, #2151's per-row approval reads, `.length` and indexing, search, drill-downs, #2105's F9, and the many-parents list case.
+
+## Testing
+
+During development:
+- Unit tests with a mocked query runner that counts queries: `.length` builds nothing; N rows reading a reference cost one query, nested reads one more; one query per list level; a back-reference needs no query; null foreign key; missing row placeholder; a failed getter retries; the setter works; observations parsed only when read; concepts from cache; `flatten()` does not load unread references.
+
+Once development is done, and before release, run by us:
+- Parity sweep on a real SQLite database: for every schema and row, every property read lazily deep-equals the eager result, list order included; the same for JS fallback filter results.
+- Rule parity on the JSCS 32k snapshot: the organisation's report-card rules in both modes give identical card numbers and line-list uuids.
+- On-device: JSCS (Facilities, Total Screened, search) and AKRSP (WIMC card open, first card after start), comparing Realm, SQLite eager and SQLite lazy in one sitting. The `RulePerf` line for a slow rule gains rows-built, batched-query and observations-parsed counters.
+
+## Measured on JSCS (7 Oct)
+
+Database: `mahanew4@jscs` (46,782 subjects, 42,894 enrolments, 106,148 program visits). Node figures are the rule run in Jest against the file, with the heap the result keeps after garbage collection. Device figures are an `Avni_API36` emulator, debug build, read from the app's logs.
+
+| Card | Realm (device) | Eager SQLite (Node) | Lazy, first version (Node / device) | Lazy, windowed + shared getters (Node / device) |
+|---|---|---|---|---|
+| Total Screened for SCD | 148 ms | 15.4 s, 744 MB | 12.4 s, 1,499 MB / 130.7 s | 9.9 s, 601 MB / 95.9 s |
+| SCD Pregnant women | 4.0 s | 2.3 s, ~1 MB | 2.1 s, 261 MB / 54.7 s | 1.1 s, 126 MB / 3.8 s |
+| Lab Facility dashboard (4 counts) | 332 ms | **229.4 s on device** (Facilities alone 229.1 s: pre-load 174 s, build 49 s) | — / 1.7 s | — / 1.4 s |
+| App memory, SCD dashboard | — | — | 2.4 GB + 212 MB swap | 1.3 GB |
+| Tap SCD Pregnant women → list | 4.4 s | — | — | — / 3.3 s |
+| Search, no filters (tap → results) | ~0.5 s | — | — | — / 4.4 s (2.1 s SQL; most of the rest a debug-only log that walks every row) |
+| Maternal Health: Total Pregnant women | not measured | — | — | — / 41.7 s |
+
+What this shows:
+- On the same emulator, the eager build froze the app for almost 4 minutes to show the home dashboard (Facilities reads `.length` on 46,533 subjects and eager pre-loads all of them to depth 3), and again on every dashboard reopen; lazy shows it in 1.4 s. The eager run was stopped there.
+- The first version used more heap than eager and was no faster on whole-table rules; on a 4 GB emulator that pushed the app into swap and everything slowed ~20×. The windowed, shared-getter version beats eager on time for both cards and on heap for Total Screened.
+- A result kept its window's loaded children: SCD Pregnant women's 8 subjects held 126 MB, against eager's ~1 MB. Hermes has no `WeakRef`, so windows created while a rule or line-list function runs are now sealed when it returns (`RuleEvaluationService.withLazyScope`): each drops its built rows, loaded child and reference groups and parent link, keeping only its raw rows, so a later read of an unread property still loads in one batch. The 8 subjects now hold 33 MB (Node); the rest is those raw sibling rows, kept deliberately so later reads don't fall back to a query per row. On the emulator, memory after the SCD dashboard dropped to 1.17 GB with no swap (from 2.4 GB plus swap in the first version); timings are unchanged.
+- **Total Screened for SCD (and Maternal Health's Total Pregnant women, 41.7 s to count 0) stay slow on SQLite in both modes** (95.9 s on the emulator, against 148 ms on Realm) and block the JavaScript thread while they run, freezing the app. Their criteria fall back to JavaScript over every subject. #1978's SUBQUERY translation is already on `18.0` and handles these predicates: unwrapped, they translate to SQL and give the same counts (34,677 in 2.7 s in Node, against 10–16 s for the fallback). What stops them is the bracketed top-level `OR`/`AND` that `ReportCardQueryBuilder`/`RealmQueryService` build, which the parser rejects as a whole. That is #2076 (on hold). This matters for moving JSCS to SQLite.
+- Whether the lazy approach is worth its complexity was an open question after the first version; the same-device eager run (229 s against 1.4 s for the home dashboard) answers it in lazy's favour. Neither mode makes whole-table JavaScript rules fast; that needs the rules or the parser to push work into SQL.

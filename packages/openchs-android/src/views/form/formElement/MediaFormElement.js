@@ -11,10 +11,11 @@ import FileSystem from "../../../model/FileSystem";
 import _ from "lodash";
 import DevicePermissions from "../../../utility/DevicePermissions";
 import GuidedCameraModal from "./GuidedCameraModal";
-import {toPickerResponse, isGuidedCameraEnabled, resizeCapturedImage} from "./GuidedCameraHelper";
+import {toPickerResponse, isGuidedCameraEnabled, resizeCapturedImage, photoSettingsProblem} from "./GuidedCameraHelper";
 import {
     resolveCaptureGuidance,
     decideGuidedRowState,
+    misconfiguredRowState,
     probeGuidanceBlobs,
     forgetGuidanceBlob,
     guidanceBlobCacheGeneration,
@@ -199,7 +200,32 @@ export default class MediaFormElement extends AbstractFormElement {
         return this._resolvedGuidance;
     }
 
+    // Resize settings only — avoids getDefaultOptions' videoQuality check throwing out of a render or handler.
+    get guidedPhotoSettings() {
+        return {
+            maxWidth: this.getFromKeyValue('maxWidth', DEFAULT_IMG_WIDTH),
+            maxHeight: this.getFromKeyValue('maxHeight', DEFAULT_IMG_HEIGHT),
+            quality: this.getFromKeyValue('imageQuality', DEFAULT_IMG_QUALITY)
+        };
+    }
+
+    // Memoised like captureGuidance, and logged once per change of setting rather than on every render.
+    get guidedPhotoSettingsProblem() {
+        const settings = this.guidedPhotoSettings;
+        const checkedFor = JSON.stringify(settings);
+        if (this._photoSettingsCheckedFor !== checkedFor) {
+            this._photoSettingsCheckedFor = checkedFor;
+            this._photoSettingsProblem = photoSettingsProblem(settings);
+            if (this._photoSettingsProblem) {
+                General.logWarn('MediaFormElement', `Guided photo question '${this.props.element.name}' is set up wrong: ${this._photoSettingsProblem}`);
+            }
+        }
+        return this._photoSettingsProblem;
+    }
+
     get guidedRowState() {
+        // A bad photo setting is the same set-up problem as a bad rule, and as plain to the worker.
+        if (this.guidedPhotoSettingsProblem) return misconfiguredRowState(this.captureGuidance);
         return decideGuidedRowState(this.captureGuidance, this.state.guidanceBlobs);
     }
 
@@ -260,12 +286,7 @@ export default class MediaFormElement extends AbstractFormElement {
     async openGuidedCamera(onUpdateObservations) {
         if (!await DevicePermissions.request({camera: true})) return;
         this._guidedOnUpdate = onUpdateObservations;
-        // Resize params only — avoids getDefaultOptions' videoQuality check throwing out of this sync handler.
-        this._guidedOptions = {
-            maxWidth: this.getFromKeyValue('maxWidth', DEFAULT_IMG_WIDTH),
-            maxHeight: this.getFromKeyValue('maxHeight', DEFAULT_IMG_HEIGHT),
-            quality: this.getFromKeyValue('imageQuality', DEFAULT_IMG_QUALITY)
-        };
+        this._guidedOptions = this.guidedPhotoSettings;
         this.setState({mode: Mode.Camera, showGuidedCamera: true});
     }
 
@@ -315,8 +336,10 @@ export default class MediaFormElement extends AbstractFormElement {
         if (!this.isGuidedCamera) return this.renderStandardInputOptions(onUpdateObservations);
         const rowState = this.guidedRowState;
         // The gallery answers to "Do not allow upload from gallery" alone (#2166). Probing and blocking
-        // change only the camera. A row left with no button draws no button strip.
-        const gallery = this.renderGalleryButton(onUpdateObservations);
+        // change only the camera, except a block for bad photo settings: the gallery reads those same
+        // settings, and the photo picker crashes on a quality it cannot read as a number (#1996).
+        // A row left with no button draws no button strip.
+        const gallery = this.guidedPhotoSettingsProblem ? null : this.renderGalleryButton(onUpdateObservations);
         const camera = rowState.blocked ? null : this.renderGuidedCameraButton(onUpdateObservations, rowState.probing);
         return (
             <View>

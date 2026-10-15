@@ -79,6 +79,7 @@ function buildMigrationService({activeBackend, groupsName}) {
 
 function buildSyncService(migrationService, {pendingResets = []} = {}) {
     const svc = Object.create(SyncService.prototype);
+    svc.db = {isSqlite: false};
     const resolved = () => Promise.resolve();
 
     svc.entitySyncStatusService = {

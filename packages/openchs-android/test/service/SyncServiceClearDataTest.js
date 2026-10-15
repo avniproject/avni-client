@@ -74,6 +74,8 @@ function buildSyncService({failOn = null} = {}) {
     svc.messageService = {init: jest.fn()};
     svc.ruleService = {init: jest.fn()};
     svc.wipedBackends = wipedBackends;
+    svc.clinicSharing = {clearState: jest.fn(async () => {}), clearLedger: jest.fn(async () => {})};
+    svc.getService = jest.fn(() => svc.clinicSharing);
     return svc;
 }
 
@@ -88,6 +90,14 @@ describe('clearData wipes both backends (#2083)', () => {
         mockGlobalContext.switchBackend.mockImplementation((target) => { activeBackend = target; });
         await SqliteMigrationService.persistStateForUser('anjali@phulwari', {activeBackend: 'sqlite'});
         await SessionUsername.set('anjali@phulwari');
+    });
+
+    it("clears clinic sharing's own files: hub cursor, parked records and holds from the previous data", async () => {
+        const svc = buildSyncService();
+
+        await svc.clearData();
+
+        expect([svc.clinicSharing.clearState, svc.clinicSharing.clearLedger].map((fn) => fn.mock.calls.length)).toEqual([1, 1]);
     });
 
     it('clears both backends and lands on Realm, starting from Realm', async () => {

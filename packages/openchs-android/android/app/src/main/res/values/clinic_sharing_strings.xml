@@ -1,0 +1,6 @@
+<resources>
+    <string name="clinic_hub_channel_name">Clinic sharing</string>
+    <string name="clinic_hub_notification_title">Sharing clinic records</string>
+    <string name="clinic_hub_notification_text">Phones in this clinic can sync with this phone.</string>
+    <string name="clinic_hub_stop">Stop</string>
+</resources>

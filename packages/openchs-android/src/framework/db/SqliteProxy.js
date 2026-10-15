@@ -129,13 +129,10 @@ class SqliteProxy {
 
     ensureReferenceCacheBuilt() {
         if (this._referenceCacheBuilt) return;
-        const cache = this.hydrator.referenceDataCache;
-        if (cache && Object.keys(cache).length > 0) {
-            this._referenceCacheBuilt = true;
-            return;
-        }
+        const cache = this.hydrator.referenceDataCache || {};
+        const missing = SqliteProxy.DEFAULT_REFERENCE_CACHE_CONFIGS.filter(c => !cache[c.schemaName]);
         try {
-            this.buildReferenceCache(SqliteProxy.DEFAULT_REFERENCE_CACHE_CONFIGS);
+            if (missing.length > 0) this.buildReferenceCache(missing);
         } catch (e) {
             // Tables may not exist yet (before first sync)
             if (!e.message || !e.message.includes('no such table')) {
@@ -447,7 +444,9 @@ class SqliteProxy {
                 [rawObject.uuid]
             );
             if (rows.length > 0) {
-                const hydrated = this.hydrator.hydrate(schemaName, rows[0], {skipLists: true, depth: 1});
+                const hydrated = this.hydrator.eagerReferenceMode
+                    ? this.hydrator.hydrate(schemaName, rows[0], {skipLists: true, depth: 1})
+                    : this.hydrator.createLazyGroup(schemaName, rows).buildAt(0);
                 return new entityClass(hydrated);
             }
         }
@@ -545,13 +544,16 @@ class SqliteProxy {
 
         if (!rows || rows.length === 0) return null;
 
-        this.hydrator.beginHydrationSession();
-        try {
-            const hydrated = this.hydrator.hydrate(type, rows[0], this.hydrator.getDefaultHydrationOptions());
-            return new entityClass(hydrated);
-        } finally {
-            this.hydrator.endHydrationSession();
+        if (this.hydrator.eagerReferenceMode) {
+            // Eager path kept only as the parity tests' reference; remove once lazy hydration has proven out in the field.
+            this.hydrator.beginHydrationSession();
+            try {
+                return new entityClass(this.hydrator.hydrate(type, rows[0], this.hydrator.getDefaultHydrationOptions()));
+            } finally {
+                this.hydrator.endHydrationSession();
+            }
         }
+        return new entityClass(this.hydrator.createLazyGroup(type, rows).buildAt(0));
     }
 
     write(callback) {
@@ -749,6 +751,19 @@ class SqliteProxy {
         });
     }
 
+    // Straight UPDATE: create() would refuse a null in a mandatory link such as SubjectProgramEligibility.subject
+    clearLinks(schemaName, columnName, uuids) {
+        if (_.isEmpty(uuids)) return;
+        const tableMeta = this.tableMetaMap.get(schemaName);
+        if (!tableMeta || !tableMeta.getColumn(columnName)) throw new Error(`SqliteProxy.clearLinks: No column "${columnName}" on "${schemaName}"`);
+        this.write(() => {
+            _.chunk(uuids, 500).forEach(chunk => {
+                const placeholders = chunk.map(() => "?").join(", ");
+                this._executeRaw(`UPDATE ${tableMeta.tableName} SET "${columnName}" = NULL WHERE "${columnName}" IN (${placeholders})`, chunk);
+            });
+        });
+    }
+
     // ──── Reference data cache ────
 
     /**
@@ -777,6 +792,18 @@ class SqliteProxy {
      */
     setShallowMode(enabled) {
         this.hydrator.setShallowMode(enabled);
+    }
+
+    takeLazyStats() {
+        return this.hydrator.takeLazyStats();
+    }
+
+    beginLazyScope() {
+        this.hydrator.beginLazyScope();
+    }
+
+    endLazyScope() {
+        this.hydrator.endLazyScope();
     }
 
     /**

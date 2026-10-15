@@ -51,11 +51,12 @@ const TestFormElementGroupFactory = require("../../../model/form/TestFormElement
 const TestFormFactory = require("../../../model/form/TestFormFactory").default;
 
 // The two App Designer checkboxes, as the server sends them: key-values with string values.
-const photoQuestion = ({guidedCamera, restrictGalleryUpload, captureGuidance} = {}) => {
+const photoQuestion = ({guidedCamera, restrictGalleryUpload, captureGuidance, imageQuality} = {}) => {
     const page = TestFormElementGroupFactory.create({name: "Oral screening", form: TestFormFactory.createWithDefaults({formType: "Encounter"})});
     const keyValues = [];
     if (!_.isNil(guidedCamera)) keyValues.push(KeyValue.fromResource({key: "guidedCamera", value: guidedCamera}));
     if (!_.isNil(restrictGalleryUpload)) keyValues.push(KeyValue.fromResource({key: "restrictGalleryUpload", value: restrictGalleryUpload}));
+    if (!_.isNil(imageQuality)) keyValues.push(KeyValue.fromResource({key: "imageQuality", value: imageQuality}));
     const element = TestFormElementFactory.create({
         name: "Oral Image", displayOrder: 1, formElementGroup: page, keyValues,
         concept: TestConceptFactory.createWithDefaults({name: "Oral Image", dataType: "Image"}),
@@ -179,5 +180,33 @@ describe("The gallery button on a photo question follows 'Do not allow upload fr
         await act(async () => { foundOnDevice(true); await flush(); });
         expect(buttonHolding(renderer, "camera").props.disabled).toBe(false);
         expect(buttonHolding(renderer, "folder-open").props.disabled).toBeFalsy();
+    });
+});
+
+// QA on #1996, 8 Oct 2026: a bad photo setting is a set-up problem, so the row says so before any photo
+// is taken, instead of saving one at a quality nobody chose.
+describe("A guided photo question with a bad photo setting (#1996)", () => {
+    const showsText = (renderer, text) => renderer.root.findAll((n) => n.props.children === text).length > 0;
+
+    // The gallery reads the same photo settings, and the photo picker crashes on a quality it cannot read
+    // as a number, so this block, unlike a rule's or a missing picture's, takes the gallery with it.
+    it("imageQuality 'abc': the set-up message, and neither camera nor gallery", async () => {
+        const renderer = await settle(draw(photoQuestion({guidedCamera: true, restrictGalleryUpload: false, imageQuality: "abc"})));
+        expect(showsText(renderer, "guidedCaptureMisconfigured")).toBe(true);
+        expect(hasIcon(renderer.root, "camera")).toBe(false);
+        expect(hasIcon(renderer.root, "folder-open")).toBe(false);
+        expect(buttonStrips(renderer)).toHaveLength(0);
+    });
+
+    it("imageQuality 0.6, typed as text in App Designer: the camera works as usual", async () => {
+        const renderer = await settle(draw(photoQuestion({guidedCamera: true, restrictGalleryUpload: false, imageQuality: "0.6"})));
+        expect(showsText(renderer, "guidedCaptureMisconfigured")).toBe(false);
+        expect(hasIcon(renderer.root, "camera")).toBe(true);
+    });
+
+    it("a plain photo question keeps today's behaviour, whatever its photo settings", async () => {
+        const renderer = await settle(draw(photoQuestion({imageQuality: "abc"})));
+        expect(showsText(renderer, "guidedCaptureMisconfigured")).toBe(false);
+        expect(hasIcon(renderer.root, "camera")).toBe(true);
     });
 });

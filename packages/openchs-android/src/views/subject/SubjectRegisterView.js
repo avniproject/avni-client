@@ -31,6 +31,7 @@ import {AvniAlert} from "../common/AvniAlert";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import UserInfoService from "../../service/UserInfoService";
 import SingleSelectMediaFormElement from "../form/formElement/SingleSelectMediaFormElement";
+import BackgroundDraftSaver from "../common/BackgroundDraftSaver";
 
 @Path('/SubjectRegisterView')
 class SubjectRegisterView extends AbstractComponent {
@@ -51,6 +52,16 @@ class SubjectRegisterView extends AbstractComponent {
 
     viewName() {
         return 'SubjectRegisterView';
+    }
+
+    onViewDidMount() {
+        this.backgroundDraftSaver = new BackgroundDraftSaver(this, Actions.ON_APP_BACKGROUND);
+        this.backgroundDraftSaver.start();
+    }
+
+    componentWillUnmount() {
+        this.backgroundDraftSaver && this.backgroundDraftSaver.stop();
+        super.componentWillUnmount();
     }
 
     getTitleForGroupSubject() {

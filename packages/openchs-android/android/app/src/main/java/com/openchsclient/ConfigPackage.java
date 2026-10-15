@@ -4,6 +4,7 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
+import com.openchsclient.clinicsharing.ClinicHubModule;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,6 +23,8 @@ public class ConfigPackage implements ReactPackage {
         modules.add(new ConfigModule(reactContext));
         modules.add(new BugsnagInitializer(reactContext));
         modules.add(new EdgeModelModule(reactContext));
+        modules.add(new ClinicHubWifiModule(reactContext));
+        modules.add(new ClinicHubModule(reactContext));
         return modules;
     }
 }

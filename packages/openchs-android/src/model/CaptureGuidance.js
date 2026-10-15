@@ -13,10 +13,11 @@ export const BLOCK_MESSAGE_KEYS = {
     [BlockReason.Misconfiguration]: "guidedCaptureMisconfigured"
 };
 
+// Ticking Guided camera promises a forced flash and needs a phone with one (#2166); a rule may relax either.
 const DEFAULTS = Object.freeze({
     label: null,
-    flash: "auto",
-    blockOnNoFlash: false,
+    flash: "on",
+    blockOnNoFlash: true,
     blockOnCaptureFailure: true,
     reckonerPath: null,
     overlayPath: null,
@@ -137,6 +138,11 @@ export function decideGuidedRowState(resolved, blobs = {}) {
     // Don't let a tap through on a path we haven't proven is on the device.
     if (_.some(declared, path => !_.isBoolean(blobs[path]))) return {...base, probing: true};
     return {...base, showReckoner: !!resolved.reckonerPath, overlayReady: !!resolved.overlayPath};
+}
+
+// The row as blocked by a set-up problem found outside the rule, such as a bad photo setting.
+export function misconfiguredRowState(resolved) {
+    return decideGuidedRowState({...resolved, blockCapture: {reason: BlockReason.Misconfiguration, message: null}});
 }
 
 // Successes only: a missing blob must be re-probed so the row unblocks once sync fetches it.

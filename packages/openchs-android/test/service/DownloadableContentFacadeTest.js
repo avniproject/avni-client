@@ -27,6 +27,35 @@ function withRows(rows) {
     mockService.getAllNonVoided.mockReturnValue(rows);
 }
 
+// Every value reachable from `root` through data properties, own or inherited, short of the
+// built-in prototypes every object shares. Getters are not run and closures are invisible here;
+// assertOnlyPathAndValue covers those for an item.
+function reachableFrom(root) {
+    const builtIns = new Set([Object.prototype, Function.prototype, Array.prototype]);
+    const seen = new Set();
+    const queue = [root];
+    while (queue.length > 0) {
+        const value = queue.shift();
+        if (value === null || (typeof value !== "object" && typeof value !== "function")) continue;
+        if (builtIns.has(value) || seen.has(value)) continue;
+        seen.add(value);
+        Reflect.ownKeys(value).forEach(key => {
+            const descriptor = Object.getOwnPropertyDescriptor(value, key);
+            if ("value" in descriptor) queue.push(descriptor.value);
+        });
+        queue.push(Object.getPrototypeOf(value));
+    }
+    return seen;
+}
+
+// An item is two plain functions and nothing else: no getter, no extra field, no class behind it.
+function assertOnlyPathAndValue(item) {
+    const descriptors = Object.getOwnPropertyDescriptors(item);
+    assert.sameMembers(Reflect.ownKeys(descriptors), ["path", "value"]);
+    Object.values(descriptors).forEach(descriptor => assert.isFunction(descriptor.value));
+    assert.strictEqual(Object.getPrototypeOf(item), Object.prototype);
+}
+
 describe("downloadableContent.byPayload", () => {
     beforeEach(() => jest.clearAllMocks());
 
@@ -85,13 +114,15 @@ describe("downloadableContent.byPayload", () => {
         assert.equal(mockService.getAllNonVoided.mock.calls.length, 1);
     });
 
-    it("exposes nothing that could write", () => {
-        withRows([row()]);
+    // A method-name check passed while the service sat on a public field (#1998 QA).
+    it("hands a rule nothing that reaches the storage service or the stored row", () => {
+        const stored = row();
+        withRows([stored]);
         const asset = downloadableContent.byPayload("guidanceImage", {sequence: 3, kind: "reckoner"});
-        ["save", "saveOrUpdate", "delete", "update"].forEach(method => {
-            assert.isUndefined(asset[method], `${method} must not be reachable from a rule`);
-            assert.isUndefined(downloadableContent[method]);
-        });
+        assertOnlyPathAndValue(asset);
+        const reachable = reachableFrom(asset);
+        assert.isFalse(reachable.has(mockService), "the storage service is reachable from a lookup result");
+        assert.isFalse(reachable.has(stored), "the stored row is reachable from a lookup result");
     });
 });
 
@@ -142,6 +173,17 @@ describe("downloadableContent.allByCategory", () => {
         withRows([]);
         assert.deepEqual(downloadableContent.allByCategory("nothingHere"), []);
     });
+
+    it("hands a rule nothing that reaches the storage service or the stored rows", () => {
+        const stored = [row({sha256: "a"}), row({sha256: "b"})];
+        withRows(stored);
+        const items = downloadableContent.allByCategory("guidanceImage");
+        assert.lengthOf(items, 2);
+        items.forEach(assertOnlyPathAndValue);
+        const reachable = reachableFrom(items);
+        assert.isFalse(reachable.has(mockService), "the storage service is reachable from a lookup result");
+        stored.forEach(storedRow => assert.isFalse(reachable.has(storedRow), "a stored row is reachable from a lookup result"));
+    });
 });
 
 describe("downloadableContent registration", () => {
@@ -150,5 +192,9 @@ describe("downloadableContent registration", () => {
             require("path").join(__dirname, "../../src/service/RuleEvaluationService.js"), "utf8");
         assert.include(source, "downloadableContent: downloadableContentFacade",
             "rules reach this through params.services.downloadableContent");
+    });
+
+    it("holds no reference to the storage service that a rule could read", () => {
+        assert.isFalse(reachableFrom(downloadableContent).has(mockService));
     });
 });

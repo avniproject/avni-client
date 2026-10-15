@@ -13,6 +13,7 @@ jest.mock("../../../src/framework/bean/Service", () => () => (target) => target)
 import {EntityMappingConfig} from "openchs-models";
 import SchemaGenerator from "../../../src/framework/db/SchemaGenerator";
 import SqliteProxy from "../../../src/framework/db/SqliteProxy";
+import {LAZY_STATE} from "../../../src/framework/db/LazyGroup";
 import RepositoryFactory from "../../../src/repository/RepositoryFactory";
 import IndividualService from "../../../src/service/IndividualService";
 import CustomFilterService from "../../../src/service/CustomFilterService";
@@ -71,8 +72,12 @@ describe("recent enrolments list", () => {
 
     afterEach(() => rawDb && rawDb.close());
 
-    // A prefetched list is a plain data property; a deferred one is an accessor.
-    const isPrefetched = (entity, propName) => !Object.getOwnPropertyDescriptor(entity.that || entity, propName).get;
+    // Whether something has read the property (lazy rows) or prefetched it (eager objects).
+    const isLoaded = (entity, propName) => {
+        const target = entity.that || entity;
+        const lazy = target[LAZY_STATE];
+        return lazy ? lazy.resolved.has(propName) : !Object.getOwnPropertyDescriptor(target, propName).get;
+    };
     const rowFor = (rows, subjectUuid) => rows.find(row => row.individual.uuid === subjectUuid);
 
     it("lists the subjects enrolled in the window", () => {
@@ -81,18 +86,17 @@ describe("recent enrolments list", () => {
         assert.sameMembers(rows.map(row => row.individual.uuid), ["kavita"]);
     });
 
-    it("prefetches the enrolment badges the row shows", () => {
+    it("resolves the enrolment badges the row shows", () => {
         const individual = rowFor(service.recentlyEnrolled(TODAY, [], ""), "kavita").individual;
 
-        assert.isTrue(isPrefetched(individual, "enrolments"));
         assert.deepEqual(individual.nonVoidedEnrolments().map(enl => enl.program.name), ["Mother"]);
     });
 
     it("leaves the visit history behind the row unloaded", () => {
         const individual = rowFor(service.recentlyEnrolled(TODAY, [], ""), "kavita").individual;
 
-        assert.isFalse(isPrefetched(individual, "encounters"));
-        assert.isFalse(isPrefetched(individual.that.enrolments[0], "encounters"));
+        assert.isFalse(isLoaded(individual, "encounters"));
+        assert.isFalse(isLoaded(individual.that.enrolments[0], "encounters"));
     });
 
     it("keeps the row shape the list view reads", () => {

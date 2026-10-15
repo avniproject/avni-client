@@ -463,6 +463,40 @@ describe('EdgeModelService', () => {
                     questionGroupIndex: null, messageKey: 'aiModelUnavailable',
                 });
             });
+
+            it('via scheduleImageInference: one fold whose key has not arrived flags model-unavailable (#2015)', async () => {
+                mockFsState.existing.add(blobPath('fold2'));  // fold2 blob present, key absent
+                service.dispatchAction = jest.fn();
+
+                const entity = {uuid: 'e1', getObservationValue: jest.fn(() => undefined)};
+                service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
+                await new Promise(res => setImmediate(res));
+                flushInference();
+
+                expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                    conceptName: 'AI Suspicion Result', questionGroupConceptName: null,
+                    questionGroupIndex: null, messageKey: 'aiModelUnavailable',
+                });
+            });
+
+            it('via scheduleImageInference: a key-missing fold beside a genuine fold failure still says inference failed (#2015)', async () => {
+                mockFsState.existing.add(blobPath('fold2'));  // fold2 blob present, key absent
+                NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation((sha) => sha === 'fold3'
+                    ? Promise.reject(new Error('inference error'))
+                    : Promise.resolve({label: 'Negative', confidence: 0.8, logit: -1}));
+                service.dispatchAction = jest.fn();
+
+                const entity = {uuid: 'e1', getObservationValue: jest.fn(() => undefined)};
+                service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
+                await new Promise(res => setImmediate(res));
+                flushInference();
+
+                // Syncing alone would not fix fold3, so this must not tell the worker to sync.
+                expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                    conceptName: 'AI Suspicion Result', questionGroupConceptName: null,
+                    questionGroupIndex: null, messageKey: 'aiInferenceFailed',
+                });
+            });
         });
     });
 
@@ -492,6 +526,39 @@ describe('EdgeModelService', () => {
         it('via scheduleImageInference: missing cache yields no native load, no throw, and flags model-unavailable (verdict absent)', async () => {
             const r = row();
             rows = [r];  // nothing cached
+            service.dispatchAction = jest.fn();
+
+            const entity = {uuid: 'e1', getObservationValue: jest.fn(() => undefined)};
+            service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
+            await new Promise(res => setImmediate(res));
+            flushInference();
+
+            expect(NativeModules.EdgeModelModule.loadEncryptedModelFromFile).not.toHaveBeenCalled();
+            expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                conceptName: 'AI Suspicion Result', questionGroupConceptName: null,
+                questionGroupIndex: null, messageKey: 'aiModelUnavailable',
+            });
+        });
+
+        it('via scheduleImageInference: no edgeModel row synced flags model-unavailable, not inference-failed (#2015)', async () => {
+            rows = [];
+            service.dispatchAction = jest.fn();
+
+            const entity = {uuid: 'e1', getObservationValue: jest.fn(() => undefined)};
+            service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
+            await new Promise(res => setImmediate(res));
+            flushInference();
+
+            expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                conceptName: 'AI Suspicion Result', questionGroupConceptName: null,
+                questionGroupIndex: null, messageKey: 'aiModelUnavailable',
+            });
+        });
+
+        it('via scheduleImageInference: a key not cached yet flags model-unavailable, not inference-failed (#2015)', async () => {
+            const r = row();
+            rows = [r];
+            mockFsState.existing.add(blobPath(r.sha256));  // blob present, key absent
             service.dispatchAction = jest.fn();
 
             const entity = {uuid: 'e1', getObservationValue: jest.fn(() => undefined)};
@@ -648,6 +715,22 @@ describe('EdgeModelService', () => {
             cacheRow(r);
             NativeModules.EdgeModelModule.runInferenceOnImage.mockResolvedValue({label: 'Positive', confidence: 0.91});
             service.dispatchAction = jest.fn();
+        });
+
+        it("Tanuh's legacy 7-arg ensemble call on a phone with no model flags model-unavailable on that row (#2015)", async () => {
+            rows = [];
+
+            service.scheduleImageInferenceIntoGroup(
+                ['mvit2_fold1_6', 'mvit2_fold1_8', 'mvit2_fold2_8'],
+                '/tmp/x.jpg', fakeRqgEntity('e1', [{}, {}, {}]), 'Image-wise AI Assessment', 'AI Verdict', 2,
+                {'Positive': 'Suspicious', 'Negative': 'Non-Suspicious'});
+            await new Promise(res => setImmediate(res));
+            flushInference();
+
+            expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                conceptName: 'AI Verdict', questionGroupConceptName: 'Image-wise AI Assessment',
+                questionGroupIndex: 2, messageKey: 'aiModelUnavailable',
+            });
         });
 
         it('queues a batched result with the question group coordinates on resolve', async () => {
@@ -904,6 +987,107 @@ describe('EdgeModelService', () => {
             flushInference();
 
             expect(verdicts().map(v => v.value)).toEqual(['Positive']);
+        });
+
+        // QA on #2000, 8 Oct 2026: the superseded image settling FIRST must not clear the row's binding,
+        // or the current image's own verdict is then dropped as superseded and the row gets none.
+        it('writes the current image\'s verdict when the superseded one settles first', async () => {
+            const gate = deferInference();
+            const entity = rqgEntity('e1');
+            service.scheduleImageInferenceIntoGroup('/tmp/A.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
+            service.scheduleImageInferenceIntoGroup('/tmp/B.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
+
+            await gate.settle('/tmp/A.jpg', 'Positive');
+            await gate.settle('/tmp/B.jpg', 'Negative');
+            flushInference();
+
+            expect(verdicts().map(v => v.value)).toEqual(['Negative']);
+        });
+
+        // QA on #2000, 8 Oct 2026: going back to photo A while A is still in flight hits the in-flight
+        // dedup, which must still make A the row's current image, or B's verdict lands on the row holding A.
+        [['A first', ['/tmp/A.jpg', '/tmp/B.jpg']], ['B first', ['/tmp/B.jpg', '/tmp/A.jpg']]].forEach(([order, settleOrder]) => {
+            it(`writes only A's verdict after A, B, then A again (${order})`, async () => {
+                const gate = deferInference();
+                const entity = rqgEntity('e1');
+                service.scheduleImageInferenceIntoGroup('/tmp/A.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+                await new Promise(res => setImmediate(res));
+                service.scheduleImageInferenceIntoGroup('/tmp/B.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+                await new Promise(res => setImmediate(res));
+                service.scheduleImageInferenceIntoGroup('/tmp/A.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+                await new Promise(res => setImmediate(res));
+
+                const labels = {'/tmp/A.jpg': 'Positive', '/tmp/B.jpg': 'Negative'};
+                for (const imagePath of settleOrder) await gate.settle(imagePath, labels[imagePath]);
+                flushInference();
+
+                expect(verdicts().map(v => v.value)).toEqual(['Positive']);
+                expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(2);
+            });
+        });
+
+        it('writes only A\'s verdict after A, B, then A again on a question outside a group', async () => {
+            const gate = deferInference();
+            const entity = {uuid: 'e1', getObservationValue: jest.fn(() => null)};
+            service.scheduleImageInference('/tmp/A.jpg', entity, 'AI Verdict');
+            await new Promise(res => setImmediate(res));
+            service.scheduleImageInference('/tmp/B.jpg', entity, 'AI Verdict');
+            await new Promise(res => setImmediate(res));
+            service.scheduleImageInference('/tmp/A.jpg', entity, 'AI Verdict');
+            await new Promise(res => setImmediate(res));
+
+            await gate.settle('/tmp/B.jpg', 'Negative');
+            await gate.settle('/tmp/A.jpg', 'Positive');
+            flushInference();
+
+            expect(verdicts().map(v => v.value)).toEqual(['Positive']);
+        });
+
+        // The realistic way one photo comes back to a row: a saved visit is edited, the photo replaced,
+        // the edit discarded and the visit reopened. Its rule call stops at a cold-start or already-
+        // inferred check, and must still make that photo current, or the discarded photo's verdict lands.
+        describe('a saved visit reopened after a discarded photo change', () => {
+            const savedVisit = () => ({uuid: 'e1', getObservationValue: jest.fn(() => 'Persisted')});
+            const written = () => verdicts().filter(v => !v.clear).map(v => v.value);
+
+            it('while the reopened photo is still being recomputed', async () => {
+                const gate = deferInference();
+                mockFsState.existing.add('/tmp/X.jpg');
+                mockFsState.existing.add('/tmp/B.jpg');
+                const entity = savedVisit();
+                service.scheduleImageInference('/tmp/X.jpg', entity, 'AI Verdict');
+                await new Promise(res => setImmediate(res));
+                service.scheduleImageInference('/tmp/B.jpg', entity, 'AI Verdict');
+                await new Promise(res => setImmediate(res));
+                service.scheduleImageInference('/tmp/X.jpg', entity, 'AI Verdict');
+                await new Promise(res => setImmediate(res));
+
+                await gate.settle('/tmp/B.jpg', 'Negative');
+                await gate.settle('/tmp/X.jpg', 'Positive');
+                flushInference();
+
+                expect(written()).toEqual(['Positive']);
+            });
+
+            it('after the reopened photo\'s verdict was already worked out', async () => {
+                const gate = deferInference();
+                mockFsState.existing.add('/tmp/X.jpg');
+                const entity = savedVisit();
+                service.scheduleImageInference('/tmp/X.jpg', entity, 'AI Verdict');
+                await new Promise(res => setImmediate(res));
+                await gate.settle('/tmp/X.jpg', 'Positive');
+                service.scheduleImageInference('/tmp/B.jpg', entity, 'AI Verdict');
+                await new Promise(res => setImmediate(res));
+                service.scheduleImageInference('/tmp/X.jpg', entity, 'AI Verdict');
+                await new Promise(res => setImmediate(res));
+
+                await gate.settle('/tmp/B.jpg', 'Negative');
+                flushInference();
+
+                expect(written()).toEqual(['Positive']);
+            });
         });
 
         it('keeps sibling rows independent — row 1 does not supersede row 0', async () => {

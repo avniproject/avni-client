@@ -6,15 +6,18 @@ import EntitySyncStatusView from "../entitysyncstatus/EntitySyncStatusView";
 import DevSettingsView from "../settings/DevSettingsView";
 import CustomDashboardView from "../customDashboard/CustomDashboardView";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
+import ClinicSharingView from "../clinicsharing/ClinicSharingView";
 import _ from "lodash";
 
 const FunctionalityMenus = [
     new StaticMenuItem("dashboard", "view-dashboard", "dashboards", StaticMenuItem.InternalNavigationMenuType, CustomDashboardView),
     new StaticMenuItem("videoList", "video", "VideoList", StaticMenuItem.InternalNavigationMenuType, VideoListView),
+    // Beneficiary mode is unused in the field and can be disabled if needed (Readme.md, "Unused features").
     new StaticMenuItem("beneficiaryMode", "account-supervisor", "beneficiaryMode", StaticMenuItem.InternalNavigationMenuType, BeneficiaryModeStartView)];
 const SyncMenus = [
     new StaticMenuItem("entitySyncStatus", "sync", "entitySyncStatus", StaticMenuItem.InternalNavigationMenuType, EntitySyncStatusView),
-    new StaticMenuItem("uploadCatchmentDatabase", "backup-restore", "uploadCatchmentDatabase", StaticMenuItem.CustomActionMenuType)
+    new StaticMenuItem("uploadCatchmentDatabase", "backup-restore", "uploadCatchmentDatabase", StaticMenuItem.CustomActionMenuType),
+    new StaticMenuItem("clinicSharing", "access-point-network", "clinicSharing", StaticMenuItem.InternalNavigationMenuType, ClinicSharingView)
 ];
 const UserMenus = [
     new StaticMenuItem("changePassword", "account-key", "changePassword", StaticMenuItem.CustomActionMenuType),
@@ -25,6 +28,7 @@ const SupportMenus = [
 ];
 const DevMenus = [
     new StaticMenuItem("deleteData", "delete", "Delete Data", StaticMenuItem.CustomActionMenuType),
+    // Family folder is unused, predates households (group subjects), and can be disabled if needed (Readme.md, "Unused features").
     new StaticMenuItem("familyFolder", "account-multiple", "Family Folder", StaticMenuItem.InternalNavigationMenuType, FamilyFolderView),
     new StaticMenuItem("devSettings", "cog-outline", "Dev Settings", StaticMenuItem.InternalNavigationMenuType, DevSettingsView),
     new StaticMenuItem("createAnonymizedDatabase", "incognito", "Anonymize Database", StaticMenuItem.CustomActionMenuType)
@@ -39,9 +43,18 @@ class StaticMenuItemFactory {
     }
 
     static getSyncMenus(context) {
-        const hideUploadCatchmentDatabase = context.getService(OrganisationConfigService).isDbEncryptionEnabled();
+        const organisationConfigService = context.getService(OrganisationConfigService);
+        const hideUploadCatchmentDatabase = organisationConfigService.isDbEncryptionEnabled();
         return SyncMenus.filter(menuItem =>
-            !(menuItem.uniqueName === "uploadCatchmentDatabase" && hideUploadCatchmentDatabase));
+            !(menuItem.uniqueName === "uploadCatchmentDatabase" && hideUploadCatchmentDatabase)
+            && !(menuItem.uniqueName === "clinicSharing" && !this.isClinicSharingAvailable(organisationConfigService)));
+    }
+
+    // Clinic sharing's own files are not encrypted, and parked records hold whole records.
+    static isClinicSharingAvailable(organisationConfigService) {
+        return organisationConfigService.db.isSqlite === true
+            && organisationConfigService.getSettings().enableClinicSharing === true
+            && !organisationConfigService.isDbEncryptionEnabled();
     }
 
     static getUserMenus() {

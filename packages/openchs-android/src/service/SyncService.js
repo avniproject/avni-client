@@ -53,6 +53,8 @@ import {pruneConceptMedia} from "../task/PruneMedia";
 import FileSystem from "../model/FileSystem";
 import {jsonArrayListPropFor} from "../framework/db/SchemaGenerator";
 import LastSyncCompleted from "./LastSyncCompleted";
+import OrganisationConfigService from "./OrganisationConfigService";
+import {SHAREABLE_ENTITIES} from "../framework/clinicsharing/ClinicSharingConstants";
 
 function transformResourceToEntity(entityMetaData, entityResources) {
     return (acc, resource) => {
@@ -76,6 +78,7 @@ class SyncService extends BaseService {
     constructor(db, context) {
         super(db, context);
         this.persistAll = this.persistAll.bind(this);
+        this.releasedHoldBacks = 0;
     }
 
     static syncSources = {
@@ -249,6 +252,9 @@ class SyncService extends BaseService {
     async dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isManualSync, userConfirmation, isOnlyUploadRequired) {
         const allTxEntityMetaData = this.getMetadataByType(allEntitiesMetaData, "tx");
         const resetSyncMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "ResetSync");
+        const syncStartedAt = Date.now();
+        this.releasedHoldBacks = 0;
+        if (this._clinicSharingEnabled()) await this.getService('clinicHubService').mirrorOwnQueueIfRunning();
         const uploadData = Promise.resolve(statusMessageCallBack("uploadLocallySavedData"))
             .then(() => this.pushData(allTxEntityMetaData.slice(), onProgressPerEntity))
             .then(() => onAfterMediaPush("After_Media", 0));
@@ -353,6 +359,9 @@ class SyncService extends BaseService {
             })
             .then(() => this.getTxData(filteredTxData, onProgressPerEntity, syncDetailsWithPrivileges, endDateTime))
             .then(() => migrationSwitched && this._catchUpTxDataAfterMigration(allEntitiesMetaData, serverTimeAfterUpload))
+            .then(() => this._applyParkedClinicRecords(syncStartedAt))
+            // Progress is not reported: the bar already counted these uploads in the first push.
+            .then(() => this._pushReleasedHoldBacks(allTxEntityMetaData))
             .then(() => this.downloadNewsImages())
             .then(() => this.downloadExtensions())
             .then(() => this.downloadCustomCardHtmlFiles())
@@ -610,6 +619,15 @@ class SyncService extends BaseService {
         }
         entityResources = _.sortBy(entityResources, 'lastModifiedDateTime');
         const loadedSince = _.last(entityResources).lastModifiedDateTime;
+        const shared = this._clinicSharingEnabled() && SHAREABLE_ENTITIES.includes(entityMetaData.schemaName);
+        const releasing = shared
+            ? await this.getService('clinicHoldBackService').receivedAmong(entityResources.map((resource) => resource.uuid))
+            : {release: [], keepLocal: []};
+        // The server's copy supersedes a hub copy still waiting for its parent.
+        if (shared) await this.getService('clinicParkedRecordService').unpark(entityResources.map((resource) => resource.uuid));
+        // The local copy is a held edit still to upload; the server's older copy must not replace it.
+        if (!_.isEmpty(releasing.keepLocal)) this._adoptServerMediaUrls(entityMetaData, entityResources.filter((resource) => releasing.keepLocal.includes(resource.uuid)));
+        entityResources = entityResources.filter((resource) => !releasing.keepLocal.includes(resource.uuid));
 
         const entities = entityResources.reduce(transformResourceToEntity.call(this, entityMetaData, entityResources), []);
         const initialLength = entityResources.length;
@@ -636,6 +654,7 @@ class SyncService extends BaseService {
         } else {
             this._persistAllSync(entityMetaData, entityResources, entities, loadedSince);
         }
+        if (!_.isEmpty(releasing.release)) this.releasedHoldBacks += await this.getService('clinicHoldBackService').release(releasing.release);
 
         // Taken after the batch path's await, so persistMs covers the write on either backend.
         this.dispatchAction(SyncTelemetryActions.ENTITY_PULL_COMPLETED, {
@@ -646,9 +665,20 @@ class SyncService extends BaseService {
         });
     }
 
-    // FK-on-child relationships need no parent re-save, but JSON-array lists store
-    // the link on the parent row (e.g. concept.answers), so re-save those parents.
     async _persistAllBatch(entityMetaData, entityResources, entities, loadedSince) {
+        await this.applyIncoming(entityMetaData, entityResources, entities);
+
+        const currentEntitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName, entityMetaData.syncStatus.entityTypeUuid);
+        const entitySyncStatus = new EntitySyncStatus();
+        entitySyncStatus.entityName = entityMetaData.entityName;
+        entitySyncStatus.entityTypeUuid = entityMetaData.syncStatus.entityTypeUuid;
+        entitySyncStatus.uuid = currentEntitySyncStatus.uuid;
+        entitySyncStatus.loadedSince = new Date(loadedSince);
+        this.bulkSaveOrUpdate(this.getCreateEntityFunctions(EntitySyncStatus.schema.name, [entitySyncStatus]));
+    }
+
+    // JSON-array lists keep the link on the parent row (e.g. concept.answers), so those parents are re-saved.
+    async applyIncoming(entityMetaData, entityResources, entities) {
         await this.db.bulkCreate(entityMetaData.schemaName, entities);
 
         // associateChild also maintains the parent's latestEntityApprovalStatus link;
@@ -665,15 +695,6 @@ class SyncService extends BaseService {
             // Keep the cache in step so a later page doesn't overwrite what this one wrote.
             this._refreshParentCacheForJsonArray(entityMetaData, mergedParents);
         }
-
-        // Update sync status (1 row)
-        const currentEntitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName, entityMetaData.syncStatus.entityTypeUuid);
-        const entitySyncStatus = new EntitySyncStatus();
-        entitySyncStatus.entityName = entityMetaData.entityName;
-        entitySyncStatus.entityTypeUuid = entityMetaData.syncStatus.entityTypeUuid;
-        entitySyncStatus.uuid = currentEntitySyncStatus.uuid;
-        entitySyncStatus.loadedSince = new Date(loadedSince);
-        this.bulkSaveOrUpdate(this.getCreateEntityFunctions(EntitySyncStatus.schema.name, [entitySyncStatus]));
     }
 
     // Original sync path for Realm (synchronous)
@@ -713,7 +734,55 @@ class SyncService extends BaseService {
                 return queued;
             })
             .filter((entities) => !_.isEmpty(entities.entities));
+        return this._withoutHeldUploads(entitiesToPost).then((toPost) => this._postQueued(toPost, readDurations, afterEachEntityTypePushed));
+    }
 
+    _withoutHeldUploads(entitiesToPost) {
+        if (!this._clinicSharingEnabled()) return Promise.resolve(entitiesToPost);
+        return this.getService('clinicHoldBackService').withoutHeld(entitiesToPost).then(({toPost, held}) => {
+            if (held.length > 0) General.logInfo("SyncService", `Holding back ${held.length} uploads until records from other phones reach the server`);
+            return toPost;
+        });
+    }
+
+    _clinicSharingEnabled() {
+        return this.db.isSqlite === true && _.get(this.getService(OrganisationConfigService).getSettings(), 'enableClinicSharing') === true;
+    }
+
+    // Reading media values needs each observation's concept, which shallow hydration leaves out.
+    _adoptServerMediaUrls(entityMetaData, serverResources) {
+        this._disableShallowHydrationIfSqlite();
+        try {
+            this.getService('clinicMediaService').adoptServerUrls(entityMetaData.entityName, serverResources);
+        } finally {
+            this._enableShallowHydrationIfSqlite();
+        }
+    }
+
+    // The pull may have brought the parents of hub records waiting on this phone; fromResource reads parents deeply.
+    async _applyParkedClinicRecords(syncStartedAt) {
+        if (!this._clinicSharingEnabled()) return;
+        this._disableShallowHydrationIfSqlite();
+        try {
+            await this.getService('clinicParkedRecordService').afterSync(syncStartedAt);
+        } finally {
+            this._enableShallowHydrationIfSqlite();
+        }
+    }
+
+    // Push runs before pull, so whatever the pull released would otherwise wait for the next sync.
+    async _pushReleasedHoldBacks(allTxEntityMetaData, afterEachEntityTypePushed = _.noop) {
+        if (!this.releasedHoldBacks) return;
+        this.releasedHoldBacks = 0;
+        this._disableShallowHydrationIfSqlite();
+        try {
+            await this.pushData(allTxEntityMetaData.slice(), afterEachEntityTypePushed);
+        } finally {
+            this._enableShallowHydrationIfSqlite();
+        }
+    }
+
+    _postQueued(entitiesToPost, readDurations, afterEachEntityTypePushed) {
         this.dispatchAction(SyncTelemetryActions.RECORD_PUSH_TODO_TELEMETRY, {entitiesToPost, readDurations});
 
         const onCompleteOfIndividualPost = (entityMetadata, entityUUID) => {
@@ -770,6 +839,9 @@ class SyncService extends BaseService {
         // Kept outside both databases too, so the wipe alone leaves it standing and the next
         // user could publish a never-synced database as the catchment dump (#2141).
         await LastSyncCompleted.clear();
+        // Clinic sharing keeps its own files: a hub cursor, parked records and holds from the previous data.
+        await this.getService('clinicSpokeService').clearState();
+        await this.getService('clinicHubService').clearLedger();
 
         // Reopen first: a wipe through a handle a failed reopen left closed clears nothing.
         await globalContext.openRealmIfMissing();

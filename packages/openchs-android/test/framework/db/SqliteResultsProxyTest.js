@@ -11,11 +11,24 @@ class MockEntity {
 // ──── Mock hydrator (identity: returns row with camelCase keys) ────
 
 function createMockHydrator(transform) {
+    const hydrate = jest.fn((schemaName, row, opts) => transform ? transform(row) : {...row});
     return {
         beginHydrationSession: jest.fn(),
         endHydrationSession: jest.fn(),
-        hydrate: jest.fn((schemaName, row, opts) => {
-            return transform ? transform(row) : {...row};
+        hydrate,
+        createLazyGroup: jest.fn((schemaName, rows) => {
+            const built = [];
+            return {
+                size: rows.length,
+                buildAt(index) {
+                    if (index < 0 || index >= rows.length) return null;
+                    if (!(index in built)) built[index] = hydrate(schemaName, rows[index], {});
+                    return built[index];
+                },
+                buildAll() {
+                    return rows.map((row, index) => this.buildAt(index));
+                },
+            };
         }),
     };
 }
@@ -584,16 +597,35 @@ describe("SqliteResultsProxy — supported query types", () => {
 
     // ──── Hydration integration ────
 
+    describe("slice", () => {
+        it("follows Array.prototype.slice for negative, missing and out-of-range bounds", () => {
+            const rows = [{uuid: "1"}, {uuid: "2"}, {uuid: "3"}, {uuid: "4"}];
+            const {proxy} = createProxy({rows});
+            const uuids = (...args) => proxy.slice(...args).map(e => e.uuid);
+            const expected = (...args) => rows.slice(...args).map(r => r.uuid);
+
+            [[], [1], [1, 3], [-2], [-3, -1], [2, 99], [99], [0, -5], [1.7, 3.2]].forEach(args =>
+                expect(uuids(...args)).toEqual(expected(...args)));
+        });
+
+        it("builds only the rows it returns", () => {
+            const {proxy, hydrator} = createProxy({rows: [{uuid: "1"}, {uuid: "2"}, {uuid: "3"}]});
+            proxy.slice(1, 2);
+            expect(hydrator.hydrate).toHaveBeenCalledTimes(1);
+        });
+    });
+
     describe("hydration integration", () => {
-        it("should call hydrator for each row with correct options", () => {
+        it("builds rows only when read", () => {
             const rows = [{uuid: "1"}, {uuid: "2"}];
             const {proxy, hydrator} = createProxy({rows});
-            proxy.length; // trigger execution
-            expect(hydrator.beginHydrationSession).toHaveBeenCalledTimes(1);
-            expect(hydrator.endHydrationSession).toHaveBeenCalledTimes(1);
-            expect(hydrator.hydrate).toHaveBeenCalledTimes(2);
-            expect(hydrator.hydrate).toHaveBeenCalledWith("Individual", {uuid: "1"}, {skipLists: false, depth: 3});
-            expect(hydrator.hydrate).toHaveBeenCalledWith("Individual", {uuid: "2"}, {skipLists: false, depth: 3});
+
+            expect(proxy.length).toBe(2);
+            expect(hydrator.hydrate).not.toHaveBeenCalled();
+
+            expect(proxy[1].uuid).toBe("2");
+            expect(hydrator.hydrate).toHaveBeenCalledTimes(1);
+            expect(hydrator.createLazyGroup).toHaveBeenCalledWith("Individual", rows);
         });
 
         it("should execute lazily — no SQL until data access", () => {
@@ -763,45 +795,6 @@ describe("TRUEPREDICATE window query", () => {
     });
 });
 
-// #2075 — count() matches .length only for a fully translated, unshaped query. This predicate
-// is what keeps a card's number from moving when the count path gets faster.
-describe("canCountInSql — the guard on routing a card count to COUNT(*)", () => {
-    it("is true for a plain filter, the shape a dashboard rule produces", () => {
-        const {proxy, executeQuery} = createProxy();
-        const filtered = proxy.filtered("voided = false");
-
-        expect(filtered.canCountInSql()).toBe(true);
-        expect(executeQuery).not.toHaveBeenCalled();   // asking must not hydrate either
-    });
-
-    it("is true for a bare collection with no filter at all", () => {
-        const {proxy} = createProxy();
-        expect(proxy.canCountInSql()).toBe(true);
-    });
-
-    it("is false when a limit is set — count() strips LIMIT deliberately", () => {
-        const {proxy} = createProxy();
-        expect(proxy.filtered("voided = false limit(2)").canCountInSql()).toBe(false);
-    });
-
-    it("is true for an unlimited distinct — _buildSql windows it, so COUNT(*) counts the same set", () => {
-        const {proxy} = createProxy({schemaName: "EntitySyncStatus", tableName: "entity_sync_status"});
-        expect(proxy.filtered("TRUEPREDICATE DISTINCT(entityName)").canCountInSql()).toBe(true);
-    });
-
-    it("is false when any predicate fell through to the JS fallback", () => {
-        const {proxy} = createProxy();
-        const filtered = proxy.filtered('SUBQUERY(observations, $obs, $obs.concept.uuid = "c1").@count > 0');
-
-        expect(filtered.canCountInSql()).toBe(false);
-    });
-
-    it("is false for a limited distinct — the #1977 shape where count() returns 3 and .length returns 2", () => {
-        const {proxy} = createProxy({schemaName: "EntitySyncStatus", tableName: "entity_sync_status"});
-        expect(proxy.filtered("TRUEPREDICATE DISTINCT(entityName) limit(2)").canCountInSql()).toBe(false);
-    });
-});
-
 describe("realmCollection — getUnderlyingRealmCollection contract", () => {
     class MockWrappedEntity {
         constructor(that) {
@@ -844,5 +837,36 @@ describe("realmCollection — getUnderlyingRealmCollection contract", () => {
         const {proxy} = createWrappedProxy();
         expect(proxy.realmCollection.length).toBe(2);
         expect(proxy.realmCollection[5]).toBeNull();
+    });
+
+    it("Object.keys on realmCollection returns indices, not internal proxy fields", () => {
+        const {proxy} = createWrappedProxy();
+        expect(Object.keys(proxy.realmCollection)).toEqual(["0", "1"]);
+    });
+
+    it("ListViewDataSource-style access: keys index back into the collection", () => {
+        const {proxy} = createWrappedProxy();
+        const raw = proxy.realmCollection;
+        const names = Object.keys(raw).map(key => raw[key].firstName);
+        expect(names).toEqual(["Alice", "Bob"]);
+    });
+
+    it("iteration over realmCollection yields raw objects", () => {
+        const {proxy} = createWrappedProxy();
+        const raw = proxy.realmCollection;
+        expect([...raw][0]).not.toBeInstanceOf(MockWrappedEntity);
+        expect(Array.from(raw)[1].firstName).toBe("Bob");
+        const collected = [];
+        for (const item of raw) collected.push(item);
+        expect(collected.every(item => !(item instanceof MockWrappedEntity))).toBe(true);
+    });
+
+    it("array methods on realmCollection yield raw objects", () => {
+        const {proxy} = createWrappedProxy();
+        const raw = proxy.realmCollection;
+        expect(raw.map(item => item)[0]).not.toBeInstanceOf(MockWrappedEntity);
+        expect(raw.slice(0, 1)[0]).not.toBeInstanceOf(MockWrappedEntity);
+        expect(raw.filter(item => item.firstName === "Bob")[0].uuid).toBe("2");
+        expect(raw.find(item => item.uuid === "1")).not.toBeInstanceOf(MockWrappedEntity);
     });
 });

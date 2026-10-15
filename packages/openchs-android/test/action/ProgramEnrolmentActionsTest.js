@@ -108,4 +108,27 @@ describe('ProgramEnrolmentActionsTest', () => {
         expect(state.enrolment.uuid).to.not.equal(savedEnrolment.uuid);
         expect(state.isDraft).to.equal(false);
     });
+
+    it("opens a saved enrolment with its own answers when another enrolment's unsaved draft is in the slot", () => {
+        const savedEnrolment = enrolmentWithChildren();
+        const otherEnrolment = ProgramEnrolment.createEmptyInstance();
+        otherEnrolment.individual = savedEnrolment.individual;
+        otherEnrolment.program = savedEnrolment.program;
+        const draft = DraftEnrolment.create(otherEnrolment);
+
+        const serviceData = {draftEnabled: true, draftEnrolment: draft};
+        serviceData[savedEnrolment.uuid] = savedEnrolment;
+        const context = new TestContext(serviceData);
+
+        let state = ProgramEnrolmentActions.getInitialState(context);
+        state = ProgramEnrolmentActions.onLoad(state, {
+            enrolment: savedEnrolment,
+            usage: ProgramEnrolmentState.UsageKeys.Enrol,
+            editing: true
+        }, context);
+
+        expect(state.enrolment.uuid).to.equal(savedEnrolment.uuid);
+        expect(state.isDraft).to.equal(false);
+        expect(state.enrolment.checklists).to.have.lengthOf(1);
+    });
 });

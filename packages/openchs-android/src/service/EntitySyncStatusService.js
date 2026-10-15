@@ -211,6 +211,40 @@ class EntitySyncStatusService extends BaseService {
         }
     }
 
+    // Run before the subjects are deleted: some checklist details are found through their checklists
+    rewindForSubjectType(subjectTypeUUID) {
+        const formMappings = this.formMapping([subjectTypeUUID], 'subjectType.uuid');
+        const encounterTypeUUIDs = _.uniq(_.compact(formMappings.map(fm => fm.observationsTypeEntityUUID)));
+        const programUUIDs = _.uniq(_.compact(formMappings.map(fm => fm.entityUUID)));
+        // Nothing on the phone links a subject type to its checklist details, and it may hold none of its
+        // checklists, so a subject type with a programme rewinds every detail
+        const allChecklistDetailUUIDs = _.isEmpty(programUUIDs) ? [] : this.getAll('ChecklistDetail').map(cd => cd.uuid);
+        const checklistDetailUUIDs = _.uniq([
+            ...this.checklistDetail([subjectTypeUUID], 'programEnrolment.individual.subjectType.uuid').map(cd => cd.uuid),
+            ...allChecklistDetailUUIDs,
+        ]);
+        // Memberships are filed under the group's type; the server still sends those under a voided role
+        const groupSubjectTypeUUIDs = _.uniq(this.getAll('GroupRole').filtered('memberSubjectType.uuid = $0', subjectTypeUUID).map(role => _.get(role, 'groupSubjectType.uuid')).filter(_.identity));
+
+        this.deleteEntries(`entityTypeUuid = '${subjectTypeUUID}'`);
+        this._deleteEntriesFor(['GroupSubject'], groupSubjectTypeUUIDs);
+        // Filed under individual A's type, but the server scopes both sides, so a subject the reset brings into
+        // scope can be B in a relationship filed under any type, one the phone has no row for
+        this.deleteEntries(`entityName = 'IndividualRelationship'`);
+        this._deleteEntriesFor(['Encounter', 'EncounterEntityApprovalStatus', 'ProgramEncounter', 'ProgramEncounterEntityApprovalStatus'], encounterTypeUUIDs);
+        this._deleteEntriesFor(['ProgramEnrolment', 'ProgramEnrolmentEntityApprovalStatus'], programUUIDs);
+        // The server does not hand out a ChecklistItemEntityApprovalStatus point today; deleting one costs nothing
+        this._deleteEntriesFor(['Checklist', 'ChecklistItem', 'ChecklistItemEntityApprovalStatus'], checklistDetailUUIDs);
+        this.deleteEntries(`entityName = 'Task'`);
+    }
+
+    _deleteEntriesFor(entityNames, entityTypeUuids) {
+        if (_.isEmpty(entityTypeUuids)) return;
+        const names = entityNames.map(name => `entityName = '${name}'`).join(' OR ');
+        const uuids = entityTypeUuids.map(uuid => `entityTypeUuid = '${uuid}'`).join(' OR ');
+        this.deleteEntries(`(${names}) AND (${uuids})`);
+    }
+
     resetSync(entityName, nonPrivilegeUuids) {
         const query = nonPrivilegeUuids.map(uuid => `entityTypeUuid = '${uuid}'`).join(' OR ');
         const criteria = _.isEmpty(query) ? `entityTypeUuid = ''` : `( entityTypeUuid = '' OR ${query})`;

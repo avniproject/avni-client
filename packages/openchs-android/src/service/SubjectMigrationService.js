@@ -3,15 +3,25 @@ import Service from "../framework/bean/Service";
 import {
     Checklist,
     ChecklistItem,
+    Comment,
+    CommentThread,
+    DraftEncounter,
+    DraftEnrolment,
+    DraftProgramEncounter,
+    DraftSubject,
     Encounter,
     EntityApprovalStatus,
     EntityMetaData,
+    Family,
+    IdentifierAssignment,
     Individual,
     ProgramEncounter,
     ProgramEnrolment,
     SubjectMigration,
+    SubjectProgramEligibility,
     GroupSubject,
-    IndividualRelationship
+    IndividualRelationship,
+    Task
 } from "openchs-models";
 import SettingsService from "./SettingsService";
 import {getJSON} from "../framework/http/requests";
@@ -25,6 +35,7 @@ import IndividualRelationshipService from "./relationship/IndividualRelationship
 import General from "../utility/General";
 import SubjectTypeService from "./SubjectTypeService";
 import UserInfoService from "./UserInfoService";
+import RealmQueryService from "./query/RealmQueryService";
 
 @Service('SubjectMigrationService')
 class SubjectMigrationService extends BaseService {
@@ -124,78 +135,81 @@ class SubjectMigrationService extends BaseService {
         this.deleteSubjectAndChildren(subject);
     }
 
+    // Children before parents, approval statuses last: records point at them via latest_entity_approval_status_uuid
     deleteSubjectAndChildren(subject) {
-        General.logDebug('SubjectMigrationService', `Deleting all entities for subject with UUID ${subject.uuid}`);
-        const deleteInTxn = (objects) => this.repository.deleteInTransaction(objects);
+        const subjectUUID = subject.uuid;
+        General.logDebug('SubjectMigrationService', `Deleting all entities for subject with UUID ${subjectUUID}`);
+        const find = (schema, filter) => this.getRepository(schema).findAll().filtered(filter, subjectUUID).map(_.identity);
+        const uuidsOf = (rows) => rows.map(row => row.uuid);
+        // One hop from the parent's uuid: a path through programEnrolment.individual makes SQLite scan the whole child table
+        const findByParents = (schema, parentProperty, parentUUIDs) => _.flatMap(_.chunk(parentUUIDs, 500), uuids =>
+            this.getRepository(schema).findAll().filtered(RealmQueryService.orKeyValueQuery(parentProperty, uuids)).map(_.identity));
+        // On Realm, observations and locations are separate objects that don't go with their owner
+        const deleteWithParts = (rows, parts = []) => {
+            _.forEach(rows, row => parts.forEach(part => {
+                if (!_.isNil(row[part])) this.repository.deleteInTransaction(row[part]);
+            }));
+            this.repository.deleteInTransaction(rows);
+        };
+        const visitParts = ['observations', 'cancelObservations', 'encounterLocation', 'cancelLocation'];
+        const enrolmentParts = ['observations', 'programExitObservations', 'enrolmentLocation', 'exitLocation'];
 
         this.transactionManager.write(() => {
-            // SUBJECT children (program enrolments)
-            _.forEach(subject.enrolments, (enrolment) => {
-                // ENROLMENT
-                //For some reason, the last element shows up as undefined when there are multiple enrolments for a subject
-                if (_.isNil(enrolment)) {
-                    return;
-                }
+            const enrolments = find(ProgramEnrolment.schema.name, 'individual.uuid = $0');
+            const enrolmentUUIDs = uuidsOf(enrolments);
+            const programEncounters = findByParents(ProgramEncounter.schema.name, 'programEnrolment.uuid', enrolmentUUIDs);
+            const encounters = find(Encounter.schema.name, 'individual.uuid = $0');
+            const checklists = findByParents(Checklist.schema.name, 'programEnrolment.uuid', enrolmentUUIDs);
+            const checklistItems = findByParents(ChecklistItem.schema.name, 'checklist.uuid', uuidsOf(checklists));
+            const comments = find(Comment.schema.name, 'subject.uuid = $0');
+            const commentThreadUUIDs = _.uniq(comments.map(comment => _.get(comment, 'commentThread.uuid')).filter(_.identity));
+            const approvalStatuses = this.findApprovalStatuses([
+                [EntityApprovalStatus.entityType.Subject, [subjectUUID]],
+                [EntityApprovalStatus.entityType.ProgramEnrolment, enrolmentUUIDs],
+                [EntityApprovalStatus.entityType.Encounter, uuidsOf(encounters)],
+                [EntityApprovalStatus.entityType.ProgramEncounter, uuidsOf(programEncounters)],
+                [EntityApprovalStatus.entityType.ChecklistItem, uuidsOf(checklistItems)],
+            ]);
 
-                // ENROLMENT children (encounters)
-                _.forEach(enrolment.encounters, (programEncounter) => {
-                    // PROGRAM ENCOUNTER
-                    // PROGRAM ENCOUNTER children (others)
-                    deleteInTxn(programEncounter.observations);
-                    deleteInTxn(programEncounter.cancelObservations);
+            // These belong to the user, so they stay; only their link to the subject goes
+            const repositoryFactory = this.context.getRepositoryFactory();
+            repositoryFactory.clearLinks(IdentifierAssignment.schema.name, 'individual_uuid', [subjectUUID]);
+            repositoryFactory.clearLinks(IdentifierAssignment.schema.name, 'program_enrolment_uuid', enrolmentUUIDs);
+            repositoryFactory.clearLinks(Task.schema.name, 'subject_uuid', [subjectUUID]);
+            repositoryFactory.clearLinks(SubjectProgramEligibility.schema.name, 'subject_uuid', [subjectUUID]);
+            repositoryFactory.clearLinks(Family.schema.name, 'head_of_family_uuid', [subjectUUID]);
 
-                    this.safeDelete(programEncounter.encounterLocation);
-                    this.safeDelete(programEncounter.cancelLocation);
+            deleteWithParts(programEncounters, visitParts);
+            deleteWithParts(findByParents(DraftProgramEncounter.schema.name, 'programEnrolment.uuid', enrolmentUUIDs), visitParts);
+            deleteWithParts(encounters, visitParts);
+            deleteWithParts(checklistItems, ['observations']);
+            deleteWithParts(checklists);
+            deleteWithParts(enrolments, enrolmentParts);
 
-                    deleteInTxn(programEncounter.approvalStatuses);
-                });
-                deleteInTxn(enrolment.encounters);
+            deleteWithParts(comments);
+            deleteWithParts(commentThreadUUIDs
+                .filter(threadUUID => this.getRepository(Comment.schema.name).findAll().filtered('commentThread.uuid = $0', threadUUID).length === 0)
+                .map(threadUUID => this.getRepository(CommentThread.schema.name).findAll().filtered('uuid = $0', threadUUID)[0])
+                .filter(_.identity));
+            // Two queries: the OR makes SQLite scan group_subject
+            deleteWithParts(find(GroupSubject.schema.name, 'groupSubject.uuid = $0'));
+            deleteWithParts(find(GroupSubject.schema.name, 'memberSubject.uuid = $0'));
+            deleteWithParts(this.getService(IndividualRelationshipService).findBySubject(subject).map(_.identity));
+            deleteWithParts(find(DraftEncounter.schema.name, 'individual.uuid = $0'), visitParts);
+            deleteWithParts(find(DraftEnrolment.schema.name, 'individual.uuid = $0'), enrolmentParts);
+            deleteWithParts(find(DraftSubject.schema.name, 'uuid = $0'), ['observations', 'registrationLocation']);
 
-                // ENROLMENT children (checklists)
-                _.forEach(enrolment.checklists, (checklist) => {
-                    // CHECKLIST
-                    if (_.isNil(checklist)) {
-                        return;
-                    }
-                    deleteInTxn(checklist.items);
-                });
-                // ENROLMENT children (others)
-                deleteInTxn(enrolment.observations);
-                deleteInTxn(enrolment.programExitObservations);
-
-                this.safeDelete(enrolment.enrolmentLocation);
-                this.safeDelete(enrolment.exitLocation);
-
-                deleteInTxn(enrolment.checklists);
-                deleteInTxn(enrolment.approvalStatuses);
-            });
-            deleteInTxn(subject.enrolments);
-
-            _.forEach(subject.encounters, (encounter) => {
-                // ENCOUNTER
-                // ENCOUNTER children (others)
-                deleteInTxn(encounter.observations);
-                deleteInTxn(encounter.cancelObservations);
-
-                this.safeDelete(encounter.encounterLocation);
-                this.safeDelete(encounter.cancelLocation);
-
-                deleteInTxn(encounter.approvalStatuses);
-            });
-            deleteInTxn(subject.encounters);
-
-            // SUBJECT children (others)
-            deleteInTxn(this.getService(IndividualRelationshipService).findBySubject(subject));
-            deleteInTxn(subject.observations);
-            this.safeDelete(subject.registrationLocation);
-            deleteInTxn(subject.comments);
-            deleteInTxn(subject.groupSubjects);
-            deleteInTxn(subject.groups);
-            deleteInTxn(subject.approvalStatuses);
-
-            // SUBJECT root
-            deleteInTxn(subject);
+            deleteWithParts(find(Individual.schema.name, 'uuid = $0'), ['observations', 'registrationLocation']);
+            deleteWithParts(approvalStatuses, ['observations']);
         });
+    }
+
+    // Chunked: SQLite rejects an expression more than 1000 terms deep
+    findApprovalStatuses(entityUUIDsByType) {
+        return _.flatMap(entityUUIDsByType, ([entityType, entityUUIDs]) =>
+            _.flatMap(_.chunk(entityUUIDs, 500), uuids => this.getRepository(EntityApprovalStatus.schema.name).findAll()
+                .filtered(`entityType = $0 AND (${RealmQueryService.orKeyValueQuery('entityUUID', uuids)})`, entityType)
+                .map(_.identity)));
     }
 
     migrateSubjectIfRequired(subjectMigration) {

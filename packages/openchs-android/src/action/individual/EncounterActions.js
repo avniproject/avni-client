@@ -71,9 +71,12 @@ export class EncounterActions {
         let editableEncounter = action.encounter;
 
         // Only look up draft if draft loading is enabled - handles both scheduled and unscheduled encounters
-        const draftEncounter = shouldLoadDraft(context)
+        const draftInSlot = shouldLoadDraft(context)
             ? context.get(DraftEncounterService).findDraftFor(action.encounter)
             : null;
+        // The lookup goes by subject, visit type and scheduled date, so a saved visit can find another visit's unsaved
+        // draft. Take it only for a visit not saved yet, or when it is this visit's own (#2016).
+        const draftEncounter = draftInSlot && (isNewEntity || draftInSlot.uuid === action.encounter.uuid) ? draftInSlot : null;
         if (draftEncounter) {
             editableEncounter = draftEncounter.constructEncounter();
         }
@@ -96,7 +99,6 @@ export class EncounterActions {
 
         if (action.allElementsFilledForImmutableEncounter) {
             newState.allElementsFilledForImmutableEncounter = true;
-            newState.wizard.currentPage = form.numberOfPages;
             return newState;
         }
 
@@ -120,6 +122,9 @@ export class EncounterActions {
     static onSummaryPage(state, action, context) {
         if (state.wizardCompletionInProgress) return state;
         const newState = state.clone();
+        // The view jumps a fully-filled immutable encounter to the summary whenever this flag is set and no
+        // completion is running. Clear it on the first jump, or every settle re-triggers the jump (#2184).
+        newState.allElementsFilledForImmutableEncounter = false;
         return runWizardCompletion(newState, action, () => newState.handleSummaryPageAsync(action, context), 'EncounterActions.onSummaryPage');
     }
 
@@ -169,6 +174,16 @@ export class EncounterActions {
         return newState;
     }
 
+    static onAppBackground(state, action, context) {
+        const encounter = state.encounter;
+        // Nothing answered yet: a draft would only add an empty entry under Drafts.
+        if (!state.saveDrafts || _.isNil(state.wizard) || _.isEmpty(encounter.observations)) return state;
+        const savedEncounter = context.get(EntityService).findByUUID(encounter.uuid, Encounter.schema.name);
+        if (!_.isNil(savedEncounter) && !_.isNil(savedEncounter.encounterDateTime)) return state;
+        context.get(DraftEncounterService).saveDraft(encounter);
+        return state;
+    }
+
     static onSave(state, action, context) {
         const newState = state.clone();
         context.get(IndividualService).updateObservations(newState.encounter.individual);
@@ -204,6 +219,7 @@ const individualEncounterViewActions = {
     ON_TIMED_FORM: "EA.ON_TIMED_FORM",
     ON_START_TIMER: "EA.ON_START_TIMER",
     USE_THIS_STATE: "EA.USE_THIS_STATE",
+    ON_APP_BACKGROUND: "EA.ON_APP_BACKGROUND",
 };
 
 const individualEncounterViewActionsMap = new Map([
@@ -231,6 +247,7 @@ const individualEncounterViewActionsMap = new Map([
     [individualEncounterViewActions.ON_TIMED_FORM, TimerActions.onTimedForm],
     [individualEncounterViewActions.ON_START_TIMER, TimerActions.onStartTimer],
     [individualEncounterViewActions.USE_THIS_STATE, EncounterActions.onUseThisState],
+    [individualEncounterViewActions.ON_APP_BACKGROUND, EncounterActions.onAppBackground],
     [EDGE_MODEL_ACTION.INFERENCE_RESULT_AVAILABLE, ObservationsHolderActions.onInferenceResultAvailable],
     [EDGE_MODEL_ACTION.INFERENCE_RESULTS_BATCH, ObservationsHolderActions.onObservationWriteBatch],
     [EDGE_MODEL_ACTION.INFERENCE_UNAVAILABLE, ObservationsHolderActions.onInferenceUnavailable],

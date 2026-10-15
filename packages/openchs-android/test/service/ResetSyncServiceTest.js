@@ -72,6 +72,8 @@ function buildService({resetSyncs, checkpoints, neverSynced = false}) {
     };
 
     service.backupRestoreRealmService = {isDatabaseNeverSynced: () => neverSynced};
+    // Realm: no foreign keys to switch, and the reset runs without an outer transaction
+    service.context = {getRepositoryFactory: () => ({setForeignKeysEnabled: () => false})};
 
     service.getAllNonVoided = () => resultsOver(
         state.resetSyncs,
@@ -110,6 +112,7 @@ function buildService({resetSyncs, checkpoints, neverSynced = false}) {
             });
         }),
         deleteEntries: jest.fn((criteria) => state.deletedEntries.push(criteria)),
+        rewindForSubjectType: jest.fn(),
     };
 
     service.individualService = {
@@ -211,7 +214,7 @@ describe('ResetSyncService — a catchment reset must not re-arm itself (#2115)'
     // AC 5. A sync-attribute change on one subject type takes the other branch. It does
     // not loop today and must not start.
     describe('the per-subject-type branch', () => {
-        it('deletes only that subject type\'s checkpoints and never touches ResetSync\'s', () => {
+        it('rewinds that subject type\'s checkpoints and never touches ResetSync\'s', () => {
             const {service, state} = buildService({
                 resetSyncs: [makeResetSync('reset-1', {subjectTypeUUID: 'subject-type-1'})],
                 checkpoints: catchmentCheckpoints(),
@@ -220,7 +223,7 @@ describe('ResetSyncService — a catchment reset must not re-arm itself (#2115)'
             service.resetSync();
 
             expect(state.clearedSchemas).toBeNull();
-            expect(state.deletedEntries).toEqual([`entityTypeUuid = 'subject-type-1'`]);
+            expect(service.entitySyncStatusService.rewindForSubjectType).toHaveBeenCalledWith('subject-type-1');
             expect(resetSyncStatus(state)[0].loadedSince).toEqual(RECENT);
             expect(state.resetSyncs[0].hasMigrated).toBe(true);
         });

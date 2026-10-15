@@ -43,12 +43,17 @@ export default class ExpandableMedia extends AbstractFormElement {
                 allMediaAbsolutePath.push(path);
                 this.mediaService.exists(path).then((exists) => {
                     if (!exists) {
-                        return this.mediaService.downloadMedia(mediaURI, path);
+                        return this.downloadFrom(mediaURI, path);
                     }
                 });
             });
             this.setState(state => ({...state, allMediaAbsolutePath}))
         }
+    }
+
+    async downloadFrom(source, path) {
+        if (await this.mediaService.fetchFromClinicHub(source, this.props.type)) return;
+        return this.mediaService.downloadMedia(source, path);
     }
 
     get mediaUriInDevice() {
@@ -67,7 +72,15 @@ export default class ExpandableMedia extends AbstractFormElement {
             this.setState((state) => ({
                 ...state, exists
             }));
+            if (!exists) this.fetchFromClinicHub();
         });
+    }
+
+    async fetchFromClinicHub() {
+        if (await this.mediaService.fetchFromClinicHub(this.props.source, this.props.type) && this.state.mounted) {
+            this._postDownload();
+            await this.downloadDependentURIs();
+        }
     }
 
     componentWillUnmount() {
@@ -94,7 +107,7 @@ export default class ExpandableMedia extends AbstractFormElement {
         this._preDownload(() => {
             this.mediaService.exists(this.mediaUriInDevice).then((exists) => {
                 if (!exists) {
-                    return this.mediaService.downloadMedia(this.props.source, this.mediaUriInDevice);
+                    return this.downloadFrom(this.props.source, this.mediaUriInDevice);
                 }
             }).then(this._postDownload, this._errDownload);
         });

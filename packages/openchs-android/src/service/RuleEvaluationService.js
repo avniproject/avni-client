@@ -71,11 +71,6 @@ function executeLineListFunction(lineListFunction, reportCard, saveFailedRules) 
     }
 }
 
-// Both count-related methods together, so an incidental count() on a rule's own result object is not read as a collection (#2075).
-function isSqliteCollection(queryResult) {
-    return typeof queryResult.count === 'function' && typeof queryResult.canCountInSql === 'function';
-}
-
 function getGlobalRuleFunction(ruleService) {
     const globalRuleDependency = ruleService.findByUUID(GlobalRuleUUID, RuleDependency.schema.name);
     if (!_.isNil(globalRuleDependency)) {
@@ -1136,30 +1131,14 @@ class RuleEvaluationService extends BaseService {
 
     isOldStyleQueryResult(queryResult) {
         //The result can either be an array or a RealmResultsProxy. We are verifying this by looking for existence of the length key.
-        // Reading .length on a SQLite collection hydrates every row, so recognise one without touching it (#2075).
-        if (isSqliteCollection(queryResult)) return true;
         return queryResult.length !== undefined;
-    }
-
-    // #1865's wiring, guarded: Realm and anything canCountInSql() rejects fall through to .length, so no card's number moves (#2075).
-    countOfQueryResult(queryResult) {
-        if (!isSqliteCollection(queryResult) || !queryResult.canCountInSql()) return queryResult.length;
-        try {
-            return queryResult.count();
-        } catch (e) {
-            // COUNT(*) wraps the base SQL in a subquery, a shape .length never ran. Rules are
-            // org-authored, so rather than break a card that worked, fall back to loading it.
-            General.logWarn("CardCount", `COUNT(*) failed, falling back to hydration: ${e.message}`);
-            return queryResult.length;
-        }
     }
 
     getDashboardCardResult(reportCard, ruleInput) {
         const queryResult = this.executeDashboardCardRule(reportCard, ruleInput);
         if (!queryResult.hasErrorMsg && this.isOldStyleQueryResult(queryResult)) {
-            const count = this.countOfQueryResult(queryResult);
-            General.logInfo("CardCount", `${reportCard.name} = ${count}`);
-            return ReportCardResult.create(count, null, true);
+            General.logInfo("CardCount", `${reportCard.name} = ${queryResult.length}`);
+            return ReportCardResult.create(queryResult.length, null, true);
         } else if (reportCard.nested) {
             const nestedResults = _.map(queryResult.reportCards, (result, index) => {
                 return NestedReportCardResult.fromQueryResult(result, reportCard, index);
@@ -1179,9 +1158,9 @@ class RuleEvaluationService extends BaseService {
             return queryResult;
         } else if (reportCard.nested) {
             const selectedCardItem = queryResult.reportCards.find((x, index) => reportCard.itemKey === reportCard.getCardId(index));
-            return executeLineListFunction(selectedCardItem.lineListFunction, reportCard, this.saveFailedRules);
+            return this.withLazyScope(() => executeLineListFunction(selectedCardItem.lineListFunction, reportCard, this.saveFailedRules));
         } else {
-            return _.isFunction(queryResult.lineListFunction) ? executeLineListFunction(queryResult.lineListFunction, reportCard, this.saveFailedRules) : null;
+            return _.isFunction(queryResult.lineListFunction) ? this.withLazyScope(() => executeLineListFunction(queryResult.lineListFunction, reportCard, this.saveFailedRules)) : null;
         }
     }
 
@@ -1246,12 +1225,25 @@ class RuleEvaluationService extends BaseService {
         }
     }
 
+    // On SQLite, rows built while a rule runs drop their batch caches once it returns, so what the rule hands back stays small.
+    withLazyScope(fn) {
+        const scoped = this.db && typeof this.db.beginLazyScope === "function";
+        if (scoped) this.db.beginLazyScope();
+        try {
+            return fn();
+        } finally {
+            if (scoped) this.db.endLazyScope();
+        }
+    }
+
     runEvalRule(ruleFunc, params, ruleLabel) {
+        const lazyStatsBefore = this.db && this.db.takeLazyStats ? this.db.takeLazyStats() : null;
         const start = Date.now();
-        const result = ruleFunc(params);
+        const result = this.withLazyScope(() => ruleFunc(params));
         const elapsed = Date.now() - start;
+        const lazyStats = lazyStatsBefore ? this.db.takeLazyStats() : null;
         if (elapsed > 50) {
-            General.logWarn("RulePerf", `Eval rule [${ruleLabel}] took ${elapsed}ms`);
+            General.logWarn("RulePerf", `Eval rule [${ruleLabel}] took ${elapsed}ms${lazyStats ? ` (rowsBuilt=${lazyStats.rowsBuilt}, inQueries=${lazyStats.inQueries}, embeddedParsed=${lazyStats.embeddedParsed})` : ""}`);
         }
         return result;
     }

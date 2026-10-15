@@ -32,6 +32,8 @@ import UserInfoService from "../service/UserInfoService";
 import Perf from "../utility/perf";
 import {CopilotProvider, CopilotStep, walkthroughable, useCopilot} from "react-native-copilot";
 import CopilotTooltip from "./common/CopilotTooltip";
+import {SafeAreaInsetsContext} from "react-native-safe-area-context";
+import {edgeToEdgeStatusBarInset} from "./primitives/Distances";
 
 const WalkthroughableView = walkthroughable(View);
 
@@ -431,34 +433,37 @@ class LandingView extends AbstractComponent {
                 }.bind(this)())}
 
                 {showGuide ? (
-                    <CopilotProvider
-                        overlay="svg"
-                        animated={false}
-                        backdropColor="rgba(0,0,0,0.57)"
-                        tooltipComponent={CopilotTooltip}
-                        svgMaskPath={({size, position, canvasSize}) => {
-                            const cx = position.x._value + size.x._value / 2;
-                            const cy = position.y._value + size.y._value / 2 + 16;
-                            const rx = 42;
-                            const ry = 42;
-                            return `M0,0H${canvasSize.x}V${canvasSize.y}H0V0Z M${cx - rx},${cy} a${rx},${ry} 0 1,0 ${rx * 2},0 a${rx},${ry} 0 1,0 -${rx * 2},0`;
-                        }}
-                        stopOnOutsideClick={false}
-                        arrowColor={Colors.cardBackgroundColor}
-                        stepNumberComponent={() => null}
-                        tooltipStyle={{borderRadius: 10, paddingHorizontal: 0, paddingTop: 0}}
-                        androidStatusBarVisible={true}
-                        verticalOffset={0}
-                    >
-                        {bottomBarContent}
-                        <CopilotStarter
-                            shouldStart={showGuide}
-                            onStop={() => {
-                                this.setState({showRegisterGuide: false});
-                                LocalCacheService.markRegisterButtonGuideAsShown();
+                    <SafeAreaInsetsContext.Consumer>{(insets) => (
+                        <CopilotProvider
+                            overlay="svg"
+                            animated={false}
+                            backdropColor="rgba(0,0,0,0.57)"
+                            tooltipComponent={CopilotTooltip}
+                            svgMaskPath={({size, position, canvasSize}) => {
+                                const cx = position.x._value + size.x._value / 2;
+                                const cy = position.y._value + size.y._value / 2 + 16;
+                                const rx = 42;
+                                const ry = 42;
+                                return `M0,0H${canvasSize.x}V${canvasSize.y}H0V0Z M${cx - rx},${cy} a${rx},${ry} 0 1,0 ${rx * 2},0 a${rx},${ry} 0 1,0 -${rx * 2},0`;
                             }}
-                        />
-                    </CopilotProvider>
+                            stopOnOutsideClick={false}
+                            arrowColor={Colors.cardBackgroundColor}
+                            stepNumberComponent={() => null}
+                            tooltipStyle={{borderRadius: 10, paddingHorizontal: 0, paddingTop: 0}}
+                            androidStatusBarVisible={true}
+                            // The step is measured in the edge-to-edge activity, but drawn in a Modal that still sits below the status bar
+                            verticalOffset={-edgeToEdgeStatusBarInset(insets)}
+                        >
+                            {bottomBarContent}
+                            <CopilotStarter
+                                shouldStart={showGuide}
+                                onStop={() => {
+                                    this.setState({showRegisterGuide: false});
+                                    LocalCacheService.markRegisterButtonGuideAsShown();
+                                }}
+                            />
+                        </CopilotProvider>
+                    )}</SafeAreaInsetsContext.Consumer>
                 ) : bottomBarContent}
             </CHSContainer>
         );

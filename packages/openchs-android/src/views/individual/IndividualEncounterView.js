@@ -32,6 +32,7 @@ import Timer from "../common/Timer";
 import BackgroundTimer from "react-native-background-timer";
 import {Actions as IGHActions} from "../../action/individual/IndividualGeneralHistoryActions";
 import FullScreenLoader from "../common/FullScreenLoader";
+import BackgroundDraftSaver from "../common/BackgroundDraftSaver";
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -48,6 +49,16 @@ class IndividualEncounterView extends AbstractComponent {
 
     viewName() {
         return 'IndividualEncounterView';
+    }
+
+    onViewDidMount() {
+        this.backgroundDraftSaver = new BackgroundDraftSaver(this, Actions.ON_APP_BACKGROUND);
+        this.backgroundDraftSaver.start();
+    }
+
+    componentWillUnmount() {
+        this.backgroundDraftSaver && this.backgroundDraftSaver.stop();
+        super.componentWillUnmount();
     }
 
     loadData() {
