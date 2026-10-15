@@ -1,8 +1,9 @@
 /**
- * A subject type reset deletes the subjects' visits, enrolments, checklists, approvals
- * and unlinks their tasks, so it must also drop the download points those records are
- * filed under. The server keys them by visit type, programme and checklist detail, not
- * by subject type; Task has one point for the whole user.
+ * A subject type reset deletes the subjects' visits, enrolments, checklists, approvals,
+ * household memberships and relationships, and unlinks their tasks, so it must also drop
+ * the download points those records are filed under. The server keys them by visit type,
+ * programme, checklist detail, the group's subject type and individual A's subject type,
+ * not by the reset subject type; Task has one point for the whole user.
  *
  * Run: npx jest --selectProjects integration --testPathPattern ResetSyncRewindSqliteTest
  */
@@ -142,6 +143,8 @@ describe("a subject type reset rewinds every download point its deleted records 
             ["ProgramEncounter", "session"], ["ProgramEncounterEntityApprovalStatus", "session"],
             ["ProgramEnrolment", "training"], ["ProgramEnrolmentEntityApprovalStatus", "training"],
             ["Checklist", "kit"], ["ChecklistItem", "kit"],
+            // Another subject type's checklist detail goes too: see the checklist tests below
+            ["Checklist", "vaccination"], ["ChecklistItem", "vaccination"],
             ["Task", ""],
         ]);
     });
@@ -150,8 +153,7 @@ describe("a subject type reset rewinds every download point its deleted records 
         resetAndRun("cohort");
 
         assertKept([
-            ["Individual", "household"], ["Encounter", "survey"], ["ProgramEnrolment", "nutrition"],
-            ["Checklist", "vaccination"], ["ChecklistItem", "vaccination"], ["Concept", ""],
+            ["Individual", "household"], ["Encounter", "survey"], ["ProgramEnrolment", "nutrition"], ["Concept", ""],
         ]);
         assert.equal(rawDb.executeSync("SELECT COUNT(*) AS n FROM individual").rows[0].n, 1);
     });
@@ -174,5 +176,18 @@ describe("a subject type reset rewinds every download point its deleted records 
         resetAndRun("child");
 
         assertRewound([["IndividualRelationship", "mother"], ["IndividualRelationship", "child"]]);
+    });
+
+    // The phone has no link from a subject type to its checklist details, and may hold none of its checklists
+    it("drops every checklist point when the reset type has a programme, even with no checklist on the phone", () => {
+        resetAndRun("camp");
+
+        assertRewound([["Checklist", "kit"], ["ChecklistItem", "kit"], ["Checklist", "vaccination"], ["ChecklistItem", "vaccination"]]);
+    });
+
+    it("keeps the checklist points when the reset type has no programme", () => {
+        resetAndRun("child");
+
+        assertKept([["Checklist", "kit"], ["ChecklistItem", "kit"], ["Checklist", "vaccination"], ["ChecklistItem", "vaccination"]]);
     });
 });
