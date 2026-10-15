@@ -30,6 +30,10 @@ jest.mock('react-native-fs', () => {
             nodeFs.closeSync(fd);
             return buffer.subarray(0, read).toString(encoding);
         },
+        readDir: async (dir) => nodeFs.readdirSync(dir).map((name) => {
+            const path = require('path').join(dir, name);
+            return {name, path, mtime: nodeFs.statSync(path).mtime};
+        }),
         getFSInfo: async function () { return {freeSpace: require('react-native-fs').mockFreeSpace}; },
     };
 });
@@ -194,6 +198,45 @@ describe('Photos and files through the hub', () => {
 
         expect(fetched).toBe(doctor.pathOf(fileName(1)));
         expect(doctor.contentOf(fileName(1)).equals(photo)).toBe(true);
+    });
+
+    it('gives up on a hub that goes silent mid-fetch, so later photos still arrive', async () => {
+        const nurse = phone('nurse');
+        const doctor = phone('doctor');
+        const photo = nurse.takePhoto(fileName(2), 2000);
+        nurse.takePhoto(fileName(1), 2000);
+        await nurse.sync();
+        doctor.join();
+        doctor.media.fetchIdleTimeoutMs = 200;
+        const serve = hubPhone.media._serve.bind(hubPhone.media);
+        hubPhone.media._serve = async (connection, message) => (message.fileName === fileName(1) ? undefined : serve(connection, message));
+
+        const silent = doctor.media.fetchFromHub(fileName(1), 'Image');
+        const next = doctor.media.fetchFromHub(fileName(2), 'Image');
+
+        expect(await silent).toBeNull();
+        expect(await next).toBe(doctor.pathOf(fileName(2)));
+        expect(doctor.contentOf(fileName(2)).equals(photo)).toBe(true);
+        expect(nodeFs.readdirSync(path.join(doctor.root, 'Image')).filter((name) => name.endsWith('.part'))).toEqual([]);
+    });
+
+    it('drops a half-received file when the sender disconnects, and stray pieces left for over an hour', async () => {
+        let closed = () => {};
+        const connection = {send: jest.fn(), onClose: (handler) => { closed = handler; }};
+        await hubPhone.media._receiveHeader(connection, {fileName: fileName(1), mediaType: 'Image', entityName: 'Encounter', entityUUID: 'enc-1', size: 3000}, log);
+        await hubPhone.media._receiveChunk(connection, {fileName: fileName(1), data: crypto.randomBytes(1000).toString('base64')});
+        expect(hubPhone.has(`${fileName(1)}.part`)).toBe(true);
+
+        await closed();
+        expect(hubPhone.has(`${fileName(1)}.part`)).toBe(false);
+
+        nodeFs.writeFileSync(hubPhone.pathOf(`${fileName(2)}.part`), 'old');
+        nodeFs.writeFileSync(hubPhone.pathOf(`${fileName(3)}.part`), 'new');
+        const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
+        nodeFs.utimesSync(hubPhone.pathOf(`${fileName(2)}.part`), twoHoursAgo, twoHoursAgo);
+        await hubPhone.hub.pruneLedger();
+
+        expect([hubPhone.has(`${fileName(2)}.part`), hubPhone.has(`${fileName(3)}.part`)]).toEqual([false, true]);
     });
 
     it('fetches nothing for an uploaded photo, a phone not joined to a hub, or a photo the hub lacks', async () => {

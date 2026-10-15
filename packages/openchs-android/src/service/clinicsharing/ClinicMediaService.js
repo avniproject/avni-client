@@ -16,6 +16,9 @@ import {
 
 const MB = 1024 * 1024;
 const DAY_MS = 24 * 60 * 60 * 1000;
+const FETCH_IDLE_TIMEOUT_MS = 30 * 1000;
+const STRAY_PART_AGE_MS = 60 * 60 * 1000;
+const MEDIA_TYPES = ['Image', 'Profile-Pics', 'Video', 'Audio', 'File'];
 const FILE_NAME = /^[0-9A-Fa-f-]{36}\.\w+$/;
 
 // A bare file name means the photo hasn't reached the server yet; afterwards the value is its URL.
@@ -50,6 +53,7 @@ class ClinicMediaService extends BaseService {
         this.storageRefusal = null;
         this.fetching = new Map();
         this.fetchChain = Promise.resolve();
+        this.fetchIdleTimeoutMs = FETCH_IDLE_TIMEOUT_MS;
     }
 
     getSchema() {
@@ -83,8 +87,6 @@ class ClinicMediaService extends BaseService {
     async _discard(path) {
         if (await fs.exists(path)) await fs.unlink(path);
     }
-
-    // --- photos in records from another phone ---
 
     _receivedMedia() {
         const db = this.getService('clinicSpokeService')._stateSync();
@@ -129,8 +131,6 @@ class ClinicMediaService extends BaseService {
         return adopted;
     }
 
-    // --- phone → hub ---
-
     async pushToHub(connection, hubId, log) {
         const db = await this.getService('clinicSpokeService')._state();
         const sent = new Set(rowsOf(await db.execute('select file_name from media_sent where hub_id = ?', [hubId])).map((row) => row.file_name));
@@ -169,8 +169,6 @@ class ClinicMediaService extends BaseService {
         return pushed;
     }
 
-    // --- hub ---
-
     handleOnHub(connection, message, log) {
         const handle = {
             [MessageType.mediaPush]: this._receiveHeader,
@@ -192,7 +190,9 @@ class ClinicMediaService extends BaseService {
             return ack('refused');
         }
         this.storageRefusal = null;
-        connection.incomingMedia = {fileName, mediaType, entityName, entityUUID, size, path, part: `${path}.part`, chunks: 0};
+        const incoming = {fileName, mediaType, entityName, entityUUID, size, path, part: `${path}.part`, chunks: 0};
+        connection.incomingMedia = incoming;
+        connection.onClose(() => connection.incomingMedia === incoming && this._discard(incoming.part));
         ack('ready');
     }
 
@@ -237,7 +237,18 @@ class ClinicMediaService extends BaseService {
     }
 
     // Only copies received from other phones are tracked, so the hub phone's own photos are never deleted.
+    async _discardStrayParts() {
+        const cutoff = Date.now() - STRAY_PART_AGE_MS;
+        for (const mediaType of MEDIA_TYPES) {
+            const dir = this.getService('mediaQueueService').getDirByType({type: mediaType});
+            if (!dir || !(await fs.exists(dir))) continue;
+            const stray = (await fs.readDir(dir)).filter((file) => file.name.endsWith('.part') && new Date(file.mtime).getTime() < cutoff);
+            for (const file of stray) await this._discard(file.path);
+        }
+    }
+
     async cleanUpCopies(db) {
+        await this._discardStrayParts();
         const cutoff = Date.now() - LEDGER_RETENTION_DAYS * DAY_MS;
         const done = rowsOf(await db.execute('select file_name, media_type, entity_name, entity_uuid, received_at from hub_media'))
             .filter((row) => row.received_at < cutoff || this._uploaded(row));
@@ -248,8 +259,6 @@ class ClinicMediaService extends BaseService {
         if (done.length > 0) await db.executeBatch(done.map((row) => ['delete from hub_media where file_name = ?', [row.file_name]]));
         return done.length;
     }
-
-    // --- hub → phone, when a record is opened ---
 
     fetchFromHub(source, mediaType) {
         const joined = this.getService('clinicSpokeService').joined;
@@ -274,12 +283,20 @@ class ClinicMediaService extends BaseService {
         const part = `${path}.part`;
         try {
             await this._discard(part);
+            // A hub out of range sends no FIN, and fetches queue behind each other, so a silent one must give up.
+            let idle = null;
             return await new Promise((resolve, reject) => {
                 let size = null;
                 let chunks = 0;
                 let work = Promise.resolve();
+                const stillWaiting = () => {
+                    clearTimeout(idle);
+                    idle = setTimeout(() => reject(new Error('The hub stopped sending')), this.fetchIdleTimeoutMs);
+                };
+                stillWaiting();
                 connection.onMessage((message) => {
                     if (message.fileName !== fileName) return;
+                    stillWaiting();
                     work = work.then(async () => {
                         if (message.type === MessageType.mediaAck) {
                             if (message.status === 'sending') size = message.size;
@@ -298,9 +315,10 @@ class ClinicMediaService extends BaseService {
                 });
                 connection.onClose(() => reject(new Error('The hub closed the connection')));
                 connection.send({type: MessageType.mediaRequest, fileName, mediaType});
-            });
+            }).finally(() => clearTimeout(idle));
         } finally {
             connection.close();
+            await this._discard(part);
         }
     }
 }
