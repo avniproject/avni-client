@@ -13,6 +13,7 @@ import {EntityMetaData} from "openchs-models";
 import {getJSONTimed, postTimed} from "../../../src/framework/http/requests";
 import ConventionalRestClient from "../../../src/service/rest/ConventionalRestClient";
 import {noCountPullPath} from "../../../src/service/rest/NoCountPullPaths";
+import ProgressbarStatus from "../../../src/service/ProgressbarStatus";
 
 const settingsService = {getSettings: () => ({serverURL: "http://server"})};
 
@@ -245,5 +246,62 @@ describe("ConventionalRestClient no-count pull", () => {
         assert.equal(error.message, "timeout");
         assert.deepEqual(saved, ["p1", "p2"], "the first batch stays saved, so the next sync resumes after it");
         assert.equal(getJSONTimed.mock.calls.length, 2);
+    });
+});
+
+describe("ConventionalRestClient no-count pull: sync bar and telemetry", () => {
+    beforeEach(() => {
+        getJSONTimed.mockReset();
+    });
+
+    it("moves the bar once per kind of record, after its last batch", async () => {
+        const events = [];
+        getJSONTimed.mockImplementation((url) => {
+            events.push(`get page ${queryOf(url).page}`);
+            const page = Number(queryOf(url).page);
+            return Promise.resolve(sliceAnswer("individual", [`r${page}`], page < 2));
+        });
+
+        await pullClient().getAllForEntity(metadataFor("Individual", "st1"), () => Promise.resolve(), _.noop,
+            (entityName, totalNumberOfPages, currentPageNumber) => events.push(["bar", entityName, totalNumberOfPages, currentPageNumber]),
+            NOW, "device1");
+
+        assert.deepEqual(events, ["get page 0", "get page 1", "get page 2", ["bar", "Individual", 1, undefined]]);
+    });
+
+    it("records no expected count for a no-count pull", async () => {
+        getJSONTimed.mockResolvedValueOnce(sliceAnswer("individual", ["a"], false));
+        const onGetOfFirstPage = jest.fn();
+
+        await pullClient().getAllForEntity(metadataFor("Individual", "st1"), () => Promise.resolve(), onGetOfFirstPage, _.noop, NOW, "device1");
+
+        assert.equal(onGetOfFirstPage.mock.calls.length, 0, "the answer carries no total to record");
+    });
+
+    it("the bar never moves backwards, shows no batch number, and adds each kind's whole weight", async () => {
+        const seen = [];
+        const status = new ProgressbarStatus((progress, totalNumberOfPages, currentPageNumber) => seen.push({progress, currentPageNumber}),
+            [{name: "Individual", syncWeight: 5}, {name: "Encounter", syncWeight: 4}]);
+        status.updateProgressSteps([metadataFor("Encounter")],
+            [{entityName: "Encounter", entityTypeUuid: "et1"}, {entityName: "Encounter", entityTypeUuid: "et2"}]);
+        getJSONTimed
+            .mockResolvedValueOnce(sliceAnswer("individual", ["a"], true))
+            .mockResolvedValueOnce(sliceAnswer("individual", ["b"], true))
+            .mockResolvedValueOnce(sliceAnswer("individual", ["c"], false))
+            .mockResolvedValueOnce(sliceAnswer("encounter", ["x"], false))
+            .mockResolvedValueOnce(sliceAnswer("encounter", ["y"], false));
+        const toBar = (entityName, totalNumberOfPages, currentPageNumber) => status.onComplete(entityName, totalNumberOfPages, currentPageNumber);
+        const save = () => Promise.resolve();
+
+        await pullClient().getAllForEntity(metadataFor("Individual", "st1"), save, _.noop, toBar, NOW, "device1");
+        await pullClient().getAllForEntity(metadataFor("Encounter", "et1"), save, _.noop, toBar, NOW, "device1");
+        await pullClient().getAllForEntity(metadataFor("Encounter", "et2"), save, _.noop, toBar, NOW, "device1");
+
+        const values = seen.map(s => s.progress);
+        assert.deepEqual(values, _.sortBy(values), "never backwards");
+        assert.closeTo(_.last(values), (5 + 4) / 100, 1e-9, "each kind's whole weight, split across its types");
+        assert.isTrue(seen.every(s => _.isUndefined(s.currentPageNumber)), "no batch number, so the label shows none");
+        status.onSyncComplete();
+        assert.equal(_.last(seen).progress, 1);
     });
 });
