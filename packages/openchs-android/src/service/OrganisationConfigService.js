@@ -85,6 +85,17 @@ class OrganisationConfigService extends BaseService {
         return !!this.getSettings().hideVisitDate;
     }
 
+    // ABHA (ABDM M1) through Eka Care's web SDK, PE-146:
+    // {"abha": {"enabled": true, "sdkEnv": "staging" | "production", "webViewOrigin": "https://...", "method": "login_or_create_abha"}}
+    // webViewOrigin is the address the SDK page loads under, which Eka has to whitelist.
+    getAbhaSettings() {
+        return this.getSettings().abha || {};
+    }
+
+    isAbhaEnabled() {
+        return !!this.getAbhaSettings().enabled;
+    }
+
     // Camera usability enhancement (Phase 3) — originally designed as a server-controlled
     // rollout flag (enableNativeCameraCapture in the synced OrganisationConfig settings blob,
     // same mechanism as isSaveDraftOn()/isSummaryButtonSetup() above), gated so that only the

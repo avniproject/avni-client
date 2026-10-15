@@ -5,7 +5,7 @@ import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import {EDGE_MODEL_ACTION} from "../../service/EdgeModelService";
 import {RULE_SERVICE_ACTION} from "../../service/RuleService";
 import EntityService from "../../service/EntityService";
-import {DraftSubject, Gender, Individual, ObservationsHolder, Point, SubjectType} from "avni-models";
+import {DraftSubject, Gender, Individual, Observation, ObservationsHolder, Point, SubjectType} from "avni-models";
 import IndividualRegistrationState from "../../state/IndividualRegistrationState";
 import Wizard from "../../state/Wizard";
 import _ from "lodash";
@@ -25,6 +25,8 @@ import TaskService from "../../service/task/TaskService";
 import General from "../../utility/General";
 import moment from "moment";
 import AddressLevelService from "../../service/AddressLevelService";
+import ConceptService from "../../service/ConceptService";
+import {ABHA_CONCEPT_NAMES} from "../../views/abha/AbhaProfile";
 
 export class PersonRegisterActions {
     static getInitialState(context) {
@@ -262,6 +264,28 @@ export class PersonRegisterActions {
     static onUseThisState(state, action, context) {
         return action.state;
     }
+
+    // The verified ABHA profile (views/abha/AbhaProfile) fills the first page through the same handlers the
+    // fields use, so validation runs as if typed. ABHA number and address go straight into the subject's
+    // observations: their form elements sit on later pages, out of reach of the current-page writers.
+    static onAbhaProfile(state, action, context) {
+        const profile = action.profile;
+        let newState = state.clone();
+        if (profile.firstName) newState = PersonRegisterActions.enterFirstName(newState, {value: profile.firstName}, context);
+        if (profile.middleName) newState = PersonRegisterActions.enterMiddleName(newState, {value: profile.middleName}, context);
+        if (profile.lastName) newState = PersonRegisterActions.enterLastName(newState, {value: profile.lastName}, context);
+        if (profile.dateOfBirth) newState = PersonRegisterActions.enterIndividualDOB(newState, {value: profile.dateOfBirth});
+        const gender = profile.genderName && _.find(newState.genders, g => g.name === profile.genderName);
+        if (gender) newState = PersonRegisterActions.enterIndividualGender(newState, {value: gender});
+
+        const conceptService = context.get(ConceptService);
+        const observationsHolder = new ObservationsHolder(newState.individual.observations);
+        _.forEach(ABHA_CONCEPT_NAMES, (conceptName, profileField) => {
+            const concept = profile[profileField] && conceptService.getConceptByName(conceptName);
+            if (concept) observationsHolder.addOrUpdatePrimitiveObs(concept, profile[profileField], Observation.AnswerSource.Auto);
+        });
+        return newState;
+    }
 }
 
 const actions = {
@@ -300,6 +324,7 @@ const actions = {
     TOGGLE_GROUPS: "IRA.TOGGLE_GROUPS",
     ON_TIMED_FORM: "IRA.ON_TIMED_FORM",
     ON_START_TIMER: "IRA.ON_START_TIMER",
+    ON_ABHA_PROFILE: "IRA.ON_ABHA_PROFILE",
 };
 
 export default new Map([
@@ -337,6 +362,7 @@ export default new Map([
     [actions.TOGGLE_GROUPS, GroupAffiliationActions.updateValue],
     [actions.ON_TIMED_FORM, TimerActions.onTimedForm],
     [actions.ON_START_TIMER, TimerActions.onStartTimer],
+    [actions.ON_ABHA_PROFILE, PersonRegisterActions.onAbhaProfile],
     [EDGE_MODEL_ACTION.INFERENCE_RESULT_AVAILABLE, ObservationsHolderActions.onInferenceResultAvailable],
     [EDGE_MODEL_ACTION.INFERENCE_RESULTS_BATCH, ObservationsHolderActions.onObservationWriteBatch],
     [EDGE_MODEL_ACTION.INFERENCE_UNAVAILABLE, ObservationsHolderActions.onInferenceUnavailable],

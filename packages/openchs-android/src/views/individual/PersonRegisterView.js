@@ -1,4 +1,4 @@
-import {ToastAndroid, ScrollView, StyleSheet, View} from "react-native";
+import {Button, ToastAndroid, ScrollView, StyleSheet, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -31,6 +31,11 @@ import {RejectionMessage} from "../approval/RejectionMessage";
 import SingleSelectMediaFormElement from "../form/formElement/SingleSelectMediaFormElement";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import EntityService from "../../service/EntityService";
+import OrganisationConfigService from "../../service/OrganisationConfigService";
+import TypedTransition from "../../framework/routing/TypedTransition";
+import {getConnectionInfo} from "../../utility/ConnectionInfo";
+import Colors from "../primitives/Colors";
+import Config from "../../framework/Config";
 
 @Path('/personRegister')
 class PersonRegisterView extends AbstractComponent {
@@ -121,6 +126,27 @@ class PersonRegisterView extends AbstractComponent {
         return true;
     }
 
+    // ABHA needs the network. The Eka access token must come from the Avni server, which keeps the client
+    // secret (PE-146 follow-up); until that endpoint exists only a debug build can pass a short-lived sandbox
+    // token, from ABHA_DEV_ACCESS_TOKEN in the gitignored config/env/dev.json. Without a token the SDK still
+    // loads and reports its error, which is enough to prove the WebView bridge.
+    openAbha() {
+        getConnectionInfo().then(({isConnected}) => {
+            if (!isConnected) {
+                ToastAndroid.show(this.I18n.t('abhaNeedsInternet'), ToastAndroid.SHORT);
+                return;
+            }
+            const abhaSettings = this.getService(OrganisationConfigService).getAbhaSettings();
+            const accessToken = __DEV__ ? Config.ABHA_DEV_ACCESS_TOKEN : undefined;
+            CHSNavigator.navigateToAbhaView(this, abhaSettings, accessToken,
+                (profile) => {
+                    TypedTransition.from(this).popToBookmark();
+                    this.dispatchAction(Actions.ON_ABHA_PROFILE, {profile});
+                },
+                () => TypedTransition.from(this).popToBookmark());
+        });
+    }
+
     render() {
         General.logDebug(this.viewName(), `render`);
         const profilePicFormElement = new StaticFormElement("profilePicture", false, 'Profile-Pics', []);
@@ -148,6 +174,11 @@ class PersonRegisterView extends AbstractComponent {
                         flexDirection: 'column',
                         paddingHorizontal: Distances.ScaledContentDistanceFromEdge
                     }}>
+                        {this.getService(OrganisationConfigService).isAbhaEnabled() &&
+                        <View style={this.formRow}>
+                            <Button title={this.I18n.t('abhaFindOrCreate')} color={Colors.ActionButtonColor}
+                                    onPress={() => this.openAbha()}/>
+                        </View>}
                         <GeolocationFormElement
                             actionName={Actions.REGISTRATION_SET_LOCATION}
                             errorActionName={Actions.SET_LOCATION_ERROR}

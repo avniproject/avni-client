@@ -39,6 +39,7 @@ import GenericDashboardView from "../views/program/GenericDashboardView";
 import AddNewMemberView from "../views/groupSubject/AddNewMemberView";
 import {firebaseEvents, logEvent} from "./Analytics";
 import PhoneNumberVerificationView from "../views/common/PhoneNumberVerificationView";
+import AbhaView from "../views/abha/AbhaView";
 import ApprovalDetailsView from "../views/approval/ApprovalDetailsView";
 import GroupSubjectService from "../service/GroupSubjectService";
 import RemoveMemberView from "../views/groupSubject/RemoveMemberView";
@@ -134,6 +135,17 @@ class CHSNavigator {
             onSkipVerification: onSkip,
             phoneNumber: observation.getValue()
         }).to(PhoneNumberVerificationView, true)
+    }
+
+    static navigateToAbhaView(source, abhaSettings, accessToken, onProfile, onSkip) {
+        TypedTransition.from(source).bookmark().with({
+            accessToken: accessToken,
+            sdkEnv: abhaSettings.sdkEnv,
+            baseUrl: abhaSettings.webViewOrigin,
+            method: abhaSettings.method,
+            onProfile: onProfile,
+            onSkip: onSkip
+        }).to(AbhaView, true)
     }
 
     static navigateToIndividualEncounterDashboardView(source, individualUUID, encounter, isFromWizard, backFn, message) {
