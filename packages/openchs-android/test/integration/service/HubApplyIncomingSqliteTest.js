@@ -49,6 +49,7 @@ describe("Hub sync save path on SQLite", () => {
         const context = {getRepositoryFactory: () => repositoryFactory, getService: (key) => services.get(key)};
         [EntityService, PrivilegeService, SyncService, ClinicRecordService]
             .forEach((cls) => services.set(cls, new cls(proxy, context)));
+        services.set('clinicHoldBackService', {recordReceived: async () => {}});
         syncService = services.get(SyncService);
         p2pService = services.get(ClinicRecordService);
         p2pService.ledgerDb = {};

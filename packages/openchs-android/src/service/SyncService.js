@@ -53,6 +53,7 @@ import {pruneConceptMedia} from "../task/PruneMedia";
 import FileSystem from "../model/FileSystem";
 import {jsonArrayListPropFor} from "../framework/db/SchemaGenerator";
 import LastSyncCompleted from "./LastSyncCompleted";
+import OrganisationConfigService from "./OrganisationConfigService";
 
 function transformResourceToEntity(entityMetaData, entityResources) {
     return (acc, resource) => {
@@ -76,6 +77,7 @@ class SyncService extends BaseService {
     constructor(db, context) {
         super(db, context);
         this.persistAll = this.persistAll.bind(this);
+        this.releasedHoldBacks = 0;
     }
 
     static syncSources = {
@@ -249,6 +251,7 @@ class SyncService extends BaseService {
     async dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isManualSync, userConfirmation, isOnlyUploadRequired) {
         const allTxEntityMetaData = this.getMetadataByType(allEntitiesMetaData, "tx");
         const resetSyncMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "ResetSync");
+        this.releasedHoldBacks = 0;
         const uploadData = Promise.resolve(statusMessageCallBack("uploadLocallySavedData"))
             .then(() => this.pushData(allTxEntityMetaData.slice(), onProgressPerEntity))
             .then(() => onAfterMediaPush("After_Media", 0));
@@ -353,6 +356,8 @@ class SyncService extends BaseService {
             })
             .then(() => this.getTxData(filteredTxData, onProgressPerEntity, syncDetailsWithPrivileges, endDateTime))
             .then(() => migrationSwitched && this._catchUpTxDataAfterMigration(allEntitiesMetaData, serverTimeAfterUpload))
+            // Progress is not reported: the bar already counted these uploads in the first push.
+            .then(() => this._pushReleasedHoldBacks(allTxEntityMetaData))
             .then(() => this.downloadNewsImages())
             .then(() => this.downloadExtensions())
             .then(() => this.downloadCustomCardHtmlFiles())
@@ -610,6 +615,11 @@ class SyncService extends BaseService {
         }
         entityResources = _.sortBy(entityResources, 'lastModifiedDateTime');
         const loadedSince = _.last(entityResources).lastModifiedDateTime;
+        const releasing = this._clinicSharingEnabled()
+            ? await this.getService('clinicHoldBackService').receivedAmong(entityResources.map((resource) => resource.uuid))
+            : {release: [], keepLocal: []};
+        // The local copy is a held edit still to upload; the server's older copy must not replace it.
+        entityResources = entityResources.filter((resource) => !releasing.keepLocal.includes(resource.uuid));
 
         const entities = entityResources.reduce(transformResourceToEntity.call(this, entityMetaData, entityResources), []);
         const initialLength = entityResources.length;
@@ -636,6 +646,7 @@ class SyncService extends BaseService {
         } else {
             this._persistAllSync(entityMetaData, entityResources, entities, loadedSince);
         }
+        if (!_.isEmpty(releasing.release)) this.releasedHoldBacks += await this.getService('clinicHoldBackService').release(releasing.release);
 
         // Taken after the batch path's await, so persistMs covers the write on either backend.
         this.dispatchAction(SyncTelemetryActions.ENTITY_PULL_COMPLETED, {
@@ -717,7 +728,34 @@ class SyncService extends BaseService {
                 return queued;
             })
             .filter((entities) => !_.isEmpty(entities.entities));
+        return this._withoutHeldUploads(entitiesToPost).then((toPost) => this._postQueued(toPost, readDurations, afterEachEntityTypePushed));
+    }
 
+    _withoutHeldUploads(entitiesToPost) {
+        if (!this._clinicSharingEnabled()) return Promise.resolve(entitiesToPost);
+        return this.getService('clinicHoldBackService').withoutHeld(entitiesToPost).then(({toPost, held}) => {
+            if (held.length > 0) General.logInfo("SyncService", `Holding back ${held.length} uploads until records from other phones reach the server`);
+            return toPost;
+        });
+    }
+
+    _clinicSharingEnabled() {
+        return this.db.isSqlite === true && _.get(this.getService(OrganisationConfigService).getSettings(), 'enableClinicSharing') === true;
+    }
+
+    // Push runs before pull, so whatever the pull released would otherwise wait for the next sync.
+    async _pushReleasedHoldBacks(allTxEntityMetaData, afterEachEntityTypePushed = _.noop) {
+        if (!this.releasedHoldBacks) return;
+        this.releasedHoldBacks = 0;
+        this._disableShallowHydrationIfSqlite();
+        try {
+            await this.pushData(allTxEntityMetaData.slice(), afterEachEntityTypePushed);
+        } finally {
+            this._enableShallowHydrationIfSqlite();
+        }
+    }
+
+    _postQueued(entitiesToPost, readDurations, afterEachEntityTypePushed) {
         this.dispatchAction(SyncTelemetryActions.RECORD_PUSH_TODO_TELEMETRY, {entitiesToPost, readDurations});
 
         const onCompleteOfIndividualPost = (entityMetadata, entityUUID) => {

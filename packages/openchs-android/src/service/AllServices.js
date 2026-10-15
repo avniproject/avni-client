@@ -161,6 +161,7 @@ import './PhoneVerificationService';
 import './clinicsharing/ClinicRecordService';
 import './clinicsharing/ClinicSpokeService';
 import './clinicsharing/ClinicHubService';
+import './clinicsharing/ClinicHoldBackService';
 
 // Export empty object to indicate module loaded
 export default {};

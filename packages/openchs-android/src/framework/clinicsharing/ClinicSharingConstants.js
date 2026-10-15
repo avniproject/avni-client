@@ -9,3 +9,4 @@ export const SHAREABLE_ENTITIES = [
     'IndividualRelationship', 'GroupSubject', 'EntityApprovalStatus', 'Comment', 'CommentThread',
     'SubjectProgramEligibility', 'Session', 'AttendanceRecord',
 ];
+export const HELD_UPLOAD_WARNING_DAYS = 3;

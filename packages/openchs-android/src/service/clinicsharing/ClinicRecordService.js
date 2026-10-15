@@ -99,6 +99,7 @@ class ClinicRecordService extends BaseService {
         if (kept.length === 0) return 0;
 
         await this.getService(SyncService).applyIncoming(metaData, kept.map(({resource}) => resource), kept.map(({entity}) => entity));
+        await this.getService('clinicHoldBackService').recordReceived(entityName, kept.map(({entity}) => entity.uuid));
         log(`applied ${kept.length} ${entityName}`);
         return kept.length;
     }

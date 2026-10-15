@@ -45,6 +45,7 @@ function phone() {
     const services = new Map();
     const context = {getRepositoryFactory: () => repositoryFactory, getService: (key) => services.get(key)};
     [EntityService, PrivilegeService, SyncService, ClinicRecordService].forEach((cls) => services.set(cls, new cls(proxy, context)));
+    services.set('clinicHoldBackService', {recordReceived: async () => {}});
     const create = (schema, data) => proxy.write(() => proxy.create(schema, data, true, {skipHydration: true}));
     const read = (schema, uuid) => proxy.objects(schema).filtered("uuid = $0", uuid)[0];
 
