@@ -66,7 +66,8 @@ class ClinicRecordService extends BaseService {
             [EntityMetaData.findByName(`${entityType}EntityApprovalStatus`) || EntityMetaData.findByName(batch.entityName), resources]);
     }
 
-    async applyBatches(batches, log) {
+    // origin is set on the hub: the phone that sent the batches, credited in the ledger if a record waits for its parent.
+    async applyBatches(batches, log, origin) {
         if (!this.db.isSqlite) {
             log('hub sync needs the SQLite database; nothing applied');
             return 0;
@@ -76,15 +77,21 @@ class ClinicRecordService extends BaseService {
         for (const batch of ordered) {
             if (!SHAREABLE_ENTITIES.includes(batch.entityName)) continue;
             for (const [metaData, resources] of this._metaDataGroups(batch)) {
-                total += await this._applyGroup(batch.entityName, metaData, resources, log);
+                total += await this._applyGroup(batch.entityName, metaData, resources, log, origin);
             }
         }
         return total;
     }
 
-    async _applyGroup(entityName, metaData, resources, log) {
+    async _applyGroup(entityName, metaData, resources, log, origin) {
+        const parkedRecords = this.getService('clinicParkedRecordService');
+        const {ready, parked, dropped} = await parkedRecords.withParentsPresent(entityName, resources, origin);
+        if (parked > 0) log(`${parked} ${entityName} wait for a parent not yet on this phone`);
+        if (dropped > 0) log(`dropped ${dropped} ${entityName} under records outside this user's privileges`);
+        if (ready.length === 0) return 0;
+
         const entityService = this.getService(EntityService);
-        const entityResources = resources.map((r) => this._adaptResource(entityName, r));
+        const entityResources = ready.map((r) => this._adaptResource(entityName, r));
         const built = [];
         for (const resource of entityResources) {
             try {
@@ -95,7 +102,11 @@ class ClinicRecordService extends BaseService {
         }
         const permitted = this.getService(PrivilegeService).onlyViewableEntities(metaData.schemaName, built.map(({entity}) => entity));
         const kept = built.filter(({entity}) => permitted.includes(entity));
-        if (kept.length < built.length) log(`dropped ${built.length - kept.length} ${entityName} outside this user's privileges`);
+        await parkedRecords.unpark(built.map(({resource}) => resource.uuid));
+        if (kept.length < built.length) {
+            log(`dropped ${built.length - kept.length} ${entityName} outside this user's privileges`);
+            await parkedRecords.markNotViewable(built.filter(({entity}) => !permitted.includes(entity)).map(({resource}) => resource.uuid));
+        }
         if (kept.length === 0) return 0;
 
         await this.getService(SyncService).applyIncoming(metaData, kept.map(({resource}) => resource), kept.map(({entity}) => entity));

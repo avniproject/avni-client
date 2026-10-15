@@ -28,6 +28,7 @@ const ALL_ENTITIES_META_DATA = [
 
 function buildSyncService({pullReleases}) {
     const svc = Object.create(SyncService.prototype);
+    svc.db = {isSqlite: false};
     const resolved = () => Promise.resolve();
     const steps = [];
     svc.entitySyncStatusService = {updateAsPerSyncDetails: jest.fn(), removeRevokedPrivileges: jest.fn((_m, sd) => sd)};

@@ -70,6 +70,7 @@ const syncDetailsAt = (loadedSince) => [
  */
 function buildSyncService({preSwitch, switchResult}) {
     const svc = Object.create(SyncService.prototype);
+    svc.db = {isSqlite: false};
     const noop = () => {};
     const resolved = () => Promise.resolve();
 
@@ -185,6 +186,7 @@ describe('SyncService ResetSync handling during Realm->SQLite switch', () => {
 
     function buildSwitchingService({switched}) {
         const svc = Object.create(SyncService.prototype);
+        svc.db = {isSqlite: false};
         const noop = () => {};
         const resolved = () => Promise.resolve();
 

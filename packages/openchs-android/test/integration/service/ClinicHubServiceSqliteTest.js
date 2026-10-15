@@ -31,7 +31,7 @@ describe("Clinic hub ledger", () => {
         ownQueue = [];
         stored = {};
         const p2p = {applyBatches: async (batches) => { applied.push(batches); return batches.length; }, toSharedResource: (entityName, entity) => entity.toResource};
-        hub = new ClinicHubService({}, {getService: (cls) => (cls === ClinicRecordService ? p2p : {cleanUpCopies: async () => 0})});
+        hub = new ClinicHubService({}, {getService: (cls) => (cls === ClinicRecordService ? p2p : {cleanUpCopies: async () => 0, afterSync: async () => 0})});
         hub.ledgerName = `clinic_hub_ledger_test_${process.pid}_${ledgerCount++}.db`;
         hub.findAll = () => ownQueue;
         hub.findByKey = (key, uuid, entityName) => stored[uuid] && {toResource: {uuid, entityName, version: stored[uuid]}};
@@ -60,6 +60,7 @@ describe("Clinic hub ledger", () => {
         const events = [];
         hub.getService = () => ({
             cleanUpCopies: async () => 0,
+            afterSync: async () => 0,
             applyBatches: async (batches) => {
                 const uuid = batches[0].resources[0].uuid;
                 events.push(`apply ${uuid} start`);
@@ -103,6 +104,19 @@ describe("Clinic hub ledger", () => {
         expect(uuidsIn(reply)).toEqual(['ind-2', 'enc-1']);
         expect(reply.maxSeq).toBeGreaterThan(cursor);
         expect(reply.epoch).toBe(await hub._getMeta('epoch'));
+    });
+
+    it('still serves the other records when one cannot be read, as a record saved without its parent cannot', async () => {
+        stored['ind-1'] = 1;
+        stored['enc-broken'] = 1;
+        await push('phone-a', 'Individual', ['ind-1']);
+        await push('phone-a', 'Encounter', ['enc-broken']);
+        const readable = hub.findByKey;
+        hub.findByKey = (key, uuid, entityName) => (uuid === 'enc-broken'
+            ? {uuid, get toResource() { throw new TypeError("Cannot read properties of null (reading 'uuid')"); }}
+            : readable(key, uuid, entityName));
+
+        expect(uuidsIn(await pull('phone-b'))).toEqual(['ind-1']);
     });
 
     it("shares records the hub's own user saved", async () => {

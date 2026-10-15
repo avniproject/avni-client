@@ -163,6 +163,7 @@ import './clinicsharing/ClinicSpokeService';
 import './clinicsharing/ClinicHubService';
 import './clinicsharing/ClinicHoldBackService';
 import './clinicsharing/ClinicMediaService';
+import './clinicsharing/ClinicParkedRecordService';
 
 // Export empty object to indicate module loaded
 export default {};

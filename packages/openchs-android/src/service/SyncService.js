@@ -251,6 +251,7 @@ class SyncService extends BaseService {
     async dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isManualSync, userConfirmation, isOnlyUploadRequired) {
         const allTxEntityMetaData = this.getMetadataByType(allEntitiesMetaData, "tx");
         const resetSyncMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "ResetSync");
+        const syncStartedAt = Date.now();
         this.releasedHoldBacks = 0;
         const uploadData = Promise.resolve(statusMessageCallBack("uploadLocallySavedData"))
             .then(() => this.pushData(allTxEntityMetaData.slice(), onProgressPerEntity))
@@ -356,6 +357,7 @@ class SyncService extends BaseService {
             })
             .then(() => this.getTxData(filteredTxData, onProgressPerEntity, syncDetailsWithPrivileges, endDateTime))
             .then(() => migrationSwitched && this._catchUpTxDataAfterMigration(allEntitiesMetaData, serverTimeAfterUpload))
+            .then(() => this._applyParkedClinicRecords(syncStartedAt))
             // Progress is not reported: the bar already counted these uploads in the first push.
             .then(() => this._pushReleasedHoldBacks(allTxEntityMetaData))
             .then(() => this.downloadNewsImages())
@@ -618,6 +620,8 @@ class SyncService extends BaseService {
         const releasing = this._clinicSharingEnabled()
             ? await this.getService('clinicHoldBackService').receivedAmong(entityResources.map((resource) => resource.uuid))
             : {release: [], keepLocal: []};
+        // The server's copy supersedes a hub copy still waiting for its parent.
+        if (this._clinicSharingEnabled()) await this.getService('clinicParkedRecordService').unpark(entityResources.map((resource) => resource.uuid));
         // The local copy is a held edit still to upload; the server's older copy must not replace it.
         if (!_.isEmpty(releasing.keepLocal)) this._adoptServerMediaUrls(entityMetaData, entityResources.filter((resource) => releasing.keepLocal.includes(resource.uuid)));
         entityResources = entityResources.filter((resource) => !releasing.keepLocal.includes(resource.uuid));
@@ -749,6 +753,17 @@ class SyncService extends BaseService {
         this._disableShallowHydrationIfSqlite();
         try {
             this.getService('clinicMediaService').adoptServerUrls(entityMetaData.entityName, serverResources);
+        } finally {
+            this._enableShallowHydrationIfSqlite();
+        }
+    }
+
+    // The pull may have brought the parents of hub records waiting on this phone; fromResource reads parents deeply.
+    async _applyParkedClinicRecords(syncStartedAt) {
+        if (!this._clinicSharingEnabled()) return;
+        this._disableShallowHydrationIfSqlite();
+        try {
+            await this.getService('clinicParkedRecordService').afterSync(syncStartedAt);
         } finally {
             this._enableShallowHydrationIfSqlite();
         }

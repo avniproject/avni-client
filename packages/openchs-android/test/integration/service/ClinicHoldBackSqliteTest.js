@@ -29,8 +29,10 @@ import ClinicRecordService from "../../../src/service/clinicsharing/ClinicRecord
 import ClinicSpokeService from "../../../src/service/clinicsharing/ClinicSpokeService";
 import ClinicHoldBackService from "../../../src/service/clinicsharing/ClinicHoldBackService";
 import ClinicMediaService from "../../../src/service/clinicsharing/ClinicMediaService";
+import ClinicParkedRecordService from "../../../src/service/clinicsharing/ClinicParkedRecordService";
 import MediaQueueService from "../../../src/service/MediaQueueService";
 import EncounterService from "../../../src/service/EncounterService";
+import ErrorUtil from "../../../src/framework/errorHandling/ErrorUtil";
 import {open} from "@op-engineering/op-sqlite";
 
 let dbCount = 0;
@@ -50,7 +52,7 @@ function phone({clinicSharing = true} = {}) {
         [EntityService, 'entityService'], [EntityQueueService, 'entityQueueService'], [PrivilegeService, 'privilegeService'],
         [SyncService, 'syncService'], [ClinicRecordService, 'clinicRecordService'], [ClinicSpokeService, 'clinicSpokeService'],
         [ClinicHoldBackService, 'clinicHoldBackService'], [ClinicMediaService, 'clinicMediaService'], [MediaQueueService, 'mediaQueueService'],
-        [EncounterService, 'encounterService'],
+        [EncounterService, 'encounterService'], [ClinicParkedRecordService, 'clinicParkedRecordService'],
     ].forEach(([cls, name]) => {
         const service = new cls(proxy, context);
         services.set(cls, service);
@@ -89,6 +91,7 @@ function phone({clinicSharing = true} = {}) {
     create("AddressLevel", {uuid: "village", title: "Village", level: 1, voided: false, type: "Village"});
     create("Program", {uuid: "pr-mother", name: "Mother", voided: false});
     create("EncounterType", {uuid: "et-anc", name: "ANC", voided: false});
+    create("ApprovalStatus", {uuid: "approved", status: "Approved", voided: false});
     create("Concept", {uuid: "c-photo", name: "Photo", datatype: "Image", voided: false});
     create("Concept", {uuid: "c-photo-2", name: "Second photo", datatype: "Image", voided: false});
     create("Groups", {uuid: "admins", name: "Administrators", hasAllPrivileges: true});
@@ -292,6 +295,7 @@ describe("Photos in records from another phone", () => {
 
     it("are queued as today for an organisation not using clinic sharing", async () => {
         const plain = phone({clinicSharing: false});
+        await plain.recordService.applyBatches([{entityName: 'Individual', resources: [fromAnotherPhone('Individual', 'Individual', patient('p-1'))]}], log);
         await plain.recordService.applyBatches([{entityName: 'Encounter',
             resources: [fromAnotherPhone('Encounter', 'Encounter', visit("v-1", "p-1", {observations: photos(NURSE_PHOTO)}))]}], log);
 
@@ -299,5 +303,117 @@ describe("Photos in records from another phone", () => {
 
         expect(plain.queuedMedia()).toEqual([NURSE_PHOTO]);
         await plain.close();
+    });
+});
+
+describe("Records that arrive before their parent", () => {
+    let mine, reports;
+    const log = () => {};
+    const receive = (entityName, data) => mine.recordService.applyBatches([{entityName, resources: [fromAnotherPhone(entityName, entityName, data)]}], log);
+    const parked = () => mine.services.get(ClinicSpokeService).stateDb.executeSync("SELECT uuid FROM parked_records ORDER BY uuid").rows.map((r) => r.uuid);
+    const parkedRecords = () => mine.services.get('clinicParkedRecordService');
+    const visitParent = (uuid) => mine.rawDb.executeSync("SELECT individual_uuid AS parent FROM encounter WHERE uuid = ?", [uuid]).rows.map((r) => r.parent);
+
+    beforeEach(() => {
+        mine = phone();
+        reports = jest.spyOn(ErrorUtil, 'notifyBugsnag').mockImplementation(async () => {});
+    });
+    afterEach(async () => {
+        reports.mockRestore();
+        await mine.close();
+    });
+
+    it("wait for the patient from a later hub sync, then appear linked to it, without a report", async () => {
+        await receive('Encounter', visit("v-1", "p-1"));
+        expect([visitParent("v-1"), parked()]).toEqual([[], ["v-1"]]);
+
+        const nextSyncStartedAt = Date.now();
+        await receive('Individual', patient('p-1'));
+        await parkedRecords().afterSync(nextSyncStartedAt, log);
+
+        expect([visitParent("v-1"), parked()]).toEqual([["p-1"], []]);
+        expect(reports).not.toHaveBeenCalled();
+    });
+
+    it("appear once the patient comes down from the server", async () => {
+        await receive('Encounter', visit("v-1", "p-1"));
+
+        const syncStartedAt = Date.now();
+        await mine.sync.persistAll(pulled('Individual'), [fromServer(mine.recordService, 'Individual', fromAnotherPhone('Individual', 'Individual', patient('p-1')))]);
+        await mine.sync._applyParkedClinicRecords(syncStartedAt);
+
+        expect(visitParent("v-1")).toEqual(["p-1"]);
+    });
+
+    it("are reported once, with type and IDs only, when still waiting after a sync that began after they arrived", async () => {
+        const arrivedAt = Date.now();
+        await receive('Encounter', visit("v-1", "p-missing", {name: "Sunita's visit"}));
+
+        await parkedRecords().afterSync(arrivedAt - 1, log);
+        expect(reports).not.toHaveBeenCalled();
+
+        await parkedRecords().afterSync(Date.now() + 1, log);
+        await parkedRecords().afterSync(Date.now() + 2, log);
+
+        expect(reports).toHaveBeenCalledTimes(1);
+        const [error, source] = reports.mock.calls[0];
+        expect(source).toBe("ClinicSharingOrphan");
+        expect(error.message).toBe("ClinicSharingOrphan: Encounter v-1 is still missing its parent Individual p-missing");
+        expect(parked()).toEqual(["v-1"]);
+    });
+
+    it("give way to the server's copy when it arrives first", async () => {
+        await receive('Encounter', visit("v-1", "p-1", {name: "hub copy"}));
+        const serverVisit = fromAnotherPhone('Encounter', 'Encounter', visit("v-1", "p-1", {name: "server copy"}));
+
+        const syncStartedAt = Date.now();
+        await mine.sync.persistAll(pulled('Individual'), [fromServer(mine.recordService, 'Individual', fromAnotherPhone('Individual', 'Individual', patient('p-1')))]);
+        await mine.sync.persistAll(pulled('Encounter'), [fromServer(mine.recordService, 'Encounter', serverVisit)]);
+        await mine.sync._applyParkedClinicRecords(syncStartedAt);
+
+        expect([mine.read("Encounter", "v-1").name, parked()]).toEqual(["server copy", []]);
+    });
+
+    it("on the hub, go into the ledger under the phone that sent them once applied, for phones whose cursor has passed", async () => {
+        const hub = {_appendLedgerRows: jest.fn(async () => {})};
+        mine.services.set('clinicHubService', hub);
+        await mine.recordService.applyBatches([{entityName: 'Encounter', resources: [fromAnotherPhone('Encounter', 'Encounter', visit("v-1", "p-1"))]}], log, 'phone-a');
+
+        await mine.recordService.applyBatches([{entityName: 'Individual', resources: [fromAnotherPhone('Individual', 'Individual', patient('p-1'))]}], log, 'phone-b');
+        await parkedRecords().afterSync(Date.now(), log);
+
+        expect(hub._appendLedgerRows).toHaveBeenCalledTimes(1);
+        const [batches, origin] = hub._appendLedgerRows.mock.calls[0];
+        expect([batches.map(({entityName, resources}) => [entityName, resources.map((r) => r.uuid)]), origin]).toEqual([[["Encounter", ["v-1"]]], "phone-a"]);
+    });
+
+    it("include an approval of a patient not yet on the phone", async () => {
+        await receive('EntityApprovalStatus', {uuid: "eas-1", entityUUID: "p-1", entityType: "Subject", entityTypeUuid: "st-person",
+            approvalStatus: {uuid: "approved"}, statusDateTime: at, autoApproved: false, voided: false});
+        expect(parked()).toEqual(["eas-1"]);
+
+        await receive('Individual', patient('p-1'));
+        await parkedRecords().afterSync(Date.now(), log);
+
+        expect(parked()).toEqual([]);
+        expect(mine.rawDb.executeSync("SELECT entity_uuid AS parent FROM entity_approval_status WHERE uuid = 'eas-1'").rows[0].parent).toBe("p-1");
+    });
+
+    it("chain: a visit in an enrolment waits with it, and both appear when the patient does", async () => {
+        await mine.recordService.applyBatches([
+            {entityName: 'ProgramEnrolment', resources: [fromAnotherPhone('ProgramEnrolment', 'ProgramEnrolment', {uuid: "enl-1", program: {uuid: "pr-mother"}, individual: {uuid: "p-1"},
+                enrolmentDateTime: at, observations: [], programExitObservations: [], voided: false})]},
+        ], log);
+        await mine.recordService.applyBatches([
+            {entityName: 'ProgramEncounter', resources: [fromAnotherPhone('ProgramEncounter', 'ProgramEncounter', {uuid: "pe-1", encounterType: {uuid: "et-anc"},
+                programEnrolment: {uuid: "enl-1"}, encounterDateTime: at, observations: [], cancelObservations: [], voided: false})]},
+        ], log);
+        expect(parked()).toEqual(["enl-1", "pe-1"]);
+
+        await receive('Individual', patient('p-1'));
+        await parkedRecords().afterSync(Date.now(), log);
+
+        expect(parked()).toEqual([]);
+        expect(mine.rawDb.executeSync("SELECT program_enrolment_uuid AS parent FROM program_encounter WHERE uuid = 'pe-1'").rows[0].parent).toBe("enl-1");
     });
 });

@@ -177,8 +177,10 @@ class ClinicHubService extends BaseService {
     }
 
     async _handlePush({deviceId, batches, upTo}, log) {
-        const applied = await this.getService(ClinicRecordService).applyBatches(batches, log);
+        const startedAt = Date.now();
+        const applied = await this.getService(ClinicRecordService).applyBatches(batches, log, deviceId);
         await this._appendLedgerRows(batches, deviceId);
+        await this.getService('clinicParkedRecordService').afterSync(startedAt, log);
         return {type: MessageType.pushAck, upTo, applied};
     }
 
@@ -191,6 +193,17 @@ class ClinicHubService extends BaseService {
         if (items.length === 0) return;
         await this._appendLedgerRows(items.map((item) => ({entityName: item.entity, resources: [{uuid: item.entityUUID}]})), await this.hubId());
         await this._setMeta('mirroredAt', moment(_.last(items).savedAt).toISOString());
+    }
+
+    // One record saved without its parent must not fail every phone's pull.
+    _sharedResourceOrNull(entityName, entity, log) {
+        try {
+            return this.getService(ClinicRecordService).toSharedResource(entityName, entity);
+        } catch (error) {
+            log(`Not serving ${entityName} ${entity.uuid}: ${error.message}`);
+            General.logError('ClinicHubService', error);
+            return null;
+        }
     }
 
     async _handlePull({deviceId, since}, log) {
@@ -216,7 +229,8 @@ class ClinicHubService extends BaseService {
                 resources: byType[entityName]
                     .map((row) => this.findByKey('uuid', row.entity_uuid, entityName))
                     .filter((entity) => !_.isNil(entity))
-                    .map((entity) => this.getService(ClinicRecordService).toSharedResource(entityName, entity)),
+                    .map((entity) => this._sharedResourceOrNull(entityName, entity, log))
+                    .filter((resource) => !_.isNil(resource)),
             }))
             .filter((batch) => batch.resources.length > 0);
         log(`Serving ${rows.length} ledger rows (${batches.length} types) to ${deviceId}`);

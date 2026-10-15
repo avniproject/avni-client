@@ -104,6 +104,7 @@ class ClinicSpokeService extends BaseService {
 
     async syncWithHub({host, port, key, hubId, epoch}, log = _.noop) {
         let connection;
+        const startedAt = Date.now();
         try {
             const deviceId = await this.deviceId();
             const {cursor, pushedUpTo} = await this._hubState({hubId, epoch});
@@ -116,7 +117,8 @@ class ClinicSpokeService extends BaseService {
             const {batches, maxSeq} = await connection.request({type: MessageType.pull, deviceId, since: cursor}, MessageType.pullResult);
             const applied = await this.getService(ClinicRecordService).applyBatches(batches, log);
             await this._saveHubState(hubId, 'cursor', maxSeq);
-            if (applied > 0) await this._refreshOpenLists();
+            const unparked = (await this.getService('clinicParkedRecordService').afterSync(startedAt, log)).applied;
+            if (applied + unparked > 0) await this._refreshOpenLists();
 
             const mediaSent = await this.getService('clinicMediaService').pushToHub(connection, hubId, log);
             log(`Sent ${_.sumBy(outbox, (b) => b.resources.length)}, received ${applied}, files sent ${mediaSent}`);

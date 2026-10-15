@@ -55,6 +55,7 @@ const migrationService = {
 /** A service that is due to switch: desired sqlite, active realm, empty outbox. */
 function buildSwitchCandidate() {
     const svc = Object.create(SyncService.prototype);
+    svc.db = {isSqlite: false};
     svc.entityQueueService = {
         getPendingFieldDataCount: jest.fn(() => 0),
         getPendingFieldDataSummary: jest.fn(() => ''),
@@ -151,6 +152,7 @@ const SYNC_DETAILS = ALL_ENTITIES_META_DATA
  */
 function buildMigrationDueSyncService() {
     const svc = Object.create(SyncService.prototype);
+    svc.db = {isSqlite: false};
     const noop = () => {};
     const resolved = () => Promise.resolve();
 

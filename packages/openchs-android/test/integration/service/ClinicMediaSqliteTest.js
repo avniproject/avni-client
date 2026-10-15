@@ -73,6 +73,7 @@ function device(kind) {
     const recordService = {applyBatches: async () => 0, toSharedResource: () => ({})};
     services.set('mediaQueueService', mediaQueueService);
     services.set(ClinicRecordService, recordService);
+    services.set('clinicParkedRecordService', {afterSync: async () => ({applied: 0, reported: 0})});
     const context = {getService: (key) => services.get(key)};
     const stub = (service) => {
         service.findAll = (schema) => (schema === 'MediaQueue' ? mediaQueue : []);

@@ -76,6 +76,7 @@ const syncDetailsAt = (loadedSince) => [
  */
 function buildSyncService({switchResult, catchUpEndDateTimes = [WINDOW_PAST_UPLOAD]}) {
     const svc = Object.create(SyncService.prototype);
+    svc.db = {isSqlite: false};
     const noop = () => {};
     const resolved = () => Promise.resolve();
 
@@ -196,6 +197,7 @@ describe('unsynced data across a mid-sync backend switch (#2006)', () => {
 describe('backend switch is deferred while local data is unsynced (#2006)', () => {
     function buildSwitchCandidate(pendingFieldDataCount) {
         const svc = Object.create(SyncService.prototype);
+        svc.db = {isSqlite: false};
         svc.entityQueueService = {
             getPendingFieldDataCount: jest.fn(() => pendingFieldDataCount),
             getPendingFieldDataSummary: jest.fn(() => `Individual=${pendingFieldDataCount}`),

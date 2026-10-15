@@ -27,6 +27,7 @@ const uniqueName = (kind) => `clinic_${kind}_test_${process.pid}_${dbCount++}.db
 function device() {
     const records = {};
     const queue = [];
+    const parkedRecords = {afterSync: async () => ({applied: 0, reported: 0})};
     let clock = Date.now();
     const recordService = {
         applied: [],
@@ -38,7 +39,7 @@ function device() {
         },
     };
     return {
-        records, queue, recordService,
+        records, queue, recordService, parkedRecords,
         save(entityName, uuid, version) {
             records[uuid] = {entityName, version};
             queue.push({entity: entityName, entityUUID: uuid, savedAt: new Date(++clock)});
@@ -46,8 +47,8 @@ function device() {
         stub(service) {
             service.findAll = () => queue;
             service.findByKey = (key, uuid) => records[uuid] && {toResource: {uuid, version: records[uuid].version}};
-            const media = {pushToHub: async () => 0, cleanUpCopies: async () => 0};
-            service.getService = (cls) => (cls === ClinicRecordService ? recordService : cls === 'clinicMediaService' ? media : undefined);
+            const clinic = {clinicMediaService: {pushToHub: async () => 0, cleanUpCopies: async () => 0}, clinicParkedRecordService: parkedRecords};
+            service.getService = (cls) => (cls === ClinicRecordService ? recordService : clinic[cls]);
             service.dispatchAction = jest.fn();
             return service;
         },
@@ -178,6 +179,15 @@ describe('Phones syncing with the hub', () => {
         a.save('Individual', 'ind-1', 'v1');
         await a.sync();
         await b.sync();
+        expect(b.spoke.dispatchAction).toHaveBeenCalled();
+    });
+
+    it('refreshes open lists when a record that waited for its parent is applied after the sync', async () => {
+        const b = phone();
+        b.parkedRecords.afterSync = async () => ({applied: 1, reported: 0});
+
+        await b.sync();
+
         expect(b.spoke.dispatchAction).toHaveBeenCalled();
     });
 });

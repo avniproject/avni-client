@@ -28,10 +28,14 @@ import EntityService from "../../../src/service/EntityService";
 import PrivilegeService from "../../../src/service/PrivilegeService";
 import SyncService from "../../../src/service/SyncService";
 import ClinicRecordService from "../../../src/service/clinicsharing/ClinicRecordService";
+import ClinicSpokeService from "../../../src/service/clinicsharing/ClinicSpokeService";
+import ClinicParkedRecordService from "../../../src/service/clinicsharing/ClinicParkedRecordService";
 import {open} from "@op-engineering/op-sqlite";
 
+let stateCount = 0;
+
 describe("Hub sync save path on SQLite", () => {
-    let rawDb, proxy, syncService, p2pService;
+    let rawDb, proxy, syncService, p2pService, spokeService;
     const log = () => {};
     const at = "2026-10-01T10:00:00.000Z";
 
@@ -49,6 +53,10 @@ describe("Hub sync save path on SQLite", () => {
         const context = {getRepositoryFactory: () => repositoryFactory, getService: (key) => services.get(key)};
         [EntityService, PrivilegeService, SyncService, ClinicRecordService]
             .forEach((cls) => services.set(cls, new cls(proxy, context)));
+        spokeService = new ClinicSpokeService(proxy, context);
+        spokeService.stateName = `hub_apply_test_${process.pid}_${stateCount++}.db`;
+        services.set('clinicSpokeService', spokeService);
+        services.set('clinicParkedRecordService', new ClinicParkedRecordService(proxy, context));
         services.set('clinicHoldBackService', {recordReceived: async () => {}});
         services.set('clinicMediaService', {recordReceivedMedia: async () => {}});
         syncService = services.get(SyncService);
@@ -57,7 +65,10 @@ describe("Hub sync save path on SQLite", () => {
         seedReferenceData();
     });
 
-    afterEach(() => rawDb && rawDb.close());
+    afterEach(() => {
+        if (spokeService.stateDb) spokeService.stateDb.close();
+        if (rawDb) rawDb.close();
+    });
 
     const create = (schema, data) => proxy.write(() => proxy.create(schema, data, true, {skipHydration: true}));
     const rowsOf = (table) => rawDb.executeSync(`SELECT uuid FROM ${table} ORDER BY uuid`).rows.map((r) => r.uuid);
@@ -129,6 +140,7 @@ describe("Hub sync save path on SQLite", () => {
 
         expect(rowsOf("individual")).toEqual(["ind-patient"]);
         expect(rowsOf("encounter")).toEqual(["enc-patient"]);
+        expect(spokeService.stateDb.executeSync("SELECT uuid FROM parked_records").rows).toEqual([]);
     });
 
     it("keeps out a subject type the user's groups were never given, as server sync does", async () => {
