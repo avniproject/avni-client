@@ -897,7 +897,8 @@ class RealmQueryParser {
             // Try partial parsing: split on top-level AND, translate supported clauses to SQL,
             // route JS-fallback clauses (SUBQUERY, TRUEPREDICATE, @count, etc.) to
             // JsFallbackFilterEvaluator for post-hydration filtering.
-            const partialResult = this._parsePartial(unwrapped, args, rootSchemaName, schemaMap, aliasOffset);
+            // Splitting an untranslated "A AND B OR C" on AND would give A AND (B OR C), so keep it whole.
+            const partialResult = this._parsePartial(splitTopLevelOr(unwrapped).length > 1 ? trimmed : unwrapped, args, rootSchemaName, schemaMap, aliasOffset);
             if (partialResult) {
                 partialResult.limit = limitValue;
                 return partialResult;
@@ -1619,6 +1620,8 @@ class RealmQueryParser {
             return translated ? {where: translated.where, params: translated.params, joins: [], aliasCounter: aliasOffset} : null;
         }
         if (requiresJsFallback(clause)) return null;
+        // SQL's "col != ?" is false for NULL where Realm and the fallback count it as not equal.
+        if (/(!=|<>)(?!\s*null\b)/i.test(clause)) return null;
         try {
             const generator = new SqlGenerator(schemaMap, rootSchemaName, args);
             generator.aliasCounter = aliasOffset;
