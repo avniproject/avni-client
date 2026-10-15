@@ -128,8 +128,9 @@ class PersonRegisterView extends AbstractComponent {
 
     // ABHA needs the network. The Eka access token must come from the Avni server, which keeps the client
     // secret (PE-146 follow-up); until that endpoint exists only a debug build can pass a short-lived sandbox
-    // token, from ABHA_DEV_ACCESS_TOKEN in the gitignored config/env/dev.json. Without a token the SDK still
-    // loads and reports its error, which is enough to prove the WebView bridge.
+    // token, as ABHA_DEV_ACCESS_TOKEN added to the generated, gitignored src/framework/Config.js after the
+    // make target writes it (never to config/env/*.json, which are tracked), then a Metro reload. Without a
+    // token the SDK still loads and reports its error, which is enough to prove the WebView bridge.
     openAbha() {
         getConnectionInfo().then(({isConnected}) => {
             if (!isConnected) {
