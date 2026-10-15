@@ -1,12 +1,12 @@
 diff --git a/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketModule.java b/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketModule.java
-index 121edb4..b5c31ae 100644
+index 121edb4..3d941c7 100644
 --- a/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketModule.java
 +++ b/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketModule.java
 @@ -128,6 +128,8 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
      @SuppressWarnings("unused")
      @ReactMethod
      public void write(final int cId, @NonNull final String base64String, final int msgId) {
-+        // Avni patch: a socket the peer already closed is gone from the map; throwing here kills the app.
++        // Avni patch: a socket whose connect failed before it was registered is not in the map; throwing here kills the app.
 +        if (!(socketMap.get(cId) instanceof TcpSocketClient)) return;
          TcpSocketClient socketClient = getTcpClient(cId);
          byte[] data = Base64.decode(base64String, Base64.NO_WRAP);
@@ -20,6 +20,70 @@ index 121edb4..b5c31ae 100644
                  TcpSocketClient socketClient = getTcpClient(cId);
                  socketClient.destroy();
              }
+@@ -231,6 +235,7 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+         // Keep: Required for RN built in Event Emitter Calls.
+     }
+ 
++    // Avni patch: no bindProcessToNetwork; the socket is bound to the network itself, and binding the process sent all server traffic to the hub's offline hotspot.
+     private void requestNetwork(final int transportType, @Nullable final String iotDeviceHost) throws InterruptedException {
+         final NetworkRequest.Builder requestBuilder = new NetworkRequest.Builder();
+         requestBuilder.addTransportType(transportType);
+@@ -293,7 +298,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+                             // Single network scenario --> // Use that network in any case
+                             Network network = wifiNetworks.get(0);
+                             currentNetwork.setNetwork(network);
+-                            cm.bindProcessToNetwork(network);
+                             networkFound = true;
+                         } else {
+                             // Multiple network scenario
+@@ -312,7 +316,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+                                         if (foundAddress != null && foundAddress.contains(iotDeviceHost)) {
+                                             // found ioT device network
+                                             currentNetwork.setNetwork(network);
+-                                            cm.bindProcessToNetwork(network);
+                                             networkFound = true;
+                                             break;
+                                         }
+@@ -326,7 +329,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+                                             if (address.getAddress().getHostAddress().startsWith(iotSubnetAddress)) {
+                                                 // Found IoT device network
+                                                 currentNetwork.setNetwork(network);
+-                                                cm.bindProcessToNetwork(network);
+                                                 networkFound = true;
+                                                 break;
+                                             }
+@@ -343,7 +345,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+                                             if(address.getAddress().getHostAddress().startsWith(iotSubnetAddress)) {
+                                                 // found ioT device network
+                                                 currentNetwork.setNetwork(network);
+-                                                cm.bindProcessToNetwork(network);
+                                                 networkFound = true;
+                                                 break;
+                                             }
+@@ -371,7 +372,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+                                                 if (matchedNetwork != null) {
+                                                     // Found IoT device network
+                                                     currentNetwork.setNetwork(matchedNetwork);
+-                                                    cm.bindProcessToNetwork(matchedNetwork);
+                                                     networkFound = true;
+                                                     break;
+                                                 }
+@@ -384,7 +384,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+                                 if (!networkFound && wifiNetworks.size() > 1) {
+                                     Network fallbackNetwork = wifiNetworks.get(wifiNetworks.size() - 1); // Get last network from the list
+                                     currentNetwork.setNetwork(fallbackNetwork);
+-                                    cm.bindProcessToNetwork(fallbackNetwork);
+                                 }
+                             }
+                         }
+@@ -393,7 +392,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+                         if (!networkFound && wifiNetworks.size() > 1) {
+                             Network fallbackNetwork = wifiNetworks.get(wifiNetworks.size() - 1); // Get last network from the list
+                             currentNetwork.setNetwork(fallbackNetwork);
+-                            cm.bindProcessToNetwork(fallbackNetwork);
+                         }
+                     }
+ 
 diff --git a/node_modules/react-native-tcp-socket/src/Socket.js b/node_modules/react-native-tcp-socket/src/Socket.js
 index 6ed2141..920511a 100644
 --- a/node_modules/react-native-tcp-socket/src/Socket.js

@@ -160,6 +160,36 @@ describe('ClinicTransport', () => {
         expect(logs.some((l) => /Dropped/.test(l))).toBe(true);
         socket.destroy();
     });
+
+    it('fails a request at once when the hub has already hung up, instead of waiting forever', async () => {
+        const port = await startTestHub({onConnection: (connection) => connection.close()});
+        const phone = await connect(port);
+        await waitFor(() => phone.closed);
+
+        await expect(phone.request({type: MessageType.pull, since: 0}, MessageType.pullResult)).rejects.toMatchObject({code: 'closed'});
+        expect(() => phone.send({type: MessageType.pull, since: 0})).toThrow(ClinicTransportError);
+    });
+
+    it('gives up on a request the hub never answers, and leaves no handlers behind', async () => {
+        const port = await startTestHub({onConnection: () => {}});
+        const phone = await connect(port);
+        const closeHandlers = phone.closeHandlers.length;
+
+        await expect(phone.request({type: MessageType.pull, since: 0}, MessageType.pullResult, undefined, 100)).rejects.toMatchObject({code: 'timeout'});
+        expect([phone.closeHandlers.length, phone.messageHandlers.length]).toEqual([closeHandlers, 0]);
+    });
+
+    it('drops a phone that connects but never says hello', async () => {
+        const port = await startTestHub();
+        const socket = net.createConnection({port, host: '127.0.0.1'});
+        let closed = false;
+        socket.on('close', () => { closed = true; });
+        socket.on('error', () => {});
+        socket.resume();
+
+        await waitFor(() => closed, 8000);
+        expect(logs.some((l) => /nothing received/.test(l))).toBe(true);
+    }, 10000);
 });
 
 async function waitFor(condition, timeoutMs = 2000) {

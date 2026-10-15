@@ -12,6 +12,9 @@ import _ from 'lodash';
 
 export const CLINIC_PORT = 7373;
 const HANDSHAKE_TIMEOUT_MS = 5000;
+const REQUEST_TIMEOUT_MS = 2 * 60 * 1000;
+// A phone that walks out of range sends no FIN, so the hub would otherwise keep its socket all day.
+const HUB_IDLE_TIMEOUT_MS = 2 * 60 * 1000;
 const SESSION_KEY_BYTES = 32;
 
 export const MessageType = {
@@ -111,10 +114,16 @@ class Connection {
         this.messageHandlers = [];
         this.closeHandlers = [];
         this.pending = [];
-        socket.on('close', () => this.closeHandlers.forEach((handler) => handler()));
+        this.closed = false;
+        socket.on('close', () => {
+            this.closed = true;
+            this.closeHandlers.slice().forEach((handler) => handler());
+        });
     }
 
+    // The socket library drops writes after the peer hangs up without throwing, so a reply would never come.
     send(message) {
+        if (this.closed) throw new ClinicTransportError('closed');
         writeLine(this.socket, this.keyBytes, message);
     }
 
@@ -128,17 +137,31 @@ class Connection {
 
     onClose(handler) {
         this.closeHandlers.push(handler);
+        return () => _.pull(this.closeHandlers, handler);
     }
 
-    request(message, replyType, matches = () => true) {
+    request(message, replyType, matches = () => true, timeoutMs = REQUEST_TIMEOUT_MS) {
         return new Promise((resolve, reject) => {
-            const unsubscribe = this.onMessage((reply) => {
+            let stopListening = _.noop;
+            let stopWatchingClose = _.noop;
+            let timer = null;
+            const settle = (done) => {
+                clearTimeout(timer);
+                stopListening();
+                stopWatchingClose();
+                done();
+            };
+            stopWatchingClose = this.onClose(() => settle(() => reject(new ClinicTransportError('closed'))));
+            timer = setTimeout(() => settle(() => reject(new ClinicTransportError('timeout'))), timeoutMs);
+            stopListening = this.onMessage((reply) => {
                 if (reply.type !== replyType || !matches(reply)) return;
-                unsubscribe();
-                resolve(reply);
+                settle(() => resolve(reply));
             });
-            this.onClose(() => reject(new Error('The hub closed the connection')));
-            this.send(message);
+            try {
+                this.send(message);
+            } catch (error) {
+                settle(() => reject(error));
+            }
         });
     }
 
@@ -163,6 +186,11 @@ export async function startHub({key, appVersion, hubId, epoch, port = CLINIC_POR
         socket.setEncoding(WIRE_ENCODING);
         sockets.add(socket);
         const peerName = socket.remoteAddress;
+        socket.setTimeout(HANDSHAKE_TIMEOUT_MS);
+        socket.on('timeout', () => {
+            log(`Dropped ${peerName}: nothing received for a while`);
+            socket.destroy();
+        });
         let connection = null;
         const refuse = (refusal, why) => {
             log(`Refused ${peerName}: ${why}`);
@@ -184,6 +212,7 @@ export async function startHub({key, appVersion, hubId, epoch, port = CLINIC_POR
             if (message.hubId !== hubId || message.epoch !== epoch)
                 return refuse({reason: 'stale'}, `scanned an earlier code (epoch ${message.epoch})`);
             connection = new Connection(socket, keyBytes, _.pick(message, ['appVersion', 'hubId', 'epoch']));
+            socket.setTimeout(HUB_IDLE_TIMEOUT_MS);
             onConnection(connection);
         }));
         socket.on('error', (error) => log(`Socket error from ${peerName}: ${error.message}`));
