@@ -28,8 +28,7 @@ export const ORPHAN_REPORT_SOURCE = 'ClinicSharingOrphan';
 
 const rowsOf = (result) => result.rows._array || result.rows || [];
 
-// A shared record whose parent isn't on this phone waits here: applied without it, the record
-// would be saved with no parent link, which the parent arriving later never restores.
+// Applied without its parent, a record is saved with no parent link, which the parent arriving later never restores.
 @Service("clinicParkedRecordService")
 class ClinicParkedRecordService extends BaseService {
     getSchema() {
@@ -76,13 +75,26 @@ class ClinicParkedRecordService extends BaseService {
             else if (this._missingParents(entityName, resource).length > 0) parked.push(resource);
             else ready.push(resource);
         });
-        const now = Date.now();
         await db.executeBatch([
-            ...parked.map((resource) => ['insert into parked_records (uuid, entity_name, resource, origin, parked_at) values (?, ?, ?, ?, ?) on conflict(uuid) do update set resource = excluded.resource',
-                [resource.uuid, entityName, JSON.stringify(resource), origin || null, now]]),
-            ...dropped.map((uuid) => ['insert into not_viewable (uuid) values (?) on conflict(uuid) do nothing', [uuid]]),
+            ...this._parkCommands(entityName, parked, origin),
+            ...dropped.flatMap((uuid) => [
+                ['insert into not_viewable (uuid) values (?) on conflict(uuid) do nothing', [uuid]],
+                ['delete from parked_records where uuid = ?', [uuid]],
+            ]),
         ]);
         return {ready, parked: parked.length, dropped: dropped.length};
+    }
+
+    _parkCommands(entityName, resources, origin) {
+        const now = Date.now();
+        return resources.map((resource) => ['insert into parked_records (uuid, entity_name, resource, origin, parked_at) values (?, ?, ?, ?, ?) on conflict(uuid) do update set resource = excluded.resource',
+            [resource.uuid, entityName, JSON.stringify(resource), origin || null, now]]);
+    }
+
+    // The sender was already told it arrived, so a record this phone cannot build yet, say for a form it lacks, must not be lost.
+    async park(entityName, resources, origin) {
+        if (_.isEmpty(resources)) return;
+        await this._state().executeBatch(this._parkCommands(entityName, resources, origin));
     }
 
     async markNotViewable(uuids) {
@@ -120,7 +132,8 @@ class ClinicParkedRecordService extends BaseService {
         rows.forEach((row) => {
             const missing = this._missingParents(row.entity_name, JSON.parse(row.resource))
                 .map(({schema, uuid}) => `${schema} ${uuid}`).join(', ');
-            const error = new Error(`${ORPHAN_REPORT_SOURCE}: ${row.entity_name} ${row.uuid} is still missing its parent ${missing || '(unknown)'}`);
+            const problem = missing ? `is still missing its parent ${missing}` : 'still could not be applied on this phone';
+            const error = new Error(`${ORPHAN_REPORT_SOURCE}: ${row.entity_name} ${row.uuid} ${problem}`);
             General.logError(ORPHAN_REPORT_SOURCE, error);
             ErrorUtil.notifyBugsnag(error, ORPHAN_REPORT_SOURCE);
         });

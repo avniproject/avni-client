@@ -16,7 +16,7 @@ jest.mock('react-native-keychain', () => ({
     getGenericPassword: jest.fn(async () => false), setGenericPassword: jest.fn(async () => {}), resetGenericPassword: jest.fn(async () => {}),
 }));
 
-import {EntityMappingConfig, EntityMetaData} from "openchs-models";
+import {Encounter, EntityMappingConfig, EntityMetaData} from "openchs-models";
 import SchemaGenerator from "../../../src/framework/db/SchemaGenerator";
 import SqliteProxy from "../../../src/framework/db/SqliteProxy";
 import RepositoryFactory from "../../../src/repository/RepositoryFactory";
@@ -408,6 +408,30 @@ describe("Records that arrive before their parent", () => {
 
         expect(parked()).toEqual([]);
         expect(mine.rawDb.executeSync("SELECT entity_uuid AS parent FROM entity_approval_status WHERE uuid = 'eas-1'").rows[0].parent).toBe("p-1");
+    });
+
+    it("are dropped, not reported, when their patient turns out to be one this user may not view", async () => {
+        await receive('Encounter', visit("v-1", "p-1"));
+
+        await parkedRecords().markNotViewable(["p-1"]);
+        await parkedRecords().afterSync(Date.now() + 1, log);
+
+        expect(parked()).toEqual([]);
+        expect(reports).not.toHaveBeenCalled();
+    });
+
+    it("include one this phone cannot build yet, which waits rather than being lost, and is reported if it never builds", async () => {
+        await receive('Individual', patient('p-1'));
+        const build = jest.spyOn(Encounter, 'fromResource').mockImplementation(() => { throw new Error("form not on this phone"); });
+        await receive('Encounter', visit("v-1", "p-1"));
+        expect([visitParent("v-1"), parked()]).toEqual([[], ["v-1"]]);
+
+        await parkedRecords().afterSync(Date.now() + 1, log);
+        expect(reports.mock.calls.map(([error]) => error.message)).toEqual(["ClinicSharingOrphan: Encounter v-1 still could not be applied on this phone"]);
+
+        build.mockRestore();
+        await parkedRecords().afterSync(Date.now() + 2, log);
+        expect([visitParent("v-1"), parked()]).toEqual([["p-1"], []]);
     });
 
     it("chain: a visit in an enrolment waits with it, and both appear when the patient does", async () => {

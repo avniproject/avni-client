@@ -90,13 +90,16 @@ class ClinicRecordService extends BaseService {
         const entityService = this.getService(EntityService);
         const entityResources = ready.map((r) => this._adaptResource(entityName, r));
         const built = [];
-        for (const resource of entityResources) {
+        const unbuilt = [];
+        entityResources.forEach((resource, index) => {
             try {
                 built.push({resource, entity: metaData.entityClass.fromResource(resource, entityService, entityResources)});
             } catch (error) {
-                log(`skip ${entityName} ${resource.uuid}: ${error.message}`);
+                log(`${entityName} ${resource.uuid} waits, as it could not be built here: ${error.message}`);
+                unbuilt.push(ready[index]);
             }
-        }
+        });
+        await parkedRecords.park(entityName, unbuilt, origin);
         const permitted = this.getService(PrivilegeService).onlyViewableEntities(metaData.schemaName, built.map(({entity}) => entity));
         const kept = built.filter(({entity}) => permitted.includes(entity));
         await parkedRecords.unpark(built.map(({resource}) => resource.uuid));

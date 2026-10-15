@@ -47,7 +47,7 @@ function phone() {
     [EntityService, PrivilegeService, SyncService, ClinicRecordService].forEach((cls) => services.set(cls, new cls(proxy, context)));
     services.set('clinicHoldBackService', {recordReceived: async () => {}});
     services.set('clinicMediaService', {recordReceivedMedia: async () => {}});
-    services.set('clinicParkedRecordService', {withParentsPresent: async (entityName, resources) => ({ready: resources, parked: 0, dropped: 0}), unpark: async () => {}, markNotViewable: async () => {}});
+    services.set('clinicParkedRecordService', {withParentsPresent: async (entityName, resources) => ({ready: resources, parked: 0, dropped: 0}), unpark: async () => {}, markNotViewable: async () => {}, park: async () => {}});
     const create = (schema, data) => proxy.write(() => proxy.create(schema, data, true, {skipHydration: true}));
     const read = (schema, uuid) => proxy.objects(schema).filtered("uuid = $0", uuid)[0];
 
