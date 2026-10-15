@@ -27,8 +27,6 @@ class ClinicSpokeService extends BaseService {
         return EntityQueue.schema.name;
     }
 
-    // --- spoke state: its own small sqlite file ---
-
     // Synchronous so a save can check it inside its write transaction.
     _stateSync() {
         if (this.stateDb) return this.stateDb;
@@ -40,6 +38,7 @@ class ClinicSpokeService extends BaseService {
             pushed_up_to integer not null)`);
         db.executeSync('create table if not exists meta (key text primary key, value text)');
         db.executeSync('create table if not exists media_sent (hub_id text not null, file_name text not null, primary key (hub_id, file_name))');
+        db.executeSync('create table if not exists pushed_records (hub_id text not null, uuid text not null, saved_at integer not null, primary key (hub_id, uuid))');
         this.stateDb = db;
         return db;
     }
@@ -64,11 +63,30 @@ class ClinicSpokeService extends BaseService {
     // A new epoch means the hub restarted with an empty view of this phone, so send and pull everything again.
     async _hubState({hubId, epoch}) {
         const db = await this._state();
-        const [row] = this._sqliteRows(await db.execute('select epoch, cursor, pushed_up_to from hub_state where hub_id = ?', [hubId]));
-        if (row && row.epoch === epoch) return {cursor: row.cursor, pushedUpTo: row.pushed_up_to};
-        await db.execute('insert into hub_state (hub_id, epoch, cursor, pushed_up_to) values (?, ?, 0, 0) on conflict(hub_id) do update set epoch = excluded.epoch, cursor = 0, pushed_up_to = 0', [hubId, epoch]);
-        await db.execute('delete from media_sent where hub_id = ?', [hubId]);
-        return {cursor: 0, pushedUpTo: 0};
+        const [row] = this._sqliteRows(await db.execute('select epoch, cursor from hub_state where hub_id = ?', [hubId]));
+        if (row && row.epoch === epoch) return {cursor: row.cursor};
+        await db.execute('insert into hub_state (hub_id, epoch, cursor, pushed_up_to) values (?, ?, 0, 0) on conflict(hub_id) do update set epoch = excluded.epoch, cursor = 0', [hubId, epoch]);
+        await db.executeBatch([['delete from media_sent where hub_id = ?', [hubId]], ['delete from pushed_records where hub_id = ?', [hubId]]]);
+        return {cursor: 0};
+    }
+
+    async _pushedRecords(hubId) {
+        const db = await this._state();
+        return new Map(this._sqliteRows(await db.execute('select uuid, saved_at from pushed_records where hub_id = ?', [hubId])).map((row) => [row.uuid, row.saved_at]));
+    }
+
+    async _savePushed(hubId, items) {
+        if (items.length === 0) return;
+        const db = await this._state();
+        await db.executeBatch(items.map((item) => ['insert into pushed_records (hub_id, uuid, saved_at) values (?, ?, ?) on conflict(hub_id, uuid) do update set saved_at = excluded.saved_at',
+            [hubId, item.entityUUID, item.savedAt.getTime()]]));
+    }
+
+    async clearState() {
+        this.leave();
+        const db = await this._state();
+        const tables = this._sqliteRows(await db.execute("select name from sqlite_master where type = 'table' and name not like 'sqlite_%'")).map((row) => row.name);
+        await db.executeBatch(tables.map((table) => [`delete from ${table}`, []]));
     }
 
     async _saveHubState(hubId, column, value) {
@@ -76,16 +94,13 @@ class ClinicSpokeService extends BaseService {
         await db.execute(`update hub_state set ${column} = ? where hub_id = ?`, [value, hubId]);
     }
 
-    // --- outbox ---
-
-    // Reads the upload queue directly rather than through getAllQueuedItems, whose uniqBy keeps each
-    // record's oldest entry, so a record edited after a hub send would never be sent again. Never pops.
-    collectOutbox(pushedUpTo) {
+    // Each record's latest queue entry, not getAllQueuedItems' oldest; tracked per record, since a clock set back would hide saves from a time mark.
+    collectOutbox(pushed) {
         const latestByRecord = _.values(_.groupBy(
             this.findAll(EntityQueue.schema.name).slice().filter((item) => SHAREABLE_ENTITIES.includes(item.entity)),
             'entityUUID'
         )).map((items) => _.maxBy(items, (item) => item.savedAt.getTime()))
-            .filter((item) => item.savedAt.getTime() > pushedUpTo);
+            .filter((item) => pushed.get(item.entityUUID) !== item.savedAt.getTime());
 
         const batches = _.sortBy(_.toPairs(_.groupBy(latestByRecord, 'entity')), ([entityName]) => parentsFirstIndex(entityName))
             .map(([entityName, items]) => ({
@@ -96,26 +111,33 @@ class ClinicSpokeService extends BaseService {
                     .map((entity) => this.getService(ClinicRecordService).toSharedResource(entityName, entity)),
             }))
             .filter((batch) => batch.resources.length > 0);
-        const upTo = _.max([pushedUpTo, ...latestByRecord.map((item) => item.savedAt.getTime())]);
-        return {batches, upTo};
+        const upTo = _.max([0, ...latestByRecord.map((item) => item.savedAt.getTime())]);
+        return {batches, sent: latestByRecord, upTo};
     }
 
-    // --- sync ---
+    // An edit saved during this sync goes out on the next push; a peer's copy pulled now must not overwrite it.
+    _withoutEditsSince(batches, collectedAt) {
+        const edited = new Set(this.findAll(EntityQueue.schema.name).slice()
+            .filter((item) => item.savedAt.getTime() > collectedAt).map((item) => item.entityUUID));
+        if (edited.size === 0) return batches;
+        return batches.map((batch) => ({...batch, resources: batch.resources.filter((resource) => !edited.has(resource.uuid))}));
+    }
 
     async syncWithHub({host, port, key, hubId, epoch}, log = _.noop) {
         let connection;
         const startedAt = Date.now();
         try {
             const deviceId = await this.deviceId();
-            const {cursor, pushedUpTo} = await this._hubState({hubId, epoch});
-            const {batches: outbox, upTo} = this.collectOutbox(pushedUpTo);
+            const {cursor} = await this._hubState({hubId, epoch});
+            const collectedAt = Date.now();
+            const {batches: outbox, sent, upTo} = this.collectOutbox(await this._pushedRecords(hubId));
             connection = await connectToHub({host, port, key, hubId, epoch, appVersion: DeviceInfo.getVersion()});
 
-            const ack = await connection.request({type: MessageType.push, deviceId, batches: outbox, upTo}, MessageType.pushAck);
-            await this._saveHubState(hubId, 'pushed_up_to', ack.upTo);
+            await connection.request({type: MessageType.push, deviceId, batches: outbox, upTo}, MessageType.pushAck);
+            await this._savePushed(hubId, sent);
 
             const {batches, maxSeq} = await connection.request({type: MessageType.pull, deviceId, since: cursor}, MessageType.pullResult);
-            const applied = await this.getService(ClinicRecordService).applyBatches(batches, log);
+            const applied = await this.getService(ClinicRecordService).applyBatches(this._withoutEditsSince(batches, collectedAt), log);
             await this._saveHubState(hubId, 'cursor', maxSeq);
             const unparked = (await this.getService('clinicParkedRecordService').afterSync(startedAt, log)).applied;
             if (applied + unparked > 0) await this._refreshOpenLists();
@@ -137,8 +159,6 @@ class ClinicSpokeService extends BaseService {
         const cachedSubjectTypeUUID = await LocalCacheService.getPreviouslySelectedSubjectTypeUuid();
         this.dispatchAction(LandingViewActions.ON_LOAD, {syncRequired: false, cachedSubjectTypeUUID});
     }
-
-    // --- joined: sync now, then every 30 seconds while the app is in front ---
 
     syncNow(log) {
         if (!this.joined) return Promise.resolve(null);

@@ -182,6 +182,55 @@ describe('Phones syncing with the hub', () => {
         expect(b.spoke.dispatchAction).toHaveBeenCalled();
     });
 
+    it("sends a save made after the phone's clock was set back", async () => {
+        const a = phone(), b = phone();
+        a.records['ind-1'] = {entityName: 'Individual', version: 'v1'};
+        a.queue.push({entity: 'Individual', entityUUID: 'ind-1', savedAt: new Date('2026-10-15T12:00:00Z')});
+        await a.sync();
+
+        a.records['enc-1'] = {entityName: 'Encounter', version: 'v1'};
+        a.queue.push({entity: 'Encounter', entityUUID: 'enc-1', savedAt: new Date('2026-10-15T11:00:00Z')});
+        await a.sync();
+        await b.sync();
+
+        expect(Object.keys(b.records).sort()).toEqual(['enc-1', 'ind-1']);
+    });
+
+    it("keeps an edit saved during a sync, rather than overwriting it with the peer's copy that sync pulls", async () => {
+        const a = phone(), b = phone();
+        b.save('Individual', 'ind-1', 'b1');
+        await b.sync();
+        a.records['ind-1'] = {entityName: 'Individual', version: 'a0'};
+        const collect = a.spoke.collectOutbox.bind(a.spoke);
+        a.spoke.collectOutbox = (pushed) => {
+            const outbox = collect(pushed);
+            a.records['ind-1'] = {entityName: 'Individual', version: 'a-edit'};
+            a.queue.push({entity: 'Individual', entityUUID: 'ind-1', savedAt: new Date(Date.now() + 1)});
+            return outbox;
+        };
+
+        await a.sync();
+        expect(a.records['ind-1'].version).toBe('a-edit');
+
+        a.spoke.collectOutbox = collect;
+        await a.sync();
+        await b.sync();
+        expect(b.records['ind-1'].version).toBe('a-edit');
+    });
+
+    it('pulls everything again after its clinic state is cleared, as on a change of user', async () => {
+        const a = phone(), b = phone();
+        a.save('Individual', 'ind-1', 'v1');
+        await a.sync();
+        await b.sync();
+        b.recordService.applied.length = 0;
+
+        await b.spoke.clearState();
+        await b.sync();
+
+        expect(b.recordService.applied.flatMap((batches) => batches.flatMap((batch) => batch.resources.map((r) => r.uuid)))).toEqual(['ind-1']);
+    });
+
     it('refreshes open lists when a record that waited for its parent is applied after the sync', async () => {
         const b = phone();
         b.parkedRecords.afterSync = async () => ({applied: 1, reported: 0});

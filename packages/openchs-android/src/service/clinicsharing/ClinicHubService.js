@@ -118,6 +118,14 @@ class ClinicHubService extends BaseService {
         return session;
     }
 
+    async clearLedger() {
+        await this.stopHub();
+        const db = await this._ledger();
+        const tables = this._sqliteRows(await db.execute("select name from sqlite_master where type = 'table' and name not like 'sqlite_%'")).map((row) => row.name);
+        await db.executeBatch(tables.map((table) => [`delete from ${table}`, []]));
+        this.lastPrunedAt = 0;
+    }
+
     async stopHub() {
         if (this.stopSubscription) this.stopSubscription.remove();
         this.stopSubscription = null;

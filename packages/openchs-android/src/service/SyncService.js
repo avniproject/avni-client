@@ -839,6 +839,9 @@ class SyncService extends BaseService {
         // Kept outside both databases too, so the wipe alone leaves it standing and the next
         // user could publish a never-synced database as the catchment dump (#2141).
         await LastSyncCompleted.clear();
+        // Clinic sharing keeps its own files: a hub cursor, parked records and holds from the previous data.
+        await this.getService('clinicSpokeService').clearState();
+        await this.getService('clinicHubService').clearLedger();
 
         // Reopen first: a wipe through a handle a failed reopen left closed clears nothing.
         await globalContext.openRealmIfMissing();
