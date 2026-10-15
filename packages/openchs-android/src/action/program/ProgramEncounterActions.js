@@ -46,9 +46,13 @@ class ProgramEncounterActions {
 
         // Check for existing draft and restore if found - handles both scheduled and unscheduled encounters
         const draftConfigService = context.get(DraftConfigService);
-        const draftProgramEncounter = draftConfigService.shouldLoadDraft()
+        const draftInSlot = draftConfigService.shouldLoadDraft()
             ? context.get(DraftProgramEncounterService).findDraftFor(action.programEncounter)
             : null;
+        // The lookup goes by enrolment, visit type and scheduled date, so a saved visit can find another visit's unsaved
+        // draft. Take it only for a visit not saved yet, or when it is this visit's own (#2016).
+        const isSavedVisit = !_.isNil(draftInSlot) && !_.isNil(context.get(EntityService).findByUUID(action.programEncounter.uuid, ProgramEncounter.schema.name));
+        const draftProgramEncounter = draftInSlot && (!isSavedVisit || draftInSlot.uuid === action.programEncounter.uuid) ? draftInSlot : null;
         const isDraft = !!draftProgramEncounter;
         let editableProgramEncounter = action.programEncounter;
         if (draftProgramEncounter) {

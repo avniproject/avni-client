@@ -69,6 +69,22 @@ describe("bracketed and top-level OR criteria translate to SQL", () => {
         expect(result.uuids).toEqual(["ind-hh"]);
     });
 
+    const everyone = ["ind-1", "ind-2", "ind-hh", "ind-user", "ind-quoted"];
+
+    it("keeps AND binding tighter than OR when a bracketed mix can't translate whole", () => {
+        const result = run("( firstName = \"Asha\" AND firstName = \"Bina\" OR SUBQUERY(enrolments, $e, firstName = 'nobody').@count == 0 )");
+        expect(result.uuids).toEqual(everyone);
+    });
+
+    it("leaves an OR holding a not-equal on the fallback, which counts an empty field as not equal", () => {
+        const result = run('( lastName != "X" OR SUBQUERY(encounters, $e, $e.voided = false).@count > 5 )');
+        expect(result).toEqual({uuids: everyone, fallbacks: 1});
+    });
+
+    it("still translates an OR whose not-equal is against null", () => {
+        expect(run('( ( firstName = "Asha" ) OR ( lastName != null ) )')).toEqual({uuids: ["ind-1"], fallbacks: 0});
+    });
+
     describe("only an OR takes the row-filter path", () => {
         it("leaves a bracketed AND as a plain WHERE that SQLite can serve from indexes", () => {
             const parsed = parse(ReportCardQueryBuilder.getSubjectCriteria(person, mother, []));

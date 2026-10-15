@@ -4,6 +4,7 @@ import ObservationsHolderActions from "../../src/action/common/ObservationsHolde
 import {
     Concept,
     ConceptAnswer,
+    DraftEncounter,
     Encounter,
     EncounterType,
     FormElement,
@@ -14,6 +15,7 @@ import {
     WorkList,
     WorkLists
 } from 'avni-models';
+import _ from "lodash";
 import EntityFactory from "../EntityFactory";
 import Wizard from "../../src/state/Wizard";
 import EncounterActionState from "../../src/state/EncounterActionState";
@@ -471,5 +473,73 @@ describe('EncounterActionsTest', () => {
         newState = EncounterActions.onNext(newState, action, testContext);
         action.assert();
         verifyFormElementAndObservations(newState, 1, 1);
+    });
+
+    describe('draft lookup when a visit opens (issue #2016)', () => {
+        const conceptUUID = 'bfc28bad-5fac-4760-921d-eec83f52c3da';
+        const photosForm = () => {
+            const form = EntityFactory.createForm('ZeeForm');
+            const page = EntityFactory.createFormElementGroup('Photos', 1, form);
+            page.addFormElement(createFormElement(Concept.dataType.Numeric, false, conceptUUID));
+            return form;
+        };
+        const answerOf = (encounter) => encounter.observations.length === 0 ? undefined : encounter.observations[0].getValue();
+        const visit = (form, individual, encounterType, {answer, earliestVisitDateTime} = {}) => {
+            const encounter = Encounter.create();
+            encounter.individual = individual;
+            encounter.encounterType = encounterType;
+            encounter.encounterDateTime = new Date();
+            encounter.earliestVisitDateTime = earliestVisitDateTime;
+            if (!_.isNil(answer)) {
+                const concept = form.getFormElementGroups()[0].getFormElements()[0].concept;
+                encounter.observations.push(Observation.create(concept, new PrimitiveValue(answer, Concept.dataType.Numeric)));
+            }
+            return encounter;
+        };
+        const open = (form, encounter, serviceData, editing) =>
+            EncounterActions.onEncounterLandingViewLoad(EncounterActions.getInitialState(), {encounter, editing}, new TestContext({form, draftEnabled: true, ...serviceData}));
+
+        it("opens a saved visit with its own answers when another visit's unsaved draft is in the slot", () => {
+            const form = photosForm();
+            const individual = Individual.createEmptyInstance();
+            const encounterType = EncounterType.create('Oral Screening');
+            const saved = visit(form, individual, encounterType, {answer: 16});
+            const leftBehind = DraftEncounter.create(visit(form, individual, encounterType, {answer: 3}));
+
+            const state = open(form, saved, {draftEncounter: leftBehind, [saved.uuid]: saved}, true);
+
+            expect(state.encounter.uuid).is.equal(saved.uuid);
+            expect(answerOf(state.encounter)).is.equal(16);
+            expect(state.isDraft).is.equal(false);
+        });
+
+        it('a new visit still resumes the draft left behind', () => {
+            const form = photosForm();
+            const individual = Individual.createEmptyInstance();
+            const encounterType = EncounterType.create('Oral Screening');
+            const leftBehindVisit = visit(form, individual, encounterType, {answer: 3});
+            const leftBehind = DraftEncounter.create(leftBehindVisit);
+
+            const state = open(form, visit(form, individual, encounterType), {draftEncounter: leftBehind}, false);
+
+            expect(state.encounter.uuid).is.equal(leftBehindVisit.uuid);
+            expect(answerOf(state.encounter)).is.equal(3);
+        });
+
+        it('a planned visit still resumes its own draft', () => {
+            const form = photosForm();
+            const individual = Individual.createEmptyInstance();
+            const encounterType = EncounterType.create('Oral Screening');
+            const earliestVisitDateTime = new Date(2026, 9, 20);
+            const planned = visit(form, individual, encounterType, {earliestVisitDateTime});
+            const ownDraft = DraftEncounter.create(visit(form, individual, encounterType, {answer: 5, earliestVisitDateTime}));
+            ownDraft.uuid = planned.uuid;
+
+            const state = open(form, planned, {draftEncounter: ownDraft, [planned.uuid]: planned}, false);
+
+            expect(state.encounter.uuid).is.equal(planned.uuid);
+            expect(answerOf(state.encounter)).is.equal(5);
+            expect(state.isDraft).is.equal(true);
+        });
     });
 });
