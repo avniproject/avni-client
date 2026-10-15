@@ -305,3 +305,76 @@ describe("ConventionalRestClient no-count pull: sync bar and telemetry", () => {
         assert.equal(_.last(seen).progress, 1);
     });
 });
+
+describe("ConventionalRestClient: what the no-count change leaves alone", () => {
+    beforeEach(() => {
+        getJSONTimed.mockReset();
+        postTimed.mockReset();
+    });
+
+    it("reset sync keeps its counting pull: pages by the total, reports it, and moves the bar per page", async () => {
+        getJSONTimed
+            .mockResolvedValueOnce({body: {_embedded: {resetSyncs: [{uuid: "r1"}]}, page: {totalPages: 2, number: 0, totalElements: 2}}, timings: {}})
+            .mockResolvedValueOnce({body: {_embedded: {resetSyncs: [{uuid: "r2"}]}, page: {totalPages: 2, number: 1, totalElements: 2}}, timings: {}});
+        const onGetOfFirstPage = jest.fn();
+        const bar = [];
+
+        await pullClient().getAllForEntity(metadataFor("ResetSync"), () => Promise.resolve(), onGetOfFirstPage,
+            (entityName, totalNumberOfPages, currentPageNumber) => bar.push([entityName, totalNumberOfPages, currentPageNumber]),
+            NOW, "device1");
+
+        const urls = getJSONTimed.mock.calls.map(([url]) => url);
+        assert.match(urls[0], /^http:\/\/server\/resetSyncs\?/);
+        assert.deepEqual(urls.map(url => queryOf(url).page), ["0", "1"]);
+        assert.equal(onGetOfFirstPage.mock.calls[0][1].totalElements, 2);
+        assert.deepEqual(bar, [["ResetSync", 2, 0], ["ResetSync", 2, 1]]);
+    });
+
+    it("user info stays on /v2/me", async () => {
+        getJSONTimed.mockResolvedValueOnce({body: {_embedded: {userInfo: [{uuid: "u"}]}, page: {totalPages: 1, number: 0, totalElements: 1}}, timings: {}});
+
+        await pullClient().getAllForEntity(metadataFor("UserInfo"), () => Promise.resolve(), _.noop, _.noop, NOW, "device1");
+
+        assert.match(getJSONTimed.mock.calls[0][0], /^http:\/\/server\/v2\/me\?/);
+    });
+
+    // Push addresses as they stand; the no-count pull must not move any of them.
+    const pushAddressToday = {
+        SubjectMigration: "/subjectMigrationss",
+        UserSubjectAssignment: "/userSubjectAssignments",
+        Task: "/tasks",
+        TaskUnAssignment: "/taskUnAssignmentss",
+        SubjectProgramEligibility: "/subjectProgramEligibility",
+        News: "/newss",
+        GroupSubject: "/groupSubjects",
+        Comment: "/comments",
+        CommentThread: "/commentThreads",
+        SubjectEntityApprovalStatus: "/entityApprovalStatus",
+        EncounterEntityApprovalStatus: "/entityApprovalStatus",
+        ProgramEncounterEntityApprovalStatus: "/entityApprovalStatus",
+        ProgramEnrolmentEntityApprovalStatus: "/entityApprovalStatus",
+        ChecklistItemEntityApprovalStatus: "/entityApprovalStatus",
+        IndividualRelationship: "/individualRelationships",
+        ChecklistItem: "/txNewChecklistItemEntitys",
+        Checklist: "/txNewChecklistEntitys",
+        AttendanceRecord: "/attendanceRecord",
+        Session: "/session",
+        Encounter: "/encounters",
+        IdentifierAssignment: "/identifierAssignments",
+        ProgramEncounter: "/programEncounters",
+        ProgramEnrolment: "/programEnrolments",
+        Individual: "/individuals",
+    };
+
+    it("sends every kind that moved to the no-count pull to the same address as before", async () => {
+        postTimed.mockImplementation(() => Promise.resolve({}));
+        const client = pullClient();
+
+        for (const [entityName, address] of _.toPairs(pushAddressToday)) {
+            postTimed.mockClear();
+            const metaData = _.find(EntityMetaData.model(), m => m.entityName === entityName);
+            await client.postAllEntities([{metaData, entities: [{resource: {uuid: "u1"}}]}], () => () => Promise.resolve(), _.noop);
+            assert.equal(postTimed.mock.calls[0][0], `http://server${address}`, entityName);
+        }
+    });
+});
