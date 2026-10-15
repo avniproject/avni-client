@@ -14,8 +14,7 @@ export const parentsFirstIndex = (entityName) => {
     return index === -1 ? Number.MAX_SAFE_INTEGER : index;
 };
 
-// fromResource reads reference uuids from _links.<key>.href; toResource writes flat <key> fields,
-// and the server renames some keys between the two formats (approvals even use lowercase "Uuid").
+// toResource writes flat <key> fields, fromResource reads _links.<key>.href, and the server renames some keys between them.
 const LINK_KEY_ALIASES = {
     Individual: {addressLevelUUID: 'addressUUID'},
     Comment: {subjectUUID: 'individualUUID'},
@@ -48,8 +47,7 @@ class ClinicRecordService extends BaseService {
                 adapted._links[key] = {href: adapted[key]};
                 if (aliases[key]) adapted._links[aliases[key]] = {href: adapted[key]};
             }
-            // toResource emits observations as [{conceptUUID, value}]; fromResource
-            // expects a {conceptUUID: value} map (the server converts; so must we)
+            // Observations go out as [{conceptUUID, value}] and fromResource wants a map, as the server converts them.
             const value = adapted[key];
             if (_.isArray(value) && value.length > 0 && value.every((o) => o && _.isString(o.conceptUUID) && 'value' in o)) {
                 adapted[key] = _.fromPairs(value.map((o) => [o.conceptUUID, o.value]));
@@ -58,8 +56,7 @@ class ClinicRecordService extends BaseService {
         return adapted;
     }
 
-    // Approvals are queued under one name, but only their per-type metadata names the parent whose
-    // latest approval applyIncoming has to refresh.
+    // Only an approval's per-type metadata names the parent whose latest approval applyIncoming refreshes.
     _metaDataGroups(batch) {
         if (batch.entityName !== 'EntityApprovalStatus') return [[EntityMetaData.findByName(batch.entityName), batch.resources]];
         return _.toPairs(_.groupBy(batch.resources, 'entityType')).map(([entityType, resources]) =>

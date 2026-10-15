@@ -90,8 +90,7 @@ class PrivilegeService extends BaseService {
         })
     }
 
-    // Keeps only what server sync would send: types granted by an allow row (SyncDetailsService).
-    // A missing parent counts as not granted, since this filter dropped it.
+    // Only what server sync would send (SyncDetailsService's allow rows); a missing parent counts as not granted.
     onlyViewableEntities(schemaName, entities) {
         if (this.hasAllPrivileges()) return entities;
         const grantedByEntityName = _.memoize((entityName) => {

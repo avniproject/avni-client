@@ -675,9 +675,7 @@ class SyncService extends BaseService {
         this.bulkSaveOrUpdate(this.getCreateEntityFunctions(EntitySyncStatus.schema.name, [entitySyncStatus]));
     }
 
-    // The one save path for incoming tx records on SQLite, used by server sync and hub sync alike.
-    // FK-on-child relationships need no parent re-save, but JSON-array lists store
-    // the link on the parent row (e.g. concept.answers), so re-save those parents.
+    // JSON-array lists keep the link on the parent row (e.g. concept.answers), so those parents are re-saved.
     async applyIncoming(entityMetaData, entityResources, entities) {
         await this.db.bulkCreate(entityMetaData.schemaName, entities);
 
