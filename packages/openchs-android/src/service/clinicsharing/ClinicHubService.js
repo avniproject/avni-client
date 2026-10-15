@@ -5,7 +5,6 @@ import {open} from '@op-engineering/op-sqlite';
 import {NativeEventEmitter, NativeModules, PermissionsAndroid, Platform} from 'react-native';
 import DeviceInfo from "react-native-device-info";
 import _ from "lodash";
-import moment from "moment";
 import General from "../../utility/General";
 import ClinicRecordService, {parentsFirstIndex} from "./ClinicRecordService";
 import {generateSessionKey, MessageType, startHub} from "../../framework/clinicsharing/ClinicTransport";
@@ -29,8 +28,6 @@ class ClinicHubService extends BaseService {
         return EntityQueue.schema.name;
     }
 
-    // --- ledger: its own small sqlite file, holding only uuids and types ---
-
     async _ledger() {
         if (this.ledgerDb) return this.ledgerDb;
         const db = open({name: this.ledgerName});
@@ -42,6 +39,7 @@ class ClinicHubService extends BaseService {
             created_at integer not null)`);
         await db.execute('create index if not exists ledger_created_at on ledger (created_at)');
         await db.execute('create table if not exists meta (key text primary key, value text)');
+        await db.execute('create table if not exists mirrored (uuid text primary key, saved_at integer not null)');
         await db.execute(`create table if not exists hub_media (
             file_name text primary key,
             media_type text not null,
@@ -96,9 +94,7 @@ class ClinicHubService extends BaseService {
         if (Date.now() - this.lastPrunedAt > LEDGER_PRUNE_INTERVAL_MS) await this.pruneLedger();
     }
 
-    // --- session ---
-
-    // A new epoch and key on every start tells phones to send everything again; the key goes in #2173's QR code.
+    // A new epoch and key on every start tells phones to send everything again.
     async _beginSession() {
         const session = {key: await generateSessionKey(), hubId: await this.hubId(), epoch: General.randomUUID()};
         await this._setMeta('epoch', session.epoch);
@@ -134,8 +130,6 @@ class ClinicHubService extends BaseService {
         if (Platform.OS !== 'android' || Platform.Version < 33) return;
         await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
     }
-
-    // --- messages ---
 
     _exclusively(work) {
         const run = this.lock.then(work, work);
@@ -184,15 +178,24 @@ class ClinicHubService extends BaseService {
         return {type: MessageType.pushAck, upTo, applied};
     }
 
+    // Tracked per record, not by a time mark: a phone clock set back would hide every save made after it.
     async _mirrorOwnQueue() {
-        const mirroredAt = await this._getMeta('mirroredAt');
-        const cutoff = mirroredAt ? moment(mirroredAt).toDate() : new Date(0);
-        const items = this.findAll(EntityQueue.schema.name).slice()
-            .filter((item) => SHAREABLE_ENTITIES.includes(item.entity) && item.savedAt > cutoff)
+        const db = await this._ledger();
+        const mirrored = new Map(this._sqliteRows(await db.execute('select uuid, saved_at from mirrored')).map((row) => [row.uuid, row.saved_at]));
+        const items = _.values(_.groupBy(this.findAll(EntityQueue.schema.name).slice().filter((item) => SHAREABLE_ENTITIES.includes(item.entity)), 'entityUUID'))
+            .map((queued) => _.maxBy(queued, (item) => item.savedAt.getTime()))
+            .filter((item) => mirrored.get(item.entityUUID) !== item.savedAt.getTime())
             .sort((a, b) => a.savedAt - b.savedAt);
         if (items.length === 0) return;
         await this._appendLedgerRows(items.map((item) => ({entityName: item.entity, resources: [{uuid: item.entityUUID}]})), await this.hubId());
-        await this._setMeta('mirroredAt', moment(_.last(items).savedAt).toISOString());
+        await db.executeBatch(items.map((item) => ['insert into mirrored (uuid, saved_at) values (?, ?) on conflict(uuid) do update set saved_at = excluded.saved_at',
+            [item.entityUUID, item.savedAt.getTime()]]));
+    }
+
+    // Server sync pops the hub's own queue; what it pops before a phone pulls would never reach the ledger.
+    mirrorOwnQueueIfRunning() {
+        if (!this.transport) return Promise.resolve();
+        return this._exclusively(() => this._mirrorOwnQueue());
     }
 
     // One record saved without its parent must not fail every phone's pull.
@@ -213,8 +216,7 @@ class ClinicHubService extends BaseService {
             'select seq, entity_type, entity_uuid, origin from ledger where seq > ? order by seq', [since]));
         const maxSeq = _.get(_.last(rows), 'seq', since);
 
-        // Dedupe to the latest row per record BEFORE excluding the requester's own rows; otherwise a
-        // peer's older, overwritten edit is served over the requester's newer one and phones diverge.
+        // Dedupe before excluding the requester's rows, or a peer's older edit is served over the requester's newer one.
         const latest = new Map();
         rows.forEach((row) => {
             latest.delete(row.entity_uuid);

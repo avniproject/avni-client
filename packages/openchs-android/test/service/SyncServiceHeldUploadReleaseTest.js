@@ -66,6 +66,22 @@ describe('Uploads released by the pull', () => {
         expect(steps).toEqual(['push', 'pull', 'push']);
     });
 
+    it('follow a mirror of the hub phone\'s own queue, taken before the first push pops it', async () => {
+        const {svc, steps} = buildSyncService({pullReleases: 0});
+        svc.db = {isSqlite: true};
+        const services = svc.getService;
+        svc.getService = jest.fn((name) => ({
+            ...services(name),
+            getSettings: () => ({enableClinicSharing: true}),
+            mirrorOwnQueueIfRunning: async () => { steps.push('mirror'); },
+            afterSync: async () => ({applied: 0, reported: 0}),
+        }));
+
+        await runSync(svc);
+
+        expect(steps).toEqual(['mirror', 'push', 'pull']);
+    });
+
     it('cause no second push when the pull released nothing', async () => {
         const {svc, steps} = buildSyncService({pullReleases: 0});
 

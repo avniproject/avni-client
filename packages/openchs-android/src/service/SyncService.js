@@ -253,6 +253,7 @@ class SyncService extends BaseService {
         const resetSyncMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "ResetSync");
         const syncStartedAt = Date.now();
         this.releasedHoldBacks = 0;
+        if (this._clinicSharingEnabled()) await this.getService('clinicHubService').mirrorOwnQueueIfRunning();
         const uploadData = Promise.resolve(statusMessageCallBack("uploadLocallySavedData"))
             .then(() => this.pushData(allTxEntityMetaData.slice(), onProgressPerEntity))
             .then(() => onAfterMediaPush("After_Media", 0));

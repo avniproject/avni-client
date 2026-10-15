@@ -13,8 +13,7 @@ import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import com.openchsclient.R
 
-// Keeps the hub's process and CPU alive with the screen off. connectedDevice, not dataSync:
-// Android 15 caps dataSync at about 6 hours a day, shorter than a clinic.
+// connectedDevice, not dataSync: Android 15 caps dataSync at about 6 hours a day, shorter than a clinic.
 class ClinicHubForegroundService : Service() {
     private var wakeLock: PowerManager.WakeLock? = null
 

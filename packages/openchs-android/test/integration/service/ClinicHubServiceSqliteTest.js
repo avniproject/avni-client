@@ -130,6 +130,32 @@ describe("Clinic hub ledger", () => {
         expect(rows).toEqual([{origin: await hub.hubId()}]);
     });
 
+    it("shares the hub's own saves even after its clock is set back", async () => {
+        stored['ind-own'] = 1;
+        stored['enc-own'] = 1;
+        ownQueue = [{entity: 'Individual', entityUUID: 'ind-own', savedAt: new Date('2026-10-15T12:00:00Z')}];
+        await pull('phone-a');
+
+        ownQueue.push({entity: 'Encounter', entityUUID: 'enc-own', savedAt: new Date('2026-10-15T11:00:00Z')});
+
+        expect(uuidsIn(await pull('phone-a'))).toEqual(['ind-own', 'enc-own']);
+    });
+
+    it("mirrors its own queue before server sync pops it, but only while the hub runs", async () => {
+        stored['ind-own'] = 1;
+        ownQueue = [{entity: 'Individual', entityUUID: 'ind-own', savedAt: new Date()}];
+        await hub.mirrorOwnQueueIfRunning();
+        const rows = async () => hub._sqliteRows(await (await hub._ledger()).execute('select entity_uuid from ledger'));
+        expect(await rows()).toEqual([]);
+
+        hub.transport = {stop: async () => {}};
+        await hub.mirrorOwnQueueIfRunning();
+        ownQueue = [];
+
+        expect(uuidsIn(await pull('phone-a'))).toEqual(['ind-own']);
+        hub.transport = null;
+    });
+
     it(`clears ledger rows older than ${LEDGER_RETENTION_DAYS} days`, async () => {
         stored['old'] = 1;
         stored['recent'] = 1;
