@@ -30,6 +30,8 @@ import EntitySyncStatusService from "../../../src/service/EntitySyncStatusServic
 import ResetSyncService from "../../../src/service/ResetSyncService";
 import SubjectMigrationService from "../../../src/service/SubjectMigrationService";
 import BackupRestoreRealmService from "../../../src/service/BackupRestoreRealmService";
+import FormMappingService from "../../../src/service/FormMappingService";
+import ChecklistService from "../../../src/service/ChecklistService";
 import IndividualRelationshipService from "../../../src/service/relationship/IndividualRelationshipService";
 import {open} from "@op-engineering/op-sqlite";
 
@@ -56,6 +58,8 @@ describe("a reset sync on SQLite runs all-or-nothing", () => {
         services.set(EntitySyncStatusService, entitySyncStatusService);
         services.set(SubjectMigrationService, subjectMigrationService);
         services.set(IndividualRelationshipService, new IndividualRelationshipService(proxy, context));
+        services.set(FormMappingService, new FormMappingService(proxy, context));
+        services.set(ChecklistService, new ChecklistService(proxy, context));
         services.set(BackupRestoreRealmService, {isDatabaseNeverSynced: () => false});
         resetSyncService.init();
         resetSyncService.individualService = {findAll: () => proxy.objects("Individual")};

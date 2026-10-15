@@ -211,6 +211,27 @@ class EntitySyncStatusService extends BaseService {
         }
     }
 
+    // Run before the subjects are deleted: checklist details are found through their checklists
+    rewindForSubjectType(subjectTypeUUID) {
+        const formMappings = this.formMapping([subjectTypeUUID], 'subjectType.uuid');
+        const encounterTypeUUIDs = _.uniq(_.compact(formMappings.map(fm => fm.observationsTypeEntityUUID)));
+        const programUUIDs = _.uniq(_.compact(formMappings.map(fm => fm.entityUUID)));
+        const checklistDetailUUIDs = _.uniq(this.checklistDetail([subjectTypeUUID], 'programEnrolment.individual.subjectType.uuid').map(cd => cd.uuid));
+
+        this.deleteEntries(`entityTypeUuid = '${subjectTypeUUID}'`);
+        this._deleteEntriesFor(['Encounter', 'EncounterEntityApprovalStatus', 'ProgramEncounter', 'ProgramEncounterEntityApprovalStatus'], encounterTypeUUIDs);
+        this._deleteEntriesFor(['ProgramEnrolment', 'ProgramEnrolmentEntityApprovalStatus'], programUUIDs);
+        this._deleteEntriesFor(['Checklist', 'ChecklistItem', 'ChecklistItemEntityApprovalStatus'], checklistDetailUUIDs);
+        this.deleteEntries(`entityName = 'Task'`);
+    }
+
+    _deleteEntriesFor(entityNames, entityTypeUuids) {
+        if (_.isEmpty(entityTypeUuids)) return;
+        const names = entityNames.map(name => `entityName = '${name}'`).join(' OR ');
+        const uuids = entityTypeUuids.map(uuid => `entityTypeUuid = '${uuid}'`).join(' OR ');
+        this.deleteEntries(`(${names}) AND (${uuids})`);
+    }
+
     resetSync(entityName, nonPrivilegeUuids) {
         const query = nonPrivilegeUuids.map(uuid => `entityTypeUuid = '${uuid}'`).join(' OR ');
         const criteria = _.isEmpty(query) ? `entityTypeUuid = ''` : `( entityTypeUuid = '' OR ${query})`;
