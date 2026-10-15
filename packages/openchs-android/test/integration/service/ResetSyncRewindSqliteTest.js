@@ -171,6 +171,17 @@ describe("a subject type reset rewinds every download point its deleted records 
         assertKept([["GroupSubject", "household"], ["GroupSubject", "village"]]);
     });
 
+    // The reset runs at the start of every sync, so a throw here would fail every sync after it
+    it("skips a role whose group type is missing on the phone", () => {
+        rawDb.executeSync("PRAGMA foreign_keys = OFF");
+        create("GroupRole", {uuid: "orphan-child", role: "orphan", memberSubjectType: {uuid: "child"}, primary: false, maximumNumberOfMembers: 10, minimumNumberOfMembers: 1, voided: false});
+        rawDb.executeSync("PRAGMA foreign_keys = ON");
+
+        resetAndRun("child");
+
+        assertRewound([["GroupSubject", "household"], ["GroupSubject", "village"]]);
+    });
+
     // A relationship is filed under one side's type, and the reset deletes it from either side
     it("drops the relationship points of every subject type", () => {
         resetAndRun("child");

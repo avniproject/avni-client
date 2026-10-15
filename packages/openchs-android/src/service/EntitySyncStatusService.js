@@ -224,11 +224,12 @@ class EntitySyncStatusService extends BaseService {
             ...allChecklistDetailUUIDs,
         ]);
         // Memberships are filed under the group's type; the server still sends those under a voided role
-        const groupSubjectTypeUUIDs = _.uniq(this.getAll('GroupRole').filtered('memberSubjectType.uuid = $0', subjectTypeUUID).map(role => role.groupSubjectType.uuid));
+        const groupSubjectTypeUUIDs = _.uniq(this.getAll('GroupRole').filtered('memberSubjectType.uuid = $0', subjectTypeUUID).map(role => _.get(role, 'groupSubjectType.uuid')).filter(_.identity));
 
         this.deleteEntries(`entityTypeUuid = '${subjectTypeUUID}'`);
         this._deleteEntriesFor(['GroupSubject'], groupSubjectTypeUUIDs);
-        // Filed under individual A's type, but the delete takes both sides, so the other side's type is unknown here
+        // Filed under individual A's type, but the server scopes both sides, so a subject the reset brings into
+        // scope can be B in a relationship filed under any type, one the phone has no row for
         this.deleteEntries(`entityName = 'IndividualRelationship'`);
         this._deleteEntriesFor(['Encounter', 'EncounterEntityApprovalStatus', 'ProgramEncounter', 'ProgramEncounterEntityApprovalStatus'], encounterTypeUUIDs);
         this._deleteEntriesFor(['ProgramEnrolment', 'ProgramEnrolmentEntityApprovalStatus'], programUUIDs);
