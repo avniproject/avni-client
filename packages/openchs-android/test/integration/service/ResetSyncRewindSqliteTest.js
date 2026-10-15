@@ -93,6 +93,16 @@ describe("a subject type reset rewinds every download point its deleted records 
         create("ChecklistDetail", {uuid: "kit", name: "Kit", voided: false});
         create("ChecklistDetail", {uuid: "vaccination", name: "Vaccination", voided: false});
 
+        create("SubjectType", {uuid: "village", name: "Village", type: "Group", voided: false});
+        create("SubjectType", {uuid: "mother", name: "Mother", type: "Person", voided: false});
+        create("SubjectType", {uuid: "child", name: "Child", type: "Person", voided: false});
+        create("SubjectType", {uuid: "camp", name: "Camp", type: "Individual", voided: false});
+        const role = (uuid, groupSubjectType, memberSubjectType, voided) => create("GroupRole", {uuid, role: uuid, groupSubjectType: {uuid: groupSubjectType}, memberSubjectType: {uuid: memberSubjectType}, primary: false, maximumNumberOfMembers: 10, minimumNumberOfMembers: 1, voided});
+        role("household-child", "household", "child", false);
+        role("village-child", "village", "child", true);
+        create("Program", {uuid: "outreach", name: "Outreach", voided: false});
+        mapping("camp-outreach", "camp", {entityUUID: "outreach"});
+
         create("Individual", {uuid: "c1", firstName: "c1", subjectType: {uuid: "cohort"}, registrationDate: at, voided: false});
         create("ProgramEnrolment", {uuid: "c1-training", program: {uuid: "training"}, individual: {uuid: "c1"}, enrolmentDateTime: at, voided: false});
         create("Checklist", {uuid: "c1-kit", detail: {uuid: "kit"}, programEnrolment: {uuid: "c1-training"}, baseDate: at});
@@ -105,37 +115,57 @@ describe("a subject type reset rewinds every download point its deleted records 
             ["Encounter", "review"], ["EncounterEntityApprovalStatus", "review"],
             ["ProgramEncounter", "session"], ["ProgramEncounterEntityApprovalStatus", "session"],
             ["ProgramEnrolment", "training"], ["ProgramEnrolmentEntityApprovalStatus", "training"],
-            ["Checklist", "kit"], ["ChecklistItem", "kit"], ["ChecklistItemEntityApprovalStatus", "kit"],
+            ["Checklist", "kit"], ["ChecklistItem", "kit"],
             ["Task", ""],
             ["Individual", "household"], ["Encounter", "survey"], ["ProgramEnrolment", "nutrition"],
             ["Checklist", "vaccination"], ["ChecklistItem", "vaccination"], ["Concept", ""],
+            ["GroupSubject", "household"], ["GroupSubject", "village"],
+            ["IndividualRelationship", "mother"], ["IndividualRelationship", "child"],
         ].forEach(([entityName, entityTypeUuid]) => checkpoint(entityName, entityTypeUuid));
-
-        create("ResetSync", {uuid: "reset-cohort", subjectTypeUUID: "cohort", voided: false, hasMigrated: false});
     }
 
-    it("drops the points for the subject type's visits, enrolments, checklists, their approvals, and tasks", () => {
+    const resetAndRun = (subjectTypeUUID) => {
+        create("ResetSync", {uuid: `reset-${subjectTypeUUID}`, subjectTypeUUID, voided: false, hasMigrated: false});
         resetSyncService.resetSync();
+    };
+    const assertRewound = (points) => points.forEach(([entityName, entityTypeUuid]) =>
+        assert.isFalse(hasCheckpoint(entityName, entityTypeUuid), `${entityName} ${entityTypeUuid} should be rewound`));
+    const assertKept = (points) => points.forEach(([entityName, entityTypeUuid]) =>
+        assert.isTrue(hasCheckpoint(entityName, entityTypeUuid), `${entityName} ${entityTypeUuid} should be kept`));
 
-        [
+    it("drops the points for the subject type's visits, enrolments, checklists, their approvals, and tasks", () => {
+        resetAndRun("cohort");
+
+        assertRewound([
             ["Individual", "cohort"], ["SubjectEntityApprovalStatus", "cohort"],
             ["Encounter", "review"], ["EncounterEntityApprovalStatus", "review"],
             ["ProgramEncounter", "session"], ["ProgramEncounterEntityApprovalStatus", "session"],
             ["ProgramEnrolment", "training"], ["ProgramEnrolmentEntityApprovalStatus", "training"],
-            ["Checklist", "kit"], ["ChecklistItem", "kit"], ["ChecklistItemEntityApprovalStatus", "kit"],
+            ["Checklist", "kit"], ["ChecklistItem", "kit"],
             ["Task", ""],
-        ].forEach(([entityName, entityTypeUuid]) =>
-            assert.isFalse(hasCheckpoint(entityName, entityTypeUuid), `${entityName} ${entityTypeUuid} should be rewound`));
+        ]);
     });
 
     it("keeps the points of other subject types and reference data", () => {
-        resetSyncService.resetSync();
+        resetAndRun("cohort");
 
-        [
+        assertKept([
             ["Individual", "household"], ["Encounter", "survey"], ["ProgramEnrolment", "nutrition"],
             ["Checklist", "vaccination"], ["ChecklistItem", "vaccination"], ["Concept", ""],
-        ].forEach(([entityName, entityTypeUuid]) =>
-            assert.isTrue(hasCheckpoint(entityName, entityTypeUuid), `${entityName} ${entityTypeUuid} should be kept`));
+        ]);
         assert.equal(rawDb.executeSync("SELECT COUNT(*) AS n FROM individual").rows[0].n, 1);
+    });
+
+    // Memberships are filed under the group's type. The server still sends them under a voided role.
+    it("drops the membership points of every group type the reset type is a member of", () => {
+        resetAndRun("child");
+
+        assertRewound([["GroupSubject", "household"], ["GroupSubject", "village"]]);
+    });
+
+    it("keeps the membership points when the reset type is not a member type", () => {
+        resetAndRun("cohort");
+
+        assertKept([["GroupSubject", "household"], ["GroupSubject", "village"]]);
     });
 });

@@ -217,8 +217,11 @@ class EntitySyncStatusService extends BaseService {
         const encounterTypeUUIDs = _.uniq(_.compact(formMappings.map(fm => fm.observationsTypeEntityUUID)));
         const programUUIDs = _.uniq(_.compact(formMappings.map(fm => fm.entityUUID)));
         const checklistDetailUUIDs = _.uniq(this.checklistDetail([subjectTypeUUID], 'programEnrolment.individual.subjectType.uuid').map(cd => cd.uuid));
+        // Memberships are filed under the group's type; the server still sends those under a voided role
+        const groupSubjectTypeUUIDs = _.uniq(this.getAll('GroupRole').filtered('memberSubjectType.uuid = $0', subjectTypeUUID).map(role => role.groupSubjectType.uuid));
 
         this.deleteEntries(`entityTypeUuid = '${subjectTypeUUID}'`);
+        this._deleteEntriesFor(['GroupSubject'], groupSubjectTypeUUIDs);
         this._deleteEntriesFor(['Encounter', 'EncounterEntityApprovalStatus', 'ProgramEncounter', 'ProgramEncounterEntityApprovalStatus'], encounterTypeUUIDs);
         this._deleteEntriesFor(['ProgramEnrolment', 'ProgramEnrolmentEntityApprovalStatus'], programUUIDs);
         this._deleteEntriesFor(['Checklist', 'ChecklistItem', 'ChecklistItemEntityApprovalStatus'], checklistDetailUUIDs);
