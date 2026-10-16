@@ -694,6 +694,22 @@ class SqliteProxy {
      */
     async bulkCreate(schemaName, entities) {
         if (!entities || entities.length === 0) return;
+        if (!this.tableMetaMap.get(schemaName)) throw new Error(`No table metadata for schema "${schemaName}"`);
+        const rows = entities.map(entity => this.hydrator.flatten(schemaName, {that: (entity && entity.that) ? entity.that : entity}));
+        await this.bulkInsertRows(schemaName, rows);
+    }
+
+    /**
+     * Batch create/upsert rows that are already in table shape (snake_case columns, SQLite values),
+     * with op-sqlite's executeBatch. bulkCreate flattens its entities and comes here, so a row written
+     * by either goes through the same column selection and the same upsert template.
+     *
+     * @param {string} schemaName
+     * @param {Array<Object>} rows - flat rows, as EntityHydrator.flatten returns them
+     * @returns {Promise}
+     */
+    async bulkInsertRows(schemaName, rows) {
+        if (!rows || rows.length === 0) return;
 
         const tableMeta = this.tableMetaMap.get(schemaName);
         if (!tableMeta) throw new Error(`No table metadata for schema "${schemaName}"`);
@@ -703,17 +719,15 @@ class SqliteProxy {
         // written so absent properties never clobber existing values.
         const templateCache = new Map();
 
-        const commands = entities.map(entity => {
-            const rawObject = (entity && entity.that) ? entity.that : entity;
-            const flatRow = this.hydrator.flatten(schemaName, {that: rawObject});
-            const columns = this._presentColumns(tableMeta, flatRow);
+        const commands = rows.map(row => {
+            const columns = this._presentColumns(tableMeta, row);
             const signature = columns.join(",");
             let template = templateCache.get(signature);
             if (!template) {
                 template = this._buildUpsertTemplate(schemaName, columns);
                 templateCache.set(signature, template);
             }
-            return [template.sql, template.columnNames.map(col => flatRow[col])];
+            return [template.sql, template.columnNames.map(col => row[col])];
         });
 
         const start = Date.now();
@@ -721,7 +735,7 @@ class SqliteProxy {
         const elapsed = Date.now() - start;
 
         if (elapsed > this.slowQueryThreshold) {
-            General.logWarn("SqliteProxy", `bulkCreate ${schemaName}: ${entities.length} entities in ${elapsed}ms (${Math.round(elapsed / entities.length * 10) / 10}ms/entity)`);
+            General.logWarn("SqliteProxy", `bulkInsertRows ${schemaName}: ${rows.length} rows in ${elapsed}ms (${Math.round(elapsed / rows.length * 10) / 10}ms/row)`);
         }
     }
 

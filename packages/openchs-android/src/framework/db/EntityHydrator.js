@@ -21,7 +21,7 @@ const IN_CHUNK_SIZE = 999;
 
 // Dummy UUIDs used as placeholders in models — must be NULLified before INSERT
 // to avoid FK violations (these entities don't exist in the database).
-const DUMMY_UUIDS = new Set([
+export const DUMMY_UUIDS = new Set([
     Individual.getAddressLevelDummyUUID(),
 ]);
 
@@ -1013,7 +1013,7 @@ class EntityHydrator {
 
 // ──────────────── Helper functions ────────────────
 
-function convertToSqliteValue(realmType, value) {
+export function convertToSqliteValue(realmType, value) {
     if (_.isNil(value)) return null;
 
     switch (realmType) {
@@ -1037,7 +1037,7 @@ function convertToSqliteValue(realmType, value) {
  * object references (e.g. Observation.concept -> Concept) are stored as
  * UUIDs instead of full objects, avoiding cyclical JSON structures.
  */
-function flattenEmbedded(data, schemaName, realmSchemaMap) {
+export function flattenEmbedded(data, schemaName, realmSchemaMap) {
     if (_.isNil(data)) return null;
     const schema = realmSchemaMap.get(schemaName);
     if (!schema || !schema.properties) return data;
@@ -1098,7 +1098,7 @@ function flattenEmbedded(data, schemaName, realmSchemaMap) {
     return result;
 }
 
-function unwrapThat(obj) {
+export function unwrapThat(obj) {
     if (_.isNil(obj)) return null;
     if (obj.that) return obj.that;
     return obj;
