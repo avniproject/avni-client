@@ -19,6 +19,7 @@ import {ABHA_MESSAGE, buildAbhaHostHtml} from './AbhaHostHtml';
 class AbhaView extends AbstractComponent {
     static propTypes = {
         accessToken: PropTypes.string,
+        hipId: PropTypes.string,
         sdkEnv: PropTypes.string,
         baseUrl: PropTypes.string,
         method: PropTypes.string,
@@ -33,7 +34,7 @@ class AbhaView extends AbstractComponent {
         this.html = buildAbhaHostHtml({
             sdkEnv: props.sdkEnv,
             method: props.method,
-            initData: {accessToken: props.accessToken, skipABHAEnable: true},
+            initData: {accessToken: props.accessToken, hipId: props.hipId, skipABHAEnable: true},
         });
     }
 

@@ -86,8 +86,8 @@ class OrganisationConfigService extends BaseService {
     }
 
     // ABHA (ABDM M1) through Eka Care's web SDK, PE-146:
-    // {"abha": {"enabled": true, "sdkEnv": "staging" | "production", "webViewOrigin": "https://...", "method": "login_or_create_abha"}}
-    // webViewOrigin is the address the SDK page loads under, which Eka has to whitelist.
+    // {"abha": {"enabled": true, "sdkEnv": "staging" | "production", "hipId": "<HIP ID from Eka>", "webViewOrigin": "https://...", "method": "login_or_create_abha"}}
+    // hipId names the facility the ABHA calls are made for. webViewOrigin is the address the SDK page loads under.
     getAbhaSettings() {
         return this.getSettings().abha || {};
     }

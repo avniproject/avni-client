@@ -140,6 +140,7 @@ class CHSNavigator {
     static navigateToAbhaView(source, abhaSettings, accessToken, onProfile, onSkip) {
         TypedTransition.from(source).bookmark().with({
             accessToken: accessToken,
+            hipId: abhaSettings.hipId,
             sdkEnv: abhaSettings.sdkEnv,
             baseUrl: abhaSettings.webViewOrigin,
             method: abhaSettings.method,
