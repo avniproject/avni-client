@@ -31,11 +31,12 @@ describe("A row built straight from the download", () => {
     // Today's row for the same download: fromResource, with its parent lookups, then flatten.
     const today = (schema, resource) => db.hydrator.flatten(schema, MODELS[schema].fromResource(resource, entityService));
     const direct = (schema, resource) => mapper.mapResourceToRow(schema, resource);
-    const sameAsToday = (schema, makeResource) => expect(direct(schema, makeResource())).toEqual(today(schema, makeResource()));
+    // Strict: toEqual treats a key set to undefined as absent, and SqliteProxy writes every column whose key is present (INV-026).
+    const sameAsToday = (schema, makeResource) => expect(direct(schema, makeResource())).toStrictEqual(today(schema, makeResource()));
     const keepsMissingParent = (schema, makeResource, column, uuid) => {
         const todayRow = today(schema, makeResource());
         expect(todayRow[column]).toBeNull();
-        expect(direct(schema, makeResource())).toEqual({...todayRow, [column]: uuid});
+        expect(direct(schema, makeResource())).toStrictEqual({...todayRow, [column]: uuid});
     };
 
     describe("for a subject", () => {
