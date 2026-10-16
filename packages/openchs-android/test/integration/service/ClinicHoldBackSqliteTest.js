@@ -218,6 +218,20 @@ describe("Holding back uploads that depend on another phone", () => {
         expect(mine.postedUuids()).toEqual(["v-1"]);
     });
 
+    it("does not wait for another phone's approval to come down, while still holding this phone's approval of a received patient", async () => {
+        const approval = (uuid) => ({uuid, entityUUID: "p-1", entityType: "Subject", entityTypeUuid: "st-person", approvalStatus: {uuid: "approved"},
+            statusDateTime: at, autoApproved: false, voided: false});
+        await receivePatient();
+        await mine.recordService.applyBatches([{entityName: 'EntityApprovalStatus',
+            resources: [fromAnotherPhone('EntityApprovalStatus', 'EntityApprovalStatus', approval("eas-theirs"))]}], log);
+        mine.saveLocally("EntityApprovalStatus", approval("eas-mine"));
+
+        await mine.push();
+
+        expect([...await mine.holdBack.receivedUuids()]).toEqual(["p-1"]);
+        expect(mine.queued()).toEqual(["eas-mine"]);
+    });
+
     it("reports what is held, since when, and what it waits on", async () => {
         await receivePatient();
         mine.saveLocally("Individual", patient("own-1", "Kamla"));
