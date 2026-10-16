@@ -57,12 +57,14 @@ const getXSRFPromise = function (endpoint) {
 
 // Long enough for a slow sync page, and under the prod load balancer's 300 s.
 const fetchWithTimeOut = (url, options, timeout = 180000) => {
+    let timer;
+    // A pending timer would keep the finished response in memory until it fires.
     return Promise.race([
         fetch(url, options),
-        new Promise((_, reject) =>
-            setTimeout(() => reject(new Error(SYNC_TIMEOUT_ERROR)), timeout)
-        )
-    ]);
+        new Promise((_, reject) => {
+            timer = setTimeout(() => reject(new Error(SYNC_TIMEOUT_ERROR)), timeout);
+        })
+    ]).finally(() => clearTimeout(timer));
 };
 
 const makeHeader = function (type) {

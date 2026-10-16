@@ -31,6 +31,7 @@ describe("requests: how long the phone waits for one request", () => {
 
         assert.equal(outcome.state, "resolved", outcome.error && outcome.error.message);
         assert.deepEqual(outcome.value, {ok: true});
+        assert.equal(jest.getTimerCount(), 0, "no timer left pending once the response is read");
     });
 
     it("gives up on a response that never comes at 180 s, not before", async () => {
