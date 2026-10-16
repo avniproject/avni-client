@@ -75,13 +75,14 @@ class ClinicParkedRecordService extends BaseService {
             else if (this._missingParents(entityName, resource).length > 0) parked.push(resource);
             else ready.push(resource);
         });
-        await db.executeBatch([
+        const commands = [
             ...this._parkCommands(entityName, parked, origin),
             ...dropped.flatMap((uuid) => [
                 ['insert into not_viewable (uuid) values (?) on conflict(uuid) do nothing', [uuid]],
                 ['delete from parked_records where uuid = ?', [uuid]],
             ]),
-        ]);
+        ];
+        if (commands.length > 0) await db.executeBatch(commands);
         return {ready, parked: parked.length, dropped: dropped.length};
     }
 
