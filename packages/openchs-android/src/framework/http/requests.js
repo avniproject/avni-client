@@ -55,7 +55,8 @@ const getXSRFPromise = function (endpoint) {
     });
 }
 
-const fetchWithTimeOut = (url, options, timeout = 60000) => {
+// Long enough for a slow sync page, and under the prod load balancer's 300 s.
+const fetchWithTimeOut = (url, options, timeout = 180000) => {
     return Promise.race([
         fetch(url, options),
         new Promise((_, reject) =>
