@@ -239,7 +239,9 @@ class IndividualService extends BaseService {
         this.encounterService = this.getService(EncounterService);
         this.entityApprovalStatusService = this.getService(EntityApprovalStatusService);
         this.hideTotalForProgram = this.getService(OrganisationConfigService).hasHideTotalForProgram;
-        this.showDueChecklistOnDashboard = this.getService(OrganisationConfigService).hasShowDueChecklistOnDashboard();
+        // Kept as the function, like hideTotalForProgram, so it reads the setting where it is
+        // now: init() runs on Realm at launch and sync never reruns it (#2196).
+        this.showDueChecklistOnDashboard = this.getService(OrganisationConfigService).hasShowDueChecklistOnDashboard;
     }
 
     // ── Count-only methods for dashboard cards (no hydration) ──
@@ -818,7 +820,7 @@ class IndividualService extends BaseService {
     }
 
     dueChecklistForDefaultDashboard = (date, queryAdditions) => {
-        if (!this.showDueChecklistOnDashboard) {
+        if (!this.showDueChecklistOnDashboard()) {
             return {individual: [], checklistItemNames: []}
         }
         return this.dueChecklists(date, [], queryAdditions);

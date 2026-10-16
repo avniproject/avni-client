@@ -38,6 +38,7 @@ import {post} from "../framework/http/requests";
 import General from "../utility/General";
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 import {BACKENDS} from "../framework/BackendTypes";
+import {reloadCachedServices} from "./CachedServices";
 import SubjectMigrationService from "./SubjectMigrationService";
 import AddressLevelService from "./AddressLevelService";
 import ResetSyncService from "./ResetSyncService";
@@ -793,9 +794,15 @@ class SyncService extends BaseService {
             }
         }
 
-        this.ruleEvaluationService.init();
-        this.messageService.init();
-        this.ruleService.init();
+        this._reloadCachedServices();
+    }
+
+    // Shared with launch (SqliteMigrationService.openCommittedBackend), so a service added to
+    // the list reloads on both paths. Every one is tried; the first failure still fails the
+    // caller, as it did when they were called one by one.
+    _reloadCachedServices() {
+        const [failure] = reloadCachedServices(name => this[name]);
+        if (failure) throw failure;
     }
 
     resetServicesAfterFullSyncCompletion(updatedSyncSource) {
@@ -1044,9 +1051,7 @@ class SyncService extends BaseService {
     }
 
     reset(syncRequired: false) {
-        this.context.getService(RuleEvaluationService).init();
-        this.context.getService(MessageService).init();
-        this.context.getService(RuleService).init();
+        this._reloadCachedServices();
         this.dispatchAction('RESET');
         this.context.getService(PrivilegeService).deleteRevokedEntities(); //Invoking this in MenuView.deleteData as well
 
