@@ -13,14 +13,18 @@ describe("Writing rows that are already in table shape", () => {
         await viaEntities.proxy.bulkCreate("Encounter", [visit()]);
         await viaRows.proxy.bulkInsertRows("Encounter", [viaRows.hydrator.flatten("Encounter", visit())]);
 
+        expect(viaEntities.rowsOf("encounter").some((row) => row.uuid === "enc-new")).toBe(true);
+        expect(viaRows.rowsOf("encounter").some((row) => row.uuid === "enc-new")).toBe(true);
         expect(viaRows.rowsOf("encounter")).toEqual(viaEntities.rowsOf("encounter"));
         viaEntities.rawDb.close();
         viaRows.rawDb.close();
     });
 
     it("updates only the columns a row carries, so a link the phone keeps survives", async () => {
-        const {proxy, hydrator, rowsOf, rawDb} = openSeededDb();
-        expect(rowsOf("encounter").find((row) => row.uuid === "enc-1a").latest_entity_approval_status_uuid).toBe("eas-1a");
+        const {proxy, hydrator, rowsOf, rawDb} = openSeededDb([["Encounter", {uuid: "enc-1a", name: "First visit"}]]);
+        const before = rowsOf("encounter").find((row) => row.uuid === "enc-1a");
+        expect(before.name).toBe("First visit");
+        expect(before.latest_entity_approval_status_uuid).toBe("eas-1a");
 
         await proxy.bulkInsertRows("Encounter", [hydrator.flatten("Encounter", visit({uuid: "enc-1a", individual: {uuid: "ind-1"}, name: null}))]);
 
@@ -33,10 +37,14 @@ describe("Writing rows that are already in table shape", () => {
 
     it("writes a plain INSERT to a table with no primary key, never ON CONFLICT (INV-011)", async () => {
         const {proxy, rowsOf, rawDb} = openSeededDb();
+        const executeBatch = jest.spyOn(rawDb, "executeBatch");
 
         await proxy.bulkInsertRows("BeneficiaryModePin", [{pin: 1234}, {pin: 1234}]);
 
+        const commands = executeBatch.mock.calls[0][0];
+        expect(commands[0][0]).toBe('INSERT INTO beneficiary_mode_pin ("pin") VALUES (?)');
         expect(rowsOf("beneficiary_mode_pin")).toHaveLength(2);
+        executeBatch.mockRestore();
         rawDb.close();
     });
 
