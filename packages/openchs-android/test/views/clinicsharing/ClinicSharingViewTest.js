@@ -129,6 +129,16 @@ describe("ClinicSharingView", () => {
         expect(restarted.lines()).toContain("clinicSharingHubRestarted");
     });
 
+    it("suggests scanning a new code when Rejoin cannot find the hub's network", async () => {
+        const code = encodeJoinPayload({ssid: "AndroidShare_1", passphrase: "pass1234", hubId: "hub-1", epoch: "epoch-1", key: "A".repeat(43)});
+        const {fakes, lines, press} = await show({savedJoinCode: code, hubNetworkLost: true});
+        fakes.clinicSpokeService.joinWithCode.mockRejectedValue(Object.assign(new Error("Could not join AndroidShare_1"), {code: "joinFailed"}));
+
+        await press('clinicSharingRejoin {"hub":"AndroidShare_1"}');
+
+        expect(lines()).toContain('clinicSharingError_rejoinFailed {"hub":"AndroidShare_1"}');
+    });
+
     it("counts held uploads, and names the patient they wait on after 3 days", async () => {
         const fourDaysAgo = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000);
         const {lines, renderer} = await show({held: {count: 2, oldest: fourDaysAgo, items: [{uuid: "v-1", waitingOn: "p-1"}, {uuid: "v-2", waitingOn: "p-1"}]}});

@@ -23,7 +23,7 @@ import ClinicHubQrCode from "./ClinicHubQrCode";
 import ClinicHubScanner from "./ClinicHubScanner";
 
 const TRANSLATED_ERRORS = ['key', 'stale', 'version', 'timeout', 'closed', 'hubNeedsAndroid10', 'badCode', 'joinFailed',
-    'cannotReadNetwork', 'wrongNetwork', 'hubNotFound', 'joinInProgress'];
+    'cannotReadNetwork', 'wrongNetwork', 'hubNotFound', 'joinInProgress', 'rejoinFailed'];
 // The phones-synced count and held uploads change without an event this screen hears.
 const REFRESH_MS = 10 * 1000;
 
@@ -80,7 +80,18 @@ class ClinicSharingView extends AbstractComponent {
     stopHub = () => this.run(() => this.hub.stopSharing());
     scan = () => this.run(() => this.withPermissions(ClinicRole.phone, async () => this.setState({scanning: true})));
     cancelScan = () => this.setState({scanning: false});
-    rejoin = () => this.run(() => this.withPermissions(ClinicRole.phone, () => this.spoke.joinWithCode(this.state.savedJoinCode)));
+    // A restarted hub has a new network, and the old one failing to appear looks the same as being out of range.
+    rejoin = () => this.run(() => this.withPermissions(ClinicRole.phone, async () => {
+        try {
+            await this.spoke.joinWithCode(this.state.savedJoinCode);
+        } catch (error) {
+            if (!_.includes(['joinFailed', 'hubNotFound'], _.get(error, 'code'))) throw error;
+            const rejoinFailed = new Error(error.message);
+            rejoinFailed.code = 'rejoinFailed';
+            rejoinFailed.details = {hub: _.get(parseJoinPayload(this.state.savedJoinCode), 'payload.ssid')};
+            throw rejoinFailed;
+        }
+    }));
     syncNow = () => this.run(() => this.spoke.syncNow());
     leave = () => this.run(() => this.spoke.leaveHub());
 

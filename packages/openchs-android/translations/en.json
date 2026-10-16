@@ -709,6 +709,7 @@
     "clinicSharingError_hubNeedsAndroid10": "A hub needs Android 10 or later.",
     "clinicSharingError_badCode": "This is not a hub's code.",
     "clinicSharingError_joinFailed": "Could not join the hub's Wi-Fi.",
+    "clinicSharingError_rejoinFailed": "Could not join {{hub}}. If the hub was restarted, scan its new code.",
     "clinicSharingError_cannotReadNetwork": "Android did not say which Wi-Fi network this phone is on.",
     "clinicSharingError_wrongNetwork": "This phone is not on the hub's Wi-Fi. Join it in Wi-Fi settings, then scan again.",
     "clinicSharingError_hubNotFound": "The hub did not answer on its network.",
