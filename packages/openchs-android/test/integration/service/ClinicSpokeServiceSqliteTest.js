@@ -71,10 +71,11 @@ describe('Phones syncing with the hub', () => {
         return session;
     }
 
-    function phone() {
+    function phone(name = 'Nurse · Pixel 9a') {
         const d = device();
         const spoke = d.stub(new ClinicSpokeService({}, {}));
         spoke.stateName = uniqueName('spoke');
+        spoke.phoneName = () => name;
         const p = {...d, spoke, sync: () => spoke.syncWithHub({host: '127.0.0.1', port, ...session}, log)};
         phones.push(p);
         return p;
@@ -301,9 +302,20 @@ describe('Phones syncing with the hub', () => {
             await b.sync();
             await c.sync();
             const [first] = hub.lastSyncByDevice.keys();
-            hub.lastSyncByDevice.set(first, Date.now() - 6 * 60 * 1000);
+            hub.lastSyncByDevice.set(first, {...hub.lastSyncByDevice.get(first), syncedAt: Date.now() - 6 * 60 * 1000});
 
             expect(hub.recentPhoneCount()).toBe(2);
+        });
+
+        it("lists each phone by its user and model with when it last synced, newest first, including one that has gone quiet", async () => {
+            const nurse = phone('Nurse · Pixel 9a'), doctor = phone('Doctor · Galaxy A15');
+            await nurse.sync();
+            await doctor.sync();
+            const [nurseId, doctorId] = hub.lastSyncByDevice.keys();
+            hub.lastSyncByDevice.set(nurseId, {...hub.lastSyncByDevice.get(nurseId), syncedAt: Date.now() - 20 * 60 * 1000});
+
+            expect(hub.phonesSynced().map(({name}) => name)).toEqual(['Doctor · Galaxy A15', 'Nurse · Pixel 9a']);
+            expect(hub.phonesSynced()[0].syncedAt).toBe(hub.lastSyncByDevice.get(doctorId).syncedAt);
         });
 
         it('stops its server again when the hotspot cannot start', async () => {

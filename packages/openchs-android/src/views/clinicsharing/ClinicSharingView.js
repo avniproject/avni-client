@@ -134,6 +134,11 @@ class ClinicSharingView extends AbstractComponent {
                 {this.renderText(this.I18n.t('clinicSharingPhonesSyncedRecently', {
                     count: this.hub.recentPhoneCount(), minutes: RECENT_PHONE_WINDOW_MS / 60000,
                 }))}
+                {this.hub.phonesSynced().map(({deviceId, name, syncedAt}) => (
+                    <Text key={deviceId} style={{fontSize: Styles.normalTextSize, color: Colors.InputNormal, marginTop: 4}}>
+                        {this.I18n.t('clinicSharingPhoneLastSynced', {phone: name, time: moment(syncedAt).format('LT')})}
+                    </Text>
+                ))}
                 {refusal && this.renderText(this.I18n.t('clinicSharingHubLowStorage', {freeMb: refusal.freeMb}), {warning: true})}
                 {this.renderButton(this.I18n.t('clinicSharingStopHub'), this.stopHub, false)}
             </View>

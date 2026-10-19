@@ -89,6 +89,7 @@ function device(kind) {
     const spoke = stub(new ClinicSpokeService({}, context));
     const hub = stub(new ClinicHubService({}, context));
     spoke.stateName = uniqueName(`${kind}_spoke`);
+    spoke.phoneName = () => `${kind} · test phone`;
     hub.ledgerName = uniqueName(`${kind}_hub`);
     services.set('clinicMediaService', media);
     services.set('clinicSpokeService', spoke);

@@ -48,6 +48,7 @@ function services({admin = true, sharing = null, joined = null, savedJoinCode = 
         PrivilegeService: {hasAllPrivileges: () => admin},
         EntityService: {findByKey: (key, uuid) => (uuid === 'p-1' ? {nameString: 'Sunita Devi'} : undefined)},
         clinicHubService: {onChange: () => () => {}, getSharing: () => sharing, recentPhoneCount: () => 3,
+            phonesSynced: () => [{deviceId: "d-1", name: "Doctor · Galaxy A15", syncedAt: new Date(2026, 9, 19, 14, 7).getTime()}],
             startSharing: jest.fn(async () => {}), stopSharing: jest.fn(async () => {})},
         clinicSpokeService: {onChange: () => () => {}, joined, lastSync, lastSyncedAt, hubRestarted, hubNetworkLost, savedJoinCode: async () => savedJoinCode,
             joinWithCode: jest.fn(async () => {}), syncNow: jest.fn(async () => {}), leaveHub: jest.fn(async () => {})},
@@ -105,6 +106,7 @@ describe("ClinicSharingView", () => {
             "clinicSharingStopHub",
         ]));
         expect(lines()).not.toContain("clinicSharingScanToJoin");
+        expect(lines().some((line) => line.startsWith('clinicSharingPhoneLastSynced {"phone":"Doctor · Galaxy A15","time":'))).toBe(true);
     });
 
     it("shows a joined phone's hub, last sync and failure in plain words, and syncs on request", async () => {

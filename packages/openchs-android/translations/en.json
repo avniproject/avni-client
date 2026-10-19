@@ -684,6 +684,7 @@
     "clinicSharingNetworkName": "Network",
     "clinicSharingNetworkPassword": "Password",
     "clinicSharingPhonesSyncedRecently": "Phones synced in the last {{minutes}} minutes: {{count}}",
+    "clinicSharingPhoneLastSynced": "{{phone}}: last synced at {{time}}",
     "clinicSharingHubLowStorage": "This hub is low on storage ({{freeMb}} MB free) and is not taking new photos. Phones keep working and upload their own photos as usual.",
     "clinicSharingJoinTitle": "Join the clinic's hub",
     "clinicSharingScanToJoin": "Scan to join",

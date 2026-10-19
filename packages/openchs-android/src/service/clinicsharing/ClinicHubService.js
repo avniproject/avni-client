@@ -39,7 +39,11 @@ class ClinicHubService extends BaseService {
 
     recentPhoneCount(withinMs = RECENT_PHONE_WINDOW_MS) {
         const since = Date.now() - withinMs;
-        return [...this.lastSyncByDevice.values()].filter((syncedAt) => syncedAt >= since).length;
+        return [...this.lastSyncByDevice.values()].filter(({syncedAt}) => syncedAt >= since).length;
+    }
+
+    phonesSynced() {
+        return _.orderBy([...this.lastSyncByDevice.values()], 'syncedAt', 'desc');
     }
 
     getSharing() {
@@ -226,9 +230,9 @@ class ClinicHubService extends BaseService {
         });
     }
 
-    async _handlePush({deviceId, batches, upTo}, log) {
+    async _handlePush({deviceId, phoneName, batches, upTo}, log) {
         const startedAt = Date.now();
-        this._noteSync(deviceId);
+        this._noteSync(deviceId, phoneName);
         const applied = await this.getService(ClinicRecordService).applyBatches(batches, log, deviceId);
         await this._appendLedgerRows(batches, deviceId);
         await this.getService('clinicParkedRecordService').afterSync(startedAt, log);
@@ -266,13 +270,13 @@ class ClinicHubService extends BaseService {
         }
     }
 
-    _noteSync(deviceId) {
-        this.lastSyncByDevice.set(deviceId, Date.now());
+    _noteSync(deviceId, phoneName) {
+        this.lastSyncByDevice.set(deviceId, {deviceId, name: phoneName || deviceId, syncedAt: Date.now()});
         this._changed();
     }
 
-    async _handlePull({deviceId, since}, log) {
-        this._noteSync(deviceId);
+    async _handlePull({deviceId, phoneName, since}, log) {
+        this._noteSync(deviceId, phoneName);
         await this._mirrorOwnQueue();
         const db = await this._ledger();
         const rows = this._sqliteRows(await db.execute(

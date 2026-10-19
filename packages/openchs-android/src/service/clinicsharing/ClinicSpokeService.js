@@ -8,6 +8,7 @@ import _ from "lodash";
 import General from "../../utility/General";
 import ClinicRecordService, {parentsFirstIndex} from "./ClinicRecordService";
 import LocalCacheService from "../LocalCacheService";
+import UserInfoService from "../UserInfoService";
 import {connectToHub, MessageType} from "../../framework/clinicsharing/ClinicTransport";
 import {CLINIC_SYNC_INTERVAL_SECONDS, SHAREABLE_ENTITIES} from "../../framework/clinicsharing/ClinicSharingConstants";
 import {IndividualSearchActionNames as IndividualSearchActions} from '../../action/individual/IndividualSearchActions';
@@ -83,6 +84,12 @@ class ClinicSpokeService extends BaseService {
         const newId = General.randomUUID();
         await this._setMeta('deviceId', newId);
         return newId;
+    }
+
+    // Lets the hub screen say whose phone synced.
+    phoneName() {
+        const userInfo = this.getService(UserInfoService).getUserInfo();
+        return _.compact([userInfo.name || userInfo.username, DeviceInfo.getModel()]).join(' · ');
     }
 
     savedJoinCode() {
@@ -198,10 +205,11 @@ class ClinicSpokeService extends BaseService {
             const {batches: outbox, sent, upTo} = this.collectOutbox(await this._pushedRecords(hubId));
             connection = await connectToHub({host, port, key, hubId, epoch, appVersion: DeviceInfo.getVersion()});
 
-            await connection.request({type: MessageType.push, deviceId, batches: outbox, upTo}, MessageType.pushAck);
+            const phoneName = this.phoneName();
+            await connection.request({type: MessageType.push, deviceId, phoneName, batches: outbox, upTo}, MessageType.pushAck);
             await this._savePushed(hubId, sent);
 
-            const {batches, maxSeq} = await connection.request({type: MessageType.pull, deviceId, since: cursor}, MessageType.pullResult);
+            const {batches, maxSeq} = await connection.request({type: MessageType.pull, deviceId, phoneName, since: cursor}, MessageType.pullResult);
             const applied = await this.getService(ClinicRecordService).applyBatches(this._withoutEditsSince(batches, collectedAt), log);
             await this._saveHubState(hubId, 'cursor', maxSeq);
             const unparked = (await this.getService('clinicParkedRecordService').afterSync(startedAt, log)).applied;
