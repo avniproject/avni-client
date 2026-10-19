@@ -72,5 +72,6 @@
   "Open settings": "Open settings",
   "switchingBackendMessage": "Switching backend, please wait...",
   "unknownError": "An unknown error occurred.",
-  "doingNothing": "Idle"
+  "doingNothing": "Idle",
+  "committedDatabaseUnavailable": "Data on this phone could not be opened. Contact support."
 }

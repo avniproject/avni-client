@@ -112,15 +112,34 @@ class LoginActions {
         // Both post-auth paths funnel through here. Recorded only once the IdP has accepted
         // the credentials — persistUserId runs before that call, so keying migration state
         // off it would let a mistyped failed login decide the next launch's backend.
-        SessionUsername.set(context.get(SettingsService).getSettings().userId);
+        const username = context.get(SettingsService).getSettings().userId;
+        SessionUsername.set(username);
         SessionRecord.established();
-        let backupRestoreRealmService = context.get(BackupRestoreRealmService);
-        const doRestoreDump = backupRestoreRealmService.isDatabaseNeverSynced();
-        General.logInfo("LoginActions", `Dump restore can be done = ${doRestoreDump}`);
-        if (doRestoreDump) {
-            restoreDump(context, action, source, successCb);
-        } else {
-            successCb(source);
+        return LoginActions.isOnCommittedBackend(username).then((onCommittedBackend) => {
+            const doRestoreDump = onCommittedBackend && context.get(BackupRestoreRealmService).isDatabaseNeverSynced();
+            General.logInfo("LoginActions", `Dump restore can be done = ${doRestoreDump}`);
+            if (doRestoreDump) {
+                restoreDump(context, action, source, successCb);
+            } else {
+                successCb(source);
+            }
+        });
+    }
+
+    // "Never synced" is read from the database the app is running on. When this user's committed
+    // database failed to open at launch, the app runs on the other one, which says nothing about
+    // their data, and a restore would replace the committed file with their unsynced work in it.
+    // A record that cannot be read counts as off: a skipped restore costs a full sync, a wrong
+    // one costs the data.
+    static async isOnCommittedBackend(username) {
+        const SqliteMigrationService = require("../service/SqliteMigrationService").default;
+        const GlobalContext = require("../GlobalContext").default;
+        try {
+            const state = await SqliteMigrationService._readStateForWrite(username);
+            return GlobalContext.getInstance().getActiveBackend() === state.activeBackend;
+        } catch (e) {
+            General.logError("LoginActions", `Not restoring: could not read which database ${username} is on: ${e.message}`);
+            return false;
         }
     }
 

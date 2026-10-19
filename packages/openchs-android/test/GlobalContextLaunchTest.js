@@ -303,3 +303,63 @@ describe('reopening the databases after a restore never throws (#2120)', () => {
         expect(await context.openRealmIfMissing()).toBe(false);
     });
 });
+
+// #2196 QA: a SQLite user whose database will not open lands on Login with no explanation.
+// Login says why, but only in that case, and only once per launch.
+describe('telling the user their data could not be opened (#2196)', () => {
+    const SqliteFactory = require('../src/framework/db/SqliteFactory').default;
+
+    async function launchCommittedTo(committedBackend, {sqliteOpens}) {
+        if (!sqliteOpens) SqliteFactory.createSqliteProxy.mockImplementation(async () => { throw new Error('file is not a database'); });
+        wireBeans({
+            openCommittedBackend: jest.fn(async () => {}),
+            getState: jest.fn(async () => ({activeBackend: committedBackend})),
+        });
+        const context = new GlobalContext();
+        await context.initialiseGlobalContext({create: jest.fn(() => ({}))}, realmFactory);
+        return context;
+    }
+
+    afterEach(() => {
+        SqliteFactory.createSqliteProxy.mockImplementation(async () => ({kind: 'sqlite', close: jest.fn()}));
+    });
+
+    it('says so once when the user is on SQLite and it would not open', async () => {
+        const context = await launchCommittedTo('sqlite', {sqliteOpens: false});
+
+        expect(context.takeCommittedDatabaseUnavailable()).toBe(true);
+        expect(context.takeCommittedDatabaseUnavailable()).toBe(false);
+    });
+
+    it('says nothing when SQLite opened', async () => {
+        const context = await launchCommittedTo('sqlite', {sqliteOpens: true});
+
+        expect(context.takeCommittedDatabaseUnavailable()).toBe(false);
+    });
+
+    it('says nothing to a Realm user, even when SQLite would not open', async () => {
+        const context = await launchCommittedTo('realm', {sqliteOpens: false});
+
+        expect(context.takeCommittedDatabaseUnavailable()).toBe(false);
+    });
+
+    it('says nothing once SQLite has opened on a later retry', async () => {
+        const context = await launchCommittedTo('sqlite', {sqliteOpens: false});
+        SqliteFactory.createSqliteProxy.mockImplementation(async () => ({kind: 'sqlite', close: jest.fn()}));
+        await context.openSqliteIfMissing();
+
+        expect(context.takeCommittedDatabaseUnavailable()).toBe(false);
+    });
+
+    it('says nothing when the record cannot be read', async () => {
+        SqliteFactory.createSqliteProxy.mockImplementation(async () => { throw new Error('file is not a database'); });
+        wireBeans({
+            openCommittedBackend: jest.fn(async () => {}),
+            getState: jest.fn(async () => { throw new Error('storage unavailable'); }),
+        });
+        const context = new GlobalContext();
+        await context.initialiseGlobalContext({create: jest.fn(() => ({}))}, realmFactory);
+
+        expect(context.takeCommittedDatabaseUnavailable()).toBe(false);
+    });
+});
