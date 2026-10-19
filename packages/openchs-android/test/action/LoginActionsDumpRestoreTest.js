@@ -88,6 +88,19 @@ describe('fast sync restore at login', () => {
         expect(successCb).toHaveBeenCalledWith('source');
     });
 
+    // A user taken out of the SQLite group stays on SQLite while unsynced work is waiting
+    // (INV-014), so the record names SQLite as where the data is and Realm as where it is
+    // going. The data is in the database the record says it is in now (INV-013).
+    it('never restores over a user leaving SQLite whose database failed to open at launch', async () => {
+        await SqliteMigrationService.persistStateForUser(USER, {activeBackend: 'sqlite', desiredBackend: 'realm'});
+        const {run, sqliteRestore, successCb} = login();
+
+        await run();
+
+        expect(sqliteRestore.restore).not.toHaveBeenCalled();
+        expect(successCb).toHaveBeenCalledWith('source');
+    });
+
     it('does not restore when it cannot read which database the user is on', async () => {
         const original = AsyncStorage.getItem.getMockImplementation?.();
         jest.spyOn(AsyncStorage, 'getItem').mockImplementation(async (key) => {
