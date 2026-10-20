@@ -53,6 +53,36 @@ const SPECS = {
     },
     Encounter: {...VISIT, links: {encounterType: "encounterTypeUUID", individual: "individualUUID"}},
     ProgramEncounter: {...VISIT, links: {encounterType: "encounterTypeUUID", programEnrolment: "programEnrolmentUUID"}},
+    // relationship/IndividualRelationship.js:129-159. An empty observation list: exitObservations is never assigned.
+    IndividualRelationship: {
+        direct: ["uuid", "voided"],
+        dates: ["enterDateTime", "exitDateTime"],
+        links: {relationship: "relationshipTypeUUID", individualA: "individualAUUID", individualB: "individualBUUID"},
+        linkValues: AUDIT_LINKS,
+    },
+    // Checklist.js:101-122. assignFields gets no entity service, so no observations are assigned.
+    Checklist: {
+        direct: ["uuid"],
+        dates: ["baseDate"],
+        links: {programEnrolment: "programEnrolmentUUID", detail: "checklistDetailUUID"},
+        linkValues: AUDIT_LINKS,
+    },
+    // ChecklistItem.js:116-139
+    ChecklistItem: {
+        direct: ["uuid"],
+        dates: ["completionDate"],
+        observations: ["observations"],
+        links: {checklist: "checklistUUID", detail: "checklistItemDetailUUID"},
+        linkValues: AUDIT_LINKS,
+    },
+    // EntityApprovalStatus.js:205-223. entityUUID is a plain column read from a link, not a reference.
+    EntityApprovalStatus: {
+        direct: ["uuid", "entityType", "approvalStatusComment", "autoApproved", "voided", "entityTypeUuid"],
+        dates: ["statusDateTime"],
+        observations: ["observations"],
+        links: {approvalStatus: "approvalStatusUUID"},
+        linkValues: {...AUDIT_LINKS, entityUUID: "entityUUID"},
+    },
 };
 
 export const DIRECT_ROW_SCHEMAS = Object.keys(SPECS);

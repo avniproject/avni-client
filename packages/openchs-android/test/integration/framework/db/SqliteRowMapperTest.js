@@ -8,15 +8,17 @@ jest.mock('react-native-keychain', () => ({
     getGenericPassword: jest.fn(async () => false), setGenericPassword: jest.fn(async () => {}), resetGenericPassword: jest.fn(async () => {}),
 }));
 
-import {Encounter, Individual, ModelGeneral, ProgramEncounter, ProgramEnrolment} from "openchs-models";
+import {Checklist, ChecklistItem, Encounter, EntityApprovalStatus, Individual, IndividualRelationship, ModelGeneral,
+    ProgramEncounter, ProgramEnrolment} from "openchs-models";
 import EntityService from "../../../../src/service/EntityService";
 import RepositoryFactory from "../../../../src/repository/RepositoryFactory";
-import SqliteRowMapper from "../../../../src/framework/db/SqliteRowMapper";
+import SqliteRowMapper, {DIRECT_ROW_SCHEMAS} from "../../../../src/framework/db/SqliteRowMapper";
 import {openSeededDb} from "./lazyFixture";
-import {EXTRA_SEED, PLACEHOLDER_ADDRESS_UUID, REPEATED_GROUP, cancelledEncounterResource, encounterResource, enrolmentResource,
-    individualResource, programEncounterResource, without} from "./syncResourceFixtures";
+import {EXTRA_SEED, PLACEHOLDER_ADDRESS_UUID, REPEATED_GROUP, approvalResource, cancelledEncounterResource, checklistItemResource,
+    checklistResource, encounterResource, enrolmentResource, individualResource, programEncounterResource, relationshipResource,
+    without} from "./syncResourceFixtures";
 
-const MODELS = {Individual, ProgramEnrolment, Encounter, ProgramEncounter};
+const MODELS = {Individual, ProgramEnrolment, Encounter, ProgramEncounter, IndividualRelationship, Checklist, ChecklistItem, EntityApprovalStatus};
 
 describe("A row built straight from the download", () => {
     let db, entityService, mapper;
@@ -160,6 +162,67 @@ describe("A row built straight from the download", () => {
             keepsMissingParent("ProgramEncounter", () => programEncounterResource({}, {programEnrolmentUUID: "enl-elsewhere"}),
                 "program_enrolment_uuid", "enl-elsewhere"));
     });
+
+    describe("for a relationship", () => {
+        it("matches today's row for a full record", () =>
+            sameAsToday("IndividualRelationship", () => relationshipResource()));
+
+        it("matches today's row for an ended relationship", () =>
+            sameAsToday("IndividualRelationship", () => relationshipResource({exitDateTime: "2026-09-10T10:00:00.000Z"})));
+
+        it("writes no exit answers column, as today", () => {
+            expect(today("IndividualRelationship", relationshipResource())).not.toHaveProperty("exit_observations");
+            expect(direct("IndividualRelationship", relationshipResource())).not.toHaveProperty("exit_observations");
+        });
+
+        it("keeps the uuid of a second subject that is not on the phone", () =>
+            keepsMissingParent("IndividualRelationship", () => relationshipResource({}, {individualBUUID: "ind-elsewhere"}),
+                "individual_b_uuid", "ind-elsewhere"));
+    });
+
+    describe("for a checklist", () => {
+        it("matches today's row for a full record", () =>
+            sameAsToday("Checklist", () => checklistResource()));
+
+        it("writes no answers column, as today", () =>
+            expect(direct("Checklist", checklistResource())).not.toHaveProperty("observations"));
+
+        it("keeps the uuid of an enrolment that is not on the phone", () =>
+            keepsMissingParent("Checklist", () => checklistResource({}, {programEnrolmentUUID: "enl-elsewhere"}), "program_enrolment_uuid", "enl-elsewhere"));
+
+        it("keeps the uuid of a checklist definition that is not on the phone", () =>
+            keepsMissingParent("Checklist", () => checklistResource({}, {checklistDetailUUID: "cd-elsewhere"}), "detail_uuid", "cd-elsewhere"));
+    });
+
+    describe("for a checklist item", () => {
+        it("matches today's row for a full record", () =>
+            sameAsToday("ChecklistItem", () => checklistItemResource()));
+
+        it("matches today's row for an item not yet completed", () =>
+            sameAsToday("ChecklistItem", () => without(checklistItemResource({completionDate: null}), "observations")));
+
+        it("keeps the uuid of a checklist that is not on the phone", () =>
+            keepsMissingParent("ChecklistItem", () => checklistItemResource({}, {checklistUUID: "cl-elsewhere"}), "checklist_uuid", "cl-elsewhere"));
+    });
+
+    describe("for an approval", () => {
+        it("matches today's row for a full record", () =>
+            sameAsToday("EntityApprovalStatus", () => approvalResource()));
+
+        it("matches today's row when the download has no answers", () =>
+            sameAsToday("EntityApprovalStatus", () => without(approvalResource(), "observations")));
+
+        it("takes the approved record's uuid from the download", () =>
+            expect(direct("EntityApprovalStatus", approvalResource({}, {entityUUID: "enc-1a"})).entity_uuid).toBe("enc-1a"));
+
+        it("keeps the uuid of an approval status that is not on the phone", () =>
+            keepsMissingParent("EntityApprovalStatus", () => approvalResource({}, {approvalStatusUUID: "as-elsewhere"}),
+                "approval_status_uuid", "as-elsewhere"));
+    });
+
+    it("covers exactly the eight bulky kinds of record", () =>
+        expect([...DIRECT_ROW_SCHEMAS].sort()).toEqual(["Checklist", "ChecklistItem", "Encounter", "EntityApprovalStatus",
+            "Individual", "IndividualRelationship", "ProgramEncounter", "ProgramEnrolment"]));
 
     it("refuses a kind of record it has no row plan for", () =>
         expect(() => direct("GroupSubject", {})).toThrow(/no row plan for "GroupSubject"/));

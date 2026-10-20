@@ -66,3 +66,28 @@ export const cancelledEncounterResource = (fields = {}, linkOverrides = {}) => e
 export const programEncounterResource = (fields = {}, linkOverrides = {}) => encounterResource(
     {uuid: "pe-new", ...fields},
     {individualUUID: undefined, programEnrolmentUUID: "enl-1", ...linkOverrides});
+
+export const relationshipResource = (fields = {}, linkOverrides = {}) => ({
+    uuid: "rel-new", enterDateTime: at, exitDateTime: null, voided: false, lastModifiedDateTime: later,
+    ...fields,
+    _links: links({relationshipTypeUUID: "rt-spouse", individualAUUID: "ind-1", individualBUUID: "ind-2", ...AUDIT, ...linkOverrides}),
+});
+
+export const checklistResource = (fields = {}, linkOverrides = {}) => ({
+    uuid: "cl-new", baseDate: at, lastModifiedDateTime: later,
+    ...fields,
+    _links: links({programEnrolmentUUID: "enl-1", checklistDetailUUID: "cd-vaccines", ...AUDIT, ...linkOverrides}),
+});
+
+export const checklistItemResource = (fields = {}, linkOverrides = {}) => ({
+    uuid: "cli-new", completionDate: at, observations: {"c-note": "given"}, lastModifiedDateTime: later,
+    ...fields,
+    _links: links({checklistUUID: "cl-1", checklistItemDetailUUID: "cid-bcg", ...AUDIT, ...linkOverrides}),
+});
+
+export const approvalResource = (fields = {}, linkOverrides = {}) => ({
+    uuid: "eas-new", entityType: "Subject", entityTypeUuid: "st-person", approvalStatusComment: "Looks right",
+    autoApproved: false, voided: false, statusDateTime: at, observations: {}, lastModifiedDateTime: later,
+    ...fields,
+    _links: links({approvalStatusUUID: "as-approved", entityUUID: "ind-1", ...AUDIT, ...linkOverrides}),
+});
