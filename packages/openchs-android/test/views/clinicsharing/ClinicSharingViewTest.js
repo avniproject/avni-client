@@ -38,6 +38,7 @@ jest.mock("../../../src/framework/clinicsharing/ClinicHubPermissions", () => ({
 import ServiceContext from "../../../src/framework/context/ServiceContext";
 import ClinicSharingView from "../../../src/views/clinicsharing/ClinicSharingView";
 import {encodeJoinPayload} from "../../../src/framework/clinicsharing/ClinicJoinPayload";
+import General from "../../../src/utility/General";
 
 const t = (key, params) => (params ? `${key} ${JSON.stringify(params)}` : key);
 
@@ -87,6 +88,18 @@ describe("ClinicSharingView", () => {
         expect(lines()).toEqual(expect.arrayContaining(["clinicSharingScanToJoin", "clinicSharingStartHub"]));
         await press("clinicSharingStartHub");
         expect(fakes.clinicHubService.startSharing).toHaveBeenCalled();
+    });
+
+    it("starts the hub with a log that writes to the app's log file, so refused phones are recorded", async () => {
+        const logInfo = jest.spyOn(General, "logInfo").mockImplementation(() => {});
+        const {fakes, press} = await show({admin: true});
+
+        await press("clinicSharingStartHub");
+        const [hubLog] = fakes.clinicHubService.startSharing.mock.calls[0];
+        hubLog("Refused 192.168.43.2: its messages could not be read, so it holds an old or wrong key");
+
+        expect(logInfo).toHaveBeenCalledWith("ClinicHub", "Refused 192.168.43.2: its messages could not be read, so it holds an old or wrong key");
+        logInfo.mockRestore();
     });
 
     it("does not show Start hub at all to other users", async () => {

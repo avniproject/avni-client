@@ -26,6 +26,8 @@ const TRANSLATED_ERRORS = ['key', 'stale', 'version', 'timeout', 'closed', 'hubN
     'cannotReadNetwork', 'wrongNetwork', 'hubNotFound', 'joinInProgress', 'rejoinFailed'];
 // The phones-synced count and held uploads change without an event this screen hears.
 const REFRESH_MS = 10 * 1000;
+// Without a log, phones the hub refuses leave no trace.
+const hubLog = (message) => General.logInfo('ClinicHub', message);
 
 @Path('/clinicSharingView')
 class ClinicSharingView extends AbstractComponent {
@@ -76,7 +78,7 @@ class ClinicSharingView extends AbstractComponent {
         if (granted) await work();
     }
 
-    startHub = () => this.run(() => this.withPermissions(ClinicRole.hub, () => this.hub.startSharing()));
+    startHub = () => this.run(() => this.withPermissions(ClinicRole.hub, () => this.hub.startSharing(hubLog)));
     stopHub = () => this.run(() => this.hub.stopSharing());
     scan = () => this.run(() => this.withPermissions(ClinicRole.phone, async () => this.setState({scanning: true})));
     cancelScan = () => this.setState({scanning: false});
