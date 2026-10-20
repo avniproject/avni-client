@@ -39,3 +39,30 @@ export const individualResource = (fields = {}, linkOverrides = {}) => ({
     ...fields,
     _links: links({subjectTypeUUID: "st-person", genderUUID: "g-f", addressUUID: "al-village", ...AUDIT, ...linkOverrides}),
 });
+
+export const enrolmentResource = (fields = {}, linkOverrides = {}) => ({
+    uuid: "enl-new", enrolmentDateTime: at, programExitDateTime: null, voided: false,
+    observations: ANSWERS, programExitObservations: {},
+    enrolmentLocation: {x: 77.59, y: 12.97},
+    lastModifiedDateTime: later,
+    ...fields,
+    _links: links({programUUID: "pr-mother", individualUUID: "ind-1", ...AUDIT, ...linkOverrides}),
+});
+
+export const encounterResource = (fields = {}, linkOverrides = {}) => ({
+    uuid: "enc-new", name: "Home visit", encounterDateTime: at, earliestVisitDateTime: at, maxVisitDateTime: "2026-09-08T10:00:00.000Z",
+    voided: false, observations: ANSWERS, cancelObservations: {},
+    encounterLocation: {x: 77.59, y: 12.97},
+    lastModifiedDateTime: later,
+    ...fields,
+    _links: links({encounterTypeUUID: "et-visit", individualUUID: "ind-1", ...AUDIT, filledBy: "Asha", filledByUUID: "u-asha", ...linkOverrides}),
+});
+
+export const cancelledEncounterResource = (fields = {}, linkOverrides = {}) => encounterResource({
+    encounterDateTime: null, cancelDateTime: at, observations: {}, cancelObservations: {"c-note": "moved away"},
+    encounterLocation: null, cancelLocation: {x: 77.6, y: 12.9}, ...fields,
+}, linkOverrides);
+
+export const programEncounterResource = (fields = {}, linkOverrides = {}) => encounterResource(
+    {uuid: "pe-new", ...fields},
+    {individualUUID: undefined, programEnrolmentUUID: "enl-1", ...linkOverrides});

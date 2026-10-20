@@ -19,6 +19,15 @@ function placeholderAddressForUser(row, entityService) {
     if (_.isNil(entityService.findByKey("uuid", row.lowest_address_level_uuid, AddressLevel.schema.name))) row.lowest_address_level_uuid = null;
 }
 
+// AbstractEncounter.js:249-281, shared by Encounter.js:62-70 and ProgramEncounter.js:60-68
+const VISIT = {
+    direct: ["uuid", "voided", "name"],
+    dates: ["encounterDateTime", "earliestVisitDateTime", "maxVisitDateTime", "cancelDateTime"],
+    observations: ["observations", "cancelObservations"],
+    locations: {encounterLocation: Point, cancelLocation: Point},
+    linkValues: {...AUDIT_LINKS, filledBy: "filledBy", filledByUUID: "filledByUUID"},
+};
+
 const SPECS = {
     // Individual.js:415-452
     Individual: {
@@ -33,6 +42,17 @@ const SPECS = {
         computed: {name: (resource) => Individual.getFullName(resource)},
         afterRow: placeholderAddressForUser,
     },
+    // ProgramEnrolment.js:223-254
+    ProgramEnrolment: {
+        direct: ["uuid", "voided"],
+        dates: ["enrolmentDateTime", "programExitDateTime"],
+        observations: ["observations", "programExitObservations"],
+        links: {program: "programUUID", individual: "individualUUID"},
+        locations: {enrolmentLocation: Point, exitLocation: Point},
+        linkValues: AUDIT_LINKS,
+    },
+    Encounter: {...VISIT, links: {encounterType: "encounterTypeUUID", individual: "individualUUID"}},
+    ProgramEncounter: {...VISIT, links: {encounterType: "encounterTypeUUID", programEnrolment: "programEnrolmentUUID"}},
 };
 
 export const DIRECT_ROW_SCHEMAS = Object.keys(SPECS);

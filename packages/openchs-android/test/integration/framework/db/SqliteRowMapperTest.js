@@ -8,14 +8,15 @@ jest.mock('react-native-keychain', () => ({
     getGenericPassword: jest.fn(async () => false), setGenericPassword: jest.fn(async () => {}), resetGenericPassword: jest.fn(async () => {}),
 }));
 
-import {Individual, ModelGeneral} from "openchs-models";
+import {Encounter, Individual, ModelGeneral, ProgramEncounter, ProgramEnrolment} from "openchs-models";
 import EntityService from "../../../../src/service/EntityService";
 import RepositoryFactory from "../../../../src/repository/RepositoryFactory";
 import SqliteRowMapper from "../../../../src/framework/db/SqliteRowMapper";
 import {openSeededDb} from "./lazyFixture";
-import {EXTRA_SEED, PLACEHOLDER_ADDRESS_UUID, REPEATED_GROUP, individualResource, without} from "./syncResourceFixtures";
+import {EXTRA_SEED, PLACEHOLDER_ADDRESS_UUID, REPEATED_GROUP, cancelledEncounterResource, encounterResource, enrolmentResource,
+    individualResource, programEncounterResource, without} from "./syncResourceFixtures";
 
-const MODELS = {Individual};
+const MODELS = {Individual, ProgramEnrolment, Encounter, ProgramEncounter};
 
 describe("A row built straight from the download", () => {
     let db, entityService, mapper;
@@ -113,6 +114,51 @@ describe("A row built straight from the download", () => {
             expect(spy).toHaveBeenCalledWith(expect.objectContaining({uuid: "ind-new"}), expect.any(Object), ["observations"], entityService);
             spy.mockRestore();
         });
+    });
+
+    describe("for an enrolment", () => {
+        it("matches today's row for a full record", () =>
+            sameAsToday("ProgramEnrolment", () => enrolmentResource()));
+
+        it("matches today's row for an exited enrolment with exit answers", () =>
+            sameAsToday("ProgramEnrolment", () => enrolmentResource({programExitDateTime: "2026-09-20T10:00:00.000Z",
+                programExitObservations: {"c-note": "moved"}, exitLocation: {x: 77.6, y: 12.9}})));
+
+        it("matches today's row when optional fields are missing from the download", () =>
+            sameAsToday("ProgramEnrolment", () => without(enrolmentResource(), "programExitDateTime", "observations",
+                "programExitObservations", "enrolmentLocation", "voided")));
+
+        it("keeps the uuid of a subject that is not on the phone", () =>
+            keepsMissingParent("ProgramEnrolment", () => enrolmentResource({}, {individualUUID: "ind-elsewhere"}), "individual_uuid", "ind-elsewhere"));
+    });
+
+    describe("for a visit", () => {
+        it("matches today's row for a full record", () =>
+            sameAsToday("Encounter", () => encounterResource()));
+
+        it("matches today's row for a cancelled visit with cancel answers", () =>
+            sameAsToday("Encounter", () => cancelledEncounterResource()));
+
+        it("matches today's row for a scheduled visit not yet done", () =>
+            sameAsToday("Encounter", () => without(encounterResource({encounterDateTime: null}), "observations", "encounterLocation")));
+
+        it("matches today's row when the filled-by links are missing", () =>
+            sameAsToday("Encounter", () => encounterResource({}, {filledBy: undefined, filledByUUID: undefined})));
+
+        it("keeps the uuid of a subject that is not on the phone", () =>
+            keepsMissingParent("Encounter", () => encounterResource({}, {individualUUID: "ind-elsewhere"}), "individual_uuid", "ind-elsewhere"));
+    });
+
+    describe("for a program visit", () => {
+        it("matches today's row for a full record", () =>
+            sameAsToday("ProgramEncounter", () => programEncounterResource()));
+
+        it("matches today's row for a cancelled program visit", () =>
+            sameAsToday("ProgramEncounter", () => cancelledEncounterResource({uuid: "pe-new"}, {individualUUID: undefined, programEnrolmentUUID: "enl-1"})));
+
+        it("keeps the uuid of an enrolment that is not on the phone", () =>
+            keepsMissingParent("ProgramEncounter", () => programEncounterResource({}, {programEnrolmentUUID: "enl-elsewhere"}),
+                "program_enrolment_uuid", "enl-elsewhere"));
     });
 
     it("refuses a kind of record it has no row plan for", () =>
