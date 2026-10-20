@@ -1,5 +1,5 @@
 import React from "react";
-import {Text} from "react-native";
+import {Text, ToastAndroid} from "react-native";
 import TestRenderer, {act} from "react-test-renderer";
 
 // The tab imports most of the view layer; these are the native modules it reaches that jest has no bridge for.
@@ -13,11 +13,15 @@ jest.mock("@react-native-documents/picker", () => ({}));
 jest.mock("react-native-vision-camera", () => ({}));
 jest.mock("@react-native-clipboard/clipboard", () => ({}));
 jest.mock("react-native-share", () => ({}));
+jest.mock("../../../src/utility/ConnectionInfo", () => ({getConnectionInfo: jest.fn()}));
+jest.mock("react-native-fs", () => ({}));
 jest.mock("react-native-file-viewer", () => ({}));
 // Native Base's Text needs its theme provider, which a screen test has no use for.
 jest.mock("native-base", () => ({__esModule: true, Text: require("react-native").Text}));
 jest.mock("react-native-vector-icons/MaterialIcons", () => ({__esModule: true, default: () => null}));
 
+import {getConnectionInfo} from "../../../src/utility/ConnectionInfo";
+import CHSNavigator from "../../../src/utility/CHSNavigator";
 import ServiceContext from "../../../src/framework/context/ServiceContext";
 import SubjectDashboardProfileTab from "../../../src/views/individual/SubjectDashboardProfileTab";
 import OrganisationConfigService from "../../../src/service/OrganisationConfigService";
@@ -124,9 +128,55 @@ describe("SubjectDashboardProfileTab, ABHA section", () => {
         expect(shown).not.toContain("abhaNotLinked");
     });
 
-    it("leaves one named place for story 15's View ABHA card, empty until it is built", () => {
-        const tab = tabWith({individual: individualWith({number: "91-1234-5678-9012"})});
-        expect(tab.abhaLinkedActions()).toEqual([]);
+    describe("View ABHA card", () => {
+        beforeEach(() => {
+            jest.spyOn(CHSNavigator, "navigateToAbhaCardView").mockImplementation(() => {});
+            jest.spyOn(ToastAndroid, "show").mockImplementation(() => {});
+        });
+        afterEach(() => jest.restoreAllMocks());
+
+        it("is the one action of a linked patient's ABHA section", () => {
+            const tab = tabWith({individual: individualWith({number: "91-1234-5678-9012"})});
+            const actions = tab.abhaLinkedActions();
+            expect(actions).toHaveLength(1);
+            expect(actions[0].labelKey).toBe("abhaViewCard");
+        });
+
+        it("shows on the profile of a linked patient and not on an unlinked one", () => {
+            const linked = texts(render(tabWith({individual: individualWith({number: "91-1234-5678-9012"})}).renderAbha()));
+            expect(linked).toContain("abhaViewCard");
+            const unlinked = texts(render(tabWith({individual: individualWith()}).renderAbha()));
+            expect(unlinked).not.toContain("abhaViewCard");
+        });
+
+        it("opens the card screen for the patient, with the number to name a download by, when there is internet", async () => {
+            getConnectionInfo.mockResolvedValue({isConnected: true});
+            const tab = tabWith({individual: individualWith({number: "91-1234-5678-9012"})});
+
+            await tab.abhaLinkedActions()[0].onPressFunc();
+
+            expect(CHSNavigator.navigateToAbhaCardView).toHaveBeenCalledWith(tab, {subjectUUID: "subject-1", abhaNumber: "91-1234-5678-9012"});
+            expect(ToastAndroid.show).not.toHaveBeenCalled();
+        });
+
+        it("says it needs internet, and opens nothing, without internet", async () => {
+            getConnectionInfo.mockResolvedValue({isConnected: false});
+            const tab = tabWith({individual: individualWith({number: "91-1234-5678-9012"})});
+
+            await tab.abhaLinkedActions()[0].onPressFunc();
+
+            expect(ToastAndroid.show).toHaveBeenCalledWith("abhaCardNeedsInternet", ToastAndroid.LONG);
+            expect(CHSNavigator.navigateToAbhaCardView).not.toHaveBeenCalled();
+        });
+
+        it("works for a patient linked through the mobile route, who has an address and no number", async () => {
+            getConnectionInfo.mockResolvedValue({isConnected: true});
+            const tab = tabWith({individual: individualWith({address: "asha@sbx"})});
+
+            await tab.abhaLinkedActions()[0].onPressFunc();
+
+            expect(CHSNavigator.navigateToAbhaCardView).toHaveBeenCalledWith(tab, {subjectUUID: "subject-1", abhaNumber: undefined});
+        });
     });
 
     it("adds its labels to the platform translations", () => {

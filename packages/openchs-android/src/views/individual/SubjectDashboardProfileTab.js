@@ -16,6 +16,7 @@ import Relatives from "../common/Relatives";
 import ContextAction from "../viewmodel/ContextAction";
 import DGS from "../primitives/DynamicGlobalStyles";
 import CHSNavigator from "../../utility/CHSNavigator";
+import {getConnectionInfo} from "../../utility/ConnectionInfo";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualAddRelativeView from "../individual/IndividualAddRelativeView";
 import Colors from "../primitives/Colors";
@@ -49,6 +50,7 @@ import FormShareService from "../../service/FormShareService";
 import FormShareActionSheetController from "../common/FormShareActionSheetController";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
 import AbhaProfileSection from "../abha/AbhaProfileSection";
+import {ABHA_CONCEPT_NAMES} from "../abha/AbhaProfile";
 
 class SubjectDashboardProfileTab extends AbstractComponent {
     static propTypes = {
@@ -201,10 +203,19 @@ class SubjectDashboardProfileTab extends AbstractComponent {
             new ContextAction(this.I18n.t('abhaLinkExisting'), () => this.editProfile())];
     }
 
-    // Story 15 (avni-client#2204) adds View ABHA card here, as
-    // new ContextAction(this.I18n.t('abhaViewCard'), () => CHSNavigator.navigateToAbhaCardView(this, {subjectUUID: ...})).
+    // View ABHA card shows the card on a screen of its own. The card comes from the server, so it needs internet.
+    async viewAbhaCard() {
+        const {isConnected} = await getConnectionInfo();
+        if (!isConnected) {
+            ToastAndroid.show(this.I18n.t('abhaCardNeedsInternet'), ToastAndroid.LONG);
+            return;
+        }
+        const {individual} = this.state;
+        CHSNavigator.navigateToAbhaCardView(this, {subjectUUID: individual.uuid, abhaNumber: individual.getObservationValue(ABHA_CONCEPT_NAMES.abhaNumber)});
+    }
+
     abhaLinkedActions() {
-        return [];
+        return [new ContextAction(this.I18n.t('abhaViewCard'), () => this.viewAbhaCard())];
     }
 
     renderAbha() {
