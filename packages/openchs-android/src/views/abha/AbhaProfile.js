@@ -11,6 +11,16 @@ export const ABHA_CONCEPT_NAMES = {abhaNumber: 'ABHA Number', abhaAddress: 'ABHA
 const GENDER_NAMES = {M: 'Male', F: 'Female', O: 'Other'};
 const DOB_FORMATS = ['YYYY-MM-DD', 'DD-MM-YYYY', 'DD/MM/YYYY', 'YYYY/MM/DD'];
 
+// The audit record's route, from the method in Eka's reply. Which values Eka sends is unverified (the recorded
+// sandbox reply carries a number), so only names that say the route plainly are mapped; anything else is
+// 'unknown' rather than a guess.
+const ROUTES = {
+    aadhaar: 'aadhaar', aadhaar_number: 'aadhaar', aadhaar_otp: 'aadhaar',
+    mobile: 'mobile', mobile_number: 'mobile',
+    abha_number: 'abha_number',
+    abha_address: 'abha_address', phr_address: 'abha_address',
+};
+
 class AbhaProfile {
     static fromSdkPayload(payload) {
         let parsed = payload;
@@ -22,7 +32,21 @@ class AbhaProfile {
             }
         }
         const record = _.get(parsed, 'response.data.profile');
-        return _.isPlainObject(record) ? AbhaProfile.fromProfileRecord(record) : null;
+        if (!_.isPlainObject(record)) return null;
+        return {
+            ...AbhaProfile.fromProfileRecord(record),
+            ekaTxnId: _.get(parsed, 'response.txn_id') || null,
+            route: AbhaProfile.routeOf(_.get(parsed, 'response.method')),
+        };
+    }
+
+    static routeOf(ekaMethod) {
+        return (_.isString(ekaMethod) && ROUTES[_.toLower(_.trim(ekaMethod))]) || 'unknown';
+    }
+
+    // ABHA numbers are compared as digits only: Eka writes 12-3456-7856-8912, a person may type 14 digits.
+    static digitsOnly(abhaNumber) {
+        return _.toString(abhaNumber).replace(/\D/g, '') || null;
     }
 
     static fromProfileRecord(record) {
@@ -40,6 +64,12 @@ class AbhaProfile {
             abhaNumber: _.trim(record.abha_number) || null,
             abhaAddress: _.head(record['health-ids']) || null,
             kycVerified: record.kyc_verified === true,
+            ekaOid: _.trim(record.oid) || null,
+            ekaTxnId: null,
+            route: 'unknown',
+            // 'created' needs the field of Eka's reply that marks a new ABHA, unverified until a sandbox creation
+            // and a sandbox find are compared; until then every ABHA action is recorded as linked.
+            action: 'linked',
         };
     }
 }

@@ -53,6 +53,47 @@ describe('AbhaProfileTest', () => {
         expect(AbhaProfile.fromProfileRecord({gen: "U"}).genderName).to.equal(null);
     });
 
+    it('profileReadsOidTxnAndMethod, for the audit record', () => {
+        const profile = AbhaProfile.fromSdkPayload(JSON.stringify({
+            response: {skip_state: "abha_end", method: "aadhaar", txn_id: "txn-1", data: {profile: {fn: "Asha", oid: "oid-1"}}}
+        }));
+        expect(profile.ekaOid).to.equal("oid-1");
+        expect(profile.ekaTxnId).to.equal("txn-1");
+        expect(profile.route).to.equal("aadhaar");
+        expect(profile.action).to.equal("linked");
+    });
+
+    it('records linked until the sandbox shows which field of the reply marks a new ABHA', () => {
+        ["abha_create", "abha_end", 1, undefined].forEach((skipState) =>
+            expect(AbhaProfile.fromSdkPayload({response: {skip_state: skipState, data: {profile: {fn: "Asha"}}}}).action,
+                String(skipState)).to.equal("linked"));
+    });
+
+    it('routeMappedFromEkaMethod', () => {
+        expect(AbhaProfile.routeOf("aadhaar")).to.equal("aadhaar");
+        expect(AbhaProfile.routeOf("aadhaar_number")).to.equal("aadhaar");
+        expect(AbhaProfile.routeOf("aadhaar_otp")).to.equal("aadhaar");
+        expect(AbhaProfile.routeOf("mobile")).to.equal("mobile");
+        expect(AbhaProfile.routeOf("abha_number")).to.equal("abha_number");
+        expect(AbhaProfile.routeOf("abha_address")).to.equal("abha_address");
+        expect(AbhaProfile.routeOf("phr_address")).to.equal("abha_address");
+        expect(AbhaProfile.routeOf("ABHA_Number")).to.equal("abha_number");
+    });
+
+    it('names a method it does not know unknown, never a guess', () => {
+        expect(AbhaProfile.routeOf(2)).to.equal("unknown");
+        expect(AbhaProfile.routeOf("face_auth")).to.equal("unknown");
+        expect(AbhaProfile.routeOf(undefined)).to.equal("unknown");
+        expect(AbhaProfile.fromProfileRecord({fn: "Asha"}).route).to.equal("unknown");
+    });
+
+    it('compares ABHA numbers as digits only', () => {
+        expect(AbhaProfile.digitsOnly("91-1234-5678-9012")).to.equal("91123456789012");
+        expect(AbhaProfile.digitsOnly(" 9112 3456 7890 12 ")).to.equal("91123456789012");
+        expect(AbhaProfile.digitsOnly(null)).to.equal(null);
+        expect(AbhaProfile.digitsOnly("--")).to.equal(null);
+    });
+
     it('returns null for a payload without a profile or not JSON', () => {
         expect(AbhaProfile.fromSdkPayload(JSON.stringify({response: {error: {code: 1, message: "bad"}}}))).to.equal(null);
         expect(AbhaProfile.fromSdkPayload("not json")).to.equal(null);
