@@ -70,14 +70,16 @@ class ClinicRecordService extends BaseService {
             return 0;
         }
         const ordered = _.sortBy(batches, (batch) => parentsFirstIndex(batch.entityName));
-        let total = 0;
-        for (const batch of ordered) {
-            if (!SHAREABLE_ENTITIES.includes(batch.entityName)) continue;
-            for (const [metaData, resources] of this._metaDataGroups(batch)) {
-                total += await this._applyGroup(batch.entityName, metaData, resources, log, origin);
+        return this.db.inShortTransactions(async () => {
+            let total = 0;
+            for (const batch of ordered) {
+                if (!SHAREABLE_ENTITIES.includes(batch.entityName)) continue;
+                for (const [metaData, resources] of this._metaDataGroups(batch)) {
+                    total += await this._applyGroup(batch.entityName, metaData, resources, log, origin);
+                }
             }
-        }
-        return total;
+            return total;
+        });
     }
 
     async _applyGroup(entityName, metaData, resources, log, origin) {

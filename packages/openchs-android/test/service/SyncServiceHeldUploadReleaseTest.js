@@ -74,12 +74,41 @@ describe('Uploads released by the pull', () => {
             ...services(name),
             getSettings: () => ({enableClinicSharing: true}),
             mirrorOwnQueueIfRunning: async () => { steps.push('mirror'); },
+            syncBeforeServerUpload: async () => {},
             afterSync: async () => ({applied: 0, reported: 0}),
         }));
 
         await runSync(svc);
 
         expect(steps).toEqual(['mirror', 'push', 'pull']);
+    });
+
+    it("send a joined phone's records to the hub before the server upload empties its queue, with server sync marked running throughout", async () => {
+        const {svc, steps} = buildSyncService({pullReleases: 0});
+        svc.db = {isSqlite: true};
+        const services = svc.getService;
+        svc.getService = jest.fn((name) => ({
+            ...services(name),
+            getSettings: () => ({enableClinicSharing: true}),
+            mirrorOwnQueueIfRunning: async () => {},
+            syncBeforeServerUpload: async () => { steps.push(`hub (running: ${svc.serverSyncRunning})`); },
+            afterSync: async () => ({applied: 0, reported: 0}),
+        }));
+        const push = svc.pushData;
+        svc.pushData = jest.fn(async (...args) => { steps.push(`running: ${svc.serverSyncRunning}`); return push(...args); });
+
+        await runSync(svc);
+
+        expect(steps).toEqual(['hub (running: true)', 'running: true', 'push', 'pull']);
+        expect(svc.serverSyncRunning).toBe(false);
+    });
+
+    it('clear the server-sync-running mark when the sync fails', async () => {
+        const {svc} = buildSyncService({pullReleases: 0});
+        svc.pushData = jest.fn(async () => { throw new Error('network down'); });
+
+        await expect(runSync(svc)).rejects.toThrow('network down');
+        expect(svc.serverSyncRunning).toBe(false);
     });
 
     it('cause no second push when the pull released nothing', async () => {

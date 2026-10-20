@@ -7,12 +7,10 @@ import DeviceInfo from "react-native-device-info";
 import _ from "lodash";
 import General from "../../utility/General";
 import ClinicRecordService, {parentsFirstIndex} from "./ClinicRecordService";
-import LocalCacheService from "../LocalCacheService";
 import UserInfoService from "../UserInfoService";
+import {MyDashboardActionNames} from '../../action/mydashboard/MyDashboardActions';
 import {connectToHub, MessageType} from "../../framework/clinicsharing/ClinicTransport";
 import {CLINIC_SYNC_INTERVAL_SECONDS, SHAREABLE_ENTITIES} from "../../framework/clinicsharing/ClinicSharingConstants";
-import {IndividualSearchActionNames as IndividualSearchActions} from '../../action/individual/IndividualSearchActions';
-import {LandingViewActionsNames as LandingViewActions} from '../../action/LandingViewActions';
 
 @Service("clinicSpokeService")
 class ClinicSpokeService extends BaseService {
@@ -227,14 +225,26 @@ class ClinicSpokeService extends BaseService {
         }
     }
 
+    // A recount only: the landing and search loads reset the screen to Home and clear what the user typed.
     async _refreshOpenLists() {
-        this.dispatchAction(IndividualSearchActions.ON_LOAD);
-        const cachedSubjectTypeUUID = await LocalCacheService.getPreviouslySelectedSubjectTypeUuid();
-        this.dispatchAction(LandingViewActions.ON_LOAD, {syncRequired: false, cachedSubjectTypeUUID});
+        this.dispatchAction(MyDashboardActionNames.ON_LOAD, {fetchFromDB: !this.getService(UserInfoService).getUserSettings().disableAutoRefresh});
     }
 
     syncNow(log) {
         if (!this.joined) return Promise.resolve(null);
+        // A hub sync's saves and a server sync's batch would roll each other back.
+        if (_.get(this.getService('syncService'), 'serverSyncRunning')) return Promise.resolve(null);
+        return this._runSync(log);
+    }
+
+    // A server upload empties the queue this phone sends to the hub from, so the hub gets it first.
+    async syncBeforeServerUpload(log = this.log) {
+        if (!this.joined) return null;
+        if (this.inFlight) await this.inFlight;
+        return this._runSync(log);
+    }
+
+    _runSync(log) {
         if (!this.inFlight) {
             this.inFlight = this.syncWithHub(this.joined, log)
                 .then((result) => this._noteResult(result))

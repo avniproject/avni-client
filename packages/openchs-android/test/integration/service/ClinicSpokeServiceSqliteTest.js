@@ -25,6 +25,8 @@ import hubJoin from "../../../src/framework/clinicsharing/ClinicHubJoin";
 import ClinicHubService from "../../../src/service/clinicsharing/ClinicHubService";
 import ClinicSpokeService from "../../../src/service/clinicsharing/ClinicSpokeService";
 import ClinicRecordService from "../../../src/service/clinicsharing/ClinicRecordService";
+import UserInfoService from "../../../src/service/UserInfoService";
+import {MyDashboardActionNames} from "../../../src/action/mydashboard/MyDashboardActions";
 
 let dbCount = 0;
 let nextPort = 18100 + (process.pid % 500);
@@ -55,7 +57,8 @@ function device() {
             service.findAll = () => queue;
             service.findByKey = (key, uuid) => records[uuid] && {toResource: {uuid, version: records[uuid].version}};
             const clinic = {clinicMediaService: {pushToHub: async () => 0, cleanUpCopies: async () => 0}, clinicParkedRecordService: parkedRecords};
-            service.getService = (cls) => (cls === ClinicRecordService ? recordService : clinic[cls]);
+            const userInfo = {getUserSettings: () => ({disableAutoRefresh: false})};
+            service.getService = (cls) => (cls === ClinicRecordService ? recordService : cls === UserInfoService ? userInfo : clinic[cls]);
             service.dispatchAction = jest.fn();
             return service;
         },
@@ -179,7 +182,7 @@ describe('Phones syncing with the hub', () => {
         expect(Object.keys(late.records).sort()).toEqual(['enc-1', 'ind-1']);
     });
 
-    it('refreshes open lists only when something arrived', async () => {
+    it("recounts the home dashboard only when something arrived, without moving the user off a search", async () => {
         const a = phone(), b = phone();
         await b.sync();
         expect(b.spoke.dispatchAction).not.toHaveBeenCalled();
@@ -187,7 +190,7 @@ describe('Phones syncing with the hub', () => {
         a.save('Individual', 'ind-1', 'v1');
         await a.sync();
         await b.sync();
-        expect(b.spoke.dispatchAction).toHaveBeenCalled();
+        expect(b.spoke.dispatchAction.mock.calls).toEqual([[MyDashboardActionNames.ON_LOAD, {fetchFromDB: true}]]);
     });
 
     it("sends a save made after the phone's clock was set back", async () => {

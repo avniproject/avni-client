@@ -249,12 +249,25 @@ class SyncService extends BaseService {
     /*
      * If isOnlyUploadRequired = true, then only perform upload of data to Backend server
      */
-    async dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isManualSync, userConfirmation, isOnlyUploadRequired) {
+    // Clinic sharing applies records while a server sync's batch may be open; it waits while this is set.
+    async dataServerSync(...args) {
+        this.serverSyncRunning = true;
+        try {
+            return await this._dataServerSync(...args);
+        } finally {
+            this.serverSyncRunning = false;
+        }
+    }
+
+    async _dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isManualSync, userConfirmation, isOnlyUploadRequired) {
         const allTxEntityMetaData = this.getMetadataByType(allEntitiesMetaData, "tx");
         const resetSyncMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "ResetSync");
         const syncStartedAt = Date.now();
         this.releasedHoldBacks = 0;
-        if (this._clinicSharingEnabled()) await this.getService('clinicHubService').mirrorOwnQueueIfRunning();
+        if (this._clinicSharingEnabled()) {
+            await this.getService('clinicHubService').mirrorOwnQueueIfRunning();
+            await this.getService('clinicSpokeService').syncBeforeServerUpload();
+        }
         const uploadData = Promise.resolve(statusMessageCallBack("uploadLocallySavedData"))
             .then(() => this.pushData(allTxEntityMetaData.slice(), onProgressPerEntity))
             .then(() => onAfterMediaPush("After_Media", 0));
