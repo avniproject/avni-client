@@ -1,5 +1,5 @@
 import {InteractionManager} from "react-native";
-import {Concept, Individual, Observation, PrimitiveValue, SubjectType, WorkItem, WorkList, WorkLists} from "avni-models";
+import {Concept, Gender, Individual, Observation, PrimitiveValue, SubjectType, WorkItem, WorkList, WorkLists} from "avni-models";
 import {PersonRegisterActions} from "../../../src/action/individual/PersonRegisterActions";
 import EntityFactory from "../../EntityFactory";
 import EntityService from "../../../src/service/EntityService";
@@ -11,11 +11,16 @@ import DraftConfigService from "../../../src/service/DraftConfigService";
 import IndividualService from "../../../src/service/IndividualService";
 import UserInfoService from "../../../src/service/UserInfoService";
 import ConceptService from "../../../src/service/ConceptService";
+import AbhaService from "../../../src/service/AbhaService";
+import DraftSubjectService from "../../../src/service/draft/DraftSubjectService";
+import SettingsService from "../../../src/service/SettingsService";
 
 const subjectType = Object.assign(SubjectType.create("Person"), {uuid: "st-person", type: "Person"});
 const abhaNumberConcept = EntityFactory.createConcept("ABHA Number", Concept.dataType.Text, "c-abha-number");
 const abhaAddressConcept = EntityFactory.createConcept("ABHA Address", Concept.dataType.Text, "c-abha-address");
 const otherConcept = EntityFactory.createConcept("Occupation", Concept.dataType.Text, "c-occupation");
+const gender = (name) => Object.assign(Gender.create(name), {uuid: `g-${name}`});
+const GENDERS = [gender("Female"), gender("Male")];
 
 function registrationForm(concepts) {
     const form = EntityFactory.createForm("Person registration");
@@ -43,7 +48,10 @@ function contextWith({abhaOn = false, hipId = null, form = abhaForm(), saved = n
         [GroupSubjectService, {populateGroups: jest.fn()}],
         [OrganisationConfigService, {getCustomRegistrationLocationsForSubjectType: () => undefined, isAbhaEnabled: jest.fn(() => abhaOn)}],
         [DraftConfigService, {shouldSaveDraft: () => false}],
-        [IndividualService, {findByUUID: () => saved && {cloneForEdit: () => saved}}],
+        [IndividualService, {findByUUID: () => saved && {cloneForEdit: () => saved}, register: jest.fn()}],
+        [DraftSubjectService, {deleteDraftSubjectByUUID: jest.fn()}],
+        [AbhaService, {resendUnsentEvents: jest.fn(() => Promise.resolve([]))}],
+        [SettingsService, {getSettings: () => ({})}],
         [UserInfoService, {getUserSettings: jest.fn(() => (hipId ? {abhaHipId: hipId, locale: "en"} : {locale: "en"}))}],
         [ConceptService, {getConceptByName: (name) => [abhaNumberConcept, abhaAddressConcept].find((c) => c.name === name)}],
     ]);
@@ -51,7 +59,7 @@ function contextWith({abhaOn = false, hipId = null, form = abhaForm(), saved = n
 }
 
 const load = (context, individualUUID) => PersonRegisterActions.onLoad(
-    PersonRegisterActions.getInitialState({get: () => ({getAll: () => []})}),
+    PersonRegisterActions.getInitialState({get: () => ({getAll: () => GENDERS})}),
     {individualUUID, workLists: workLists(), isDraftEntity: false}, context);
 
 describe("PersonRegisterActions, ABHA", () => {
@@ -96,6 +104,127 @@ describe("PersonRegisterActions, ABHA", () => {
             const {abha, ...rest} = state;
             const {abha: abhaOn, ...restOn} = load(contextWith({abhaOn: true, hipId: "hip-1"}));
             expect(Object.keys(rest).sort()).toEqual(Object.keys(restOn).sort());
+        });
+    });
+
+    describe("the worker's choice and the ABHA's details", () => {
+        const PROFILE = {
+            firstName: "Asha", middleName: "K", lastName: "Rao", genderName: "Female", dateOfBirth: new Date(1990, 3, 23),
+            abhaNumber: "91-1234-5678-9012", abhaAddress: "asha.rao@sbx", ekaOid: "oid-1", ekaTxnId: "txn-1", route: "aadhaar", action: "linked",
+        };
+        const loaded = (saved) => load(contextWith({abhaOn: true, hipId: "hip-1", saved}), saved && saved.uuid);
+        const answer = (state, conceptName) => state.individual.findObservation(conceptName);
+
+        it("withoutChoiceHidesOptions", () => {
+            const context = contextWith({abhaOn: true, hipId: "hip-1"});
+            const state = load(context);
+            expect(PersonRegisterActions.abhaOptionsShown(state.abha)).toBe(true);
+
+            const without = PersonRegisterActions.onAbhaChoice(state, {choice: "without"}, context);
+
+            expect(without.abha.choice).toBe("without");
+            expect(PersonRegisterActions.abhaOptionsShown(without.abha)).toBe(false);
+            expect(without.individual.observations).toHaveLength(0);
+        });
+
+        it("shows no options with ABHA off, or for a patient already linked", () => {
+            expect(PersonRegisterActions.abhaOptionsShown(load(contextWith({abhaOn: false, hipId: "hip-1"})).abha)).toBe(false);
+            expect(PersonRegisterActions.abhaOptionsShown(undefined)).toBe(false);
+            const linked = savedPerson([Observation.create(abhaAddressConcept, new PrimitiveValue("asha@sbx"))]);
+            expect(PersonRegisterActions.abhaOptionsShown(loaded(linked).abha)).toBe(false);
+        });
+
+        it("prefillCallsNameDobGenderHandlers, so validation runs as if typed", () => {
+            const handlers = ["enterFirstName", "enterMiddleName", "enterLastName", "enterIndividualDOB", "enterIndividualGender"]
+                .map((name) => jest.spyOn(PersonRegisterActions, name));
+            const context = contextWith({abhaOn: true, hipId: "hip-1"});
+
+            const state = PersonRegisterActions.onAbhaProfile(load(context), {profile: PROFILE, choice: "create"}, context);
+
+            handlers.forEach((handler) => expect(handler).toHaveBeenCalledTimes(1));
+            expect(PersonRegisterActions.enterFirstName.mock.calls[0][1]).toEqual({value: "Asha"});
+            expect(PersonRegisterActions.enterIndividualDOB.mock.calls[0][1]).toEqual({value: PROFILE.dateOfBirth});
+            expect(state.individual).toMatchObject({firstName: "Asha", middleName: "K", lastName: "Rao", dateOfBirth: PROFILE.dateOfBirth});
+            expect(state.individual.gender.name).toBe("Female");
+        });
+
+        it("prefillWritesBothAnswersWithAutoSource, the number as Eka writes it", () => {
+            const context = contextWith({abhaOn: true, hipId: "hip-1"});
+            const state = PersonRegisterActions.onAbhaProfile(load(context), {profile: PROFILE, choice: "link"}, context);
+
+            expect(answer(state, "ABHA Number").getValue()).toBe("91-1234-5678-9012");
+            expect(answer(state, "ABHA Address").getValue()).toBe("asha.rao@sbx");
+            expect(answer(state, "ABHA Number").getValueWrapper().answerSource).toBe(Observation.AnswerSource.Auto);
+            expect(answer(state, "ABHA Address").getValueWrapper().answerSource).toBe(Observation.AnswerSource.Auto);
+            expect(state.abha).toMatchObject({linked: true, choice: "link"});
+            expect(PersonRegisterActions.abhaOptionsShown(state.abha)).toBe(false);
+        });
+
+        it("an ABHA with an address only removes an ABHA number the patient had", () => {
+            const person = savedPerson([Observation.create(abhaNumberConcept, new PrimitiveValue("11-1111-1111-1111"))]);
+            const context = contextWith({abhaOn: true, hipId: "hip-1", saved: person});
+            const state = PersonRegisterActions.onAbhaProfile(load(context, person.uuid),
+                {profile: {...PROFILE, abhaNumber: null, abhaAddress: "asha@sbx"}, choice: "link"}, context);
+
+            expect(answer(state, "ABHA Number")).toBeUndefined();
+            expect(answer(state, "ABHA Address").getValue()).toBe("asha@sbx");
+        });
+
+        it("unknownGenderLeftBlank, for the worker to pick", () => {
+            const context = contextWith({abhaOn: true, hipId: "hip-1"});
+            const genderHandler = jest.spyOn(PersonRegisterActions, "enterIndividualGender");
+
+            const other = PersonRegisterActions.onAbhaProfile(load(context), {profile: {...PROFILE, genderName: "Other"}}, context);
+            const none = PersonRegisterActions.onAbhaProfile(load(context), {profile: {...PROFILE, genderName: null}}, context);
+
+            expect(genderHandler).not.toHaveBeenCalled();
+            expect(other.individual.gender).toBeNull();
+            expect(none.individual.gender).toBeNull();
+            expect(other.individual.firstName).toBe("Asha");
+        });
+
+        it("fills only what the ABHA gives, keeping the rest as it was", () => {
+            const context = contextWith({abhaOn: true, hipId: "hip-1"});
+            const typed = PersonRegisterActions.enterLastName(load(context), {value: "Typed"}, context);
+            const state = PersonRegisterActions.onAbhaProfile(typed, {profile: {...PROFILE, lastName: null, dateOfBirth: null}}, context);
+            expect(state.individual.lastName).toBe("Typed");
+            expect(state.individual.firstName).toBe("Asha");
+        });
+
+        it("removeLinkClearsBothAnswers, and the options show again", () => {
+            const person = savedPerson([
+                Observation.create(otherConcept, new PrimitiveValue("Farmer")),
+                Observation.create(abhaNumberConcept, new PrimitiveValue("91-1234-5678-9012")),
+                Observation.create(abhaAddressConcept, new PrimitiveValue("asha.rao@sbx")),
+            ]);
+            const context = contextWith({abhaOn: true, hipId: "hip-1", saved: person});
+            const state = PersonRegisterActions.onAbhaLinkRemoved(load(context, person.uuid), {}, context);
+
+            expect(answer(state, "ABHA Number")).toBeUndefined();
+            expect(answer(state, "ABHA Address")).toBeUndefined();
+            expect(answer(state, "Occupation").getValue()).toBe("Farmer");
+            expect(state.abha).toMatchObject({linked: false, choice: null});
+            expect(PersonRegisterActions.abhaOptionsShown(state.abha)).toBe(true);
+        });
+    });
+
+    describe("on save", () => {
+        it("sends again any ABHA audit record that has not reached the server", () => {
+            const context = contextWith({abhaOn: true, hipId: "hip-1"});
+            const cb = jest.fn();
+            PersonRegisterActions.onSave(load(context), {cb}, context);
+            expect(context.get(IndividualService).register).toHaveBeenCalledTimes(1);
+            expect(context.get(AbhaService).resendUnsentEvents).toHaveBeenCalledTimes(1);
+            expect(cb).toHaveBeenCalledTimes(1);
+        });
+
+        it("with ABHA off, saves as before and never touches ABHA", () => {
+            const context = contextWith({abhaOn: false, hipId: "hip-1"});
+            const cb = jest.fn();
+            PersonRegisterActions.onSave(load(context), {cb}, context);
+            expect(context.get(IndividualService).register).toHaveBeenCalledTimes(1);
+            expect(context.get(AbhaService).resendUnsentEvents).not.toHaveBeenCalled();
+            expect(cb).toHaveBeenCalledTimes(1);
         });
     });
 });

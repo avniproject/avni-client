@@ -4,7 +4,7 @@ import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import {EDGE_MODEL_ACTION} from "../../service/EdgeModelService";
 import {RULE_SERVICE_ACTION} from "../../service/RuleService";
 import EntityService from "../../service/EntityService";
-import {DraftSubject, Gender, Individual, ObservationsHolder, Point, SubjectType} from "avni-models";
+import {DraftSubject, Gender, Individual, Observation, ObservationsHolder, Point, SubjectType} from "avni-models";
 import IndividualRegistrationState from "../../state/IndividualRegistrationState";
 import Wizard from "../../state/Wizard";
 import _ from "lodash";
@@ -26,6 +26,8 @@ import moment from "moment";
 import AddressLevelService from "../../service/AddressLevelService";
 import {canSaveRegistrationDraft} from "../../state/RegistrationDraft";
 import UserInfoService from "../../service/UserInfoService";
+import ConceptService from "../../service/ConceptService";
+import AbhaService from "../../service/AbhaService";
 import {ABHA_CONCEPT_NAMES} from "../../views/abha/AbhaProfile";
 
 export class PersonRegisterActions {
@@ -94,6 +96,50 @@ export class PersonRegisterActions {
 
     static hasAbhaAnswer(individual) {
         return _.some(_.values(ABHA_CONCEPT_NAMES), (name) => !_.isNil(individual.findObservation(name)));
+    }
+
+    static abhaOptionsShown(abha) {
+        return !!abha && abha.enabledForUser && _.isNil(abha.choice) && !abha.linked;
+    }
+
+    static onAbhaChoice(state, action) {
+        const newState = state.clone();
+        newState.abha = {...newState.abha, choice: action.choice};
+        return newState;
+    }
+
+    // The verified ABHA profile fills the first page through the handlers the fields use, so validation runs as if
+    // typed. Only what the ABHA gives is filled; a gender the organisation does not use is left for the worker.
+    static onAbhaProfile(state, action, context) {
+        const {profile} = action;
+        let newState = state.clone();
+        if (profile.firstName) newState = PersonRegisterActions.enterFirstName(newState, {value: profile.firstName}, context);
+        if (profile.middleName) newState = PersonRegisterActions.enterMiddleName(newState, {value: profile.middleName}, context);
+        if (profile.lastName) newState = PersonRegisterActions.enterLastName(newState, {value: profile.lastName}, context);
+        if (profile.dateOfBirth) newState = PersonRegisterActions.enterIndividualDOB(newState, {value: profile.dateOfBirth});
+        const gender = profile.genderName && _.find(newState.genders, (g) => g.name === profile.genderName);
+        if (gender) newState = PersonRegisterActions.enterIndividualGender(newState, {value: gender});
+        PersonRegisterActions.writeAbhaAnswers(newState, profile, context);
+        newState.abha = {...newState.abha, linked: PersonRegisterActions.hasAbhaAnswer(newState.individual), choice: action.choice || null};
+        return newState;
+    }
+
+    static onAbhaLinkRemoved(state, action, context) {
+        const newState = state.clone();
+        PersonRegisterActions.writeAbhaAnswers(newState, {}, context);
+        newState.abha = {...newState.abha, linked: PersonRegisterActions.hasAbhaAnswer(newState.individual), choice: null};
+        return newState;
+    }
+
+    // Both ABHA answers go straight into the observations, since their questions sit on later pages. An absent one
+    // is removed, so a new ABHA leaves nothing of an earlier one. The number is kept as Eka writes it.
+    static writeAbhaAnswers(state, values, context) {
+        const conceptService = context.get(ConceptService);
+        const observationsHolder = new ObservationsHolder(state.individual.observations);
+        _.forEach(ABHA_CONCEPT_NAMES, (conceptName, field) => {
+            const concept = conceptService.getConceptByName(conceptName);
+            if (concept) observationsHolder.addOrUpdatePrimitiveObs(concept, values[field] || null, Observation.AnswerSource.Auto);
+        });
     }
 
     static onFormLoad(state, action, context) {
@@ -237,6 +283,7 @@ export class PersonRegisterActions {
         try {
             const newState = state.clone();
             context.get(IndividualService).register(newState.individual, action.nextScheduledVisits, action.skipCreatingPendingStatus, newState.groupAffiliation.groupSubjectObservations);
+            if (_.get(newState, 'abha.enabledForUser')) context.get(AbhaService).resendUnsentEvents();
             const {member, headOfHousehold, individualRelative} = newState.household;
             if (!_.isNil(member)) {
                 member.memberSubject = context.get(IndividualService).findByUUID(newState.individual.uuid);
@@ -332,6 +379,9 @@ const actions = {
     ON_TIMED_FORM: "IRA.ON_TIMED_FORM",
     ON_START_TIMER: "IRA.ON_START_TIMER",
     ON_APP_BACKGROUND: "IRA.ON_APP_BACKGROUND",
+    ON_ABHA_CHOICE: "IRA.ON_ABHA_CHOICE",
+    ON_ABHA_PROFILE: "IRA.ON_ABHA_PROFILE",
+    ON_ABHA_LINK_REMOVED: "IRA.ON_ABHA_LINK_REMOVED",
 };
 
 export default new Map([
@@ -370,6 +420,9 @@ export default new Map([
     [actions.ON_TIMED_FORM, TimerActions.onTimedForm],
     [actions.ON_START_TIMER, TimerActions.onStartTimer],
     [actions.ON_APP_BACKGROUND, PersonRegisterActions.onAppBackground],
+    [actions.ON_ABHA_CHOICE, PersonRegisterActions.onAbhaChoice],
+    [actions.ON_ABHA_PROFILE, PersonRegisterActions.onAbhaProfile],
+    [actions.ON_ABHA_LINK_REMOVED, PersonRegisterActions.onAbhaLinkRemoved],
     [EDGE_MODEL_ACTION.INFERENCE_RESULT_AVAILABLE, ObservationsHolderActions.onInferenceResultAvailable],
     [EDGE_MODEL_ACTION.INFERENCE_RESULTS_BATCH, ObservationsHolderActions.onObservationWriteBatch],
     [EDGE_MODEL_ACTION.INFERENCE_UNAVAILABLE, ObservationsHolderActions.onInferenceUnavailable],
