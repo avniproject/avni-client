@@ -128,6 +128,33 @@ describe('Uploads released by the pull', () => {
         expect(steps).toEqual(['mirror', 'push', 'pull', 'mirror', 'push']);
     });
 
+    it("hold back a server reset while uploads still wait, so the reset does not delete them", async () => {
+        const {svc} = buildSyncService({pullReleases: 0});
+        const resetSync = jest.fn();
+        const services = svc.getService;
+        svc.getService = jest.fn((name) => ({...services(name), isResetSyncRequired: () => true, resetSync}));
+        svc.entityQueueService = {getPendingFieldDataCount: () => 1, getPendingFieldDataSummary: () => 'Encounter=1'};
+        const userConfirmation = jest.fn(async () => 'YES');
+
+        await svc.dataServerSync(ALL_ENTITIES_META_DATA, () => {}, () => {}, () => {}, () => {}, true, userConfirmation, false);
+
+        expect(userConfirmation).not.toHaveBeenCalled();
+        expect(resetSync).not.toHaveBeenCalled();
+    });
+
+    it("run the server reset as before once nothing waits to upload", async () => {
+        const {svc} = buildSyncService({pullReleases: 0});
+        const resetSync = jest.fn();
+        const services = svc.getService;
+        svc.getService = jest.fn((name) => ({...services(name), isResetSyncRequired: () => true, resetSync}));
+        svc.entityQueueService = {getPendingFieldDataCount: () => 0};
+        const userConfirmation = jest.fn(async () => 'YES');
+
+        await svc.dataServerSync(ALL_ENTITIES_META_DATA, () => {}, () => {}, () => {}, () => {}, true, userConfirmation, false);
+
+        expect(resetSync).toHaveBeenCalled();
+    });
+
     it('cause no second push when the pull released nothing', async () => {
         const {svc, steps} = buildSyncService({pullReleases: 0});
 

@@ -236,6 +236,14 @@ class SyncService extends BaseService {
         )
     }
 
+    // A reset deletes the upload queue, and after the push it still holds uploads waiting on another phone's records.
+    _uploadsStillWaiting() {
+        const waiting = this.entityQueueService.getPendingFieldDataCount();
+        if (waiting === 0) return false;
+        General.logWarn("SyncService", `Deferring reset sync: ${waiting} local changes still awaiting upload (${this.entityQueueService.getPendingFieldDataSummary()})`);
+        return true;
+    }
+
     async confirmUserAndResetSync(userConfirmation) {
         if (userConfirmation) {
             const userResponse = await userConfirmation();
@@ -279,6 +287,7 @@ class SyncService extends BaseService {
             .then(() => this.getResetSyncData(resetSyncMetadata, onProgressPerEntity))
             .then(async () => {
                 const isResetSyncRequired = this.getService(ResetSyncService).isResetSyncRequired();
+                if (isResetSyncRequired && this._uploadsStillWaiting()) return;
                 return await isResetSyncRequired && isManualSync && this.confirmUserAndResetSync(userConfirmation);
             });
 
