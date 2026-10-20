@@ -150,8 +150,18 @@ describe("A row built straight from the download", () => {
             sameAsToday("ProgramEnrolment", () => without(enrolmentResource(), "programExitDateTime", "observations",
                 "programExitObservations", "enrolmentLocation", "voided")));
 
+        it("matches today's row when optional fields are null instead of missing", () =>
+            sameAsToday("ProgramEnrolment", () => enrolmentResource({programExitDateTime: null, voided: null, observations: null,
+                programExitObservations: null, enrolmentLocation: null, exitLocation: null})));
+
+        it("matches today's row when the download has no links at all", () =>
+            sameAsToday("ProgramEnrolment", () => without(enrolmentResource(), "_links")));
+
         it("keeps the uuid of a subject that is not on the phone", () =>
             keepsMissingParent("ProgramEnrolment", () => enrolmentResource({}, {individualUUID: "ind-elsewhere"}), "individual_uuid", "ind-elsewhere"));
+
+        it("keeps the uuid of a program that is not on the phone", () =>
+            keepsMissingParent("ProgramEnrolment", () => enrolmentResource({}, {programUUID: "pr-elsewhere"}), "program_uuid", "pr-elsewhere"));
     });
 
     describe("for a visit", () => {
@@ -167,8 +177,18 @@ describe("A row built straight from the download", () => {
         it("matches today's row when the filled-by links are missing", () =>
             sameAsToday("Encounter", () => encounterResource({}, {filledBy: undefined, filledByUUID: undefined})));
 
+        it("matches today's row when optional fields are null instead of missing", () =>
+            sameAsToday("Encounter", () => encounterResource({name: null, encounterDateTime: null, earliestVisitDateTime: null, maxVisitDateTime: null,
+                cancelDateTime: null, voided: null, observations: null, cancelObservations: null, encounterLocation: null, cancelLocation: null})));
+
+        it("matches today's row when the download has no links at all", () =>
+            sameAsToday("Encounter", () => without(encounterResource(), "_links")));
+
         it("keeps the uuid of a subject that is not on the phone", () =>
             keepsMissingParent("Encounter", () => encounterResource({}, {individualUUID: "ind-elsewhere"}), "individual_uuid", "ind-elsewhere"));
+
+        it("keeps the uuid of an encounter type that is not on the phone", () =>
+            keepsMissingParent("Encounter", () => encounterResource({}, {encounterTypeUUID: "et-elsewhere"}), "encounter_type_uuid", "et-elsewhere"));
     });
 
     describe("for a program visit", () => {
@@ -177,6 +197,14 @@ describe("A row built straight from the download", () => {
 
         it("matches today's row for a cancelled program visit", () =>
             sameAsToday("ProgramEncounter", () => cancelledEncounterResource({uuid: "pe-new"}, {individualUUID: undefined, programEnrolmentUUID: "enl-1"})));
+
+        it("matches today's row when optional fields are null instead of missing", () =>
+            sameAsToday("ProgramEncounter", () => programEncounterResource({name: null, encounterDateTime: null, earliestVisitDateTime: null,
+                maxVisitDateTime: null, cancelDateTime: null, voided: null, observations: null, cancelObservations: null, encounterLocation: null,
+                cancelLocation: null})));
+
+        it("matches today's row when the download has no links at all", () =>
+            sameAsToday("ProgramEncounter", () => without(programEncounterResource(), "_links")));
 
         it("keeps the uuid of an enrolment that is not on the phone", () =>
             keepsMissingParent("ProgramEncounter", () => programEncounterResource({}, {programEnrolmentUUID: "enl-elsewhere"}),
@@ -189,6 +217,12 @@ describe("A row built straight from the download", () => {
 
         it("matches today's row for an ended relationship", () =>
             sameAsToday("IndividualRelationship", () => relationshipResource({exitDateTime: "2026-09-10T10:00:00.000Z"})));
+
+        it("matches today's row when optional fields are null instead of missing", () =>
+            sameAsToday("IndividualRelationship", () => relationshipResource({enterDateTime: null, exitDateTime: null, voided: null})));
+
+        it("matches today's row when the download has no links at all", () =>
+            sameAsToday("IndividualRelationship", () => without(relationshipResource(), "_links")));
 
         it("writes no exit answers column, as today", () => {
             expect(today("IndividualRelationship", relationshipResource())).not.toHaveProperty("exit_observations");
@@ -207,6 +241,13 @@ describe("A row built straight from the download", () => {
         it("writes no answers column, as today", () =>
             expect(direct("Checklist", checklistResource())).not.toHaveProperty("observations"));
 
+        // A checklist's download carries one body field besides its uuid, the base date.
+        it("matches today's row when optional fields are null instead of missing", () =>
+            sameAsToday("Checklist", () => checklistResource({baseDate: null})));
+
+        it("matches today's row when the download has no links at all", () =>
+            sameAsToday("Checklist", () => without(checklistResource(), "_links")));
+
         it("keeps the uuid of an enrolment that is not on the phone", () =>
             keepsMissingParent("Checklist", () => checklistResource({}, {programEnrolmentUUID: "enl-elsewhere"}), "program_enrolment_uuid", "enl-elsewhere"));
 
@@ -221,6 +262,12 @@ describe("A row built straight from the download", () => {
         it("matches today's row for an item not yet completed", () =>
             sameAsToday("ChecklistItem", () => without(checklistItemResource({completionDate: null}), "observations")));
 
+        it("matches today's row when optional fields are null instead of missing", () =>
+            sameAsToday("ChecklistItem", () => checklistItemResource({completionDate: null, observations: null})));
+
+        it("matches today's row when the download has no links at all", () =>
+            sameAsToday("ChecklistItem", () => without(checklistItemResource(), "_links")));
+
         it("keeps the uuid of a checklist that is not on the phone", () =>
             keepsMissingParent("ChecklistItem", () => checklistItemResource({}, {checklistUUID: "cl-elsewhere"}), "checklist_uuid", "cl-elsewhere"));
     });
@@ -231,6 +278,16 @@ describe("A row built straight from the download", () => {
 
         it("matches today's row when the download has no answers", () =>
             sameAsToday("EntityApprovalStatus", () => without(approvalResource(), "observations")));
+
+        it("matches today's row with approver answers", () =>
+            sameAsToday("EntityApprovalStatus", () => approvalResource({observations: {"c-note": "checked"}})));
+
+        it("matches today's row when optional fields are null instead of missing", () =>
+            sameAsToday("EntityApprovalStatus", () => approvalResource({entityTypeUuid: null, approvalStatusComment: null, autoApproved: null,
+                voided: null, observations: null})));
+
+        it("matches today's row when the download has no links at all", () =>
+            sameAsToday("EntityApprovalStatus", () => without(approvalResource(), "_links")));
 
         it("takes the approved record's uuid from the download", () =>
             expect(direct("EntityApprovalStatus", approvalResource({}, {entityUUID: "enc-1a"})).entity_uuid).toBe("enc-1a"));
