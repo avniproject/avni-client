@@ -70,6 +70,7 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         newState.minLevelTypeUUIDs = this.minLevelTypeUUIDs;
         newState.saveDrafts = this.saveDrafts;
         newState.groupAffiliation = this.groupAffiliation;
+        newState.abha = this.abha;
         super.clone(newState);
         return newState;
     }

@@ -25,6 +25,8 @@ import General from "../../utility/General";
 import moment from "moment";
 import AddressLevelService from "../../service/AddressLevelService";
 import {canSaveRegistrationDraft} from "../../state/RegistrationDraft";
+import UserInfoService from "../../service/UserInfoService";
+import {ABHA_CONCEPT_NAMES} from "../../views/abha/AbhaProfile";
 
 export class PersonRegisterActions {
     static getInitialState(context) {
@@ -62,6 +64,7 @@ export class PersonRegisterActions {
         }
 
         const newState = IndividualRegistrationState.createLoadState(form, state.genders, individual, action.workLists, minLevelTypeUUIDs, saveDrafts, groupAffiliationState, isNewEntity, group);
+        newState.abha = PersonRegisterActions.abhaStateOnLoad(form, individual, context);
         PersonRegisterActions.setAgeState(newState);
 
         // Defer the wizard fast-forward chain past any in-flight slide animation, so its post-render async work
@@ -70,6 +73,27 @@ export class PersonRegisterActions {
             QuickFormEditingActions.moveToPageAsync(newState, action, context, PersonRegisterActions);
         });
         return newState;
+    }
+
+    // ABDM M1. Held in the reducer because the view does not re-render on form pages. enabledForUser: the
+    // organisation has ABHA on and the user has a health centre. formHasConcepts: the registration form asks both
+    // ABHA questions. linked: the patient has an ABHA answer. choice: the option the worker took, null until then.
+    static abhaStateOnLoad(form, individual, context) {
+        const enabledForUser = context.get(OrganisationConfigService).isAbhaEnabled()
+            && !_.isEmpty(_.get(context.get(UserInfoService).getUserSettings(), 'abhaHipId'));
+        if (!enabledForUser) return {enabledForUser: false, formHasConcepts: false, linked: false, choice: null};
+        const conceptNames = _.isNil(form) ? [] :
+            _.flatMap(form.getFormElementGroups(), (group) => group.getFormElements()).map((formElement) => formElement.concept.name);
+        return {
+            enabledForUser,
+            formHasConcepts: _.every(_.values(ABHA_CONCEPT_NAMES), (name) => _.includes(conceptNames, name)),
+            linked: PersonRegisterActions.hasAbhaAnswer(individual),
+            choice: null,
+        };
+    }
+
+    static hasAbhaAnswer(individual) {
+        return _.some(_.values(ABHA_CONCEPT_NAMES), (name) => !_.isNil(individual.findObservation(name)));
     }
 
     static onFormLoad(state, action, context) {
