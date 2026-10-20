@@ -37,7 +37,9 @@ function open(options = {}) {
             const isSelect = /^SELECT\b/i.test(trimmed)
                 || /^EXPLAIN\b/i.test(trimmed)
                 || /^PRAGMA\s+table_info/i.test(trimmed)
-                || /^PRAGMA\s+index_list/i.test(trimmed);
+                || /^PRAGMA\s+index_list/i.test(trimmed)
+                // The read answers with a row, as op-sqlite does; the setter (= ON) returns none.
+                || /^PRAGMA\s+foreign_keys\s*$/i.test(trimmed);
 
             if (isSelect) {
                 const rows = db.prepare(trimmed).all(...params);

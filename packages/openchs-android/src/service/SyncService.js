@@ -675,12 +675,18 @@ class SyncService extends BaseService {
     }
 
     // The eight bulky kinds, when the organisation turns it on (#2145). Off by default, because a
-    // wrong row stays on a phone until a reset sync.
+    // wrong row stays on a phone until a reset sync. Only while foreign keys are off, which the pull sets
+    // (_disableForeignKeysIfSqlite): a row keeps the uuid of a parent that is not on the phone, and with
+    // foreign keys on a page holding one such link would fail whole, on every sync. Today's path writes that link empty.
     _writesRowsDirectly(entityMetaData) {
-        return SqliteRowMapper.covers(entityMetaData.schemaName)
+        const eligible = SqliteRowMapper.covers(entityMetaData.schemaName)
             && this.db.isSqlite === true
             && typeof this.db.bulkInsertRows === 'function'
             && _.get(this.getService(OrganisationConfigService).getSettings(), 'enableDirectSyncRows') === true;
+        if (!eligible) return false;
+        if (this.db.foreignKeysEnabled() === false) return true;
+        General.logWarn("SyncService", `Foreign keys are on during the pull, so ${entityMetaData.entityName} is saved through today's path`);
+        return false;
     }
 
     // No parent lookup per record and no entity objects: each row comes from the download. A parent
@@ -1081,6 +1087,8 @@ class SyncService extends BaseService {
         }
     }
 
+    // The direct-rows path (#2145) keeps a missing parent's uuid, which a foreign key check rejects, so it runs
+    // only while these are off, and _writesRowsDirectly checks it.
     _disableForeignKeysIfSqlite() {
         if (this.context.getRepositoryFactory().setForeignKeysEnabled(false)) {
             General.logDebug("SyncService", "SQLite foreign keys disabled for sync");

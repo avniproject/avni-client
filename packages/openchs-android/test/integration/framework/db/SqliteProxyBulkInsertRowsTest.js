@@ -58,3 +58,17 @@ describe("Writing rows that are already in table shape", () => {
         rawDb.close();
     });
 });
+
+describe("Reading whether foreign keys are enforced", () => {
+    it("reads true after they are turned on and false after they are turned off", () => {
+        const {proxy, rawDb} = openSeededDb();
+        expect(proxy.foreignKeysEnabled()).toBe(false);
+
+        proxy._executeRaw("PRAGMA foreign_keys = ON");
+        expect(proxy.foreignKeysEnabled()).toBe(true);
+
+        proxy._executeRaw("PRAGMA foreign_keys = OFF");
+        expect(proxy.foreignKeysEnabled()).toBe(false);
+        rawDb.close();
+    });
+});

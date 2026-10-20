@@ -581,6 +581,14 @@ class SqliteProxy {
     }
 
     /**
+     * Whether this connection enforces foreign keys right now. SQLite keeps the setting per connection.
+     */
+    foreignKeysEnabled() {
+        const rows = this._executeQuery("PRAGMA foreign_keys");
+        return rows.length > 0 && Number(Object.values(rows[0])[0]) === 1;
+    }
+
+    /**
      * Write a copy of this database to config.path, encrypted with
      * config.encryptionKey if given, plaintext otherwise (KEY '' disables
      * SQLCipher on the attached database). Mirrors Realm's writeCopyTo contract.

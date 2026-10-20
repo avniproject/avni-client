@@ -123,6 +123,26 @@ describe("Saving the bulky kinds of record straight from the download", () => {
         expect(on.sync.dispatchAction).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({entityName: "Individual", numberOfPulledEntities: 1}));
     });
 
+    it("keeps today's path while foreign keys are on", async () => {
+        on.proxy._executeRaw("PRAGMA foreign_keys = ON");
+        const debug = jest.spyOn(General, "logDebug");
+        const warn = jest.spyOn(General, "logWarn");
+        const mapper = jest.spyOn(SqliteRowMapper.prototype, "mapResourceToRow");
+        try {
+            // The new path would keep this subject's uuid, which a foreign key check rejects: the page would fail whole, on every sync.
+            await on.sync.persistAll(pulled("Encounter"), [encounterResource({uuid: "enc-new"}, {individualUUID: "ind-not-on-phone"})]);
+
+            expect(loggedStraightFromDownload(debug)).toBe(false);
+            expect(mapper).not.toHaveBeenCalled();
+            expect(rowOf(on, "encounter", "enc-new").individual_uuid).toBeNull();
+            expect(warn).toHaveBeenCalledWith("SyncService", "Foreign keys are on during the pull, so Encounter is saved through today's path");
+        } finally {
+            debug.mockRestore();
+            warn.mockRestore();
+            mapper.mockRestore();
+        }
+    });
+
     it("never takes the new path on the old database", () => {
         on.sync.db = {isSqlite: false, bulkInsertRows: () => Promise.resolve()};
 
