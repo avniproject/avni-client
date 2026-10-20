@@ -1,5 +1,5 @@
 import _ from "lodash";
-import {Individual, ModelGeneral, Point, SubjectLocation} from "openchs-models";
+import {AddressLevel, Individual, ModelGeneral, Point, SubjectLocation, SubjectType} from "openchs-models";
 import {camelToSnake, normalizeRealmType} from "./SqliteUtils";
 import {convertToSqliteValue, DUMMY_UUIDS, flattenEmbedded, unwrapThat} from "./EntityHydrator";
 
@@ -8,6 +8,15 @@ import {convertToSqliteValue, DUMMY_UUIDS, flattenEmbedded, unwrapThat} from "./
 // read from the download, so a parent that is not on the phone keeps its uuid, where fromResource,
 // finding no parent, leaves the column NULL (#2145).
 const AUDIT_LINKS = {createdBy: "createdBy", createdByUUID: "createdByUUID", lastModifiedBy: "lastModifiedBy", lastModifiedByUUID: "lastModifiedByUUID"};
+
+// Today a user subject whose address is not on the phone gets the placeholder address (avni-models Individual.js:411-413),
+// stored as NULL and handed back on read (LazyGroup.js:143-145); a kept uuid would read back as a stub and skip that hand-back.
+function placeholderAddressForUser(row, entityService) {
+    if (!row.lowest_address_level_uuid || !row.subject_type_uuid) return;
+    const subjectType = entityService.findByKey("uuid", row.subject_type_uuid, SubjectType.schema.name);
+    if (_.isNil(subjectType) || !subjectType.isUser()) return;
+    if (_.isNil(entityService.findByKey("uuid", row.lowest_address_level_uuid, AddressLevel.schema.name))) row.lowest_address_level_uuid = null;
+}
 
 const SPECS = {
     // Individual.js:415-452
@@ -21,6 +30,7 @@ const SPECS = {
         // fromResource sets the name before the subject type (Individual.js:444, 449), so nameString
         // always takes the person branch: every subject, households and users included, gets the full name.
         computed: {name: (resource) => Individual.getFullName(resource)},
+        afterRow: placeholderAddressForUser,
     },
 };
 
@@ -31,6 +41,7 @@ const linkValue = (resource, name) => _.get(resource, ["_links", name, "href"]);
 
 class SqliteRowMapper {
     constructor(realmSchemaMap, entityService) {
+        if (_.isNil(entityService)) throw new Error("SqliteRowMapper needs an entity service, which answers are stored through");
         this.realmSchemaMap = realmSchemaMap;
         this.entityService = entityService;
         this.plans = new Map();
@@ -60,6 +71,7 @@ class SqliteRowMapper {
             const holder = ModelGeneral.assignObsFields(resource, {}, [property], this.entityService);
             row[column] = JSON.stringify(holder[property].map((observation) => flattenEmbedded(unwrapThat(observation), embeddedSchema, this.realmSchemaMap)));
         });
+        if (plan.afterRow) plan.afterRow(row, this.entityService);
         return row;
     }
 
@@ -95,6 +107,7 @@ class SqliteRowMapper {
             observations: (spec.observations || []).map((property) => ({
                 column: camelToSnake(property), property, embeddedSchema: definition(property).objectType,
             })),
+            afterRow: spec.afterRow,
         };
         this.plans.set(schemaName, plan);
         return plan;

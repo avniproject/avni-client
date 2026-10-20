@@ -69,10 +69,39 @@ describe("A row built straight from the download", () => {
         it("writes no address for the placeholder address, as today", () => {
             sameAsToday("Individual", () => individualResource({}, {subjectTypeUUID: "st-user", addressUUID: PLACEHOLDER_ADDRESS_UUID}));
             sameAsToday("Individual", () => individualResource({}, {addressUUID: PLACEHOLDER_ADDRESS_UUID}));
+            expect(direct("Individual", individualResource({}, {subjectTypeUUID: "st-user", addressUUID: PLACEHOLDER_ADDRESS_UUID})).lowest_address_level_uuid).toBeNull();
+            expect(direct("Individual", individualResource({}, {addressUUID: PLACEHOLDER_ADDRESS_UUID})).lowest_address_level_uuid).toBeNull();
         });
 
         it("keeps the uuid of an address that is not on the phone, where today's row leaves it empty", () =>
             keepsMissingParent("Individual", () => individualResource({}, {addressUUID: "al-elsewhere"}), "lowest_address_level_uuid", "al-elsewhere"));
+
+        it("writes no address for a user whose address is not on the phone, as today", () => {
+            sameAsToday("Individual", () => individualResource({}, {subjectTypeUUID: "st-user", addressUUID: "al-elsewhere"}));
+            expect(direct("Individual", individualResource({}, {subjectTypeUUID: "st-user", addressUUID: "al-elsewhere"})).lowest_address_level_uuid).toBeNull();
+        });
+
+        it("keeps a user's address that is on the phone, as today", () => {
+            sameAsToday("Individual", () => individualResource({}, {subjectTypeUUID: "st-user"}));
+            expect(direct("Individual", individualResource({}, {subjectTypeUUID: "st-user"})).lowest_address_level_uuid).toBe("al-village");
+        });
+
+        it("looks up an address only for a user subject that has one", () => {
+            const lookups = jest.spyOn(entityService, "findByKey");
+            const addressLookups = () => lookups.mock.calls.filter(([, , schemaName]) => schemaName === "AddressLevel").length;
+            direct("Individual", individualResource());
+            direct("Individual", individualResource({}, {subjectTypeUUID: "st-household"}));
+            direct("Individual", individualResource({}, {subjectTypeUUID: "st-user", addressUUID: undefined}));
+            expect(addressLookups()).toBe(0);
+            direct("Individual", individualResource({}, {subjectTypeUUID: "st-user"}));
+            expect(addressLookups()).toBe(1);
+            lookups.mockRestore();
+        });
+
+        it("keeps the uuid of a gender or a subject type that is not on the phone", () => {
+            keepsMissingParent("Individual", () => individualResource({}, {genderUUID: "g-elsewhere"}), "gender_uuid", "g-elsewhere");
+            keepsMissingParent("Individual", () => individualResource({}, {subjectTypeUUID: "st-elsewhere"}), "subject_type_uuid", "st-elsewhere");
+        });
 
         it("never writes the latest approval link, which only the phone keeps (INV-026)", () =>
             expect(direct("Individual", individualResource())).not.toHaveProperty("latest_entity_approval_status_uuid"));
@@ -88,4 +117,7 @@ describe("A row built straight from the download", () => {
 
     it("refuses a kind of record it has no row plan for", () =>
         expect(() => direct("GroupSubject", {})).toThrow(/no row plan for "GroupSubject"/));
+
+    it("refuses to be built without an entity service, which answers are stored through", () =>
+        expect(() => new SqliteRowMapper(db.proxy.realmSchemaMap, undefined)).toThrow(/needs an entity service/));
 });
