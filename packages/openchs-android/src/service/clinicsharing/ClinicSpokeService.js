@@ -154,6 +154,7 @@ class ClinicSpokeService extends BaseService {
 
     async clearState() {
         this.leave();
+        await this.getService('clinicMediaService').discardFetchedCopies();
         const db = await this._state();
         const tables = this._sqliteRows(await db.execute("select name from sqlite_master where type = 'table' and name not like 'sqlite_%'")).map((row) => row.name);
         await db.executeBatch(tables.map((table) => [`delete from ${table}`, []]));

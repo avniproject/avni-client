@@ -58,7 +58,7 @@ describe("Hub sync save path on SQLite", () => {
         services.set('clinicSpokeService', spokeService);
         services.set('clinicParkedRecordService', new ClinicParkedRecordService(proxy, context));
         services.set('clinicHoldBackService', {recordReceived: async () => {}});
-        services.set('clinicMediaService', {recordReceivedMedia: async () => {}});
+        services.set('clinicMediaService', {recordReceivedMedia: async () => {}, keepLocalLinks: () => {}});
         syncService = services.get(SyncService);
         p2pService = services.get(ClinicRecordService);
         p2pService.ledgerDb = {};

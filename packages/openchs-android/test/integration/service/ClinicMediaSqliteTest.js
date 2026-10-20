@@ -250,6 +250,35 @@ describe('Photos and files through the hub', () => {
         expect(nodeFs.readdirSync(path.join(doctor.root, 'Image'))).toEqual([]);
     });
 
+    it("deletes the photos it holds for other phones when its data is cleared, and keeps the hub user's own", async () => {
+        const nurse = phone('nurse');
+        [1, 2].forEach((n) => nurse.takePhoto(fileName(n), 1000));
+        await nurse.sync();
+        await nurse.sync();
+        hubPhone.takePhoto(fileName(3), 1000);
+        expect([1, 2].map((n) => hubPhone.has(fileName(n)))).toEqual([true, true]);
+
+        await hubPhone.hub.clearLedger();
+
+        expect([1, 2, 3].map((n) => hubPhone.has(fileName(n)))).toEqual([false, false, true]);
+    });
+
+    it("deletes the photos a joined phone fetched from the hub when its data is cleared, and keeps its own", async () => {
+        const nurse = phone('nurse'), doctor = phone('doctor');
+        nurse.takePhoto(fileName(1), 1000);
+        await nurse.sync();
+        await nurse.sync();
+        doctor.join();
+        await doctor.media.recordReceivedMedia('Encounter', [{media: [{fileName: fileName(1)}]}]);
+        await doctor.media.fetchFromHub(fileName(1), 'Image');
+        doctor.takePhoto(fileName(2), 1000);
+        expect(doctor.has(fileName(1))).toBe(true);
+
+        await doctor.spoke.clearState();
+
+        expect([doctor.has(fileName(1)), doctor.has(fileName(2))]).toEqual([false, true]);
+    });
+
     it('deletes its copy once the record holds the photo\'s link, or after a week, and never the hub phone\'s own photos', async () => {
         const nurse = phone('nurse');
         [1, 2, 3].forEach((n) => nurse.takePhoto(fileName(n), 1000));

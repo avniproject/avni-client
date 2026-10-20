@@ -56,7 +56,7 @@ function device() {
         stub(service) {
             service.findAll = () => queue;
             service.findByKey = (key, uuid) => records[uuid] && {toResource: {uuid, version: records[uuid].version}};
-            const clinic = {clinicMediaService: {pushToHub: async () => 0, cleanUpCopies: async () => 0}, clinicParkedRecordService: parkedRecords};
+            const clinic = {clinicMediaService: {pushToHub: async () => 0, cleanUpCopies: async () => 0, discardFetchedCopies: async () => {}}, clinicParkedRecordService: parkedRecords};
             const userInfo = {getUserSettings: () => ({disableAutoRefresh: false})};
             service.getService = (cls) => (cls === ClinicRecordService ? recordService : cls === UserInfoService ? userInfo : clinic[cls]);
             service.dispatchAction = jest.fn();

@@ -1,6 +1,6 @@
 import Service from "../../framework/bean/Service";
 import BaseService from "../BaseService";
-import {MediaQueue} from 'openchs-models';
+import {MediaQueue, ObservationsHolder} from 'openchs-models';
 import fs from 'react-native-fs';
 import DeviceInfo from "react-native-device-info";
 import _ from "lodash";
@@ -92,17 +92,31 @@ class ClinicMediaService extends BaseService {
         const db = this.getService('clinicSpokeService')._stateSync();
         if (!this.receivedMediaReady) {
             db.executeSync('create table if not exists received_media (file_name text primary key)');
+            db.executeSync('create table if not exists own_media (file_name text primary key)');
             this.receivedMediaReady = true;
         }
         return db;
     }
 
-    // A photo still in this phone's queue is this phone's own, coming back in another phone's edit.
+    // Its queue item goes once it uploads, so without this a stale copy from the hub would make it another phone's photo.
+    recordOwnMedia(fileName) {
+        if (!this.clinicSharingEnabled() || !isBareFileName(fileName)) return;
+        this._receivedMedia().executeSync('insert into own_media (file_name) values (?) on conflict(file_name) do nothing', [fileName]);
+    }
+
+    _ownMedia() {
+        return new Set([
+            ...this.findAll(MediaQueue.schema.name).map((item) => item.fileName),
+            ...rowsOf(this._receivedMedia().executeSync('select file_name from own_media')).map((row) => row.file_name),
+        ]);
+    }
+
+    // A photo this phone took is its own, even when it comes back in another phone's edit.
     async recordReceivedMedia(entityName, entities) {
         const mediaQueueService = this.getService('mediaQueueService');
-        const queued = new Set(this.findAll(MediaQueue.schema.name).map((item) => item.fileName));
+        const own = this._ownMedia();
         const fileNames = _.uniq(entities.flatMap((entity) => mediaQueueService.mediaItems(entity, entityName).map((item) => item.fileName)))
-            .filter((fileName) => isBareFileName(fileName) && !queued.has(fileName));
+            .filter((fileName) => isBareFileName(fileName) && !own.has(fileName));
         if (fileNames.length === 0) return;
         await this._receivedMedia().executeBatch(fileNames.map((fileName) =>
             ['insert into received_media (file_name) values (?) on conflict(file_name) do nothing', [fileName]]));
@@ -111,6 +125,26 @@ class ClinicMediaService extends BaseService {
     isFromAnotherPhone(fileName) {
         if (!this.clinicSharingEnabled()) return false;
         return rowsOf(this._receivedMedia().executeSync('select 1 from received_media where file_name = ?', [fileName])).length > 0;
+    }
+
+    // A hub copy made before a photo uploaded still holds its bare name; saving that over the local record would lose the link.
+    keepLocalLinks(schemaName, incomingEntities) {
+        const mediaQueueService = this.getService('mediaQueueService');
+        incomingEntities.forEach((incoming) => {
+            const local = this.findByUUID(incoming.uuid, schemaName);
+            if (_.isNil(local)) return;
+            const links = new Map(mediaQueueService.mediaItems(local, schemaName)
+                .filter(({fileName}) => /^https?:\/\//.test(fileName))
+                .map(({fileName}) => [fileNameOf(fileName), fileName]));
+            const kept = mediaQueueService.mediaItems(incoming, schemaName)
+                .filter(({fileName}) => isBareFileName(fileName) && links.has(fileName));
+            kept.forEach(({fileName, entityTargetField, conceptUUID}) => {
+                if (entityTargetField === 'profilePicture') incoming.updateProfilePicture(links.get(fileName));
+                else incoming.replaceMediaObservation(fileName, links.get(fileName), conceptUUID);
+            });
+            // A replaced answer is left as an object, and saved unconverted it would read back as "[object Object]".
+            if (kept.length > 0) [incoming.observations, incoming.cancelObservations].filter(Boolean).forEach(ObservationsHolder.convertObsForSave);
+        });
     }
 
     // A local edit kept over the server's copy still holds the bare file names; uploading them would replace the photo's link.
@@ -244,6 +278,26 @@ class ClinicMediaService extends BaseService {
             if (!dir || !(await fs.exists(dir))) continue;
             const stray = (await fs.readDir(dir)).filter((file) => file.name.endsWith('.part') && new Date(file.mtime).getTime() < cutoff);
             for (const file of stray) await this._discard(file.path);
+        }
+    }
+
+    // Other phones' photos: the rows that list them are about to be cleared, and nothing would find the files again.
+    async discardHubCopies(db) {
+        for (const row of rowsOf(await db.execute('select file_name, media_type from hub_media'))) {
+            const path = this._pathFor(row.file_name, row.media_type);
+            if (path) await this._discard(path);
+        }
+    }
+
+    async discardFetchedCopies() {
+        const own = this._ownMedia();
+        const fetched = rowsOf(this._receivedMedia().executeSync('select file_name from received_media')).map((row) => row.file_name)
+            .filter((fileName) => !own.has(fileName));
+        for (const fileName of fetched) {
+            for (const mediaType of MEDIA_TYPES) {
+                const path = this._pathFor(fileName, mediaType);
+                if (path) await this._discard(path);
+            }
         }
     }
 

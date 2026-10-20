@@ -174,6 +174,7 @@ class ClinicHubService extends BaseService {
     async clearLedger() {
         await this.stopSharing();
         const db = await this._ledger();
+        await this.getService('clinicMediaService').discardHubCopies(db);
         const tables = this._sqliteRows(await db.execute("select name from sqlite_master where type = 'table' and name not like 'sqlite_%'")).map((row) => row.name);
         await db.executeBatch(tables.map((table) => [`delete from ${table}`, []]));
         this.lastPrunedAt = 0;

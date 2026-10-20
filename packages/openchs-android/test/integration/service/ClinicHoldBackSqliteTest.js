@@ -310,6 +310,22 @@ describe("Photos in records from another phone", () => {
         expect(posted.observations.map((o) => [o.conceptUUID, o.value])).toEqual([["c-photo", nurseLink], ["c-photo-2", DOCTOR_PHOTO]]);
     });
 
+    it("keep this phone's own photo, and its link, when another phone's older copy of the record arrives with the bare name", async () => {
+        mine.saveLocally("Encounter", visit("v-1", "p-1", {name: "nurse", observations: photos(NURSE_PHOTO)}));
+        mine.queueMediaOf("Encounter", "v-1");
+        const nurseLink = `https://s3.example.org/org-1/${NURSE_PHOTO}`;
+        // The nurse's upload: the photo leaves her queue and her visit takes its link.
+        mine.services.get(MediaQueueService).replaceMediaValue({entityUUID: "v-1", entityName: "Encounter", fileName: NURSE_PHOTO,
+            entityTargetField: "observations", conceptUUID: "c-photo"}, nurseLink);
+        mine.rawDb.executeSync("DELETE FROM media_queue");
+
+        await receive('Encounter', visit("v-1", "p-1", {name: "doctor", observations: photos(NURSE_PHOTO)}));
+
+        const local = mine.read("Encounter", "v-1");
+        expect([local.name, answerOf(local, "c-photo")]).toEqual(["doctor", nurseLink]);
+        expect(mine.media.isFromAnotherPhone(NURSE_PHOTO)).toBe(false);
+    });
+
     it("stay this phone's own when its photo comes back in another phone's edit", async () => {
         mine.saveLocally("Encounter", visit("v-own", "p-1", {observations: photos(DOCTOR_PHOTO)}));
         mine.queueMediaOf("Encounter", "v-own");
