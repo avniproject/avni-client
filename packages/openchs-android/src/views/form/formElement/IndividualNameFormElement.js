@@ -14,18 +14,25 @@ import _ from "lodash";
 
 class IndividualNameFormElement extends AbstractComponent {
     static propTypes = {
-        state: PropTypes.object.isRequired
+        state: PropTypes.object.isRequired,
+        locked: PropTypes.bool
     };
 
     constructor(props, context) {
         super(props, context);
     }
 
+    // Locked, the parts show as plain text: TextFormElement draws a read-only element that way.
+    nameElement(name, mandatory) {
+        const element = new StaticFormElement(name, mandatory);
+        return this.props.locked ? Object.assign(element, {editable: false}) : element;
+    }
+
     render() {
         return (
             <View>
                 <TextFormElement actionName={Actions.REGISTRATION_ENTER_FIRST_NAME}
-                                 element={new StaticFormElement('firstName', true)}
+                                 element={this.nameElement('firstName', true)}
                                  validationResult={AbstractDataEntryState.getValidationError(this.props.state, Individual.validationKeys.FIRST_NAME)}
                                  value={new PrimitiveValue(this.props.state.individual.firstName)}
                                  style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
@@ -34,14 +41,14 @@ class IndividualNameFormElement extends AbstractComponent {
                 />
                 {this.props.state.individual.subjectType.allowMiddleName &&
                 <TextFormElement actionName={Actions.REGISTRATION_ENTER_MIDDLE_NAME}
-                                 element={new StaticFormElement('middleName', false)}
+                                 element={this.nameElement('middleName', false)}
                                  validationResult={AbstractDataEntryState.getValidationError(this.props.state, Individual.validationKeys.MIDDLE_NAME)}
                                  value={new PrimitiveValue(this.props.state.individual.middleName)}
                                  style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
                                  multiline={false}
                 />}
                 <TextFormElement actionName={Actions.REGISTRATION_ENTER_LAST_NAME}
-                                 element={new StaticFormElement('lastName', !this.props.state.individual.subjectType.lastNameOptional)}
+                                 element={this.nameElement('lastName', !this.props.state.individual.subjectType.lastNameOptional)}
                                  validationResult={AbstractDataEntryState.getValidationError(this.props.state, Individual.validationKeys.LAST_NAME)}
                                  value={new PrimitiveValue(this.props.state.individual.lastName)}
                                  style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
