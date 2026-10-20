@@ -6,7 +6,8 @@ import {convertToSqliteValue, DUMMY_UUIDS, flattenEmbedded, unwrapThat} from "./
 // What each model's fromResource assigns, field for field (avni-models v1.33.86), so a row carries
 // exactly the columns flatten(fromResource(resource)) carries. One difference is intended: a link is
 // read from the download, so a parent that is not on the phone keeps its uuid, where fromResource,
-// finding no parent, leaves the column NULL (#2145).
+// finding no parent, leaves the column NULL (#2145). A user subject's address is the exception: it
+// follows today's rule (see placeholderAddressForUser).
 const AUDIT_LINKS = {createdBy: "createdBy", createdByUUID: "createdByUUID", lastModifiedBy: "lastModifiedBy", lastModifiedByUUID: "lastModifiedByUUID"};
 
 // Today a user subject whose address is not on the phone gets the placeholder address (avni-models Individual.js:411-413),
