@@ -47,6 +47,8 @@ import AvniToast from "../common/AvniToast";
 import {SubjectType} from "openchs-models";
 import FormShareService from "../../service/FormShareService";
 import FormShareActionSheetController from "../common/FormShareActionSheetController";
+import OrganisationConfigService from "../../service/OrganisationConfigService";
+import AbhaProfileSection from "../abha/AbhaProfileSection";
 
 class SubjectDashboardProfileTab extends AbstractComponent {
     static propTypes = {
@@ -190,6 +192,29 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                            onRelativeDeletion={this.onRelativeDeletePress.bind(this)}/>
             </View>
         );
+    }
+
+    // ABDM M1: the ABHA section. Create ABHA and Link existing ABHA open the subject's edit screen, which opens on the
+    // three ABHA options for a patient with no ABHA (PersonRegisterActions.abhaOptionsShown).
+    abhaNotLinkedActions() {
+        return [new ContextAction(this.I18n.t('abhaCreate'), () => this.editProfile()),
+            new ContextAction(this.I18n.t('abhaLinkExisting'), () => this.editProfile())];
+    }
+
+    // Story 15 (avni-client#2204) adds View ABHA card here, as
+    // new ContextAction(this.I18n.t('abhaViewCard'), () => CHSNavigator.navigateToAbhaCardView(this, {subjectUUID: ...})).
+    abhaLinkedActions() {
+        return [];
+    }
+
+    renderAbha() {
+        const section = AbhaProfileSection.stateFor(this.state.individual, {
+            enabled: this.getService(OrganisationConfigService).isAbhaEnabled(),
+            hipId: _.get(this.getService(UserInfoService).getUserSettings(), 'abhaHipId'),
+        });
+        if (_.isNil(section)) return null;
+        return <AbhaProfileSection section={section}
+                                   contextActions={section.linked ? this.abhaLinkedActions() : this.abhaNotLinkedActions()}/>;
     }
 
     renderAttendance() {
@@ -452,6 +477,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                     />
                     {!_.isEmpty(visibleObservations(this.state.subjectSummary, this.getService(ConceptService))) && this.renderSummary()}
                     {this.renderProfileOrVoided(individual)}
+                    {this.renderAbha()}
                     {relativesFeatureToggle ? this.renderRelatives() : <View/>}
                     {groupSubjectToggle ? this.renderAttendance() : <View/>}
                     {groupSubjectToggle ? this.renderMembers() : <View/>}
