@@ -12,13 +12,33 @@ import {Checklist, ChecklistItem, Encounter, EntityApprovalStatus, Individual, I
     ProgramEncounter, ProgramEnrolment} from "openchs-models";
 import EntityService from "../../../../src/service/EntityService";
 import RepositoryFactory from "../../../../src/repository/RepositoryFactory";
-import SqliteRowMapper, {DIRECT_ROW_SCHEMAS} from "../../../../src/framework/db/SqliteRowMapper";
+import SqliteRowMapper, {COPIED_FROM_MODELS_VERSION, DIRECT_ROW_SCHEMAS} from "../../../../src/framework/db/SqliteRowMapper";
 import {openSeededDb} from "./lazyFixture";
 import {EXTRA_SEED, PLACEHOLDER_ADDRESS_UUID, REPEATED_GROUP, approvalResource, cancelledEncounterResource, checklistItemResource,
     checklistResource, encounterResource, enrolmentResource, individualResource, programEncounterResource, relationshipResource,
     without} from "./syncResourceFixtures";
 
 const MODELS = {Individual, ProgramEnrolment, Encounter, ProgramEncounter, IndividualRelationship, Checklist, ChecklistItem, EntityApprovalStatus};
+
+// The sources in avni-models that SqliteRowMapper copies (paths at v1.33.86).
+const COPIED_MODEL_SOURCES = ["src/Individual.js", "src/ProgramEnrolment.js", "src/Encounter.js", "src/ProgramEncounter.js", "src/AbstractEncounter.js",
+    "src/relationship/IndividualRelationship.js", "src/Checklist.js", "src/ChecklistItem.js", "src/EntityApprovalStatus.js",
+    "src/utility/General.js", "src/utility/AuditUtil.js", "src/utility/ResourceUtil.js", "src/geo/Point.js", "src/SubjectLocation.js"];
+
+// A tripwire, not a pin: the pins below compare the mapper's rows with today's for the shapes written here, so a change in a
+// new models release that none of those shapes reaches would pass them and leave wrong rows on phones until a reset sync.
+it("is copied from the openchs-models version the app installs", () => {
+    const installed = require("openchs-models/package.json").version;
+    if (installed === COPIED_FROM_MODELS_VERSION) return;
+    throw new Error(
+        `The app installs openchs-models ${installed}, but SqliteRowMapper was copied from ${COPIED_FROM_MODELS_VERSION}.\n` +
+        "SqliteRowMapper copies the fromResource of Individual, ProgramEnrolment, Encounter and ProgramEncounter (AbstractEncounter), " +
+        "IndividualRelationship, Checklist, ChecklistItem and EntityApprovalStatus, plus General.assignFields / assignObsFields, " +
+        "AuditUtil.mapAuditFields, ResourceUtil.getFieldValue, Point.fromResource and SubjectLocation.fromResource.\n" +
+        `Diff those files in avni-models between v${COPIED_FROM_MODELS_VERSION} and v${installed}:\n` +
+        `    git -C ../avni-models diff v${COPIED_FROM_MODELS_VERSION} v${installed} -- ${COPIED_MODEL_SOURCES.join(" ")}\n` +
+        `If any of them changed, update SPECS in SqliteRowMapper.js to match. Then set COPIED_FROM_MODELS_VERSION to "${installed}".`);
+});
 
 describe("A row built straight from the download", () => {
     let db, entityService, mapper;

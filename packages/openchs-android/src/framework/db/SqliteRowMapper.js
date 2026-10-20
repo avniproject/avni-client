@@ -3,6 +3,10 @@ import {AddressLevel, Individual, ModelGeneral, Point, SubjectLocation, SubjectT
 import {camelToSnake, normalizeRealmType} from "./SqliteUtils";
 import {convertToSqliteValue, DUMMY_UUIDS, flattenEmbedded, unwrapThat} from "./EntityHydrator";
 
+// The SPECS below mirror fromResource in this openchs-models version. On a bump, diff the copied methods and update SPECS
+// before this constant; SqliteRowMapperTest fails until the constant matches the version the app installs.
+export const COPIED_FROM_MODELS_VERSION = "1.33.86";
+
 // What each model's fromResource assigns, field for field (avni-models v1.33.86), so a row carries
 // exactly the columns flatten(fromResource(resource)) carries. One difference is intended: a link is
 // read from the download, so a parent that is not on the phone keeps its uuid, where fromResource,
