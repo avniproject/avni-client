@@ -30,6 +30,8 @@ import ConceptService from "../../service/ConceptService";
 import AbhaService from "../../service/AbhaService";
 import {ABHA_CONCEPT_NAMES} from "../../views/abha/AbhaProfile";
 
+const NO_ABHA_LOCKS = {firstName: false, middleName: false, lastName: false, dateOfBirth: false, gender: false};
+
 export class PersonRegisterActions {
     static getInitialState(context) {
         const genders = context.get(EntityService).getAll(Gender.schema.name);
@@ -86,7 +88,7 @@ export class PersonRegisterActions {
     static abhaStateOnLoad(form, individual, context) {
         const enabledForUser = context.get(OrganisationConfigService).isAbhaEnabled()
             && !_.isEmpty(_.get(context.get(UserInfoService).getUserSettings(), 'abhaHipId'));
-        if (!enabledForUser) return {enabledForUser: false, formHasConcepts: false, linked: false, locked: false, choice: null};
+        if (!enabledForUser) return {enabledForUser: false, formHasConcepts: false, linked: false, locked: false, lockedFields: NO_ABHA_LOCKS, dobVerifiedByAbha: false, choice: null};
         const conceptNames = _.isNil(form) ? [] :
             _.flatMap(form.getFormElementGroups(), (group) => group.getFormElements()).map((formElement) => formElement.concept.name);
         return {
@@ -94,6 +96,8 @@ export class PersonRegisterActions {
             formHasConcepts: _.every(_.values(ABHA_CONCEPT_NAMES), (name) => _.includes(conceptNames, name)),
             linked: PersonRegisterActions.hasAbhaAnswer(individual),
             locked: PersonRegisterActions.hasAbhaNumber(individual),
+            lockedFields: PersonRegisterActions.lockedFieldsOf(individual),
+            dobVerifiedByAbha: false,
             choice: null,
         };
     }
@@ -104,6 +108,15 @@ export class PersonRegisterActions {
 
     static hasAbhaNumber(individual) {
         return !_.isNil(individual.findObservation(ABHA_CONCEPT_NAMES.abhaNumber));
+    }
+
+    // On load there is no record of what the ABHA filled, so every detail the saved patient has counts.
+    static lockedFieldsOf(individual) {
+        if (!PersonRegisterActions.hasAbhaNumber(individual)) return NO_ABHA_LOCKS;
+        return {
+            firstName: !_.isEmpty(individual.firstName), middleName: !_.isEmpty(individual.middleName), lastName: !_.isEmpty(individual.lastName),
+            dateOfBirth: !_.isNil(individual.dateOfBirth), gender: !_.isNil(individual.gender),
+        };
     }
 
     static abhaOptionsShown(abha) {
@@ -120,6 +133,7 @@ export class PersonRegisterActions {
     // typed. Only what the ABHA gives is filled; a gender the organisation does not use is left for the worker.
     static onAbhaProfile(state, action, context) {
         const {profile} = action;
+        const tickedBefore = state.individual.dateOfBirthVerified;
         let newState = state.clone();
         if (profile.firstName) newState = PersonRegisterActions.enterFirstName(newState, {value: profile.firstName}, context);
         if (profile.middleName) newState = PersonRegisterActions.enterMiddleName(newState, {value: profile.middleName}, context);
@@ -127,19 +141,33 @@ export class PersonRegisterActions {
         if (profile.dateOfBirth) newState = PersonRegisterActions.enterIndividualDOB(newState, {value: profile.dateOfBirth});
         const gender = profile.genderName && _.find(newState.genders, (g) => g.name === profile.genderName);
         if (gender) newState = PersonRegisterActions.enterIndividualGender(newState, {value: gender});
-        // An ABHA number means Aadhaar checked the details: the date of birth is marked verified and all three lock.
-        if (profile.abhaNumber) newState = PersonRegisterActions.enterIndividualDOBVerified(newState, {value: true});
+        // An ABHA number means Aadhaar checked the details: the date of birth is marked verified, and the details
+        // the ABHA gave lock. A tick the worker gave before the ABHA is not the ABHA's, and stays on removal.
+        const verified = !!profile.abhaNumber;
+        let dobVerifiedByAbha = state.abha.dobVerifiedByAbha;
+        if (verified) {
+            dobVerifiedByAbha = dobVerifiedByAbha || !tickedBefore;
+            newState = PersonRegisterActions.enterIndividualDOBVerified(newState, {value: true});
+        } else if (dobVerifiedByAbha) {
+            dobVerifiedByAbha = false;
+            newState = PersonRegisterActions.enterIndividualDOBVerified(newState, {value: false});
+        }
         PersonRegisterActions.writeAbhaAnswers(newState, profile, context);
+        const lockedFields = !verified ? NO_ABHA_LOCKS : {
+            firstName: !!profile.firstName, middleName: !!profile.middleName, lastName: !!profile.lastName,
+            dateOfBirth: !!profile.dateOfBirth, gender: !!gender,
+        };
         newState.abha = {...newState.abha, linked: PersonRegisterActions.hasAbhaAnswer(newState.individual),
-            locked: PersonRegisterActions.hasAbhaNumber(newState.individual), choice: action.choice || null};
+            locked: PersonRegisterActions.hasAbhaNumber(newState.individual), lockedFields, dobVerifiedByAbha, choice: action.choice || null};
         return newState;
     }
 
     static onAbhaLinkRemoved(state, action, context) {
         const newState = state.clone();
         PersonRegisterActions.writeAbhaAnswers(newState, {}, context);
+        if (state.abha.dobVerifiedByAbha) newState.individual.dateOfBirthVerified = false;
         newState.abha = {...newState.abha, linked: PersonRegisterActions.hasAbhaAnswer(newState.individual),
-            locked: PersonRegisterActions.hasAbhaNumber(newState.individual), choice: null};
+            locked: PersonRegisterActions.hasAbhaNumber(newState.individual), lockedFields: NO_ABHA_LOCKS, dobVerifiedByAbha: false, choice: null};
         return newState;
     }
 

@@ -29,6 +29,7 @@ function registrationForm(concepts) {
     return form;
 }
 
+const NO_LOCKS = {firstName: false, middleName: false, lastName: false, dateOfBirth: false, gender: false};
 const abhaForm = () => registrationForm([otherConcept, abhaNumberConcept, abhaAddressConcept]);
 
 function savedPerson(observations = []) {
@@ -80,7 +81,7 @@ describe("PersonRegisterActions, ABHA", () => {
 
         it("a new patient is not linked and no option is chosen yet", () => {
             expect(load(contextWith({abhaOn: true, hipId: "hip-1"})).abha).toEqual(
-                {enabledForUser: true, formHasConcepts: true, linked: false, locked: false, choice: null});
+                {enabledForUser: true, formHasConcepts: true, linked: false, locked: false, lockedFields: NO_LOCKS, dobVerifiedByAbha: false, choice: null});
         });
 
         it("a patient being edited is linked when they have either ABHA answer", () => {
@@ -93,14 +94,14 @@ describe("PersonRegisterActions, ABHA", () => {
 
         it("keeps the ABHA state through every clone", () => {
             const state = load(contextWith({abhaOn: true, hipId: "hip-1"}));
-            expect(state.clone().abha).toEqual({enabledForUser: true, formHasConcepts: true, linked: false, locked: false, choice: null});
+            expect(state.clone().abha).toEqual({enabledForUser: true, formHasConcepts: true, linked: false, locked: false, lockedFields: NO_LOCKS, dobVerifiedByAbha: false, choice: null});
         });
 
         it("with ABHA off, never reads the user's settings and leaves the rest of the load as it was", () => {
             const off = contextWith({abhaOn: false, hipId: "hip-1"});
             const state = load(off);
             expect(off.get(UserInfoService).getUserSettings).not.toHaveBeenCalled();
-            expect(state.abha).toEqual({enabledForUser: false, formHasConcepts: false, linked: false, locked: false, choice: null});
+            expect(state.abha).toEqual({enabledForUser: false, formHasConcepts: false, linked: false, locked: false, lockedFields: NO_LOCKS, dobVerifiedByAbha: false, choice: null});
             const {abha, ...rest} = state;
             const {abha: abhaOn, ...restOn} = load(contextWith({abhaOn: true, hipId: "hip-1"}));
             expect(Object.keys(rest).sort()).toEqual(Object.keys(restOn).sort());
@@ -264,6 +265,73 @@ describe("PersonRegisterActions, ABHA", () => {
 
         it("the lock survives a clone", () => {
             expect(load(contextWith({abhaOn: true, hipId: "hip-1", saved: withNumber()}), "x").clone().abha.locked).toBe(true);
+        });
+    });
+
+    describe("locking only what the ABHA filled", () => {
+        const FULL = {
+            firstName: "Asha", middleName: "K", lastName: "Rao", genderName: "Female", dateOfBirth: new Date(1990, 3, 23),
+            abhaNumber: "91-1234-5678-9012", abhaAddress: "asha.rao@sbx", route: "aadhaar", action: "linked",
+        };
+        const MOBILE = {...FULL, abhaNumber: null, route: "mobile"};
+        const context = () => contextWith({abhaOn: true, hipId: "hip-1"});
+        const fill = (profile, from) => PersonRegisterActions.onAbhaProfile(from || load(context()), {profile}, context());
+
+        it("locks each name part on its own: a verified profile with no last name leaves the last name editable", () => {
+            expect(fill({...FULL, lastName: null}).abha.lockedFields).toEqual({firstName: true, middleName: true, lastName: false, dateOfBirth: true, gender: true});
+        });
+
+        it("a verified profile with no date of birth leaves it editable, and a gender the organisation does not use stays editable", () => {
+            expect(fill({...FULL, dateOfBirth: null}).abha.lockedFields.dateOfBirth).toBe(false);
+            expect(fill({...FULL, genderName: "Other"}).abha.lockedFields.gender).toBe(false);
+            expect(fill(FULL).abha.lockedFields).toEqual({firstName: true, middleName: true, lastName: true, dateOfBirth: true, gender: true});
+        });
+
+        it("the mobile route locks nothing", () => {
+            expect(fill(MOBILE).abha.lockedFields).toEqual(NO_LOCKS);
+        });
+
+        it("on edit, locks the parts the saved patient has, and only with an ABHA number", () => {
+            const person = savedPerson([Observation.create(abhaNumberConcept, new PrimitiveValue("91-1234-5678-9012"))]);
+            person.firstName = "Asha";
+            person.dateOfBirth = new Date(1990, 3, 23);
+            const state = load(contextWith({abhaOn: true, hipId: "hip-1", saved: person}), person.uuid);
+            expect(state.abha.lockedFields).toEqual({firstName: true, middleName: false, lastName: false, dateOfBirth: true, gender: false});
+            const addressOnly = savedPerson([Observation.create(abhaAddressConcept, new PrimitiveValue("a@sbx"))]);
+            addressOnly.firstName = "Asha";
+            expect(load(contextWith({abhaOn: true, hipId: "hip-1", saved: addressOnly}), addressOnly.uuid).abha.lockedFields).toEqual(NO_LOCKS);
+        });
+
+        it("a last name typed after a single-name ABHA fill does not lock the box under the worker", () => {
+            const state = PersonRegisterActions.enterLastName(fill({...FULL, lastName: null}), {value: "Rao"}, context());
+            expect(state.abha.lockedFields.lastName).toBe(false);
+        });
+
+        it("replacing a verified ABHA with a mobile one, or removing the link, unticks verified when the ABHA ticked it", () => {
+            const verified = fill({...FULL, dateOfBirth: null});
+            expect(verified.individual.dateOfBirthVerified).toBe(true);
+            expect(fill(MOBILE, verified).individual.dateOfBirthVerified).toBe(false);
+            expect(PersonRegisterActions.onAbhaLinkRemoved(verified, {}, context()).individual.dateOfBirthVerified).toBe(false);
+            expect(PersonRegisterActions.onAbhaLinkRemoved(verified, {}, context()).abha.dobVerifiedByAbha).toBe(false);
+        });
+
+        it("an ABHA that gives a date of birth, on a patient with no tick yet, still counts the tick as its own", () => {
+            const verified = fill(FULL);
+            expect(verified.abha.dobVerifiedByAbha).toBe(true);
+            expect(PersonRegisterActions.onAbhaLinkRemoved(verified, {}, context()).individual.dateOfBirthVerified).toBe(false);
+        });
+
+        it("a tick the worker gave before the ABHA stays when the ABHA is replaced or removed", () => {
+            const ticked = PersonRegisterActions.enterIndividualDOBVerified(load(context()), {value: true}, context());
+            const verified = fill({...FULL, dateOfBirth: null}, ticked);
+            expect(verified.abha.dobVerifiedByAbha).toBe(false);
+            expect(fill(MOBILE, verified).individual.dateOfBirthVerified).toBe(true);
+            expect(PersonRegisterActions.onAbhaLinkRemoved(verified, {}, context()).individual.dateOfBirthVerified).toBe(true);
+        });
+
+        it("a verified ABHA replacing a verified one keeps knowing the tick is the ABHA's", () => {
+            const again = fill({...FULL, dateOfBirth: null}, fill({...FULL, dateOfBirth: null}));
+            expect(again.abha.dobVerifiedByAbha).toBe(true);
         });
     });
 
