@@ -17,7 +17,8 @@ import UserInfoService from '../../../service/UserInfoService';
 
 class DateOfBirthAndAgeFormElement extends AbstractComponent {
     static propTypes = {
-        state: PropTypes.object.isRequired
+        state: PropTypes.object.isRequired,
+        locked: PropTypes.bool
     };
 
     constructor(props, context) {
@@ -53,7 +54,7 @@ class DateOfBirthAndAgeFormElement extends AbstractComponent {
                 </View>
                 <View style={{flexDirection: 'row'}}>
                     <Text
-                        onPress={this.showPicker.bind(this)}
+                        onPress={this.props.locked ? undefined : this.showPicker.bind(this)}
                         style={[DGS.formElementTextInput,
                             {
                                 marginRight: DGS.resizeWidth(50), fontSize: Fonts.Large,
@@ -61,6 +62,7 @@ class DateOfBirthAndAgeFormElement extends AbstractComponent {
                             }]}>{this.dateDisplay(this.props.state.individual.dateOfBirth)}</Text>
                     <View style={{flexDirection: 'column-reverse', justifyContent: 'center', marginRight: 4}}>
                         <CheckBox isChecked={this.props.state.individual.dateOfBirthVerified}
+                                  isDisabled={this.props.locked}
                                   accessible={true}
                                   accessibilityLabel={"Is date of birth verified?"}
                                   onPress={() => this.dispatchAction(Actions.REGISTRATION_ENTER_DOB_VERIFIED, {value: !this.props.state.individual.dateOfBirthVerified})}/>
@@ -80,10 +82,12 @@ class DateOfBirthAndAgeFormElement extends AbstractComponent {
                         style={{flex: 1, borderBottomWidth: 0, marginVertical: 0, paddingVertical: 5}}
                         keyboardType="numeric"
                         maxLength={4}
+                        editable={!this.props.locked}
                         underlineColorAndroid={AbstractDataEntryState.hasValidationError(this.props.state, Individual.validationKeys.DOB) ? Colors.ValidationError : Colors.InputBorderNormal}
                         value={_.isNil(this.props.state.age) ? '' : this.props.state.age}
                         onChangeText={(text) => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE, {value: text})}/>
                     <Radio.Group style={{flexDirection: 'row'}}
+                                 isDisabled={this.props.locked}
                                  accessible={true}
                                  accessibilityLabel={"Choose type of age"}
                                  value={this.props.state.ageProvidedInYears ? 'years' : 'months'}
