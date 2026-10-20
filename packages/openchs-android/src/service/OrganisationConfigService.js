@@ -30,6 +30,11 @@ class OrganisationConfigService extends BaseService {
         return !!this.getSettings().saveDrafts;
     }
 
+    // ABDM M1: ABHA at registration. Off unless the organisation switches it on.
+    isAbhaEnabled() {
+        return !!this.getSettings().enableAbha;
+    }
+
     isDbEncryptionEnabled() {
         return !!this.getSettings().enableMobileAppDbEncryption;
     }
