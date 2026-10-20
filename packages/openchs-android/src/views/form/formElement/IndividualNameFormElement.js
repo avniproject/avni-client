@@ -15,17 +15,18 @@ import _ from "lodash";
 class IndividualNameFormElement extends AbstractComponent {
     static propTypes = {
         state: PropTypes.object.isRequired,
-        locked: PropTypes.bool
+        locked: PropTypes.shape({firstName: PropTypes.bool, middleName: PropTypes.bool, lastName: PropTypes.bool})
     };
 
     constructor(props, context) {
         super(props, context);
     }
 
-    // Locked, the parts show as plain text: TextFormElement draws a read-only element that way.
+    // A locked part shows as plain text: TextFormElement draws a read-only element that way. Each part locks on
+    // its own, since the ABHA may not give them all.
     nameElement(name, mandatory) {
         const element = new StaticFormElement(name, mandatory);
-        return this.props.locked ? Object.assign(element, {editable: false}) : element;
+        return _.get(this.props.locked, name) ? Object.assign(element, {editable: false}) : element;
     }
 
     render() {

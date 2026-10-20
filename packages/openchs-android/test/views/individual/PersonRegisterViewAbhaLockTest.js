@@ -1,4 +1,5 @@
 import React from "react";
+import _ from "lodash";
 
 jest.mock("react-native-zip-archive", () => ({unzip: jest.fn(), zip: jest.fn()}));
 jest.mock("react-native-randombytes", () => ({randomBytes: jest.fn()}));
@@ -60,18 +61,26 @@ const drawn = (abha) => {
     return view.renderLoaded();
 };
 
+const ALL = {firstName: true, middleName: true, lastName: true, dateOfBirth: true, gender: true};
+const NONE = {firstName: false, middleName: false, lastName: false, dateOfBirth: false, gender: false};
+
 describe("PersonRegisterView, locking what an ABHA verified", () => {
-    it("passes the lock to the name, date of birth and gender", () => {
-        const tree = drawn({enabledForUser: true, locked: true});
-        [IndividualNameFormElement, DateOfBirthAndAgeFormElement, GenderFormElement].forEach((type) =>
-            expect(lockPassedTo(tree, type)).toEqual([true]));
+    it("passes each detail's lock to the name, date of birth and gender", () => {
+        const tree = drawn({enabledForUser: true, locked: true, lockedFields: {...ALL, lastName: false}});
+        expect(lockPassedTo(tree, IndividualNameFormElement)).toEqual([{firstName: true, middleName: true, lastName: false}]);
+        expect(lockPassedTo(tree, DateOfBirthAndAgeFormElement)).toEqual([true]);
+        expect(lockPassedTo(tree, GenderFormElement)).toEqual([true]);
+        const noDob = drawn({enabledForUser: true, locked: true, lockedFields: {...ALL, dateOfBirth: false, gender: false}});
+        expect(lockPassedTo(noDob, DateOfBirthAndAgeFormElement)).toEqual([false]);
+        expect(lockPassedTo(noDob, GenderFormElement)).toEqual([false]);
     });
 
     it("passes no lock when ABHA is off or the patient has no ABHA, so registration is as before", () => {
-        [{enabledForUser: false, locked: false}, {enabledForUser: true, locked: false}, undefined].forEach((abha) => {
+        [{enabledForUser: false, locked: false, lockedFields: NONE}, {enabledForUser: true, locked: false, lockedFields: NONE}, undefined].forEach((abha) => {
             const tree = drawn(abha);
-            [IndividualNameFormElement, DateOfBirthAndAgeFormElement, GenderFormElement].forEach((type) =>
-                expect(lockPassedTo(tree, type)).toEqual([false]));
+            expect(_.some(_.values(lockPassedTo(tree, IndividualNameFormElement)[0]))).toBe(false);
+            expect(lockPassedTo(tree, DateOfBirthAndAgeFormElement)).toEqual([false]);
+            expect(lockPassedTo(tree, GenderFormElement)).toEqual([false]);
         });
     });
 });

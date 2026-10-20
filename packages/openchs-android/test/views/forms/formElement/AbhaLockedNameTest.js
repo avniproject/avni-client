@@ -29,24 +29,33 @@ function draw(props) {
     return renderer;
 }
 
+const ALL = {firstName: true, middleName: true, lastName: true};
+
 describe("IndividualNameFormElement, locked by a verified ABHA", () => {
     it("shows every name part as plain text, with no input box, when locked", () => {
-        const renderer = draw({state: state(), locked: true});
+        const renderer = draw({state: state(), locked: ALL});
         expect(renderer.root.findAllByType(TextInput)).toHaveLength(0);
         const shown = renderer.root.findAllByType(Text).map((text) => [].concat(text.props.children).join(""));
         expect(shown).toEqual(expect.arrayContaining(["Asha", "K", "Rao"]));
     });
 
     it("still draws an input box for each name part when not locked, and when no lock is passed", () => {
-        expect(draw({state: state(), locked: false}).root.findAllByType(TextInput)).toHaveLength(3);
+        expect(draw({state: state(), locked: {}}).root.findAllByType(TextInput)).toHaveLength(3);
         expect(draw({state: state()}).root.findAllByType(TextInput)).toHaveLength(3);
-        expect(draw({state: state({allowMiddleName: false}), locked: false}).root.findAllByType(TextInput)).toHaveLength(2);
+        expect(draw({state: state({allowMiddleName: false}), locked: {}}).root.findAllByType(TextInput)).toHaveLength(2);
     });
 
     it("keeps each part's required mark when locked", () => {
-        const renderer = draw({state: state({lastNameOptional: true}), locked: true});
+        const renderer = draw({state: state({lastNameOptional: true}), locked: ALL});
         const parts = renderer.root.findAll((node) => node.props.element && node.props.element.name);
         const mandatory = (name) => parts.find((node) => node.props.element.name === name).props.element.mandatory;
         expect([mandatory("firstName"), mandatory("lastName")]).toEqual([true, false]);
+    });
+
+    it("locks each part on its own: a last name the ABHA did not give stays an input box", () => {
+        const renderer = draw({state: state(), locked: {firstName: true, middleName: true, lastName: false}});
+        expect(renderer.root.findAllByType(TextInput)).toHaveLength(1);
+        const input = renderer.root.findByType(TextInput);
+        expect(input.props.element.name).toBe("lastName");
     });
 });
