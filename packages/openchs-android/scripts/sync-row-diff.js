@@ -1,9 +1,9 @@
 /**
  * Compares two copies of the phone's database after the same first sync, one saved by today's path and
  * one by rows built straight from the download (#2145), and reads the per-kind save times a sync
- * recorded. Prints table names, column names and counts only, never a value: a copy may hold records
- * from a production clone. Opens the copies read-write, so a pulled -wal file is applied; run it on
- * copies only.
+ * recorded. Never prints a record value: rows prints table names, column names and counts, and timings also
+ * prints the sync source and kind names, labels the app writes. A copy may hold records from a production
+ * clone. Opens the copies read-write, so a pulled -wal file is applied; run it on copies only.
  *
  *   node scripts/sync-row-diff.js rows <today.db> <direct.db>
  *   node scripts/sync-row-diff.js timings <copy.db>

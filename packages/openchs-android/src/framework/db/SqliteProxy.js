@@ -685,8 +685,8 @@ class SqliteProxy {
     /**
      * Columns to write for an entity: present on the flattened row AND backed by a real
      * table column, in table-column order. Absent columns are omitted so a partial upsert
-     * leaves their existing DB values untouched. Shared by create() and bulkCreate() so
-     * single-entity and batch writes select columns identically.
+     * leaves their existing DB values untouched. Shared by create() and bulkInsertRows()
+     * (which bulkCreate() goes through) so single-entity and batch writes select columns identically.
      */
     _presentColumns(tableMeta, flatRow) {
         return tableMeta.getColumnNames().filter(col => Object.prototype.hasOwnProperty.call(flatRow, col));

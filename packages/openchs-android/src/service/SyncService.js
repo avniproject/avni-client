@@ -689,8 +689,10 @@ class SyncService extends BaseService {
         return false;
     }
 
-    // No parent lookup per record and no entity objects: each row comes from the download. A parent
-    // not on the phone keeps its uuid in the row, where fromResource would leave the link empty.
+    // Each row comes from the download, with no entity objects. The only parent lookups are for a subject with an
+    // address: its subject type (a cached read) and, for a user subject, that address. Answers still read their concepts,
+    // as today. A parent not on the phone keeps its uuid in the row, except a user subject's address, which follows
+    // today's rule (see SqliteRowMapper).
     async _persistRowsDirectly(entityMetaData, entityResources, loadedSince) {
         const mapper = new SqliteRowMapper(this.db.realmSchemaMap, this.entityService);
         const rows = entityResources.map((resource) => mapper.mapResourceToRow(entityMetaData.schemaName, resource));
@@ -1118,14 +1120,17 @@ class SyncService extends BaseService {
     /**
      * Post-sync FK integrity check. Runs PRAGMA foreign_key_check which scans
      * all FK columns and reports violations — without failing the sync or rolling
-     * back any data. Violations indicate a server-side ordering bug and are
-     * reported via Bugsnag + logs for investigation.
+     * back any data. A violation is a record whose parent is missing. With
+     * enableDirectSyncRows on, a record whose parent is outside the user's scope
+     * keeps its parent's uuid and is counted too (#2145), so a count is not by
+     * itself a bug. Violations are reported via Bugsnag + logs for investigation.
      */
     _checkForeignKeyIntegrityIfSqlite() {
         try {
             const violations = this.context.getRepositoryFactory().runForeignKeyCheck();
             if (violations && violations.length > 0) {
-                // Per table, so the rows the new sync path keeps pointing at a missing parent can be told apart (#2145).
+                // Counted per child and parent table, so the links the direct-rows path (enableDirectSyncRows)
+                // keeps pointing at a missing parent can be told apart (#2145).
                 const perTable = _.map(_.countBy(violations, (v) => `${v.table}→${v.parent}`), (count, pair) => `${pair} ${count}`).join(', ');
                 const message = `${violations.length} FK violation(s) after sync: ${perTable}`;
                 General.logError("SyncService", message);
