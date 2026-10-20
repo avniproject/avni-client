@@ -79,23 +79,31 @@ export class PersonRegisterActions {
 
     // ABDM M1. Held in the reducer because the view does not re-render on form pages. enabledForUser: the
     // organisation has ABHA on and the user has a health centre. formHasConcepts: the registration form asks both
-    // ABHA questions. linked: the patient has an ABHA answer. choice: the option the worker took, null until then.
+    // ABHA questions. linked: the patient has an ABHA answer. locked: the patient has an ABHA number, so Aadhaar
+    // checked name, date of birth and gender; it follows the saved answer, and only with ABHA on for the user,
+    // since Remove ABHA link, the only way to lift it, is shown only then. choice: the option the worker took,
+    // null until then.
     static abhaStateOnLoad(form, individual, context) {
         const enabledForUser = context.get(OrganisationConfigService).isAbhaEnabled()
             && !_.isEmpty(_.get(context.get(UserInfoService).getUserSettings(), 'abhaHipId'));
-        if (!enabledForUser) return {enabledForUser: false, formHasConcepts: false, linked: false, choice: null};
+        if (!enabledForUser) return {enabledForUser: false, formHasConcepts: false, linked: false, locked: false, choice: null};
         const conceptNames = _.isNil(form) ? [] :
             _.flatMap(form.getFormElementGroups(), (group) => group.getFormElements()).map((formElement) => formElement.concept.name);
         return {
             enabledForUser,
             formHasConcepts: _.every(_.values(ABHA_CONCEPT_NAMES), (name) => _.includes(conceptNames, name)),
             linked: PersonRegisterActions.hasAbhaAnswer(individual),
+            locked: PersonRegisterActions.hasAbhaNumber(individual),
             choice: null,
         };
     }
 
     static hasAbhaAnswer(individual) {
         return _.some(_.values(ABHA_CONCEPT_NAMES), (name) => !_.isNil(individual.findObservation(name)));
+    }
+
+    static hasAbhaNumber(individual) {
+        return !_.isNil(individual.findObservation(ABHA_CONCEPT_NAMES.abhaNumber));
     }
 
     static abhaOptionsShown(abha) {
@@ -119,15 +127,19 @@ export class PersonRegisterActions {
         if (profile.dateOfBirth) newState = PersonRegisterActions.enterIndividualDOB(newState, {value: profile.dateOfBirth});
         const gender = profile.genderName && _.find(newState.genders, (g) => g.name === profile.genderName);
         if (gender) newState = PersonRegisterActions.enterIndividualGender(newState, {value: gender});
+        // An ABHA number means Aadhaar checked the details: the date of birth is marked verified and all three lock.
+        if (profile.abhaNumber) newState = PersonRegisterActions.enterIndividualDOBVerified(newState, {value: true});
         PersonRegisterActions.writeAbhaAnswers(newState, profile, context);
-        newState.abha = {...newState.abha, linked: PersonRegisterActions.hasAbhaAnswer(newState.individual), choice: action.choice || null};
+        newState.abha = {...newState.abha, linked: PersonRegisterActions.hasAbhaAnswer(newState.individual),
+            locked: PersonRegisterActions.hasAbhaNumber(newState.individual), choice: action.choice || null};
         return newState;
     }
 
     static onAbhaLinkRemoved(state, action, context) {
         const newState = state.clone();
         PersonRegisterActions.writeAbhaAnswers(newState, {}, context);
-        newState.abha = {...newState.abha, linked: PersonRegisterActions.hasAbhaAnswer(newState.individual), choice: null};
+        newState.abha = {...newState.abha, linked: PersonRegisterActions.hasAbhaAnswer(newState.individual),
+            locked: PersonRegisterActions.hasAbhaNumber(newState.individual), choice: null};
         return newState;
     }
 

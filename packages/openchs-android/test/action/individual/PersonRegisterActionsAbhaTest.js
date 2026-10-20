@@ -80,7 +80,7 @@ describe("PersonRegisterActions, ABHA", () => {
 
         it("a new patient is not linked and no option is chosen yet", () => {
             expect(load(contextWith({abhaOn: true, hipId: "hip-1"})).abha).toEqual(
-                {enabledForUser: true, formHasConcepts: true, linked: false, choice: null});
+                {enabledForUser: true, formHasConcepts: true, linked: false, locked: false, choice: null});
         });
 
         it("a patient being edited is linked when they have either ABHA answer", () => {
@@ -93,14 +93,14 @@ describe("PersonRegisterActions, ABHA", () => {
 
         it("keeps the ABHA state through every clone", () => {
             const state = load(contextWith({abhaOn: true, hipId: "hip-1"}));
-            expect(state.clone().abha).toEqual({enabledForUser: true, formHasConcepts: true, linked: false, choice: null});
+            expect(state.clone().abha).toEqual({enabledForUser: true, formHasConcepts: true, linked: false, locked: false, choice: null});
         });
 
         it("with ABHA off, never reads the user's settings and leaves the rest of the load as it was", () => {
             const off = contextWith({abhaOn: false, hipId: "hip-1"});
             const state = load(off);
             expect(off.get(UserInfoService).getUserSettings).not.toHaveBeenCalled();
-            expect(state.abha).toEqual({enabledForUser: false, formHasConcepts: false, linked: false, choice: null});
+            expect(state.abha).toEqual({enabledForUser: false, formHasConcepts: false, linked: false, locked: false, choice: null});
             const {abha, ...rest} = state;
             const {abha: abhaOn, ...restOn} = load(contextWith({abhaOn: true, hipId: "hip-1"}));
             expect(Object.keys(rest).sort()).toEqual(Object.keys(restOn).sort());
@@ -205,6 +205,65 @@ describe("PersonRegisterActions, ABHA", () => {
             expect(answer(state, "Occupation").getValue()).toBe("Farmer");
             expect(state.abha).toMatchObject({linked: false, choice: null});
             expect(PersonRegisterActions.abhaOptionsShown(state.abha)).toBe(true);
+        });
+    });
+
+    describe("the lock on the details an ABHA verified", () => {
+        const PROFILE = {
+            firstName: "Asha", lastName: "Rao", genderName: "Female", dateOfBirth: new Date(1990, 3, 23),
+            abhaNumber: "91-1234-5678-9012", abhaAddress: "asha.rao@sbx", route: "aadhaar", action: "linked",
+        };
+        const MOBILE_ONLY = {...PROFILE, abhaNumber: null, route: "mobile"};
+        const withNumber = () => savedPerson([Observation.create(abhaNumberConcept, new PrimitiveValue("91-1234-5678-9012"))]);
+        const lockedOnLoad = (saved, options = {}) =>
+            load(contextWith({abhaOn: true, hipId: "hip-1", saved, ...options}), saved && saved.uuid).abha.locked;
+
+        it("lockedWhenAbhaNumberPresent: a saved ABHA number locks on every later edit, the lock coming from the answer", () => {
+            expect(lockedOnLoad(withNumber())).toBe(true);
+        });
+
+        it("notLockedForAddressOnly, for a new patient, and for a patient with no ABHA", () => {
+            expect(lockedOnLoad(savedPerson([Observation.create(abhaAddressConcept, new PrimitiveValue("asha@sbx"))]))).toBe(false);
+            expect(lockedOnLoad(savedPerson())).toBe(false);
+            expect(lockedOnLoad(null)).toBe(false);
+        });
+
+        it("with ABHA off for the user, nothing locks even if the patient has a number, as before", () => {
+            expect(lockedOnLoad(withNumber(), {abhaOn: false})).toBe(false);
+            expect(lockedOnLoad(withNumber(), {hipId: null})).toBe(false);
+        });
+
+        it("locks straight after an ABHA with a number fills the details, and not for the mobile route", () => {
+            const context = contextWith({abhaOn: true, hipId: "hip-1"});
+            expect(PersonRegisterActions.onAbhaProfile(load(context), {profile: PROFILE}, context).abha.locked).toBe(true);
+            expect(PersonRegisterActions.onAbhaProfile(load(context), {profile: MOBILE_ONLY}, context).abha.locked).toBe(false);
+        });
+
+        it("a mobile-only ABHA replacing a verified one unlocks", () => {
+            const person = withNumber();
+            const context = contextWith({abhaOn: true, hipId: "hip-1", saved: person});
+            const state = PersonRegisterActions.onAbhaProfile(load(context, person.uuid), {profile: MOBILE_ONLY}, context);
+            expect(state.abha.locked).toBe(false);
+        });
+
+        it("unlockedAfterRemoveLink", () => {
+            const person = withNumber();
+            const context = contextWith({abhaOn: true, hipId: "hip-1", saved: person});
+            const state = load(context, person.uuid);
+            expect(state.abha.locked).toBe(true);
+            expect(PersonRegisterActions.onAbhaLinkRemoved(state, {}, context).abha.locked).toBe(false);
+        });
+
+        it("dobVerifiedSetWhenAbhaNumberPresent, even when the ABHA gives no date, and left alone for the mobile route", () => {
+            // Typing a date of birth already ticks "verified" in the model; an ABHA with no date must still tick it.
+            const context = contextWith({abhaOn: true, hipId: "hip-1"});
+            const noDate = {...PROFILE, dateOfBirth: null};
+            expect(PersonRegisterActions.onAbhaProfile(load(context), {profile: noDate}, context).individual.dateOfBirthVerified).toBe(true);
+            expect(PersonRegisterActions.onAbhaProfile(load(context), {profile: {...noDate, abhaNumber: null}}, context).individual.dateOfBirthVerified).toBeFalsy();
+        });
+
+        it("the lock survives a clone", () => {
+            expect(load(contextWith({abhaOn: true, hipId: "hip-1", saved: withNumber()}), "x").clone().abha.locked).toBe(true);
         });
     });
 
