@@ -31,7 +31,10 @@ const fetchFactory = (endpoint, method = "GET", params, fetchWithoutTimeout) => 
         }
         if (responseCode === 403 || responseCode === 401) {
             General.logError("requests", response);
-            return Promise.reject(new AuthenticationError('Http ' + responseCode, response));
+            const authenticationError = new AuthenticationError('Http ' + responseCode, response);
+            // Kept, as on a ServerError, so a caller can read the reason the server gives in the body.
+            authenticationError.response = response;
+            return Promise.reject(authenticationError);
         }
         return Promise.reject(new ServerError(response));
     };
