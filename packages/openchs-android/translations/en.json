@@ -707,6 +707,7 @@
     "clinicSharingError_version": "This phone is on app version {{peer}} and the hub is on {{hub}}. Both need the same version.",
     "clinicSharingError_timeout": "The hub did not answer. Check this phone is on the hub's Wi-Fi.",
     "clinicSharingError_closed": "The hub closed the connection.",
+    "clinicSharingError_busy": "The hub is syncing with the server. Sharing resumes when it finishes.",
     "clinicSharingError_hubNeedsAndroid10": "A hub needs Android 10 or later.",
     "clinicSharingError_badCode": "This is not a hub's code.",
     "clinicSharingError_joinFailed": "Could not join the hub's Wi-Fi.",

@@ -298,6 +298,30 @@ describe('Phones syncing with the hub', () => {
         });
     });
 
+    describe('while the hub phone syncs with the server', () => {
+        it("refuses phones as busy, applies nothing, and takes them again once the server sync ends", async () => {
+            let serverSyncRunning = true;
+            hub._serverSyncRunning = () => serverSyncRunning;
+            const a = phone();
+            a.save('Individual', 'ind-1', 'v1');
+
+            const refused = await a.sync();
+            expect(refused.error.code).toBe('busy');
+            expect(hubDevice.recordService.applied).toEqual([]);
+
+            serverSyncRunning = false;
+            const accepted = await a.sync();
+            expect(accepted.error).toBeUndefined();
+            expect(hubDevice.records['ind-1']).toEqual({entityName: 'Individual', version: 'v1'});
+        });
+
+        it("does not apply a push that arrives on a connection opened before the server sync began", async () => {
+            hub._serverSyncRunning = () => true;
+
+            await expect(hub._handlePush({deviceId: 'phone-a', phoneName: 'a', batches: [], upTo: 0}, log)).rejects.toThrow('syncing with the server');
+        });
+    });
+
     describe('the hub screen', () => {
         it('counts the phones that synced in the last 5 minutes', async () => {
             const a = phone(), b = phone(), c = phone();

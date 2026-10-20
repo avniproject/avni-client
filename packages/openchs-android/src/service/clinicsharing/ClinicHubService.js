@@ -5,6 +5,7 @@ import {open} from '@op-engineering/op-sqlite';
 import {NativeEventEmitter, NativeModules, PermissionsAndroid, Platform} from 'react-native';
 import DeviceInfo from "react-native-device-info";
 import _ from "lodash";
+import fs from 'react-native-fs';
 import General from "../../utility/General";
 import ClinicRecordService, {parentsFirstIndex} from "./ClinicRecordService";
 import {CLINIC_PORT, generateSessionKey, MessageType, startHub} from "../../framework/clinicsharing/ClinicTransport";
@@ -159,7 +160,7 @@ class ClinicHubService extends BaseService {
         await this.pruneLedger();
         const session = await this._beginSession();
         this.transport = await startHub({
-            ...session, port, appVersion: DeviceInfo.getVersion(), log,
+            ...session, port, appVersion: DeviceInfo.getVersion(), log, isBusy: () => this._serverSyncRunning(),
             onConnection: (connection) => connection.onMessage((message) => this._replyTo(connection, message, log)),
         });
         const nativeHub = NativeModules.ClinicHub;
@@ -231,6 +232,8 @@ class ClinicHubService extends BaseService {
     }
 
     async _handlePush({deviceId, phoneName, batches, upTo}, log) {
+        // Applying records now would roll back the server sync's open batch; the phone retries on its next sync.
+        if (this._serverSyncRunning()) throw new Error('syncing with the server');
         const startedAt = Date.now();
         this._noteSync(deviceId, phoneName);
         const applied = await this.getService(ClinicRecordService).applyBatches(batches, log, deviceId);
@@ -253,10 +256,18 @@ class ClinicHubService extends BaseService {
             [item.entityUUID, item.savedAt.getTime()]]));
     }
 
-    // Server sync pops the hub's own queue; what it pops before a phone pulls would never reach the ledger.
-    mirrorOwnQueueIfRunning() {
-        if (!this.transport) return Promise.resolve();
+    // Server sync pops the hub phone's queue; what it pops, even while the hub is stopped, would never reach the list a phone pulls.
+    async mirrorOwnQueue() {
+        if (!this.transport && !(await this._hasLedger())) return;
         return this._exclusively(() => this._mirrorOwnQueue());
+    }
+
+    _hasLedger() {
+        return fs.exists(`${fs.DocumentDirectoryPath}/../databases/${this.ledgerName}`);
+    }
+
+    _serverSyncRunning() {
+        return !!_.get(this.getService('syncService'), 'serverSyncRunning');
     }
 
     // One record saved without its parent must not fail every phone's pull.

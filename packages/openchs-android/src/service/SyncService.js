@@ -265,7 +265,7 @@ class SyncService extends BaseService {
         const syncStartedAt = Date.now();
         this.releasedHoldBacks = 0;
         if (this._clinicSharingEnabled()) {
-            await this.getService('clinicHubService').mirrorOwnQueueIfRunning();
+            await this.getService('clinicHubService').mirrorOwnQueue();
             await this.getService('clinicSpokeService').syncBeforeServerUpload();
         }
         const uploadData = Promise.resolve(statusMessageCallBack("uploadLocallySavedData"))
@@ -787,6 +787,7 @@ class SyncService extends BaseService {
     async _pushReleasedHoldBacks(allTxEntityMetaData, afterEachEntityTypePushed = _.noop) {
         if (!this.releasedHoldBacks) return;
         this.releasedHoldBacks = 0;
+        if (this._clinicSharingEnabled()) await this.getService('clinicHubService').mirrorOwnQueue();
         this._disableShallowHydrationIfSqlite();
         try {
             await this.pushData(allTxEntityMetaData.slice(), afterEachEntityTypePushed);

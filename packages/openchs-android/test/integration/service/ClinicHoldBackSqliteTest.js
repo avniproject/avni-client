@@ -58,6 +58,7 @@ function phone({clinicSharing = true} = {}) {
         services.set(cls, service);
         services.set(name, service);
     });
+    services.set('clinicHubService', {mirrorOwnQueue: async () => {}});
     services.set(OrganisationConfigService, {getSettings: () => (clinicSharing ? {enableClinicSharing: true} : {})});
     services.get(ClinicSpokeService).stateName = `clinic_holdback_test_${process.pid}_${dbCount++}.db`;
 

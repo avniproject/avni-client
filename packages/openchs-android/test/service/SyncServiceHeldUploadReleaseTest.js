@@ -73,7 +73,7 @@ describe('Uploads released by the pull', () => {
         svc.getService = jest.fn((name) => ({
             ...services(name),
             getSettings: () => ({enableClinicSharing: true}),
-            mirrorOwnQueueIfRunning: async () => { steps.push('mirror'); },
+            mirrorOwnQueue: async () => { steps.push('mirror'); },
             syncBeforeServerUpload: async () => {},
             afterSync: async () => ({applied: 0, reported: 0}),
         }));
@@ -90,7 +90,7 @@ describe('Uploads released by the pull', () => {
         svc.getService = jest.fn((name) => ({
             ...services(name),
             getSettings: () => ({enableClinicSharing: true}),
-            mirrorOwnQueueIfRunning: async () => {},
+            mirrorOwnQueue: async () => {},
             syncBeforeServerUpload: async () => { steps.push(`hub (running: ${svc.serverSyncRunning})`); },
             afterSync: async () => ({applied: 0, reported: 0}),
         }));
@@ -109,6 +109,23 @@ describe('Uploads released by the pull', () => {
 
         await expect(runSync(svc)).rejects.toThrow('network down');
         expect(svc.serverSyncRunning).toBe(false);
+    });
+
+    it("on the hub phone, take a fresh copy of its own queue before the second push pops it", async () => {
+        const {svc, steps} = buildSyncService({pullReleases: 1});
+        svc.db = {isSqlite: true};
+        const services = svc.getService;
+        svc.getService = jest.fn((name) => ({
+            ...services(name),
+            getSettings: () => ({enableClinicSharing: true}),
+            mirrorOwnQueue: async () => { steps.push('mirror'); },
+            syncBeforeServerUpload: async () => {},
+            afterSync: async () => ({applied: 0, reported: 0}),
+        }));
+
+        await runSync(svc);
+
+        expect(steps).toEqual(['mirror', 'push', 'pull', 'mirror', 'push']);
     });
 
     it('cause no second push when the pull released nothing', async () => {
