@@ -5,6 +5,9 @@ import {getJSON, post} from "../framework/http/requests";
 import AbhaError from "./AbhaError";
 import AbhaProfile from "../views/abha/AbhaProfile";
 import General from "../utility/General";
+import RNFS from "react-native-fs";
+import ReactNativeBlobUtil from "react-native-blob-util";
+import {downloadWithAuth} from "./AuthAwareDownload";
 
 // Avni's server holds Eka's secret and answers these online, outside sync. The Eka key in a session is handed to the
 // caller and never stored or logged; it lasts about 30 minutes.
@@ -53,6 +56,36 @@ class AbhaService extends BaseService {
 
     resendUnsentEvents() {
         return Promise.all([...this.unsentEvents.values()].map((event) => this.recordEvent(event)));
+    }
+
+    // The ABHA card image, fetched into the cache folder, and the path of that file. The card is the patient's
+    // number, name, photo and QR code: the file is for the card screen, which deletes it when it closes. A failed fetch
+    // deletes whatever was written, since a refusal is written to the file too, and throws an AbhaError.
+    async getCardFile(subjectUUID) {
+        const targetPath = `${ReactNativeBlobUtil.fs.dirs.CacheDir}/abha-card-${General.randomUUID()}.png`;
+        try {
+            const downloaded = await downloadWithAuth(this.getService("authService"), this.getService("settingsService"),
+                `${this.getServerUrl()}/abha/card?subjectUUID=${encodeURIComponent(subjectUUID)}`, targetPath, null);
+            const status = downloaded.info().status;
+            if (status === 200) return downloaded.path();
+            let code = null;
+            try {
+                code = _.get(await downloaded.json(), 'code', null);
+            } catch (e) { /* not JSON: no reason given */ }
+            throw new AbhaError(_.isString(code) ? code : null, status);
+        } catch (error) {
+            await AbhaService.deleteCardFile(targetPath);
+            throw error;
+        }
+    }
+
+    // Never rejects: a file already gone is what was wanted.
+    static async deleteCardFile(path) {
+        try {
+            await RNFS.unlink(path);
+        } catch (e) {
+            General.logDebug('AbhaService', 'ABHA card file already gone');
+        }
     }
 
     _get(path) {

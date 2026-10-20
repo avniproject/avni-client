@@ -15,6 +15,12 @@ jest.mock("../../src/GlobalContext", () => ({
     },
 }));
 
+const mockUnlink = jest.fn(() => Promise.resolve());
+jest.mock("react-native-fs", () => ({unlink: (...args) => mockUnlink(...args), exists: jest.fn(() => Promise.resolve(true))}));
+jest.mock("../../src/service/AuthAwareDownload", () => ({downloadWithAuth: jest.fn()}));
+jest.mock("react-native-blob-util", () => ({fs: {dirs: {CacheDir: "/cache"}}}));
+
+import {downloadWithAuth} from "../../src/service/AuthAwareDownload";
 import AbhaService from "../../src/service/AbhaService";
 import AbhaError from "../../src/service/AbhaError";
 import AuthenticationError from "../../src/service/AuthenticationError";
@@ -273,5 +279,68 @@ describe("AbhaServiceTest", () => {
         expect(logged.length).to.be.greaterThan(0);
         logged.forEach((args) => args.forEach((arg) => PATIENT_DETAILS.forEach((detail) =>
             expect(asText(arg)).to.not.contain(detail))));
+    });
+
+    describe("the ABHA card file", () => {
+        const downloaded = (status, body = {}) => ({info: () => ({status}), path: () => "/cache/abha-card-x.png", json: async () => body});
+
+        beforeEach(() => {
+            mockUnlink.mockClear();
+            downloadWithAuth.mockReset();
+        });
+
+        it("fetches the card for the subject with the user's login into the cache folder and returns the file path", async () => {
+            downloadWithAuth.mockResolvedValue(downloaded(200));
+
+            const path = await service().getCardFile("s-1");
+
+            expect(path).to.equal("/cache/abha-card-x.png");
+            const [, , url, target, progress] = downloadWithAuth.mock.calls[0];
+            expect(url).to.equal("https://server/abha/card?subjectUUID=s-1");
+            expect(target.startsWith("/cache/")).to.equal(true);
+            expect(target).to.contain("abha-card");
+            expect(progress).to.equal(null);
+            expect(mockUnlink.mock.calls.length).to.equal(0);
+        });
+
+        it("getCardFileDeletesFileOnError", async () => {
+            downloadWithAuth.mockResolvedValue(downloaded(404));
+
+            const error = await failureOf(service().getCardFile("s-1"));
+
+            expect(error).to.be.instanceOf(AbhaError);
+            expect(error.status).to.equal(404);
+            expect(mockUnlink.mock.calls.length).to.equal(1);
+            expect(mockUnlink.mock.calls[0][0]).to.equal(downloadWithAuth.mock.calls[0][3]);
+        });
+
+        it("names each refusal from the file the server's answer was written to, and still deletes it", async () => {
+            const refusals = [[403, "ABHA_NOT_YOURS"], [403, "ABHA_NO_PRIVILEGE"], [409, "ABHA_NOT_CONFIGURED"], [502, "ABHA_EKA_UNAVAILABLE"]];
+            for (const [status, code] of refusals) {
+                mockUnlink.mockClear();
+                downloadWithAuth.mockResolvedValue(downloaded(status, {code}));
+                const error = await failureOf(service().getCardFile("s-1"));
+                expect(error, code).to.be.instanceOf(AbhaError);
+                expect(error.code).to.equal(code);
+                expect(error.status).to.equal(status);
+                expect(mockUnlink.mock.calls.length).to.equal(1);
+            }
+        });
+
+        it("deletes the file when the download itself fails, and passes the failure on", async () => {
+            downloadWithAuth.mockRejectedValue(new Error("Network request failed"));
+
+            const error = await failureOf(service().getCardFile("s-1"));
+
+            expect(error.message).to.equal("Network request failed");
+            expect(mockUnlink.mock.calls.length).to.equal(1);
+        });
+
+        it("gives the two new refusals their own messages", () => {
+            expect(AbhaError.messageKey(new AbhaError("ABHA_NOT_YOURS", 403))).to.equal("abhaNotYours");
+            expect(AbhaError.messageKey(new AbhaError(null, 404))).to.equal("abhaNoCard");
+            expect(AbhaError.messageKey(new AbhaError("ABHA_DISABLED", 403))).to.equal("abhaDisabled");
+            ["abhaNotYours", "abhaNoCard"].forEach((key) => expect(en.translations[key], key).to.be.a("string"));
+        });
     });
 });
