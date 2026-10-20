@@ -22,6 +22,7 @@ import RepositoryFactory from "../../../src/repository/RepositoryFactory";
 import EntityService from "../../../src/service/EntityService";
 import SyncService from "../../../src/service/SyncService";
 import OrganisationConfigService from "../../../src/service/OrganisationConfigService";
+import General from "../../../src/utility/General";
 import SqliteRowMapper from "../../../src/framework/db/SqliteRowMapper";
 import {jsonArrayListPropFor} from "../../../src/framework/db/SchemaGenerator";
 import {openSeededDb} from "../framework/db/lazyFixture";
@@ -47,6 +48,8 @@ function phone(settings) {
 
 const pulled = (entityName) => ({...EntityMetaData.findByName(entityName), syncStatus: {entityTypeUuid: ""}});
 const rowOf = (db, table, uuid) => db.rowsOf(table).find((row) => row.uuid === uuid);
+// The save step's own debug line says which way a page went. A spy on bulkInsertRows would not: bulkCreate calls it too.
+const loggedStraightFromDownload = (debug) => debug.mock.calls.some(([source, message]) => source === "SyncService" && _.endsWith(message, "rows straight from the download"));
 
 describe("Saving the bulky kinds of record straight from the download", () => {
     let on, off;
@@ -62,8 +65,16 @@ describe("Saving the bulky kinds of record straight from the download", () => {
     });
 
     const pullOnBoth = async (entityName, makePage) => {
-        await on.sync.persistAll(pulled(entityName), makePage());
-        await off.sync.persistAll(pulled(entityName), makePage());
+        const debug = jest.spyOn(General, "logDebug");
+        try {
+            await on.sync.persistAll(pulled(entityName), makePage());
+            expect(loggedStraightFromDownload(debug)).toBe(true);
+            debug.mockClear();
+            await off.sync.persistAll(pulled(entityName), makePage());
+            expect(loggedStraightFromDownload(debug)).toBe(false);
+        } finally {
+            debug.mockRestore();
+        }
     };
 
     it("writes the same subject rows as today's path when every parent is on the phone", async () => {
