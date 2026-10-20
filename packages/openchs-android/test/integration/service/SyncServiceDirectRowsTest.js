@@ -144,9 +144,17 @@ describe("Saving the bulky kinds of record straight from the download", () => {
 
     it("fails a page with an answer to a question not on the phone the same way on both paths", async () => {
         const page = () => [individualResource({uuid: "ind-new-1", observations: {"c-not-on-phone": 1}})];
+        // A failed page writes no debug line, so the mapper being reached is what shows which path each phone took.
+        const mapper = jest.spyOn(SqliteRowMapper.prototype, "mapResourceToRow");
         const todayError = await off.sync.persistAll(pulled("Individual"), page()).then(() => null, (error) => error);
+        const mappedWhenOff = mapper.mock.calls.length;
+        mapper.mockClear();
         const directError = await on.sync.persistAll(pulled("Individual"), page()).then(() => null, (error) => error);
+        const mappedWhenOn = mapper.mock.calls.length;
+        mapper.mockRestore();
 
+        expect(mappedWhenOff).toBe(0);
+        expect(mappedWhenOn).toBeGreaterThan(0);
         expect(todayError).toBeInstanceOf(TypeError);
         expect(directError).toBeInstanceOf(TypeError);
         expect(directError.message).toBe(todayError.message);
