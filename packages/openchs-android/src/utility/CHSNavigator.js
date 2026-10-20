@@ -39,6 +39,7 @@ import GenericDashboardView from "../views/program/GenericDashboardView";
 import AddNewMemberView from "../views/groupSubject/AddNewMemberView";
 import {firebaseEvents, logEvent} from "./Analytics";
 import PhoneNumberVerificationView from "../views/common/PhoneNumberVerificationView";
+import AbhaView from "../views/abha/AbhaView";
 import ApprovalDetailsView from "../views/approval/ApprovalDetailsView";
 import GroupSubjectService from "../service/GroupSubjectService";
 import RemoveMemberView from "../views/groupSubject/RemoveMemberView";
@@ -134,6 +135,18 @@ class CHSNavigator {
             onSkipVerification: onSkip,
             phoneNumber: observation.getValue()
         }).to(PhoneNumberVerificationView, true)
+    }
+
+    // session is AbhaService.getSession's answer. onProfile and onSkip are called from the ABHA screen, which is
+    // still showing; the caller returns to its own screen with popToBookmark.
+    static navigateToAbhaView(source, session, {method, prefillAbhaAddress} = {}, onProfile, onSkip) {
+        TypedTransition.from(source).bookmark().with({
+            session,
+            method,
+            prefillAbhaAddress,
+            onProfile,
+            onSkip
+        }).to(AbhaView, true)
     }
 
     static navigateToIndividualEncounterDashboardView(source, individualUUID, encounter, isFromWizard, backFn, message) {

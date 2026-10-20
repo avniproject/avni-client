@@ -1,0 +1,158 @@
+import React from "react";
+import {Text} from "react-native";
+import TestRenderer, {act} from "react-test-renderer";
+
+jest.mock("react-native-webview", () => ({
+    WebView: (props) => require("react").createElement(require("react-native").View, {testID: "webview", ...props}),
+}));
+jest.mock("../../../src/views/common/AppHeader", () => ({__esModule: true, default: () => null}));
+// SafeAreaProvider renders nothing until it has native insets, which swallows the whole subtree.
+jest.mock("../../../src/views/common/CHSContainer", () => ({
+    __esModule: true,
+    default: ({children}) => require("react").createElement(require("react-native").View, null, children),
+}));
+
+import ServiceContext from "../../../src/framework/context/ServiceContext";
+import AbhaView from "../../../src/views/abha/AbhaView";
+import {ABHA_MESSAGE} from "../../../src/views/abha/AbhaHostHtml";
+import General from "../../../src/utility/General";
+import AbhaError from "../../../src/service/AbhaError";
+import en from "../../../translations/en.json";
+
+const EKA_KEY = "eka-access-key-7f3a";
+const sessionFor = (environment) => ({accessToken: EKA_KEY, expiresAt: "2026-10-20T10:30:00Z", environment, hipId: "hip-1"});
+const ekaReply = JSON.stringify({
+    response: {
+        txn_id: "txn-1",
+        data: {
+            tokens: {sess: "patient-session-token"},
+            profile: {fn: "Asha", ln: "Rao", gen: "F", dob: "1990-04-23", abha_number: "91-1234-5678-9012", "health-ids": ["asha.rao@sbx"]},
+        },
+    },
+});
+
+let mounted = [];
+
+async function show(environment = "sandbox") {
+    const navigator = {pop: jest.fn(), getCurrentRoutes: () => []};
+    const context = {getService: () => ({getI18n: () => ({t: (key) => key})}), navigator: () => navigator};
+    const onProfile = jest.fn();
+    const onSkip = jest.fn();
+    let renderer;
+    await act(async () => {
+        renderer = TestRenderer.create(<ServiceContext.Provider value={context}>
+            <AbhaView session={sessionFor(environment)} method="login_or_create_abha" onProfile={onProfile} onSkip={onSkip}/>
+        </ServiceContext.Provider>);
+    });
+    mounted.push(renderer);
+    const webViews = () => renderer.root.findAll((node) => node.props.testID === "webview" && typeof node.type !== "string");
+    const send = async (type, payload) => act(async () => webViews()[0].props.onMessage({nativeEvent: {data: JSON.stringify({type, payload: payload === undefined ? null : payload})}}));
+    const lines = () => renderer.root.findAllByType(Text).map((text) => [].concat(text.props.children).join(""));
+    return {navigator, onProfile, onSkip, webViews, send, lines};
+}
+
+describe("AbhaViewTest", () => {
+    afterEach(() => {
+        mounted.forEach((renderer) => act(() => renderer.unmount()));
+        mounted = [];
+        jest.restoreAllMocks();
+    });
+
+    it("shows Eka's screens for the session's environment, with its key and health centre", async () => {
+        const sandbox = (await show("sandbox")).webViews()[0].props;
+        expect(sandbox.source.html).toContain("https://unpkg.com/@eka-care/abha-stg@0.1.126/dist/sdk/abha/js/abha.js");
+        expect(sandbox.source.html).toContain(`data: {"accessToken":"${EKA_KEY}","hipId":"hip-1","skipABHAEnable":true}`);
+        expect(sandbox.source.html).toContain('method: "login_or_create_abha"');
+        expect((await show("production")).webViews()[0].props.source.html).toContain("https://unpkg.com/@eka-care/abha@0.2.2/dist/sdk/abha/js/abha.js");
+    });
+
+    it("keeps the WebView to https, with no file access", async () => {
+        const props = (await show()).webViews()[0].props;
+        expect(props.originWhitelist).toEqual(["https://*"]);
+        expect(props.allowFileAccess).toBe(false);
+        expect(props.allowFileAccessFromFileURLs).toBe(false);
+        expect(props.allowUniversalAccessFromFileURLs).toBe(false);
+    });
+
+    it("shows an error, and no screens, for an environment it does not know", async () => {
+        const screen = await show("staging");
+        expect(screen.webViews()).toHaveLength(0);
+        expect(screen.lines()).toContain("abhaError");
+    });
+
+    it("hands the verified profile back once, however often Eka reports it", async () => {
+        const screen = await show();
+        await screen.send(ABHA_MESSAGE.SUCCESS, ekaReply);
+        await screen.send(ABHA_MESSAGE.SUCCESS, ekaReply);
+        await screen.send(ABHA_MESSAGE.CLOSE);
+
+        expect(screen.onProfile).toHaveBeenCalledTimes(1);
+        expect(screen.onProfile.mock.calls[0][0]).toMatchObject({firstName: "Asha", lastName: "Rao", genderName: "Female",
+            abhaNumber: "91-1234-5678-9012", abhaAddress: "asha.rao@sbx"});
+        expect(JSON.stringify(screen.onProfile.mock.calls[0][0])).not.toContain("patient-session-token");
+        expect(screen.navigator.pop).not.toHaveBeenCalled();
+    });
+
+    it("says so when Eka finishes without patient details, and hands nothing back", async () => {
+        const screen = await show();
+        await screen.send(ABHA_MESSAGE.SUCCESS, JSON.stringify({response: {error: {message: "bad"}}}));
+        expect(screen.onProfile).not.toHaveBeenCalled();
+        expect(screen.lines()).toContain("abhaNoProfile");
+    });
+
+    it("hands back nothing on a skip", async () => {
+        const screen = await show();
+        await screen.send(ABHA_MESSAGE.SKIP);
+        await screen.send(ABHA_MESSAGE.SUCCESS, ekaReply);
+        expect(screen.onSkip).toHaveBeenCalledTimes(1);
+        expect(screen.onSkip.mock.calls[0]).toEqual([]);
+        expect(screen.onProfile).not.toHaveBeenCalled();
+    });
+
+    it("goes back when Eka's screens are closed", async () => {
+        const screen = await show();
+        await screen.send(ABHA_MESSAGE.CLOSE);
+        expect(screen.navigator.pop).toHaveBeenCalledTimes(1);
+        expect(screen.onProfile).not.toHaveBeenCalled();
+        expect(screen.onSkip).not.toHaveBeenCalled();
+    });
+
+    it("logs an error inside Eka's screens as a short summary, never with the patient's details", async () => {
+        const warnings = [];
+        jest.spyOn(General, "logWarn").mockImplementation((...args) => warnings.push(args.join(" ")));
+        const screen = await show();
+        await screen.send(ABHA_MESSAGE.ERROR, JSON.stringify({
+            error: {message: "Aadhaar 999988887777 is not linked to asha.rao@sbx, mobile 9000000000"},
+            response: {data: {profile: {fn: "Asha", abha_number: "91-1234-5678-9012"}}},
+        }));
+
+        expect(warnings).toHaveLength(1);
+        ["999988887777", "asha.rao@sbx", "9000000000", "Asha", "91-1234-5678-9012"].forEach((detail) =>
+            expect(warnings[0]).not.toContain(detail));
+        expect(warnings[0]).toContain("is not linked to");
+        expect(screen.lines().some((line) => line.startsWith("abhaError"))).toBe(true);
+        expect(screen.onProfile).not.toHaveBeenCalled();
+    });
+
+    it("keyNeverLogged by the screen, whatever Eka reports", async () => {
+        const logged = [];
+        ["logDebug", "logInfo", "logWarn", "logError"].forEach((level) =>
+            jest.spyOn(General, level).mockImplementation((...args) => logged.push(args)));
+        jest.spyOn(General, "isDebugEnabled").mockReturnValue(true);
+        const screen = await show();
+        await screen.send(ABHA_MESSAGE.ERROR, JSON.stringify({error: "bad"}));
+        await screen.send("not-a-message-type");
+        await act(async () => screen.webViews()[0].props.onMessage({nativeEvent: {data: "not json"}}));
+        await screen.send(ABHA_MESSAGE.SUCCESS, ekaReply);
+
+        logged.forEach((args) => args.forEach((arg) =>
+            expect(typeof arg === "string" ? arg : JSON.stringify(arg) || "").not.toContain(EKA_KEY)));
+    });
+
+    it("has English wording for every message the screen and the server's refusals show", () => {
+        const refusals = ["ABHA_NOT_CONFIGURED", "ABHA_NO_HEALTH_CENTRE", "ABHA_NO_PRIVILEGE", "ABHA_DISABLED", null]
+            .map((code) => AbhaError.messageKey(new AbhaError(code, 403)));
+        [...refusals, "abhaTitle", "abhaFindOrCreate", "abhaNeedsInternet", "abhaError", "abhaNoProfile"].forEach((key) =>
+            expect([key, typeof en.translations[key]]).toEqual([key, "string"]));
+    });
+});
