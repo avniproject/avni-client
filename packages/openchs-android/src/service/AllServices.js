@@ -35,6 +35,7 @@
  */
 
 // Core services
+import './AbhaService';
 import './AddressLevelService';
 import './AttendanceRecordService';
 import './AttendanceTypeService';
