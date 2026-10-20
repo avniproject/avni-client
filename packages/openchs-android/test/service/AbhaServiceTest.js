@@ -19,6 +19,7 @@ import AbhaService from "../../src/service/AbhaService";
 import AbhaError from "../../src/service/AbhaError";
 import AuthenticationError from "../../src/service/AuthenticationError";
 import General from "../../src/utility/General";
+import en from "../../translations/en.json";
 
 const EKA_KEY = "eka-access-key-7f3a";
 const SESSION = {accessToken: EKA_KEY, expiresAt: "2026-10-20T10:30:00Z", environment: "sandbox", hipId: "hip-1"};
@@ -103,6 +104,33 @@ describe("AbhaServiceTest", () => {
         expect(AbhaError.messageKey(new AbhaError("ABHA_DISABLED", 403))).to.equal("abhaDisabled");
         expect(AbhaError.messageKey(new AbhaError(null, 500))).to.equal("abhaError");
         expect(AbhaError.messageKey(new Error("Network request failed"))).to.equal("abhaError");
+    });
+
+    it("names an unknown subject type and Eka not answering, each with its own message, on every ABHA call", async () => {
+        const refusals = [[400, "ABHA_UNKNOWN_SUBJECT_TYPE", "abhaUnknownSubjectType"], [502, "ABHA_EKA_UNAVAILABLE", "abhaEkaUnavailable"]];
+        for (const [status, code, messageKey] of refusals) {
+            global.fetch = jest.fn(async () => reply(status, {code}));
+            for (const call of [(s) => s.getSession("st-1"), (s) => s.findSubjectUUIDs("st-1", ABHA_NUMBER)]) {
+                const error = await failureOf(call(service()));
+                expect(error, code).to.be.instanceOf(AbhaError);
+                expect(error.code).to.equal(code);
+                expect(error.status).to.equal(status);
+                expect(AbhaError.messageKey(error)).to.equal(messageKey);
+            }
+            expect(en.translations[messageKey], messageKey).to.be.a("string");
+        }
+    });
+
+    it("keeps an audit record Eka was too busy for, to send again, and drops one for an unknown subject type", async () => {
+        const abhaService = service();
+        global.fetch = jest.fn(async () => reply(502, {code: "ABHA_EKA_UNAVAILABLE"}));
+        await abhaService.recordEvent(EVENT);
+        global.fetch = jest.fn(async () => reply(400, {code: "ABHA_UNKNOWN_SUBJECT_TYPE"}));
+        await abhaService.resendUnsentEvents();
+        expect(global.fetch.mock.calls.length).to.equal(1);
+        global.fetch = jest.fn(async () => reply(201, {}));
+        await abhaService.resendUnsentEvents();
+        expect(global.fetch.mock.calls.length).to.equal(0);
     });
 
     it("treats a refusal whose body names no reason as a general error", async () => {

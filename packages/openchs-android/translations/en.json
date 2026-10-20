@@ -483,6 +483,8 @@
     "abhaNoHealthCentre": "You have no health centre set for ABHA. Ask your admin.",
     "abhaNoPermission": "You are not allowed to register or edit this type of patient, so ABHA cannot open.",
     "abhaDisabled": "ABHA is switched off for your organisation.",
+    "abhaUnknownSubjectType": "The server does not know this type of patient, so ABHA cannot open. Ask your admin.",
+    "abhaEkaUnavailable": "The ABHA service is not answering. Try again in a few minutes.",
     "abhaOptionCreate": "Create ABHA & Register",
     "abhaOptionLink": "Link Existing ABHA & Register",
     "abhaOptionWithout": "Register Without ABHA",
