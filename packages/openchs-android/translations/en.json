@@ -715,6 +715,7 @@
     "clinicSharingError_cannotReadNetwork": "Android did not say which Wi-Fi network this phone is on.",
     "clinicSharingError_wrongNetwork": "This phone is not on the hub's Wi-Fi. Join it in Wi-Fi settings, then scan again.",
     "clinicSharingError_hubNotFound": "The hub did not answer on its network.",
+    "clinicSharingError_hotspotStopped": "The hub's Wi-Fi stopped while it was starting. Tap Start hub to try again.",
     "clinicSharingError_joinInProgress": "A join is already under way.",
     "clinicSharingErrorOther": "Something went wrong: {{message}}"
   }

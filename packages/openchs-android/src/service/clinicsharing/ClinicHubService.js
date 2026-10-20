@@ -55,13 +55,23 @@ class ClinicHubService extends BaseService {
     async startSharing(log = _.noop, {port = CLINIC_PORT} = {}) {
         const session = await this.startHub(log, {port});
         const hubJoin = require("../../framework/clinicsharing/ClinicHubJoin").default;
+        // Watched before the start, so a hotspot that stops while starting is never shown as a code.
+        let stoppedWhileStarting = false;
+        this.stopWatchingHotspot = require("../../framework/clinicsharing/ClinicHubWifi").onHotspotStopped(() => {
+            if (this.sharing) this.stopSharing();
+            else stoppedWhileStarting = true;
+        });
         try {
-            this.sharing = await hubJoin.startHubNetwork({...session, port});
+            const sharing = await hubJoin.startHubNetwork(session);
+            if (stoppedWhileStarting) throw Object.assign(new Error("The hub's Wi-Fi stopped while it was starting"), {code: 'hotspotStopped'});
+            this.sharing = sharing;
         } catch (error) {
+            this.stopWatchingHotspot();
+            this.stopWatchingHotspot = null;
             await this.stopHub();
+            await hubJoin.stopHubNetwork().catch(_.noop);
             throw error;
         }
-        this.stopWatchingHotspot = require("../../framework/clinicsharing/ClinicHubWifi").onHotspotStopped(() => this.stopSharing());
         this.lastSyncByDevice.clear();
         this._changed();
         return this.sharing;

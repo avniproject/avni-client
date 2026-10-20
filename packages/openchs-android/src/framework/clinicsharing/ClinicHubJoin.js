@@ -1,13 +1,10 @@
 import NetInfo from "@react-native-community/netinfo";
 import * as ClinicHubWifi from "./ClinicHubWifi";
-import clinicHubDiscovery from "./ClinicHubDiscovery";
 import {encodeJoinPayload, parseJoinPayload} from "./ClinicJoinPayload";
+import {CLINIC_PORT} from "./ClinicSharingConstants";
 
-// A phone must find the hub within 30 seconds of scanning.
+// A phone must join the hub's network within 30 seconds of scanning.
 export const JOIN_TIMEOUT_MS = 30 * 1000;
-
-// NSD can be told which network to scan from Android 13 (API 33).
-const SCAN_ON_INTERFACE_MIN_API_LEVEL = 33;
 
 export const JoinError = Object.freeze({
     hubNeedsAndroid10: "hubNeedsAndroid10",
@@ -22,34 +19,20 @@ export const JoinError = Object.freeze({
 const joinError = (code, message, details = {}, cause) => Object.assign(new Error(message), {code, details, cause});
 
 export class ClinicHubJoin {
-    constructor({wifi, discovery, netInfo, now = () => Date.now()}) {
+    constructor({wifi, netInfo}) {
         this.wifi = wifi;
-        this.discovery = discovery;
         this.netInfo = netInfo;
-        this.now = now;
-        this.publishedName = null;
         this.joining = false;
     }
 
-    async startHubNetwork({hubId, epoch, key, port}) {
+    async startHubNetwork({hubId, epoch, key}) {
         if (!this.wifi.canStartHub()) throw joinError(JoinError.hubNeedsAndroid10, "A hub needs Android 10 or later");
         const {ssid, passphrase} = await this.wifi.startHotspot();
-        try {
-            this.publishedName = await this.discovery.publishHub({hubId, port});
-        } catch (error) {
-            await this.wifi.stopHotspot();
-            throw error;
-        }
         return {ssid, passphrase, qrValue: encodeJoinPayload({ssid, passphrase, hubId, epoch, key})};
     }
 
-    async stopHubNetwork() {
-        if (this.publishedName) {
-            const name = this.publishedName;
-            this.publishedName = null;
-            await this.discovery.unpublishHub(name).catch(() => {});
-        }
-        await this.wifi.stopHotspot();
+    stopHubNetwork() {
+        return this.wifi.stopHotspot();
     }
 
     // One join at a time: a second would replace the first's network request and leave its caller waiting.
@@ -63,32 +46,26 @@ export class ClinicHubJoin {
         }
     }
 
+    // The hub runs the hotspot, so the joined network's gateway is the hub.
     async _joinHub(qrText) {
         const parsed = parseJoinPayload(qrText);
         if (!parsed.ok) throw joinError(JoinError.badCode, "This is not a hub's code", {payloadError: parsed.error});
         const {ssid, passphrase, hubId, epoch, key} = parsed.payload;
-        const deadline = this.now() + JOIN_TIMEOUT_MS;
-        let networkInterface;
-        let joinedByScan = false;
+        let gateway;
         if (this.wifi.canJoinByScan()) {
             try {
-                const joined = await this.wifi.joinNetwork(ssid, passphrase, JOIN_TIMEOUT_MS);
-                joinedByScan = true;
-                if (this.wifi.apiLevel() >= SCAN_ON_INTERFACE_MIN_API_LEVEL) networkInterface = joined.interfaceName || undefined;
+                ({gateway} = await this.wifi.joinNetwork(ssid, passphrase, JOIN_TIMEOUT_MS));
             } catch (error) {
                 throw joinError(JoinError.joinFailed, `Could not join ${ssid}`, {}, error);
             }
+            // Holding the hub's network for nothing would keep a Wi-Fi-only phone off its usual Wi-Fi.
+            if (!gateway) await this.wifi.leaveNetwork().catch(() => {});
         } else {
             await this._checkJoinedByHand(ssid);
+            gateway = await this.wifi.wifiGateway();
         }
-        try {
-            const {host, port} = await this.discovery.findHub(hubId, {timeoutMs: Math.max(deadline - this.now(), 0), networkInterface});
-            return {host, port, hubId, epoch, key, ssid};
-        } catch (error) {
-            // Holding the hub's network for nothing would keep a Wi-Fi-only phone off its usual Wi-Fi.
-            if (joinedByScan) await this.wifi.leaveNetwork().catch(() => {});
-            throw joinError(JoinError.hubNotFound, "The hub did not answer on its network", {}, error);
-        }
+        if (!gateway) throw joinError(JoinError.hubNotFound, `Android gave no gateway address on ${ssid}`);
+        return {host: gateway, port: CLINIC_PORT, hubId, epoch, key, ssid};
     }
 
     // Below Android 10 no name means either no Wi-Fi or a hidden name, so whether Wi-Fi is connected decides which.
@@ -125,4 +102,4 @@ export class ClinicHubJoin {
     }
 }
 
-export default new ClinicHubJoin({wifi: ClinicHubWifi, discovery: clinicHubDiscovery, netInfo: NetInfo});
+export default new ClinicHubJoin({wifi: ClinicHubWifi, netInfo: NetInfo});

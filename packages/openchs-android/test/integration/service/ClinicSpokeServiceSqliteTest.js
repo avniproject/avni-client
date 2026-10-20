@@ -22,6 +22,7 @@ jest.mock('../../../src/framework/clinicsharing/ClinicHubJoin', () => ({
 jest.mock('../../../src/framework/clinicsharing/ClinicHubWifi', () => ({leaveNetwork: jest.fn(async () => {}), onHotspotStopped: jest.fn(() => jest.fn())}));
 
 import hubJoin from "../../../src/framework/clinicsharing/ClinicHubJoin";
+import {onHotspotStopped} from "../../../src/framework/clinicsharing/ClinicHubWifi";
 import ClinicHubService from "../../../src/service/clinicsharing/ClinicHubService";
 import ClinicSpokeService from "../../../src/service/clinicsharing/ClinicSpokeService";
 import ClinicRecordService from "../../../src/service/clinicsharing/ClinicRecordService";
@@ -355,6 +356,7 @@ describe('Phones syncing with the hub', () => {
 
         it('starts and stops the hotspot with its server', async () => {
             await hub.stopHub();
+            hubJoin.stopHubNetwork.mockClear();
             hubJoin.startHubNetwork.mockImplementation(async ({hubId}) => ({ssid: 'AndroidShare_1', passphrase: 'pass1234', qrValue: hubId}));
 
             const sharing = await hub.startSharing(log, {port});
@@ -362,6 +364,31 @@ describe('Phones syncing with the hub', () => {
 
             await hub.stopSharing();
             expect([hub.transport, hub.getSharing(), hubJoin.stopHubNetwork.mock.calls.length]).toEqual([null, null, 1]);
+        });
+
+        it('fails the start instead of showing a code when the hotspot stops while starting', async () => {
+            await hub.stopHub();
+            hubJoin.stopHubNetwork.mockClear();
+            const stopListening = jest.fn();
+            onHotspotStopped.mockImplementationOnce((listener) => {
+                hubJoin.startHubNetwork.mockImplementationOnce(async () => { listener({reason: 'stopped'}); return {ssid: 'AndroidShare_1', passphrase: 'pass1234', qrValue: 'x'}; });
+                return stopListening;
+            });
+
+            await expect(hub.startSharing(log, {port})).rejects.toMatchObject({code: 'hotspotStopped'});
+            expect([hub.transport, hub.getSharing(), stopListening.mock.calls.length, hubJoin.stopHubNetwork.mock.calls.length]).toEqual([null, null, 1, 1]);
+        });
+
+        it('stops sharing when the hotspot stops after it started', async () => {
+            await hub.stopHub();
+            let hotspotStopped;
+            onHotspotStopped.mockImplementationOnce((listener) => { hotspotStopped = listener; return jest.fn(); });
+            hubJoin.startHubNetwork.mockImplementationOnce(async () => ({ssid: 'AndroidShare_1', passphrase: 'pass1234', qrValue: 'x'}));
+
+            await hub.startSharing(log, {port});
+            await hotspotStopped({reason: 'stopped'});
+            await new Promise((resolve) => setImmediate(resolve));
+            expect([hub.transport, hub.getSharing()]).toEqual([null, null]);
         });
     });
 });

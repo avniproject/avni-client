@@ -9,8 +9,9 @@ import {
     to_base64
 } from 'react-native-libsodium';
 import _ from 'lodash';
+import {CLINIC_PORT} from './ClinicSharingConstants';
 
-export const CLINIC_PORT = 7373;
+export {CLINIC_PORT};
 const HANDSHAKE_TIMEOUT_MS = 5000;
 const REQUEST_TIMEOUT_MS = 2 * 60 * 1000;
 // A phone that walks out of range sends no FIN, so the hub would otherwise keep its socket all day.

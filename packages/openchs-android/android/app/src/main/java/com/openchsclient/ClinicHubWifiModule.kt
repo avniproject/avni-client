@@ -3,6 +3,7 @@ package com.openchsclient
 import android.content.Context
 import android.location.LocationManager
 import android.net.ConnectivityManager
+import android.net.LinkProperties
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
@@ -12,7 +13,7 @@ import android.net.wifi.WifiNetworkSpecifier
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
+import androidx.annotation.RequiresApi
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
@@ -20,12 +21,14 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
+import java.net.Inet4Address
 
 // Every method runs on the main thread, where Android's hotspot and network callbacks also run, so this state has one thread.
 class ClinicHubWifiModule(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
     companion object {
-        private const val TAG = "ClinicHubWifiModule"
+        // Android can send a joined network's addresses just after saying it is available.
+        private const val GATEWAY_WAIT_MS = 3000L
         const val EVENT_NETWORK_LOST = "ClinicHubNetworkLost"
         const val EVENT_HOTSPOT_STOPPED = "ClinicHubHotspotStopped"
         const val E_UNSUPPORTED = "E_UNSUPPORTED"
@@ -43,26 +46,27 @@ class ClinicHubWifiModule(private val reactContext: ReactApplicationContext) : R
             return name.ifEmpty { null }
         }
 
-        @JvmStatic
-        fun hotspotFailureReason(reason: Int): String = when (reason) {
-            WifiManager.LocalOnlyHotspotCallback.ERROR_NO_CHANNEL -> "no-channel"
-            // The phone's own hotspot is on, or Wi-Fi is in a mode that cannot share.
-            WifiManager.LocalOnlyHotspotCallback.ERROR_INCOMPATIBLE_MODE -> "incompatible-mode"
-            WifiManager.LocalOnlyHotspotCallback.ERROR_TETHERING_DISALLOWED -> "tethering-disallowed"
-            WifiManager.LocalOnlyHotspotCallback.ERROR_GENERIC -> "generic"
-            else -> "unknown-$reason"
-        }
-
         /** Android 10 to 12 refuse a hotspot while location is switched off, even with the permission granted. */
         @JvmStatic
         fun startFailureCode(sdkInt: Int, locationEnabled: Boolean): String =
             if (sdkInt < Build.VERSION_CODES.TIRAMISU && !locationEnabled) E_LOCATION_OFF else E_PERMISSION
+
+        /** DhcpInfo holds an IPv4 address as an int with its first byte lowest. */
+        @JvmStatic
+        fun dhcpAddress(address: Int): String? =
+            if (address == 0) null else "${address and 0xff}.${(address shr 8) and 0xff}.${(address shr 16) and 0xff}.${(address ushr 24) and 0xff}"
+
+        @JvmStatic
+        fun gatewayOf(link: LinkProperties?): String? {
+            if (link == null) return null
+            link.routes.firstOrNull { it.isDefaultRoute && it.gateway is Inet4Address && !it.gateway!!.isAnyLocalAddress }
+                ?.let { return it.gateway!!.hostAddress }
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) link.dhcpServerAddress?.hostAddress else null
+        }
     }
 
     private val mainHandler = Handler(Looper.getMainLooper())
-    private val hotspot = HotspotLifecycle()
-    private val hotspotStarts = HashMap<Int, Promise>()
-    private var reservation: WifiManager.LocalOnlyHotspotReservation? = null
+    private var hotspot: ClinicHubHotspot? = null
     private val joins = JoinLifecycle()
     private val joinCallbacks = HashMap<Int, ConnectivityManager.NetworkCallback>()
     private val joinPromises = HashMap<Int, Promise>()
@@ -84,93 +88,24 @@ class ClinicHubWifiModule(private val reactContext: ReactApplicationContext) : R
                 promise.reject(E_UNSUPPORTED, "A hub needs Android 10 or later")
                 return@post
             }
-            val id = hotspot.begin()
-            if (id == null) {
-                promise.reject(E_HOTSPOT, "The hotspot is already starting")
-                return@post
-            }
-            closeReservation()
-            hotspotStarts[id] = promise
-            try {
-                wifiManager().startLocalOnlyHotspot(hotspotCallback(id), mainHandler)
-            } catch (e: SecurityException) {
-                hotspot.failed(id)
-                hotspotStarts.remove(id)?.reject(startFailureCode(Build.VERSION.SDK_INT, locationEnabled()), e.message, e)
-            } catch (e: IllegalStateException) {
-                // Android allows one local-only hotspot request per app at a time.
-                hotspot.failed(id)
-                hotspotStarts.remove(id)?.reject(E_HOTSPOT, e.message, e)
-            }
+            hotspot().start(promise)
         }
     }
 
-    private fun hotspotCallback(id: Int) = object : WifiManager.LocalOnlyHotspotCallback() {
-        override fun onStarted(started: WifiManager.LocalOnlyHotspotReservation) {
-            if (!hotspot.started(id)) {
-                // Stopped while Android was still starting it; its caller has already been told.
-                started.close()
-                return
-            }
-            reservation = started
-            val (ssid, passphrase) = credentialsOf(started)
-            val promise = hotspotStarts.remove(id)
-            if (ssid == null || passphrase == null) {
-                hotspot.stop()
-                closeReservation()
-                promise?.reject(E_HOTSPOT, "The hotspot started without a network name or password")
-                return
-            }
-            promise?.resolve(Arguments.createMap().apply {
-                putString("ssid", ssid)
-                putString("passphrase", passphrase)
-            })
-        }
-
-        override fun onStopped() {
-            if (hotspot.stopped(id)) {
-                reservation = null
-                emitHotspotStopped("stopped")
-            }
-        }
-
-        override fun onFailed(reason: Int) {
-            Log.w(TAG, "Hotspot failed: ${hotspotFailureReason(reason)}")
-            when (hotspot.failed(id)) {
-                HotspotLifecycle.OnFailed.REJECT_START ->
-                    hotspotStarts.remove(id)?.reject(E_HOTSPOT, "The hotspot could not start: ${hotspotFailureReason(reason)}")
-                // A hotspot that dies after starting, so the hub stops showing a code for a network that has gone.
-                HotspotLifecycle.OnFailed.REPORT_STOPPED -> {
-                    reservation = null
-                    emitHotspotStopped(hotspotFailureReason(reason))
-                }
-                HotspotLifecycle.OnFailed.IGNORE -> {}
-            }
-        }
-    }
-
-    @Suppress("DEPRECATION")
-    private fun credentialsOf(started: WifiManager.LocalOnlyHotspotReservation): Pair<String?, String?> =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val config = started.softApConfiguration
-            val ssid = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) unquoteSsid(config.wifiSsid?.toString()) else config.ssid
-            Pair(ssid, config.passphrase)
-        } else {
-            val config = started.wifiConfiguration
-            Pair(unquoteSsid(config?.SSID), config?.preSharedKey?.let { unquoteSsid(it) })
-        }
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun hotspot(): ClinicHubHotspot = hotspot ?: ClinicHubHotspot(
+        ::wifiManager,
+        mainHandler,
+        { startFailureCode(Build.VERSION.SDK_INT, locationEnabled()) },
+        ::emitHotspotStopped,
+    ).also { hotspot = it }
 
     @ReactMethod
     fun stopHotspot(promise: Promise) {
         mainHandler.post {
-            hotspot.stop()?.let { waiting -> hotspotStarts.remove(waiting)?.reject(E_CANCELLED, "The hub was stopped before its hotspot started") }
-            closeReservation()
+            hotspot?.stop()
             promise.resolve(true)
         }
-    }
-
-    private fun closeReservation() {
-        reservation?.close()
-        reservation = null
     }
 
     private fun emitHotspotStopped(reason: String) {
@@ -205,12 +140,16 @@ class ClinicHubWifiModule(private val reactContext: ReactApplicationContext) : R
         }
     }
 
+    // The hub runs the hotspot, so the joined network's gateway is the hub's address.
     private fun joinCallback(id: Int, ssid: String) = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
-            joinPromises.remove(id)?.resolve(Arguments.createMap().apply {
-                putString("ssid", ssid)
-                putString("interfaceName", connectivityManager().getLinkProperties(network)?.interfaceName)
-            })
+            val gateway = gatewayOf(connectivityManager().getLinkProperties(network))
+            if (gateway != null) resolveJoin(id, ssid, gateway)
+            else mainHandler.postDelayed({ resolveJoin(id, ssid, null) }, GATEWAY_WAIT_MS)
+        }
+
+        override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {
+            gatewayOf(linkProperties)?.let { resolveJoin(id, ssid, it) }
         }
 
         // The user declined Android's join prompt, or the network did not appear in time. Android drops the request.
@@ -223,6 +162,13 @@ class ClinicHubWifiModule(private val reactContext: ReactApplicationContext) : R
         override fun onLost(network: Network) {
             if (joins.isCurrent(id)) emit(EVENT_NETWORK_LOST, Arguments.createMap().apply { putString("ssid", ssid) })
         }
+    }
+
+    private fun resolveJoin(id: Int, ssid: String, gateway: String?) {
+        joinPromises.remove(id)?.resolve(Arguments.createMap().apply {
+            putString("ssid", ssid)
+            putString("gateway", gateway)
+        })
     }
 
     private fun failJoin(id: Int, code: String, e: Exception) {
@@ -275,6 +221,16 @@ class ClinicHubWifiModule(private val reactContext: ReactApplicationContext) : R
     }
 
     @ReactMethod
+    @Suppress("DEPRECATION")
+    fun wifiGateway(promise: Promise) {
+        try {
+            promise.resolve(dhcpAddress(wifiManager().dhcpInfo?.gateway ?: 0))
+        } catch (e: SecurityException) {
+            promise.reject(E_PERMISSION, e.message, e)
+        }
+    }
+
+    @ReactMethod
     fun addListener(eventName: String) {}
 
     @ReactMethod
@@ -288,9 +244,7 @@ class ClinicHubWifiModule(private val reactContext: ReactApplicationContext) : R
     // A JS reload: let go of the hotspot and the joined network, including a start Android has not answered yet.
     override fun invalidate() {
         mainHandler.post {
-            hotspot.stop()
-            hotspotStarts.clear()
-            closeReservation()
+            hotspot?.release()
             joins.leave()
             joinCallbacks.values.forEach { unregister(it) }
             joinCallbacks.clear()
