@@ -7,7 +7,7 @@ jest.mock("../../../src/framework/routing/TypedTransition", () => ({
 }));
 jest.mock("../../../src/utility/CHSNavigator", () => ({
     __esModule: true,
-    default: {navigateToAbhaView: jest.fn(), navigateToProgramEnrolmentDashboardView: jest.fn()},
+    default: {navigateToAbhaView: jest.fn(), navigateToAbhaCardView: jest.fn(), navigateToProgramEnrolmentDashboardView: jest.fn()},
 }));
 jest.mock("../../../src/utility/ConnectionInfo", () => ({getConnectionInfo: jest.fn()}));
 
@@ -312,6 +312,81 @@ describe("AbhaRegistrationFlowTest", () => {
 
             logged.forEach((args) => args.forEach((arg) => PATIENT_DETAILS.forEach((detail) =>
                 expect(typeof arg === "string" ? arg : JSON.stringify(arg) || "").not.toContain(detail))));
+        });
+    });
+
+    describe("showing the ABHA card at the end of Eka's screens", () => {
+        afterEach(() => jest.useRealTimers());
+
+        const cardOpened = () => CHSNavigator.navigateToAbhaCardView.mock.calls;
+
+        it("opens the card for the patient once the ABHA action is recorded, after the details are filled in", async () => {
+            const view = viewWith();
+            await openAndReturn(view);
+            await flush();
+
+            expect(cardOpened()).toEqual([[view, {subjectUUID: "s-new", abhaNumber: "91-1234-5678-9012"}]]);
+            expect(CHSNavigator.navigateToAbhaCardView.mock.invocationCallOrder[0])
+                .toBeGreaterThan(view.abhaService.recordEvent.mock.invocationCallOrder[0]);
+            expect(CHSNavigator.navigateToAbhaCardView.mock.invocationCallOrder[0])
+                .toBeGreaterThan(view.dispatchAction.mock.invocationCallOrder[0]);
+        });
+
+        it("does not hold up the registration while it waits: the details are filled in and the call returns at once", async () => {
+            jest.useFakeTimers();
+            const view = viewWith();
+            view.abhaService.recordEvent.mockImplementation(() => new Promise(() => {}));
+            await openAndReturn(view);
+
+            expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(1);
+            expect(cardOpened()).toHaveLength(0);
+        });
+
+        it("waits at most five seconds for the record, then opens the card anyway", async () => {
+            jest.useFakeTimers();
+            const view = viewWith();
+            view.abhaService.recordEvent.mockImplementation(() => new Promise(() => {}));
+            await openAndReturn(view);
+
+            jest.advanceTimersByTime(4900);
+            await Promise.resolve();
+            await Promise.resolve();
+            expect(cardOpened()).toHaveLength(0);
+            jest.advanceTimersByTime(200);
+            await Promise.resolve();
+            await Promise.resolve();
+            await Promise.resolve();
+            expect(cardOpened()).toHaveLength(1);
+        });
+
+        it("opens the card even when the record could not be sent", async () => {
+            const view = viewWith();
+            view.abhaService.recordEvent.mockImplementation(() => Promise.resolve(false));
+            await openAndReturn(view);
+            await flush();
+            expect(cardOpened()).toHaveLength(1);
+        });
+
+        it("opens no card when the patient was already registered, or the worker cancelled the replace", async () => {
+            await openAndReturn(viewWith({holders: Promise.resolve(["s-elsewhere"])}));
+            await openAndReturn(viewWith({editing: true, replace: false}));
+            await flush();
+            expect(cardOpened()).toHaveLength(0);
+        });
+
+        it("opens no card when the worker has already left the registration screen", async () => {
+            const view = viewWith();
+            view._isUnmounted = true;
+            await openAndReturn(view);
+            await flush();
+            expect(cardOpened()).toHaveLength(0);
+        });
+
+        it("shows the card for an ABHA found while editing, once the worker applied it", async () => {
+            const view = viewWith({editing: true});
+            await openAndReturn(view);
+            await flush();
+            expect(cardOpened()).toHaveLength(1);
         });
     });
 });

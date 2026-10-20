@@ -518,6 +518,8 @@
     "abhaCardTryAgain": "Try again",
     "abhaCardDownloaded": "Saved to your phone's Downloads folder as {{fileName}}",
     "abhaCardFailed": "The ABHA card could not be fetched. Registration is not affected.",
+    "abhaCardDownloadFailed": "The ABHA card could not be saved to your phone",
+    "abhaCardShareFailed": "The ABHA card could not be shared",
     "abhaCardNeedsInternet": "Viewing the ABHA card needs an internet connection",
     "abhaNotYours": "This patient has not synced to the server yet, so only the person who added the ABHA can see the card, and only for a short while.",
     "abhaNoCard": "This patient has no ABHA card to show yet.",

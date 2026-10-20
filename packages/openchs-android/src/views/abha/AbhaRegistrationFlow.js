@@ -14,6 +14,8 @@ import {Actions} from "../../action/individual/PersonRegisterActions";
 export const ABHA_SDK_METHOD = 'login_or_create_abha';
 // The organisation's own consent wording, set in its translations. The platform's translations do not define it,
 // so an organisation that sets none has no consent step.
+// How long the card waits for the server to have the ABHA action before it opens anyway.
+export const CARD_WAIT_MS = 5000;
 export const ABHA_CONSENT_KEY = 'abhaRegistrationConsent';
 
 // The ABHA step of a person's registration or edit (ABDM M1): Create and Link open Eka's screens, and the ABHA that
@@ -111,8 +113,25 @@ class AbhaRegistrationFlow {
             }
         }
         if (this.view.props.params.editing && !(await this.view.askAbhaReplace(AbhaRegistrationFlow.replaceRows(individual, profile, this.I18n)))) return;
-        this.view.getService(AbhaService).recordEvent(AbhaRegistrationFlow.auditEvent(profile, individual, consentGivenAt, occurredAt));
+        const recorded = this.view.getService(AbhaService).recordEvent(AbhaRegistrationFlow.auditEvent(profile, individual, consentGivenAt, occurredAt));
         this.view.dispatchAction(Actions.ON_ABHA_PROFILE, {profile, choice: route});
+        // Not awaited: the card is shown over the registration, which is already filled in and can be saved.
+        this.showCardOnceRecorded(recorded, individual.uuid, profile.abhaNumber);
+    }
+
+    // The card is asked of the server, which has the ABHA action only once it is recorded, so the card waits for the
+    // record, for at most CARD_WAIT_MS. After that it opens anyway and offers Try again. A worker who has left the
+    // registration meanwhile is not shown it. Showing the card never creates or links an ABHA again.
+    async showCardOnceRecorded(recorded, subjectUUID, abhaNumber) {
+        let timer;
+        const limit = new Promise((resolve) => { timer = setTimeout(resolve, CARD_WAIT_MS); });
+        try {
+            await Promise.race([Promise.resolve(recorded).catch(() => false), limit]);
+        } finally {
+            clearTimeout(timer);
+        }
+        if (this.view._isUnmounted) return;
+        CHSNavigator.navigateToAbhaCardView(this.view, {subjectUUID, abhaNumber});
     }
 
     // Another patient holds this ABHA. Only a live patient on this phone can be opened; of one elsewhere in the

@@ -40,6 +40,7 @@ import AddNewMemberView from "../views/groupSubject/AddNewMemberView";
 import {firebaseEvents, logEvent} from "./Analytics";
 import PhoneNumberVerificationView from "../views/common/PhoneNumberVerificationView";
 import AbhaView from "../views/abha/AbhaView";
+import AbhaCardView from "../views/abha/AbhaCardView";
 import ApprovalDetailsView from "../views/approval/ApprovalDetailsView";
 import GroupSubjectService from "../service/GroupSubjectService";
 import RemoveMemberView from "../views/groupSubject/RemoveMemberView";
@@ -147,6 +148,11 @@ class CHSNavigator {
             onProfile,
             onSkip
         }).to(AbhaView, true)
+    }
+
+    // The patient's ABHA card. abhaNumber only names a downloaded file, by its last four digits.
+    static navigateToAbhaCardView(source, {subjectUUID, abhaNumber} = {}) {
+        TypedTransition.from(source).with({subjectUUID, abhaNumber}).to(AbhaCardView, true);
     }
 
     static navigateToIndividualEncounterDashboardView(source, individualUUID, encounter, isFromWizard, backFn, message) {
