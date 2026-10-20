@@ -1,10 +1,10 @@
-import {ToastAndroid, ScrollView} from "react-native";
+import {Button, ToastAndroid, ScrollView, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import AddressLevels from "../common/AddressLevels";
-import {Actions} from "../../action/individual/PersonRegisterActions";
+import {Actions, PersonRegisterActions} from "../../action/individual/PersonRegisterActions";
 import _ from "lodash";
 import AppHeader from "../common/AppHeader";
 import Reducers from "../../reducer";
@@ -30,6 +30,11 @@ import SingleSelectMediaFormElement from "../form/formElement/SingleSelectMediaF
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import EntityService from "../../service/EntityService";
 import BackgroundDraftSaver from "../common/BackgroundDraftSaver";
+import Colors from "../primitives/Colors";
+import AbhaRegistrationFlow from "../abha/AbhaRegistrationFlow";
+import AbhaRegistrationOptions from "../abha/AbhaRegistrationOptions";
+import AbhaConsentDialog from "../abha/AbhaConsentDialog";
+import AbhaReplaceDetailsDialog from "../abha/AbhaReplaceDetailsDialog";
 
 @Path('/personRegister')
 class PersonRegisterView extends AbstractComponent {
@@ -45,6 +50,7 @@ class PersonRegisterView extends AbstractComponent {
         const subjectType = context.getService(EntityService).findByKey('name', subjectTypeName, SubjectType.schema.name);
         this.state = {displayed:true, isAllowedProfilePicture: subjectType.allowProfilePicture};
         this.scrollRef = React.createRef();
+        this.abhaFlow = new AbhaRegistrationFlow(this);
     }
 
     viewName() {
@@ -123,6 +129,56 @@ class PersonRegisterView extends AbstractComponent {
         AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n);
     }
 
+    // The ABHA step's dialogs. Each resolves the promise the ABHA flow is waiting on.
+    askAbhaConsent(text) {
+        return this.showAbhaDialog({kind: 'consent', text});
+    }
+
+    askAbhaReplace(rows) {
+        return this.showAbhaDialog({kind: 'replace', rows});
+    }
+
+    showAbhaDialog(abhaDialog) {
+        return new Promise((resolve) => {
+            this.resolveAbhaDialog = resolve;
+            this.setState({abhaDialog});
+        });
+    }
+
+    closeAbhaDialog(result) {
+        const resolve = this.resolveAbhaDialog;
+        this.resolveAbhaDialog = null;
+        this.setState({abhaDialog: null});
+        resolve && resolve(result);
+    }
+
+    // Nothing shows unless the organisation has ABHA on and the user has a health centre.
+    renderAbha() {
+        const abha = this.state.abha;
+        if (!_.get(abha, 'enabledForUser')) return null;
+        const dialog = this.state.abhaDialog;
+        return (
+            <View>
+                {PersonRegisterActions.abhaOptionsShown(abha) &&
+                <AbhaRegistrationOptions onCreate={() => this.abhaFlow.open({route: 'create'})}
+                                         onLink={() => this.abhaFlow.open({route: 'link'})}
+                                         onWithout={() => this.abhaFlow.chooseWithout()}/>}
+                {this.props.params.editing && abha.linked &&
+                <View style={this.formRow}>
+                    <Button title={this.I18n.t('abhaRemoveLink')} color={Colors.ActionButtonColor}
+                            onPress={() => AvniAlert(this.I18n.t('abhaRemoveLink'), this.I18n.t('abhaRemoveLinkConfirm'),
+                                () => this.dispatchAction(Actions.ON_ABHA_LINK_REMOVED, {}), this.I18n, true)}/>
+                </View>}
+                {_.get(dialog, 'kind') === 'consent' &&
+                <AbhaConsentDialog text={dialog.text} onContinue={(agreedAt) => this.closeAbhaDialog(agreedAt)}
+                                   onDecline={() => this.closeAbhaDialog(null)}/>}
+                {_.get(dialog, 'kind') === 'replace' &&
+                <AbhaReplaceDetailsDialog rows={dialog.rows} onApply={() => this.closeAbhaDialog(true)}
+                                          onCancel={() => this.closeAbhaDialog(false)}/>}
+            </View>
+        );
+    }
+
     renderLoaded() {
         General.logDebug(this.viewName(), `render`);
         const profilePicFormElement = new StaticFormElement("profilePicture", false, 'Profile-Pics', []);
@@ -139,6 +195,7 @@ class PersonRegisterView extends AbstractComponent {
                         flexDirection: 'column',
                         paddingHorizontal: Distances.ScaledContentDistanceFromEdge
                     }}>
+                        {this.renderAbha()}
                         <GeolocationFormElement
                             actionName={Actions.REGISTRATION_SET_LOCATION}
                             errorActionName={Actions.SET_LOCATION_ERROR}
