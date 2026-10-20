@@ -11,7 +11,8 @@ import UserInfoService from "../../../service/UserInfoService";
 
 class GenderFormElement extends AbstractComponent {
     static propTypes = {
-        state: PropTypes.object.isRequired
+        state: PropTypes.object.isRequired,
+        locked: PropTypes.bool
     };
 
     constructor(props, context) {
@@ -31,6 +32,7 @@ class GenderFormElement extends AbstractComponent {
             validationError={AbstractDataEntryState.getValidationError(this.props.state, Individual.validationKeys.GENDER)}
             style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
             mandatory={true}
+            disabled={this.props.locked}
         />;
     }
 }
