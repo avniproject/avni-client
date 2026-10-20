@@ -182,6 +182,8 @@ class PersonRegisterView extends AbstractComponent {
     renderLoaded() {
         General.logDebug(this.viewName(), `render`);
         const profilePicFormElement = new StaticFormElement("profilePicture", false, 'Profile-Pics', []);
+        // A verified ABHA (one with an ABHA number) holds name, date of birth and gender as Aadhaar has them.
+        const locked = !!_.get(this.state, 'abha.locked');
         const title = `${this.I18n.t(this.registrationType)} ${this.I18n.t('registration')}`;
         {this.displayMessage(this.props.params.message)}
         return (
@@ -205,15 +207,15 @@ class PersonRegisterView extends AbstractComponent {
                         <RegistrationDateFormElement date={this.state.individual.registrationDate}
                                                      validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_DATE)}
                         />
-                        <IndividualNameFormElement state={this.state}/>
+                        <IndividualNameFormElement state={this.state} locked={locked}/>
                         <SingleSelectMediaFormElement
                             element={{...profilePicFormElement}}
                             value={new SingleCodedValue(this.state.individual.profilePicture)}
                             isShown={this.state.isAllowedProfilePicture}
                             actionName={Actions.REGISTRATION_SET_PROFILE_PICTURE}/>
-                        <DateOfBirthAndAgeFormElement state={this.state}/>
+                        <DateOfBirthAndAgeFormElement state={this.state} locked={locked}/>
                         <ValidationErrorMessage validationResult={AbstractDataEntryState.getValidationError(this.state, HouseholdState.validationKeys.RELATIVE_AGE)}/>
-                        <GenderFormElement state={this.state}/>
+                        <GenderFormElement state={this.state} locked={locked}/>
                         <ValidationErrorMessage validationResult={AbstractDataEntryState.getValidationError(this.state, HouseholdState.validationKeys.RELATIVE_GENDER)}/>
                         <AddressLevels
                             selectedLowestLevel={this.state.individual.lowestAddressLevel}
