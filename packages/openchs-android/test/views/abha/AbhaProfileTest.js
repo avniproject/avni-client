@@ -99,4 +99,12 @@ describe('AbhaProfileTest', () => {
         expect(AbhaProfile.fromSdkPayload("not json")).to.equal(null);
         expect(AbhaProfile.fromSdkPayload(null)).to.equal(null);
     });
+
+    it('maskAbhaNumberKeepsLastFour', () => {
+        expect(AbhaProfile.maskAbhaNumber("91-1234-5678-1234")).to.equal("xx-xxxx-xxxx-1234");
+        expect(AbhaProfile.maskAbhaNumber("91123456781234")).to.equal("xx-xxxx-xxxx-1234");
+        expect(AbhaProfile.maskAbhaNumber("")).to.equal(null);
+        expect(AbhaProfile.maskAbhaNumber(null)).to.equal(null);
+        expect(AbhaProfile.maskAbhaNumber("12")).to.equal(null);
+    });
 });

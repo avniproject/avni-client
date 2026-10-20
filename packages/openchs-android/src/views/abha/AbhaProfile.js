@@ -49,6 +49,13 @@ class AbhaProfile {
         return _.toString(abhaNumber).replace(/\D/g, '') || null;
     }
 
+    // What the profile shows of an ABHA number: only the last four digits, as ABDM asks (xx-xxxx-xxxx-1234).
+    // Fewer than four digits is not a number worth showing.
+    static maskAbhaNumber(abhaNumber) {
+        const digits = AbhaProfile.digitsOnly(abhaNumber);
+        return _.size(digits) < 4 ? null : 'xx-xxxx-xxxx-' + digits.slice(-4);
+    }
+
     static fromProfileRecord(record) {
         const fullNameParts = _.words(_.trim(record.fln), /[^\s]+/g);
         const firstName = _.trim(record.fn) || _.head(fullNameParts) || null;
