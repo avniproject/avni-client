@@ -1117,10 +1117,9 @@ class SyncService extends BaseService {
         try {
             const violations = this.context.getRepositoryFactory().runForeignKeyCheck();
             if (violations && violations.length > 0) {
-                const summary = violations.slice(0, 10).map(v =>
-                    `${v.table}.rowid=${v.rowid}→${v.parent}`
-                ).join(', ');
-                const message = `${violations.length} FK violation(s) after sync: ${summary}`;
+                // Per table, so the rows the new sync path keeps pointing at a missing parent can be told apart (#2145).
+                const perTable = _.map(_.countBy(violations, (v) => `${v.table}→${v.parent}`), (count, pair) => `${pair} ${count}`).join(', ');
+                const message = `${violations.length} FK violation(s) after sync: ${perTable}`;
                 General.logError("SyncService", message);
                 ErrorUtil.notifyBugsnag(new Error(message), "SyncService::FKIntegrityCheck");
             }
