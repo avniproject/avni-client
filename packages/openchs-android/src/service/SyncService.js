@@ -54,6 +54,7 @@ import FileSystem from "../model/FileSystem";
 import {jsonArrayListPropFor} from "../framework/db/SchemaGenerator";
 import LastSyncCompleted from "./LastSyncCompleted";
 import OrganisationConfigService from "./OrganisationConfigService";
+import SqliteRowMapper from "../framework/db/SqliteRowMapper";
 import {SHAREABLE_ENTITIES} from "../framework/clinicsharing/ClinicSharingConstants";
 
 function transformResourceToEntity(entityMetaData, entityResources) {
@@ -629,6 +630,22 @@ class SyncService extends BaseService {
         if (!_.isEmpty(releasing.keepLocal)) this._adoptServerMediaUrls(entityMetaData, entityResources.filter((resource) => releasing.keepLocal.includes(resource.uuid)));
         entityResources = entityResources.filter((resource) => !releasing.keepLocal.includes(resource.uuid));
 
+        const pulledCount = this._writesRowsDirectly(entityMetaData)
+            ? await this._persistRowsDirectly(entityMetaData, entityResources, loadedSince)
+            : await this._persistEntities(entityMetaData, entityResources, loadedSince);
+        if (!_.isEmpty(releasing.release)) this.releasedHoldBacks += await this.getService('clinicHoldBackService').release(releasing.release);
+
+        // Taken after the batch path's await, so persistMs covers the write on either backend.
+        this.dispatchAction(SyncTelemetryActions.ENTITY_PULL_COMPLETED, {
+            entityName: entityMetaData.entityName,
+            numberOfPulledEntities: pulledCount,
+            durations: {...timings, persistMs: General.elapsedMs(persistStart)},
+            entityTypeUuid: _.get(entityMetaData, 'syncStatus.entityTypeUuid')
+        });
+    }
+
+    // Today's path: an entity per record through fromResource, then a row per entity.
+    async _persistEntities(entityMetaData, entityResources, loadedSince) {
         const entities = entityResources.reduce(transformResourceToEntity.call(this, entityMetaData, entityResources), []);
         const initialLength = entityResources.length;
         entityResources = _.filter(entityResources, (resource) => !resource.excludeFromPersist);
@@ -654,20 +671,39 @@ class SyncService extends BaseService {
         } else {
             this._persistAllSync(entityMetaData, entityResources, entities, loadedSince);
         }
-        if (!_.isEmpty(releasing.release)) this.releasedHoldBacks += await this.getService('clinicHoldBackService').release(releasing.release);
+        return entities.length;
+    }
 
-        // Taken after the batch path's await, so persistMs covers the write on either backend.
-        this.dispatchAction(SyncTelemetryActions.ENTITY_PULL_COMPLETED, {
-            entityName: entityMetaData.entityName,
-            numberOfPulledEntities: entities.length,
-            durations: {...timings, persistMs: General.elapsedMs(persistStart)},
-            entityTypeUuid: _.get(entityMetaData, 'syncStatus.entityTypeUuid')
-        });
+    // The eight bulky kinds, when the organisation turns it on (#2145). Off by default, because a
+    // wrong row stays on a phone until a reset sync.
+    _writesRowsDirectly(entityMetaData) {
+        return SqliteRowMapper.covers(entityMetaData.schemaName)
+            && this.db.isSqlite === true
+            && typeof this.db.bulkInsertRows === 'function'
+            && _.get(this.getService(OrganisationConfigService).getSettings(), 'enableDirectSyncRows') === true;
+    }
+
+    // No parent lookup per record and no entity objects: each row comes from the download. A parent
+    // not on the phone keeps its uuid in the row, where fromResource would leave the link empty.
+    async _persistRowsDirectly(entityMetaData, entityResources, loadedSince) {
+        const mapper = new SqliteRowMapper(this.db.realmSchemaMap, this.entityService);
+        const rows = entityResources.map((resource) => mapper.mapResourceToRow(entityMetaData.schemaName, resource));
+        await this.db.bulkInsertRows(entityMetaData.schemaName, rows);
+        General.logDebug("SyncService", `Saved ${rows.length} ${entityMetaData.entityName} rows straight from the download`);
+        // As applyIncoming does on the entity path, reading the approved record from each row.
+        if (entityMetaData.schemaName === EntityApprovalStatus.schema.name && !_.isEmpty(entityMetaData.parent)) {
+            this.db.recomputeLatestEntityApprovalStatus(entityMetaData.parent.schemaName, _.uniq(_.compact(rows.map((row) => row.entity_uuid))));
+        }
+        this._saveEntitySyncStatus(entityMetaData, loadedSince);
+        return rows.length;
     }
 
     async _persistAllBatch(entityMetaData, entityResources, entities, loadedSince) {
         await this.applyIncoming(entityMetaData, entityResources, entities);
+        this._saveEntitySyncStatus(entityMetaData, loadedSince);
+    }
 
+    _saveEntitySyncStatus(entityMetaData, loadedSince) {
         const currentEntitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName, entityMetaData.syncStatus.entityTypeUuid);
         const entitySyncStatus = new EntitySyncStatus();
         entitySyncStatus.entityName = entityMetaData.entityName;
