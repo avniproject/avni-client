@@ -24,6 +24,12 @@ orbs:
   aws-s3: circleci/aws-s3@4.0
 
 commands:
+  patches_checksum:
+    description: "Checksum the patch files, so a changed patch never meets node_modules cached with the old one"
+    steps:
+      - run:
+          name: Checksum patches
+          command: cat packages/openchs-android/patches/*.patch | shasum > packages/openchs-android/patches.sha
   install_ndk:
     description: "Install Android NDK 27.1.12297006 with caching and retry logic"
     steps:
@@ -139,9 +145,10 @@ jobs:
     steps:
       - checkout
       - run: sudo apt-get install make
+      - patches_checksum
       - restore_cache:
           keys:
-            - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+            - v3-dependencies-{{ checksum "packages/openchs-android/package.json" }}-{{ checksum "packages/openchs-android/patches.sha" }}
       - run: |
           echo "Checking if dependencies are already installed..."
           if [ -d packages/openchs-android/node_modules ]; then
@@ -150,10 +157,11 @@ jobs:
             echo "Dependencies not found, running deps_ci..."
             make deps_ci
           fi
+      - patches_checksum
       - save_cache:
           paths:
             - packages/openchs-android/node_modules
-          key: v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+          key: v3-dependencies-{{ checksum "packages/openchs-android/package.json" }}-{{ checksum "packages/openchs-android/patches.sha" }}
 
   test_android:
     docker:
@@ -161,9 +169,10 @@ jobs:
     working_directory: ~/avni-client
     steps:
       - checkout
+      - patches_checksum
       - restore_cache:
           keys:
-            - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+            - v3-dependencies-{{ checksum "packages/openchs-android/package.json" }}-{{ checksum "packages/openchs-android/patches.sha" }}
       - run: sudo apt-get install make
       - run: make ci test-android
 
@@ -177,9 +186,10 @@ jobs:
       - run: echo "Building with no_env"
       - install_ndk
       - run: sudo apt-get update && sudo apt-get install -y ninja-build
+      - patches_checksum
       - restore_cache:
           keys:
-            - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+            - v3-dependencies-{{ checksum "packages/openchs-android/package.json" }}-{{ checksum "packages/openchs-android/patches.sha" }}
       - restore_cache:
           keys:
             - v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}
@@ -218,9 +228,10 @@ jobs:
       - run: echo "Building flavor << pipeline.parameters.flavor >>"
       - install_ndk
       - run: sudo apt-get update && sudo apt-get install -y ninja-build
+      - patches_checksum
       - restore_cache:
           keys:
-            - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+            - v3-dependencies-{{ checksum "packages/openchs-android/package.json" }}-{{ checksum "packages/openchs-android/patches.sha" }}
       - restore_cache:
           keys:
             - v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
@@ -260,9 +271,10 @@ jobs:
       - run: echo "Building flavor gramin"
       - install_ndk
       - run: sudo apt-get update && sudo apt-get install -y ninja-build
+      - patches_checksum
       - restore_cache:
           keys:
-            - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+            - v3-dependencies-{{ checksum "packages/openchs-android/package.json" }}-{{ checksum "packages/openchs-android/patches.sha" }}
       - restore_cache:
           keys:
             - v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
@@ -301,9 +313,10 @@ jobs:
       - run: echo "Building flavor << pipeline.parameters.flavor >>"
       - install_ndk
       - run: sudo apt-get update && sudo apt-get install -y ninja-build
+      - patches_checksum
       - restore_cache:
           keys:
-            - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+            - v3-dependencies-{{ checksum "packages/openchs-android/package.json" }}-{{ checksum "packages/openchs-android/patches.sha" }}
       - restore_cache:
           keys:
             - v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
@@ -355,9 +368,10 @@ jobs:
       - run: echo "Building flavor << pipeline.parameters.flavor >>"
       - install_ndk
       - run: sudo apt-get update && sudo apt-get install -y ninja-build
+      - patches_checksum
       - restore_cache:
           keys:
-            - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+            - v3-dependencies-{{ checksum "packages/openchs-android/package.json" }}-{{ checksum "packages/openchs-android/patches.sha" }}
       - restore_cache:
           keys:
             - v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
@@ -424,9 +438,10 @@ jobs:
           echo "All keystore credentials validated"
       - install_ndk
       - run: sudo apt-get update && sudo apt-get install -y ninja-build
+      - patches_checksum
       - restore_cache:
           keys:
-            - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+            - v3-dependencies-{{ checksum "packages/openchs-android/package.json" }}-{{ checksum "packages/openchs-android/patches.sha" }}
       - restore_cache:
           keys:
             - v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
