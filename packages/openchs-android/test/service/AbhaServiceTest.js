@@ -40,6 +40,27 @@ function service() {
 
 const failureOf = (promise) => promise.then(() => { throw new Error("expected a failure"); }, (error) => error);
 
+const ABHA_NUMBER = "91-1234-5678-9012";
+const ABHA_DIGITS = "91123456789012";
+const EVENT = {
+    uuid: "ev-1", subjectUUID: "s-1", subjectTypeUUID: "st-1", action: "linked", route: "aadhaar",
+    abhaNumber: ABHA_NUMBER, abhaAddress: "asha.rao@sbx", ekaOid: "oid-77", ekaTxnId: "txn-1",
+    consentGivenAt: "2026-10-20T04:00:00.000Z", occurredAt: "2026-10-20T04:01:00.000Z",
+};
+const PATIENT_DETAILS = [ABHA_NUMBER, ABHA_DIGITS, "asha.rao@sbx", "oid-77"];
+
+function captureLogs() {
+    const logged = [];
+    ["logDebug", "logInfo", "logWarn", "logError"].forEach((level) =>
+        jest.spyOn(General, level).mockImplementation((...args) => logged.push(args)));
+    ["log", "info", "warn", "error", "debug"].forEach((level) =>
+        jest.spyOn(console, level).mockImplementation((...args) => logged.push(args)));
+    jest.spyOn(General, "isDebugEnabled").mockReturnValue(true);
+    return logged;
+}
+
+const asText = (arg) => typeof arg === "string" ? arg : JSON.stringify(arg) || "";
+
 describe("AbhaServiceTest", () => {
     afterEach(() => jest.restoreAllMocks());
 
@@ -135,5 +156,94 @@ describe("AbhaServiceTest", () => {
 
         global.fetch = jest.fn(async () => reply(403, {code: "ABHA_NO_HEALTH_CENTRE"}));
         expect((await failureOf(service().getCheckIns())).code).to.equal("ABHA_NO_HEALTH_CENTRE");
+    });
+
+    it("asks which patients hold an ABHA number with the number in the body, as digits, never in the address", async () => {
+        global.fetch = jest.fn(async () => reply(200, {subjectUUIDs: ["s-9"]}));
+
+        expect(await service().findSubjectUUIDs("st-1", ABHA_NUMBER)).to.deep.equal(["s-9"]);
+
+        const [url, init] = global.fetch.mock.calls[0];
+        expect(url).to.equal("https://server/abha/subjects/search");
+        expect(init.method).to.equal("POST");
+        expect(JSON.parse(init.body)).to.deep.equal({subjectTypeUUID: "st-1", abhaNumber: ABHA_DIGITS});
+        expect(init.headers["AUTH-TOKEN"]).to.equal("avni-user-token");
+    });
+
+    it("reads no holders as an empty list, and maps refusals as for the session", async () => {
+        global.fetch = jest.fn(async () => reply(200, {subjectUUIDs: []}));
+        expect(await service().findSubjectUUIDs("st-1", ABHA_NUMBER)).to.deep.equal([]);
+
+        global.fetch = jest.fn(async () => reply(403, {code: "ABHA_NO_PRIVILEGE"}));
+        const error = await failureOf(service().findSubjectUUIDs("st-1", ABHA_NUMBER));
+        expect(error).to.be.instanceOf(AbhaError);
+        expect(error.code).to.equal("ABHA_NO_PRIVILEGE");
+    });
+
+    it("never logs the ABHA number it asks about, whether the server answers or refuses", async () => {
+        const logged = captureLogs();
+        global.fetch = jest.fn(async () => reply(200, {subjectUUIDs: ["s-9"]}));
+        await service().findSubjectUUIDs("st-1", ABHA_NUMBER);
+        global.fetch = jest.fn(async () => reply(403, {code: "ABHA_DISABLED"}));
+        await failureOf(service().findSubjectUUIDs("st-1", ABHA_NUMBER));
+
+        expect(logged.length).to.be.greaterThan(0);
+        logged.forEach((args) => args.forEach((arg) => PATIENT_DETAILS.forEach((detail) =>
+            expect(asText(arg)).to.not.contain(detail))));
+    });
+
+    it("records an ABHA action by posting the audit record as it is", async () => {
+        global.fetch = jest.fn(async () => reply(201, {}));
+
+        expect(await service().recordEvent(EVENT)).to.equal(true);
+
+        const [url, init] = global.fetch.mock.calls[0];
+        expect(url).to.equal("https://server/abha/events");
+        expect(init.method).to.equal("POST");
+        expect(JSON.parse(init.body)).to.deep.equal(EVENT);
+    });
+
+    it("keeps a record that did not reach the server, never rejects, and sends it again when asked", async () => {
+        const abhaService = service();
+        global.fetch = jest.fn(async () => { throw new TypeError("Network request failed"); });
+        expect(await abhaService.recordEvent(EVENT)).to.equal(false);
+
+        global.fetch = jest.fn(async () => reply(500, "<html>busy</html>"));
+        await abhaService.resendUnsentEvents();
+        expect(global.fetch.mock.calls.length).to.equal(1);
+
+        global.fetch = jest.fn(async () => reply(200, {}));
+        await abhaService.resendUnsentEvents();
+        expect(global.fetch.mock.calls.length).to.equal(1);
+        expect(JSON.parse(global.fetch.mock.calls[0][1].body).uuid).to.equal("ev-1");
+
+        global.fetch = jest.fn(async () => reply(201, {}));
+        await abhaService.resendUnsentEvents();
+        expect(global.fetch.mock.calls.length).to.equal(0);
+    });
+
+    it("drops a record the server refuses, since sending it again cannot succeed", async () => {
+        const abhaService = service();
+        global.fetch = jest.fn(async () => reply(403, {code: "ABHA_DISABLED"}));
+        expect(await abhaService.recordEvent(EVENT)).to.equal(false);
+
+        global.fetch = jest.fn(async () => reply(201, {}));
+        await abhaService.resendUnsentEvents();
+        expect(global.fetch.mock.calls.length).to.equal(0);
+    });
+
+    it("never logs the record's ABHA number, address or Eka's patient ID, sent or not", async () => {
+        const logged = captureLogs();
+        const abhaService = service();
+        global.fetch = jest.fn(async () => reply(201, {}));
+        await abhaService.recordEvent(EVENT);
+        global.fetch = jest.fn(async () => { throw new TypeError("Network request failed"); });
+        await abhaService.recordEvent(EVENT);
+        global.fetch = jest.fn(async () => reply(400, {code: null}));
+        await abhaService.resendUnsentEvents();
+
+        expect(logged.length).to.be.greaterThan(0);
+        logged.forEach((args) => args.forEach((arg) => PATIENT_DETAILS.forEach((detail) =>
+            expect(asText(arg)).to.not.contain(detail))));
     });
 });
