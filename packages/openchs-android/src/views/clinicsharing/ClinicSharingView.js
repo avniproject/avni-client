@@ -23,9 +23,11 @@ import ClinicHubQrCode from "./ClinicHubQrCode";
 import ClinicHubScanner from "./ClinicHubScanner";
 
 const TRANSLATED_ERRORS = ['key', 'stale', 'version', 'timeout', 'closed', 'hubNeedsAndroid10', 'badCode', 'joinFailed',
-    'cannotReadNetwork', 'wrongNetwork', 'hubNotFound', 'joinInProgress'];
+    'cannotReadNetwork', 'wrongNetwork', 'hubNotFound', 'joinInProgress', 'rejoinFailed', 'busy', 'hotspotStopped'];
 // The phones-synced count and held uploads change without an event this screen hears.
 const REFRESH_MS = 10 * 1000;
+// Without a log, phones the hub refuses leave no trace.
+const hubLog = (message) => General.logInfo('ClinicHub', message);
 
 @Path('/clinicSharingView')
 class ClinicSharingView extends AbstractComponent {
@@ -76,11 +78,22 @@ class ClinicSharingView extends AbstractComponent {
         if (granted) await work();
     }
 
-    startHub = () => this.run(() => this.withPermissions(ClinicRole.hub, () => this.hub.startSharing()));
+    startHub = () => this.run(() => this.withPermissions(ClinicRole.hub, () => this.hub.startSharing(hubLog)));
     stopHub = () => this.run(() => this.hub.stopSharing());
     scan = () => this.run(() => this.withPermissions(ClinicRole.phone, async () => this.setState({scanning: true})));
     cancelScan = () => this.setState({scanning: false});
-    rejoin = () => this.run(() => this.withPermissions(ClinicRole.phone, () => this.spoke.joinWithCode(this.state.savedJoinCode)));
+    // A restarted hub has a new network, and the old one failing to appear looks the same as being out of range.
+    rejoin = () => this.run(() => this.withPermissions(ClinicRole.phone, async () => {
+        try {
+            await this.spoke.joinWithCode(this.state.savedJoinCode);
+        } catch (error) {
+            if (!_.includes(['joinFailed', 'hubNotFound'], _.get(error, 'code'))) throw error;
+            const rejoinFailed = new Error(error.message);
+            rejoinFailed.code = 'rejoinFailed';
+            rejoinFailed.details = {hub: _.get(parseJoinPayload(this.state.savedJoinCode), 'payload.ssid')};
+            throw rejoinFailed;
+        }
+    }));
     syncNow = () => this.run(() => this.spoke.syncNow());
     leave = () => this.run(() => this.spoke.leaveHub());
 
@@ -123,6 +136,11 @@ class ClinicSharingView extends AbstractComponent {
                 {this.renderText(this.I18n.t('clinicSharingPhonesSyncedRecently', {
                     count: this.hub.recentPhoneCount(), minutes: RECENT_PHONE_WINDOW_MS / 60000,
                 }))}
+                {this.hub.phonesSynced().map(({deviceId, name, syncedAt}) => (
+                    <Text key={deviceId} style={{fontSize: Styles.normalTextSize, color: Colors.InputNormal, marginTop: 4}}>
+                        {this.I18n.t('clinicSharingPhoneLastSynced', {phone: name, time: moment(syncedAt).format('LT')})}
+                    </Text>
+                ))}
                 {refusal && this.renderText(this.I18n.t('clinicSharingHubLowStorage', {freeMb: refusal.freeMb}), {warning: true})}
                 {this.renderButton(this.I18n.t('clinicSharingStopHub'), this.stopHub, false)}
             </View>

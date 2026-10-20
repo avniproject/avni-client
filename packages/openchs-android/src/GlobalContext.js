@@ -108,6 +108,7 @@ class GlobalContext {
         } catch (e) {
             General.logError("GlobalContext", `Opening the committed backend failed: ${e.message}`);
         }
+        this._committedDatabaseUnavailable = await this._isCommittedSqliteUnopened();
 
         this.reduxStore = appStore.create(this.beanRegistry.beansMap);
         this.beanRegistry.setReduxStore(this.reduxStore);
@@ -153,6 +154,31 @@ class GlobalContext {
 
     getActiveBackend() {
         return this._activeBackend;
+    }
+
+    // A user committed to SQLite whose SQLite would not open lands on Login, because Realm has
+    // nothing of theirs (#2196 QA). Login tells them why, so they do not take it for a logout.
+    // Only that case: a fresh install, a Realm user, a logout or an expired session all reach
+    // Login with the committed database open. A record that cannot be read says nothing.
+    async _isCommittedSqliteUnopened() {
+        if (this.sqliteDb) return false;
+        try {
+            const migrationService = this.beanRegistry.getService('sqliteMigrationService');
+            if (!migrationService) return false;
+            const state = await migrationService.getState();
+            return state.activeBackend === BACKENDS.SQLITE;
+        } catch (e) {
+            General.logError("GlobalContext", `Could not read the committed backend: ${e.message}`);
+            return false;
+        }
+    }
+
+    // Read once: Login asks when it loads, and a failed attempt or a redraw must not say it
+    // again. Nothing to say once a later retry has opened SQLite.
+    takeCommittedDatabaseUnavailable() {
+        const unavailable = !!this._committedDatabaseUnavailable && !this.sqliteDb;
+        this._committedDatabaseUnavailable = false;
+        return unavailable;
     }
 
     // The Realm half of openSqliteIfMissing. Nothing reopens Realm after a failed reinit, so

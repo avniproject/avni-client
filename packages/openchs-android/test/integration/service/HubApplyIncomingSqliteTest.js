@@ -58,7 +58,7 @@ describe("Hub sync save path on SQLite", () => {
         services.set('clinicSpokeService', spokeService);
         services.set('clinicParkedRecordService', new ClinicParkedRecordService(proxy, context));
         services.set('clinicHoldBackService', {recordReceived: async () => {}});
-        services.set('clinicMediaService', {recordReceivedMedia: async () => {}});
+        services.set('clinicMediaService', {recordReceivedMedia: async () => {}, keepLocalLinks: () => {}});
         syncService = services.get(SyncService);
         p2pService = services.get(ClinicRecordService);
         p2pService.ledgerDb = {};
@@ -166,6 +166,30 @@ describe("Hub sync save path on SQLite", () => {
 
         expect(rowsOf("individual")).toEqual(["ind-patient"]);
         expect(rowsOf("encounter")).toEqual([]);
+    });
+
+    it("lets a form save run while hub records are being applied, and keeps both", async () => {
+        joinGroup("admins", {hasAllPrivileges: true});
+        // As op-sqlite does: the batch's transaction stays open across the await on the native call.
+        rawDb.executeBatch = async (commands) => {
+            rawDb.executeSync("BEGIN TRANSACTION");
+            try {
+                await new Promise((resolve) => setTimeout(resolve, 0));
+                commands.forEach(([sql, params]) => rawDb.executeSync(sql, params || []));
+                rawDb.executeSync("COMMIT");
+            } catch (error) {
+                try { rawDb.executeSync("ROLLBACK"); } catch (ignored) {}
+                throw error;
+            }
+        };
+        const shared = Array.from({length: 450}, (_, i) => individualResource(`ind-${String(i).padStart(3, "0")}`, "st-patient"));
+
+        const applying = p2pService.applyBatches([{entityName: "Individual", resources: shared}], log);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        create("Individual", {uuid: "ind-saved-on-this-phone", firstName: "a", subjectType: {uuid: "st-patient"}, registrationDate: new Date(at), voided: false, observations: []});
+        await applying;
+
+        expect(rowsOf("individual")).toHaveLength(451);
     });
 
     it("keeps every record for a user with all privileges", async () => {

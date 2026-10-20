@@ -73,13 +73,86 @@ describe('Uploads released by the pull', () => {
         svc.getService = jest.fn((name) => ({
             ...services(name),
             getSettings: () => ({enableClinicSharing: true}),
-            mirrorOwnQueueIfRunning: async () => { steps.push('mirror'); },
+            mirrorOwnQueue: async () => { steps.push('mirror'); },
+            syncBeforeServerUpload: async () => {},
             afterSync: async () => ({applied: 0, reported: 0}),
         }));
 
         await runSync(svc);
 
         expect(steps).toEqual(['mirror', 'push', 'pull']);
+    });
+
+    it("send a joined phone's records to the hub before the server upload empties its queue, with server sync marked running throughout", async () => {
+        const {svc, steps} = buildSyncService({pullReleases: 0});
+        svc.db = {isSqlite: true};
+        const services = svc.getService;
+        svc.getService = jest.fn((name) => ({
+            ...services(name),
+            getSettings: () => ({enableClinicSharing: true}),
+            mirrorOwnQueue: async () => {},
+            syncBeforeServerUpload: async () => { steps.push(`hub (running: ${svc.serverSyncRunning})`); },
+            afterSync: async () => ({applied: 0, reported: 0}),
+        }));
+        const push = svc.pushData;
+        svc.pushData = jest.fn(async (...args) => { steps.push(`running: ${svc.serverSyncRunning}`); return push(...args); });
+
+        await runSync(svc);
+
+        expect(steps).toEqual(['hub (running: true)', 'running: true', 'push', 'pull']);
+        expect(svc.serverSyncRunning).toBe(false);
+    });
+
+    it('clear the server-sync-running mark when the sync fails', async () => {
+        const {svc} = buildSyncService({pullReleases: 0});
+        svc.pushData = jest.fn(async () => { throw new Error('network down'); });
+
+        await expect(runSync(svc)).rejects.toThrow('network down');
+        expect(svc.serverSyncRunning).toBe(false);
+    });
+
+    it("on the hub phone, take a fresh copy of its own queue before the second push pops it", async () => {
+        const {svc, steps} = buildSyncService({pullReleases: 1});
+        svc.db = {isSqlite: true};
+        const services = svc.getService;
+        svc.getService = jest.fn((name) => ({
+            ...services(name),
+            getSettings: () => ({enableClinicSharing: true}),
+            mirrorOwnQueue: async () => { steps.push('mirror'); },
+            syncBeforeServerUpload: async () => {},
+            afterSync: async () => ({applied: 0, reported: 0}),
+        }));
+
+        await runSync(svc);
+
+        expect(steps).toEqual(['mirror', 'push', 'pull', 'mirror', 'push']);
+    });
+
+    it("hold back a server reset while uploads still wait, so the reset does not delete them", async () => {
+        const {svc} = buildSyncService({pullReleases: 0});
+        const resetSync = jest.fn();
+        const services = svc.getService;
+        svc.getService = jest.fn((name) => ({...services(name), isResetSyncRequired: () => true, resetSync}));
+        svc.entityQueueService = {getPendingFieldDataCount: () => 1, getPendingFieldDataSummary: () => 'Encounter=1'};
+        const userConfirmation = jest.fn(async () => 'YES');
+
+        await svc.dataServerSync(ALL_ENTITIES_META_DATA, () => {}, () => {}, () => {}, () => {}, true, userConfirmation, false);
+
+        expect(userConfirmation).not.toHaveBeenCalled();
+        expect(resetSync).not.toHaveBeenCalled();
+    });
+
+    it("run the server reset as before once nothing waits to upload", async () => {
+        const {svc} = buildSyncService({pullReleases: 0});
+        const resetSync = jest.fn();
+        const services = svc.getService;
+        svc.getService = jest.fn((name) => ({...services(name), isResetSyncRequired: () => true, resetSync}));
+        svc.entityQueueService = {getPendingFieldDataCount: () => 0};
+        const userConfirmation = jest.fn(async () => 'YES');
+
+        await svc.dataServerSync(ALL_ENTITIES_META_DATA, () => {}, () => {}, () => {}, () => {}, true, userConfirmation, false);
+
+        expect(resetSync).toHaveBeenCalled();
     });
 
     it('cause no second push when the pull released nothing', async () => {

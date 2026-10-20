@@ -127,6 +127,34 @@ describe('clearData wipes both backends (#2083)', () => {
         expect(svc.entitySyncStatusService.setup).toHaveBeenCalledTimes(2);
     });
 
+    // #2196: labels and shared rules are read once in init(); after the wipe they must be
+    // reread from the database the phone lands on, or the previous data stays on screen.
+    it('reloads labels and shared rules from Realm after landing on it', async () => {
+        activeBackend = 'sqlite';
+        const svc = buildSyncService();
+        const reloadedOn = [];
+        ['ruleEvaluationService', 'messageService', 'ruleService'].forEach(name =>
+            svc[name].init.mockImplementation(() => reloadedOn.push([name, activeBackend])));
+
+        await svc.clearData();
+
+        expect(reloadedOn).toEqual([
+            ['ruleEvaluationService', 'realm'],
+            ['messageService', 'realm'],
+            ['ruleService', 'realm'],
+        ]);
+    });
+
+    it('reloads every service before failing on the first that could not reload', async () => {
+        const svc = buildSyncService();
+        svc.messageService.init.mockImplementation(() => { throw new Error('translations unreadable'); });
+
+        await expect(svc.clearData()).rejects.toThrow('translations unreadable');
+
+        expect(svc.ruleEvaluationService.init).toHaveBeenCalledTimes(1);
+        expect(svc.ruleService.init).toHaveBeenCalledTimes(1);
+    });
+
     it('drops every migration record and the session username', async () => {
         const svc = buildSyncService();
 

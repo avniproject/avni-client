@@ -684,6 +684,7 @@
     "clinicSharingNetworkName": "Network",
     "clinicSharingNetworkPassword": "Password",
     "clinicSharingPhonesSyncedRecently": "Phones synced in the last {{minutes}} minutes: {{count}}",
+    "clinicSharingPhoneLastSynced": "{{phone}}: last synced at {{time}}",
     "clinicSharingHubLowStorage": "This hub is low on storage ({{freeMb}} MB free) and is not taking new photos. Phones keep working and upload their own photos as usual.",
     "clinicSharingJoinTitle": "Join the clinic's hub",
     "clinicSharingScanToJoin": "Scan to join",
@@ -706,12 +707,15 @@
     "clinicSharingError_version": "This phone is on app version {{peer}} and the hub is on {{hub}}. Both need the same version.",
     "clinicSharingError_timeout": "The hub did not answer. Check this phone is on the hub's Wi-Fi.",
     "clinicSharingError_closed": "The hub closed the connection.",
+    "clinicSharingError_busy": "The hub is syncing with the server. Sharing resumes when it finishes.",
     "clinicSharingError_hubNeedsAndroid10": "A hub needs Android 10 or later.",
     "clinicSharingError_badCode": "This is not a hub's code.",
     "clinicSharingError_joinFailed": "Could not join the hub's Wi-Fi.",
+    "clinicSharingError_rejoinFailed": "Could not join {{hub}}. If the hub was restarted, scan its new code.",
     "clinicSharingError_cannotReadNetwork": "Android did not say which Wi-Fi network this phone is on.",
     "clinicSharingError_wrongNetwork": "This phone is not on the hub's Wi-Fi. Join it in Wi-Fi settings, then scan again.",
     "clinicSharingError_hubNotFound": "The hub did not answer on its network.",
+    "clinicSharingError_hotspotStopped": "The hub's Wi-Fi stopped while it was starting. Tap Start hub to try again.",
     "clinicSharingError_joinInProgress": "A join is already under way.",
     "clinicSharingErrorOther": "Something went wrong: {{message}}"
   }

@@ -27,6 +27,8 @@ class ClinicHoldBackService extends BaseService {
 
     // A record this phone still has to upload stays this phone's to upload, or no phone would send it.
     async recordReceived(entityName, uuids) {
+        // Nothing links to an approval, and the server drops one repeating the latest status, so it would never come down.
+        if (entityName === 'EntityApprovalStatus') return;
         const queued = new Set(this.findAll(EntityQueue.schema.name).slice().map((item) => item.entityUUID));
         const received = uuids.filter((uuid) => !queued.has(uuid));
         if (received.length === 0) return;

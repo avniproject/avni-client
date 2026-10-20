@@ -9,8 +9,9 @@ import {
     to_base64
 } from 'react-native-libsodium';
 import _ from 'lodash';
+import {CLINIC_PORT} from './ClinicSharingConstants';
 
-export const CLINIC_PORT = 7373;
+export {CLINIC_PORT};
 const HANDSHAKE_TIMEOUT_MS = 5000;
 const REQUEST_TIMEOUT_MS = 2 * 60 * 1000;
 // A phone that walks out of range sends no FIN, so the hub would otherwise keep its socket all day.
@@ -36,6 +37,7 @@ const RefusalMessage = {
     version: ({hub, peer}) => `This phone is on app version ${peer} and the hub is on ${hub}. Both need the same version.`,
     timeout: () => 'The hub did not answer. Check this phone is on the hub\'s Wi-Fi.',
     closed: () => 'The hub closed the connection.',
+    busy: () => 'The hub is syncing with the server. Sharing resumes when it finishes.',
 };
 
 export class ClinicTransportError extends Error {
@@ -175,9 +177,9 @@ class Connection {
     }
 }
 
-const hello = ({appVersion, hubId, epoch}) => ({type: MessageType.hello, appVersion, hubId, epoch});
+const hello = ({appVersion, hubId, epoch, busy}) => _.omitBy({type: MessageType.hello, appVersion, hubId, epoch, busy}, _.isUndefined);
 
-export async function startHub({key, appVersion, hubId, epoch, port = CLINIC_PORT, onConnection, log = _.noop}) {
+export async function startHub({key, appVersion, hubId, epoch, port = CLINIC_PORT, onConnection, log = _.noop, isBusy = () => false}) {
     await ready;
     const keyBytes = from_base64(key);
     const sockets = new Set();
@@ -211,13 +213,15 @@ export async function startHub({key, appVersion, hubId, epoch, port = CLINIC_POR
                 return refuse({reason: 'version', hub: appVersion, peer: message.appVersion}, `app version ${message.appVersion}, hub is on ${appVersion}`);
             if (message.hubId !== hubId || message.epoch !== epoch)
                 return refuse({reason: 'stale'}, `scanned an earlier code (epoch ${message.epoch})`);
+            if (isBusy()) return refuse({reason: 'busy'}, 'the hub is syncing with the server');
             connection = new Connection(socket, keyBytes, _.pick(message, ['appVersion', 'hubId', 'epoch']));
             socket.setTimeout(HUB_IDLE_TIMEOUT_MS);
             onConnection(connection);
         }));
         socket.on('error', (error) => log(`Socket error from ${peerName}: ${error.message}`));
         socket.on('close', () => sockets.delete(socket));
-        writeLine(socket, keyBytes, hello({appVersion, hubId, epoch}));
+        // The phone settles on this hello before the hub reads its own, so a busy hub says so here.
+        writeLine(socket, keyBytes, hello({appVersion, hubId, epoch, busy: isBusy() || undefined}));
     });
 
     await new Promise((resolve, reject) => {
@@ -264,6 +268,7 @@ export async function connectToHub({host, key, appVersion, hubId, epoch, port = 
             if (message.type !== MessageType.hello) return fail('closed');
             if (message.appVersion !== appVersion) return fail('version', {hub: message.appVersion, peer: appVersion});
             if (message.hubId !== hubId || message.epoch !== epoch) return fail('stale');
+            if (message.busy) return fail('busy');
 
             settled = true;
             clearTimeout(timer);

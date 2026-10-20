@@ -5,6 +5,7 @@ import {open} from '@op-engineering/op-sqlite';
 import {NativeEventEmitter, NativeModules, PermissionsAndroid, Platform} from 'react-native';
 import DeviceInfo from "react-native-device-info";
 import _ from "lodash";
+import fs from 'react-native-fs';
 import General from "../../utility/General";
 import ClinicRecordService, {parentsFirstIndex} from "./ClinicRecordService";
 import {CLINIC_PORT, generateSessionKey, MessageType, startHub} from "../../framework/clinicsharing/ClinicTransport";
@@ -39,7 +40,11 @@ class ClinicHubService extends BaseService {
 
     recentPhoneCount(withinMs = RECENT_PHONE_WINDOW_MS) {
         const since = Date.now() - withinMs;
-        return [...this.lastSyncByDevice.values()].filter((syncedAt) => syncedAt >= since).length;
+        return [...this.lastSyncByDevice.values()].filter(({syncedAt}) => syncedAt >= since).length;
+    }
+
+    phonesSynced() {
+        return _.orderBy([...this.lastSyncByDevice.values()], 'syncedAt', 'desc');
     }
 
     getSharing() {
@@ -50,13 +55,23 @@ class ClinicHubService extends BaseService {
     async startSharing(log = _.noop, {port = CLINIC_PORT} = {}) {
         const session = await this.startHub(log, {port});
         const hubJoin = require("../../framework/clinicsharing/ClinicHubJoin").default;
+        // Watched before the start, so a hotspot that stops while starting is never shown as a code.
+        let stoppedWhileStarting = false;
+        this.stopWatchingHotspot = require("../../framework/clinicsharing/ClinicHubWifi").onHotspotStopped(() => {
+            if (this.sharing) this.stopSharing();
+            else stoppedWhileStarting = true;
+        });
         try {
-            this.sharing = await hubJoin.startHubNetwork({...session, port});
+            const sharing = await hubJoin.startHubNetwork(session);
+            if (stoppedWhileStarting) throw Object.assign(new Error("The hub's Wi-Fi stopped while it was starting"), {code: 'hotspotStopped'});
+            this.sharing = sharing;
         } catch (error) {
+            this.stopWatchingHotspot();
+            this.stopWatchingHotspot = null;
             await this.stopHub();
+            await hubJoin.stopHubNetwork().catch(_.noop);
             throw error;
         }
-        this.stopWatchingHotspot = require("../../framework/clinicsharing/ClinicHubWifi").onHotspotStopped(() => this.stopSharing());
         this.lastSyncByDevice.clear();
         this._changed();
         return this.sharing;
@@ -155,7 +170,7 @@ class ClinicHubService extends BaseService {
         await this.pruneLedger();
         const session = await this._beginSession();
         this.transport = await startHub({
-            ...session, port, appVersion: DeviceInfo.getVersion(), log,
+            ...session, port, appVersion: DeviceInfo.getVersion(), log, isBusy: () => this._serverSyncRunning(),
             onConnection: (connection) => connection.onMessage((message) => this._replyTo(connection, message, log)),
         });
         const nativeHub = NativeModules.ClinicHub;
@@ -169,6 +184,7 @@ class ClinicHubService extends BaseService {
     async clearLedger() {
         await this.stopSharing();
         const db = await this._ledger();
+        await this.getService('clinicMediaService').discardHubCopies(db);
         const tables = this._sqliteRows(await db.execute("select name from sqlite_master where type = 'table' and name not like 'sqlite_%'")).map((row) => row.name);
         await db.executeBatch(tables.map((table) => [`delete from ${table}`, []]));
         this.lastPrunedAt = 0;
@@ -226,9 +242,11 @@ class ClinicHubService extends BaseService {
         });
     }
 
-    async _handlePush({deviceId, batches, upTo}, log) {
+    async _handlePush({deviceId, phoneName, batches, upTo}, log) {
+        // Applying records now would roll back the server sync's open batch; the phone retries on its next sync.
+        if (this._serverSyncRunning()) throw new Error('syncing with the server');
         const startedAt = Date.now();
-        this._noteSync(deviceId);
+        this._noteSync(deviceId, phoneName);
         const applied = await this.getService(ClinicRecordService).applyBatches(batches, log, deviceId);
         await this._appendLedgerRows(batches, deviceId);
         await this.getService('clinicParkedRecordService').afterSync(startedAt, log);
@@ -249,10 +267,18 @@ class ClinicHubService extends BaseService {
             [item.entityUUID, item.savedAt.getTime()]]));
     }
 
-    // Server sync pops the hub's own queue; what it pops before a phone pulls would never reach the ledger.
-    mirrorOwnQueueIfRunning() {
-        if (!this.transport) return Promise.resolve();
+    // Server sync pops the hub phone's queue; what it pops, even while the hub is stopped, would never reach the list a phone pulls.
+    async mirrorOwnQueue() {
+        if (!this.transport && !(await this._hasLedger())) return;
         return this._exclusively(() => this._mirrorOwnQueue());
+    }
+
+    _hasLedger() {
+        return fs.exists(`${fs.DocumentDirectoryPath}/../databases/${this.ledgerName}`);
+    }
+
+    _serverSyncRunning() {
+        return !!_.get(this.getService('syncService'), 'serverSyncRunning');
     }
 
     // One record saved without its parent must not fail every phone's pull.
@@ -266,13 +292,13 @@ class ClinicHubService extends BaseService {
         }
     }
 
-    _noteSync(deviceId) {
-        this.lastSyncByDevice.set(deviceId, Date.now());
+    _noteSync(deviceId, phoneName) {
+        this.lastSyncByDevice.set(deviceId, {deviceId, name: phoneName || deviceId, syncedAt: Date.now()});
         this._changed();
     }
 
-    async _handlePull({deviceId, since}, log) {
-        this._noteSync(deviceId);
+    async _handlePull({deviceId, phoneName, since}, log) {
+        this._noteSync(deviceId, phoneName);
         await this._mirrorOwnQueue();
         const db = await this._ledger();
         const rows = this._sqliteRows(await db.execute(

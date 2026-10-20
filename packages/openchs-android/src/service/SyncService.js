@@ -38,6 +38,7 @@ import {post} from "../framework/http/requests";
 import General from "../utility/General";
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 import {BACKENDS} from "../framework/BackendTypes";
+import {reloadCachedServices} from "./CachedServices";
 import SubjectMigrationService from "./SubjectMigrationService";
 import AddressLevelService from "./AddressLevelService";
 import ResetSyncService from "./ResetSyncService";
@@ -236,6 +237,14 @@ class SyncService extends BaseService {
         )
     }
 
+    // A reset deletes the upload queue, and after the push it still holds uploads waiting on another phone's records.
+    _uploadsStillWaiting() {
+        const waiting = this.entityQueueService.getPendingFieldDataCount();
+        if (waiting === 0) return false;
+        General.logWarn("SyncService", `Deferring reset sync: ${waiting} local changes still awaiting upload (${this.entityQueueService.getPendingFieldDataSummary()})`);
+        return true;
+    }
+
     async confirmUserAndResetSync(userConfirmation) {
         if (userConfirmation) {
             const userResponse = await userConfirmation();
@@ -249,12 +258,25 @@ class SyncService extends BaseService {
     /*
      * If isOnlyUploadRequired = true, then only perform upload of data to Backend server
      */
-    async dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isManualSync, userConfirmation, isOnlyUploadRequired) {
+    // Clinic sharing applies records while a server sync's batch may be open; it waits while this is set.
+    async dataServerSync(...args) {
+        this.serverSyncRunning = true;
+        try {
+            return await this._dataServerSync(...args);
+        } finally {
+            this.serverSyncRunning = false;
+        }
+    }
+
+    async _dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isManualSync, userConfirmation, isOnlyUploadRequired) {
         const allTxEntityMetaData = this.getMetadataByType(allEntitiesMetaData, "tx");
         const resetSyncMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "ResetSync");
         const syncStartedAt = Date.now();
         this.releasedHoldBacks = 0;
-        if (this._clinicSharingEnabled()) await this.getService('clinicHubService').mirrorOwnQueueIfRunning();
+        if (this._clinicSharingEnabled()) {
+            await this.getService('clinicHubService').mirrorOwnQueue();
+            await this.getService('clinicSpokeService').syncBeforeServerUpload();
+        }
         const uploadData = Promise.resolve(statusMessageCallBack("uploadLocallySavedData"))
             .then(() => this.pushData(allTxEntityMetaData.slice(), onProgressPerEntity))
             .then(() => onAfterMediaPush("After_Media", 0));
@@ -266,6 +288,7 @@ class SyncService extends BaseService {
             .then(() => this.getResetSyncData(resetSyncMetadata, onProgressPerEntity))
             .then(async () => {
                 const isResetSyncRequired = this.getService(ResetSyncService).isResetSyncRequired();
+                if (isResetSyncRequired && this._uploadsStillWaiting()) return;
                 return await isResetSyncRequired && isManualSync && this.confirmUserAndResetSync(userConfirmation);
             });
 
@@ -774,6 +797,7 @@ class SyncService extends BaseService {
     async _pushReleasedHoldBacks(allTxEntityMetaData, afterEachEntityTypePushed = _.noop) {
         if (!this.releasedHoldBacks) return;
         this.releasedHoldBacks = 0;
+        if (this._clinicSharingEnabled()) await this.getService('clinicHubService').mirrorOwnQueue();
         this._disableShallowHydrationIfSqlite();
         try {
             await this.pushData(allTxEntityMetaData.slice(), afterEachEntityTypePushed);
@@ -865,9 +889,15 @@ class SyncService extends BaseService {
             }
         }
 
-        this.ruleEvaluationService.init();
-        this.messageService.init();
-        this.ruleService.init();
+        this._reloadCachedServices();
+    }
+
+    // Shared with launch (SqliteMigrationService.openCommittedBackend), so a service added to
+    // the list reloads on both paths. Every one is tried; the first failure still fails the
+    // caller, as it did when they were called one by one.
+    _reloadCachedServices() {
+        const [failure] = reloadCachedServices(name => this[name]);
+        if (failure) throw failure;
     }
 
     resetServicesAfterFullSyncCompletion(updatedSyncSource) {
@@ -1116,9 +1146,7 @@ class SyncService extends BaseService {
     }
 
     reset(syncRequired: false) {
-        this.context.getService(RuleEvaluationService).init();
-        this.context.getService(MessageService).init();
-        this.context.getService(RuleService).init();
+        this._reloadCachedServices();
         this.dispatchAction('RESET');
         this.context.getService(PrivilegeService).deleteRevokedEntities(); //Invoking this in MenuView.deleteData as well
 

@@ -65,6 +65,7 @@ class MediaQueueService extends BaseService {
             this.repository.create(
                 MediaQueue.create(entity.uuid, schemaName, fileName, datatype, entityTargetField, conceptUUID));
         });
+        this.getService('clinicMediaService').recordOwnMedia(fileName);
     }
 
     mediaItems(entity, schemaName) {

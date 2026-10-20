@@ -569,6 +569,78 @@ describe('SqliteMigrationService', () => {
         });
     });
 
+    // #2196: launch boots every service on Realm, so services that read the database in
+    // init() hold Realm's data until they are reloaded on the backend launch moved to.
+    describe('reloading cached services (#2196)', () => {
+        let runtime, reloaded;
+        const cached = name => ({init: jest.fn(() => { reloaded.push([name, runtime]); })});
+
+        beforeEach(() => {
+            runtime = BACKENDS.REALM;
+            reloaded = [];
+            mockGlobalContext.getActiveBackend.mockImplementation(() => runtime);
+            mockGlobalContext.switchBackend.mockImplementation(b => { runtime = b; });
+            const beans = {
+                ruleEvaluationService: cached('ruleEvaluationService'),
+                messageService: cached('messageService'),
+                ruleService: cached('ruleService'),
+            };
+            const base = mockBeanStore.getService.getMockImplementation();
+            mockBeanStore.getService.mockImplementation(n => beans[n] || base(n));
+        });
+
+        afterEach(() => {
+            mockGlobalContext.getActiveBackend.mockImplementation(() => 'realm');
+            mockGlobalContext.switchBackend.mockReset();
+        });
+
+        it('reloads them from SQLite when launch moves the runtime to SQLite', async () => {
+            await persisted({activeBackend: BACKENDS.SQLITE, desiredBackend: BACKENDS.SQLITE});
+
+            await service.openCommittedBackend();
+
+            expect(reloaded).toEqual([
+                ['ruleEvaluationService', BACKENDS.SQLITE],
+                ['messageService', BACKENDS.SQLITE],
+                ['ruleService', BACKENDS.SQLITE],
+            ]);
+        });
+
+        it('reloads nothing for a Realm user', async () => {
+            await persisted({activeBackend: BACKENDS.REALM, desiredBackend: BACKENDS.REALM});
+
+            await service.openCommittedBackend();
+
+            expect(reloaded).toEqual([]);
+        });
+
+        it('reloads nothing mid-migration, before the move is committed', async () => {
+            await persisted({desiredBackend: BACKENDS.SQLITE, preparedTarget: BACKENDS.SQLITE, attemptCount: 1});
+
+            await service.openCommittedBackend();
+
+            expect(reloaded).toEqual([]);
+        });
+
+        it('reloads nothing when SQLite could not be opened', async () => {
+            await persisted({activeBackend: BACKENDS.SQLITE, desiredBackend: BACKENDS.SQLITE});
+            mockGlobalContext.switchBackend.mockImplementation(() => { throw new Error('sqliteDb not initialised'); });
+
+            await expect(service.openCommittedBackend()).rejects.toThrow();
+
+            expect(reloaded).toEqual([]);
+        });
+
+        it('a service that fails to reload does not stop the others', async () => {
+            await persisted({activeBackend: BACKENDS.SQLITE, desiredBackend: BACKENDS.SQLITE});
+            mockBeanStore.getService('messageService').init.mockImplementation(() => { throw new Error('boom'); });
+
+            await service.openCommittedBackend();
+
+            expect(reloaded.map(([n]) => n)).toEqual(['ruleEvaluationService', 'ruleService']);
+        });
+    });
+
     // The state record never leaves the device, so without the notification a device blocked
     // on every sync is indistinguishable in the fleet from one with nothing to migrate.
     describe('a blocked migration', () => {

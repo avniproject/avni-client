@@ -141,19 +141,25 @@ describe("Clinic hub ledger", () => {
         expect(uuidsIn(await pull('phone-a'))).toEqual(['ind-own', 'enc-own']);
     });
 
-    it("mirrors its own queue before server sync pops it, but only while the hub runs", async () => {
+    it("mirrors its own queue before server sync pops it on a phone that has been a hub, even with the hub stopped", async () => {
         stored['ind-own'] = 1;
         ownQueue = [{entity: 'Individual', entityUUID: 'ind-own', savedAt: new Date()}];
-        await hub.mirrorOwnQueueIfRunning();
-        const rows = async () => hub._sqliteRows(await (await hub._ledger()).execute('select entity_uuid from ledger'));
-        expect(await rows()).toEqual([]);
-
-        hub.transport = {stop: async () => {}};
-        await hub.mirrorOwnQueueIfRunning();
+        hub._hasLedger = async () => true;
+        await hub.mirrorOwnQueue();
         ownQueue = [];
 
         expect(uuidsIn(await pull('phone-a'))).toEqual(['ind-own']);
-        hub.transport = null;
+    });
+
+    it("leaves a phone that has never been a hub without a hub list", async () => {
+        stored['ind-own'] = 1;
+        ownQueue = [{entity: 'Individual', entityUUID: 'ind-own', savedAt: new Date()}];
+        hub._hasLedger = async () => false;
+        const ledger = jest.spyOn(hub, '_ledger');
+
+        await hub.mirrorOwnQueue();
+
+        expect(ledger).not.toHaveBeenCalled();
     });
 
     it(`clears ledger rows older than ${LEDGER_RETENTION_DAYS} days`, async () => {

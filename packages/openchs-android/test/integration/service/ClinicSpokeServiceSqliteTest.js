@@ -22,9 +22,12 @@ jest.mock('../../../src/framework/clinicsharing/ClinicHubJoin', () => ({
 jest.mock('../../../src/framework/clinicsharing/ClinicHubWifi', () => ({leaveNetwork: jest.fn(async () => {}), onHotspotStopped: jest.fn(() => jest.fn())}));
 
 import hubJoin from "../../../src/framework/clinicsharing/ClinicHubJoin";
+import {onHotspotStopped} from "../../../src/framework/clinicsharing/ClinicHubWifi";
 import ClinicHubService from "../../../src/service/clinicsharing/ClinicHubService";
 import ClinicSpokeService from "../../../src/service/clinicsharing/ClinicSpokeService";
 import ClinicRecordService from "../../../src/service/clinicsharing/ClinicRecordService";
+import UserInfoService from "../../../src/service/UserInfoService";
+import {MyDashboardActionNames} from "../../../src/action/mydashboard/MyDashboardActions";
 
 let dbCount = 0;
 let nextPort = 18100 + (process.pid % 500);
@@ -54,8 +57,9 @@ function device() {
         stub(service) {
             service.findAll = () => queue;
             service.findByKey = (key, uuid) => records[uuid] && {toResource: {uuid, version: records[uuid].version}};
-            const clinic = {clinicMediaService: {pushToHub: async () => 0, cleanUpCopies: async () => 0}, clinicParkedRecordService: parkedRecords};
-            service.getService = (cls) => (cls === ClinicRecordService ? recordService : clinic[cls]);
+            const clinic = {clinicMediaService: {pushToHub: async () => 0, cleanUpCopies: async () => 0, discardFetchedCopies: async () => {}}, clinicParkedRecordService: parkedRecords};
+            const userInfo = {getUserSettings: () => ({disableAutoRefresh: false})};
+            service.getService = (cls) => (cls === ClinicRecordService ? recordService : cls === UserInfoService ? userInfo : clinic[cls]);
             service.dispatchAction = jest.fn();
             return service;
         },
@@ -71,10 +75,11 @@ describe('Phones syncing with the hub', () => {
         return session;
     }
 
-    function phone() {
+    function phone(name = 'Nurse · Pixel 9a') {
         const d = device();
         const spoke = d.stub(new ClinicSpokeService({}, {}));
         spoke.stateName = uniqueName('spoke');
+        spoke.phoneName = () => name;
         const p = {...d, spoke, sync: () => spoke.syncWithHub({host: '127.0.0.1', port, ...session}, log)};
         phones.push(p);
         return p;
@@ -178,7 +183,7 @@ describe('Phones syncing with the hub', () => {
         expect(Object.keys(late.records).sort()).toEqual(['enc-1', 'ind-1']);
     });
 
-    it('refreshes open lists only when something arrived', async () => {
+    it("recounts the home dashboard only when something arrived, without moving the user off a search", async () => {
         const a = phone(), b = phone();
         await b.sync();
         expect(b.spoke.dispatchAction).not.toHaveBeenCalled();
@@ -186,7 +191,7 @@ describe('Phones syncing with the hub', () => {
         a.save('Individual', 'ind-1', 'v1');
         await a.sync();
         await b.sync();
-        expect(b.spoke.dispatchAction).toHaveBeenCalled();
+        expect(b.spoke.dispatchAction.mock.calls).toEqual([[MyDashboardActionNames.ON_LOAD, {fetchFromDB: true}]]);
     });
 
     it("sends a save made after the phone's clock was set back", async () => {
@@ -294,6 +299,30 @@ describe('Phones syncing with the hub', () => {
         });
     });
 
+    describe('while the hub phone syncs with the server', () => {
+        it("refuses phones as busy, applies nothing, and takes them again once the server sync ends", async () => {
+            let serverSyncRunning = true;
+            hub._serverSyncRunning = () => serverSyncRunning;
+            const a = phone();
+            a.save('Individual', 'ind-1', 'v1');
+
+            const refused = await a.sync();
+            expect(refused.error.code).toBe('busy');
+            expect(hubDevice.recordService.applied).toEqual([]);
+
+            serverSyncRunning = false;
+            const accepted = await a.sync();
+            expect(accepted.error).toBeUndefined();
+            expect(hubDevice.records['ind-1']).toEqual({entityName: 'Individual', version: 'v1'});
+        });
+
+        it("does not apply a push that arrives on a connection opened before the server sync began", async () => {
+            hub._serverSyncRunning = () => true;
+
+            await expect(hub._handlePush({deviceId: 'phone-a', phoneName: 'a', batches: [], upTo: 0}, log)).rejects.toThrow('syncing with the server');
+        });
+    });
+
     describe('the hub screen', () => {
         it('counts the phones that synced in the last 5 minutes', async () => {
             const a = phone(), b = phone(), c = phone();
@@ -301,9 +330,20 @@ describe('Phones syncing with the hub', () => {
             await b.sync();
             await c.sync();
             const [first] = hub.lastSyncByDevice.keys();
-            hub.lastSyncByDevice.set(first, Date.now() - 6 * 60 * 1000);
+            hub.lastSyncByDevice.set(first, {...hub.lastSyncByDevice.get(first), syncedAt: Date.now() - 6 * 60 * 1000});
 
             expect(hub.recentPhoneCount()).toBe(2);
+        });
+
+        it("lists each phone by its user and model with when it last synced, newest first, including one that has gone quiet", async () => {
+            const nurse = phone('Nurse · Pixel 9a'), doctor = phone('Doctor · Galaxy A15');
+            await nurse.sync();
+            await doctor.sync();
+            const [nurseId, doctorId] = hub.lastSyncByDevice.keys();
+            hub.lastSyncByDevice.set(nurseId, {...hub.lastSyncByDevice.get(nurseId), syncedAt: Date.now() - 20 * 60 * 1000});
+
+            expect(hub.phonesSynced().map(({name}) => name)).toEqual(['Doctor · Galaxy A15', 'Nurse · Pixel 9a']);
+            expect(hub.phonesSynced()[0].syncedAt).toBe(hub.lastSyncByDevice.get(doctorId).syncedAt);
         });
 
         it('stops its server again when the hotspot cannot start', async () => {
@@ -316,6 +356,7 @@ describe('Phones syncing with the hub', () => {
 
         it('starts and stops the hotspot with its server', async () => {
             await hub.stopHub();
+            hubJoin.stopHubNetwork.mockClear();
             hubJoin.startHubNetwork.mockImplementation(async ({hubId}) => ({ssid: 'AndroidShare_1', passphrase: 'pass1234', qrValue: hubId}));
 
             const sharing = await hub.startSharing(log, {port});
@@ -323,6 +364,31 @@ describe('Phones syncing with the hub', () => {
 
             await hub.stopSharing();
             expect([hub.transport, hub.getSharing(), hubJoin.stopHubNetwork.mock.calls.length]).toEqual([null, null, 1]);
+        });
+
+        it('fails the start instead of showing a code when the hotspot stops while starting', async () => {
+            await hub.stopHub();
+            hubJoin.stopHubNetwork.mockClear();
+            const stopListening = jest.fn();
+            onHotspotStopped.mockImplementationOnce((listener) => {
+                hubJoin.startHubNetwork.mockImplementationOnce(async () => { listener({reason: 'stopped'}); return {ssid: 'AndroidShare_1', passphrase: 'pass1234', qrValue: 'x'}; });
+                return stopListening;
+            });
+
+            await expect(hub.startSharing(log, {port})).rejects.toMatchObject({code: 'hotspotStopped'});
+            expect([hub.transport, hub.getSharing(), stopListening.mock.calls.length, hubJoin.stopHubNetwork.mock.calls.length]).toEqual([null, null, 1, 1]);
+        });
+
+        it('stops sharing when the hotspot stops after it started', async () => {
+            await hub.stopHub();
+            let hotspotStopped;
+            onHotspotStopped.mockImplementationOnce((listener) => { hotspotStopped = listener; return jest.fn(); });
+            hubJoin.startHubNetwork.mockImplementationOnce(async () => ({ssid: 'AndroidShare_1', passphrase: 'pass1234', qrValue: 'x'}));
+
+            await hub.startSharing(log, {port});
+            await hotspotStopped({reason: 'stopped'});
+            await new Promise((resolve) => setImmediate(resolve));
+            expect([hub.transport, hub.getSharing()]).toEqual([null, null]);
         });
     });
 });

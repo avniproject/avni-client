@@ -58,6 +58,7 @@ function phone({clinicSharing = true} = {}) {
         services.set(cls, service);
         services.set(name, service);
     });
+    services.set('clinicHubService', {mirrorOwnQueue: async () => {}});
     services.set(OrganisationConfigService, {getSettings: () => (clinicSharing ? {enableClinicSharing: true} : {})});
     services.get(ClinicSpokeService).stateName = `clinic_holdback_test_${process.pid}_${dbCount++}.db`;
 
@@ -218,6 +219,20 @@ describe("Holding back uploads that depend on another phone", () => {
         expect(mine.postedUuids()).toEqual(["v-1"]);
     });
 
+    it("does not wait for another phone's approval to come down, while still holding this phone's approval of a received patient", async () => {
+        const approval = (uuid) => ({uuid, entityUUID: "p-1", entityType: "Subject", entityTypeUuid: "st-person", approvalStatus: {uuid: "approved"},
+            statusDateTime: at, autoApproved: false, voided: false});
+        await receivePatient();
+        await mine.recordService.applyBatches([{entityName: 'EntityApprovalStatus',
+            resources: [fromAnotherPhone('EntityApprovalStatus', 'EntityApprovalStatus', approval("eas-theirs"))]}], log);
+        mine.saveLocally("EntityApprovalStatus", approval("eas-mine"));
+
+        await mine.push();
+
+        expect([...await mine.holdBack.receivedUuids()]).toEqual(["p-1"]);
+        expect(mine.queued()).toEqual(["eas-mine"]);
+    });
+
     it("reports what is held, since when, and what it waits on", async () => {
         await receivePatient();
         mine.saveLocally("Individual", patient("own-1", "Kamla"));
@@ -293,6 +308,22 @@ describe("Photos in records from another phone", () => {
         expect([local.name, answerOf(local, "c-photo"), answerOf(local, "c-photo-2")]).toEqual(["doctor", nurseLink, DOCTOR_PHOTO]);
         const posted = mine.posted.find((r) => r.uuid === "v-1");
         expect(posted.observations.map((o) => [o.conceptUUID, o.value])).toEqual([["c-photo", nurseLink], ["c-photo-2", DOCTOR_PHOTO]]);
+    });
+
+    it("keep this phone's own photo, and its link, when another phone's older copy of the record arrives with the bare name", async () => {
+        mine.saveLocally("Encounter", visit("v-1", "p-1", {name: "nurse", observations: photos(NURSE_PHOTO)}));
+        mine.queueMediaOf("Encounter", "v-1");
+        const nurseLink = `https://s3.example.org/org-1/${NURSE_PHOTO}`;
+        // The nurse's upload: the photo leaves her queue and her visit takes its link.
+        mine.services.get(MediaQueueService).replaceMediaValue({entityUUID: "v-1", entityName: "Encounter", fileName: NURSE_PHOTO,
+            entityTargetField: "observations", conceptUUID: "c-photo"}, nurseLink);
+        mine.rawDb.executeSync("DELETE FROM media_queue");
+
+        await receive('Encounter', visit("v-1", "p-1", {name: "doctor", observations: photos(NURSE_PHOTO)}));
+
+        const local = mine.read("Encounter", "v-1");
+        expect([local.name, answerOf(local, "c-photo")]).toEqual(["doctor", nurseLink]);
+        expect(mine.media.isFromAnotherPhone(NURSE_PHOTO)).toBe(false);
     });
 
     it("stay this phone's own when its photo comes back in another phone's edit", async () => {

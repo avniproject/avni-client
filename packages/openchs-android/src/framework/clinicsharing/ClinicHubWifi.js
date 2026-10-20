@@ -24,6 +24,8 @@ export const leaveNetwork = () => nativeModule().leaveNetwork();
 export const currentSsid = () => nativeModule().currentSsid();
 // Below Android 10 a missing name means either no Wi-Fi or a name Android will not reveal; this tells them apart.
 export const wifiConnected = () => nativeModule().wifiConnected();
+// Below Android 10, the gateway of the network the person joined by hand.
+export const wifiGateway = () => nativeModule().wifiGateway();
 
 export const onNetworkLost = (listener) => subscribe("ClinicHubNetworkLost", listener);
 export const onHotspotStopped = (listener) => subscribe("ClinicHubHotspotStopped", listener);

@@ -38,6 +38,7 @@ jest.mock("../../../src/framework/clinicsharing/ClinicHubPermissions", () => ({
 import ServiceContext from "../../../src/framework/context/ServiceContext";
 import ClinicSharingView from "../../../src/views/clinicsharing/ClinicSharingView";
 import {encodeJoinPayload} from "../../../src/framework/clinicsharing/ClinicJoinPayload";
+import General from "../../../src/utility/General";
 
 const t = (key, params) => (params ? `${key} ${JSON.stringify(params)}` : key);
 
@@ -48,6 +49,7 @@ function services({admin = true, sharing = null, joined = null, savedJoinCode = 
         PrivilegeService: {hasAllPrivileges: () => admin},
         EntityService: {findByKey: (key, uuid) => (uuid === 'p-1' ? {nameString: 'Sunita Devi'} : undefined)},
         clinicHubService: {onChange: () => () => {}, getSharing: () => sharing, recentPhoneCount: () => 3,
+            phonesSynced: () => [{deviceId: "d-1", name: "Doctor · Galaxy A15", syncedAt: new Date(2026, 9, 19, 14, 7).getTime()}],
             startSharing: jest.fn(async () => {}), stopSharing: jest.fn(async () => {})},
         clinicSpokeService: {onChange: () => () => {}, joined, lastSync, lastSyncedAt, hubRestarted, hubNetworkLost, savedJoinCode: async () => savedJoinCode,
             joinWithCode: jest.fn(async () => {}), syncNow: jest.fn(async () => {}), leaveHub: jest.fn(async () => {})},
@@ -88,6 +90,18 @@ describe("ClinicSharingView", () => {
         expect(fakes.clinicHubService.startSharing).toHaveBeenCalled();
     });
 
+    it("starts the hub with a log that writes to the app's log file, so refused phones are recorded", async () => {
+        const logInfo = jest.spyOn(General, "logInfo").mockImplementation(() => {});
+        const {fakes, press} = await show({admin: true});
+
+        await press("clinicSharingStartHub");
+        const [hubLog] = fakes.clinicHubService.startSharing.mock.calls[0];
+        hubLog("Refused 192.168.43.2: its messages could not be read, so it holds an old or wrong key");
+
+        expect(logInfo).toHaveBeenCalledWith("ClinicHub", "Refused 192.168.43.2: its messages could not be read, so it holds an old or wrong key");
+        logInfo.mockRestore();
+    });
+
     it("does not show Start hub at all to other users", async () => {
         const {lines, renderer} = await show({admin: false});
 
@@ -105,6 +119,7 @@ describe("ClinicSharingView", () => {
             "clinicSharingStopHub",
         ]));
         expect(lines()).not.toContain("clinicSharingScanToJoin");
+        expect(lines().some((line) => line.startsWith('clinicSharingPhoneLastSynced {"phone":"Doctor · Galaxy A15","time":'))).toBe(true);
     });
 
     it("shows a joined phone's hub, last sync and failure in plain words, and syncs on request", async () => {
@@ -127,6 +142,16 @@ describe("ClinicSharingView", () => {
 
         const restarted = await show({hubRestarted: true});
         expect(restarted.lines()).toContain("clinicSharingHubRestarted");
+    });
+
+    it("suggests scanning a new code when Rejoin cannot find the hub's network", async () => {
+        const code = encodeJoinPayload({ssid: "AndroidShare_1", passphrase: "pass1234", hubId: "hub-1", epoch: "epoch-1", key: "A".repeat(43)});
+        const {fakes, lines, press} = await show({savedJoinCode: code, hubNetworkLost: true});
+        fakes.clinicSpokeService.joinWithCode.mockRejectedValue(Object.assign(new Error("Could not join AndroidShare_1"), {code: "joinFailed"}));
+
+        await press('clinicSharingRejoin {"hub":"AndroidShare_1"}');
+
+        expect(lines()).toContain('clinicSharingError_rejoinFailed {"hub":"AndroidShare_1"}');
     });
 
     it("counts held uploads, and names the patient they wait on after 3 days", async () => {

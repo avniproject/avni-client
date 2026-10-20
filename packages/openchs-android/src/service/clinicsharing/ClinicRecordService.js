@@ -70,14 +70,16 @@ class ClinicRecordService extends BaseService {
             return 0;
         }
         const ordered = _.sortBy(batches, (batch) => parentsFirstIndex(batch.entityName));
-        let total = 0;
-        for (const batch of ordered) {
-            if (!SHAREABLE_ENTITIES.includes(batch.entityName)) continue;
-            for (const [metaData, resources] of this._metaDataGroups(batch)) {
-                total += await this._applyGroup(batch.entityName, metaData, resources, log, origin);
+        return this.db.inShortTransactions(async () => {
+            let total = 0;
+            for (const batch of ordered) {
+                if (!SHAREABLE_ENTITIES.includes(batch.entityName)) continue;
+                for (const [metaData, resources] of this._metaDataGroups(batch)) {
+                    total += await this._applyGroup(batch.entityName, metaData, resources, log, origin);
+                }
             }
-        }
-        return total;
+            return total;
+        });
     }
 
     async _applyGroup(entityName, metaData, resources, log, origin) {
@@ -111,6 +113,7 @@ class ClinicRecordService extends BaseService {
 
         // A record already on this phone came from the server or was received before, so the server has it or it is already held.
         const newHere = kept.filter(({entity}) => _.isNil(this.findByKey('uuid', entity.uuid, metaData.schemaName))).map(({entity}) => entity.uuid);
+        this.getService('clinicMediaService').keepLocalLinks(metaData.schemaName, kept.map(({entity}) => entity));
         await this.getService(SyncService).applyIncoming(metaData, kept.map(({resource}) => resource), kept.map(({entity}) => entity));
         await this.getService('clinicHoldBackService').recordReceived(entityName, newHere);
         await this.getService('clinicMediaService').recordReceivedMedia(entityName, kept.map(({entity}) => entity));
