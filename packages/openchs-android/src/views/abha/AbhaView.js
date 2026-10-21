@@ -1,5 +1,5 @@
 import React from 'react';
-import {SafeAreaView, Text} from 'react-native';
+import {SafeAreaView, Text, ToastAndroid} from 'react-native';
 import PropTypes from 'prop-types';
 import {WebView} from 'react-native-webview';
 import _ from 'lodash';
@@ -66,6 +66,17 @@ class AbhaView extends AbstractComponent {
         return _.truncate(summary.replace(/\S*@\S*/g, '<address>').replace(/\d[\d\s-]{4,}\d/g, '<number>'), {length: 120});
     }
 
+    // The registration takes the profile after this screen has closed, so a failure there is said in a toast. Only
+    // a fixed line is logged: the failure can quote the patient's details.
+    handBack(profile) {
+        Promise.resolve()
+            .then(() => this.props.onProfile(profile))
+            .catch(() => {
+                General.logWarn(this.viewName(), 'ABHA profile not taken by the registration');
+                ToastAndroid.show(this.I18n.t('abhaError'), ToastAndroid.LONG);
+            });
+    }
+
     onMessage(event) {
         let message;
         try {
@@ -83,7 +94,7 @@ class AbhaView extends AbstractComponent {
                     return;
                 }
                 this.resultHandled = true;
-                this.props.onProfile(profile);
+                this.handBack(profile);
                 return;
             }
             case ABHA_MESSAGE.SKIP:

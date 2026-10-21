@@ -1,5 +1,5 @@
 import React from "react";
-import {Text} from "react-native";
+import {Text, ToastAndroid} from "react-native";
 import TestRenderer, {act} from "react-test-renderer";
 
 jest.mock("react-native-webview", () => ({
@@ -33,10 +33,10 @@ const ekaReply = JSON.stringify({
 
 let mounted = [];
 
-async function show(environment = "sandbox") {
+async function show(environment = "sandbox", {handBack = () => undefined} = {}) {
     const navigator = {pop: jest.fn(), getCurrentRoutes: () => []};
     const context = {getService: () => ({getI18n: () => ({t: (key) => key})}), navigator: () => navigator};
-    const onProfile = jest.fn();
+    const onProfile = jest.fn(handBack);
     const onSkip = jest.fn();
     let renderer;
     await act(async () => {
@@ -91,6 +91,26 @@ describe("AbhaViewTest", () => {
             abhaNumber: "91-1234-5678-9012", abhaAddress: "asha.rao@sbx"});
         expect(JSON.stringify(screen.onProfile.mock.calls[0][0])).not.toContain("patient-session-token");
         expect(screen.navigator.pop).not.toHaveBeenCalled();
+    });
+
+    it("says the ABHA could not be completed when the registration cannot take the profile, and logs no detail of why", async () => {
+        jest.spyOn(ToastAndroid, "show").mockImplementation(() => {});
+        const warnings = [];
+        jest.spyOn(General, "logWarn").mockImplementation((...args) => warnings.push(args.join(" ")));
+        const failures = [
+            () => Promise.reject(new Error("could not fill Asha Rao 91-1234-5678-9012")),
+            () => { throw new Error("could not fill Asha Rao 91-1234-5678-9012"); },
+        ];
+        for (const handBack of failures) {
+            ToastAndroid.show.mockClear();
+            const screen = await show("sandbox", {handBack});
+            await screen.send(ABHA_MESSAGE.SUCCESS, ekaReply);
+            await act(async () => { await new Promise((resolve) => setImmediate(resolve)); });
+            expect(screen.onProfile).toHaveBeenCalledTimes(1);
+            expect(ToastAndroid.show).toHaveBeenCalledWith("abhaError", ToastAndroid.LONG);
+        }
+        expect(warnings.length).toBeGreaterThan(0);
+        warnings.forEach((warning) => ["Asha", "91-1234-5678-9012"].forEach((detail) => expect(warning).not.toContain(detail)));
     });
 
     it("says so when Eka finishes without patient details, and hands nothing back", async () => {
