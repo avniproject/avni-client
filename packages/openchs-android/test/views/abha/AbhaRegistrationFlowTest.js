@@ -177,6 +177,19 @@ describe("AbhaRegistrationFlowTest", () => {
             expect(CHSNavigator.navigateToAbhaView).toHaveBeenCalledTimes(2);
         });
 
+        it("Create or Link that cannot start says the ABHA could not be completed, rather than doing nothing, and can be tapped again", async () => {
+            getConnectionInfo.mockRejectedValueOnce(new Error("NetInfo unavailable"));
+            const view = viewWith();
+            const flow = new AbhaRegistrationFlow(view);
+
+            await expect(flow.open({route: "create"})).resolves.toBeUndefined();
+            expect(ToastAndroid.show).toHaveBeenCalledWith("abhaError", ToastAndroid.LONG);
+            expect(CHSNavigator.navigateToAbhaView).not.toHaveBeenCalled();
+
+            await flow.open({route: "create"});
+            expect(CHSNavigator.navigateToAbhaView).toHaveBeenCalledTimes(1);
+        });
+
         it("a skip returns to registration and changes nothing", async () => {
             const view = viewWith();
             await new AbhaRegistrationFlow(view).open({route: "create"});
@@ -331,7 +344,7 @@ describe("AbhaRegistrationFlowTest", () => {
             expect(view.abhaService.recordEvent).toHaveBeenCalledTimes(1);
         });
 
-        it("records the ABHA action on the server before filling in: patient, route, Eka's IDs, consent time", async () => {
+        it("records the ABHA action on the server once the details are filled in: patient, route, Eka's IDs, consent time", async () => {
             const consentGivenAt = new Date("2026-10-20T04:00:00.000Z");
             const view = viewWith({translations: {abhaRegistrationConsent: "I agree"}, consent: consentGivenAt});
             await openAndReturn(view);
@@ -342,8 +355,33 @@ describe("AbhaRegistrationFlowTest", () => {
                 abhaNumber: "91-1234-5678-9012", abhaAddress: "asha.rao@sbx", ekaOid: "oid-1", ekaTxnId: "txn-1",
                 consentGivenAt: "2026-10-20T04:00:00.000Z", occurredAt: expect.stringMatching(/^\d{4}-\d\d-\d\dT.*Z$/),
             });
-            expect(view.abhaService.recordEvent.mock.invocationCallOrder[0])
-                .toBeLessThan(view.dispatchAction.mock.invocationCallOrder[0]);
+            expect(view.dispatchAction.mock.invocationCallOrder[0])
+                .toBeLessThan(view.abhaService.recordEvent.mock.invocationCallOrder[0]);
+        });
+
+        it("when filling in fails, says the ABHA could not be completed, still sends the record, and shows no card", async () => {
+            const view = viewWith();
+            view.dispatchAction.mockImplementation((type) => { if (type === Actions.ON_ABHA_PROFILE) throw new Error("rule failed"); });
+            const flow = new AbhaRegistrationFlow(view);
+            await flow.open({route: "create"});
+
+            await expect(opened()[3](PROFILE)).resolves.toBeUndefined();
+            await flush();
+
+            expect(ToastAndroid.show).toHaveBeenCalledWith("abhaError", ToastAndroid.LONG);
+            expect(view.abhaService.recordEvent).toHaveBeenCalledTimes(1);
+            expect(CHSNavigator.navigateToAbhaCardView).not.toHaveBeenCalled();
+        });
+
+        it("when anything else fails after Eka's screens close, says so, and still sends the record", async () => {
+            const view = viewWith({editing: true});
+            view.askAbhaReplace.mockImplementation(() => Promise.reject(new Error("dialog failed")));
+            await new AbhaRegistrationFlow(view).open({route: "link"});
+
+            await expect(opened()[3](PROFILE)).resolves.toBeUndefined();
+
+            expect(ToastAndroid.show).toHaveBeenCalledWith("abhaError", ToastAndroid.LONG);
+            expect(view.abhaService.recordEvent).toHaveBeenCalledTimes(1);
         });
 
         it("records no consent time when the organisation asks for none", async () => {

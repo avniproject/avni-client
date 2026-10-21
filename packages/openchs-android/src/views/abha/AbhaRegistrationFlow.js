@@ -45,12 +45,22 @@ class AbhaRegistrationFlow {
         ToastAndroid.show(this.I18n.t(key), ToastAndroid.LONG);
     }
 
+    // Anything that goes wrong is said to the worker as "ABHA could not be completed". Only a fixed line is logged:
+    // an error can quote the patient's details.
+    failed(what) {
+        General.logWarn('AbhaRegistrationFlow', what);
+        this.toast('abhaError');
+    }
+
     // route is the option the worker took, 'create' or 'link'. Checked in today (#2200) passes prefillAbhaAddress.
+    // Never rejects: it runs from a button.
     async open({route, prefillAbhaAddress} = {}) {
         if (this.opening) return;
         this.opening = true;
         try {
             await this.openAbhaScreens(route, prefillAbhaAddress);
+        } catch (error) {
+            this.failed('ABHA screens not opened');
         } finally {
             this.opening = false;
         }
@@ -89,7 +99,7 @@ class AbhaRegistrationFlow {
         CHSNavigator.navigateToAbhaView(this.view, session, {method: ABHA_SDK_METHOD, prefillAbhaAddress},
             (profile) => {
                 TypedTransition.from(this.view).popToBookmark();
-                return this.onProfile(profile, {route, consentGivenAt});
+                return this.onProfile(profile, {route, consentGivenAt}).catch(() => this.failed('ABHA from Eka not filled in'));
             },
             () => TypedTransition.from(this.view).popToBookmark());
     }
@@ -109,23 +119,36 @@ class AbhaRegistrationFlow {
         const abhaService = this.view.getService(AbhaService);
         const event = AbhaRegistrationFlow.auditEvent(profile, individual, consentGivenAt, occurredAt);
         abhaService.keepEvent(event);
+        let filled = false;
+        let recorded;
+        try {
+            filled = await this.fillIn(profile, individual, route);
+        } finally {
+            // After the fill, so the form never waits on the network, and sent even when the fill failed.
+            recorded = abhaService.recordEvent(event);
+        }
+        // Not awaited: the card is shown over the registration, which is already filled in and can be saved.
+        if (filled) this.showCardOnceRecorded(recorded, individual.uuid, profile.abhaNumber);
+    }
+
+    // Checks the ABHA against the organisation's patients and fills the form with it. True once filled; false when
+    // another patient holds it, the worker cancelled or gave up, or the screen has closed.
+    async fillIn(profile, individual, route) {
         if (profile.abhaNumber) {
             const holders = await this.holdersOf(individual, profile.abhaNumber);
-            if (_.isNil(holders) || this.screenGone()) return abhaService.recordEvent(event);
+            if (_.isNil(holders) || this.screenGone()) return false;
             const others = _.without(holders, individual.uuid);
             if (!_.isEmpty(others)) {
                 this.showDuplicate(others);
-                return abhaService.recordEvent(event);
+                return false;
             }
         }
         if (this.view.props.params.editing) {
             const apply = await this.view.askAbhaReplace(AbhaRegistrationFlow.replaceRows(individual, profile, this.I18n));
-            if (!apply || this.screenGone()) return abhaService.recordEvent(event);
+            if (!apply || this.screenGone()) return false;
         }
-        const recorded = abhaService.recordEvent(event);
         this.view.dispatchAction(Actions.ON_ABHA_PROFILE, {profile, choice: route, subjectUUID: individual.uuid});
-        // Not awaited: the card is shown over the registration, which is already filled in and can be saved.
-        this.showCardOnceRecorded(recorded, individual.uuid, profile.abhaNumber);
+        return true;
     }
 
     // The card is asked of the server, which has the ABHA action only once it is recorded, so the card waits for the
