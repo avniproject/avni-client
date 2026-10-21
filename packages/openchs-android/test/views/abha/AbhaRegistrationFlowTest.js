@@ -44,6 +44,7 @@ function viewWith({editing = false, formHasConcepts = true, individual = person(
         // A rejection is passed as a function, so it is made only when asked for and never left unhandled.
         getSession: jest.fn(() => (typeof session === "function" ? session() : session)),
         findSubjectUUIDs: jest.fn(() => (typeof holders === "function" ? holders() : holders)),
+        keepEvent: jest.fn(() => Promise.resolve()),
         recordEvent: jest.fn(() => Promise.resolve(true)),
     };
     const individualService = {findByUUID: jest.fn((uuid) => onPhone[uuid])};
@@ -62,6 +63,11 @@ function viewWith({editing = false, formHasConcepts = true, individual = person(
 }
 
 const opened = () => CHSNavigator.navigateToAbhaView.mock.calls[0];
+// Every alert the flow shows is answered with the button of this text, when it has one.
+const answerAlertsWith = (buttonText) => Alert.alert.mockImplementation((title, message, buttons = []) => {
+    const button = buttons.find((b) => b.text === buttonText);
+    if (button && button.onPress) button.onPress();
+});
 const dispatched = (view, type) => view.dispatchAction.mock.calls.filter(([action]) => action === type);
 const flush = () => new Promise((resolve) => setImmediate(resolve));
 
@@ -202,8 +208,9 @@ describe("AbhaRegistrationFlowTest", () => {
             expect(view.I18n.t).toHaveBeenCalledWith("abhaDuplicateOpen", {name: holder.nameString});
             buttons.find((button) => button.text === "abhaDuplicateOpenAction").onPress();
             expect(CHSNavigator.navigateToProgramEnrolmentDashboardView).toHaveBeenCalledWith(view, "s-other");
-            expect(view.dispatchAction).not.toHaveBeenCalled();
-            expect(view.abhaService.recordEvent).not.toHaveBeenCalled();
+            expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(0);
+            // Eka's screens did find or create the ABHA, so the action is recorded all the same.
+            expect(view.abhaService.recordEvent).toHaveBeenCalledTimes(1);
         });
 
         it("says the patient is already registered in the organisation when the holder is not on this phone, and nothing more", async () => {
@@ -215,8 +222,8 @@ describe("AbhaRegistrationFlowTest", () => {
             expect(buttons.map((button) => button.text)).toEqual(["ok"]);
             expect(JSON.stringify(Alert.alert.mock.calls)).not.toContain("s-elsewhere");
             expect(CHSNavigator.navigateToProgramEnrolmentDashboardView).not.toHaveBeenCalled();
-            expect(view.dispatchAction).not.toHaveBeenCalled();
-            expect(view.abhaService.recordEvent).not.toHaveBeenCalled();
+            expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(0);
+            expect(view.abhaService.recordEvent).toHaveBeenCalledTimes(1);
         });
 
         it("does not count a voided patient on this phone as one to open", async () => {
@@ -233,12 +240,45 @@ describe("AbhaRegistrationFlowTest", () => {
             expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(1);
         });
 
-        it("fills nothing when the server cannot be asked, and says why", async () => {
-            const view = viewWith({holders: () => Promise.reject(new AbhaError("ABHA_NO_PRIVILEGE", 403))});
+        it("when the server cannot be asked, says why and offers Try again, which asks again about the same ABHA", async () => {
+            let asked = 0;
+            const view = viewWith({holders: () => (++asked === 1 ? Promise.reject(new TypeError("Network request failed")) : Promise.resolve([]))});
+            answerAlertsWith("abhaTryAgain");
+
             await openAndReturn(view);
-            expect(ToastAndroid.show.mock.calls[0][0]).toBe("abhaNoPermission");
-            expect(view.dispatchAction).not.toHaveBeenCalled();
-            expect(view.abhaService.recordEvent).not.toHaveBeenCalled();
+
+            const [, message, buttons] = Alert.alert.mock.calls[0];
+            expect(message).toBe("abhaError");
+            expect(buttons.map((button) => button.text)).toEqual(["cancel", "abhaTryAgain"]);
+            expect(view.abhaService.findSubjectUUIDs.mock.calls).toEqual([["st-person", "91-1234-5678-9012"], ["st-person", "91-1234-5678-9012"]]);
+            expect(CHSNavigator.navigateToAbhaView).toHaveBeenCalledTimes(1);
+            expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(1);
+            expect(view.abhaService.recordEvent).toHaveBeenCalledTimes(1);
+        });
+
+        it("names the server's refusal when it cannot be asked", async () => {
+            const view = viewWith({holders: () => Promise.reject(new AbhaError("ABHA_NO_PRIVILEGE", 403))});
+            answerAlertsWith("cancel");
+            await openAndReturn(view);
+            expect(Alert.alert.mock.calls[0][1]).toBe("abhaNoPermission");
+        });
+
+        it("a worker who gives up after the server could not be asked has nothing filled in, and the ABHA action is still recorded", async () => {
+            const view = viewWith({holders: () => Promise.reject(new TypeError("Network request failed"))});
+            answerAlertsWith("cancel");
+            await openAndReturn(view);
+            expect(view.abhaService.findSubjectUUIDs).toHaveBeenCalledTimes(1);
+            expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(0);
+            expect(view.abhaService.recordEvent).toHaveBeenCalledTimes(1);
+        });
+
+        it("keeps the ABHA action's record on the phone before it asks the server anything", async () => {
+            const view = viewWith();
+            await openAndReturn(view);
+            expect(view.abhaService.keepEvent).toHaveBeenCalledTimes(1);
+            expect(view.abhaService.keepEvent.mock.calls[0][0]).toEqual(view.abhaService.recordEvent.mock.calls[0][0]);
+            expect(view.abhaService.keepEvent.mock.invocationCallOrder[0])
+                .toBeLessThan(view.abhaService.findSubjectUUIDs.mock.invocationCallOrder[0]);
         });
 
         it("fills nothing when the registration screen has gone while the server was asked, but still records the ABHA action", async () => {
@@ -284,11 +324,11 @@ describe("AbhaRegistrationFlowTest", () => {
             expect(view.abhaService.recordEvent).toHaveBeenCalledTimes(1);
         });
 
-        it("when editing, cancel at the side-by-side step changes nothing and records nothing", async () => {
+        it("when editing, cancel at the side-by-side step changes nothing, and records the ABHA action Eka's screens took", async () => {
             const view = viewWith({editing: true, individual: person({uuid: "s-1"}), replace: false});
             await openAndReturn(view);
-            expect(view.dispatchAction).not.toHaveBeenCalled();
-            expect(view.abhaService.recordEvent).not.toHaveBeenCalled();
+            expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(0);
+            expect(view.abhaService.recordEvent).toHaveBeenCalledTimes(1);
         });
 
         it("records the ABHA action on the server before filling in: patient, route, Eka's IDs, consent time", async () => {
@@ -324,6 +364,7 @@ describe("AbhaRegistrationFlowTest", () => {
             ["logDebug", "logInfo", "logWarn", "logError"].forEach((level) =>
                 jest.spyOn(General, level).mockImplementation((...args) => logged.push(args)));
             jest.spyOn(General, "isDebugEnabled").mockReturnValue(true);
+            answerAlertsWith("cancel");
             await openAndReturn(viewWith());
             await openAndReturn(viewWith({holders: Promise.resolve(["s-elsewhere"])}));
             await openAndReturn(viewWith({holders: () => Promise.reject(new TypeError("Network request failed"))}));

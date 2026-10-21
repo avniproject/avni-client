@@ -100,30 +100,27 @@ class AbhaRegistrationFlow {
         return !!this.view._isUnmounted;
     }
 
+    // Eka's screens have created or found the ABHA by now, so the action is recorded whatever happens next: the
+    // record is kept on the phone before anything can fail, and sent once the outcome is settled, whether that is a
+    // fill, another patient holding the ABHA, a cancel, a check that could not be done or a screen that closed.
     async onProfile(profile, {route, consentGivenAt}) {
         const occurredAt = new Date();
         const {individual} = this.view.state;
         const abhaService = this.view.getService(AbhaService);
         const event = AbhaRegistrationFlow.auditEvent(profile, individual, consentGivenAt, occurredAt);
+        abhaService.keepEvent(event);
         if (profile.abhaNumber) {
-            let holders;
-            try {
-                holders = await abhaService.findSubjectUUIDs(individual.subjectType.uuid, profile.abhaNumber);
-            } catch (error) {
-                General.logWarn('AbhaRegistrationFlow', `ABHA holders not found out: ${AbhaError.messageKey(error)}`);
-                this.toast(AbhaError.messageKey(error));
-                return;
-            }
-            if (this.screenGone()) return abhaService.recordEvent(event);
+            const holders = await this.holdersOf(individual, profile.abhaNumber);
+            if (_.isNil(holders) || this.screenGone()) return abhaService.recordEvent(event);
             const others = _.without(holders, individual.uuid);
             if (!_.isEmpty(others)) {
                 this.showDuplicate(others);
-                return;
+                return abhaService.recordEvent(event);
             }
         }
         if (this.view.props.params.editing) {
-            if (!(await this.view.askAbhaReplace(AbhaRegistrationFlow.replaceRows(individual, profile, this.I18n)))) return;
-            if (this.screenGone()) return abhaService.recordEvent(event);
+            const apply = await this.view.askAbhaReplace(AbhaRegistrationFlow.replaceRows(individual, profile, this.I18n));
+            if (!apply || this.screenGone()) return abhaService.recordEvent(event);
         }
         const recorded = abhaService.recordEvent(event);
         this.view.dispatchAction(Actions.ON_ABHA_PROFILE, {profile, choice: route, subjectUUID: individual.uuid});
@@ -144,6 +141,28 @@ class AbhaRegistrationFlow {
         }
         if (this.screenGone()) return;
         CHSNavigator.navigateToAbhaCardView(this.view, {subjectUUID, abhaNumber});
+    }
+
+    // The patients in the organisation who hold this ABHA number. When the server cannot be asked, the worker can
+    // try again with the same ABHA rather than take the patient through Eka's OTP again. Null when the worker gives
+    // up, or the screen has closed.
+    async holdersOf(individual, abhaNumber) {
+        for (;;) {
+            try {
+                return await this.view.getService(AbhaService).findSubjectUUIDs(individual.subjectType.uuid, abhaNumber);
+            } catch (error) {
+                const messageKey = AbhaError.messageKey(error);
+                General.logWarn('AbhaRegistrationFlow', `ABHA holders not found out: ${messageKey}`);
+                if (this.screenGone() || !(await this.askTryAgain(messageKey)) || this.screenGone()) return null;
+            }
+        }
+    }
+
+    askTryAgain(messageKey) {
+        return new Promise((resolve) => Alert.alert(this.I18n.t('abhaTitle'), this.I18n.t(messageKey), [
+            {text: this.I18n.t('cancel'), style: 'cancel', onPress: () => resolve(false)},
+            {text: this.I18n.t('abhaTryAgain'), onPress: () => resolve(true)},
+        ], {cancelable: true, onDismiss: () => resolve(false)}));
     }
 
     // Another patient holds this ABHA. Only a live patient on this phone can be opened; of one elsewhere in the

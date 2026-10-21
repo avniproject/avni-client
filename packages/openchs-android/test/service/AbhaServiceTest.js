@@ -317,6 +317,16 @@ describe("AbhaServiceTest", () => {
             expect(global.fetch.mock.calls.length).to.equal(0);
         });
 
+        it("can be kept without being sent, for an ABHA action whose outcome is not known yet", async () => {
+            global.fetch = jest.fn(async () => reply(201, {}));
+            await service().keepEvent(EVENT);
+            expect(global.fetch.mock.calls.length).to.equal(0);
+
+            await service().resendUnsentEvents();
+            expect(global.fetch.mock.calls.length).to.equal(1);
+            expect(JSON.parse(global.fetch.mock.calls[0][1].body)).to.deep.equal(EVENT);
+        });
+
         it("are dropped only on 400, 403 or 409, and kept on 401, 408, 429, a server error or a timeout", async () => {
             const answers = [[400, false], [403, false], [409, false], [401, true], [404, true], [408, true], [429, true], [500, true], [502, true], [503, true]];
             for (const [status, kept] of answers) {

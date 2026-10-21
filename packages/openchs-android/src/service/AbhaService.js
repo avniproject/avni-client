@@ -61,6 +61,12 @@ class AbhaService extends BaseService {
         return this._keep(event).then(() => this._send(event));
     }
 
+    // Keeps the record on the phone without sending it, for an ABHA action whose outcome is not settled yet. Never
+    // rejects; a later recordEvent or resendUnsentEvents sends it.
+    keepEvent(event) {
+        return this._keep(event);
+    }
+
     // Sends every kept record not already on its way: after a registration with ABHA is saved, and with each sync.
     async resendUnsentEvents() {
         const events = await this._kept();

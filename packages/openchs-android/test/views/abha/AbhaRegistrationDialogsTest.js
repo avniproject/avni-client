@@ -128,7 +128,7 @@ describe("ABHA registration dialogs", () => {
         ["abhaOptionCreate", "abhaOptionLink", "abhaOptionWithout", "abhaOptionCreateHelp", "abhaOptionLinkHelp", "abhaOptionWithoutHelp",
             "abhaFormNotSetUp", "abhaDuplicateOpen", "abhaDuplicateOpenAction", "abhaDuplicateElsewhere", "abhaReplaceDetails",
             "abhaCurrentDetails", "abhaProfileDetails", "abhaRemoveLink", "abhaRemoveLinkConfirm",
-            "abhaConsentAgree", "abhaConsentContinue", "abhaConsentDecline", "abhaTitle", "abhaNeedsInternet",
+            "abhaConsentAgree", "abhaConsentContinue", "abhaConsentDecline", "abhaTitle", "abhaNeedsInternet", "abhaTryAgain",
             "cancel", "ok", "apply", "name", "gender", "dateOfBirth"].forEach((key) =>
             expect([key, typeof en.translations[key]]).toEqual([key, "string"]));
         expect(en.translations.abhaDuplicateOpen).toContain("{{name}}");

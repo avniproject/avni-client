@@ -523,6 +523,7 @@
     "abhaCardNeedsInternet": "Viewing the ABHA card needs an internet connection",
     "abhaNotYours": "This patient has not synced to the server yet, so only the person who added the ABHA can see the card, and only for a short while.",
     "abhaNoCard": "This patient has no ABHA card to show yet.",
+    "abhaTryAgain": "Try again",
     "abhaNumberInvalid": "The ABHA number is not valid. It must have 14 digits.",
     "addXHoursAgo": "added {{hrs}} hrs ago",
     "requestName": "{{entityName}} request",
