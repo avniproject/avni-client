@@ -58,17 +58,21 @@ class AbhaView extends AbstractComponent {
         return 'AbhaView';
     }
 
-    // Only a short summary is logged: the payload can carry the partial API response, and Eka's message can quote
-    // what the worker typed, so numbers of six or more digits and anything with an @ are masked.
-    static errorSummary(payload) {
-        let summary;
+    // Only Eka's error code is logged and shown, never its message: the payload can carry the partial API response,
+    // and a message can quote a name, a date of birth or what the worker typed. A code is short, has no spaces, and
+    // has a digit, a hyphen or an underscore, but no run of six digits that could be a number of the patient's. Null
+    // when the error gives none.
+    static errorCode(payload) {
+        let parsed;
         try {
-            const parsed = _.isString(payload) ? JSON.parse(payload) : payload;
-            summary = _.toString(_.get(parsed, 'error.message') || _.get(parsed, 'error') || 'unknown');
+            parsed = _.isString(payload) ? JSON.parse(payload) : payload;
         } catch (e) {
-            return 'unknown';
+            return null;
         }
-        return _.truncate(summary.replace(/\S*@\S*/g, '<address>').replace(/\d[\d\s-]{4,}\d/g, '<number>'), {length: 120});
+        const isCode = (value) => (_.isString(value) || _.isInteger(value))
+            && /^[A-Za-z0-9_.:-]{2,40}$/.test(_.toString(value)) && /[\d_-]/.test(_.toString(value)) && !/\d{6}/.test(_.toString(value));
+        const code = _.find(['error.code', 'error.error_code', 'code', 'error_code'].map((path) => _.get(parsed, path)), isCode);
+        return _.isNil(code) ? null : _.toString(code);
     }
 
     // The registration takes the profile after this screen has closed, so a failure there is said in a toast. Only
@@ -130,9 +134,9 @@ class AbhaView extends AbstractComponent {
                 if (!this.resultHandled) this.goBack();
                 return;
             case ABHA_MESSAGE.ERROR: {
-                const summary = AbhaView.errorSummary(message.payload);
-                General.logWarn(this.viewName(), `ABHA SDK error: ${summary}`);
-                this.setState({errorKey: 'abhaError', errorDetail: summary});
+                const code = AbhaView.errorCode(message.payload);
+                General.logWarn(this.viewName(), `ABHA SDK error: ${code || 'no error code given'}`);
+                this.setState({errorKey: 'abhaError', errorDetail: code});
                 return;
             }
             default:

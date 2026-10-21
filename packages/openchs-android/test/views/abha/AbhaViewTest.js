@@ -175,21 +175,34 @@ describe("AbhaViewTest", () => {
         expect(screen.onSkip).not.toHaveBeenCalled();
     });
 
-    it("logs an error inside Eka's screens as a short summary, never with the patient's details", async () => {
+    it("logs an error inside Eka's screens by Eka's error code only, never its message, which can carry the patient's details", async () => {
         const warnings = [];
         jest.spyOn(General, "logWarn").mockImplementation((...args) => warnings.push(args.join(" ")));
         const screen = await show();
         await screen.send(ABHA_MESSAGE.ERROR, JSON.stringify({
-            error: {message: "Aadhaar 999988887777 is not linked to asha.rao@sbx, mobile 9000000000"},
+            error: {code: "ABDM-1204", message: "Asha Rao, born 23/04/1990: Aadhaar 999988887777 is not linked to asha.rao@sbx, mobile 9000000000"},
             response: {data: {profile: {fn: "Asha", abha_number: "91-1234-5678-9012"}}},
         }));
 
         expect(warnings).toHaveLength(1);
-        ["999988887777", "asha.rao@sbx", "9000000000", "Asha", "91-1234-5678-9012"].forEach((detail) =>
+        expect(warnings[0]).toContain("ABDM-1204");
+        ["999988887777", "asha.rao@sbx", "9000000000", "Asha", "Rao", "23/04/1990", "91-1234-5678-9012", "is not linked"].forEach((detail) =>
             expect(warnings[0]).not.toContain(detail));
-        expect(warnings[0]).toContain("is not linked to");
-        expect(screen.lines().some((line) => line.startsWith("abhaError"))).toBe(true);
+        expect(screen.lines()).toContain("abhaError (ABDM-1204)");
         expect(screen.onProfile).not.toHaveBeenCalled();
+    });
+
+    it("logs a fixed line, and shows no detail, for an error that gives no code or a code that is not one", async () => {
+        const warnings = [];
+        jest.spyOn(General, "logWarn").mockImplementation((...args) => warnings.push(args.join(" ")));
+        const screen = await show();
+        const errors = [{error: "Ravi Kumar 01/02/1985 not found"}, {error: {message: "Ravi Kumar 01/02/1985"}},
+            {error: {code: "91123456789012"}}, {error: {code: "Ravi Kumar"}}, "not json at all: Ravi"];
+        for (const error of errors) await screen.send(ABHA_MESSAGE.ERROR, typeof error === "string" ? error : JSON.stringify(error));
+
+        expect(warnings).toHaveLength(errors.length);
+        warnings.forEach((warning) => ["Ravi", "Kumar", "01/02/1985", "91123456789012"].forEach((detail) => expect(warning).not.toContain(detail)));
+        expect(screen.lines()).toContain("abhaError");
     });
 
     it("keyNeverLogged by the screen, whatever Eka reports", async () => {

@@ -152,8 +152,14 @@ describe('AbhaHostHtmlTest', () => {
         ['abha-sdk-js', 'abha-sdk-css'].forEach(id => {
             const page = runPage(buildAbhaHostHtml({environment: "sandbox", initData: {}}));
             page.dispatchCapturedError({id});
-            expect(page.posted, id).to.deep.equal([{type: ABHA_MESSAGE.ERROR, payload: '{"error":"ABHA SDK did not load"}'}]);
+            expect(page.posted, id).to.deep.equal([{type: ABHA_MESSAGE.ERROR, payload: '{"error":{"code":"ABHA_SDK_NOT_LOADED"}}'}]);
         });
+    });
+
+    it('reports a script error on the page by a fixed code, never its message, which can quote what was typed', () => {
+        const page = runPage(buildAbhaHostHtml({environment: "sandbox", initData: {}}));
+        page.window.onerror("Uncaught TypeError: cannot read 'Asha Rao 91-1234-5678-9012'");
+        expect(page.posted).to.deep.equal([{type: ABHA_MESSAGE.ERROR, payload: '{"error":{"code":"ABHA_PAGE_SCRIPT_ERROR"}}'}]);
     });
 
     it('does not report the blocked chatbot script as Eka\'s screens failing', () => {

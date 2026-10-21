@@ -53,7 +53,8 @@ const contentSecurityPolicy = (sdk, nonce) => [
 
 // A skip is forwarded without its payload: Eka passes the identifier typed so far, which can be an Aadhaar number.
 // A pinned file that does not load, or fails its integrity check, is reported by element id: an inline onerror
-// attribute would be refused by the policy, and the refused chatbot script must not read as the SDK failing.
+// attribute would be refused by the policy, and the refused chatbot script must not read as the SDK failing. The
+// page's own errors carry a fixed code and never a message, which could quote what the worker typed.
 export function buildAbhaHostHtml({environment, method, initData}) {
     const sdk = resolveAbhaSdk(environment);
     const nonce = General.randomUUID().replace(/-/g, '');
@@ -78,10 +79,10 @@ export function buildAbhaHostHtml({environment, method, initData}) {
     onAbhaClose: function () { post('${CLOSE}'); },
     changeStatusBarColor: function () {}
   };
-  window.onerror = function (message) { post('${ERROR}', JSON.stringify({error: String(message)})); };
+  window.onerror = function () { post('${ERROR}', JSON.stringify({error: {code: 'ABHA_PAGE_SCRIPT_ERROR'}})); };
   window.addEventListener('error', function (event) {
     var id = event.target && event.target.id;
-    if (id === 'abha-sdk-js' || id === 'abha-sdk-css') post('${ERROR}', JSON.stringify({error: 'ABHA SDK did not load'}));
+    if (id === 'abha-sdk-js' || id === 'abha-sdk-css') post('${ERROR}', JSON.stringify({error: {code: 'ABHA_SDK_NOT_LOADED'}}));
   }, true);
 </script>
 <link rel="stylesheet" id="abha-sdk-css" href="${sdkUrl(sdk, 'css/abha.css')}" integrity="${sdk.cssIntegrity}" crossorigin="anonymous">
