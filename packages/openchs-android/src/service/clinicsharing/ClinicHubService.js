@@ -13,6 +13,7 @@ import {LEDGER_PRUNE_INTERVAL_MS, LEDGER_RETENTION_DAYS, SHAREABLE_ENTITIES} fro
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const STOP_REQUESTED_EVENT = 'ClinicHubStopRequested';
+const SERVICE_ROLE = 'hub';
 const MEDIA_MESSAGES = [MessageType.mediaPush, MessageType.mediaData, MessageType.mediaRequest];
 export const RECENT_PHONE_WINDOW_MS = 5 * 60 * 1000;
 
@@ -27,6 +28,7 @@ class ClinicHubService extends BaseService {
         this.lastSyncByDevice = new Map();
         this.listeners = new Set();
         this.sharing = null;
+        this.hotspotStopped = false;
     }
 
     onChange(listener) {
@@ -53,13 +55,17 @@ class ClinicHubService extends BaseService {
 
     // The hub's server and its hotspot start and stop together; required lazily, as the join module needs native Wi-Fi.
     async startSharing(log = _.noop, {port = CLINIC_PORT} = {}) {
+        this.hotspotStopped = false;
         const session = await this.startHub(log, {port});
         const hubJoin = require("../../framework/clinicsharing/ClinicHubJoin").default;
         // Watched before the start, so a hotspot that stops while starting is never shown as a code.
         let stoppedWhileStarting = false;
         this.stopWatchingHotspot = require("../../framework/clinicsharing/ClinicHubWifi").onHotspotStopped(() => {
-            if (this.sharing) this.stopSharing();
-            else stoppedWhileStarting = true;
+            if (this.sharing) {
+                // Android stops the hotspot when this phone's Wi-Fi is turned on; the screen says so rather than going blank.
+                this.hotspotStopped = true;
+                this.stopSharing();
+            } else stoppedWhileStarting = true;
         });
         try {
             const sharing = await hubJoin.startHubNetwork(session);
@@ -176,7 +182,7 @@ class ClinicHubService extends BaseService {
         const nativeHub = NativeModules.ClinicHub;
         if (nativeHub) {
             this.stopSubscription = new NativeEventEmitter(nativeHub).addListener(STOP_REQUESTED_EVENT, () => this.stopSharing());
-            nativeHub.startForegroundService();
+            nativeHub.startForegroundService(SERVICE_ROLE);
         }
         return session;
     }
@@ -195,7 +201,7 @@ class ClinicHubService extends BaseService {
         this.stopSubscription = null;
         if (this.transport) await this.transport.stop();
         this.transport = null;
-        if (NativeModules.ClinicHub) NativeModules.ClinicHub.stopForegroundService();
+        if (NativeModules.ClinicHub) NativeModules.ClinicHub.stopForegroundService(SERVICE_ROLE);
     }
 
     async _requestNotificationPermission() {

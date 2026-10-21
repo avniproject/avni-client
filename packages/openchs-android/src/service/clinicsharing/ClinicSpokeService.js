@@ -2,7 +2,7 @@ import Service from "../../framework/bean/Service";
 import BaseService from "../BaseService";
 import {EntityQueue} from 'openchs-models';
 import {open} from '@op-engineering/op-sqlite';
-import {AppState} from 'react-native';
+import {AppState, NativeEventEmitter, NativeModules} from 'react-native';
 import DeviceInfo from "react-native-device-info";
 import _ from "lodash";
 import General from "../../utility/General";
@@ -11,6 +11,9 @@ import UserInfoService from "../UserInfoService";
 import {MyDashboardActionNames} from '../../action/mydashboard/MyDashboardActions';
 import {connectToHub, MessageType} from "../../framework/clinicsharing/ClinicTransport";
 import {CLINIC_SYNC_INTERVAL_SECONDS, SHAREABLE_ENTITIES} from "../../framework/clinicsharing/ClinicSharingConstants";
+
+const SERVICE_ROLE = 'phone';
+const LEAVE_REQUESTED_EVENT = 'ClinicPhoneLeaveRequested';
 
 @Service("clinicSpokeService")
 class ClinicSpokeService extends BaseService {
@@ -272,6 +275,22 @@ class ClinicSpokeService extends BaseService {
             if (state === 'active') this._startTimer();
             else this._stopTimer();
         });
+        this._startNativeService();
+    }
+
+    // Keeps the app, and so its hold on the hub's Wi-Fi, alive in the background: Android kills an app whose camera was allowed
+    // "Only this time" once it leaves the screen, unless a foreground service started on screen is running.
+    _startNativeService() {
+        const native = NativeModules.ClinicHub;
+        if (!native) return;
+        this.leaveSubscription = new NativeEventEmitter(native).addListener(LEAVE_REQUESTED_EVENT, () => this.leaveHub());
+        native.startForegroundService(SERVICE_ROLE);
+    }
+
+    _stopNativeService() {
+        if (this.leaveSubscription) this.leaveSubscription.remove();
+        this.leaveSubscription = null;
+        if (NativeModules.ClinicHub) NativeModules.ClinicHub.stopForegroundService(SERVICE_ROLE);
     }
 
     leave() {
@@ -280,6 +299,7 @@ class ClinicSpokeService extends BaseService {
         this._stopTimer();
         if (this.appStateSubscription) this.appStateSubscription.remove();
         this.appStateSubscription = null;
+        if (this.joined) this._stopNativeService();
         this.joined = null;
     }
 

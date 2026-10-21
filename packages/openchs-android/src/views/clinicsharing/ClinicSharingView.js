@@ -181,6 +181,7 @@ class ClinicSharingView extends AbstractComponent {
                 {savedHub && this.renderButton(this.I18n.t('clinicSharingRejoin', {hub: savedHub}), this.rejoin)}
                 {this.renderButton(this.I18n.t(savedHub ? 'clinicSharingScanNewCode' : 'clinicSharingScanToJoin'), this.scan, !savedHub)}
                 {canBeHub && this.renderText(this.I18n.t('clinicSharingHubTitle'), {title: true})}
+                {canBeHub && this.hub.hotspotStopped && this.renderText(this.I18n.t('clinicSharingHubWifiStopped'), {warning: true})}
                 {canBeHub && this.renderText(this.I18n.t('clinicSharingStartHubHelp'))}
                 {canBeHub && this.renderButton(this.I18n.t('clinicSharingStartHub'), this.startHub)}
             </View>

@@ -43,12 +43,12 @@ import General from "../../../src/utility/General";
 const t = (key, params) => (params ? `${key} ${JSON.stringify(params)}` : key);
 
 function services({admin = true, sharing = null, joined = null, savedJoinCode = null, lastSync = null, lastSyncedAt = null,
-                      hubRestarted = false, hubNetworkLost = false, held = {count: 0, oldest: null, items: []}, refusal = null} = {}) {
+                      hubRestarted = false, hubNetworkLost = false, held = {count: 0, oldest: null, items: []}, refusal = null, hotspotStopped = false} = {}) {
     const fakes = {
         MessageService: {getI18n: () => ({t})},
         PrivilegeService: {hasAllPrivileges: () => admin},
         EntityService: {findByKey: (key, uuid) => (uuid === 'p-1' ? {nameString: 'Sunita Devi'} : undefined)},
-        clinicHubService: {onChange: () => () => {}, getSharing: () => sharing, recentPhoneCount: () => 3,
+        clinicHubService: {onChange: () => () => {}, getSharing: () => sharing, recentPhoneCount: () => 3, hotspotStopped,
             phonesSynced: () => [{deviceId: "d-1", name: "Doctor · Galaxy A15", syncedAt: new Date(2026, 9, 19, 14, 7).getTime()}],
             startSharing: jest.fn(async () => {}), stopSharing: jest.fn(async () => {})},
         clinicSpokeService: {onChange: () => () => {}, joined, lastSync, lastSyncedAt, hubRestarted, hubNetworkLost, savedJoinCode: async () => savedJoinCode,
@@ -100,6 +100,14 @@ describe("ClinicSharingView", () => {
 
         expect(logInfo).toHaveBeenCalledWith("ClinicHub", "Refused 192.168.43.2: its messages could not be read, so it holds an old or wrong key");
         logInfo.mockRestore();
+    });
+
+    it("says why the hub stopped when its Wi-Fi stopped on its own, above Start hub", async () => {
+        const stopped = await show({admin: true, hotspotStopped: true});
+        expect(stopped.lines()).toEqual(expect.arrayContaining(["clinicSharingHubWifiStopped", "clinicSharingStartHub"]));
+
+        const fresh = await show({admin: true});
+        expect(fresh.lines()).not.toContain("clinicSharingHubWifiStopped");
     });
 
     it("does not show Start hub at all to other users", async () => {

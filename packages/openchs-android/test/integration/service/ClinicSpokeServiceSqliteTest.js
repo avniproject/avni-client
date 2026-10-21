@@ -21,6 +21,7 @@ jest.mock('../../../src/framework/clinicsharing/ClinicHubJoin', () => ({
 }));
 jest.mock('../../../src/framework/clinicsharing/ClinicHubWifi', () => ({leaveNetwork: jest.fn(async () => {}), onHotspotStopped: jest.fn(() => jest.fn())}));
 
+import {DeviceEventEmitter, NativeModules} from "react-native";
 import hubJoin from "../../../src/framework/clinicsharing/ClinicHubJoin";
 import {onHotspotStopped} from "../../../src/framework/clinicsharing/ClinicHubWifi";
 import ClinicHubService from "../../../src/service/clinicsharing/ClinicHubService";
@@ -280,6 +281,37 @@ describe('Phones syncing with the hub', () => {
         const settled = (p) => p.spoke.inFlight || Promise.resolve();
         afterEach(() => phones.forEach((p) => p.spoke.leave()));
 
+        describe('with the native clinic service', () => {
+            let native;
+            beforeEach(() => {
+                native = {startForegroundService: jest.fn(), stopForegroundService: jest.fn(), addListener: jest.fn(), removeListeners: jest.fn()};
+                NativeModules.ClinicHub = native;
+            });
+            afterEach(() => { delete NativeModules.ClinicHub; });
+
+            // Android withdraws a camera allowed "Only this time" by killing the app, unless a foreground service started on screen is running.
+            it('keeps a joined-phone service running while joined, and stops only that role on leaving', async () => {
+                const a = phone();
+                await joinWith(a);
+                await settled(a);
+                expect(native.startForegroundService.mock.calls).toEqual([['phone']]);
+
+                await a.spoke.leaveHub();
+                expect(native.stopForegroundService).toHaveBeenLastCalledWith('phone');
+            });
+
+            it("leaves the hub when Leave hub is tapped on the phone's notification", async () => {
+                const a = phone();
+                await joinWith(a);
+                await settled(a);
+
+                DeviceEventEmitter.emit('ClinicPhoneLeaveRequested');
+                await new Promise((resolve) => setImmediate(resolve));
+
+                expect([a.spoke.joined, await a.spoke.savedJoinCode()]).toEqual([null, null]);
+            });
+        });
+
         it('remembers the scanned code for Rejoin, records the sync, and forgets the code on leaving', async () => {
             const a = phone();
             await joinWith(a);
@@ -408,6 +440,47 @@ describe('Phones syncing with the hub', () => {
             await hotspotStopped({reason: 'stopped'});
             await new Promise((resolve) => setImmediate(resolve));
             expect([hub.transport, hub.getSharing()]).toEqual([null, null]);
+        });
+
+        it('says why it stopped when the hotspot stops after it started, until the next start', async () => {
+            await hub.stopHub();
+            let hotspotStopped;
+            onHotspotStopped.mockImplementationOnce((listener) => { hotspotStopped = listener; return jest.fn(); });
+            hubJoin.startHubNetwork.mockImplementation(async () => ({ssid: 'AndroidShare_1', passphrase: 'pass1234', qrValue: 'x'}));
+
+            await hub.startSharing(log, {port});
+            expect(hub.hotspotStopped).toBe(false);
+            await hotspotStopped({reason: 'stopped'});
+            await new Promise((resolve) => setImmediate(resolve));
+            expect(hub.hotspotStopped).toBe(true);
+
+            await hub.startSharing(log, {port});
+            expect(hub.hotspotStopped).toBe(false);
+            await hub.stopSharing();
+        });
+
+        it('stopping the hub on purpose is not reported as the hotspot stopping', async () => {
+            await hub.stopHub();
+            hubJoin.startHubNetwork.mockImplementation(async () => ({ssid: 'AndroidShare_1', passphrase: 'pass1234', qrValue: 'x'}));
+
+            await hub.startSharing(log, {port});
+            await hub.stopSharing();
+
+            expect(hub.hotspotStopped).toBe(false);
+        });
+
+        it("runs the native service in the hub's role, and stops only that role", async () => {
+            const native = {startForegroundService: jest.fn(), stopForegroundService: jest.fn(), addListener: jest.fn(), removeListeners: jest.fn()};
+            NativeModules.ClinicHub = native;
+            try {
+                await hub.stopHub();
+                await hub.startHub(log, {port});
+                await hub.stopHub();
+            } finally {
+                delete NativeModules.ClinicHub;
+            }
+
+            expect([native.startForegroundService.mock.calls, native.stopForegroundService.mock.calls.slice(-1)]).toEqual([[['hub']], [['hub']]]);
         });
     });
 });

@@ -3,8 +3,8 @@ import * as ClinicHubWifi from "./ClinicHubWifi";
 import {encodeJoinPayload, parseJoinPayload} from "./ClinicJoinPayload";
 import {CLINIC_PORT} from "./ClinicSharingConstants";
 
-// A phone must join the hub's network within 30 seconds of scanning.
-export const JOIN_TIMEOUT_MS = 30 * 1000;
+// A phone must join the hub's network within 60 seconds of scanning: Android's own search plus the person's Connect tap.
+export const JOIN_TIMEOUT_MS = 60 * 1000;
 
 export const JoinError = Object.freeze({
     hubNeedsAndroid10: "hubNeedsAndroid10",

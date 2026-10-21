@@ -3,4 +3,7 @@
     <string name="clinic_hub_notification_title">Sharing clinic records</string>
     <string name="clinic_hub_notification_text">Phones in this clinic can sync with this phone.</string>
     <string name="clinic_hub_stop">Stop</string>
+    <string name="clinic_phone_notification_title">Joined to the clinic hub</string>
+    <string name="clinic_phone_notification_text">This phone shares records with the hub while it is on the hub\'s Wi-Fi.</string>
+    <string name="clinic_phone_leave">Leave hub</string>
 </resources>
