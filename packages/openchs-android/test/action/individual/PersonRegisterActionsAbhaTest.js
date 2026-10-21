@@ -266,9 +266,21 @@ describe("PersonRegisterActions, ABHA", () => {
             expect(lockedOnLoad(null)).toBe(false);
         });
 
-        it("with ABHA off for the user, nothing locks even if the patient has a number, as before", () => {
-            expect(lockedOnLoad(withNumber(), {abhaOn: false})).toBe(false);
-            expect(lockedOnLoad(withNumber(), {hipId: null})).toBe(false);
+        it("the lock follows the saved ABHA number for every user: one with no health centre, and with the organisation's ABHA off", () => {
+            const person = () => Object.assign(withNumber(), {firstName: "Asha", dateOfBirth: new Date(1990, 3, 23)});
+            [{abhaOn: true, hipId: null}, {abhaOn: false, hipId: "hip-1"}, {abhaOn: false, hipId: null}].forEach((options) => {
+                const saved = person();
+                const {abha} = load(contextWith({...options, saved}), saved.uuid);
+                expect([options, abha.locked, abha.lockedFields]).toEqual([options, true, {firstName: true, middleName: false, lastName: false, dateOfBirth: true, gender: false}]);
+                // Remove ABHA link, which lifts the lock, stays for users with ABHA on.
+                expect(abha.enabledForUser).toBe(false);
+                expect(PersonRegisterActions.abhaOptionsShown(abha)).toBe(false);
+            });
+        });
+
+        it("with ABHA off, a patient with no ABHA number locks nothing, as before", () => {
+            expect(lockedOnLoad(savedPerson(), {abhaOn: false})).toBe(false);
+            expect(lockedOnLoad(savedPerson([Observation.create(abhaAddressConcept, new PrimitiveValue("asha@sbx"))]), {abhaOn: false})).toBe(false);
         });
 
         it("locks straight after an ABHA with a number fills the details, and not for the mobile route", () => {

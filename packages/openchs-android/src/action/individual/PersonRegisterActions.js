@@ -81,22 +81,25 @@ export class PersonRegisterActions {
     // ABDM M1. Held in the reducer because the view does not re-render on form pages. enabledForUser: the
     // organisation has ABHA on and the user has a health centre. formHasConcepts: the registration form asks both
     // ABHA questions. linked: the patient has an ABHA answer. locked: the patient has an ABHA number, so Aadhaar
-    // checked name, date of birth and gender; it follows the saved answer, and only with ABHA on for the user,
-    // since Remove ABHA link, the only way to lift it, is shown only then. choice: the option the worker took,
-    // null until then.
+    // checked name, date of birth and gender. The lock follows the saved answer for every user, whatever their
+    // health centre or the organisation's ABHA switch; Remove ABHA link, which lifts it, is only for users with ABHA
+    // on. choice: the option the worker took, null until then.
     static abhaStateOnLoad(form, state, context) {
         const {individual} = state;
+        const locks = {
+            linked: PersonRegisterActions.hasAbhaAnswer(individual),
+            locked: PersonRegisterActions.hasAbhaNumber(individual),
+            lockedFields: PersonRegisterActions.lockedFieldsOf(state, context),
+        };
         const enabledForUser = context.get(OrganisationConfigService).isAbhaEnabled()
             && !_.isEmpty(_.get(context.get(UserInfoService).getUserSettings(), 'abhaHipId'));
-        if (!enabledForUser) return {enabledForUser: false, formHasConcepts: false, linked: false, locked: false, lockedFields: NO_ABHA_LOCKS, dobVerifiedByAbha: false, choice: null};
+        if (!enabledForUser) return {enabledForUser: false, formHasConcepts: false, ...locks, dobVerifiedByAbha: false, choice: null};
         const conceptNames = _.isNil(form) ? [] :
             _.flatMap(form.getFormElementGroups(), (group) => group.getFormElements()).map((formElement) => formElement.concept.name);
         return {
             enabledForUser,
             formHasConcepts: _.every(_.values(ABHA_CONCEPT_NAMES), (name) => _.includes(conceptNames, name)),
-            linked: PersonRegisterActions.hasAbhaAnswer(individual),
-            locked: PersonRegisterActions.hasAbhaNumber(individual),
-            lockedFields: PersonRegisterActions.lockedFieldsOf(state, context),
+            ...locks,
             dobVerifiedByAbha: false,
             choice: null,
         };
