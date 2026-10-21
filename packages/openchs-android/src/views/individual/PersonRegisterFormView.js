@@ -3,7 +3,7 @@ import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
-import {Actions} from "../../action/individual/PersonRegisterActions";
+import {Actions, PersonRegisterActions} from "../../action/individual/PersonRegisterActions";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import AppHeader from "../common/AppHeader";
 import FormElementGroup from "../form/FormElementGroup";
@@ -143,7 +143,7 @@ class PersonRegisterFormView extends AbstractComponent {
                             <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)}
                                               group={this.state.formElementGroup}
                                               actions={Actions}
-                                              filteredFormElements={this.state.filteredFormElements}
+                                              filteredFormElements={PersonRegisterActions.abhaFormElements(this.state.filteredFormElements, this.state.abha)}
                                               validationResults={this.state.validationResults}
                                               formElementsUserState={this.state.formElementsUserState}
                                               dataEntryDate={this.state.individual.registrationDate}

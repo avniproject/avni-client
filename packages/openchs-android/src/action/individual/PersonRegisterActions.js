@@ -146,6 +146,16 @@ export class PersonRegisterActions {
         return !!abha && abha.enabledForUser && _.isNil(abha.choice) && !abha.linked && !abha.busy;
     }
 
+    // While the ABHA is locked, its two questions are drawn read-only, as copies: the form's own elements are stored
+    // objects and are left untouched. A hand-edited number would link the patient to one Eka never verified.
+    static abhaFormElements(formElements, abha) {
+        if (!_.get(abha, 'locked')) return formElements;
+        const abhaConceptNames = _.values(ABHA_CONCEPT_NAMES);
+        return _.map(formElements, (formElement) => _.includes(abhaConceptNames, _.get(formElement, 'concept.name'))
+            ? Object.create(formElement, {editable: {get: () => false}})
+            : formElement);
+    }
+
     // busy: from Eka's screens closing with an ABHA until it fills the form in or fails.
     static onAbhaBusy(state, action) {
         if (!PersonRegisterActions.isForThisPatient(state, action)) return state;

@@ -410,6 +410,29 @@ describe("PersonRegisterActions, ABHA", () => {
         });
     });
 
+    // A hand-edited ABHA number would link the patient to a number Eka never verified.
+    describe("the ABHA questions on the form pages", () => {
+        const formElements = () => abhaForm().getFormElementGroups().flatMap((group) => group.getFormElements());
+        const byName = (elements, name) => elements.find((fe) => fe.concept.name === name);
+
+        it("are read-only while the ABHA is locked, and every other question is left as it was", () => {
+            const elements = formElements();
+            const shown = PersonRegisterActions.abhaFormElements(elements, {locked: true});
+
+            expect(byName(shown, "ABHA Number").editable).toBe(false);
+            expect(byName(shown, "ABHA Address").editable).toBe(false);
+            expect(byName(shown, "ABHA Number").uuid).toBe(byName(elements, "ABHA Number").uuid);
+            expect(byName(shown, "Occupation")).toBe(byName(elements, "Occupation"));
+            expect(byName(elements, "ABHA Number").editable).toBe(true);
+        });
+
+        it("are left as they are when the ABHA is not locked, or ABHA is not in use", () => {
+            const elements = formElements();
+            expect(PersonRegisterActions.abhaFormElements(elements, {locked: false})).toBe(elements);
+            expect(PersonRegisterActions.abhaFormElements(elements, undefined)).toBe(elements);
+        });
+    });
+
     describe("on save", () => {
         it("with ABHA on, saves without sending anything: unsent ABHA records go from the screen once saved, and with sync", () => {
             const context = contextWith({abhaOn: true, hipId: "hip-1"});
