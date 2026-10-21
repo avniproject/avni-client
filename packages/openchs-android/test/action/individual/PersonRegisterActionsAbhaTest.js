@@ -1,5 +1,5 @@
 import {InteractionManager} from "react-native";
-import {Concept, Gender, Individual, Observation, PrimitiveValue, SubjectType, WorkItem, WorkList, WorkLists} from "avni-models";
+import {Concept, Format, Gender, Individual, Observation, PrimitiveValue, SubjectType, WorkItem, WorkList, WorkLists} from "avni-models";
 import {PersonRegisterActions} from "../../../src/action/individual/PersonRegisterActions";
 import EntityFactory from "../../EntityFactory";
 import EntityService from "../../../src/service/EntityService";
@@ -41,15 +41,15 @@ function savedPerson(observations = []) {
 
 const workLists = () => new WorkLists(new WorkList("Registration", [new WorkItem("w-1", WorkItem.type.REGISTRATION, {subjectTypeName: "Person"})]));
 
-function contextWith({abhaOn = false, hipId = null, form = abhaForm(), saved = null} = {}) {
+function contextWith({abhaOn = false, hipId = null, form = abhaForm(), saved = null, type = subjectType, sameName = []} = {}) {
     const services = new Map([
-        [EntityService, {findByKey: () => subjectType, getAll: () => []}],
+        [EntityService, {findByKey: () => type, getAll: () => []}],
         [FormMappingService, {findRegistrationForm: () => form}],
         [IdentifierAssignmentService, {populateIdentifiers: jest.fn()}],
         [GroupSubjectService, {populateGroups: jest.fn()}],
         [OrganisationConfigService, {getCustomRegistrationLocationsForSubjectType: () => undefined, isAbhaEnabled: jest.fn(() => abhaOn)}],
         [DraftConfigService, {shouldSaveDraft: () => false}],
-        [IndividualService, {findByUUID: () => saved && {cloneForEdit: () => saved}, register: jest.fn()}],
+        [IndividualService, {findByUUID: () => saved && {cloneForEdit: () => saved}, register: jest.fn(), getSubjectWithTheNameAndType: () => sameName}],
         [DraftSubjectService, {deleteDraftSubjectByUUID: jest.fn()}],
         [AbhaService, {resendUnsentEvents: jest.fn(() => Promise.resolve([]))}],
         [SettingsService, {getSettings: () => ({})}],
@@ -337,6 +337,32 @@ describe("PersonRegisterActions, ABHA", () => {
             const addressOnly = savedPerson([Observation.create(abhaAddressConcept, new PrimitiveValue("a@sbx"))]);
             addressOnly.firstName = "Asha";
             expect(load(contextWith({abhaOn: true, hipId: "hip-1", saved: addressOnly}), addressOnly.uuid).abha.lockedFields).toEqual(NO_LOCKS);
+        });
+
+        describe("a detail the ABHA gave that fails the form's own checks stays editable, so the worker can get past the page", () => {
+            const strictType = () => Object.assign(SubjectType.create("Person"), {uuid: "st-person", type: "Person",
+                validFirstNameFormat: Format.fromResource({regex: "^[a-z]+$", descriptionKey: "lowercaseOnly"})});
+
+            it("a name in a format the subject type refuses, and a date of birth the form refuses", () => {
+                const strict = contextWith({abhaOn: true, hipId: "hip-1", type: strictType()});
+                const filled = onAbhaProfile(load(strict), {profile: {...FULL, dateOfBirth: new Date(2999, 0, 1)}}, strict);
+                expect(filled.individual.firstName).toBe("Asha");
+                expect(filled.abha.lockedFields).toEqual({firstName: false, middleName: true, lastName: true, dateOfBirth: false, gender: true});
+            });
+
+            it("a name the subject type keeps unique and another patient already has leaves every name part editable", () => {
+                const unique = contextWith({abhaOn: true, hipId: "hip-1", type: Object.assign(strictType(), {validFirstNameFormat: null, uniqueName: true}), sameName: [{uuid: "s-other"}]});
+                const filled = onAbhaProfile(load(unique), {profile: FULL}, unique);
+                expect(filled.abha.lockedFields).toEqual({firstName: false, middleName: false, lastName: false, dateOfBirth: true, gender: true});
+            });
+
+            it("on edit, a saved detail that fails the form's checks", () => {
+                const type = strictType();
+                const person = savedPerson([Observation.create(abhaNumberConcept, new PrimitiveValue("91-1234-5678-9012"))]);
+                Object.assign(person, {subjectType: type, firstName: "Asha", lastName: "rao", dateOfBirth: new Date(1990, 3, 23)});
+                const state = load(contextWith({abhaOn: true, hipId: "hip-1", saved: person, type}), person.uuid);
+                expect(state.abha.lockedFields).toEqual({firstName: false, middleName: false, lastName: true, dateOfBirth: true, gender: false});
+            });
         });
 
         it("a last name typed after a single-name ABHA fill does not lock the box under the worker", () => {

@@ -167,7 +167,7 @@ class PersonRegisterView extends AbstractComponent {
                 <AbhaRegistrationOptions onCreate={() => this.abhaFlow.open({route: 'create'})}
                                          onLink={() => this.abhaFlow.open({route: 'link'})}
                                          onWithout={() => this.abhaFlow.chooseWithout()}/>}
-                {this.props.params.editing && abha.linked &&
+                {abha.linked &&
                 <View style={this.formRow}>
                     <Button title={this.I18n.t('abhaRemoveLink')} color={Colors.ActionButtonColor}
                             onPress={() => AvniAlert(this.I18n.t('abhaRemoveLink'), this.I18n.t('abhaRemoveLinkConfirm'),

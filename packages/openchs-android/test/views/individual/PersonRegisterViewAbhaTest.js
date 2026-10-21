@@ -131,8 +131,13 @@ describe("PersonRegisterView, ABHA", () => {
         expect(view.dispatchAction).toHaveBeenCalledWith(Actions.ON_ABHA_LINK_REMOVED, {});
     });
 
-    it("offers no Remove ABHA link on a new registration", () => {
-        expect(buttonTitles(render(screenWith({abha: {...ON, linked: true}})))).not.toContain("abhaRemoveLink");
+    it("offers Remove ABHA link on a new registration once an ABHA has filled it in, so a wrong ABHA can be taken off", () => {
+        const view = screenWith({abha: {...ON, linked: true, choice: "create"}});
+        const renderer = render(view);
+        expect(buttonTitles(renderer)).toContain("abhaRemoveLink");
+        act(() => renderer.root.findAllByType(Button).find((button) => button.props.title === "abhaRemoveLink").props.onPress());
+        Alert.alert.mock.calls[0][2].find((button) => button.text === "yes").onPress();
+        expect(view.dispatchAction).toHaveBeenCalledWith(Actions.ON_ABHA_LINK_REMOVED, {});
     });
 
     it("asks for consent in a dialog and hands back the time the patient agreed", async () => {

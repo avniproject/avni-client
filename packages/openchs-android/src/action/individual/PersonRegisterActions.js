@@ -67,7 +67,7 @@ export class PersonRegisterActions {
         }
 
         const newState = IndividualRegistrationState.createLoadState(form, state.genders, individual, action.workLists, minLevelTypeUUIDs, saveDrafts, groupAffiliationState, isNewEntity, group);
-        newState.abha = PersonRegisterActions.abhaStateOnLoad(form, individual, context);
+        newState.abha = PersonRegisterActions.abhaStateOnLoad(form, newState, context);
         PersonRegisterActions.setAgeState(newState);
 
         // Defer the wizard fast-forward chain past any in-flight slide animation, so its post-render async work
@@ -84,7 +84,8 @@ export class PersonRegisterActions {
     // checked name, date of birth and gender; it follows the saved answer, and only with ABHA on for the user,
     // since Remove ABHA link, the only way to lift it, is shown only then. choice: the option the worker took,
     // null until then.
-    static abhaStateOnLoad(form, individual, context) {
+    static abhaStateOnLoad(form, state, context) {
+        const {individual} = state;
         const enabledForUser = context.get(OrganisationConfigService).isAbhaEnabled()
             && !_.isEmpty(_.get(context.get(UserInfoService).getUserSettings(), 'abhaHipId'));
         if (!enabledForUser) return {enabledForUser: false, formHasConcepts: false, linked: false, locked: false, lockedFields: NO_ABHA_LOCKS, dobVerifiedByAbha: false, choice: null};
@@ -95,7 +96,7 @@ export class PersonRegisterActions {
             formHasConcepts: _.every(_.values(ABHA_CONCEPT_NAMES), (name) => _.includes(conceptNames, name)),
             linked: PersonRegisterActions.hasAbhaAnswer(individual),
             locked: PersonRegisterActions.hasAbhaNumber(individual),
-            lockedFields: PersonRegisterActions.lockedFieldsOf(individual),
+            lockedFields: PersonRegisterActions.lockedFieldsOf(state, context),
             dobVerifiedByAbha: false,
             choice: null,
         };
@@ -110,12 +111,31 @@ export class PersonRegisterActions {
     }
 
     // On load there is no record of what the ABHA filled, so every detail the saved patient has counts.
-    static lockedFieldsOf(individual) {
+    static lockedFieldsOf(state, context) {
+        const {individual} = state;
         if (!PersonRegisterActions.hasAbhaNumber(individual)) return NO_ABHA_LOCKS;
-        return {
+        return PersonRegisterActions.lockingOnlyValid({
             firstName: !_.isEmpty(individual.firstName), middleName: !_.isEmpty(individual.middleName), lastName: !_.isEmpty(individual.lastName),
             dateOfBirth: !_.isNil(individual.dateOfBirth), gender: !_.isNil(individual.gender),
+        }, state, context);
+    }
+
+    // A detail that fails the form's own checks stays editable, or the worker could never get past the page: a name
+    // in a format the subject type refuses, a name it keeps unique that another patient has, a date of birth or
+    // gender the form or the household refuses.
+    static lockingOnlyValid(locks, state, context) {
+        const {individual, household} = state;
+        const passes = (validationResult) => _.isNil(validationResult) || validationResult.success;
+        const checksRelative = !_.isEmpty(household.relativeGender);
+        const nameUnique = passes(state.validateName(context));
+        const valid = {
+            firstName: nameUnique && passes(individual.validateFirstName()),
+            middleName: nameUnique && passes(individual.validateMiddleName()),
+            lastName: nameUnique && passes(individual.validateLastName()),
+            dateOfBirth: passes(individual.validateDateOfBirth()) && (!checksRelative || passes(household.validateRelativeAge(individual))),
+            gender: passes(individual.validateGender()) && (!checksRelative || passes(household.validateRelativeGender(individual.gender))),
         };
+        return _.mapValues(locks, (locked, field) => locked && valid[field]);
     }
 
     // Hidden while an ABHA from Eka's screens is being checked (busy), so a second tap cannot open them again.
@@ -168,10 +188,10 @@ export class PersonRegisterActions {
             newState = PersonRegisterActions.enterIndividualDOBVerified(newState, {value: false});
         }
         PersonRegisterActions.writeAbhaAnswers(newState, profile, context);
-        const lockedFields = !verified ? NO_ABHA_LOCKS : {
+        const lockedFields = !verified ? NO_ABHA_LOCKS : PersonRegisterActions.lockingOnlyValid({
             firstName: !!profile.firstName, middleName: !!profile.middleName, lastName: !!profile.lastName,
             dateOfBirth: !!profile.dateOfBirth, gender: !!gender,
-        };
+        }, newState, context);
         newState.abha = {...newState.abha, linked: PersonRegisterActions.hasAbhaAnswer(newState.individual),
             locked: PersonRegisterActions.hasAbhaNumber(newState.individual), lockedFields, dobVerifiedByAbha, choice: action.choice || null, busy: false};
         return newState;
