@@ -11,7 +11,9 @@ jest.mock("../../../src/utility/CHSNavigator", () => ({
 }));
 jest.mock("../../../src/utility/ConnectionInfo", () => ({getConnectionInfo: jest.fn()}));
 
-import {Gender, Individual, SubjectType} from "avni-models";
+import {Concept, Gender, Individual, Observation, PrimitiveValue, SubjectType} from "avni-models";
+import EntityFactory from "../../EntityFactory";
+import EntityQueueService from "../../../src/service/EntityQueueService";
 import CHSNavigator from "../../../src/utility/CHSNavigator";
 import {getConnectionInfo} from "../../../src/utility/ConnectionInfo";
 import AbhaRegistrationFlow from "../../../src/views/abha/AbhaRegistrationFlow";
@@ -38,8 +40,14 @@ function person({uuid = "s-new", firstName = "", genderName = null} = {}) {
     return individual;
 }
 
+const abhaNumberConcept = EntityFactory.createConcept("ABHA Number", Concept.dataType.Text, "c-abha-number");
+const withAbhaNumber = (individual, abhaNumber) => {
+    individual.observations = [Observation.create(abhaNumberConcept, new PrimitiveValue(abhaNumber))];
+    return individual;
+};
+
 function viewWith({editing = false, formHasConcepts = true, individual = person(), translations = {}, consent = null, replace = true,
-                      session = Promise.resolve(SESSION), holders = Promise.resolve([]), onPhone = {}} = {}) {
+                      session = Promise.resolve(SESSION), holders = Promise.resolve([]), onPhone = {}, unsynced = []} = {}) {
     const abhaService = {
         // A rejection is passed as a function, so it is made only when asked for and never left unhandled.
         getSession: jest.fn(() => (typeof session === "function" ? session() : session)),
@@ -48,7 +56,8 @@ function viewWith({editing = false, formHasConcepts = true, individual = person(
         recordEvent: jest.fn(() => Promise.resolve(true)),
     };
     const individualService = {findByUUID: jest.fn((uuid) => onPhone[uuid])};
-    const services = new Map([[AbhaService, abhaService], [IndividualService, individualService]]);
+    const entityQueueService = {getQueuedEntityUUIDs: jest.fn(() => unsynced)};
+    const services = new Map([[AbhaService, abhaService], [IndividualService, individualService], [EntityQueueService, entityQueueService]]);
     return {
         state: {abha: {enabledForUser: true, formHasConcepts, linked: false, choice: null}, individual},
         props: {params: {editing}},
@@ -59,6 +68,7 @@ function viewWith({editing = false, formHasConcepts = true, individual = person(
         askAbhaReplace: jest.fn(() => Promise.resolve(replace)),
         abhaService,
         individualService,
+        entityQueueService,
     };
 }
 
@@ -277,6 +287,32 @@ describe("AbhaRegistrationFlowTest", () => {
             expect(CHSNavigator.navigateToProgramEnrolmentDashboardView).not.toHaveBeenCalled();
             expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(0);
             expect(view.abhaService.recordEvent).toHaveBeenCalledTimes(1);
+        });
+
+        it("counts a patient on this phone not yet synced who holds the number, written differently, which the server cannot know of", async () => {
+            const unsynced = withAbhaNumber(person({uuid: "s-unsynced", firstName: "Ravi"}), "91123456789012");
+            const view = viewWith({unsynced: ["s-unsynced"], onPhone: {"s-unsynced": unsynced}});
+            await openAndReturn(view);
+
+            expect(view.entityQueueService.getQueuedEntityUUIDs).toHaveBeenCalledWith("Individual");
+            const [, message, buttons] = Alert.alert.mock.calls[0];
+            expect(message).toBe("abhaDuplicateOpen");
+            buttons.find((button) => button.text === "abhaDuplicateOpenAction").onPress();
+            expect(CHSNavigator.navigateToProgramEnrolmentDashboardView).toHaveBeenCalledWith(view, "s-unsynced");
+            expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(0);
+        });
+
+        it("among this phone's unsynced patients, does not count the one being edited, a voided one, or one with another number", async () => {
+            const editing = withAbhaNumber(person({uuid: "s-1"}), "91-1234-5678-9012");
+            const voided = Object.assign(withAbhaNumber(person({uuid: "s-voided"}), "91-1234-5678-9012"), {voided: true});
+            const other = withAbhaNumber(person({uuid: "s-other"}), "11-1111-1111-1111");
+            const view = viewWith({editing: true, individual: person({uuid: "s-1"}), unsynced: ["s-1", "s-voided", "s-other", "s-gone"],
+                onPhone: {"s-1": editing, "s-voided": voided, "s-other": other}});
+            await openAndReturn(view);
+
+            expect(Alert.alert).not.toHaveBeenCalled();
+            expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(1);
+            expect(view.individualService.findByUUID.mock.calls.map(([uuid]) => uuid).sort()).toEqual(["s-gone", "s-other", "s-voided"]);
         });
 
         it("does not count a voided patient on this phone as one to open", async () => {

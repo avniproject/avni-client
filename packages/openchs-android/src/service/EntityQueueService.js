@@ -41,6 +41,12 @@ class EntityQueueService extends BaseService {
         };
     }
 
+    // The entities of one type saved on this phone and not yet pushed, each once: for Individual, the patients the
+    // server does not know of yet.
+    getQueuedEntityUUIDs(entityName) {
+        return _.uniq(_.map(this.repository.findAll().filtered("entity = $0", entityName), 'entityUUID'));
+    }
+
     getPresentEntities() {
         return this.repository.findAll().filtered("TRUEPREDICATE DISTINCT(entity)");
     }

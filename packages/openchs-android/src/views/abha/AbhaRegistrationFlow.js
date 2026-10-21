@@ -1,11 +1,14 @@
 import _ from "lodash";
 import {Alert, ToastAndroid} from "react-native";
+import {Individual} from "avni-models";
 import {getConnectionInfo} from "../../utility/ConnectionInfo";
 import CHSNavigator from "../../utility/CHSNavigator";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import AbhaService from "../../service/AbhaService";
 import AbhaError from "../../service/AbhaError";
 import IndividualService from "../../service/IndividualService";
+import EntityQueueService from "../../service/EntityQueueService";
+import AbhaProfile, {ABHA_CONCEPT_NAMES} from "./AbhaProfile";
 import General from "../../utility/General";
 import {Actions} from "../../action/individual/PersonRegisterActions";
 
@@ -173,19 +176,33 @@ class AbhaRegistrationFlow {
         CHSNavigator.navigateToAbhaCardView(this.view, {subjectUUID, abhaNumber});
     }
 
-    // The patients in the organisation who hold this ABHA number. When the server cannot be asked, the worker can
-    // try again with the same ABHA rather than take the patient through Eka's OTP again. Null when the worker gives
-    // up, or the screen has closed.
+    // The patients in the organisation who hold this ABHA number, and those on this phone not yet synced, whom the
+    // server cannot know of. When the server cannot be asked, the worker can try again with the same ABHA rather than
+    // take the patient through Eka's OTP again. Null when the worker gives up, or the screen has closed.
     async holdersOf(individual, abhaNumber) {
         for (;;) {
             try {
-                return await this.view.getService(AbhaService).findSubjectUUIDs(individual.subjectType.uuid, abhaNumber);
+                const onServer = await this.view.getService(AbhaService).findSubjectUUIDs(individual.subjectType.uuid, abhaNumber);
+                return _.union(onServer, this.unsyncedHoldersOf(individual, abhaNumber));
             } catch (error) {
                 const messageKey = AbhaError.messageKey(error);
                 General.logWarn('AbhaRegistrationFlow', `ABHA holders not found out: ${messageKey}`);
                 if (this.screenGone() || !(await this.askTryAgain(messageKey)) || this.screenGone()) return null;
             }
         }
+    }
+
+    // Only the queue of patients waiting to be synced is read, which is small; never every patient's answers. Numbers
+    // are compared as digits, and the patient being edited does not count.
+    unsyncedHoldersOf(individual, abhaNumber) {
+        const digits = AbhaProfile.digitsOnly(abhaNumber);
+        const individualService = this.view.getService(IndividualService);
+        return _.filter(this.view.getService(EntityQueueService).getQueuedEntityUUIDs(Individual.schema.name), (uuid) => {
+            if (uuid === individual.uuid) return false;
+            const subject = individualService.findByUUID(uuid);
+            return !_.isNil(subject) && !subject.voided
+                && AbhaProfile.digitsOnly(subject.getObservationValue(ABHA_CONCEPT_NAMES.abhaNumber)) === digits;
+        });
     }
 
     askTryAgain(messageKey) {
