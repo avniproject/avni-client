@@ -1,6 +1,7 @@
 import React from "react";
-import {Button, Image, Text, ToastAndroid} from "react-native";
+import {Button, Image, Modal, Text, ToastAndroid, TouchableNativeFeedback} from "react-native";
 import TestRenderer, {act} from "react-test-renderer";
+import {ImageViewer} from "react-native-image-zoom-viewer";
 
 const mockCopyFile = jest.fn(() => Promise.resolve());
 const mockUnlink = jest.fn(() => Promise.resolve());
@@ -15,6 +16,10 @@ jest.mock("react-native-device-info", () => ({getApiLevel: jest.fn(() => Promise
 jest.mock("react-native-blob-util", () => ({fs: {dirs: {CacheDir: "/cache"}}}));
 jest.mock("../../../src/service/AuthAwareDownload", () => ({downloadWithAuth: jest.fn()}));
 jest.mock("../../../src/views/common/AppHeader", () => ({__esModule: true, default: () => null}));
+// native-base primitives need a NativeBaseProvider above them, which this test has no use for.
+jest.mock("native-base", () => ({__esModule: true, Button: () => null, Icon: () => null}));
+// The zoom viewer starts an animation timer this Jest cannot run; what it is handed is all the test needs.
+jest.mock("react-native-image-zoom-viewer", () => ({ImageViewer: () => null}));
 jest.mock("../../../src/views/common/CHSContainer", () => ({
     __esModule: true,
     default: ({children}) => require("react").createElement(require("react-native").View, null, children),
@@ -146,6 +151,22 @@ describe("AbhaCardViewTest", () => {
         await view.press("abhaCardClose");
 
         expect(view.navigator.pop).toHaveBeenCalled();
+    });
+
+    it("tapping the card opens it full screen in the same zoomable viewer as a photo answer, and closing it stays on the card", async () => {
+        const view = await show();
+        expect(view.renderer.root.findAllByType(Modal)).toHaveLength(0);
+
+        await act(async () => { view.renderer.root.findByType(TouchableNativeFeedback).props.onPress(); });
+
+        const viewer = view.renderer.root.findByType(Modal);
+        expect(viewer.findByType(ImageViewer).props.imageUrls).toEqual([{url: `file://${CARD_PATH}`}]);
+
+        await act(async () => { viewer.props.onRequestClose(); });
+
+        expect(view.renderer.root.findAllByType(Modal)).toHaveLength(0);
+        expect(view.navigator.pop).not.toHaveBeenCalled();
+        expect(view.titles()).toEqual(["abhaCardDownload", "abhaCardShare", "abhaCardClose"]);
     });
 
     it("deletesCacheFileOnUnmount", async () => {

@@ -1,5 +1,5 @@
 import React from "react";
-import {ActivityIndicator, Button, Image, PermissionsAndroid, SafeAreaView, ScrollView, Text, ToastAndroid, View} from "react-native";
+import {ActivityIndicator, Button, PermissionsAndroid, SafeAreaView, ScrollView, Text, ToastAndroid, View} from "react-native";
 import PropTypes from "prop-types";
 import _ from "lodash";
 import moment from "moment";
@@ -10,6 +10,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import CHSContainer from "../common/CHSContainer";
 import AppHeader from "../common/AppHeader";
+import ExpandableImage from "../common/ExpandableImage";
 import Colors from "../primitives/Colors";
 import General from "../../utility/General";
 import AbhaService from "../../service/AbhaService";
@@ -127,7 +128,7 @@ class AbhaCardView extends AbstractComponent {
         }
         return (
             <View style={{padding: 16}}>
-                <Image testID="abhaCardImage" source={{uri: `file://${path}`}} resizeMode="contain" style={{width: '100%', aspectRatio: 1.6}}/>
+                <ExpandableImage source={path} imageStyle={{width: '100%', aspectRatio: 1.6, resizeMode: 'contain'}}/>
                 {downloadedName && <Text style={{marginTop: 12}}>{this.I18n.t('abhaCardDownloaded', {fileName: downloadedName})}</Text>}
                 <View style={{marginTop: 16}}><Button title={this.I18n.t('abhaCardDownload')} color={Colors.ActionButtonColor} onPress={() => this.download()}/></View>
                 <View style={{marginTop: 12}}><Button title={this.I18n.t('abhaCardShare')} color={Colors.ActionButtonColor} onPress={() => this.share()}/></View>

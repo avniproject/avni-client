@@ -10,10 +10,13 @@ import AvniIcon from "./AvniIcon";
 export default class ExpandableImage extends React.Component {
     static propTypes = {
         source: PropTypes.string,
-        allMediaAbsolutePath: PropTypes.array
+        allMediaAbsolutePath: PropTypes.array,
+        // The image as shown before it is tapped; a thumbnail unless the screen shows it larger.
+        imageStyle: PropTypes.object
     };
     static defaultProps = {
         allMediaAbsolutePath: [],
+        imageStyle: {height: 36, width: 36},
     };
 
     constructor(props) {
@@ -34,7 +37,7 @@ export default class ExpandableImage extends React.Component {
         const sourceFile = `file://${this.props.source}`;
         return <View>
             <TouchableNativeFeedback onPress={() => this.showModal()}>
-                <Image source={{uri: sourceFile}} style={{height: 36, width: 36}}/>
+                <Image source={{uri: sourceFile}} style={this.props.imageStyle}/>
             </TouchableNativeFeedback>
             {this.state.showModal && (
                 <Modal onRequestClose={() => this.hideModal()}>
