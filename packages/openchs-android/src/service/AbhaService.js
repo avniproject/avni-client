@@ -25,11 +25,16 @@ class AbhaService extends BaseService {
     }
 
     // The patients in the organisation who hold this ABHA number. The number travels in the body, as digits:
-    // request addresses are logged, here and in the server's access log.
+    // request addresses are logged, here and in the server's access log. An answer without the list is a failure:
+    // read as "no holder", it would let a second patient take the ABHA.
     findSubjectUUIDs(subjectTypeUUID, abhaNumber) {
         return post(`${this.getServerUrl()}/abha/subjects/search`, {subjectTypeUUID, abhaNumber: AbhaProfile.digitsOnly(abhaNumber)})
             .then((response) => response.json())
-            .then((body) => _.get(body, 'subjectUUIDs') || [])
+            .then((body) => {
+                const subjectUUIDs = _.get(body, 'subjectUUIDs');
+                if (!_.isArray(subjectUUIDs)) throw new Error('ABHA holders search answered without subjectUUIDs');
+                return subjectUUIDs;
+            })
             .catch(AbhaService._refusalAsAbhaError);
     }
 

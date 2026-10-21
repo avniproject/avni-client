@@ -214,6 +214,16 @@ describe("AbhaServiceTest", () => {
         expect(error.code).to.equal("ABHA_NO_PRIVILEGE");
     });
 
+    it("treats an answer with no list of patients as a failure, never as no other holder", async () => {
+        for (const body of [{}, {subjectUUIDs: null}, {subjectUUIDs: "s-9"}, null]) {
+            global.fetch = jest.fn(async () => reply(200, body));
+            const error = await failureOf(service().findSubjectUUIDs("st-1", ABHA_NUMBER));
+            expect(error, JSON.stringify(body)).to.be.instanceOf(Error);
+            expect(AbhaError.messageKey(error)).to.equal("abhaError");
+            expect(error.message).to.not.contain(ABHA_DIGITS);
+        }
+    });
+
     it("never logs the ABHA number it asks about, whether the server answers or refuses", async () => {
         const logged = captureLogs();
         global.fetch = jest.fn(async () => reply(200, {subjectUUIDs: ["s-9"]}));
