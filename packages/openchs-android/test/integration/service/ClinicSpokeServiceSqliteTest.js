@@ -243,6 +243,25 @@ describe('Phones syncing with the hub', () => {
         expect(b.recordService.applied.flatMap((batches) => batches.flatMap((batch) => batch.resources.map((r) => r.uuid)))).toEqual(['ind-1']);
     });
 
+    // A start taken after the pull would hold back the report on a record this pull failed to bring the parent of.
+    it("checks records waiting for a parent against a start taken before the pull", async () => {
+        const b = phone();
+        let pulledAt, checkedWithStart;
+        const apply = b.recordService.applyBatches;
+        b.recordService.applyBatches = async (batches) => { pulledAt = Date.now(); return apply(batches); };
+        b.parkedRecords.afterSync = async (syncStartedAt) => { checkedWithStart = syncStartedAt; return {applied: 0, reported: 0}; };
+        let clock = Date.now();
+        const now = jest.spyOn(Date, 'now').mockImplementation(() => clock++);
+
+        try {
+            await b.sync();
+        } finally {
+            now.mockRestore();
+        }
+
+        expect(checkedWithStart).toBeLessThan(pulledAt);
+    });
+
     it('refreshes open lists when a record that waited for its parent is applied after the sync', async () => {
         const b = phone();
         b.parkedRecords.afterSync = async () => ({applied: 1, reported: 0});

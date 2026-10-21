@@ -404,16 +404,17 @@ describe("Records that arrive before their parent", () => {
         expect(parked()).toEqual(["v-1"]);
     });
 
-    it("give way to the server's copy when it arrives first", async () => {
-        await receive('Encounter', visit("v-1", "p-1", {name: "hub copy"}));
-        const serverVisit = fromAnotherPhone('Encounter', 'Encounter', visit("v-1", "p-1", {name: "server copy"}));
+    // The waiting copy is the sending phone's edit, which only that phone uploads; the server's copy predates it.
+    it("keep their edit over the server's older copy, applying it once the server sync has brought the patient", async () => {
+        await receive('Encounter', visit("v-1", "p-1", {name: "cancelled on phone A"}));
+        const serverVisit = fromAnotherPhone('Encounter', 'Encounter', visit("v-1", "p-1", {name: "scheduled, as on the server"}));
 
         const syncStartedAt = Date.now();
         await mine.sync.persistAll(pulled('Individual'), [fromServer(mine.recordService, 'Individual', fromAnotherPhone('Individual', 'Individual', patient('p-1')))]);
         await mine.sync.persistAll(pulled('Encounter'), [fromServer(mine.recordService, 'Encounter', serverVisit)]);
         await mine.sync._applyParkedClinicRecords(syncStartedAt);
 
-        expect([mine.read("Encounter", "v-1").name, parked()]).toEqual(["server copy", []]);
+        expect([mine.read("Encounter", "v-1").name, visitParent("v-1"), parked()]).toEqual(["cancelled on phone A", ["p-1"], []]);
     });
 
     it("on the hub, go into the ledger under the phone that sent them once applied, for phones whose cursor has passed", async () => {

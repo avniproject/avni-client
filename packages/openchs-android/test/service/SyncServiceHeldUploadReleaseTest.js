@@ -103,6 +103,35 @@ describe('Uploads released by the pull', () => {
         expect(svc.serverSyncRunning).toBe(false);
     });
 
+    // A start taken after the pull would report a record whose parent the pull just failed to bring as not yet due.
+    it("are followed by applying hub records that waited for a parent, with the sync's start taken before the push", async () => {
+        const {svc, steps} = buildSyncService({pullReleases: 0});
+        svc.db = {isSqlite: true};
+        const services = svc.getService;
+        let retriedWithStart;
+        svc.getService = jest.fn((name) => ({
+            ...services(name),
+            getSettings: () => ({enableClinicSharing: true}),
+            mirrorOwnQueue: async () => {},
+            syncBeforeServerUpload: async () => {},
+            afterSync: async (syncStartedAt) => { retriedWithStart = syncStartedAt; steps.push('apply waiting'); return {applied: 0, reported: 0}; },
+        }));
+        let pushedAt;
+        const push = svc.pushData;
+        svc.pushData = jest.fn(async (...args) => { pushedAt = pushedAt || Date.now(); return push(...args); });
+        let clock = 1000;
+        const now = jest.spyOn(Date, 'now').mockImplementation(() => clock++);
+
+        try {
+            await runSync(svc);
+        } finally {
+            now.mockRestore();
+        }
+
+        expect(steps).toEqual(['push', 'pull', 'apply waiting']);
+        expect(retriedWithStart).toBeLessThan(pushedAt);
+    });
+
     it('clear the server-sync-running mark when the sync fails', async () => {
         const {svc} = buildSyncService({pullReleases: 0});
         svc.pushData = jest.fn(async () => { throw new Error('network down'); });

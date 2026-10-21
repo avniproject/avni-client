@@ -646,8 +646,6 @@ class SyncService extends BaseService {
         const releasing = shared
             ? await this.getService('clinicHoldBackService').receivedAmong(entityResources.map((resource) => resource.uuid))
             : {release: [], keepLocal: []};
-        // The server's copy supersedes a hub copy still waiting for its parent.
-        if (shared) await this.getService('clinicParkedRecordService').unpark(entityResources.map((resource) => resource.uuid));
         // The local copy is a held edit still to upload; the server's older copy must not replace it.
         if (!_.isEmpty(releasing.keepLocal)) this._adoptServerMediaUrls(entityMetaData, entityResources.filter((resource) => releasing.keepLocal.includes(resource.uuid)));
         entityResources = entityResources.filter((resource) => !releasing.keepLocal.includes(resource.uuid));
