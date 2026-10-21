@@ -165,8 +165,7 @@ class PersonRegisterView extends AbstractComponent {
             <View>
                 {abha.busy && <ActivityIndicator size="large" color={Colors.ActionButtonColor} style={this.formRow}/>}
                 {PersonRegisterActions.abhaOptionsShown(abha) &&
-                <AbhaRegistrationOptions onCreate={() => this.abhaFlow.open({route: 'create'})}
-                                         onLink={() => this.abhaFlow.open({route: 'link'})}
+                <AbhaRegistrationOptions onFindOrCreate={() => this.abhaFlow.open({route: 'findOrCreate'})}
                                          onWithout={() => this.abhaFlow.chooseWithout()}/>}
                 {abha.linked &&
                 <View style={this.formRow}>

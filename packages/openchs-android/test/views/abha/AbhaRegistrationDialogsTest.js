@@ -38,33 +38,33 @@ describe("ABHA registration dialogs", () => {
         jest.restoreAllMocks();
     });
 
-    describe("the three options", () => {
-        it("offers Create ABHA & Register, Link Existing ABHA & Register and Register Without ABHA, each doing its own thing", async () => {
-            const handlers = {onCreate: jest.fn(), onLink: jest.fn(), onWithout: jest.fn()};
+    describe("the options", () => {
+        // Eka's screens find an ABHA the patient already has, or create one, so one option starts both.
+        it("offers Find or Create ABHA & Register and Register Without ABHA, each doing its own thing", async () => {
+            const handlers = {onFindOrCreate: jest.fn(), onWithout: jest.fn()};
             const {renderer} = await show(<AbhaRegistrationOptions {...handlers}/>);
 
             const buttons = renderer.root.findAllByType(Button);
-            expect(buttons.map((button) => button.props.title)).toEqual(["abhaOptionCreate", "abhaOptionLink", "abhaOptionWithout"]);
+            expect(buttons.map((button) => button.props.title)).toEqual(["abhaOptionFindOrCreate", "abhaOptionWithout"]);
             await act(async () => buttons.forEach((button) => button.props.onPress()));
             Object.values(handlers).forEach((handler) => expect(handler).toHaveBeenCalledTimes(1));
         });
 
         it("opens each option's help text from its info icon", async () => {
-            const {renderer} = await show(<AbhaRegistrationOptions onCreate={() => {}} onLink={() => {}} onWithout={() => {}}/>);
+            const {renderer} = await show(<AbhaRegistrationOptions onFindOrCreate={() => {}} onWithout={() => {}}/>);
             const infoIcons = renderer.root.findAllByType(TouchableOpacity)
                 .filter((node) => node.findAllByType(Text).some((text) => text.props.children === "icon:info-outline"));
 
             await act(async () => infoIcons.forEach((icon) => icon.props.onPress()));
 
             expect(Alert.alert.mock.calls.map(([title, message]) => [title, message])).toEqual([
-                ["abhaOptionCreate", "abhaOptionCreateHelp"],
-                ["abhaOptionLink", "abhaOptionLinkHelp"],
+                ["abhaOptionFindOrCreate", "abhaOptionFindOrCreateHelp"],
                 ["abhaOptionWithout", "abhaOptionWithoutHelp"],
             ]);
         });
 
-        it("Link's help text points the worker to Other add options", () => {
-            expect(en.translations.abhaOptionLinkHelp).toContain("Other add options");
+        it("Find or Create's help text points the worker to Other add options for an ABHA number or address", () => {
+            expect(en.translations.abhaOptionFindOrCreateHelp).toContain("Other add options");
         });
     });
 
@@ -134,7 +134,7 @@ describe("ABHA registration dialogs", () => {
     });
 
     it("has English wording for every message the ABHA registration step shows, and none for the consent key", () => {
-        ["abhaOptionCreate", "abhaOptionLink", "abhaOptionWithout", "abhaOptionCreateHelp", "abhaOptionLinkHelp", "abhaOptionWithoutHelp",
+        ["abhaOptionFindOrCreate", "abhaOptionWithout", "abhaOptionFindOrCreateHelp", "abhaOptionWithoutHelp",
             "abhaFormNotSetUp", "abhaDuplicateOpen", "abhaDuplicateOpenAction", "abhaDuplicateElsewhere", "abhaReplaceDetails",
             "abhaCurrentDetails", "abhaProfileDetails", "abhaRemoveLink", "abhaRemoveLinkConfirm",
             "abhaConsentAgree", "abhaConsentContinue", "abhaConsentDecline", "abhaTitle", "abhaNeedsInternet", "abhaTryAgain",

@@ -55,7 +55,7 @@ class AbhaRegistrationFlow {
         this.toast('abhaError');
     }
 
-    // route is the option the worker took, 'create' or 'link'. Checked in today (#2200) passes prefillAbhaAddress.
+    // route is the option the worker took ('findOrCreate'). Checked in today (#2200) passes prefillAbhaAddress.
     // Never rejects: it runs from a button.
     async open({route, prefillAbhaAddress} = {}) {
         if (this.opening || _.get(this.view.state, 'abha.busy')) return;

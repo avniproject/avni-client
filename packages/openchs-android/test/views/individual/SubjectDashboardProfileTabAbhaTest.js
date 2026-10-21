@@ -91,21 +91,22 @@ describe("SubjectDashboardProfileTab, ABHA section", () => {
         expect(tabWith({individual: individualWith({voided: true})}).renderAbha()).toBeNull();
     });
 
-    it("shows Not linked with Create ABHA and Link existing ABHA for a patient with neither answer", () => {
+    it("shows Not linked with Find or Create ABHA for a patient with neither answer", () => {
         const tab = tabWith({individual: individualWith()});
         const shown = texts(render(tab.renderAbha()));
-        expect(shown).toEqual(expect.arrayContaining(["abhaSectionTitle", "abhaNotLinked", "abhaCreate", "abhaLinkExisting"]));
+        expect(shown).toEqual(expect.arrayContaining(["abhaSectionTitle", "abhaNotLinked", "abhaFindOrCreate"]));
+        expect(shown).not.toContain("abhaCreate");
+        expect(shown).not.toContain("abhaLinkExisting");
         expect(shown).not.toContain("abhaViewCard");
     });
 
-    it("Create ABHA and Link existing ABHA both open the subject's edit screen", () => {
+    it("Find or Create ABHA opens the subject's edit screen", () => {
         const tab = tabWith({individual: individualWith()});
         const renderer = render(tab.renderAbha());
         const press = (label) => renderer.root.findAll((node) => typeof node.props.onPress === "function"
             && node.findAllByType(Text).some((text) => [].concat(text.props.children).join("") === label))[0].props.onPress();
-        act(() => press("abhaCreate"));
-        act(() => press("abhaLinkExisting"));
-        expect(tab.editProfile).toHaveBeenCalledTimes(2);
+        act(() => press("abhaFindOrCreate"));
+        expect(tab.editProfile).toHaveBeenCalledTimes(1);
     });
 
     it("shows Linked, the number masked to its last four digits, and the address", () => {
@@ -115,8 +116,7 @@ describe("SubjectDashboardProfileTab, ABHA section", () => {
         expect(shown.join("|")).toContain("xx-xxxx-xxxx-9012");
         expect(shown.join("|")).toContain("asha@sbx");
         expect(shown.join("|")).not.toContain("5678");
-        expect(shown).not.toContain("abhaCreate");
-        expect(shown).not.toContain("abhaLinkExisting");
+        expect(shown).not.toContain("abhaFindOrCreate");
     });
 
     it("shows a patient linked through the mobile route, an address and no number, as Linked with the address only", () => {
@@ -180,7 +180,7 @@ describe("SubjectDashboardProfileTab, ABHA section", () => {
     });
 
     it("adds its labels to the platform translations", () => {
-        ["abhaSectionTitle", "abhaLinked", "abhaNotLinked", "abhaCreate", "abhaLinkExisting", "abhaNumberLabel", "abhaAddressLabel"]
+        ["abhaSectionTitle", "abhaLinked", "abhaNotLinked", "abhaFindOrCreate", "abhaNumberLabel", "abhaAddressLabel"]
             .forEach((key) => expect(en.translations[key]).toBeTruthy());
     });
 });

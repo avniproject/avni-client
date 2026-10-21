@@ -6,11 +6,11 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import Colors from "../primitives/Colors";
 import Distances from "../primitives/Distances";
 
-// The three ways a person's registration starts when ABHA is on, each with its help text behind an info icon.
+// The two ways a person's registration starts when ABHA is on, each with its help text behind an info icon. Eka's
+// screens find the ABHA a patient already has, or create one, so a single option starts both.
 class AbhaRegistrationOptions extends AbstractComponent {
     static propTypes = {
-        onCreate: PropTypes.func.isRequired,
-        onLink: PropTypes.func.isRequired,
+        onFindOrCreate: PropTypes.func.isRequired,
         onWithout: PropTypes.func.isRequired,
     };
 
@@ -32,11 +32,10 @@ class AbhaRegistrationOptions extends AbstractComponent {
     }
 
     render() {
-        const {onCreate, onLink, onWithout} = this.props;
+        const {onFindOrCreate, onWithout} = this.props;
         return (
             <View style={{marginTop: Distances.ScaledVerticalSpacingBetweenFormElements}}>
-                {this.renderOption('abhaOptionCreate', 'abhaOptionCreateHelp', onCreate)}
-                {this.renderOption('abhaOptionLink', 'abhaOptionLinkHelp', onLink)}
+                {this.renderOption('abhaOptionFindOrCreate', 'abhaOptionFindOrCreateHelp', onFindOrCreate)}
                 {this.renderOption('abhaOptionWithout', 'abhaOptionWithoutHelp', onWithout)}
             </View>
         );

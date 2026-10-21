@@ -81,13 +81,12 @@ describe("PersonRegisterView, ABHA", () => {
         expect(render(screenWith({abha: ON, editing: true})).root.findAllByType(AbhaRegistrationOptions)).toHaveLength(1);
     });
 
-    it("Create and Link open the ABHA step on their route; Register Without ABHA goes straight on", () => {
+    it("Find or Create opens the ABHA step; Register Without ABHA goes straight on", () => {
         const view = screenWith({abha: ON});
         const options = render(view).root.findByType(AbhaRegistrationOptions).props;
-        options.onCreate();
-        options.onLink();
+        options.onFindOrCreate();
         options.onWithout();
-        expect(view.abhaFlow.open.mock.calls).toEqual([[{route: "create"}], [{route: "link"}]]);
+        expect(view.abhaFlow.open.mock.calls).toEqual([[{route: "findOrCreate"}]]);
         expect(view.abhaFlow.chooseWithout).toHaveBeenCalledTimes(1);
     });
 

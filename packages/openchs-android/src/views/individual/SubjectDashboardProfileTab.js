@@ -199,8 +199,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
     // ABDM M1: the ABHA section. Create ABHA and Link existing ABHA open the subject's edit screen, which opens on the
     // three ABHA options for a patient with no ABHA (PersonRegisterActions.abhaOptionsShown).
     abhaNotLinkedActions() {
-        return [new ContextAction(this.I18n.t('abhaCreate'), () => this.editProfile()),
-            new ContextAction(this.I18n.t('abhaLinkExisting'), () => this.editProfile())];
+        return [new ContextAction(this.I18n.t('abhaFindOrCreate'), () => this.editProfile())];
     }
 
     // View ABHA card shows the card on a screen of its own. The card comes from the server, so it needs internet.
