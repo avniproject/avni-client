@@ -16,7 +16,8 @@ jest.mock("../../src/GlobalContext", () => ({
 }));
 
 const mockUnlink = jest.fn(() => Promise.resolve());
-jest.mock("react-native-fs", () => ({unlink: (...args) => mockUnlink(...args), exists: jest.fn(() => Promise.resolve(true))}));
+const mockReadDir = jest.fn(() => Promise.resolve([]));
+jest.mock("react-native-fs", () => ({unlink: (...args) => mockUnlink(...args), readDir: (...args) => mockReadDir(...args), exists: jest.fn(() => Promise.resolve(true))}));
 jest.mock("../../src/service/AuthAwareDownload", () => ({downloadWithAuth: jest.fn()}));
 jest.mock("react-native-blob-util", () => ({fs: {dirs: {CacheDir: "/cache"}}}));
 
@@ -393,6 +394,7 @@ describe("AbhaServiceTest", () => {
 
         beforeEach(() => {
             mockUnlink.mockClear();
+            mockReadDir.mockClear();
             downloadWithAuth.mockReset();
         });
 
@@ -416,6 +418,28 @@ describe("AbhaServiceTest", () => {
             downloadWithAuth.mockResolvedValue(downloaded(404, "<html>Not Found</html>"));
             expect(AbhaError.messageKey(await failureOf(service().getCardFile("s-1")))).to.equal("abhaError");
             expect(AbhaError.messageKey(new AbhaError(null, 404))).to.equal("abhaError");
+        });
+
+        it("first deletes card files a closed card screen left in the cache folder, and nothing else there", async () => {
+            mockReadDir.mockResolvedValueOnce([
+                {name: "abha-card-1f2e.png", path: "/cache/abha-card-1f2e.png"},
+                {name: "abha-card-9a8b.png", path: "/cache/abha-card-9a8b.png"},
+                {name: "profile-pic.png", path: "/cache/profile-pic.png"},
+                {name: "abha-card-notes.txt", path: "/cache/abha-card-notes.txt"},
+            ]);
+            downloadWithAuth.mockResolvedValue(downloaded(200));
+
+            await service().getCardFile("s-1");
+
+            expect(mockReadDir.mock.calls[0][0]).to.equal("/cache");
+            expect(mockUnlink.mock.calls.map(([path]) => path)).to.deep.equal(["/cache/abha-card-1f2e.png", "/cache/abha-card-9a8b.png"]);
+            expect(mockUnlink.mock.invocationCallOrder[1]).to.be.lessThan(downloadWithAuth.mock.invocationCallOrder[0]);
+        });
+
+        it("still fetches the card when the cache folder cannot be read", async () => {
+            mockReadDir.mockRejectedValueOnce(new Error("ENOENT"));
+            downloadWithAuth.mockResolvedValue(downloaded(200));
+            expect(await service().getCardFile("s-1")).to.equal("/cache/abha-card-x.png");
         });
 
         it("getCardFileDeletesFileOnError", async () => {

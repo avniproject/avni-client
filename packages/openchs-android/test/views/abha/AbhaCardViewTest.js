@@ -74,19 +74,40 @@ describe("AbhaCardViewTest", () => {
         expect(view.titles()).toEqual(["abhaCardDownload", "abhaCardShare", "abhaCardClose"]);
     });
 
-    it("downloads to the phone's Downloads folder as abha-card with the last four digits, and says where", async () => {
+    it("downloads to the phone's Downloads folder as abha-card with the last four digits and the time, and says where", async () => {
         const view = await show();
 
         await view.press("abhaCardDownload");
 
-        expect(mockCopyFile).toHaveBeenCalledWith(CARD_PATH, "/storage/Download/abha-card-9012.png");
+        const [from, to] = mockCopyFile.mock.calls[0];
+        expect(from).toBe(CARD_PATH);
+        expect(to).toMatch(/^\/storage\/Download\/abha-card-9012-\d{8}-\d{6}\.png$/);
+        const fileName = to.replace("/storage/Download/", "");
         expect(view.lines().join("|")).toContain("abhaCardDownloaded");
-        expect(view.lines().join("|")).toContain("abha-card-9012.png");
+        expect(view.lines().join("|")).toContain(fileName);
         expect(mockUnlink).not.toHaveBeenCalled();
     });
 
-    it("names the downloaded file without digits when the number is not known, and says when saving fails", async () => {
-        expect(AbhaCardView.downloadFileName(null)).toBe("abha-card.png");
+    it("names each download by the time it was saved, so another patient's card with the same last four digits is never overwritten", () => {
+        const at = new Date(2026, 9, 21, 9, 5, 7);
+        expect(AbhaCardView.downloadFileName("9012", at)).toBe("abha-card-9012-20261021-090507.png");
+        expect(AbhaCardView.downloadFileName("9012", new Date(2026, 9, 21, 9, 5, 8))).not.toBe(AbhaCardView.downloadFileName("9012", at));
+        expect(AbhaCardView.downloadFileName(null, at)).toBe("abha-card-20261021-090507.png");
+    });
+
+    it("logs only a fixed line when saving or sharing fails, never the error, which can carry the file's path", async () => {
+        const view = await show();
+        mockCopyFile.mockRejectedValueOnce(new Error(`EACCES: open failed ${CARD_PATH}`));
+        await view.press("abhaCardDownload");
+        mockShareOpen.mockRejectedValueOnce(new Error(`No app can open file://${CARD_PATH}`));
+        await view.press("abhaCardShare");
+
+        const logged = General.logWarn.mock.calls.map((args) => JSON.stringify(args)).join("|");
+        expect(General.logWarn).toHaveBeenCalledTimes(2);
+        ["EACCES", "/cache", "abha-card-1", "No app"].forEach((detail) => expect(logged).not.toContain(detail));
+    });
+
+    it("says when saving fails", async () => {
         const view = await show();
         mockCopyFile.mockRejectedValueOnce(new Error("EACCES"));
 

@@ -2,6 +2,7 @@ import React from "react";
 import {ActivityIndicator, Button, Image, PermissionsAndroid, SafeAreaView, ScrollView, Text, ToastAndroid, View} from "react-native";
 import PropTypes from "prop-types";
 import _ from "lodash";
+import moment from "moment";
 import RNFS from "react-native-fs";
 import Share from "react-native-share";
 import DeviceInfo from "react-native-device-info";
@@ -23,7 +24,7 @@ import AbhaProfile from "./AbhaProfile";
 class AbhaCardView extends AbstractComponent {
     static propTypes = {
         subjectUUID: PropTypes.string.isRequired,
-        // The last four digits of the ABHA number, which name the downloaded file. Without them it is abha-card.png.
+        // The last four digits of the ABHA number, which name the downloaded file.
         abhaLastFour: PropTypes.string,
     };
 
@@ -76,8 +77,9 @@ class AbhaCardView extends AbstractComponent {
         return digits ? digits.slice(-4) : null;
     }
 
-    static downloadFileName(abhaLastFour) {
-        return abhaLastFour ? `abha-card-${abhaLastFour}.png` : 'abha-card.png';
+    // Named by the time of saving too, so a card never overwrites another patient's whose number ends the same way.
+    static downloadFileName(abhaLastFour, at = new Date()) {
+        return `${_.join(_.compact(['abha-card', abhaLastFour, moment(at).format('YYYYMMDD-HHmmss')]), '-')}.png`;
     }
 
     // Before Android 10 saving to the Downloads folder needs the storage permission; after it, none.
@@ -95,7 +97,8 @@ class AbhaCardView extends AbstractComponent {
             await RNFS.copyFile(this.state.path, `${RNFS.DownloadDirectoryPath}/${fileName}`);
             this.setState({downloadedName: fileName});
         } catch (error) {
-            General.logWarn(this.viewName(), `ABHA card not downloaded: ${error.message}`);
+            // A fixed line: the error can carry the file's path.
+            General.logWarn(this.viewName(), 'ABHA card not downloaded');
             ToastAndroid.show(this.I18n.t('abhaCardDownloadFailed'), ToastAndroid.LONG);
         }
     }
@@ -106,7 +109,7 @@ class AbhaCardView extends AbstractComponent {
         } catch (error) {
             // Closing the share sheet is not a failure.
             if (_.get(error, 'message') === 'User did not share') return;
-            General.logWarn(this.viewName(), `ABHA card not shared: ${_.get(error, 'message')}`);
+            General.logWarn(this.viewName(), 'ABHA card not shared');
             ToastAndroid.show(this.I18n.t('abhaCardShareFailed'), ToastAndroid.LONG);
         }
     }

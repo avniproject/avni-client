@@ -16,6 +16,8 @@ export const UNSENT_EVENTS_KEY = 'avni.abha.unsentEvents';
 // The only answers that mean the server will never take a record. An expired login, a timeout, too many requests,
 // a server error or no network can all clear later, so on those the record is kept.
 const REFUSED_STATUSES = [400, 403, 409];
+// The card files getCardFile writes into the cache folder.
+const CARD_FILE_NAME = /^abha-card-.*\.png$/;
 
 // Avni's server holds Eka's secret and answers these online, outside sync. The Eka key in a session is handed to the
 // caller and never stored or logged; it lasts about 30 minutes.
@@ -136,6 +138,7 @@ class AbhaService extends BaseService {
     // number, name, photo and QR code: the file is for the card screen, which deletes it when it closes. A failed fetch
     // deletes whatever was written, since a refusal is written to the file too, and throws an AbhaError.
     async getCardFile(subjectUUID) {
+        await AbhaService.deleteLeftoverCardFiles();
         const targetPath = `${ReactNativeBlobUtil.fs.dirs.CacheDir}/abha-card-${General.randomUUID()}.png`;
         try {
             const downloaded = await downloadWithAuth(this.getService("authService"), this.getService("settingsService"),
@@ -150,6 +153,17 @@ class AbhaService extends BaseService {
         } catch (error) {
             await AbhaService.deleteCardFile(targetPath);
             throw error;
+        }
+    }
+
+    // Card files a card screen did not get to delete, as when the app was stopped while one was open. Only one card
+    // screen is open at a time and it fetches its card after this, so none of these is on show. Never rejects.
+    static async deleteLeftoverCardFiles() {
+        try {
+            const files = await RNFS.readDir(ReactNativeBlobUtil.fs.dirs.CacheDir);
+            await Promise.all(_.filter(files, (file) => CARD_FILE_NAME.test(file.name)).map((file) => AbhaService.deleteCardFile(file.path)));
+        } catch (e) {
+            General.logDebug('AbhaService', 'Leftover ABHA card files not looked for');
         }
     }
 
