@@ -174,7 +174,11 @@ class AbhaRegistrationFlow {
             await AbhaRegistrationFlow.atMost(this.view.getService(AbhaService).resendUnsentEvents(), CARD_WAIT_MS);
         }
         if (this.screenGone()) return;
-        CHSNavigator.navigateToAbhaCardView(this.view, {subjectUUID, abhaNumber});
+        // Eka's screen may still be sliding away: a push queued behind that pop reaches the navigator's focus
+        // handler with no route. So the card waits until the registration screen's transition has settled.
+        this.view.runAfterSceneTransition(() => {
+            if (!this.screenGone()) CHSNavigator.navigateToAbhaCardView(this.view, {subjectUUID, abhaNumber});
+        });
     }
 
     // What the promise gives, or undefined once ms have passed. Never rejects.

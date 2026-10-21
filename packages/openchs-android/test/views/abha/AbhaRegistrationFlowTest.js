@@ -67,6 +67,8 @@ function viewWith({editing = false, formHasConcepts = true, individual = person(
         dispatchAction: jest.fn(),
         askAbhaConsent: jest.fn(() => Promise.resolve(consent)),
         askAbhaReplace: jest.fn(() => Promise.resolve(replace)),
+        // The screen's transition has settled already, unless a test says otherwise.
+        runAfterSceneTransition: jest.fn((fn) => fn()),
         abhaService,
         individualService,
         entityQueueService,
@@ -517,6 +519,32 @@ describe("AbhaRegistrationFlowTest", () => {
                 .toBeGreaterThan(view.abhaService.recordEvent.mock.invocationCallOrder[0]);
             expect(CHSNavigator.navigateToAbhaCardView.mock.invocationCallOrder[0])
                 .toBeGreaterThan(view.dispatchAction.mock.invocationCallOrder[0]);
+        });
+
+        // Eka's screen is still sliding away when a local server answers the record. A push queued behind that
+        // pop reaches the navigator's focus handler with no route, and the app restarts.
+        it("pushes the card only once the registration screen's transition has settled", async () => {
+            const view = viewWith();
+            let settle;
+            view.runAfterSceneTransition = jest.fn((fn) => { settle = fn; });
+            await openAndReturn(view);
+            await flush();
+
+            expect(cardOpened()).toHaveLength(0);
+            settle();
+            expect(cardOpened()).toEqual([[view, {subjectUUID: "s-new", abhaNumber: "91-1234-5678-9012"}]]);
+        });
+
+        it("does not push the card when the screen closed before its transition settled", async () => {
+            const view = viewWith();
+            let settle;
+            view.runAfterSceneTransition = jest.fn((fn) => { settle = fn; });
+            await openAndReturn(view);
+            await flush();
+
+            view._isUnmounted = true;
+            settle();
+            expect(cardOpened()).toHaveLength(0);
         });
 
         it("does not hold up the registration while it waits: the details are filled in and the call returns at once", async () => {
