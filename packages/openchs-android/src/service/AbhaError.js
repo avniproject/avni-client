@@ -2,7 +2,7 @@
 // (ABHA_NOT_CONFIGURED, ABHA_DISABLED, ABHA_NO_PRIVILEGE, ABHA_NO_HEALTH_CENTRE, ABHA_UNKNOWN_SUBJECT_TYPE, and
 // ABHA_EKA_UNAVAILABLE when Eka refused or did not answer, ABHA_NOT_YOURS when the card of a patient not yet on the
 // server is asked for by someone who did not record that patient's ABHA, ABHA_NO_CARD when the patient has no
-// recorded ABHA to show a card for). code is null when the body names none; a bare 404, which a wrong address or a
+// recorded ABHA to show a card for, ABHA_NUMBER_INVALID when an ABHA number is not 14 digits). code is null when the body names none; a bare 404, which a wrong address or a
 // proxy can give as well, is a general failure.
 const MESSAGE_KEYS = {
     ABHA_NOT_CONFIGURED: 'abhaNotConfigured',
@@ -13,6 +13,7 @@ const MESSAGE_KEYS = {
     ABHA_EKA_UNAVAILABLE: 'abhaEkaUnavailable',
     ABHA_NOT_YOURS: 'abhaNotYours',
     ABHA_NO_CARD: 'abhaNoCard',
+    ABHA_NUMBER_INVALID: 'abhaNumberInvalid',
 };
 
 export default class AbhaError extends Error {

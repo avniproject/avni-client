@@ -127,6 +127,15 @@ describe("AbhaServiceTest", () => {
         }
     });
 
+    it("names an ABHA number the server finds invalid, with its own message", async () => {
+        global.fetch = jest.fn(async () => reply(400, {code: "ABHA_NUMBER_INVALID"}));
+        const error = await failureOf(service().findSubjectUUIDs("st-1", "91-1234"));
+        expect(error).to.be.instanceOf(AbhaError);
+        expect(error.code).to.equal("ABHA_NUMBER_INVALID");
+        expect(AbhaError.messageKey(error)).to.equal("abhaNumberInvalid");
+        expect(en.translations.abhaNumberInvalid).to.be.a("string");
+    });
+
     it("keeps an audit record Eka was too busy for, to send again, and drops one for an unknown subject type", async () => {
         const abhaService = service();
         global.fetch = jest.fn(async () => reply(502, {code: "ABHA_EKA_UNAVAILABLE"}));
