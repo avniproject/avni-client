@@ -160,6 +160,17 @@ describe("AbhaRegistrationFlowTest", () => {
             expect(CHSNavigator.navigateToAbhaView).not.toHaveBeenCalled();
         });
 
+        it("a consent step closed with Back chooses nothing: the options stay, and Eka's screens do not open", async () => {
+            const view = viewWith({translations: {abhaRegistrationConsent: "I agree to ..."}});
+            view.askAbhaConsent.mockImplementation(() => Promise.resolve(undefined));
+
+            await new AbhaRegistrationFlow(view).open({route: "create"});
+
+            expect(view.dispatchAction).not.toHaveBeenCalled();
+            expect(view.abhaService.getSession).not.toHaveBeenCalled();
+            expect(CHSNavigator.navigateToAbhaView).not.toHaveBeenCalled();
+        });
+
         it("opens Eka's screens once the patient agrees", async () => {
             const view = viewWith({translations: {abhaRegistrationConsent: "I agree to ..."}, consent: new Date()});
             await new AbhaRegistrationFlow(view).open({route: "link"});

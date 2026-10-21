@@ -159,6 +159,15 @@ describe("PersonRegisterView, ABHA", () => {
         expect(await answer).toBeNull();
     });
 
+    it("hands back no answer at all when the consent dialog is closed with Back", async () => {
+        const view = screenWith({abha: ON});
+        const answer = view.askAbhaConsent("I agree to ...");
+        const dialog = render(view).root.findByType(AbhaConsentDialog);
+        act(() => dialog.props.onCancel());
+        expect(await answer).toBeUndefined();
+        expect(view.state.abhaDialog).toBeNull();
+    });
+
     it("shows the side-by-side dialog when editing and hands back the worker's choice", async () => {
         const rows = [{label: "name", current: "Asa", abha: "Asha"}];
         const view = screenWith({abha: ON, editing: true});

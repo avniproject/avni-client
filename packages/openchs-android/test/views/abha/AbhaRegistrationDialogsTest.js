@@ -1,5 +1,5 @@
 import React from "react";
-import {Alert, Button, Text, TouchableOpacity} from "react-native";
+import {Alert, Button, Modal, Text, TouchableOpacity} from "react-native";
 import TestRenderer, {act} from "react-test-renderer";
 
 jest.mock("react-native-vector-icons/MaterialIcons", () => {
@@ -90,6 +90,15 @@ describe("ABHA registration dialogs", () => {
             await screen.press("abhaConsentAgree");
             await screen.press("abhaConsentAgree");
             expect(screen.touchable("abhaConsentContinue").props.disabled).toBe(true);
+        });
+
+        it("Back closes the consent step without an answer; it is not Does not agree", async () => {
+            const onDecline = jest.fn();
+            const onCancel = jest.fn();
+            const screen = await show(<AbhaConsentDialog text="..." onContinue={() => {}} onDecline={onDecline} onCancel={onCancel}/>);
+            await act(async () => screen.renderer.root.findByType(Modal).props.onRequestClose());
+            expect(onCancel).toHaveBeenCalledTimes(1);
+            expect(onDecline).not.toHaveBeenCalled();
         });
 
         it("Does not agree declines", async () => {

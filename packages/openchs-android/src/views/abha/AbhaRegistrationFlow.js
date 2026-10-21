@@ -23,8 +23,8 @@ export const ABHA_CONSENT_KEY = 'abhaRegistrationConsent';
 
 // The ABHA step of a person's registration or edit (ABDM M1): Create and Link open Eka's screens, and the ABHA that
 // comes back is checked against the organisation's patients before it fills anything in. The view supplies two
-// dialogs: askAbhaConsent(text) resolves to the time the patient agreed, or null, and askAbhaReplace(rows) resolves
-// true to apply the ABHA's details. Nothing here logs the ABHA number, address, Eka's IDs or the key.
+// dialogs: askAbhaConsent(text) resolves to the time the patient agreed, null when they do not agree, or undefined
+// when closed without an answer, and askAbhaReplace(rows) resolves true to apply the ABHA's details. Nothing here logs the ABHA number, address, Eka's IDs or the key.
 class AbhaRegistrationFlow {
     constructor(view) {
         this.view = view;
@@ -86,7 +86,9 @@ class AbhaRegistrationFlow {
         const consentText = this.consentText();
         if (consentText) {
             consentGivenAt = await this.view.askAbhaConsent(consentText);
-            if (_.isNil(consentGivenAt)) {
+            // Closed without an answer: nothing is chosen, and the options stay.
+            if (_.isUndefined(consentGivenAt)) return;
+            if (_.isNull(consentGivenAt)) {
                 this.chooseWithout();
                 return;
             }

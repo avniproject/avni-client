@@ -129,7 +129,8 @@ class PersonRegisterView extends AbstractComponent {
         AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n);
     }
 
-    // The ABHA step's dialogs. Each resolves the promise the ABHA flow is waiting on.
+    // The ABHA step's dialogs. Each resolves the promise the ABHA flow is waiting on. Consent resolves to the time
+    // the patient agreed, null when they do not agree, or undefined when the dialog is closed without an answer.
     askAbhaConsent(text) {
         return this.showAbhaDialog({kind: 'consent', text});
     }
@@ -175,7 +176,8 @@ class PersonRegisterView extends AbstractComponent {
                 </View>}
                 {_.get(dialog, 'kind') === 'consent' &&
                 <AbhaConsentDialog text={dialog.text} onContinue={(agreedAt) => this.closeAbhaDialog(agreedAt)}
-                                   onDecline={() => this.closeAbhaDialog(null)}/>}
+                                   onDecline={() => this.closeAbhaDialog(null)}
+                                   onCancel={() => this.closeAbhaDialog(undefined)}/>}
                 {_.get(dialog, 'kind') === 'replace' &&
                 <AbhaReplaceDetailsDialog rows={dialog.rows} onApply={() => this.closeAbhaDialog(true)}
                                           onCancel={() => this.closeAbhaDialog(false)}/>}

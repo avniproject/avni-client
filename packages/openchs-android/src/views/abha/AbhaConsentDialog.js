@@ -7,12 +7,14 @@ import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 
 // The organisation's own consent wording, shown before Eka's screens. Continue stays off until the patient's
-// agreement is ticked; the time of the tick goes into the ABHA audit record.
+// agreement is ticked; the time of the tick goes into the ABHA audit record. Back closes it without an answer: only
+// "Does not agree" says the patient declined.
 class AbhaConsentDialog extends AbstractComponent {
     static propTypes = {
         text: PropTypes.string.isRequired,
         onContinue: PropTypes.func.isRequired,
         onDecline: PropTypes.func.isRequired,
+        onCancel: PropTypes.func.isRequired,
     };
 
     constructor(props, context) {
@@ -21,10 +23,10 @@ class AbhaConsentDialog extends AbstractComponent {
     }
 
     render() {
-        const {text, onContinue, onDecline} = this.props;
+        const {text, onContinue, onDecline, onCancel} = this.props;
         const {agreedAt} = this.state;
         return (
-            <Modal visible transparent animationType="fade" onRequestClose={onDecline}>
+            <Modal visible transparent animationType="fade" onRequestClose={onCancel}>
                 <View style={styles.backdrop}>
                     <View style={styles.dialog}>
                         <ScrollView style={styles.textBox}>
