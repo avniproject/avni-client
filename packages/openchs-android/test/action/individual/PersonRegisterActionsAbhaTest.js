@@ -180,6 +180,24 @@ describe("PersonRegisterActions, ABHA", () => {
             });
         });
 
+        it("holds the options back while an ABHA from Eka's screens is being checked, until it fills in", () => {
+            const context = contextWith({abhaOn: true, hipId: "hip-1"});
+            const state = load(context);
+            const busy = PersonRegisterActions.onAbhaBusy(state, {subjectUUID: state.individual.uuid, busy: true}, context);
+            expect(busy.abha.busy).toBe(true);
+            expect(PersonRegisterActions.abhaOptionsShown(busy.abha)).toBe(false);
+
+            expect(onAbhaProfile(busy, {profile: PROFILE, choice: "create"}, context).abha.busy).toBe(false);
+            const settled = PersonRegisterActions.onAbhaBusy(busy, {subjectUUID: state.individual.uuid, busy: false}, context);
+            expect(PersonRegisterActions.abhaOptionsShown(settled.abha)).toBe(true);
+        });
+
+        it("ignores being held busy for a patient whose screen has closed", () => {
+            const context = contextWith({abhaOn: true, hipId: "hip-1"});
+            const state = load(context);
+            expect(PersonRegisterActions.onAbhaBusy(state, {subjectUUID: "patient-on-a-closed-screen", busy: true}, context) === state).toBe(true);
+        });
+
         it("an ABHA with an address only removes an ABHA number the patient had", () => {
             const person = savedPerson([Observation.create(abhaNumberConcept, new PrimitiveValue("11-1111-1111-1111"))]);
             const context = contextWith({abhaOn: true, hipId: "hip-1", saved: person});

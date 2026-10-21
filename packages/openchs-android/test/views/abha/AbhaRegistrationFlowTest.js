@@ -190,6 +190,14 @@ describe("AbhaRegistrationFlowTest", () => {
             expect(CHSNavigator.navigateToAbhaView).toHaveBeenCalledTimes(1);
         });
 
+        it("opens nothing on a tap of Create or Link while an ABHA from Eka's screens is still being checked", async () => {
+            const view = viewWith();
+            view.state.abha.busy = true;
+            await new AbhaRegistrationFlow(view).open({route: "create"});
+            expect(view.abhaService.getSession).not.toHaveBeenCalled();
+            expect(CHSNavigator.navigateToAbhaView).not.toHaveBeenCalled();
+        });
+
         it("a skip returns to registration and changes nothing", async () => {
             const view = viewWith();
             await new AbhaRegistrationFlow(view).open({route: "create"});
@@ -208,6 +216,38 @@ describe("AbhaRegistrationFlowTest", () => {
             expect(view.abhaService.findSubjectUUIDs).toHaveBeenCalledWith("st-person", "91-1234-5678-9012");
             expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toEqual([[Actions.ON_ABHA_PROFILE, {profile: PROFILE, choice: "create", subjectUUID: "s-new"}]]);
             expect(view.askAbhaReplace).not.toHaveBeenCalled();
+        });
+
+        it("holds the registration busy from the moment Eka's screens close until the details are filled in", async () => {
+            const view = viewWith();
+            let busyWhileChecking;
+            view.abhaService.findSubjectUUIDs.mockImplementation(() => {
+                busyWhileChecking = view.dispatchAction.mock.calls.map(([type, action]) => [type, action]);
+                return Promise.resolve([]);
+            });
+            await openAndReturn(view);
+
+            expect(busyWhileChecking).toEqual([[Actions.ON_ABHA_BUSY, {subjectUUID: "s-new", busy: true}]]);
+            const types = view.dispatchAction.mock.calls.map(([type]) => type);
+            expect(types).toEqual([Actions.ON_ABHA_BUSY, Actions.ON_ABHA_PROFILE, Actions.ON_ABHA_BUSY]);
+            expect(view.dispatchAction.mock.calls[2][1]).toEqual({subjectUUID: "s-new", busy: false});
+        });
+
+        it("lets go of busy when nothing is filled in: another holder, a cancel, or a failed check given up", async () => {
+            const cases = [viewWith({holders: Promise.resolve(["s-elsewhere"])}), viewWith({editing: true, replace: false}),
+                viewWith({holders: () => Promise.reject(new TypeError("Network request failed"))})];
+            answerAlertsWith("cancel");
+            for (const view of cases) {
+                await openAndReturn(view);
+                expect(dispatched(view, Actions.ON_ABHA_BUSY).map(([, action]) => action.busy)).toEqual([true, false]);
+                CHSNavigator.navigateToAbhaView.mockClear();
+            }
+        });
+
+        it("changes nothing more, busy included, once the registration screen has closed", async () => {
+            const view = viewWith({holders: () => { view._isUnmounted = true; return Promise.resolve([]); }});
+            await openAndReturn(view);
+            expect(dispatched(view, Actions.ON_ABHA_BUSY).map(([, action]) => action.busy)).toEqual([true]);
         });
 
         it("offers to open the patient on this phone who already holds it, and fills nothing", async () => {

@@ -1,5 +1,5 @@
 import React from "react";
-import {Alert, Button, View} from "react-native";
+import {ActivityIndicator, Alert, Button, View} from "react-native";
 import TestRenderer, {act} from "react-test-renderer";
 
 // PersonRegisterView imports most of the view layer; these are the native modules it reaches that jest has no bridge for.
@@ -89,6 +89,26 @@ describe("PersonRegisterView, ABHA", () => {
         options.onWithout();
         expect(view.abhaFlow.open.mock.calls).toEqual([[{route: "create"}], [{route: "link"}]]);
         expect(view.abhaFlow.chooseWithout).toHaveBeenCalledTimes(1);
+    });
+
+    it("shows progress instead of the options while an ABHA from Eka's screens is being checked", () => {
+        const renderer = render(screenWith({abha: {...ON, busy: true}}));
+        expect(renderer.root.findAllByType(AbhaRegistrationOptions)).toHaveLength(0);
+        expect(renderer.root.findAllByType(ActivityIndicator)).toHaveLength(1);
+        expect(render(screenWith({abha: ON})).root.findAllByType(ActivityIndicator)).toHaveLength(0);
+    });
+
+    it("never lets a second dialog replace one still open: the second gets no answer at once", async () => {
+        const view = screenWith({abha: ON, editing: true});
+        const consent = view.askAbhaConsent("I agree to ...");
+        expect(await view.askAbhaReplace([{label: "name", current: "Asa", abha: "Asha"}])).toBeUndefined();
+        expect(await view.askAbhaConsent("again")).toBeUndefined();
+
+        const dialog = render(view).root.findByType(AbhaConsentDialog);
+        expect(dialog.props.text).toBe("I agree to ...");
+        const agreedAt = new Date();
+        act(() => dialog.props.onContinue(agreedAt));
+        expect(await consent).toBe(agreedAt);
     });
 
     it("hides the options once a choice is made", () => {

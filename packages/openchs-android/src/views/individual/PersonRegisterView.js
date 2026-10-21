@@ -1,4 +1,4 @@
-import {Button, ToastAndroid, ScrollView, View} from "react-native";
+import {ActivityIndicator, Button, ToastAndroid, ScrollView, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -138,7 +138,10 @@ class PersonRegisterView extends AbstractComponent {
         return this.showAbhaDialog({kind: 'replace', rows});
     }
 
+    // One dialog at a time: a second asked for while one is open gets no answer (undefined) at once, and the open
+    // one keeps its answer.
     showAbhaDialog(abhaDialog) {
+        if (this.resolveAbhaDialog) return Promise.resolve(undefined);
         return new Promise((resolve) => {
             this.resolveAbhaDialog = resolve;
             this.setState({abhaDialog});
@@ -159,6 +162,7 @@ class PersonRegisterView extends AbstractComponent {
         const dialog = this.state.abhaDialog;
         return (
             <View>
+                {abha.busy && <ActivityIndicator size="large" color={Colors.ActionButtonColor} style={this.formRow}/>}
                 {PersonRegisterActions.abhaOptionsShown(abha) &&
                 <AbhaRegistrationOptions onCreate={() => this.abhaFlow.open({route: 'create'})}
                                          onLink={() => this.abhaFlow.open({route: 'link'})}

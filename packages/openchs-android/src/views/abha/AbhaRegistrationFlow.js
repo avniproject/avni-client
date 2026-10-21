@@ -55,7 +55,7 @@ class AbhaRegistrationFlow {
     // route is the option the worker took, 'create' or 'link'. Checked in today (#2200) passes prefillAbhaAddress.
     // Never rejects: it runs from a button.
     async open({route, prefillAbhaAddress} = {}) {
-        if (this.opening) return;
+        if (this.opening || _.get(this.view.state, 'abha.busy')) return;
         this.opening = true;
         try {
             await this.openAbhaScreens(route, prefillAbhaAddress);
@@ -119,16 +119,23 @@ class AbhaRegistrationFlow {
         const abhaService = this.view.getService(AbhaService);
         const event = AbhaRegistrationFlow.auditEvent(profile, individual, consentGivenAt, occurredAt);
         abhaService.keepEvent(event);
+        this.setBusy(individual, true);
         let filled = false;
         let recorded;
         try {
             filled = await this.fillIn(profile, individual, route);
         } finally {
+            this.setBusy(individual, false);
             // After the fill, so the form never waits on the network, and sent even when the fill failed.
             recorded = abhaService.recordEvent(event);
         }
         // Not awaited: the card is shown over the registration, which is already filled in and can be saved.
         if (filled) this.showCardOnceRecorded(recorded, individual.uuid, profile.abhaNumber);
+    }
+
+    // While busy the options are hidden and a progress indicator shows. Nothing is changed once the screen has closed.
+    setBusy(individual, busy) {
+        if (!this.screenGone()) this.view.dispatchAction(Actions.ON_ABHA_BUSY, {subjectUUID: individual.uuid, busy});
     }
 
     // Checks the ABHA against the organisation's patients and fills the form with it. True once filled; false when

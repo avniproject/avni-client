@@ -118,8 +118,17 @@ export class PersonRegisterActions {
         };
     }
 
+    // Hidden while an ABHA from Eka's screens is being checked (busy), so a second tap cannot open them again.
     static abhaOptionsShown(abha) {
-        return !!abha && abha.enabledForUser && _.isNil(abha.choice) && !abha.linked;
+        return !!abha && abha.enabledForUser && _.isNil(abha.choice) && !abha.linked && !abha.busy;
+    }
+
+    // busy: from Eka's screens closing with an ABHA until it fills the form in or fails.
+    static onAbhaBusy(state, action) {
+        if (!PersonRegisterActions.isForThisPatient(state, action)) return state;
+        const newState = state.clone();
+        newState.abha = {...newState.abha, busy: !!action.busy};
+        return newState;
     }
 
     static onAbhaChoice(state, action) {
@@ -164,7 +173,7 @@ export class PersonRegisterActions {
             dateOfBirth: !!profile.dateOfBirth, gender: !!gender,
         };
         newState.abha = {...newState.abha, linked: PersonRegisterActions.hasAbhaAnswer(newState.individual),
-            locked: PersonRegisterActions.hasAbhaNumber(newState.individual), lockedFields, dobVerifiedByAbha, choice: action.choice || null};
+            locked: PersonRegisterActions.hasAbhaNumber(newState.individual), lockedFields, dobVerifiedByAbha, choice: action.choice || null, busy: false};
         return newState;
     }
 
@@ -427,6 +436,7 @@ const actions = {
     ON_ABHA_CHOICE: "IRA.ON_ABHA_CHOICE",
     ON_ABHA_PROFILE: "IRA.ON_ABHA_PROFILE",
     ON_ABHA_LINK_REMOVED: "IRA.ON_ABHA_LINK_REMOVED",
+    ON_ABHA_BUSY: "IRA.ON_ABHA_BUSY",
 };
 
 export default new Map([
@@ -468,6 +478,7 @@ export default new Map([
     [actions.ON_ABHA_CHOICE, PersonRegisterActions.onAbhaChoice],
     [actions.ON_ABHA_PROFILE, PersonRegisterActions.onAbhaProfile],
     [actions.ON_ABHA_LINK_REMOVED, PersonRegisterActions.onAbhaLinkRemoved],
+    [actions.ON_ABHA_BUSY, PersonRegisterActions.onAbhaBusy],
     [EDGE_MODEL_ACTION.INFERENCE_RESULT_AVAILABLE, ObservationsHolderActions.onInferenceResultAvailable],
     [EDGE_MODEL_ACTION.INFERENCE_RESULTS_BATCH, ObservationsHolderActions.onObservationWriteBatch],
     [EDGE_MODEL_ACTION.INFERENCE_UNAVAILABLE, ObservationsHolderActions.onInferenceUnavailable],
