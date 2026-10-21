@@ -170,7 +170,8 @@ describe("AbhaCardViewTest", () => {
     });
 
     it("gives each refusal the server named its own message", async () => {
-        const cases = [[new AbhaError("ABHA_NOT_YOURS", 403), "abhaNotYours"], [new AbhaError(null, 404), "abhaNoCard"],
+        const cases = [[new AbhaError("ABHA_NOT_YOURS", 403), "abhaNotYours"], [new AbhaError("ABHA_NO_CARD", 404), "abhaNoCard"],
+            [new AbhaError(null, 404), "abhaCardFailed"],
             [new AbhaError("ABHA_EKA_UNAVAILABLE", 502), "abhaEkaUnavailable"], [new AbhaError("ABHA_DISABLED", 403), "abhaDisabled"]];
         for (const [error, key] of cases) {
             const view = await show({getCardFile: () => Promise.reject(error)});

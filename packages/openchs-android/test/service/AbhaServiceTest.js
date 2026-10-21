@@ -313,6 +313,14 @@ describe("AbhaServiceTest", () => {
             expect(mockUnlink.mock.calls.length).to.equal(0);
         });
 
+        it("reads no ABHA card only from the server's code: a 404 with no code is a general failure", async () => {
+            downloadWithAuth.mockResolvedValue(downloaded(404, {code: "ABHA_NO_CARD"}));
+            expect(AbhaError.messageKey(await failureOf(service().getCardFile("s-1")))).to.equal("abhaNoCard");
+            downloadWithAuth.mockResolvedValue(downloaded(404, "<html>Not Found</html>"));
+            expect(AbhaError.messageKey(await failureOf(service().getCardFile("s-1")))).to.equal("abhaError");
+            expect(AbhaError.messageKey(new AbhaError(null, 404))).to.equal("abhaError");
+        });
+
         it("getCardFileDeletesFileOnError", async () => {
             downloadWithAuth.mockResolvedValue(downloaded(404));
 
@@ -348,7 +356,7 @@ describe("AbhaServiceTest", () => {
 
         it("gives the two new refusals their own messages", () => {
             expect(AbhaError.messageKey(new AbhaError("ABHA_NOT_YOURS", 403))).to.equal("abhaNotYours");
-            expect(AbhaError.messageKey(new AbhaError(null, 404))).to.equal("abhaNoCard");
+            expect(AbhaError.messageKey(new AbhaError("ABHA_NO_CARD", 404))).to.equal("abhaNoCard");
             expect(AbhaError.messageKey(new AbhaError("ABHA_DISABLED", 403))).to.equal("abhaDisabled");
             ["abhaNotYours", "abhaNoCard"].forEach((key) => expect(en.translations[key], key).to.be.a("string"));
         });
