@@ -161,19 +161,29 @@ class AbhaRegistrationFlow {
         return true;
     }
 
-    // The card is asked of the server, which has the ABHA action only once it is recorded, so the card waits for the
-    // record, for at most CARD_WAIT_MS. After that it opens anyway and offers Try again. A worker who has left the
-    // registration meanwhile is not shown it. Showing the card never creates or links an ABHA again.
+    // The card is asked of the server, which serves a patient it does not have yet only to the user who recorded
+    // the ABHA action in the last 30 minutes. So the card waits for the record, for at most CARD_WAIT_MS, and when
+    // the record has not reached the server it is sent once more, for at most as long again. After that the card
+    // opens anyway and offers Try again. A worker who has left the registration meanwhile is not shown it. Showing
+    // the card never creates or links an ABHA again.
     async showCardOnceRecorded(recorded, subjectUUID, abhaNumber) {
-        let timer;
-        const limit = new Promise((resolve) => { timer = setTimeout(resolve, CARD_WAIT_MS); });
-        try {
-            await Promise.race([Promise.resolve(recorded).catch(() => false), limit]);
-        } finally {
-            clearTimeout(timer);
+        const landed = await AbhaRegistrationFlow.atMost(recorded, CARD_WAIT_MS);
+        if (landed !== true && !this.screenGone()) {
+            await AbhaRegistrationFlow.atMost(this.view.getService(AbhaService).resendUnsentEvents(), CARD_WAIT_MS);
         }
         if (this.screenGone()) return;
         CHSNavigator.navigateToAbhaCardView(this.view, {subjectUUID, abhaNumber});
+    }
+
+    // What the promise gives, or undefined once ms have passed. Never rejects.
+    static async atMost(promise, ms) {
+        let timer;
+        const limit = new Promise((resolve) => { timer = setTimeout(resolve, ms); });
+        try {
+            return await Promise.race([Promise.resolve(promise).catch(() => false), limit]);
+        } finally {
+            clearTimeout(timer);
+        }
     }
 
     // The patients in the organisation who hold this ABHA number, and those on this phone not yet synced, whom the

@@ -54,6 +54,7 @@ function viewWith({editing = false, formHasConcepts = true, individual = person(
         findSubjectUUIDs: jest.fn(() => (typeof holders === "function" ? holders() : holders)),
         keepEvent: jest.fn(() => Promise.resolve()),
         recordEvent: jest.fn(() => Promise.resolve(true)),
+        resendUnsentEvents: jest.fn(() => Promise.resolve()),
     };
     const individualService = {findByUUID: jest.fn((uuid) => onPhone[uuid])};
     const entityQueueService = {getQueuedEntityUUIDs: jest.fn(() => unsynced)};
@@ -528,9 +529,27 @@ describe("AbhaRegistrationFlowTest", () => {
             await Promise.resolve();
             expect(cardOpened()).toHaveLength(0);
             jest.advanceTimersByTime(200);
-            await Promise.resolve();
-            await Promise.resolve();
-            await Promise.resolve();
+            for (let i = 0; i < 10; i++) await Promise.resolve();
+            expect(cardOpened()).toHaveLength(1);
+        });
+
+        it("tries once more to send the record before the card is fetched, when it has not reached the server", async () => {
+            const view = viewWith();
+            view.abhaService.recordEvent.mockImplementation(() => Promise.resolve(false));
+            await openAndReturn(view);
+            await flush();
+
+            expect(view.abhaService.resendUnsentEvents).toHaveBeenCalledTimes(1);
+            expect(view.abhaService.resendUnsentEvents.mock.invocationCallOrder[0])
+                .toBeLessThan(CHSNavigator.navigateToAbhaCardView.mock.invocationCallOrder[0]);
+            expect(cardOpened()).toHaveLength(1);
+        });
+
+        it("sends nothing again when the record has reached the server", async () => {
+            const view = viewWith();
+            await openAndReturn(view);
+            await flush();
+            expect(view.abhaService.resendUnsentEvents).not.toHaveBeenCalled();
             expect(cardOpened()).toHaveLength(1);
         });
 
