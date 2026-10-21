@@ -54,6 +54,7 @@ import FileSystem from "../model/FileSystem";
 import {jsonArrayListPropFor} from "../framework/db/SchemaGenerator";
 import LastSyncCompleted from "./LastSyncCompleted";
 import OrganisationConfigService from "./OrganisationConfigService";
+import AbhaService from "./AbhaService";
 import {SHAREABLE_ENTITIES} from "../framework/clinicsharing/ClinicSharingConstants";
 
 function transformResourceToEntity(entityMetaData, entityResources) {
@@ -154,6 +155,7 @@ class SyncService extends BaseService {
         const syncCompleted = () => Promise.resolve(this.dispatchAction(SyncTelemetryActions.SYNC_COMPLETED))
             .then(() => isOnlyUploadRequired ? Promise.resolve() : LastSyncCompleted.set())
             .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity))
+            .then(() => { this.resendAbhaEvents(); })
             .then(() => Promise.resolve(progressBarStatus.onSyncComplete()))
             .then(() => Promise.resolve(this.logSyncCompleteEvent(syncStartTime)))
             .then(() => this.clearDataIn([RuleFailureTelemetry]))
@@ -174,6 +176,18 @@ class SyncService extends BaseService {
             promise = Promise.resolve();
         }
         return promise.then(() => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isManualSync, userConfirmation, isOnlyUploadRequired)).then(syncCompleted);
+    }
+
+    // ABDM M1: audit records of ABHA actions that have not reached the server go again with every sync. The sync
+    // does not wait for them, and never fails because of them.
+    async resendAbhaEvents() {
+        try {
+            const organisationConfigService = this.getService(OrganisationConfigService);
+            if (_.isNil(organisationConfigService) || !organisationConfigService.isAbhaEnabled()) return;
+            await this.getService(AbhaService).resendUnsentEvents();
+        } catch (e) {
+            General.logWarn('SyncService', 'Unsent ABHA audit records not sent again');
+        }
     }
 
     /*
@@ -839,6 +853,8 @@ class SyncService extends BaseService {
         // Kept outside both databases too, so the wipe alone leaves it standing and the next
         // user could publish a never-synced database as the catchment dump (#2141).
         await LastSyncCompleted.clear();
+        // ABHA audit records not yet sent: the server would take them as the next user's.
+        await AbhaService.clearUnsentEvents();
         // Clinic sharing keeps its own files: a hub cursor, parked records and holds from the previous data.
         await this.getService('clinicSpokeService').clearState();
         await this.getService('clinicHubService').clearLedger();

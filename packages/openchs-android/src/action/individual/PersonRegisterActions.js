@@ -27,7 +27,6 @@ import AddressLevelService from "../../service/AddressLevelService";
 import {canSaveRegistrationDraft} from "../../state/RegistrationDraft";
 import UserInfoService from "../../service/UserInfoService";
 import ConceptService from "../../service/ConceptService";
-import AbhaService from "../../service/AbhaService";
 import {ABHA_CONCEPT_NAMES} from "../../views/abha/AbhaProfile";
 
 const NO_ABHA_LOCKS = {firstName: false, middleName: false, lastName: false, dateOfBirth: false, gender: false};
@@ -323,7 +322,6 @@ export class PersonRegisterActions {
         try {
             const newState = state.clone();
             context.get(IndividualService).register(newState.individual, action.nextScheduledVisits, action.skipCreatingPendingStatus, newState.groupAffiliation.groupSubjectObservations);
-            if (_.get(newState, 'abha.enabledForUser')) context.get(AbhaService).resendUnsentEvents();
             const {member, headOfHousehold, individualRelative} = newState.household;
             if (!_.isNil(member)) {
                 member.memberSubject = context.get(IndividualService).findByUUID(newState.individual.uuid);

@@ -100,6 +100,15 @@ describe('clearData wipes both backends (#2083)', () => {
         expect([svc.clinicSharing.clearState, svc.clinicSharing.clearLedger].map((fn) => fn.mock.calls.length)).toEqual([1, 1]);
     });
 
+    it("drops the ABHA audit records not yet sent, which the next user would send as their own", async () => {
+        AsyncStorage.__store.set('avni.abha.unsentEvents', JSON.stringify([{uuid: 'ev-1'}]));
+        const svc = buildSyncService();
+
+        await svc.clearData();
+
+        expect(AsyncStorage.__store.has('avni.abha.unsentEvents')).toBe(false);
+    });
+
     it('clears both backends and lands on Realm, starting from Realm', async () => {
         const svc = buildSyncService();
 

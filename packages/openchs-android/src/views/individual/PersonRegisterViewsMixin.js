@@ -5,6 +5,7 @@ import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import {BaseEntity, WorkItem} from 'avni-models';
 import CHSNavigator from "../../utility/CHSNavigator";
 import _ from "lodash";
+import AbhaService from "../../service/AbhaService";
 
 class Mixin {
     static getNextProps(view, popVerificationVew) {
@@ -12,6 +13,8 @@ class Mixin {
         return {
             completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits) => {
                 const onSaveCallback = ((source) => {
+                    // ABDM M1: the patient is saved, so any ABHA audit record still on the phone goes again. Not awaited.
+                    if (_.get(state, 'abha.enabledForUser')) view.getService(AbhaService).resendUnsentEvents();
                     const workLists = state.workListState.workLists;
                     const workItem = workLists.getCurrentWorkItem();
                     if (_.includes([WorkItem.type.ADD_MEMBER, WorkItem.type.HOUSEHOLD], workItem.type)) {

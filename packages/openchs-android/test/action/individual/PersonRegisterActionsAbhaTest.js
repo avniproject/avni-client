@@ -336,12 +336,12 @@ describe("PersonRegisterActions, ABHA", () => {
     });
 
     describe("on save", () => {
-        it("sends again any ABHA audit record that has not reached the server", () => {
+        it("with ABHA on, saves without sending anything: unsent ABHA records go from the screen once saved, and with sync", () => {
             const context = contextWith({abhaOn: true, hipId: "hip-1"});
             const cb = jest.fn();
             PersonRegisterActions.onSave(load(context), {cb}, context);
             expect(context.get(IndividualService).register).toHaveBeenCalledTimes(1);
-            expect(context.get(AbhaService).resendUnsentEvents).toHaveBeenCalledTimes(1);
+            expect(context.get(AbhaService).resendUnsentEvents).not.toHaveBeenCalled();
             expect(cb).toHaveBeenCalledTimes(1);
         });
 

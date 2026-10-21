@@ -20,6 +20,7 @@ jest.mock("react-native-fs", () => ({unlink: (...args) => mockUnlink(...args), e
 jest.mock("../../src/service/AuthAwareDownload", () => ({downloadWithAuth: jest.fn()}));
 jest.mock("react-native-blob-util", () => ({fs: {dirs: {CacheDir: "/cache"}}}));
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {downloadWithAuth} from "../../src/service/AuthAwareDownload";
 import AbhaService from "../../src/service/AbhaService";
 import AbhaError from "../../src/service/AbhaError";
@@ -68,7 +69,14 @@ function captureLogs() {
 
 const asText = (arg) => typeof arg === "string" ? arg : JSON.stringify(arg) || "";
 
+// Lets the promises already queued run, until the check holds.
+async function until(check) {
+    for (let i = 0; i < 50 && !check(); i++) await new Promise((resolve) => setImmediate(resolve));
+    if (!check()) throw new Error("never happened");
+}
+
 describe("AbhaServiceTest", () => {
+    beforeEach(async () => await AsyncStorage.clear());
     afterEach(() => jest.restoreAllMocks());
 
     it("asks the server for a session for the subject type and returns it as sent", async () => {
@@ -273,6 +281,76 @@ describe("AbhaServiceTest", () => {
         global.fetch = jest.fn(async () => reply(201, {}));
         await abhaService.resendUnsentEvents();
         expect(global.fetch.mock.calls.length).to.equal(0);
+    });
+
+    describe("audit records that have not reached the server", () => {
+        it("are kept on the phone, so one that failed before a restart is sent by the app that starts next", async () => {
+            global.fetch = jest.fn(async () => { throw new TypeError("Network request failed"); });
+            expect(await service().recordEvent(EVENT)).to.equal(false);
+
+            const afterRestart = service();
+            global.fetch = jest.fn(async () => reply(201, {}));
+            await afterRestart.resendUnsentEvents();
+            expect(global.fetch.mock.calls.length).to.equal(1);
+            expect(JSON.parse(global.fetch.mock.calls[0][1].body)).to.deep.equal(EVENT);
+
+            global.fetch = jest.fn(async () => reply(201, {}));
+            await service().resendUnsentEvents();
+            expect(global.fetch.mock.calls.length).to.equal(0);
+        });
+
+        it("stay kept while on their way, until the server answers", async () => {
+            let answer;
+            global.fetch = jest.fn(() => new Promise((resolve) => { answer = resolve; }));
+            const sending = service().recordEvent(EVENT);
+            await until(() => global.fetch.mock.calls.length === 1);
+
+            const afterRestart = service();
+            global.fetch = jest.fn(async () => { throw new TypeError("Network request failed"); });
+            await afterRestart.resendUnsentEvents();
+            expect(global.fetch.mock.calls.length, "a restart while the record was on its way still has it").to.equal(1);
+
+            answer(reply(201, {}));
+            expect(await sending).to.equal(true);
+            global.fetch = jest.fn(async () => reply(201, {}));
+            await service().resendUnsentEvents();
+            expect(global.fetch.mock.calls.length).to.equal(0);
+        });
+
+        it("are dropped only on 400, 403 or 409, and kept on 401, 408, 429, a server error or a timeout", async () => {
+            const answers = [[400, false], [403, false], [409, false], [401, true], [404, true], [408, true], [429, true], [500, true], [502, true], [503, true]];
+            for (const [status, kept] of answers) {
+                await AsyncStorage.clear();
+                global.fetch = jest.fn(async () => reply(status, {code: "SOME_CODE"}));
+                expect(await service().recordEvent(EVENT), String(status)).to.equal(false);
+                global.fetch = jest.fn(async () => reply(201, {}));
+                await service().resendUnsentEvents();
+                expect(global.fetch.mock.calls.length, `Http ${status}`).to.equal(kept ? 1 : 0);
+            }
+        });
+
+        it("are sent once each when resent while one is still on its way", async () => {
+            const abhaService = service();
+            global.fetch = jest.fn(async () => { throw new TypeError("Network request failed"); });
+            await abhaService.recordEvent(EVENT);
+            let answer;
+            global.fetch = jest.fn(() => new Promise((resolve) => { answer = resolve; }));
+            const first = abhaService.resendUnsentEvents();
+            await until(() => global.fetch.mock.calls.length === 1);
+            await abhaService.resendUnsentEvents();
+            expect(global.fetch.mock.calls.length).to.equal(1);
+            answer(reply(201, {}));
+            await first;
+        });
+
+        it("are dropped when the phone's data is cleared for another user", async () => {
+            global.fetch = jest.fn(async () => { throw new TypeError("Network request failed"); });
+            await service().recordEvent(EVENT);
+            await AbhaService.clearUnsentEvents();
+            global.fetch = jest.fn(async () => reply(201, {}));
+            await service().resendUnsentEvents();
+            expect(global.fetch.mock.calls.length).to.equal(0);
+        });
     });
 
     it("drops a record the server refuses, since sending it again cannot succeed", async () => {
