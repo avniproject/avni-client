@@ -53,6 +53,8 @@ android/keystores/debug.keystore
 .idea/
 .tmp/
 android/.gradle/
+# Kotlin compiler daemon's error logs, written by every Gradle build
+**/android/.kotlin/
 gen/
 coverage/
 **/secret-keys.xml
