@@ -514,7 +514,7 @@ describe("AbhaRegistrationFlowTest", () => {
             await openAndReturn(view);
             await flush();
 
-            expect(cardOpened()).toEqual([[view, {subjectUUID: "s-new", abhaNumber: "91-1234-5678-9012"}]]);
+            expect(cardOpened()).toEqual([[view, {subjectUUID: "s-new", subjectTypeUUID: "st-person", abhaNumber: "91-1234-5678-9012"}]]);
             expect(CHSNavigator.navigateToAbhaCardView.mock.invocationCallOrder[0])
                 .toBeGreaterThan(view.abhaService.recordEvent.mock.invocationCallOrder[0]);
             expect(CHSNavigator.navigateToAbhaCardView.mock.invocationCallOrder[0])
@@ -532,7 +532,7 @@ describe("AbhaRegistrationFlowTest", () => {
 
             expect(cardOpened()).toHaveLength(0);
             settle();
-            expect(cardOpened()).toEqual([[view, {subjectUUID: "s-new", abhaNumber: "91-1234-5678-9012"}]]);
+            expect(cardOpened()).toEqual([[view, {subjectUUID: "s-new", subjectTypeUUID: "st-person", abhaNumber: "91-1234-5678-9012"}]]);
         });
 
         it("does not push the card when the screen closed before its transition settled", async () => {

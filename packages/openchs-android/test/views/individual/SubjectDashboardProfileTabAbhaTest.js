@@ -33,6 +33,7 @@ const context = {getService: () => ({getI18n: () => ({t: (key) => key})})};
 
 const individualWith = ({number, address, person = true, voided = false} = {}) => ({
     uuid: "subject-1",
+    subjectType: {uuid: "st-person"},
     voided,
     isPerson: () => person,
     getObservationValue: (name) => ({"ABHA Number": number, "ABHA Address": address}[name]),
@@ -155,7 +156,7 @@ describe("SubjectDashboardProfileTab, ABHA section", () => {
 
             await tab.abhaLinkedActions()[0].onPressFunc();
 
-            expect(CHSNavigator.navigateToAbhaCardView).toHaveBeenCalledWith(tab, {subjectUUID: "subject-1", abhaNumber: "91-1234-5678-9012"});
+            expect(CHSNavigator.navigateToAbhaCardView).toHaveBeenCalledWith(tab, {subjectUUID: "subject-1", subjectTypeUUID: "st-person", abhaNumber: "91-1234-5678-9012"});
             expect(ToastAndroid.show).not.toHaveBeenCalled();
         });
 
@@ -175,7 +176,7 @@ describe("SubjectDashboardProfileTab, ABHA section", () => {
 
             await tab.abhaLinkedActions()[0].onPressFunc();
 
-            expect(CHSNavigator.navigateToAbhaCardView).toHaveBeenCalledWith(tab, {subjectUUID: "subject-1", abhaNumber: undefined});
+            expect(CHSNavigator.navigateToAbhaCardView).toHaveBeenCalledWith(tab, {subjectUUID: "subject-1", subjectTypeUUID: "st-person", abhaNumber: undefined});
         });
     });
 

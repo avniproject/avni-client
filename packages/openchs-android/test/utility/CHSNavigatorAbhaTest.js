@@ -56,12 +56,12 @@ describe("CHSNavigator.navigateToAbhaCardView", () => {
 
     const ABHA_NUMBER = "91-1234-5678-9012";
 
-    it("hands the card screen only the subject and the number's last four digits, which name a download", () => {
+    it("hands the card screen only the subject, its type and the number's last four digits, which name a download", () => {
         const navigator = {getCurrentRoutes: () => [], push: jest.fn()};
 
-        CHSNavigator.navigateToAbhaCardView({context: {navigator: () => navigator}}, {subjectUUID: "s-1", abhaNumber: ABHA_NUMBER});
+        CHSNavigator.navigateToAbhaCardView({context: {navigator: () => navigator}}, {subjectUUID: "s-1", subjectTypeUUID: "st-1", abhaNumber: ABHA_NUMBER});
 
-        expect(navigator.push).toHaveBeenCalledWith({path: AbhaCardView.path(), isTyped: true, queryParams: {subjectUUID: "s-1", abhaLastFour: "9012"}});
+        expect(navigator.push).toHaveBeenCalledWith({path: AbhaCardView.path(), isTyped: true, queryParams: {subjectUUID: "s-1", subjectTypeUUID: "st-1", abhaLastFour: "9012"}});
         CHSNavigator.navigateToAbhaCardView({context: {navigator: () => navigator}}, {subjectUUID: "s-2"});
         expect(navigator.push.mock.calls[1][0].queryParams).toEqual({subjectUUID: "s-2", abhaLastFour: null});
     });

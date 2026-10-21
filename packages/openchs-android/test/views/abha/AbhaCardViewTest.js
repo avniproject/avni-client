@@ -20,14 +20,22 @@ jest.mock("../../../src/views/common/AppHeader", () => ({__esModule: true, defau
 jest.mock("native-base", () => ({__esModule: true, Button: () => null, Icon: () => null}));
 // The zoom viewer starts an animation timer this Jest cannot run; what it is handed is all the test needs.
 jest.mock("react-native-image-zoom-viewer", () => ({ImageViewer: () => null}));
+const mockConnection = {isConnected: true};
+jest.mock("../../../src/utility/ConnectionInfo", () => ({getConnectionInfo: () => Promise.resolve(mockConnection)}));
+jest.mock("../../../src/utility/CHSNavigator", () => ({__esModule: true, default: {navigateToAbhaView: jest.fn()}}));
 jest.mock("../../../src/views/common/CHSContainer", () => ({
     __esModule: true,
     default: ({children}) => require("react").createElement(require("react-native").View, null, children),
 }));
 
 import ServiceContext from "../../../src/framework/context/ServiceContext";
+import TypedTransition from "../../../src/framework/routing/TypedTransition";
+import CHSNavigator from "../../../src/utility/CHSNavigator";
 import AbhaCardView from "../../../src/views/abha/AbhaCardView";
+import AbhaConsentDialog from "../../../src/views/abha/AbhaConsentDialog";
+import {ABHA_SDK_METHOD} from "../../../src/views/abha/AbhaRegistrationFlow";
 import AbhaService from "../../../src/service/AbhaService";
+import IndividualService from "../../../src/service/IndividualService";
 import AbhaError from "../../../src/service/AbhaError";
 import General from "../../../src/utility/General";
 import en from "../../../translations/en.json";
@@ -37,17 +45,21 @@ const LAST_FOUR = "9012";
 
 let mounted = [];
 
-async function show({getCardFile = () => Promise.resolve(CARD_PATH), abhaLastFour = LAST_FOUR} = {}) {
+// translations are the organisation's own strings, such as its consent wording; patient is the subject as the phone
+// holds it, null for a registration not saved yet.
+async function show({getCardFile = () => Promise.resolve(CARD_PATH), abhaLastFour = LAST_FOUR, abha = {}, translations = {}, patient = null} = {}) {
     const navigator = {pop: jest.fn(), getCurrentRoutes: () => []};
-    const abhaService = {getCardFile: jest.fn(getCardFile)};
+    const abhaService = {getCardFile: jest.fn(getCardFile), ...abha};
+    const individualService = {findByUUID: jest.fn(() => patient && {getObservationValue: (name) => ({"ABHA Number": patient.number, "ABHA Address": patient.address}[name])})};
+    const i18n = {t: (key, params) => translations[key] || (params ? `${key} ${JSON.stringify(params)}` : key)};
     const context = {
-        getService: (type) => (type === AbhaService ? abhaService : {getI18n: () => ({t: (key, params) => (params ? `${key} ${JSON.stringify(params)}` : key)})}),
+        getService: (type) => (type === AbhaService ? abhaService : type === IndividualService ? individualService : {getI18n: () => i18n}),
         navigator: () => navigator,
     };
     let renderer;
     await act(async () => {
         renderer = TestRenderer.create(<ServiceContext.Provider value={context}>
-            <AbhaCardView subjectUUID="s-1" abhaLastFour={abhaLastFour}/>
+            <AbhaCardView subjectUUID="s-1" subjectTypeUUID="st-1" abhaLastFour={abhaLastFour}/>
         </ServiceContext.Provider>);
     });
     mounted.push(renderer);
@@ -59,6 +71,8 @@ async function show({getCardFile = () => Promise.resolve(CARD_PATH), abhaLastFou
 
 describe("AbhaCardViewTest", () => {
     beforeEach(() => {
+        mockConnection.isConnected = true;
+        CHSNavigator.navigateToAbhaView.mockClear();
         mockCopyFile.mockClear();
         mockUnlink.mockClear();
         mockShareOpen.mockClear();
@@ -222,6 +236,159 @@ describe("AbhaCardViewTest", () => {
         }
     });
 
+    describe("once the patient's ABHA login at Eka has lapsed", () => {
+        const SESSION = {accessToken: "key-1", hipId: "HIP-1", environment: "sandbox"};
+        const SAME_ABHA = {abhaNumber: "91-1234-5678-9012", abhaAddress: "asha@sbx", ekaOid: "oid-2", ekaTxnId: "txn-2", route: "unknown", action: "linked"};
+        const CONSENT = "The patient agrees to verify their ABHA.";
+        let popToBookmark;
+
+        // The first fetch finds the login lapsed; any later one gets the card.
+        function lapsedThenCard() {
+            let attempt = 0;
+            return () => (++attempt === 1 ? Promise.reject(new AbhaError("ABHA_SESSION_EXPIRED", 409)) : Promise.resolve(CARD_PATH));
+        }
+
+        function showLapsed(options = {}) {
+            return show({
+                getCardFile: lapsedThenCard(),
+                patient: {number: "91-1234-5678-9012", address: "asha@sbx"},
+                translations: {abhaRegistrationConsent: CONSENT},
+                abha: {
+                    getSession: jest.fn(() => Promise.resolve(SESSION)),
+                    keepEvent: jest.fn(() => Promise.resolve()),
+                    recordEvent: jest.fn(() => Promise.resolve(true)),
+                    resendUnsentEvents: jest.fn(() => Promise.resolve()),
+                },
+                ...options,
+            });
+        }
+
+        // Verify ABHA, the patient agrees, and Eka's screens open. Gives what Eka's screens were opened with.
+        async function verifyWithConsent(view, agreedAt = new Date("2026-10-21T07:00:00Z")) {
+            await view.press("abhaCardVerify");
+            await act(async () => { view.renderer.root.findByType(AbhaConsentDialog).props.onContinue(agreedAt); });
+            const [, session, options, onProfile, onSkip] = CHSNavigator.navigateToAbhaView.mock.calls[0] || [];
+            return {session, options, onProfile, onSkip};
+        }
+
+        beforeEach(() => {
+            popToBookmark = jest.fn();
+            jest.spyOn(TypedTransition, "from").mockReturnValue({popToBookmark});
+        });
+
+        it("says the ABHA must be verified again, with Verify ABHA and Close: another try would not help", async () => {
+            const view = await showLapsed();
+
+            expect(view.lines()).toContain("abhaCardSessionExpired");
+            expect(view.titles()).toEqual(["abhaCardVerify", "abhaCardClose"]);
+        });
+
+        it("takes the organisation's consent, then opens Eka's screens with a fresh key, as registration does", async () => {
+            const view = await showLapsed();
+
+            await view.press("abhaCardVerify");
+
+            expect(view.renderer.root.findByType(AbhaConsentDialog).props.text).toBe(CONSENT);
+            expect(CHSNavigator.navigateToAbhaView).not.toHaveBeenCalled();
+            const opened = await verifyWithConsent(view);
+            expect(view.abhaService.getSession).toHaveBeenCalledWith("st-1");
+            expect(opened.session).toBe(SESSION);
+            expect(opened.options).toEqual({method: ABHA_SDK_METHOD});
+        });
+
+        it("records the patient's own ABHA as verified, with the consent time, and then shows the card", async () => {
+            const view = await showLapsed();
+            const opened = await verifyWithConsent(view);
+
+            await act(async () => { await opened.onProfile(SAME_ABHA); });
+
+            expect(popToBookmark).toHaveBeenCalled();
+            expect(view.abhaService.recordEvent).toHaveBeenCalledWith(expect.objectContaining({
+                uuid: expect.any(String), subjectUUID: "s-1", subjectTypeUUID: "st-1", action: "verified",
+                abhaNumber: "91-1234-5678-9012", ekaOid: "oid-2", ekaTxnId: "txn-2", consentGivenAt: "2026-10-21T07:00:00.000Z",
+            }));
+            expect(view.abhaService.getCardFile).toHaveBeenCalledTimes(2);
+            expect(view.abhaService.getCardFile.mock.invocationCallOrder[1]).toBeGreaterThan(view.abhaService.recordEvent.mock.invocationCallOrder[0]);
+            expect(view.renderer.root.findByType(Image).props.source).toEqual({uri: `file://${CARD_PATH}`});
+        });
+
+        it("records nothing and fetches nothing for an ABHA other than the patient's, and says so", async () => {
+            const view = await showLapsed();
+            const opened = await verifyWithConsent(view);
+
+            await act(async () => { await opened.onProfile({...SAME_ABHA, abhaNumber: "91-1111-2222-3333"}); });
+
+            expect(view.abhaService.keepEvent).not.toHaveBeenCalled();
+            expect(view.abhaService.recordEvent).not.toHaveBeenCalled();
+            expect(view.abhaService.getCardFile).toHaveBeenCalledTimes(1);
+            expect(view.lines()).toContain("abhaCardDifferentAbha");
+            expect(view.titles()).toEqual(["abhaCardVerify", "abhaCardClose"]);
+        });
+
+        it("matches a registration not saved yet by the last four digits it was opened with", async () => {
+            const view = await showLapsed({patient: null});
+            const opened = await verifyWithConsent(view);
+
+            await act(async () => { await opened.onProfile(SAME_ABHA); });
+
+            expect(view.abhaService.recordEvent).toHaveBeenCalledWith(expect.objectContaining({action: "verified"}));
+        });
+
+        it("matches a patient linked through the mobile route by the ABHA address, having no number", async () => {
+            const view = await showLapsed({abhaLastFour: null, patient: {address: "Asha@sbx"}});
+            const opened = await verifyWithConsent(view);
+
+            await act(async () => { await opened.onProfile({...SAME_ABHA, abhaNumber: null}); });
+
+            expect(view.abhaService.recordEvent).toHaveBeenCalledWith(expect.objectContaining({action: "verified", abhaAddress: "asha@sbx"}));
+        });
+
+        it("opens nothing when the patient does not agree, or the consent is closed", async () => {
+            const view = await showLapsed();
+
+            await view.press("abhaCardVerify");
+            await act(async () => { view.renderer.root.findByType(AbhaConsentDialog).props.onDecline(); });
+            await view.press("abhaCardVerify");
+            await act(async () => { view.renderer.root.findByType(AbhaConsentDialog).props.onCancel(); });
+
+            expect(view.abhaService.getSession).not.toHaveBeenCalled();
+            expect(CHSNavigator.navigateToAbhaView).not.toHaveBeenCalled();
+            expect(view.renderer.root.findAllByType(AbhaConsentDialog)).toHaveLength(0);
+        });
+
+        it("says it needs internet, and opens nothing, without internet", async () => {
+            const view = await showLapsed();
+            mockConnection.isConnected = false;
+
+            await view.press("abhaCardVerify");
+
+            expect(ToastAndroid.show).toHaveBeenCalledWith("abhaCardNeedsInternet", ToastAndroid.LONG);
+            expect(view.renderer.root.findAllByType(AbhaConsentDialog)).toHaveLength(0);
+            expect(CHSNavigator.navigateToAbhaView).not.toHaveBeenCalled();
+        });
+
+        it("says why when the server refuses the key, and opens nothing", async () => {
+            const view = await showLapsed();
+            view.abhaService.getSession.mockImplementation(() => Promise.reject(new AbhaError("ABHA_NO_HEALTH_CENTRE", 403)));
+
+            await verifyWithConsent(view);
+
+            expect(ToastAndroid.show).toHaveBeenCalledWith("abhaNoHealthCentre", ToastAndroid.LONG);
+            expect(CHSNavigator.navigateToAbhaView).not.toHaveBeenCalled();
+        });
+
+        it("leaves the card screen as it was when Eka's screens are closed without an ABHA", async () => {
+            const view = await showLapsed();
+            const opened = await verifyWithConsent(view);
+
+            await act(async () => { opened.onSkip(); });
+
+            expect(popToBookmark).toHaveBeenCalled();
+            expect(view.abhaService.recordEvent).not.toHaveBeenCalled();
+            expect(view.titles()).toEqual(["abhaCardVerify", "abhaCardClose"]);
+        });
+    });
+
     it("never logs the number, the file's path or anything else of the card", async () => {
         const view = await show({getCardFile: () => Promise.reject(new AbhaError("ABHA_EKA_UNAVAILABLE", 502))});
         await view.press("abhaCardTryAgain");
@@ -234,7 +401,8 @@ describe("AbhaCardViewTest", () => {
 
     it("has all its strings in the platform translations", () => {
         ["abhaCardTitle", "abhaCardDownload", "abhaCardShare", "abhaCardClose", "abhaCardTryAgain", "abhaCardDownloaded",
-            "abhaCardFailed", "abhaCardNeedsInternet", "abhaCardDownloadFailed", "abhaCardShareFailed", "abhaViewCard"]
+            "abhaCardFailed", "abhaCardNeedsInternet", "abhaCardDownloadFailed", "abhaCardShareFailed", "abhaViewCard",
+            "abhaCardSessionExpired", "abhaCardVerify", "abhaCardDifferentAbha"]
             .forEach((key) => expect(en.translations[key]).toBeTruthy());
     });
 });

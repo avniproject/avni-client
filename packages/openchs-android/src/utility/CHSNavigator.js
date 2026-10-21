@@ -151,9 +151,9 @@ class CHSNavigator {
     }
 
     // The patient's ABHA card. The screen gets only the last four digits of the number, which name a downloaded
-    // file: navigation logs its parameters.
-    static navigateToAbhaCardView(source, {subjectUUID, abhaNumber} = {}) {
-        TypedTransition.from(source).with({subjectUUID, abhaLastFour: AbhaCardView.lastFour(abhaNumber)}).to(AbhaCardView, true);
+    // file: navigation logs its parameters. The subject type is for verifying the ABHA again from the card.
+    static navigateToAbhaCardView(source, {subjectUUID, subjectTypeUUID, abhaNumber} = {}) {
+        TypedTransition.from(source).with({subjectUUID, subjectTypeUUID, abhaLastFour: AbhaCardView.lastFour(abhaNumber)}).to(AbhaCardView, true);
     }
 
     static navigateToIndividualEncounterDashboardView(source, individualUUID, encounter, isFromWizard, backFn, message) {

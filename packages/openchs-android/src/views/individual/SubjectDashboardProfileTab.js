@@ -210,7 +210,8 @@ class SubjectDashboardProfileTab extends AbstractComponent {
             return;
         }
         const {individual} = this.state;
-        CHSNavigator.navigateToAbhaCardView(this, {subjectUUID: individual.uuid, abhaNumber: individual.getObservationValue(ABHA_CONCEPT_NAMES.abhaNumber)});
+        CHSNavigator.navigateToAbhaCardView(this, {subjectUUID: individual.uuid, subjectTypeUUID: individual.subjectType.uuid,
+            abhaNumber: individual.getObservationValue(ABHA_CONCEPT_NAMES.abhaNumber)});
     }
 
     abhaLinkedActions() {

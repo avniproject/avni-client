@@ -36,7 +36,12 @@ class AbhaRegistrationFlow {
     }
 
     consentText() {
-        const text = this.I18n.t(ABHA_CONSENT_KEY);
+        return AbhaRegistrationFlow.consentTextOf(this.I18n);
+    }
+
+    // Also asked before the ABHA is verified again from its card.
+    static consentTextOf(I18n) {
+        const text = I18n.t(ABHA_CONSENT_KEY);
         return _.isString(text) && !_.isEmpty(_.trim(text)) && text !== ABHA_CONSENT_KEY ? text : null;
     }
 
@@ -135,7 +140,7 @@ class AbhaRegistrationFlow {
             recorded = abhaService.recordEvent(event);
         }
         // Not awaited: the card is shown over the registration, which is already filled in and can be saved.
-        if (filled) this.showCardOnceRecorded(recorded, individual.uuid, profile.abhaNumber);
+        if (filled) this.showCardOnceRecorded(recorded, individual, profile.abhaNumber);
     }
 
     // While busy the options are hidden and a progress indicator shows. Nothing is changed once the screen has closed.
@@ -168,17 +173,23 @@ class AbhaRegistrationFlow {
     // the record has not reached the server it is sent once more, for at most as long again. After that the card
     // opens anyway and offers Try again. A worker who has left the registration meanwhile is not shown it. Showing
     // the card never creates or links an ABHA again.
-    async showCardOnceRecorded(recorded, subjectUUID, abhaNumber) {
-        const landed = await AbhaRegistrationFlow.atMost(recorded, CARD_WAIT_MS);
-        if (landed !== true && !this.screenGone()) {
-            await AbhaRegistrationFlow.atMost(this.view.getService(AbhaService).resendUnsentEvents(), CARD_WAIT_MS);
-        }
+    async showCardOnceRecorded(recorded, individual, abhaNumber) {
+        await AbhaRegistrationFlow.untilRecorded(recorded, this.view.getService(AbhaService), () => this.screenGone());
         if (this.screenGone()) return;
         // Eka's screen may still be sliding away: a push queued behind that pop reaches the navigator's focus
         // handler with no route. So the card waits until the registration screen's transition has settled.
         this.view.runAfterSceneTransition(() => {
-            if (!this.screenGone()) CHSNavigator.navigateToAbhaCardView(this.view, {subjectUUID, abhaNumber});
+            if (!this.screenGone()) CHSNavigator.navigateToAbhaCardView(this.view, {subjectUUID: individual.uuid, subjectTypeUUID: individual.subjectType.uuid, abhaNumber});
         });
+    }
+
+    // Waits for the record to reach the server, for at most CARD_WAIT_MS, and sends it once more when it has not, for at
+    // most as long again. Never rejects, whatever happened to the record.
+    static async untilRecorded(recorded, abhaService, gone) {
+        const landed = await AbhaRegistrationFlow.atMost(recorded, CARD_WAIT_MS);
+        if (landed !== true && !gone()) {
+            await AbhaRegistrationFlow.atMost(abhaService.resendUnsentEvents(), CARD_WAIT_MS);
+        }
     }
 
     // What the promise gives, or undefined once ms have passed. Never rejects.
