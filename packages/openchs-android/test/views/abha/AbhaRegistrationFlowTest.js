@@ -187,7 +187,7 @@ describe("AbhaRegistrationFlowTest", () => {
 
             expect(mockPopToBookmark).toHaveBeenCalledTimes(1);
             expect(view.abhaService.findSubjectUUIDs).toHaveBeenCalledWith("st-person", "91-1234-5678-9012");
-            expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toEqual([[Actions.ON_ABHA_PROFILE, {profile: PROFILE, choice: "create"}]]);
+            expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toEqual([[Actions.ON_ABHA_PROFILE, {profile: PROFILE, choice: "create", subjectUUID: "s-new"}]]);
             expect(view.askAbhaReplace).not.toHaveBeenCalled();
         });
 
@@ -239,6 +239,26 @@ describe("AbhaRegistrationFlowTest", () => {
             expect(ToastAndroid.show.mock.calls[0][0]).toBe("abhaNoPermission");
             expect(view.dispatchAction).not.toHaveBeenCalled();
             expect(view.abhaService.recordEvent).not.toHaveBeenCalled();
+        });
+
+        it("fills nothing when the registration screen has gone while the server was asked, but still records the ABHA action", async () => {
+            const view = viewWith({holders: () => { view._isUnmounted = true; return Promise.resolve([]); }});
+            await openAndReturn(view);
+            await flush();
+            expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(0);
+            expect(view.abhaService.recordEvent).toHaveBeenCalledTimes(1);
+            expect(Alert.alert).not.toHaveBeenCalled();
+            expect(CHSNavigator.navigateToAbhaCardView).not.toHaveBeenCalled();
+        });
+
+        it("fills nothing when the edit screen has gone while the worker compared the details, but still records the ABHA action", async () => {
+            const view = viewWith({editing: true, individual: person({uuid: "s-1"})});
+            view.askAbhaReplace.mockImplementation(() => { view._isUnmounted = true; return Promise.resolve(true); });
+            await openAndReturn(view);
+            await flush();
+            expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(0);
+            expect(view.abhaService.recordEvent).toHaveBeenCalledTimes(1);
+            expect(view.abhaService.recordEvent.mock.calls[0][0].subjectUUID).toBe("s-1");
         });
 
         it("asks nothing of the server for an ABHA with an address only, which has no number to hold", async () => {

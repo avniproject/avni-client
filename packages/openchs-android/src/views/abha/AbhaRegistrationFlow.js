@@ -94,27 +94,39 @@ class AbhaRegistrationFlow {
             () => TypedTransition.from(this.view).popToBookmark());
     }
 
+    // The registration screen this flow belongs to has closed. The store it fills is shared with whatever
+    // registration is open now, so nothing more is filled in or shown after any wait.
+    screenGone() {
+        return !!this.view._isUnmounted;
+    }
+
     async onProfile(profile, {route, consentGivenAt}) {
         const occurredAt = new Date();
         const {individual} = this.view.state;
+        const abhaService = this.view.getService(AbhaService);
+        const event = AbhaRegistrationFlow.auditEvent(profile, individual, consentGivenAt, occurredAt);
         if (profile.abhaNumber) {
             let holders;
             try {
-                holders = await this.view.getService(AbhaService).findSubjectUUIDs(individual.subjectType.uuid, profile.abhaNumber);
+                holders = await abhaService.findSubjectUUIDs(individual.subjectType.uuid, profile.abhaNumber);
             } catch (error) {
                 General.logWarn('AbhaRegistrationFlow', `ABHA holders not found out: ${AbhaError.messageKey(error)}`);
                 this.toast(AbhaError.messageKey(error));
                 return;
             }
+            if (this.screenGone()) return abhaService.recordEvent(event);
             const others = _.without(holders, individual.uuid);
             if (!_.isEmpty(others)) {
                 this.showDuplicate(others);
                 return;
             }
         }
-        if (this.view.props.params.editing && !(await this.view.askAbhaReplace(AbhaRegistrationFlow.replaceRows(individual, profile, this.I18n)))) return;
-        const recorded = this.view.getService(AbhaService).recordEvent(AbhaRegistrationFlow.auditEvent(profile, individual, consentGivenAt, occurredAt));
-        this.view.dispatchAction(Actions.ON_ABHA_PROFILE, {profile, choice: route});
+        if (this.view.props.params.editing) {
+            if (!(await this.view.askAbhaReplace(AbhaRegistrationFlow.replaceRows(individual, profile, this.I18n)))) return;
+            if (this.screenGone()) return abhaService.recordEvent(event);
+        }
+        const recorded = abhaService.recordEvent(event);
+        this.view.dispatchAction(Actions.ON_ABHA_PROFILE, {profile, choice: route, subjectUUID: individual.uuid});
         // Not awaited: the card is shown over the registration, which is already filled in and can be saved.
         this.showCardOnceRecorded(recorded, individual.uuid, profile.abhaNumber);
     }
@@ -130,7 +142,7 @@ class AbhaRegistrationFlow {
         } finally {
             clearTimeout(timer);
         }
-        if (this.view._isUnmounted) return;
+        if (this.screenGone()) return;
         CHSNavigator.navigateToAbhaCardView(this.view, {subjectUUID, abhaNumber});
     }
 

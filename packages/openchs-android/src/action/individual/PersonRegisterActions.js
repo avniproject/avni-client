@@ -128,9 +128,16 @@ export class PersonRegisterActions {
         return newState;
     }
 
+    // An ABHA action names the patient whose screen started it. The registration store is shared by every
+    // registration, so one that arrives after that screen has gone must not change the patient on the screen now.
+    static isForThisPatient(state, action) {
+        return !_.isNil(action.subjectUUID) && action.subjectUUID === _.get(state, 'individual.uuid');
+    }
+
     // The verified ABHA profile fills the first page through the handlers the fields use, so validation runs as if
     // typed. Only what the ABHA gives is filled; a gender the organisation does not use is left for the worker.
     static onAbhaProfile(state, action, context) {
+        if (!PersonRegisterActions.isForThisPatient(state, action)) return state;
         const {profile} = action;
         const tickedBefore = state.individual.dateOfBirthVerified;
         let newState = state.clone();

@@ -59,6 +59,10 @@ function contextWith({abhaOn = false, hipId = null, form = abhaForm(), saved = n
     return {get: (serviceClass) => services.get(serviceClass)};
 }
 
+// The ABHA flow names the patient whose screen asked for the profile; the reducer fills only that patient.
+const onAbhaProfile = (state, action, context) =>
+    PersonRegisterActions.onAbhaProfile(state, {subjectUUID: state.individual.uuid, ...action}, context);
+
 const load = (context, individualUUID) => PersonRegisterActions.onLoad(
     PersonRegisterActions.getInitialState({get: () => ({getAll: () => GENDERS})}),
     {individualUUID, workLists: workLists(), isDraftEntity: false}, context);
@@ -140,7 +144,7 @@ describe("PersonRegisterActions, ABHA", () => {
                 .map((name) => jest.spyOn(PersonRegisterActions, name));
             const context = contextWith({abhaOn: true, hipId: "hip-1"});
 
-            const state = PersonRegisterActions.onAbhaProfile(load(context), {profile: PROFILE, choice: "create"}, context);
+            const state = onAbhaProfile(load(context), {profile: PROFILE, choice: "create"}, context);
 
             handlers.forEach((handler) => expect(handler).toHaveBeenCalledTimes(1));
             expect(PersonRegisterActions.enterFirstName.mock.calls[0][1]).toEqual({value: "Asha"});
@@ -151,7 +155,7 @@ describe("PersonRegisterActions, ABHA", () => {
 
         it("prefillWritesBothAnswersWithAutoSource, the number as Eka writes it", () => {
             const context = contextWith({abhaOn: true, hipId: "hip-1"});
-            const state = PersonRegisterActions.onAbhaProfile(load(context), {profile: PROFILE, choice: "link"}, context);
+            const state = onAbhaProfile(load(context), {profile: PROFILE, choice: "link"}, context);
 
             expect(answer(state, "ABHA Number").getValue()).toBe("91-1234-5678-9012");
             expect(answer(state, "ABHA Address").getValue()).toBe("asha.rao@sbx");
@@ -161,10 +165,25 @@ describe("PersonRegisterActions, ABHA", () => {
             expect(PersonRegisterActions.abhaOptionsShown(state.abha)).toBe(false);
         });
 
+        it("fills nothing into a patient other than the one whose screen asked, since the registration store is shared", () => {
+            const context = contextWith({abhaOn: true, hipId: "hip-1"});
+            const other = load(context);
+            const otherPatient = other.individual.uuid;
+
+            [{subjectUUID: "patient-on-a-closed-screen"}, {}].forEach((naming) => {
+                const after = PersonRegisterActions.onAbhaProfile(other, {profile: PROFILE, choice: "create", ...naming}, context);
+                expect(after === other).toBe(true);
+                expect(after.individual.uuid).toBe(otherPatient);
+                expect(after.individual.firstName).not.toBe("Asha");
+                expect(answer(after, "ABHA Number")).toBeUndefined();
+                expect(after.abha).toMatchObject({linked: false, locked: false, choice: null});
+            });
+        });
+
         it("an ABHA with an address only removes an ABHA number the patient had", () => {
             const person = savedPerson([Observation.create(abhaNumberConcept, new PrimitiveValue("11-1111-1111-1111"))]);
             const context = contextWith({abhaOn: true, hipId: "hip-1", saved: person});
-            const state = PersonRegisterActions.onAbhaProfile(load(context, person.uuid),
+            const state = onAbhaProfile(load(context, person.uuid),
                 {profile: {...PROFILE, abhaNumber: null, abhaAddress: "asha@sbx"}, choice: "link"}, context);
 
             expect(answer(state, "ABHA Number")).toBeUndefined();
@@ -175,8 +194,8 @@ describe("PersonRegisterActions, ABHA", () => {
             const context = contextWith({abhaOn: true, hipId: "hip-1"});
             const genderHandler = jest.spyOn(PersonRegisterActions, "enterIndividualGender");
 
-            const other = PersonRegisterActions.onAbhaProfile(load(context), {profile: {...PROFILE, genderName: "Other"}}, context);
-            const none = PersonRegisterActions.onAbhaProfile(load(context), {profile: {...PROFILE, genderName: null}}, context);
+            const other = onAbhaProfile(load(context), {profile: {...PROFILE, genderName: "Other"}}, context);
+            const none = onAbhaProfile(load(context), {profile: {...PROFILE, genderName: null}}, context);
 
             expect(genderHandler).not.toHaveBeenCalled();
             expect(other.individual.gender).toBeNull();
@@ -187,7 +206,7 @@ describe("PersonRegisterActions, ABHA", () => {
         it("fills only what the ABHA gives, keeping the rest as it was", () => {
             const context = contextWith({abhaOn: true, hipId: "hip-1"});
             const typed = PersonRegisterActions.enterLastName(load(context), {value: "Typed"}, context);
-            const state = PersonRegisterActions.onAbhaProfile(typed, {profile: {...PROFILE, lastName: null, dateOfBirth: null}}, context);
+            const state = onAbhaProfile(typed, {profile: {...PROFILE, lastName: null, dateOfBirth: null}}, context);
             expect(state.individual.lastName).toBe("Typed");
             expect(state.individual.firstName).toBe("Asha");
         });
@@ -236,14 +255,14 @@ describe("PersonRegisterActions, ABHA", () => {
 
         it("locks straight after an ABHA with a number fills the details, and not for the mobile route", () => {
             const context = contextWith({abhaOn: true, hipId: "hip-1"});
-            expect(PersonRegisterActions.onAbhaProfile(load(context), {profile: PROFILE}, context).abha.locked).toBe(true);
-            expect(PersonRegisterActions.onAbhaProfile(load(context), {profile: MOBILE_ONLY}, context).abha.locked).toBe(false);
+            expect(onAbhaProfile(load(context), {profile: PROFILE}, context).abha.locked).toBe(true);
+            expect(onAbhaProfile(load(context), {profile: MOBILE_ONLY}, context).abha.locked).toBe(false);
         });
 
         it("a mobile-only ABHA replacing a verified one unlocks", () => {
             const person = withNumber();
             const context = contextWith({abhaOn: true, hipId: "hip-1", saved: person});
-            const state = PersonRegisterActions.onAbhaProfile(load(context, person.uuid), {profile: MOBILE_ONLY}, context);
+            const state = onAbhaProfile(load(context, person.uuid), {profile: MOBILE_ONLY}, context);
             expect(state.abha.locked).toBe(false);
         });
 
@@ -259,8 +278,8 @@ describe("PersonRegisterActions, ABHA", () => {
             // Typing a date of birth already ticks "verified" in the model; an ABHA with no date must still tick it.
             const context = contextWith({abhaOn: true, hipId: "hip-1"});
             const noDate = {...PROFILE, dateOfBirth: null};
-            expect(PersonRegisterActions.onAbhaProfile(load(context), {profile: noDate}, context).individual.dateOfBirthVerified).toBe(true);
-            expect(PersonRegisterActions.onAbhaProfile(load(context), {profile: {...noDate, abhaNumber: null}}, context).individual.dateOfBirthVerified).toBeFalsy();
+            expect(onAbhaProfile(load(context), {profile: noDate}, context).individual.dateOfBirthVerified).toBe(true);
+            expect(onAbhaProfile(load(context), {profile: {...noDate, abhaNumber: null}}, context).individual.dateOfBirthVerified).toBeFalsy();
         });
 
         it("the lock survives a clone", () => {
@@ -275,7 +294,7 @@ describe("PersonRegisterActions, ABHA", () => {
         };
         const MOBILE = {...FULL, abhaNumber: null, route: "mobile"};
         const context = () => contextWith({abhaOn: true, hipId: "hip-1"});
-        const fill = (profile, from) => PersonRegisterActions.onAbhaProfile(from || load(context()), {profile}, context());
+        const fill = (profile, from) => onAbhaProfile(from || load(context()), {profile}, context());
 
         it("locks each name part on its own: a verified profile with no last name leaves the last name editable", () => {
             expect(fill({...FULL, lastName: null}).abha.lockedFields).toEqual({firstName: true, middleName: true, lastName: false, dateOfBirth: true, gender: true});
