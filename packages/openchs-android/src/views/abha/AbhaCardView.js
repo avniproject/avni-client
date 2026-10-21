@@ -23,8 +23,8 @@ import AbhaProfile from "./AbhaProfile";
 class AbhaCardView extends AbstractComponent {
     static propTypes = {
         subjectUUID: PropTypes.string.isRequired,
-        // Names the downloaded file by the last four digits. Without it the file is abha-card.png.
-        abhaNumber: PropTypes.string,
+        // The last four digits of the ABHA number, which name the downloaded file. Without them it is abha-card.png.
+        abhaLastFour: PropTypes.string,
     };
 
     constructor(props, context) {
@@ -70,9 +70,14 @@ class AbhaCardView extends AbstractComponent {
         super.componentWillUnmount();
     }
 
-    static downloadFileName(abhaNumber) {
+    // Only these leave the registration or profile for this screen, never the whole number.
+    static lastFour(abhaNumber) {
         const digits = AbhaProfile.digitsOnly(abhaNumber);
-        return digits ? `abha-card-${digits.slice(-4)}.png` : 'abha-card.png';
+        return digits ? digits.slice(-4) : null;
+    }
+
+    static downloadFileName(abhaLastFour) {
+        return abhaLastFour ? `abha-card-${abhaLastFour}.png` : 'abha-card.png';
     }
 
     // Before Android 10 saving to the Downloads folder needs the storage permission; after it, none.
@@ -84,7 +89,7 @@ class AbhaCardView extends AbstractComponent {
     }
 
     async download() {
-        const fileName = AbhaCardView.downloadFileName(this.props.abhaNumber);
+        const fileName = AbhaCardView.downloadFileName(this.props.abhaLastFour);
         try {
             if (!(await this.mayWriteDownloads())) throw new Error('No permission to write to Downloads');
             await RNFS.copyFile(this.state.path, `${RNFS.DownloadDirectoryPath}/${fileName}`);

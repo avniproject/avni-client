@@ -28,11 +28,11 @@ import General from "../../../src/utility/General";
 import en from "../../../translations/en.json";
 
 const CARD_PATH = "/cache/abha-card-1.png";
-const NUMBER = "91-1234-5678-9012";
+const LAST_FOUR = "9012";
 
 let mounted = [];
 
-async function show({getCardFile = () => Promise.resolve(CARD_PATH), abhaNumber = NUMBER} = {}) {
+async function show({getCardFile = () => Promise.resolve(CARD_PATH), abhaLastFour = LAST_FOUR} = {}) {
     const navigator = {pop: jest.fn(), getCurrentRoutes: () => []};
     const abhaService = {getCardFile: jest.fn(getCardFile)};
     const context = {
@@ -42,7 +42,7 @@ async function show({getCardFile = () => Promise.resolve(CARD_PATH), abhaNumber 
     let renderer;
     await act(async () => {
         renderer = TestRenderer.create(<ServiceContext.Provider value={context}>
-            <AbhaCardView subjectUUID="s-1" abhaNumber={abhaNumber}/>
+            <AbhaCardView subjectUUID="s-1" abhaLastFour={abhaLastFour}/>
         </ServiceContext.Provider>);
     });
     mounted.push(renderer);
