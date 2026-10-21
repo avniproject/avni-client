@@ -46,9 +46,11 @@ async function show(environment = "sandbox", {handBack = () => undefined} = {}) 
     });
     mounted.push(renderer);
     const webViews = () => renderer.root.findAll((node) => node.props.testID === "webview" && typeof node.type !== "string");
-    const send = async (type, payload) => act(async () => webViews()[0].props.onMessage({nativeEvent: {data: JSON.stringify({type, payload: payload === undefined ? null : payload})}}));
+    // The page this screen builds has no address of its own: the WebView reports it as about:blank.
+    const sendRaw = async (data, url = "about:blank") => act(async () => webViews()[0].props.onMessage({nativeEvent: {data, url}}));
+    const send = async (type, payload, url) => sendRaw(JSON.stringify({type, payload: payload === undefined ? null : payload}), url);
     const lines = () => renderer.root.findAllByType(Text).map((text) => [].concat(text.props.children).join(""));
-    return {navigator, onProfile, onSkip, webViews, send, lines};
+    return {navigator, onProfile, onSkip, webViews, send, sendRaw, lines};
 }
 
 describe("AbhaViewTest", () => {
@@ -72,6 +74,42 @@ describe("AbhaViewTest", () => {
         expect(props.allowFileAccess).toBe(false);
         expect(props.allowFileAccessFromFileURLs).toBe(false);
         expect(props.allowUniversalAccessFromFileURLs).toBe(false);
+    });
+
+    it("takes messages only from the page it built, never from a page loaded into it later", async () => {
+        jest.spyOn(General, "logWarn").mockImplementation(() => {});
+        const screen = await show();
+        await screen.send(ABHA_MESSAGE.SUCCESS, ekaReply, "https://elsewhere.example/page");
+        await screen.send(ABHA_MESSAGE.SUCCESS, ekaReply, null);
+        await screen.send(ABHA_MESSAGE.SKIP, null, "https://unpkg.com/x");
+        expect(screen.onProfile).not.toHaveBeenCalled();
+        expect(screen.onSkip).not.toHaveBeenCalled();
+
+        await screen.send(ABHA_MESSAGE.SUCCESS, ekaReply, "null");
+        expect(screen.onProfile).toHaveBeenCalledTimes(1);
+    });
+
+    it("ignores a message that is null or not an object, without failing", async () => {
+        jest.spyOn(General, "logWarn").mockImplementation(() => {});
+        const screen = await show();
+        for (const data of ["null", "42", "\"success\"", "[1, 2]", "true"]) await screen.sendRaw(data);
+        expect(screen.onProfile).not.toHaveBeenCalled();
+        expect(screen.navigator.pop).not.toHaveBeenCalled();
+        await screen.send(ABHA_MESSAGE.SUCCESS, ekaReply);
+        expect(screen.onProfile).toHaveBeenCalledTimes(1);
+    });
+
+    it("lets only the page it built load, once, and refuses every other load", async () => {
+        jest.spyOn(General, "logWarn").mockImplementation(() => {});
+        const props = (await show()).webViews()[0].props;
+        expect(props.onShouldStartLoadWithRequest({url: "https://elsewhere.example/"})).toBe(false);
+        expect(props.onShouldStartLoadWithRequest({url: "about:blank"})).toBe(true);
+        expect(props.onShouldStartLoadWithRequest({url: "about:blank"})).toBe(false);
+        expect(props.onShouldStartLoadWithRequest({url: "https://unpkg.com/@eka-care/medassist-widget-embed@latest/dist/index.js"})).toBe(false);
+
+        const loaded = (await show()).webViews()[0].props;
+        act(() => loaded.onLoadEnd({nativeEvent: {url: "about:blank"}}));
+        expect(loaded.onShouldStartLoadWithRequest({url: "about:blank"})).toBe(false);
     });
 
     it("shows an error, and no screens, for an environment it does not know", async () => {

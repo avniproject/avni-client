@@ -12,6 +12,10 @@ import General from '../../utility/General';
 import AbhaProfile from './AbhaProfile';
 import {ABHA_MESSAGE, buildAbhaHostHtml} from './AbhaHostHtml';
 
+// The page this screen builds is loaded from a string with no address, so the WebView reports it as about:blank,
+// or by its origin, "null", on WebViews that pass messages by origin. A page with any other address is not ours.
+export const HOSTED_PAGE_URLS = ['about:blank', 'null'];
+
 // Runs Eka Care's ABHA SDK (create ABHA, or log in with an existing one) and hands the verified profile back
 // through onProfile. The SDK may report a success through both window.EkaAbha and onSuccess, so only the
 // first result is acted on. The session is the one AbhaService.getSession fetched as the screen opened; its key
@@ -35,6 +39,7 @@ class AbhaView extends AbstractComponent {
         super(props, context);
         this.state = {errorKey: null, errorDetail: null};
         this.resultHandled = false;
+        this.hostedPageLoaded = false;
         const {accessToken, hipId, environment} = props.session;
         try {
             this.html = buildAbhaHostHtml({
@@ -77,12 +82,31 @@ class AbhaView extends AbstractComponent {
             });
     }
 
+    // Only the page this screen built loads, and only once. Eka's screens run inside it and never navigate it, so
+    // any other load, a link, a redirect or a script sending the WebView elsewhere, is refused.
+    allowLoad(request) {
+        if (!this.hostedPageLoaded && _.includes(HOSTED_PAGE_URLS, _.get(request, 'url'))) {
+            this.hostedPageLoaded = true;
+            return true;
+        }
+        General.logWarn(this.viewName(), 'Refused a page load in the ABHA screen');
+        return false;
+    }
+
     onMessage(event) {
+        if (!_.includes(HOSTED_PAGE_URLS, _.get(event, 'nativeEvent.url'))) {
+            General.logWarn(this.viewName(), 'Ignored a WebView message from a page other than the ABHA screen');
+            return;
+        }
         let message;
         try {
             message = JSON.parse(event.nativeEvent.data);
         } catch (e) {
             General.logWarn(this.viewName(), 'Ignored a WebView message that is not JSON');
+            return;
+        }
+        if (!_.isPlainObject(message)) {
+            General.logWarn(this.viewName(), 'Ignored a WebView message that is not an object');
             return;
         }
         switch (message.type) {
@@ -133,6 +157,8 @@ class AbhaView extends AbstractComponent {
                         allowFileAccess={false}
                         allowFileAccessFromFileURLs={false}
                         allowUniversalAccessFromFileURLs={false}
+                        onShouldStartLoadWithRequest={(request) => this.allowLoad(request)}
+                        onLoadEnd={() => { this.hostedPageLoaded = true; }}
                         onMessage={(event) => this.onMessage(event)}
                     />}
                 </SafeAreaView>
