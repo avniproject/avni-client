@@ -2,7 +2,7 @@ import Service from "../../framework/bean/Service";
 import BaseService from "../BaseService";
 import {EntityQueue} from 'openchs-models';
 import {open} from '@op-engineering/op-sqlite';
-import {NativeEventEmitter, NativeModules, PermissionsAndroid, Platform} from 'react-native';
+import {NativeEventEmitter, NativeModules} from 'react-native';
 import DeviceInfo from "react-native-device-info";
 import _ from "lodash";
 import fs from 'react-native-fs';
@@ -172,7 +172,6 @@ class ClinicHubService extends BaseService {
 
     async startHub(log = _.noop, {port} = {}) {
         await this.stopHub();
-        await this._requestNotificationPermission();
         await this.pruneLedger();
         const session = await this._beginSession();
         this.transport = await startHub({
@@ -202,11 +201,6 @@ class ClinicHubService extends BaseService {
         if (this.transport) await this.transport.stop();
         this.transport = null;
         if (NativeModules.ClinicHub) NativeModules.ClinicHub.stopForegroundService(SERVICE_ROLE);
-    }
-
-    async _requestNotificationPermission() {
-        if (Platform.OS !== 'android' || Platform.Version < 33) return;
-        await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
     }
 
     _exclusively(work) {

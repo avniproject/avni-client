@@ -11,9 +11,12 @@ const requiredPermissions = (role, apiLevel) => {
     return role === ClinicRole.hub ? wifi : [P.CAMERA, ...wifi];
 };
 
+// Shows the clinic service's notification with its Stop hub or Leave hub button; sharing works without it.
+const optionalPermissions = (apiLevel) => (apiLevel >= 33 ? [P.POST_NOTIFICATIONS] : []);
+
 // Some Android 12 phones ignore a request for precise location made without approximate location, so they go together.
 export const clinicHubPermissions = (role, apiLevel) =>
-    apiLevel >= 33 ? requiredPermissions(role, apiLevel) : [...requiredPermissions(role, apiLevel), P.ACCESS_COARSE_LOCATION];
+    apiLevel >= 33 ? [...requiredPermissions(role, apiLevel), ...optionalPermissions(apiLevel)] : [...requiredPermissions(role, apiLevel), P.ACCESS_COARSE_LOCATION];
 
 export const requestClinicHubPermissions = async (role, apiLevel = DeviceInfo.getApiLevelSync()) => {
     const results = await PermissionsAndroid.requestMultiple(clinicHubPermissions(role, apiLevel));
