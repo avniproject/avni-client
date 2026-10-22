@@ -122,6 +122,12 @@ describe("ClinicHubJoin on a phone", () => {
         await expect(join.joinHub(QR)).resolves.toMatchObject({host: "192.168.49.1"});
     });
 
+    it("below Android 10, says the hub was not found when Android refuses to give the gateway", async () => {
+        const {join, wifi} = setUp({level: 28});
+        wifi.wifiGateway.mockReturnValue(Promise.reject(Object.assign(new Error("denied"), {code: "E_PERMISSION"})));
+        await expect(join.joinHub(QR)).rejects.toMatchObject({code: JoinError.hubNotFound});
+    });
+
     it("below Android 10, says the hub was not found when Android gives no gateway, and never leaves a network the person joined by hand", async () => {
         const {join, wifi} = setUp({level: 28});
         wifi.wifiGateway.mockReturnValue(Promise.resolve(null));

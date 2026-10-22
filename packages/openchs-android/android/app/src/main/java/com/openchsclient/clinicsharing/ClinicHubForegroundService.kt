@@ -22,6 +22,7 @@ class ClinicHubForegroundService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP) {
+            runningRole = null
             ClinicHubModule.emitStopRequested(role)
             stopSelf()
             return START_NOT_STICKY

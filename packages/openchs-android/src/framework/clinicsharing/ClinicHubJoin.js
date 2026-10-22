@@ -62,7 +62,7 @@ export class ClinicHubJoin {
             if (!gateway) await this.wifi.leaveNetwork().catch(() => {});
         } else {
             await this._checkJoinedByHand(ssid);
-            gateway = await this.wifi.wifiGateway();
+            gateway = await this.wifi.wifiGateway().catch(() => null);
         }
         if (!gateway) throw joinError(JoinError.hubNotFound, `Android gave no gateway address on ${ssid}`);
         return {host: gateway, port: CLINIC_PORT, hubId, epoch, key, ssid};

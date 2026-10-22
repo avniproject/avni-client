@@ -103,7 +103,7 @@ class ClinicHubWifiModule(private val reactContext: ReactApplicationContext) : R
     @ReactMethod
     fun stopHotspot(promise: Promise) {
         mainHandler.post {
-            hotspot?.stop()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) hotspot?.stop()
             promise.resolve(true)
         }
     }
@@ -143,13 +143,13 @@ class ClinicHubWifiModule(private val reactContext: ReactApplicationContext) : R
     // The hub runs the hotspot, so the joined network's gateway is the hub's address.
     private fun joinCallback(id: Int, ssid: String) = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
-            val gateway = gatewayOf(connectivityManager().getLinkProperties(network))
+            val gateway = joinedGateway(connectivityManager().getLinkProperties(network))
             if (gateway != null) resolveJoin(id, ssid, gateway)
             else mainHandler.postDelayed({ resolveJoin(id, ssid, null) }, GATEWAY_WAIT_MS)
         }
 
         override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {
-            gatewayOf(linkProperties)?.let { resolveJoin(id, ssid, it) }
+            joinedGateway(linkProperties)?.let { resolveJoin(id, ssid, it) }
         }
 
         // The user declined Android's join prompt, or the network did not appear in time. Android drops the request.
@@ -163,6 +163,11 @@ class ClinicHubWifiModule(private val reactContext: ReactApplicationContext) : R
             if (joins.isCurrent(id)) emit(EVENT_NETWORK_LOST, Arguments.createMap().apply { putString("ssid", ssid) })
         }
     }
+
+    // Android 10 has no DHCP server address in LinkProperties; there the joined hub network is the phone's only Wi-Fi.
+    @Suppress("DEPRECATION")
+    private fun joinedGateway(link: LinkProperties?): String? =
+        gatewayOf(link) ?: if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) dhcpAddress(wifiManager().dhcpInfo?.gateway ?: 0) else null
 
     private fun resolveJoin(id: Int, ssid: String, gateway: String?) {
         joinPromises.remove(id)?.resolve(Arguments.createMap().apply {
@@ -244,7 +249,7 @@ class ClinicHubWifiModule(private val reactContext: ReactApplicationContext) : R
     // A JS reload: let go of the hotspot and the joined network, including a start Android has not answered yet.
     override fun invalidate() {
         mainHandler.post {
-            hotspot?.release()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) hotspot?.release()
             joins.leave()
             joinCallbacks.values.forEach { unregister(it) }
             joinCallbacks.clear()

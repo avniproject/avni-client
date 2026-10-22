@@ -64,7 +64,7 @@ class ClinicHubService extends BaseService {
             if (this.sharing) {
                 // Android stops the hotspot when this phone's Wi-Fi is turned on; the screen says so rather than going blank.
                 this.hotspotStopped = true;
-                this.stopSharing();
+                this.stopSharing().catch((error) => General.logError('ClinicHubService', error));
             } else stoppedWhileStarting = true;
         });
         try {

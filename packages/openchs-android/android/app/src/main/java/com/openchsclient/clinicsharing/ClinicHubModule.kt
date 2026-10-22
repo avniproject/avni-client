@@ -1,6 +1,7 @@
 package com.openchsclient.clinicsharing
 
 import android.content.Intent
+import android.util.Log
 import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
@@ -20,7 +21,13 @@ class ClinicHubModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         val intent = Intent(reactApplicationContext, ClinicHubForegroundService::class.java).putExtra(ClinicHubForegroundService.EXTRA_ROLE, role)
         // Set here, not when the service starts, so a stop that follows at once still matches.
         ClinicHubForegroundService.runningRole = role
-        ContextCompat.startForegroundService(reactApplicationContext, intent)
+        try {
+            ContextCompat.startForegroundService(reactApplicationContext, intent)
+        } catch (e: IllegalStateException) {
+            // Android 12+ refuses a start from the background, e.g. a join that finished after the person left Avni; sharing works without it.
+            ClinicHubForegroundService.runningRole = null
+            Log.w("ClinicHubModule", "Could not start the clinic service: ${e.message}")
+        }
     }
 
     // Only the role that started the service stops it, so a joined phone's clean-up never stops a hub.
