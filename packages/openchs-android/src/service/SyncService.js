@@ -160,6 +160,7 @@ class SyncService extends BaseService {
             .then(() => this.clearDataIn([RuleFailureTelemetry]))
             .then(() => this.downloadNewsImages())
             .then(() => pruneConceptMedia(this.db, FileSystem.getMetadataDir()))
+            .then(() => this.db.isSqlite && this.db.optimize())
             .then(() => {
                 return updatedSyncSource;
             });

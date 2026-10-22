@@ -643,6 +643,15 @@ class SqliteProxy {
         }
     }
 
+    // Without statistics the planner searches child tables by `voided`, which nearly every row matches (#2215).
+    optimize() {
+        try {
+            this.db.executeSync("PRAGMA optimize=0x10002");
+        } catch (e) {
+            General.logWarn("SqliteProxy", `PRAGMA optimize failed: ${e.message}`);
+        }
+    }
+
     // ──── Bulk operations for sync optimization ────
 
     /**
