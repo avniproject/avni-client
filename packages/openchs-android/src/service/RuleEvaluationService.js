@@ -1124,7 +1124,7 @@ class RuleEvaluationService extends BaseService {
             this.saveFailedRules(error, reportCard.uuid, '',
                 'ReportCard', reportCard.uuid, null, null);
             return reportCard.nested ?
-                reportCard.createNestedErrorResults(this.I18n.t("Error"), this.I18n.t("queryExecutionError"))
+                reportCard.createNestedErrorResults(this.I18n.t("Error"), `${this.I18n.t("queryExecutionError")}: ${_.get(error, "message", error)}`)
                 : ReportCardResult.create(this.I18n.t("Error"), this.I18n.t("queryExecutionError"), false, true);
         }
     }
@@ -1136,6 +1136,8 @@ class RuleEvaluationService extends BaseService {
 
     getDashboardCardResult(reportCard, ruleInput) {
         const queryResult = this.executeDashboardCardRule(reportCard, ruleInput);
+        // A failed nested rule already comes back as one error tile per card; counting it as a list hid the error.
+        if (reportCard.nested && Array.isArray(queryResult)) return queryResult;
         if (!queryResult.hasErrorMsg && this.isOldStyleQueryResult(queryResult)) {
             General.logInfo("CardCount", `${reportCard.name} = ${queryResult.length}`);
             return ReportCardResult.create(queryResult.length, null, true);
