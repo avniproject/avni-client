@@ -539,6 +539,16 @@ class JsFallbackFilterEvaluator {
             return shape.values.some(raw => this._compare(fieldValue, "==", this._resolveConditionValue(raw, args, schemaName)));
         }
 
+        // field IN $N — membership in an array argument.
+        if (shape && shape.kind === "inParam") {
+            const values = args ? args[shape.index] : undefined;
+            if (!Array.isArray(values)) {
+                throw new UnsupportedRealmQueryError(condition, `IN $${shape.index} expects an array argument for ${schemaName}`);
+            }
+            const fieldValue = this._resolveItemFieldValue(item, shape.fieldPath, varName);
+            return values.some(value => this._compare(fieldValue, "==", value));
+        }
+
         // Treating an unparseable condition as matching would silently inflate .@count and
         // include rows that don't qualify — fail loud like every other branch (#1981).
         throw new UnsupportedRealmQueryError(condition, `could not parse atomic condition for ${schemaName}`);
@@ -563,6 +573,10 @@ class JsFallbackFilterEvaluator {
             if (values.length > 0 && values.every(v => this._isValueShape(v))) {
                 return {kind: "in", fieldPath: inList[1], values};
             }
+        }
+        const inParam = condition.match(/^([\w$.]+(?:\.[\w]+)*)\s+IN\s+\$(\d+)$/i);
+        if (inParam) {
+            return {kind: "inParam", fieldPath: inParam[1], index: parseInt(inParam[2], 10)};
         }
         const comparison = condition.match(
             /^([\w$.]+(?:\.[\w]+)*)\s*(==|!=|<>|<=|>=|<|>|=)\s*(.+)$/
