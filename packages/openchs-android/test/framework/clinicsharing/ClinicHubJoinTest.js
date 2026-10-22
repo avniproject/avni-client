@@ -17,6 +17,7 @@ const setUp = ({level = 34} = {}) => {
         joinNetwork: jest.fn(() => Promise.resolve({ssid: NETWORK.ssid, gateway: "192.168.49.1"})),
         currentSsid: jest.fn(() => Promise.resolve(NETWORK.ssid)),
         wifiConnected: jest.fn(() => Promise.resolve(true)),
+        wifiEnabled: jest.fn(() => Promise.resolve(true)),
         wifiGateway: jest.fn(() => Promise.resolve("192.168.43.1")),
         leaveNetwork: jest.fn(() => Promise.resolve(true)),
         onNetworkLost: jest.fn((listener) => { lost.push(listener); return () => lost.splice(lost.indexOf(listener), 1); }),
@@ -71,6 +72,20 @@ describe("ClinicHubJoin on a phone", () => {
         const {join, wifi} = setUp({level: 34});
         await expect(join.joinHub(QR)).resolves.toEqual({host: "192.168.49.1", port: 7373, ...HUB, ssid: NETWORK.ssid});
         expect(wifi.joinNetwork).toHaveBeenCalledWith(NETWORK.ssid, NETWORK.passphrase, JOIN_TIMEOUT_MS);
+    });
+
+    it.each([[34], [28]])("on API %i, says Wi-Fi is off instead of trying to join, as Android would refuse without saying why", async (level) => {
+        const {join, wifi} = setUp({level});
+        wifi.wifiEnabled.mockReturnValue(Promise.resolve(false));
+        await expect(join.joinHub(QR)).rejects.toMatchObject({code: JoinError.wifiOff});
+        expect(wifi.joinNetwork).not.toHaveBeenCalled();
+        expect(wifi.currentSsid).not.toHaveBeenCalled();
+    });
+
+    it("still tries to join when Android does not answer whether Wi-Fi is on", async () => {
+        const {join, wifi} = setUp();
+        wifi.wifiEnabled.mockReturnValue(Promise.reject(new Error("no answer")));
+        await expect(join.joinHub(QR)).resolves.toMatchObject({host: "192.168.49.1"});
     });
 
     it("says why a code is no good", async () => {

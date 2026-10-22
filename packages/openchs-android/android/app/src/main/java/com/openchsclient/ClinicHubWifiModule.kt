@@ -226,6 +226,11 @@ class ClinicHubWifiModule(private val reactContext: ReactApplicationContext) : R
     }
 
     @ReactMethod
+    fun wifiEnabled(promise: Promise) {
+        promise.resolve(wifiManager().isWifiEnabled)
+    }
+
+    @ReactMethod
     @Suppress("DEPRECATION")
     fun wifiGateway(promise: Promise) {
         try {

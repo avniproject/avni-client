@@ -24,7 +24,7 @@ import ClinicHubScanner from "./ClinicHubScanner";
 
 const TRANSLATED_ERRORS = ['key', 'stale', 'version', 'timeout', 'closed', 'hubNeedsAndroid10', 'badCode', 'joinFailed',
     'cannotReadNetwork', 'wrongNetwork', 'hubNotFound', 'joinInProgress', 'rejoinFailed', 'busy', 'hotspotStopped',
-    'hotspotFailed', 'locationOff', 'hotspotNotAllowed'];
+    'hotspotFailed', 'locationOff', 'hotspotNotAllowed', 'wifiOff'];
 // The phones-synced count and held uploads change without an event this screen hears.
 const REFRESH_MS = 10 * 1000;
 // Without a log, phones the hub refuses leave no trace.

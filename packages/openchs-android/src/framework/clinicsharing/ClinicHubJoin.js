@@ -14,6 +14,7 @@ export const JoinError = Object.freeze({
     wrongNetwork: "wrongNetwork",
     hubNotFound: "hubNotFound",
     joinInProgress: "joinInProgress",
+    wifiOff: "wifiOff",
     hotspotFailed: "hotspotFailed",
     locationOff: "locationOff",
     hotspotNotAllowed: "hotspotNotAllowed",
@@ -60,6 +61,8 @@ export class ClinicHubJoin {
         const parsed = parseJoinPayload(qrText);
         if (!parsed.ok) throw joinError(JoinError.badCode, "This is not a hub's code", {payloadError: parsed.error});
         const {ssid, passphrase, hubId, epoch, key} = parsed.payload;
+        // An unanswered check must not stop a join that might work.
+        if (!(await this.wifi.wifiEnabled().catch(() => true))) throw joinError(JoinError.wifiOff, "Wi-Fi is off on this phone");
         let gateway;
         if (this.wifi.canJoinByScan()) {
             try {

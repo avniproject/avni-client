@@ -162,6 +162,17 @@ describe("ClinicSharingView", () => {
         expect(lines()).toContain('clinicSharingError_rejoinFailed {"hub":"AndroidShare_1"}');
     });
 
+    it("says Wi-Fi is off when Rejoin fails for that, not that the hub may have restarted", async () => {
+        const code = encodeJoinPayload({ssid: "AndroidShare_1", passphrase: "pass1234", hubId: "hub-1", epoch: "epoch-1", key: "A".repeat(43)});
+        const {fakes, lines, press} = await show({savedJoinCode: code, hubNetworkLost: true});
+        fakes.clinicSpokeService.joinWithCode.mockRejectedValue(Object.assign(new Error("Wi-Fi is off on this phone"), {code: "wifiOff"}));
+
+        await press('clinicSharingRejoin {"hub":"AndroidShare_1"}');
+
+        expect(lines()).toContain("clinicSharingError_wifiOff {}");
+        expect(lines()).not.toContain('clinicSharingError_rejoinFailed {"hub":"AndroidShare_1"}');
+    });
+
     it("counts held uploads, and names the patient they wait on after 3 days", async () => {
         const fourDaysAgo = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000);
         const {lines, renderer} = await show({held: {count: 2, oldest: fourDaysAgo, items: [{uuid: "v-1", waitingOn: "p-1"}, {uuid: "v-2", waitingOn: "p-1"}]}});
