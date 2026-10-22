@@ -718,6 +718,9 @@
     "clinicSharingError_hubNotFound": "The hub did not answer on its network.",
     "clinicSharingError_hotspotStopped": "The hub's Wi-Fi stopped while it was starting. Tap Start hub to try again.",
     "clinicSharingError_joinInProgress": "A join is already under way.",
+    "clinicSharingError_hotspotFailed": "The hub's Wi-Fi could not start. Turn off this phone's personal hotspot if it is on, wait a few seconds, and tap Start hub again.",
+    "clinicSharingError_locationOff": "Turn on Location on this phone, then tap Start hub.",
+    "clinicSharingError_hotspotNotAllowed": "Avni is not allowed to start the hub's Wi-Fi. In Android settings, allow Avni's Nearby devices permission (Location on Android 12 and older), then tap Start hub.",
     "clinicSharingErrorOther": "Something went wrong: {{message}}"
   }
 }

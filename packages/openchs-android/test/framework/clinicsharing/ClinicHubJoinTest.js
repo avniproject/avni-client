@@ -42,6 +42,22 @@ describe("ClinicHubJoin on the hub", () => {
         expect(wifi.startHotspot).not.toHaveBeenCalled();
     });
 
+    it.each([
+        ["E_HOTSPOT", JoinError.hotspotFailed],
+        ["E_LOCATION_OFF", JoinError.locationOff],
+        ["E_PERMISSION", JoinError.hotspotNotAllowed],
+    ])("says why the hotspot did not start when Android refuses with %s", async (nativeCode, joinCode) => {
+        const {join, wifi} = setUp();
+        wifi.startHotspot.mockReturnValue(Promise.reject(Object.assign(new Error("The hotspot could not start: generic"), {code: nativeCode})));
+        await expect(join.startHubNetwork(HUB)).rejects.toMatchObject({code: joinCode});
+    });
+
+    it("passes on a hotspot failure it has no words for", async () => {
+        const {join, wifi} = setUp();
+        wifi.startHotspot.mockReturnValue(Promise.reject(Object.assign(new Error("The hub was stopped before its hotspot started"), {code: "E_CANCELLED"})));
+        await expect(join.startHubNetwork(HUB)).rejects.toMatchObject({code: "E_CANCELLED"});
+    });
+
     it("on stop, stops the hotspot", async () => {
         const {join, wifi} = setUp();
         await join.startHubNetwork(HUB);

@@ -14,7 +14,13 @@ export const JoinError = Object.freeze({
     wrongNetwork: "wrongNetwork",
     hubNotFound: "hubNotFound",
     joinInProgress: "joinInProgress",
+    hotspotFailed: "hotspotFailed",
+    locationOff: "locationOff",
+    hotspotNotAllowed: "hotspotNotAllowed",
 });
+
+// The native module's reasons a hotspot did not start, as errors the screen can put in words staff can act on.
+const HOTSPOT_START_ERRORS = {E_HOTSPOT: JoinError.hotspotFailed, E_LOCATION_OFF: JoinError.locationOff, E_PERMISSION: JoinError.hotspotNotAllowed};
 
 const joinError = (code, message, details = {}, cause) => Object.assign(new Error(message), {code, details, cause});
 
@@ -27,7 +33,10 @@ export class ClinicHubJoin {
 
     async startHubNetwork({hubId, epoch, key}) {
         if (!this.wifi.canStartHub()) throw joinError(JoinError.hubNeedsAndroid10, "A hub needs Android 10 or later");
-        const {ssid, passphrase} = await this.wifi.startHotspot();
+        const {ssid, passphrase} = await this.wifi.startHotspot().catch((error) => {
+            const code = HOTSPOT_START_ERRORS[error && error.code];
+            throw code ? joinError(code, error.message, {}, error) : error;
+        });
         return {ssid, passphrase, qrValue: encodeJoinPayload({ssid, passphrase, hubId, epoch, key})};
     }
 
