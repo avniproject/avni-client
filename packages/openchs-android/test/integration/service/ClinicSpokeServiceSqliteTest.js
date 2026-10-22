@@ -192,7 +192,7 @@ describe('Phones syncing with the hub', () => {
         a.save('Individual', 'ind-1', 'v1');
         await a.sync();
         await b.sync();
-        expect(b.spoke.dispatchAction.mock.calls).toEqual([[MyDashboardActionNames.ON_LOAD, {fetchFromDB: true}]]);
+        expect(b.spoke.dispatchAction.mock.calls).toEqual([[MyDashboardActionNames.ON_RECOUNT, {fetchFromDB: true}]]);
     });
 
     it("sends a save made after the phone's clock was set back", async () => {

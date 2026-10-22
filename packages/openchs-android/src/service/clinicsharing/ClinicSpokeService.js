@@ -229,9 +229,9 @@ class ClinicSpokeService extends BaseService {
         }
     }
 
-    // A recount only: the landing and search loads reset the screen to Home and clear what the user typed.
+    // A recount only: the landing and search loads reset the screen to Home, and a full dashboard load empties an open list.
     async _refreshOpenLists() {
-        this.dispatchAction(MyDashboardActionNames.ON_LOAD, {fetchFromDB: !this.getService(UserInfoService).getUserSettings().disableAutoRefresh});
+        this.dispatchAction(MyDashboardActionNames.ON_RECOUNT, {fetchFromDB: !this.getService(UserInfoService).getUserSettings().disableAutoRefresh});
     }
 
     syncNow(log) {

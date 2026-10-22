@@ -104,6 +104,22 @@ function makeCustomFilterService(matched) {
     return service;
 }
 
+describe("MyDashboardActions.onRecount", () => {
+    it("updates the card numbers and leaves a list the user has open as it is", () => {
+        const dashboardCacheService = makeDashboardCacheService();
+        const before = buildContext({individualService: makeIndividualService(ALL_ZERO), dashboardCacheService, customFilterService: noCustomFilters()});
+        const loaded = MyDashboardActions.onLoad(MyDashboardActions.getInitialState(before), {}, before);
+        const openList = {...loaded, scheduled: [{uuid: "visit-1"}], itemsToDisplay: [{uuid: "visit-1"}]};
+
+        const after = buildContext({individualService: makeIndividualService(UNFILTERED), dashboardCacheService, customFilterService: noCustomFilters()});
+        const recounted = MyDashboardActions.onRecount(openList, {fetchFromDB: true}, after);
+
+        assert.deepEqual(countsOf(recounted), UNFILTERED);
+        assert.deepEqual(recounted.itemsToDisplay, [{uuid: "visit-1"}]);
+        assert.deepEqual(recounted.scheduled, [{uuid: "visit-1"}]);
+    });
+});
+
 describe("MyDashboardActions.onLoad card counts", () => {
     it("keeps the numbers when the screen is re-entered without a fresh fetch", () => {
         const context = buildContext({
