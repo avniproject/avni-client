@@ -254,6 +254,19 @@ describe("Holding back uploads that depend on another phone", () => {
         expect(held.oldest.getTime()).toBeGreaterThanOrEqual(before);
     });
 
+    it("says whether this phone holds records from other phones, counting only those still on it", async () => {
+        expect(await mine.holdBack.hasRecordsFromOtherPhones()).toBe(false);
+        await receivePatient();
+        expect(await mine.holdBack.hasRecordsFromOtherPhones()).toBe(true);
+
+        await mine.holdBack.release(["p-1"]);
+        expect(await mine.holdBack.hasRecordsFromOtherPhones()).toBe(false);
+
+        const db = await mine.holdBack._state();
+        await db.execute("insert into received_from_peer (uuid, entity_type, received_at) values ('wiped-by-reset', 'Individual', 1)");
+        expect(await mine.holdBack.hasRecordsFromOtherPhones()).toBe(false);
+    });
+
     describe("an upload that has waited 3 days", () => {
         const DAY = 24 * 60 * 60 * 1000;
         const savedAt = () => mine.services.get(EntityQueueService).findAll("EntityQueue").map((item) => item.savedAt.getTime())[0];

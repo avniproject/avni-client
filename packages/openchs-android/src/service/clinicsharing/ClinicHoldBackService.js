@@ -61,6 +61,13 @@ class ClinicHoldBackService extends BaseService {
         return {release, keepLocal: release.filter((uuid) => queued.has(uuid))};
     }
 
+    // A record wiped since it arrived, as by a reset, no longer counts.
+    async hasRecordsFromOtherPhones() {
+        const db = await this._state();
+        return this._rows(await db.execute('select uuid, entity_type from received_from_peer'))
+            .some(({uuid, entity_type}) => !_.isNil(this.findByKey('uuid', uuid, EntityMetaData.findByName(entity_type).schemaName)));
+    }
+
     async release(uuids) {
         if (_.isEmpty(uuids)) return 0;
         const db = await this._state();

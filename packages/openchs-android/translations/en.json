@@ -401,6 +401,7 @@
     "uploadCatchmentDatabaseConfirmationMessage": "This will upload your entire Avni mobile database to the avni server. Do you want to continue?",
     "uploadCatchmentDatabaseErrorTitle": "Cannot setup fast sync",
     "uploadCatchmentDatabaseLocalUnsavedData": "You have local unsaved data which should be saved to server.",
+    "uploadCatchmentDatabaseRecordsFromOtherPhones": "This phone holds records from other phones in a clinic camp. Wait until those phones have synced with the server, then sync this phone again.",
     "uploadCatchmentDatabaseLocalOneSyncNeeded": "Your most recent sync did not finish.",
     "uploadCatchmentDatabaseResetPending": "Your data is waiting to be updated by a reset from your administrator.",
     "uploadCatchmentDatabaseActionRecommended": "Please perform a full sync, before trying this.",
