@@ -262,6 +262,7 @@ class SyncComponent extends AbstractComponent {
             notifyUserOnCompletion={true}
             showOkButton={!!this.state.showOkButton}
             contentDownloadWarning={this.state.contentDownloadWarning}
+            resetWaitingWarning={this.state.resetWaitingWarning}
         />;
     }
 
