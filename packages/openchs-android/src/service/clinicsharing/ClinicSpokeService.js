@@ -237,6 +237,8 @@ class ClinicSpokeService extends BaseService {
 
     async syncWithHub({host, port, key, hubId, epoch}, log = _.noop) {
         let connection;
+        // The hub lists this phone as left once it answers the pull, so a later failure must not lose the end of the camp.
+        let campEnded = false;
         const startedAt = Date.now();
         try {
             const deviceId = await this.deviceId();
@@ -249,7 +251,9 @@ class ClinicSpokeService extends BaseService {
             await connection.request({type: MessageType.push, deviceId, phoneName, batches: outbox, upTo}, MessageType.pushAck);
             await this._savePushed(hubId, sent);
 
-            const {batches, maxSeq, campEnded} = await connection.request({type: MessageType.pull, deviceId, phoneName, since: cursor}, MessageType.pullResult);
+            const pulled = await connection.request({type: MessageType.pull, deviceId, phoneName, since: cursor}, MessageType.pullResult);
+            const {batches, maxSeq} = pulled;
+            campEnded = !!pulled.campEnded;
             const applied = await this.getService(ClinicRecordService).applyBatches(this._withoutEditsSince(batches, collectedAt), log);
             await this._saveHubState(hubId, 'cursor', maxSeq);
             const unparked = (await this.getService('clinicParkedRecordService').afterSync(startedAt, log)).applied;
@@ -257,11 +261,11 @@ class ClinicSpokeService extends BaseService {
 
             const mediaSent = await this.getService('clinicMediaService').pushToHub(connection, hubId, log);
             log(`Sent ${_.sumBy(outbox, (b) => b.resources.length)}, received ${applied}, files sent ${mediaSent}`);
-            return {sent: _.sumBy(outbox, (b) => b.resources.length), received: applied, mediaSent, campEnded: !!campEnded};
+            return {sent: _.sumBy(outbox, (b) => b.resources.length), received: applied, mediaSent, campEnded};
         } catch (error) {
             log(error.message);
             General.logError('ClinicSpokeService', error);
-            return {error};
+            return {error, campEnded};
         } finally {
             if (connection) connection.close();
         }

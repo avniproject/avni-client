@@ -422,6 +422,19 @@ describe('Phones syncing with the hub', () => {
                 await hub.skipPhone(doctor.deviceId);
                 expect(hub.everyPhoneLeft()).toBe(true);
             });
+
+            it("on End camp, a phone whose last photo send fails still leaves, as the hub already lists it as left", async () => {
+                const a = phone('Nurse');
+                await joinWith(a);
+                await settled(a);
+                a.spoke.getService('clinicMediaService').pushToHub = async () => { throw new Error('The hub closed the connection.'); };
+
+                await hub.endCamp();
+                await a.spoke.syncNow(log);
+
+                expect(hub.phonesSynced().find(({name}) => name === 'Nurse').leftAt).toBeTruthy();
+                expect([await a.spoke.camp(), a.spoke.joined, a.spoke.leftCamp]).toEqual([null, null, {code: 'campEnded'}]);
+            });
         });
 
         it('asks for a new scan when the hub restarted with a new code, and keeps the last good sync time', async () => {
