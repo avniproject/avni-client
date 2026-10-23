@@ -11,6 +11,7 @@ function createState(wizard = new Wizard(1)) {
         validate: () => [],
     };
     const checklistItem = ChecklistItem.create({checklist: {}, detail: {}});
+    checklistItem.completionDate = new Date();
     return new ChecklistItemState(formElementGroup, wizard, true, checklistItem, []);
 }
 

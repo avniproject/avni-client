@@ -9,8 +9,12 @@ class ChecklistItemState extends AbstractDataEntryState {
         super([], formElementGroup, wizard, isNewEntity, filteredFormElements);
         if(!_.isNil(checklistItem)) {
             this.checklistItem = checklistItem.clone();
-            this.checklistItem.setCompletionDate(_.isNil(this.checklistItem.completionDate) ? new Date() : this.checklistItem.completionDate);
         }
+    }
+
+    static defaultCompletionDateToToday(state) {
+        if (_.isNil(state.checklistItem.completionDate)) state.checklistItem.setCompletionDate(new Date());
+        return state;
     }
 
     getEntity() {
@@ -23,11 +27,11 @@ class ChecklistItemState extends AbstractDataEntryState {
 
     static createOnLoad(checklistItem, form, isNewEntity, formElementGroup, filteredFormElements) {
         let indexOfGroup = _.findIndex(form.getFormElementGroups(), (feg) => feg.uuid === formElementGroup.uuid) + 1;
-        return new ChecklistItemState(formElementGroup, new Wizard(form.numberOfPages, indexOfGroup, indexOfGroup), isNewEntity, checklistItem, filteredFormElements);
+        return ChecklistItemState.defaultCompletionDateToToday(new ChecklistItemState(formElementGroup, new Wizard(form.numberOfPages, indexOfGroup, indexOfGroup), isNewEntity, checklistItem, filteredFormElements));
     }
 
     static createOnLoadStateForEmptyForm(checklistItem, form, isNewEntity) {
-        return  new ChecklistItemState(new StaticFormElementGroup(form), new Wizard(1), isNewEntity, checklistItem, []);
+        return ChecklistItemState.defaultCompletionDateToToday(new ChecklistItemState(new StaticFormElementGroup(form), new Wizard(1), isNewEntity, checklistItem, []));
     }
 
     clone() {
