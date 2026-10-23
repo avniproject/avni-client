@@ -1,6 +1,6 @@
 import AbstractDataEntryState from "./AbstractDataEntryState";
 import Wizard from "./Wizard";
-import {AbstractEncounter, ObservationsHolder, ChecklistItem, StaticFormElementGroup} from "avni-models";
+import {AbstractEncounter, ObservationsHolder, ChecklistItem, StaticFormElementGroup, ValidationResult} from "avni-models";
 import _ from "lodash";
 
 
@@ -39,7 +39,10 @@ class ChecklistItemState extends AbstractDataEntryState {
     }
 
     validateEntity() {
-        return this.checklistItem.validate() || [];
+        const completionDateKey = AbstractEncounter.fieldKeys.COMPLETION_DATE;
+        const completionDateResult = _.isNil(this.checklistItem.completionDate) ?
+            ValidationResult.failure(completionDateKey, "emptyValidationMessage") : ValidationResult.successful(completionDateKey);
+        return [...(this.checklistItem.validate() || []), completionDateResult];
     }
 
     get staticFormElementIds() {

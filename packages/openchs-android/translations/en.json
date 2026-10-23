@@ -573,6 +573,7 @@
     "eligibilityFailedTitle": "Eligibility Check Execution Failed",
     "programName": "Program name:",
     "completedOn": "Completed",
+    "completionDate": "Completion date",
     "status": "Status",
     "type": "Type",
     "filters": "Filters",
