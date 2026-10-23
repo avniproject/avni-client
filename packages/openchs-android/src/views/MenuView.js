@@ -118,7 +118,15 @@ class MenuView extends AbstractComponent {
             })
     };
 
-    logout() {
+    // A camp keeps records only the hub and its phones hold until they leave it and sync with the server.
+    async blockedByCamp() {
+        if (!(await this.getService('clinicSpokeService').isInCamp())) return false;
+        Alert.alert(this.I18n.t('clinicSharing'), this.I18n.t('clinicCampBlocksLogout'));
+        return true;
+    }
+
+    async logout() {
+        if (await this.blockedByCamp()) return;
         Alert.alert(
             this.I18n.t("logoutConfirmationTitle"),
             this.I18n.t("logoutConfirmationMessage"),
@@ -141,7 +149,8 @@ class MenuView extends AbstractComponent {
             .then(() => CHSNavigator.navigateToLoginView(this, false));
     }
 
-    onDelete() {
+    async onDelete() {
+        if (await this.blockedByCamp()) return;
         Alert.alert(
             this.I18n.t('deleteSchemaNoticeTitle'),
             this.I18n.t('deleteSchemaConfirmationMessage'),

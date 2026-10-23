@@ -192,6 +192,10 @@ class SyncComponent extends AbstractComponent {
      * @returns {Promise<void>}
      */
     async startSync() {
+        if (await this.context.getService('clinicSpokeService').isInCamp()) {
+            Alert.alert(this.I18n.t('clinicSharing'), this.I18n.t('clinicCampBlocksServerSync'));
+            return;
+        }
         const syncService = this.context.getService(SyncService);
         if (this.state.isConnected) {
             const lockId = syncService.acquireLock();

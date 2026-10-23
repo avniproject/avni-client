@@ -29,6 +29,8 @@ class ClinicHubService extends BaseService {
         this.listeners = new Set();
         this.sharing = null;
         this.hotspotStopped = false;
+        this.campEnding = false;
+        this.campPhones = new Map();
     }
 
     onChange(listener) {
@@ -46,7 +48,44 @@ class ClinicHubService extends BaseService {
     }
 
     phonesSynced() {
-        return _.orderBy([...this.lastSyncByDevice.values()], 'syncedAt', 'desc');
+        return _.orderBy([...this.lastSyncByDevice.values()], 'syncedAt', 'desc')
+            .map((phone) => ({...phone, ..._.pick(this.campPhones.get(phone.deviceId), ['leftAt', 'skipped'])}));
+    }
+
+    async campActive() {
+        if (!this.ledgerDb && !(await this._hasLedger())) return false;
+        return (await this._getMeta('campActive')) === 'true';
+    }
+
+    // Each phone leaves at its next sync, which is already its last send and fetch.
+    async endCamp() {
+        await this._setMeta('campEnding', true);
+        this.campEnding = true;
+        this._changed();
+    }
+
+    // For a phone that is gone, so the hub can close without it.
+    async skipPhone(deviceId) {
+        await this._saveCampPhone(deviceId, {skipped: true});
+    }
+
+    everyPhoneLeft() {
+        return this.phonesSynced().every(({leftAt, skipped}) => leftAt || skipped);
+    }
+
+    // Closing a camp ends sharing and drops what the hub kept for it, photo copies included.
+    async closeCamp() {
+        await this.clearLedger();
+        this._changed();
+    }
+
+    async _saveCampPhone(deviceId, change) {
+        const phone = {...this.campPhones.get(deviceId), ...change};
+        this.campPhones.set(deviceId, phone);
+        const db = await this._ledger();
+        await db.execute('insert into camp_phones (device_id, left_at, skipped) values (?, ?, ?) on conflict(device_id) do update set left_at = excluded.left_at, skipped = excluded.skipped',
+            [deviceId, phone.leftAt || null, phone.skipped ? 1 : 0]);
+        this._changed();
     }
 
     getSharing() {
@@ -56,6 +95,9 @@ class ClinicHubService extends BaseService {
     // The hub's server and its hotspot start and stop together; required lazily, as the join module needs native Wi-Fi.
     async startSharing(log = _.noop, {port = CLINIC_PORT} = {}) {
         this.hotspotStopped = false;
+        // A phone that becomes the hub has left any camp it joined, and must not keep offering its Rejoin.
+        const spoke = this.getService('clinicSpokeService');
+        if (await spoke.camp()) await spoke.leaveCamp();
         const session = await this.startHub(log, {port});
         const hubJoin = require("../../framework/clinicsharing/ClinicHubJoin").default;
         // Watched before the start, so a hotspot that stops while starting is never shown as a code.
@@ -79,6 +121,8 @@ class ClinicHubService extends BaseService {
             throw error;
         }
         this.lastSyncByDevice.clear();
+        await this._setMeta('campActive', true);
+        this.campEnding = (await this._getMeta('campEnding')) === 'true';
         this._changed();
         return this.sharing;
     }
@@ -109,6 +153,7 @@ class ClinicHubService extends BaseService {
         await db.execute('create index if not exists ledger_created_at on ledger (created_at)');
         await db.execute('create table if not exists meta (key text primary key, value text)');
         await db.execute('create table if not exists mirrored (uuid text primary key, saved_at integer not null)');
+        await db.execute('create table if not exists camp_phones (device_id text primary key, left_at integer, skipped integer not null default 0)');
         await db.execute(`create table if not exists hub_media (
             file_name text primary key,
             media_type text not null,
@@ -175,7 +220,7 @@ class ClinicHubService extends BaseService {
         await this.pruneLedger();
         const session = await this._beginSession();
         this.transport = await startHub({
-            ...session, port, appVersion: DeviceInfo.getVersion(), log, isBusy: () => this._serverSyncRunning(),
+            ...session, port, appVersion: DeviceInfo.getVersion(), setup: this.getService(ClinicRecordService).setupVersion(), log,
             onConnection: (connection) => connection.onMessage((message) => this._replyTo(connection, message, log)),
         });
         const nativeHub = NativeModules.ClinicHub;
@@ -193,6 +238,9 @@ class ClinicHubService extends BaseService {
         const tables = this._sqliteRows(await db.execute("select name from sqlite_master where type = 'table' and name not like 'sqlite_%'")).map((row) => row.name);
         await db.executeBatch(tables.map((table) => [`delete from ${table}`, []]));
         this.lastPrunedAt = 0;
+        this.campEnding = false;
+        this.campPhones.clear();
+        this.lastSyncByDevice.clear();
     }
 
     async stopHub() {
@@ -243,8 +291,6 @@ class ClinicHubService extends BaseService {
     }
 
     async _handlePush({deviceId, phoneName, batches, upTo}, log) {
-        // Applying records now would roll back the server sync's open batch; the phone retries on its next sync.
-        if (this._serverSyncRunning()) throw new Error('syncing with the server');
         const startedAt = Date.now();
         const applied = await this.getService(ClinicRecordService).applyBatches(batches, log, deviceId);
         await this._appendLedgerRows(batches, deviceId);
@@ -268,18 +314,8 @@ class ClinicHubService extends BaseService {
             [item.entityUUID, item.savedAt.getTime()]]));
     }
 
-    // Server sync pops the hub phone's queue; what it pops, even while the hub is stopped, would never reach the list a phone pulls.
-    async mirrorOwnQueue() {
-        if (!this.transport && !(await this._hasLedger())) return;
-        return this._exclusively(() => this._mirrorOwnQueue());
-    }
-
     _hasLedger() {
         return fs.exists(`${fs.DocumentDirectoryPath}/../databases/${this.ledgerName}`);
-    }
-
-    _serverSyncRunning() {
-        return !!_.get(this.getService('syncService'), 'serverSyncRunning');
     }
 
     // One record saved without its parent must not fail every phone's pull.
@@ -326,7 +362,9 @@ class ClinicHubService extends BaseService {
             .filter((batch) => batch.resources.length > 0);
         log(`Serving ${rows.length} ledger rows (${batches.length} types) to ${deviceId}`);
         this._noteSync(deviceId, phoneName);
-        return {type: MessageType.pullResult, batches, maxSeq, epoch: await this._getMeta('epoch')};
+        // The phone pushed before this pull, so this reply ends its last send and fetch.
+        if (this.campEnding) await this._saveCampPhone(deviceId, {leftAt: Date.now()});
+        return {type: MessageType.pullResult, batches, maxSeq, epoch: await this._getMeta('epoch'), campEnded: this.campEnding || undefined};
     }
 }
 

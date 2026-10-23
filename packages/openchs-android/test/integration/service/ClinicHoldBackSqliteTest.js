@@ -377,14 +377,25 @@ describe("Records that arrive before their parent", () => {
         expect(reports).not.toHaveBeenCalled();
     });
 
-    it("appear once the patient comes down from the server", async () => {
+    // After a camp the visit's own phone uploads it, and it comes down from the server like any other record.
+    it("are dropped at the server sync after a camp, without a report when the patient has come down", async () => {
         await receive('Encounter', visit("v-1", "p-1"));
 
-        const syncStartedAt = Date.now();
         await mine.sync.persistAll(pulled('Individual'), [fromServer(mine.recordService, 'Individual', fromAnotherPhone('Individual', 'Individual', patient('p-1')))]);
-        await mine.sync._applyParkedClinicRecords(syncStartedAt);
+        await mine.sync._dropParkedClinicRecords();
 
-        expect(visitParent("v-1")).toEqual(["p-1"]);
+        expect([mine.read("Encounter", "v-1") ?? null, parked()]).toEqual([null, []]);
+        expect(reports).not.toHaveBeenCalled();
+    });
+
+    it("are reported at the server sync after a camp when their patient still has not come down, then dropped", async () => {
+        await receive('Encounter', visit("v-1", "p-missing"));
+
+        await mine.sync._dropParkedClinicRecords();
+
+        expect(reports).toHaveBeenCalledTimes(1);
+        expect(reports.mock.calls[0][0].message).toBe("ClinicSharingOrphan: Encounter v-1 is still missing its parent Individual p-missing");
+        expect(parked()).toEqual([]);
     });
 
     it("are reported once, with type and IDs only, when still waiting after a sync that began after they arrived", async () => {
@@ -404,17 +415,16 @@ describe("Records that arrive before their parent", () => {
         expect(parked()).toEqual(["v-1"]);
     });
 
-    // The waiting copy is the sending phone's edit, which only that phone uploads; the server's copy predates it.
-    it("keep their edit over the server's older copy, applying it once the server sync has brought the patient", async () => {
-        await receive('Encounter', visit("v-1", "p-1", {name: "cancelled on phone A"}));
-        const serverVisit = fromAnotherPhone('Encounter', 'Encounter', visit("v-1", "p-1", {name: "scheduled, as on the server"}));
+    // A server sync runs only outside a camp, so the server's copy is the newest: a waiting copy must not go on top of it.
+    it("leave the server's copy in place at the server sync after a camp, so an older waiting copy never replaces a newer one", async () => {
+        await receive('Encounter', visit("v-1", "p-1", {name: "edited on phone A during the camp"}));
+        const serverVisit = fromAnotherPhone('Encounter', 'Encounter', visit("v-1", "p-1", {name: "edited again on the web after the camp"}));
 
-        const syncStartedAt = Date.now();
         await mine.sync.persistAll(pulled('Individual'), [fromServer(mine.recordService, 'Individual', fromAnotherPhone('Individual', 'Individual', patient('p-1')))]);
         await mine.sync.persistAll(pulled('Encounter'), [fromServer(mine.recordService, 'Encounter', serverVisit)]);
-        await mine.sync._applyParkedClinicRecords(syncStartedAt);
+        await mine.sync._dropParkedClinicRecords();
 
-        expect([mine.read("Encounter", "v-1").name, visitParent("v-1"), parked()]).toEqual(["cancelled on phone A", ["p-1"], []]);
+        expect([mine.read("Encounter", "v-1").name, visitParent("v-1"), parked()]).toEqual(["edited again on the web after the camp", ["p-1"], []]);
     });
 
     it("on the hub, go into the ledger under the phone that sent them once applied, for phones whose cursor has passed", async () => {

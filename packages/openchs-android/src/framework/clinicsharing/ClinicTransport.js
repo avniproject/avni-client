@@ -34,10 +34,9 @@ export const MessageType = {
 const RefusalMessage = {
     key: () => "This phone's code is out of date. Scan the hub's current QR code.",
     stale: () => "This phone's code is from before the hub restarted. Scan the hub's current QR code.",
-    version: ({hub, peer}) => `This phone is on app version ${peer} and the hub is on ${hub}. Both need the same version.`,
+    setup: ({types = []}) => `This phone's organisation setup differs from the hub's (${types.join(', ')}). Sync this phone with the server, then join again.`,
     timeout: () => 'The hub did not answer. Check this phone is on the hub\'s Wi-Fi.',
     closed: () => 'The hub closed the connection.',
-    busy: () => 'The hub is syncing with the server. Sharing resumes when it finishes.',
 };
 
 export class ClinicTransportError extends Error {
@@ -177,9 +176,13 @@ class Connection {
     }
 }
 
-const hello = ({appVersion, hubId, epoch, busy}) => _.omitBy({type: MessageType.hello, appVersion, hubId, epoch, busy}, _.isUndefined);
+const hello = ({appVersion, hubId, epoch, setup}) => _.omitBy({type: MessageType.hello, appVersion, hubId, epoch, setup}, _.isUndefined);
 
-export async function startHub({key, appVersion, hubId, epoch, port = CLINIC_PORT, onConnection, log = _.noop, isBusy = () => false}) {
+// Only types both sides send are compared, so a later release can add one and still share with the release before it.
+export const setupDifferences = (ours = {}, theirs = {}) =>
+    Object.keys(ours).filter((type) => _.has(theirs, type) && theirs[type] !== ours[type]).sort();
+
+export async function startHub({key, appVersion, hubId, epoch, setup, port = CLINIC_PORT, onConnection, log = _.noop}) {
     await ready;
     const keyBytes = from_base64(key);
     const sockets = new Set();
@@ -209,19 +212,17 @@ export async function startHub({key, appVersion, hubId, epoch, port = CLINIC_POR
             if (connection) return connection._deliver(message);
 
             if (message.type !== MessageType.hello) return refuse({reason: 'closed'}, `sent ${message.type} before hello`);
-            if (message.appVersion !== appVersion)
-                return refuse({reason: 'version', hub: appVersion, peer: message.appVersion}, `app version ${message.appVersion}, hub is on ${appVersion}`);
             if (message.hubId !== hubId || message.epoch !== epoch)
                 return refuse({reason: 'stale'}, `scanned an earlier code (epoch ${message.epoch})`);
-            if (isBusy()) return refuse({reason: 'busy'}, 'the hub is syncing with the server');
+            const differing = setupDifferences(setup, message.setup);
+            if (differing.length > 0) return refuse({reason: 'setup', types: differing}, `its organisation setup differs: ${differing.join(', ')}`);
             connection = new Connection(socket, keyBytes, _.pick(message, ['appVersion', 'hubId', 'epoch']));
             socket.setTimeout(HUB_IDLE_TIMEOUT_MS);
             onConnection(connection);
         }));
         socket.on('error', (error) => log(`Socket error from ${peerName}: ${error.message}`));
         socket.on('close', () => sockets.delete(socket));
-        // The phone settles on this hello before the hub reads its own, so a busy hub says so here.
-        writeLine(socket, keyBytes, hello({appVersion, hubId, epoch, busy: isBusy() || undefined}));
+        writeLine(socket, keyBytes, hello({appVersion, hubId, epoch, setup}));
     });
 
     await new Promise((resolve, reject) => {
@@ -239,7 +240,7 @@ export async function startHub({key, appVersion, hubId, epoch, port = CLINIC_POR
     };
 }
 
-export async function connectToHub({host, key, appVersion, hubId, epoch, port = CLINIC_PORT, timeoutMs = HANDSHAKE_TIMEOUT_MS}) {
+export async function connectToHub({host, key, appVersion, hubId, epoch, setup, port = CLINIC_PORT, timeoutMs = HANDSHAKE_TIMEOUT_MS}) {
     await ready;
     const keyBytes = from_base64(key);
 
@@ -259,16 +260,16 @@ export async function connectToHub({host, key, appVersion, hubId, epoch, port = 
         };
         const timer = setTimeout(() => fail('timeout'), timeoutMs);
 
-        socket.on('connect', () => writeLine(socket, keyBytes, hello({appVersion, hubId, epoch})));
+        socket.on('connect', () => writeLine(socket, keyBytes, hello({appVersion, hubId, epoch, setup})));
         socket.on('data', lineReader((line) => {
             const message = open(keyBytes, line);
             if (connection) return message === null ? undefined : connection._deliver(message);
             if (message === null) return fail('key');
-            if (message.type === MessageType.refused) return fail(message.reason, _.pick(message, ['hub', 'peer']));
+            if (message.type === MessageType.refused) return fail(RefusalMessage[message.reason] ? message.reason : 'closed', _.pick(message, ['types']));
             if (message.type !== MessageType.hello) return fail('closed');
-            if (message.appVersion !== appVersion) return fail('version', {hub: message.appVersion, peer: appVersion});
             if (message.hubId !== hubId || message.epoch !== epoch) return fail('stale');
-            if (message.busy) return fail('busy');
+            const differing = setupDifferences(setup, message.setup);
+            if (differing.length > 0) return fail('setup', {types: differing});
 
             settled = true;
             clearTimeout(timer);

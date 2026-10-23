@@ -30,7 +30,7 @@ describe("Clinic hub ledger", () => {
         applied = [];
         ownQueue = [];
         stored = {};
-        const p2p = {applyBatches: async (batches) => { applied.push(batches); return batches.length; }, toSharedResource: (entityName, entity) => entity.toResource};
+        const p2p = {applyBatches: async (batches) => { applied.push(batches); return batches.length; }, toSharedResource: (entityName, entity) => entity.toResource, setupVersion: () => ({Form: 1})};
         hub = new ClinicHubService({}, {getService: (cls) => (cls === ClinicRecordService ? p2p : {cleanUpCopies: async () => 0, afterSync: async () => 0})});
         hub.ledgerName = `clinic_hub_ledger_test_${process.pid}_${ledgerCount++}.db`;
         hub.findAll = () => ownQueue;
@@ -141,24 +141,11 @@ describe("Clinic hub ledger", () => {
         expect(uuidsIn(await pull('phone-a'))).toEqual(['ind-own', 'enc-own']);
     });
 
-    it("mirrors its own queue before server sync pops it on a phone that has been a hub, even with the hub stopped", async () => {
-        stored['ind-own'] = 1;
-        ownQueue = [{entity: 'Individual', entityUUID: 'ind-own', savedAt: new Date()}];
-        hub._hasLedger = async () => true;
-        await hub.mirrorOwnQueue();
-        ownQueue = [];
-
-        expect(uuidsIn(await pull('phone-a'))).toEqual(['ind-own']);
-    });
-
-    it("leaves a phone that has never been a hub without a hub list", async () => {
-        stored['ind-own'] = 1;
-        ownQueue = [{entity: 'Individual', entityUUID: 'ind-own', savedAt: new Date()}];
+    it("answers that a phone that has never been a hub is not in a camp, without creating a hub file", async () => {
         hub._hasLedger = async () => false;
         const ledger = jest.spyOn(hub, '_ledger');
 
-        await hub.mirrorOwnQueue();
-
+        expect(await hub.campActive()).toBe(false);
         expect(ledger).not.toHaveBeenCalled();
     });
 

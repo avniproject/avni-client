@@ -129,6 +129,10 @@ class SyncService extends BaseService {
         if (this.syncLock !== lockId) {
             return Promise.reject("Use acquireLock before calling this function");
         }
+        // A phone in a clinic camp shares only through its hub until it leaves the camp.
+        if (await this._inClinicCamp()) {
+            return Promise.reject(new IgnorableSyncError("inCamp", "In a clinic sharing camp"));
+        }
 
         this.deviceId = await DeviceInfo.getAndroidId();
         const progressBarStatus = new ProgressbarStatus(trackProgress,
@@ -256,28 +260,22 @@ class SyncService extends BaseService {
         }
     }
 
-    /*
-     * If isOnlyUploadRequired = true, then only perform upload of data to Backend server
-     */
-    // Clinic sharing applies records while a server sync's batch may be open; it waits while this is set.
-    async dataServerSync(...args) {
-        this.serverSyncRunning = true;
+    async _inClinicCamp() {
         try {
-            return await this._dataServerSync(...args);
-        } finally {
-            this.serverSyncRunning = false;
+            return await this.getService('clinicSpokeService').isInCamp();
+        } catch (error) {
+            General.logError('SyncService', error);
+            return false;
         }
     }
 
-    async _dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isManualSync, userConfirmation, isOnlyUploadRequired) {
+    /*
+     * If isOnlyUploadRequired = true, then only perform upload of data to Backend server
+     */
+    async dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isManualSync, userConfirmation, isOnlyUploadRequired) {
         const allTxEntityMetaData = this.getMetadataByType(allEntitiesMetaData, "tx");
         const resetSyncMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "ResetSync");
-        const syncStartedAt = Date.now();
         this.releasedHoldBacks = 0;
-        if (this._clinicSharingEnabled()) {
-            await this.getService('clinicHubService').mirrorOwnQueue();
-            await this.getService('clinicSpokeService').syncBeforeServerUpload();
-        }
         const uploadData = Promise.resolve(statusMessageCallBack("uploadLocallySavedData"))
             .then(() => this.pushData(allTxEntityMetaData.slice(), onProgressPerEntity))
             .then(() => onAfterMediaPush("After_Media", 0));
@@ -383,7 +381,7 @@ class SyncService extends BaseService {
             })
             .then(() => this.getTxData(filteredTxData, onProgressPerEntity, syncDetailsWithPrivileges, endDateTime))
             .then(() => migrationSwitched && this._catchUpTxDataAfterMigration(allEntitiesMetaData, serverTimeAfterUpload))
-            .then(() => this._applyParkedClinicRecords(syncStartedAt))
+            .then(() => this._dropParkedClinicRecords())
             // Progress is not reported: the bar already counted these uploads in the first push.
             .then(() => this._pushReleasedHoldBacks(allTxEntityMetaData))
             .then(() => this.downloadNewsImages())
@@ -781,22 +779,16 @@ class SyncService extends BaseService {
         }
     }
 
-    // The pull may have brought the parents of hub records waiting on this phone; fromResource reads parents deeply.
-    async _applyParkedClinicRecords(syncStartedAt) {
+    // Records still waiting on this phone from a camp are dropped once the server, now the source of truth, has been pulled.
+    async _dropParkedClinicRecords() {
         if (!this._clinicSharingEnabled()) return;
-        this._disableShallowHydrationIfSqlite();
-        try {
-            await this.getService('clinicParkedRecordService').afterSync(syncStartedAt);
-        } finally {
-            this._enableShallowHydrationIfSqlite();
-        }
+        await this.getService('clinicParkedRecordService').afterServerSync();
     }
 
     // Push runs before pull, so whatever the pull released would otherwise wait for the next sync.
     async _pushReleasedHoldBacks(allTxEntityMetaData, afterEachEntityTypePushed = _.noop) {
         if (!this.releasedHoldBacks) return;
         this.releasedHoldBacks = 0;
-        if (this._clinicSharingEnabled()) await this.getService('clinicHubService').mirrorOwnQueue();
         this._disableShallowHydrationIfSqlite();
         try {
             await this.pushData(allTxEntityMetaData.slice(), afterEachEntityTypePushed);

@@ -5,7 +5,8 @@ import _ from "lodash";
 import EntityService from "../EntityService";
 import PrivilegeService from "../PrivilegeService";
 import SyncService from "../SyncService";
-import {SHAREABLE_ENTITIES} from "../../framework/clinicsharing/ClinicSharingConstants";
+import EntitySyncStatusService from "../EntitySyncStatusService";
+import {SETUP_TYPES, SHAREABLE_ENTITIES} from "../../framework/clinicsharing/ClinicSharingConstants";
 
 const txMetaDataParentsFirst = () => EntityMetaData.model().filter((md) => md.type === 'tx').reverse();
 
@@ -29,6 +30,15 @@ class ClinicRecordService extends BaseService {
     }
 
     // toResource is the upload format; the receiving fromResource also needs what the server adds on download.
+    // loadedSince is the newest server timestamp pulled, so phones synced to the same server state hold the same values.
+    setupVersion() {
+        const statusService = this.getService(EntitySyncStatusService);
+        return _.fromPairs(SETUP_TYPES.map((type) => {
+            const loadedSince = _.get(statusService.get(type), 'loadedSince');
+            return [type, loadedSince ? loadedSince.getTime() : 0];
+        }));
+    }
+
     toSharedResource(entityName, entity) {
         const resource = entity.toResource;
         if (entityName === 'Comment') {

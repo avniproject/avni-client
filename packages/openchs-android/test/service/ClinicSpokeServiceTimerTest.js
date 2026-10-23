@@ -76,40 +76,12 @@ describe('Syncing with the hub while joined', () => {
         expect(spoke.syncWithHub).toHaveBeenCalledTimes(2);
     });
 
-    it("skips the regular hub sync while a server sync runs, and sends once to the hub before the server upload", async () => {
-        const syncService = {serverSyncRunning: false};
-        spoke.getService = (name) => (name === 'syncService' ? syncService : undefined);
-        spoke.join(joinInfo);
-        await settle();
-        syncService.serverSyncRunning = true;
-
-        jest.advanceTimersByTime(interval);
-        expect(spoke.syncWithHub).toHaveBeenCalledTimes(1);
-
-        const beforeUpload = spoke.syncBeforeServerUpload();
-        expect(spoke.syncWithHub).toHaveBeenCalledTimes(2);
-        await settle();
-        await beforeUpload;
-    });
-
-    it("waits for a hub sync already under way before the server upload starts", async () => {
-        spoke.join(joinInfo);
-        let finished = false;
-        const beforeUpload = spoke.syncBeforeServerUpload().then(() => { finished = true; });
-        await Promise.resolve();
-        expect(finished).toBe(false);
-
-        await settle();
-        await settle();
-        await beforeUpload;
-        expect(finished).toBe(true);
-    });
-
     it('stops when the phone leaves the hub', async () => {
         spoke.join(joinInfo);
         await settle();
         spoke.leave();
 
+        expect(jest.getTimerCount()).toBe(0);
         jest.advanceTimersByTime(interval * 4);
         expect(spoke.syncWithHub).toHaveBeenCalledTimes(1);
         expect(await spoke.syncNow()).toBeNull();

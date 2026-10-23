@@ -4,13 +4,14 @@ import {EntityQueue} from 'openchs-models';
 import {open} from '@op-engineering/op-sqlite';
 import {AppState, NativeEventEmitter, NativeModules} from 'react-native';
 import DeviceInfo from "react-native-device-info";
+import fs from "react-native-fs";
 import _ from "lodash";
 import General from "../../utility/General";
 import ClinicRecordService, {parentsFirstIndex} from "./ClinicRecordService";
 import UserInfoService from "../UserInfoService";
 import {MyDashboardActionNames} from '../../action/mydashboard/MyDashboardActions';
 import {connectToHub, MessageType} from "../../framework/clinicsharing/ClinicTransport";
-import {CLINIC_SYNC_INTERVAL_SECONDS, SHAREABLE_ENTITIES} from "../../framework/clinicsharing/ClinicSharingConstants";
+import {CLINIC_SYNC_INTERVAL_SECONDS, LEAVE_SYNC_TIMEOUT_MS, SHAREABLE_ENTITIES} from "../../framework/clinicsharing/ClinicSharingConstants";
 
 const SERVICE_ROLE = 'phone';
 const LEAVE_REQUESTED_EVENT = 'ClinicPhoneLeaveRequested';
@@ -27,6 +28,7 @@ class ClinicSpokeService extends BaseService {
         this.lastSyncedAt = null;
         this.hubRestarted = false;
         this.hubNetworkLost = false;
+        this.leftCamp = null;
         this.listeners = new Set();
     }
 
@@ -97,13 +99,31 @@ class ClinicSpokeService extends BaseService {
         return this._getMeta('joinCode');
     }
 
+    _hasState() {
+        return fs.exists(`${fs.DocumentDirectoryPath}/../databases/${this.stateName}`);
+    }
+
+    // A phone in a camp never syncs with the server, so this outlives the app, the hub's Wi-Fi and a hub restart.
+    async camp() {
+        if (!this.stateDb && !(await this._hasState())) return null;
+        const camp = await this._getMeta('camp');
+        return camp ? JSON.parse(camp) : null;
+    }
+
+    // The hub phone is in its own camp too; the server sync, logout and Delete Data guards ask this.
+    async isInCamp() {
+        return !_.isNil(await this.camp()) || await this.getService('clinicHubService').campActive();
+    }
+
     // Android's in-app Wi-Fi join ends with the app, so the code is kept for Rejoin until the hub restarts.
     async joinWithCode(qrText, log) {
         const hubJoin = require("../../framework/clinicsharing/ClinicHubJoin").default;
         const joinInfo = await hubJoin.joinHub(qrText);
         await this._setMeta('joinCode', qrText);
+        await this._setMeta('camp', JSON.stringify({hubId: joinInfo.hubId, epoch: joinInfo.epoch}));
         this.hubRestarted = false;
         this.hubNetworkLost = false;
+        this.leftCamp = null;
         this.lastSync = null;
         this.lastSyncedAt = null;
         this.join(joinInfo, log);
@@ -112,9 +132,27 @@ class ClinicSpokeService extends BaseService {
         return joinInfo;
     }
 
+    // A last send and fetch first, if the hub is in reach, so the team keeps this phone's latest work.
     async leaveHub() {
+        if (this.joined) {
+            let timer;
+            const outOfReach = new Promise((resolve) => { timer = setTimeout(resolve, LEAVE_SYNC_TIMEOUT_MS); });
+            try {
+                await Promise.race([this._runSync(this.log), outOfReach]);
+            } finally {
+                clearTimeout(timer);
+            }
+        }
+        await this.leaveCamp();
+    }
+
+    async leaveCamp(reason = null) {
         this.leave();
         await this._setMeta('joinCode', null);
+        await this._setMeta('camp', null);
+        this.hubRestarted = false;
+        this.hubNetworkLost = false;
+        this.leftCamp = reason;
         await require("../../framework/clinicsharing/ClinicHubWifi").leaveNetwork().catch(_.noop);
         this._changed();
     }
@@ -205,13 +243,13 @@ class ClinicSpokeService extends BaseService {
             const {cursor} = await this._hubState({hubId, epoch});
             const collectedAt = Date.now();
             const {batches: outbox, sent, upTo} = this.collectOutbox(await this._pushedRecords(hubId));
-            connection = await connectToHub({host, port, key, hubId, epoch, appVersion: DeviceInfo.getVersion()});
+            connection = await connectToHub({host, port, key, hubId, epoch, appVersion: DeviceInfo.getVersion(), setup: this.getService(ClinicRecordService).setupVersion()});
 
             const phoneName = this.phoneName();
             await connection.request({type: MessageType.push, deviceId, phoneName, batches: outbox, upTo}, MessageType.pushAck);
             await this._savePushed(hubId, sent);
 
-            const {batches, maxSeq} = await connection.request({type: MessageType.pull, deviceId, phoneName, since: cursor}, MessageType.pullResult);
+            const {batches, maxSeq, campEnded} = await connection.request({type: MessageType.pull, deviceId, phoneName, since: cursor}, MessageType.pullResult);
             const applied = await this.getService(ClinicRecordService).applyBatches(this._withoutEditsSince(batches, collectedAt), log);
             await this._saveHubState(hubId, 'cursor', maxSeq);
             const unparked = (await this.getService('clinicParkedRecordService').afterSync(startedAt, log)).applied;
@@ -219,7 +257,7 @@ class ClinicSpokeService extends BaseService {
 
             const mediaSent = await this.getService('clinicMediaService').pushToHub(connection, hubId, log);
             log(`Sent ${_.sumBy(outbox, (b) => b.resources.length)}, received ${applied}, files sent ${mediaSent}`);
-            return {sent: _.sumBy(outbox, (b) => b.resources.length), received: applied, mediaSent};
+            return {sent: _.sumBy(outbox, (b) => b.resources.length), received: applied, mediaSent, campEnded: !!campEnded};
         } catch (error) {
             log(error.message);
             General.logError('ClinicSpokeService', error);
@@ -236,15 +274,6 @@ class ClinicSpokeService extends BaseService {
 
     syncNow(log) {
         if (!this.joined) return Promise.resolve(null);
-        // A hub sync's saves and a server sync's batch would roll each other back.
-        if (_.get(this.getService('syncService'), 'serverSyncRunning')) return Promise.resolve(null);
-        return this._runSync(log);
-    }
-
-    // A server upload empties the queue this phone sends to the hub from, so the hub gets it first.
-    async syncBeforeServerUpload(log = this.log) {
-        if (!this.joined) return null;
-        if (this.inFlight) await this.inFlight;
         return this._runSync(log);
     }
 
@@ -257,11 +286,15 @@ class ClinicSpokeService extends BaseService {
         return this.inFlight;
     }
 
-    // A refused key or epoch means the hub restarted with a new code, which no retry will get past.
+    // A refused key or epoch means the hub restarted with a new code, which no retry will get past; the phone stays in the camp.
+    // A different setup leaves the camp, as only a server sync can fix it.
     async _noteResult(result) {
         this.lastSync = {at: new Date(), ...result};
         if (!result.error) this.lastSyncedAt = this.lastSync.at;
-        if (['key', 'stale'].includes(_.get(result, 'error.code'))) await this._hubRestarted();
+        const errorCode = _.get(result, 'error.code');
+        if (result.campEnded) await this.leaveCamp({code: 'campEnded'});
+        else if (errorCode === 'setup') await this.leaveCamp(result.error);
+        else if (['key', 'stale'].includes(errorCode)) await this._hubRestarted();
         else this._changed();
         return result;
     }

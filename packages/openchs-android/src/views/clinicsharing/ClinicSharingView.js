@@ -1,5 +1,5 @@
 import React from "react";
-import {ActivityIndicator, ScrollView, Text, TouchableNativeFeedback, View} from "react-native";
+import {ActivityIndicator, Alert, ScrollView, Text, TouchableNativeFeedback, View} from "react-native";
 import _ from "lodash";
 import moment from "moment";
 import {Individual} from "openchs-models";
@@ -22,8 +22,8 @@ import {HELD_UPLOAD_WARNING_DAYS} from "../../framework/clinicsharing/ClinicShar
 import ClinicHubQrCode from "./ClinicHubQrCode";
 import ClinicHubScanner from "./ClinicHubScanner";
 
-const TRANSLATED_ERRORS = ['key', 'stale', 'version', 'timeout', 'closed', 'hubNeedsAndroid10', 'badCode', 'joinFailed',
-    'cannotReadNetwork', 'wrongNetwork', 'hubNotFound', 'joinInProgress', 'rejoinFailed', 'busy', 'hotspotStopped',
+const TRANSLATED_ERRORS = ['key', 'stale', 'setup', 'timeout', 'closed', 'hubNeedsAndroid10', 'badCode', 'joinFailed',
+    'cannotReadNetwork', 'wrongNetwork', 'hubNotFound', 'joinInProgress', 'rejoinFailed', 'hotspotStopped',
     'hotspotFailed', 'locationOff', 'hotspotNotAllowed', 'wifiOff'];
 // The phones-synced count and held uploads change without an event this screen hears.
 const REFRESH_MS = 10 * 1000;
@@ -36,7 +36,7 @@ class ClinicSharingView extends AbstractComponent {
         super(props, context);
         this.hub = context.getService('clinicHubService');
         this.spoke = context.getService('clinicSpokeService');
-        this.state = {busy: false, scanning: false, error: null, permissionsDenied: false, savedJoinCode: null, held: null};
+        this.state = {busy: false, scanning: false, error: null, permissionsDenied: false, savedJoinCode: null, held: null, hubCamp: false, phoneCamp: null};
     }
 
     viewName() {
@@ -56,8 +56,9 @@ class ClinicSharingView extends AbstractComponent {
     }
 
     async refresh() {
-        const [savedJoinCode, held] = await Promise.all([this.spoke.savedJoinCode(), this.getService('clinicHoldBackService').getHeldUploads()]);
-        if (!this._isUnmounted) this.setState({savedJoinCode, held});
+        const [savedJoinCode, held, hubCamp, phoneCamp] = await Promise.all([this.spoke.savedJoinCode(),
+            this.getService('clinicHoldBackService').getHeldUploads(), this.hub.campActive(), this.spoke.camp()]);
+        if (!this._isUnmounted) this.setState({savedJoinCode, held, hubCamp, phoneCamp});
     }
 
     async run(work) {
@@ -80,7 +81,14 @@ class ClinicSharingView extends AbstractComponent {
     }
 
     startHub = () => this.run(() => this.withPermissions(ClinicRole.hub, () => this.hub.startSharing(hubLog)));
-    stopHub = () => this.run(() => this.hub.stopSharing());
+    endCamp = () => this.run(() => this.hub.endCamp());
+    skipPhone = (deviceId) => this.run(() => this.hub.skipPhone(deviceId));
+    closeHub = () => this.run(() => this.hub.closeCamp());
+    // Phones still in the camp are not told, so each has to leave it by hand.
+    closeCampWithoutHub = () => Alert.alert(this.I18n.t('clinicSharingCloseCamp'), this.I18n.t('clinicSharingCloseCampConfirm'), [
+        {text: this.I18n.t('clinicSharingCancel'), style: 'cancel'},
+        {text: this.I18n.t('clinicSharingCloseCamp'), onPress: () => this.run(() => this.hub.closeCamp())},
+    ]);
     scan = () => this.run(() => this.withPermissions(ClinicRole.phone, async () => this.setState({scanning: true})));
     cancelScan = () => this.setState({scanning: false});
     // A restarted hub has a new network, and the old one failing to appear looks the same as being out of range.
@@ -106,7 +114,9 @@ class ClinicSharingView extends AbstractComponent {
 
     errorText(error) {
         const code = _.get(error, 'code');
-        if (_.includes(TRANSLATED_ERRORS, code)) return this.I18n.t(`clinicSharingError_${code}`, _.get(error, 'details', {}));
+        const details = _.get(error, 'details', {});
+        if (code === 'setup') return this.I18n.t('clinicSharingError_setup', {types: _.get(details, 'types', []).join(', ')});
+        if (_.includes(TRANSLATED_ERRORS, code)) return this.I18n.t(`clinicSharingError_${code}`, details);
         return this.I18n.t('clinicSharingErrorOther', {message: _.get(error, 'message', '')});
     }
 
@@ -128,22 +138,49 @@ class ClinicSharingView extends AbstractComponent {
         }}>{text}</Text>;
     }
 
+    renderPhoneLine({deviceId, name, syncedAt, leftAt, skipped}) {
+        const time = moment(syncedAt).format('LT');
+        const text = !this.hub.campEnding ? this.I18n.t('clinicSharingPhoneLastSynced', {phone: name, time})
+            : leftAt ? this.I18n.t('clinicSharingPhoneLeft', {phone: name})
+                : skipped ? this.I18n.t('clinicSharingPhoneSkipped', {phone: name})
+                    : this.I18n.t('clinicSharingPhoneNotLeft', {phone: name, time});
+        return (
+            <View key={deviceId}>
+                <Text style={{fontSize: Styles.normalTextSize, color: Colors.InputNormal, marginTop: 4}}>{text}</Text>
+                {this.hub.campEnding && !leftAt && !skipped && this.renderButton(this.I18n.t('clinicSharingSkipPhone', {phone: name}), () => this.skipPhone(deviceId), false)}
+            </View>
+        );
+    }
+
     renderHub(sharing) {
         const refusal = this.getService('clinicMediaService').getHubStorageRefusal();
+        const ending = this.hub.campEnding;
         return (
             <View>
+                {ending && this.renderText(this.I18n.t('clinicSharingCampEnding'), {title: true})}
                 <ClinicHubQrCode qrValue={sharing.qrValue} ssid={sharing.ssid} passphrase={sharing.passphrase}
                                  networkLabel={this.I18n.t('clinicSharingNetworkName')} passwordLabel={this.I18n.t('clinicSharingNetworkPassword')}/>
                 {this.renderText(this.I18n.t('clinicSharingPhonesSyncedRecently', {
                     count: this.hub.recentPhoneCount(), minutes: RECENT_PHONE_WINDOW_MS / 60000,
                 }))}
-                {this.hub.phonesSynced().map(({deviceId, name, syncedAt}) => (
-                    <Text key={deviceId} style={{fontSize: Styles.normalTextSize, color: Colors.InputNormal, marginTop: 4}}>
-                        {this.I18n.t('clinicSharingPhoneLastSynced', {phone: name, time: moment(syncedAt).format('LT')})}
-                    </Text>
-                ))}
+                {this.hub.phonesSynced().map((phone) => this.renderPhoneLine(phone))}
                 {refusal && this.renderText(this.I18n.t('clinicSharingHubLowStorage', {freeMb: refusal.freeMb}), {warning: true})}
-                {this.renderButton(this.I18n.t('clinicSharingStopHub'), this.stopHub, false)}
+                {!ending && this.renderText(this.I18n.t('clinicSharingEndCampHelp'))}
+                {!ending && this.renderButton(this.I18n.t('clinicSharingEndCamp'), this.endCamp, false)}
+                {ending && this.renderText(this.I18n.t('clinicSharingCloseHubHelp'))}
+                {ending && this.hub.everyPhoneLeft() && this.renderButton(this.I18n.t('clinicSharingCloseHub'), this.closeHub)}
+            </View>
+        );
+    }
+
+    // The hub phone's camp outlives its hotspot, so it can carry on or close the camp.
+    renderHubCampPaused() {
+        return (
+            <View>
+                {this.hub.hotspotStopped && this.renderText(this.I18n.t('clinicSharingHubWifiStopped'), {warning: true})}
+                {this.renderText(this.I18n.t('clinicSharingHubCampPaused'))}
+                {this.renderButton(this.I18n.t('clinicSharingStartHub'), this.startHub)}
+                {this.renderButton(this.I18n.t('clinicSharingCloseCamp'), this.closeCampWithoutHub, false)}
             </View>
         );
     }
@@ -157,6 +194,7 @@ class ClinicSharingView extends AbstractComponent {
                     ? this.I18n.t('clinicSharingLastSynced', {time: moment(lastSyncedAt).format('LT')})
                     : this.I18n.t('clinicSharingNotSyncedYet'))}
                 {lastSync && lastSync.error && this.renderText(this.errorText(lastSync.error), {warning: true})}
+                {this.renderText(this.I18n.t('clinicSharingInCamp'))}
                 {this.renderButton(this.I18n.t('clinicSharingSyncWithHub'), this.syncNow)}
                 {this.renderButton(this.I18n.t('clinicSharingLeaveHub'), this.leave, false)}
             </View>
@@ -174,17 +212,21 @@ class ClinicSharingView extends AbstractComponent {
             );
         }
         const savedHub = this.state.savedJoinCode && _.get(parseJoinPayload(this.state.savedJoinCode), 'payload.ssid');
+        const inCamp = !_.isNil(this.state.phoneCamp);
+        const leftCamp = this.spoke.leftCamp;
         return (
             <View>
+                {!inCamp && leftCamp && this.renderText(leftCamp.code === 'campEnded' ? this.I18n.t('clinicSharingCampEndedByHub') : this.errorText(leftCamp), {warning: leftCamp.code !== 'campEnded'})}
                 {this.spoke.hubRestarted && this.renderText(this.I18n.t('clinicSharingHubRestarted'), {warning: true})}
                 {this.spoke.hubNetworkLost && savedHub && this.renderText(this.I18n.t('clinicSharingHubNetworkLost', {hub: savedHub}), {warning: true})}
                 {this.renderText(this.I18n.t('clinicSharingJoinTitle'), {title: true})}
+                {inCamp && this.renderText(this.I18n.t('clinicSharingInCamp'))}
                 {savedHub && this.renderButton(this.I18n.t('clinicSharingRejoin', {hub: savedHub}), this.rejoin)}
-                {this.renderButton(this.I18n.t(savedHub ? 'clinicSharingScanNewCode' : 'clinicSharingScanToJoin'), this.scan, !savedHub)}
-                {canBeHub && this.renderText(this.I18n.t('clinicSharingHubTitle'), {title: true})}
-                {canBeHub && this.hub.hotspotStopped && this.renderText(this.I18n.t('clinicSharingHubWifiStopped'), {warning: true})}
-                {canBeHub && this.renderText(this.I18n.t('clinicSharingStartHubHelp'))}
-                {canBeHub && this.renderButton(this.I18n.t('clinicSharingStartHub'), this.startHub)}
+                {this.renderButton(this.I18n.t(inCamp ? 'clinicSharingScanNewCode' : 'clinicSharingScanToJoin'), this.scan, !inCamp)}
+                {inCamp && this.renderButton(this.I18n.t('clinicSharingLeaveHub'), this.leave, false)}
+                {canBeHub && !inCamp && this.renderText(this.I18n.t('clinicSharingHubTitle'), {title: true})}
+                {canBeHub && !inCamp && this.renderText(this.I18n.t('clinicSharingStartHubHelp'))}
+                {canBeHub && !inCamp && this.renderButton(this.I18n.t('clinicSharingStartHub'), this.startHub)}
             </View>
         );
     }
@@ -219,7 +261,8 @@ class ClinicSharingView extends AbstractComponent {
                         <View style={{paddingHorizontal: Distances.ContentDistanceFromEdge, paddingBottom: 24}}>
                             {this.state.permissionsDenied && this.renderText(this.I18n.t('clinicSharingPermissionsNeeded'), {warning: true})}
                             {this.state.error && this.renderText(this.errorText(this.state.error), {warning: true})}
-                            {sharing ? this.renderHub(sharing) : joined ? this.renderJoined(joined) : this.renderNotJoined(canBeHub)}
+                            {sharing ? this.renderHub(sharing) : this.state.hubCamp ? this.renderHubCampPaused()
+                                : joined ? this.renderJoined(joined) : this.renderNotJoined(canBeHub)}
                             {this.renderHeldUploads()}
                             {this.state.busy && <ActivityIndicator style={{marginTop: 16}}/>}
                         </View>

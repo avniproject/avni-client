@@ -74,7 +74,7 @@ function device(kind) {
         },
         mediaItems: (entity) => entity.media,
     };
-    const recordService = {applyBatches: async () => 0, toSharedResource: () => ({})};
+    const recordService = {applyBatches: async () => 0, toSharedResource: () => ({}), setupVersion: () => ({Form: 1})};
     services.set('mediaQueueService', mediaQueueService);
     services.set(ClinicRecordService, recordService);
     services.set('clinicParkedRecordService', {afterSync: async () => ({applied: 0, reported: 0})});

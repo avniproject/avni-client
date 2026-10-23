@@ -66,95 +66,39 @@ describe('Uploads released by the pull', () => {
         expect(steps).toEqual(['push', 'pull', 'push']);
     });
 
-    it('follow a mirror of the hub phone\'s own queue, taken before the first push pops it', async () => {
-        const {svc, steps} = buildSyncService({pullReleases: 0});
-        svc.db = {isSqlite: true};
-        const services = svc.getService;
-        svc.getService = jest.fn((name) => ({
-            ...services(name),
-            getSettings: () => ({enableClinicSharing: true}),
-            mirrorOwnQueue: async () => { steps.push('mirror'); },
-            syncBeforeServerUpload: async () => {},
-            afterSync: async () => ({applied: 0, reported: 0}),
-        }));
-
-        await runSync(svc);
-
-        expect(steps).toEqual(['mirror', 'push', 'pull']);
-    });
-
-    it("send a joined phone's records to the hub before the server upload empties its queue, with server sync marked running throughout", async () => {
-        const {svc, steps} = buildSyncService({pullReleases: 0});
-        svc.db = {isSqlite: true};
-        const services = svc.getService;
-        svc.getService = jest.fn((name) => ({
-            ...services(name),
-            getSettings: () => ({enableClinicSharing: true}),
-            mirrorOwnQueue: async () => {},
-            syncBeforeServerUpload: async () => { steps.push(`hub (running: ${svc.serverSyncRunning})`); },
-            afterSync: async () => ({applied: 0, reported: 0}),
-        }));
-        const push = svc.pushData;
-        svc.pushData = jest.fn(async (...args) => { steps.push(`running: ${svc.serverSyncRunning}`); return push(...args); });
-
-        await runSync(svc);
-
-        expect(steps).toEqual(['hub (running: true)', 'running: true', 'push', 'pull']);
-        expect(svc.serverSyncRunning).toBe(false);
-    });
-
-    // A start taken after the pull would report a record whose parent the pull just failed to bring as not yet due.
-    it("are followed by applying hub records that waited for a parent, with the sync's start taken before the push", async () => {
-        const {svc, steps} = buildSyncService({pullReleases: 0});
-        svc.db = {isSqlite: true};
-        const services = svc.getService;
-        let retriedWithStart;
-        svc.getService = jest.fn((name) => ({
-            ...services(name),
-            getSettings: () => ({enableClinicSharing: true}),
-            mirrorOwnQueue: async () => {},
-            syncBeforeServerUpload: async () => {},
-            afterSync: async (syncStartedAt) => { retriedWithStart = syncStartedAt; steps.push('apply waiting'); return {applied: 0, reported: 0}; },
-        }));
-        let pushedAt;
-        const push = svc.pushData;
-        svc.pushData = jest.fn(async (...args) => { pushedAt = pushedAt || Date.now(); return push(...args); });
-        let clock = 1000;
-        const now = jest.spyOn(Date, 'now').mockImplementation(() => clock++);
-
-        try {
-            await runSync(svc);
-        } finally {
-            now.mockRestore();
-        }
-
-        expect(steps).toEqual(['push', 'pull', 'apply waiting']);
-        expect(retriedWithStart).toBeLessThan(pushedAt);
-    });
-
-    it('clear the server-sync-running mark when the sync fails', async () => {
-        const {svc} = buildSyncService({pullReleases: 0});
-        svc.pushData = jest.fn(async () => { throw new Error('network down'); });
-
-        await expect(runSync(svc)).rejects.toThrow('network down');
-        expect(svc.serverSyncRunning).toBe(false);
-    });
-
-    it("on the hub phone, take a fresh copy of its own queue before the second push pops it", async () => {
+    it("run no hub sync and take no copy of the hub phone's queue: a server sync happens only outside a clinic camp", async () => {
         const {svc, steps} = buildSyncService({pullReleases: 1});
         svc.db = {isSqlite: true};
         const services = svc.getService;
+        const clinic = {
+            mirrorOwnQueue: jest.fn(), syncBeforeServerUpload: jest.fn(),
+            afterServerSync: async () => { steps.push('drop waiting'); return {dropped: 0, reported: 0}; },
+        };
+        svc.getService = jest.fn((name) => ({...services(name), getSettings: () => ({enableClinicSharing: true}), ...clinic}));
+
+        await runSync(svc);
+
+        expect(steps).toEqual(['push', 'pull', 'drop waiting', 'push']);
+        expect(clinic.mirrorOwnQueue).not.toHaveBeenCalled();
+        expect(clinic.syncBeforeServerUpload).not.toHaveBeenCalled();
+    });
+
+    it("are followed by dropping the hub records still waiting from a camp, rather than saving them over the server's copy", async () => {
+        const {svc, steps} = buildSyncService({pullReleases: 0});
+        svc.db = {isSqlite: true};
+        const services = svc.getService;
+        const afterSync = jest.fn();
         svc.getService = jest.fn((name) => ({
             ...services(name),
             getSettings: () => ({enableClinicSharing: true}),
-            mirrorOwnQueue: async () => { steps.push('mirror'); },
-            syncBeforeServerUpload: async () => {},
-            afterSync: async () => ({applied: 0, reported: 0}),
+            afterSync,
+            afterServerSync: async () => { steps.push('drop waiting'); return {dropped: 2, reported: 0}; },
         }));
 
         await runSync(svc);
 
-        expect(steps).toEqual(['mirror', 'push', 'pull', 'mirror', 'push']);
+        expect(steps).toEqual(['push', 'pull', 'drop waiting']);
+        expect(afterSync).not.toHaveBeenCalled();
     });
 
     it("hold back a server reset while uploads still wait, so the reset does not delete them", async () => {

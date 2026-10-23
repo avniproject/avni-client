@@ -150,6 +150,17 @@ class ClinicParkedRecordService extends BaseService {
         }
         return {applied, reported: orphans.length};
     }
+
+    // A server sync runs only outside a camp, when the server is the source of truth: a waiting record is a teammate's,
+    // which their own phone uploads, so it is dropped rather than saved over a newer server copy.
+    async afterServerSync() {
+        const rows = this._parkedRows();
+        if (rows.length === 0) return {dropped: 0, reported: 0};
+        const orphans = rows.filter((row) => !row.reported && this._missingParents(row.entity_name, JSON.parse(row.resource)).length > 0);
+        this._report(orphans);
+        await this._state().executeBatch([['delete from parked_records', []]]);
+        return {dropped: rows.length, reported: orphans.length};
+    }
 }
 
 export default ClinicParkedRecordService;
