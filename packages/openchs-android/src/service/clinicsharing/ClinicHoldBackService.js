@@ -59,24 +59,39 @@ class ClinicHoldBackService extends BaseService {
     }
 
     // entitiesToPost must be parents first, as pushData builds it, so a hold passes down a chain.
-    async withoutHeld(entitiesToPost) {
-        const received = await this.receivedUuids();
+    _waitingOn(entitiesToPost, received) {
         const waitingOn = new Map();
+        entitiesToPost.forEach(({entities}) => entities.forEach(({resource}) => {
+            const blocker = [resource.uuid, ...linkedUuids(resource)]
+                .map((uuid) => (received.has(uuid) ? uuid : waitingOn.get(uuid)))
+                .find((uuid) => !_.isNil(uuid));
+            if (!_.isNil(blocker)) waitingOn.set(resource.uuid, blocker);
+        }));
+        return waitingOn;
+    }
+
+    async withoutHeld(entitiesToPost) {
+        const waitingOn = this._waitingOn(entitiesToPost, await this.receivedUuids());
         const toPost = entitiesToPost.map(({metaData, entities}) => ({
             metaData,
-            entities: entities.filter(({resource}) => {
-                const blocker = [resource.uuid, ...linkedUuids(resource)]
-                    .map((uuid) => (received.has(uuid) ? uuid : waitingOn.get(uuid)))
-                    .find((uuid) => !_.isNil(uuid));
-                if (_.isNil(blocker)) return true;
-                waitingOn.set(resource.uuid, blocker);
-                return false;
-            }),
+            entities: entities.filter(({resource}) => !waitingOn.has(resource.uuid)),
         }));
         const held = entitiesToPost.flatMap(({metaData, entities}) => entities
             .filter(({resource}) => waitingOn.has(resource.uuid))
             .map(({resource}) => ({entityType: metaData.entityName, uuid: resource.uuid, waitingOn: waitingOn.get(resource.uuid)})));
         return {toPost: toPost.filter(({entities}) => entities.length > 0), held};
+    }
+
+    // Held uploads safe to try before a reset: the server refuses one whose parent it lacks.
+    // An edit of another phone's record is left out, as the server would credit this user with creating it.
+    async heldToTry(entitiesToPost) {
+        const waitingOn = this._waitingOn(entitiesToPost, await this.receivedUuids());
+        // A hold rooted in a record this phone is itself uploading is an edit of another phone's record, or depends on one.
+        const queued = new Set(entitiesToPost.flatMap(({entities}) => entities.map(({resource}) => resource.uuid)));
+        return entitiesToPost.map(({metaData, entities}) => ({
+            metaData,
+            entities: entities.filter(({resource}) => waitingOn.has(resource.uuid) && !queued.has(waitingOn.get(resource.uuid))),
+        })).filter(({entities}) => entities.length > 0);
     }
 
     async getHeldUploads() {

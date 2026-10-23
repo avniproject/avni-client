@@ -251,6 +251,60 @@ describe("Holding back uploads that depend on another phone", () => {
         expect(held.oldest.toISOString()).toBe(new Date(at.getTime() + 2 * 60000).toISOString());
     });
 
+    describe("when a reset is due", () => {
+        const txMetaData = () => EntityMetaData.model().filter((md) => md.type === 'tx');
+        const queuedParentsFirst = () => txMetaData().reverse()
+            .map((metaData) => mine.sync.entityQueueService.getAllQueuedItems(metaData))
+            .filter(({entities}) => entities.length > 0);
+        const uuidsOf = (entitiesToPost) => entitiesToPost.flatMap(({entities}) => entities.map(({resource}) => resource.uuid));
+
+        it("offers the uploads waiting on a parent, and not this phone's edits of another phone's records", async () => {
+            await receivePatient();
+            await mine.recordService.applyBatches([{entityName: 'Encounter',
+                resources: [fromAnotherPhone('Encounter', 'Encounter', visit("v-nurse", "p-1", {name: "nurse"}))]}], log);
+            mine.saveLocally("Encounter", visit("v-1", "p-1"));
+            mine.saveLocally("Encounter", visit("v-nurse", "p-1", {name: "doctor"}));
+
+            expect(uuidsOf(await mine.holdBack.heldToTry(queuedParentsFirst()))).toEqual(["v-1"]);
+        });
+
+        it("offers a whole chain made on a received patient, parents first", async () => {
+            await receivePatient();
+            mine.saveLocally("ProgramEnrolment", enrolment("enl-1", "p-1"));
+            mine.saveLocally("ProgramEncounter", {uuid: "pe-1", encounterType: {uuid: "et-anc"}, programEnrolment: {uuid: "enl-1"}, encounterDateTime: at,
+                observations: [], cancelObservations: [], voided: false});
+
+            expect(uuidsOf(await mine.holdBack.heldToTry(queuedParentsFirst()))).toEqual(["enl-1", "pe-1"]);
+        });
+
+        it("keeps what the server took before a refusal, and deletes nothing", async () => {
+            await receivePatient();
+            await mine.recordService.applyBatches([{entityName: 'Individual', resources: [fromAnotherPhone('Individual', 'Individual', patient('p-2'))]}], log);
+            mine.saveLocally("Encounter", visit("v-1", "p-1"));
+            mine.saveLocally("Encounter", visit("v-2", "p-2"));
+            const refuseV2 = mine.sync.conventionalRestClient.postAllEntities;
+            mine.sync.conventionalRestClient.postAllEntities = async (allEntities, onCompleteOfIndividualPost, onComplete) => {
+                const accepted = allEntities.map(({metaData, entities}) => ({metaData, entities: entities.filter(({resource}) => resource.uuid !== "v-2")}));
+                await refuseV2(accepted, onCompleteOfIndividualPost, onComplete);
+                if (uuidsOf(allEntities).includes("v-2")) throw new Error("Http 500: Individual not found");
+            };
+
+            expect(await mine.sync._tryHeldUploads(txMetaData())).toBe(false);
+
+            expect(mine.postedUuids()).toEqual(["v-1"]);
+            expect(mine.queued()).toEqual(["v-2"]);
+        });
+
+        it("reports nothing waiting once the server takes every offered upload", async () => {
+            await receivePatient();
+            mine.saveLocally("Encounter", visit("v-1", "p-1"));
+
+            expect(await mine.sync._tryHeldUploads(txMetaData())).toBe(true);
+
+            expect(mine.queued()).toEqual([]);
+        });
+    });
+
     it("changes nothing for an organisation not using clinic sharing", async () => {
         const plain = phone({clinicSharing: false});
         const holdBackState = jest.spyOn(plain.holdBack, 'receivedUuids');

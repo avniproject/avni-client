@@ -242,7 +242,7 @@ class SyncService extends BaseService {
         )
     }
 
-    // A reset deletes the upload queue, and after the push it still holds uploads waiting on another phone's records.
+    // A reset deletes the upload queue, and after the push it still holds uploads waiting on another phone's records (INV-029).
     _uploadsStillWaiting() {
         const waiting = this.entityQueueService.getPendingFieldDataCount();
         if (waiting === 0) return false;
@@ -287,8 +287,12 @@ class SyncService extends BaseService {
             .then(() => this.getResetSyncData(resetSyncMetadata, onProgressPerEntity))
             .then(async () => {
                 const isResetSyncRequired = this.getService(ResetSyncService).isResetSyncRequired();
-                if (isResetSyncRequired && this._uploadsStillWaiting()) return;
-                return await isResetSyncRequired && isManualSync && this.confirmUserAndResetSync(userConfirmation);
+                if (!isResetSyncRequired || !isManualSync) return;
+                if (this._uploadsStillWaiting() && !(await this._tryHeldUploads(allTxEntityMetaData))) {
+                    statusMessageCallBack("resetWaitingOnUploads");
+                    return;
+                }
+                return await this.confirmUserAndResetSync(userConfirmation);
             });
 
         let {syncDetails, endDateTime, now} = await this.getSyncDetails();
@@ -746,7 +750,12 @@ class SyncService extends BaseService {
 
     pushData(allTxEntityMetaData, afterEachEntityTypePushed) {
         const readDurations = {};
-        const entitiesToPost = allTxEntityMetaData.reverse()
+        const entitiesToPost = this._queuedParentsFirst(allTxEntityMetaData, readDurations);
+        return this._withoutHeldUploads(entitiesToPost).then((toPost) => this._postQueued(toPost, readDurations, afterEachEntityTypePushed));
+    }
+
+    _queuedParentsFirst(allTxEntityMetaData, readDurations = {}) {
+        return allTxEntityMetaData.slice().reverse()
             .map((entityMetaData) => {
                 const readStart = performance.now();
                 const queued = this.entityQueueService.getAllQueuedItems(entityMetaData);
@@ -754,7 +763,21 @@ class SyncService extends BaseService {
                 return queued;
             })
             .filter((entities) => !_.isEmpty(entities.entities));
-        return this._withoutHeldUploads(entitiesToPost).then((toPost) => this._postQueued(toPost, readDurations, afterEachEntityTypePushed));
+    }
+
+    // Tried apart from the main upload, so a refusal leaves the reset waiting instead of failing the sync.
+    async _tryHeldUploads(allTxEntityMetaData) {
+        if (this._clinicSharingEnabled()) {
+            const toTry = await this.getService('clinicHoldBackService').heldToTry(this._queuedParentsFirst(allTxEntityMetaData));
+            if (!_.isEmpty(toTry)) {
+                try {
+                    await this._postQueued(toTry, {}, _.noop);
+                } catch (error) {
+                    General.logWarn("SyncService", `The server refused uploads waiting on other phones' records: ${error.message}`);
+                }
+            }
+        }
+        return this.entityQueueService.getPendingFieldDataCount() === 0;
     }
 
     _withoutHeldUploads(entitiesToPost) {

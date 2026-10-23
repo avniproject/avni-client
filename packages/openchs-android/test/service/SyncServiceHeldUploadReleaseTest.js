@@ -11,7 +11,7 @@ jest.mock('react-native-keychain', () => ({
 }));
 jest.mock('../../src/utility/General', () => ({
     __esModule: true,
-    default: {logInfo: jest.fn(), logWarn: jest.fn(), logError: jest.fn(), logDebug: jest.fn()},
+    default: {logInfo: jest.fn(), logWarn: jest.fn(), logError: jest.fn(), logDebug: jest.fn(), elapsedMs: () => 0},
 }));
 jest.mock('../../src/GlobalContext', () => ({
     __esModule: true,
@@ -107,12 +107,87 @@ describe('Uploads released by the pull', () => {
         const services = svc.getService;
         svc.getService = jest.fn((name) => ({...services(name), isResetSyncRequired: () => true, resetSync}));
         svc.entityQueueService = {getPendingFieldDataCount: () => 1, getPendingFieldDataSummary: () => 'Encounter=1'};
+        svc.conventionalRestClient = {postAllEntities: jest.fn()};
         const userConfirmation = jest.fn(async () => 'YES');
+        const statusMessageCallBack = jest.fn();
 
-        await svc.dataServerSync(ALL_ENTITIES_META_DATA, () => {}, () => {}, () => {}, () => {}, true, userConfirmation, false);
+        await svc.dataServerSync(ALL_ENTITIES_META_DATA, statusMessageCallBack, () => {}, () => {}, () => {}, true, userConfirmation, false);
 
         expect(userConfirmation).not.toHaveBeenCalled();
         expect(resetSync).not.toHaveBeenCalled();
+        expect(statusMessageCallBack).toHaveBeenCalledWith("resetWaitingOnUploads");
+        expect(svc.conventionalRestClient.postAllEntities).not.toHaveBeenCalled();
+    });
+
+    describe("in an organisation using clinic sharing, with a reset due", () => {
+        const heldVisit = {resource: {uuid: 'v-1'}};
+        function clinicSyncService({stillWaiting, postAllEntities}) {
+            const built = buildSyncService({pullReleases: 0});
+            const {svc} = built;
+            svc.db = {isSqlite: true};
+            const resetSync = jest.fn();
+            const services = svc.getService;
+            svc.getService = jest.fn((name) => ({
+                ...services(name), isResetSyncRequired: () => true, resetSync,
+                getSettings: () => ({enableClinicSharing: true}),
+                heldToTry: async (entitiesToPost) => entitiesToPost,
+                afterServerSync: async () => ({dropped: 0, reported: 0}),
+            }));
+            svc.dispatchAction = jest.fn();
+            svc.entityQueueService = {
+                getPendingFieldDataCount: jest.fn(stillWaiting), getPendingFieldDataSummary: () => 'Encounter=1',
+                getAllQueuedItems: (metaData) => ({metaData, entities: metaData.entityName === 'Encounter' ? [heldVisit] : []}),
+                popItem: jest.fn(() => () => {}),
+            };
+            svc.conventionalRestClient = {postAllEntities: jest.fn(postAllEntities)};
+            return {...built, resetSync};
+        }
+        const manualSync = (svc, statusMessageCallBack, userConfirmation, isManualSync = true) =>
+            svc.dataServerSync(ALL_ENTITIES_META_DATA, statusMessageCallBack, () => {}, () => {}, () => {}, isManualSync, userConfirmation, false);
+
+        it("try the waiting uploads first, and run the reset in the same sync once the server takes them", async () => {
+            let waiting = 1;
+            const {svc, resetSync} = clinicSyncService({
+                stillWaiting: () => waiting,
+                postAllEntities: async (allEntities) => { waiting = 0; },
+            });
+            const userConfirmation = jest.fn(async () => 'YES');
+
+            await manualSync(svc, jest.fn(), userConfirmation);
+
+            const posted = svc.conventionalRestClient.postAllEntities.mock.calls[0][0];
+            expect(posted.flatMap(({entities}) => entities.map(({resource}) => resource.uuid))).toEqual(['v-1']);
+            expect(userConfirmation).toHaveBeenCalled();
+            expect(resetSync).toHaveBeenCalled();
+        });
+
+        it("keep the reset waiting, delete nothing, and say so on the sync screen when the server refuses them", async () => {
+            const {svc, steps, resetSync} = clinicSyncService({
+                stillWaiting: () => 1,
+                postAllEntities: async () => { throw new Error("Http 500: Individual not found"); },
+            });
+            const userConfirmation = jest.fn(async () => 'YES');
+            const statusMessageCallBack = jest.fn();
+
+            await manualSync(svc, statusMessageCallBack, userConfirmation);
+
+            expect(svc.conventionalRestClient.postAllEntities).toHaveBeenCalled();
+            expect(userConfirmation).not.toHaveBeenCalled();
+            expect(resetSync).not.toHaveBeenCalled();
+            expect(statusMessageCallBack).toHaveBeenCalledWith("resetWaitingOnUploads");
+            expect(steps).toContain('pull');
+        });
+
+        it("try nothing on a background sync, where no reset runs", async () => {
+            const {svc, resetSync} = clinicSyncService({stillWaiting: () => 1, postAllEntities: async () => {}});
+            const statusMessageCallBack = jest.fn();
+
+            await manualSync(svc, statusMessageCallBack, undefined, false);
+
+            expect(svc.conventionalRestClient.postAllEntities).not.toHaveBeenCalled();
+            expect(statusMessageCallBack).not.toHaveBeenCalledWith("resetWaitingOnUploads");
+            expect(resetSync).not.toHaveBeenCalled();
+        });
     });
 
     it("run the server reset as before once nothing waits to upload", async () => {
