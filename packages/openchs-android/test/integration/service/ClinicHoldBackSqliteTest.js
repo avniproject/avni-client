@@ -315,6 +315,17 @@ describe("Holding back uploads that depend on another phone", () => {
             expect(uuidsOf(await mine.holdBack.heldToTry(queuedParentsFirst()))).toEqual(["enl-1", "pe-1"]);
         });
 
+        it("does not offer a reply in another phone's comment thread, which the server would save without its thread", async () => {
+            mine.create("Individual", patient("own-1", "Kamla"));
+            const thread = {uuid: "th-1", status: "Open", openDateTime: at, voided: false};
+            await mine.recordService.applyBatches([{entityName: 'CommentThread', resources: [fromAnotherPhone('CommentThread', 'CommentThread', thread)]}], log);
+            mine.saveLocally("Comment", {uuid: "cm-1", text: "Reply", subject: {uuid: "own-1"}, commentThread: {uuid: "th-1"}, displayUsername: "doctor",
+                createdByUsername: "doctor", createdDateTime: at, lastModifiedDateTime: at, voided: false});
+
+            expect((await mine.holdBack.getHeldUploads()).items.map(({uuid}) => uuid)).toEqual(["cm-1"]);
+            expect(uuidsOf(await mine.holdBack.heldToTry(queuedParentsFirst()))).toEqual([]);
+        });
+
         it("keeps what the server took before a refusal, and deletes nothing", async () => {
             await receivePatient();
             await mine.recordService.applyBatches([{entityName: 'Individual', resources: [fromAnotherPhone('Individual', 'Individual', patient('p-2'))]}], log);

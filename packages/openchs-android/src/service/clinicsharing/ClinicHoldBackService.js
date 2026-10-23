@@ -8,6 +8,8 @@ import {HELD_UPLOAD_WARNING_DAYS} from "../../framework/clinicsharing/ClinicShar
 
 export const HELD_UPLOAD_REPORT_SOURCE = 'ClinicSharingHeldUpload';
 const DAY_MS = 24 * 60 * 60 * 1000;
+// Links the server saves without checking the parent exists, so it would take the upload and drop the link.
+const UNCHECKED_LINKS = {Comment: ['commentThreadUUID']};
 
 const linkedUuids = (resource) => _.compact(_.map(resource, (value, key) => (/uuid$/i.test(key) && _.isString(value) ? value : null)));
 
@@ -90,14 +92,25 @@ class ClinicHoldBackService extends BaseService {
     }
 
     // Held uploads safe to try before a reset: the server refuses one whose parent it lacks.
-    // An edit of another phone's record is left out, as the server would credit this user with creating it.
+    // Left out, with whatever depends on them: an edit of another phone's record, as the server would credit this user
+    // with creating it, and a record held on a link the server does not check.
     async heldToTry(entitiesToPost) {
-        const waitingOn = this._waitingOn(entitiesToPost, await this.receivedUuids());
+        const received = await this.receivedUuids();
+        const waitingOn = this._waitingOn(entitiesToPost, received);
         // A hold rooted in a record this phone is itself uploading is an edit of another phone's record, or depends on one.
         const queued = new Set(entitiesToPost.flatMap(({entities}) => entities.map(({resource}) => resource.uuid)));
+        const notTried = new Set();
         return entitiesToPost.map(({metaData, entities}) => ({
             metaData,
-            entities: entities.filter(({resource}) => waitingOn.has(resource.uuid) && !queued.has(waitingOn.get(resource.uuid))),
+            entities: entities.filter(({resource}) => {
+                if (!waitingOn.has(resource.uuid)) return false;
+                const unchecked = _.get(UNCHECKED_LINKS, metaData.entityName, []).map((key) => resource[key]);
+                const leftOut = queued.has(waitingOn.get(resource.uuid))
+                    || linkedUuids(resource).some((uuid) => notTried.has(uuid))
+                    || unchecked.some((uuid) => received.has(uuid) || waitingOn.has(uuid));
+                if (leftOut) notTried.add(resource.uuid);
+                return !leftOut;
+            }),
         })).filter(({entities}) => entities.length > 0);
     }
 
