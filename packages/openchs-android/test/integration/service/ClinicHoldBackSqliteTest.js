@@ -95,6 +95,8 @@ function phone({clinicSharing = true} = {}) {
     create("ApprovalStatus", {uuid: "approved", status: "Approved", voided: false});
     create("Concept", {uuid: "c-photo", name: "Photo", datatype: "Image", voided: false});
     create("Concept", {uuid: "c-photo-2", name: "Second photo", datatype: "Image", voided: false});
+    create("Concept", {uuid: "c-group", name: "Photos group", datatype: "QuestionGroup", voided: false});
+    create("Concept", {uuid: "c-repeat", name: "Repeated photos", datatype: "QuestionGroup", voided: false});
     create("Groups", {uuid: "admins", name: "Administrators", hasAllPrivileges: true});
     create("MyGroups", {uuid: "my-admins", groupUuid: "admins", groupName: "Administrators", voided: false});
 
@@ -272,6 +274,12 @@ const photos = (first, second) => [
     ...(second ? [{concept: {uuid: "c-photo-2"}, valueJSON: JSON.stringify({answer: second})}] : []),
 ];
 const answerOf = (encounter, conceptUUID) => JSON.parse(encounter.observations.find((o) => o.concept.uuid === conceptUUID).valueJSON).answer;
+const enrolment = (uuid, individualUUID, extra = {}) => ({uuid, program: {uuid: "pr-mother"}, individual: {uuid: individualUUID}, enrolmentDateTime: at,
+    observations: [], programExitObservations: [], voided: false, ...extra});
+const photoInGroup = (fileName) => ({concept: {uuid: "c-photo", name: "Photo", datatype: "Image"}, valueJSON: {answer: fileName}});
+const groupPhoto = (fileName) => ({concept: {uuid: "c-group"}, valueJSON: JSON.stringify({groupObservations: [photoInGroup(fileName)]})});
+const repeatableGroupPhoto = (fileName) => ({concept: {uuid: "c-repeat"},
+    valueJSON: JSON.stringify({repeatableObservations: [{groupObservations: [photoInGroup(fileName)]}]})});
 
 describe("Photos in records from another phone", () => {
     let mine;
@@ -333,6 +341,43 @@ describe("Photos in records from another phone", () => {
         await receive('Encounter', visit("v-own", "p-1", {observations: photos(DOCTOR_PHOTO, NURSE_PHOTO)}));
 
         expect([mine.media.isFromAnotherPhone(DOCTOR_PHOTO), mine.media.isFromAnotherPhone(NURSE_PHOTO)]).toEqual([false, true]);
+    });
+
+    describe("keep their link when another phone's copy arrives with the bare name", () => {
+        const link = `https://s3.example.org/org-1/${NURSE_PHOTO}`;
+        // As after this phone's upload: the local copy holds the link and nothing is queued.
+        const uploadedLocally = (schema, data) => {
+            mine.saveLocally(schema, data);
+            mine.rawDb.executeSync("DELETE FROM entity_queue");
+        };
+
+        it("on a programme exit form, saved as text the exit screen can read", async () => {
+            uploadedLocally("ProgramEnrolment", enrolment("e-1", "p-1", {observations: photos(link), programExitObservations: photos(link)}));
+
+            await receive('ProgramEnrolment', enrolment("e-1", "p-1", {observations: photos(NURSE_PHOTO), programExitObservations: photos(NURSE_PHOTO)}));
+
+            const local = mine.read("ProgramEnrolment", "e-1");
+            expect([...local.programExitObservations].map((o) => typeof o.valueJSON)).toEqual(["string"]);
+            expect([JSON.parse(local.programExitObservations[0].valueJSON).answer, answerOf(local, "c-photo")]).toEqual([link, link]);
+        });
+
+        it("inside a question group", async () => {
+            uploadedLocally("Encounter", visit("v-1", "p-1", {observations: [groupPhoto(link)]}));
+
+            await receive('Encounter', visit("v-1", "p-1", {observations: [groupPhoto(NURSE_PHOTO)]}));
+
+            const group = JSON.parse(mine.read("Encounter", "v-1").observations[0].valueJSON);
+            expect(group.groupObservations[0].valueJSON.answer).toEqual(link);
+        });
+
+        it("inside a repeatable question group", async () => {
+            uploadedLocally("Encounter", visit("v-1", "p-1", {observations: [repeatableGroupPhoto(link)]}));
+
+            await receive('Encounter', visit("v-1", "p-1", {observations: [repeatableGroupPhoto(NURSE_PHOTO)]}));
+
+            const repeats = JSON.parse(mine.read("Encounter", "v-1").observations[0].valueJSON);
+            expect(repeats.repeatableObservations[0].groupObservations[0].valueJSON.answer).toEqual(link);
+        });
     });
 
     it("are queued as today for an organisation not using clinic sharing", async () => {
