@@ -25,6 +25,7 @@ class ClinicHoldBackService extends BaseService {
         if (!this.tableReady) {
             await db.execute('create table if not exists received_from_peer (uuid text primary key, entity_type text not null, received_at integer not null)');
             await db.execute('create table if not exists held_reported (uuid text primary key)');
+            await db.execute('create table if not exists held_since (uuid text primary key, held_at integer not null)');
             this.tableReady = true;
         }
         return db;
@@ -91,6 +92,22 @@ class ClinicHoldBackService extends BaseService {
         return {toPost: toPost.filter(({entities}) => entities.length > 0), held};
     }
 
+    // A camp blocks server sync, so a record's wait is counted from the first server sync that held it, not from its save.
+    async noteHeld(held, now = Date.now()) {
+        const db = await this._state();
+        const heldUuids = held.map(({uuid}) => uuid);
+        const since = this._rows(await db.execute('select uuid from held_since')).map((row) => row.uuid);
+        await db.executeBatch([
+            ..._.difference(since, heldUuids).map((uuid) => ['delete from held_since where uuid = ?', [uuid]]),
+            ...heldUuids.map((uuid) => ['insert into held_since (uuid, held_at) values (?, ?) on conflict(uuid) do nothing', [uuid, now]]),
+        ]);
+    }
+
+    async _heldSince() {
+        const db = await this._state();
+        return _.fromPairs(this._rows(await db.execute('select uuid, held_at from held_since')).map((row) => [row.uuid, row.held_at]));
+    }
+
     // Held uploads safe to try before a reset: the server refuses one whose parent it lacks.
     // Left out, with whatever depends on them: an edit of another phone's record, as the server would credit this user
     // with creating it, and a record held on a link the server does not check.
@@ -120,22 +137,19 @@ class ClinicHoldBackService extends BaseService {
             .map((metaData) => queueService.getAllQueuedItems(metaData))
             .filter(({entities}) => entities.length > 0);
         const {held} = await this.withoutHeld(entitiesToPost);
-        const heldUuids = new Set(held.map(({uuid}) => uuid));
-        const oldest = _.min(this.findAll(EntityQueue.schema.name).slice()
-            .filter((item) => heldUuids.has(item.entityUUID))
-            .map((item) => item.savedAt));
-        return {count: held.length, oldest: oldest || null, items: held};
+        const heldSince = await this._heldSince();
+        const oldest = _.min(held.map(({uuid}) => heldSince[uuid]).filter((heldAt) => !_.isNil(heldAt)));
+        return {count: held.length, oldest: _.isNil(oldest) ? null : new Date(oldest), items: held};
     }
 
     // The same mark as the clinic sharing screen's warning, so support sees a phone stuck behind a teammate's lost phone. Once per record.
     async reportLongWaiting(now) {
         const {items} = await this.getHeldUploads();
         if (items.length === 0) return 0;
-        const firstSavedAt = _.mapValues(_.groupBy(this.findAll(EntityQueue.schema.name).slice(), 'entityUUID'),
-            (rows) => _.min(rows.map((row) => new Date(row.savedAt).getTime())));
+        const heldSince = await this._heldSince();
         const db = await this._state();
         const reported = new Set(this._rows(await db.execute('select uuid from held_reported')).map((row) => row.uuid));
-        const due = items.filter(({uuid}) => !reported.has(uuid) && now - firstSavedAt[uuid] >= HELD_UPLOAD_WARNING_DAYS * DAY_MS);
+        const due = items.filter(({uuid}) => !reported.has(uuid) && !_.isNil(heldSince[uuid]) && now - heldSince[uuid] >= HELD_UPLOAD_WARNING_DAYS * DAY_MS);
         due.forEach(({entityType, uuid, waitingOn}) => {
             const error = new Error(`${HELD_UPLOAD_REPORT_SOURCE}: ${entityType} ${uuid} has waited ${HELD_UPLOAD_WARNING_DAYS} days for ${waitingOn}`);
             General.logError(HELD_UPLOAD_REPORT_SOURCE, error);

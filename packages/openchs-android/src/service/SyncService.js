@@ -784,8 +784,11 @@ class SyncService extends BaseService {
 
     _withoutHeldUploads(entitiesToPost) {
         if (!this._clinicSharingEnabled()) return Promise.resolve(entitiesToPost);
-        return this.getService('clinicHoldBackService').withoutHeld(entitiesToPost).then(({toPost, held}) => {
+        const holdBack = this.getService('clinicHoldBackService');
+        return holdBack.withoutHeld(entitiesToPost).then(async ({toPost, held}) => {
             if (held.length > 0) General.logInfo("SyncService", `Holding back ${held.length} uploads until records from other phones reach the server`);
+            // Only for the 3-day warning and report, so it never fails the upload.
+            await holdBack.noteHeld(held).catch((error) => General.logError("SyncService", error));
             return toPost;
         });
     }

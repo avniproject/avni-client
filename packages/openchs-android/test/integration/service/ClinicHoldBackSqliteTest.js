@@ -235,12 +235,15 @@ describe("Holding back uploads that depend on another phone", () => {
         expect(mine.queued()).toEqual(["eas-mine"]);
     });
 
-    it("reports what is held, since when, and what it waits on", async () => {
+    it("reports what is held, since the first server sync that held it, and what it waits on", async () => {
         await receivePatient();
         mine.saveLocally("Individual", patient("own-1", "Kamla"));
         mine.saveLocally("Encounter", visit("v-1", "p-1"));
         mine.saveLocally("Encounter", visit("v-2", "p-1"));
+        expect((await mine.holdBack.getHeldUploads()).oldest).toBeNull();
 
+        const before = Date.now();
+        await mine.push();
         const held = await mine.holdBack.getHeldUploads();
 
         expect(held.count).toBe(2);
@@ -248,12 +251,13 @@ describe("Holding back uploads that depend on another phone", () => {
             {entityType: "Encounter", uuid: "v-1", waitingOn: "p-1"},
             {entityType: "Encounter", uuid: "v-2", waitingOn: "p-1"},
         ]);
-        expect(held.oldest.toISOString()).toBe(new Date(at.getTime() + 2 * 60000).toISOString());
+        expect(held.oldest.getTime()).toBeGreaterThanOrEqual(before);
     });
 
     describe("an upload that has waited 3 days", () => {
         const DAY = 24 * 60 * 60 * 1000;
         const savedAt = () => mine.services.get(EntityQueueService).findAll("EntityQueue").map((item) => item.savedAt.getTime())[0];
+        const heldAt = async () => (await mine.holdBack.getHeldUploads()).oldest.getTime();
         let reports;
         beforeEach(() => { reports = jest.spyOn(ErrorUtil, 'notifyBugsnag').mockImplementation(async () => {}); });
         afterEach(() => reports.mockRestore());
@@ -261,8 +265,9 @@ describe("Holding back uploads that depend on another phone", () => {
         it("is reported, naming the patient it waits on", async () => {
             await receivePatient();
             mine.saveLocally("Encounter", visit("v-1", "p-1"));
+            await mine.push();
 
-            expect(await mine.holdBack.reportLongWaiting(savedAt() + 3 * DAY + 60000)).toBe(1);
+            expect(await mine.holdBack.reportLongWaiting(await heldAt() + 3 * DAY + 60000)).toBe(1);
 
             expect(reports).toHaveBeenCalledTimes(1);
             expect(reports.mock.calls[0][0].message).toBe("ClinicSharingHeldUpload: Encounter v-1 has waited 3 days for p-1");
@@ -272,9 +277,11 @@ describe("Holding back uploads that depend on another phone", () => {
         it("is reported once, however many syncs follow", async () => {
             await receivePatient();
             mine.saveLocally("Encounter", visit("v-1", "p-1"));
+            await mine.push();
 
-            await mine.holdBack.reportLongWaiting(savedAt() + 3 * DAY + 60000);
-            expect(await mine.holdBack.reportLongWaiting(savedAt() + 5 * DAY)).toBe(0);
+            await mine.holdBack.reportLongWaiting(await heldAt() + 3 * DAY + 60000);
+            await mine.push();
+            expect(await mine.holdBack.reportLongWaiting(await heldAt() + 5 * DAY)).toBe(0);
 
             expect(reports).toHaveBeenCalledTimes(1);
         });
@@ -282,10 +289,23 @@ describe("Holding back uploads that depend on another phone", () => {
         it("is not reported before 3 days", async () => {
             await receivePatient();
             mine.saveLocally("Encounter", visit("v-1", "p-1"));
+            await mine.push();
 
-            expect(await mine.holdBack.reportLongWaiting(savedAt() + 3 * DAY - 60 * 60 * 1000)).toBe(0);
+            expect(await mine.holdBack.reportLongWaiting(await heldAt() + 3 * DAY - 60 * 60 * 1000)).toBe(0);
 
             expect(reports).not.toHaveBeenCalled();
+        });
+
+        it("counts from the first server sync that held it, so a camp of several days does not report it at once", async () => {
+            await receivePatient();
+            mine.saveLocally("Encounter", visit("v-1", "p-1"));
+
+            expect(await mine.holdBack.reportLongWaiting(savedAt() + 4 * DAY)).toBe(0);
+            await mine.push();
+            expect(await mine.holdBack.reportLongWaiting(await heldAt() + DAY)).toBe(0);
+            expect(await mine.holdBack.reportLongWaiting(await heldAt() + 3 * DAY + 60000)).toBe(1);
+
+            expect(reports).toHaveBeenCalledTimes(1);
         });
     });
 
