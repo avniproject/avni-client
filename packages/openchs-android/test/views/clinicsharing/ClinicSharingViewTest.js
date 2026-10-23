@@ -44,7 +44,7 @@ const t = (key, params) => (params ? `${key} ${JSON.stringify(params)}` : key);
 
 function services({admin = true, sharing = null, joined = null, savedJoinCode = null, lastSync = null, lastSyncedAt = null,
                       hubRestarted = false, hubNetworkLost = false, held = {count: 0, oldest: null, items: []}, refusal = null, hotspotStopped = false,
-                      hubCamp = false, campEnding = false, everyPhoneLeft = false, phones = null, phoneCamp, leftCamp = null} = {}) {
+                      hubCamp = false, campEnding = false, everyPhoneLeft = false, phones = null, phoneCamp, leftCamp = null, starting = false} = {}) {
     const camp = phoneCamp !== undefined ? phoneCamp : (savedJoinCode || joined ? {hubId: "hub-1", epoch: "epoch-1"} : null);
     const fakes = {
         MessageService: {getI18n: () => ({t})},
@@ -52,7 +52,7 @@ function services({admin = true, sharing = null, joined = null, savedJoinCode = 
         EntityService: {findByKey: (key, uuid) => (uuid === 'p-1' ? {nameString: 'Sunita Devi'} : undefined)},
         clinicHubService: {onChange: () => () => {}, getSharing: () => sharing, recentPhoneCount: () => 3, hotspotStopped, campEnding,
             phonesSynced: () => phones || [{deviceId: "d-1", name: "Doctor · Galaxy A15", syncedAt: new Date(2026, 9, 19, 14, 7).getTime()}],
-            campActive: async () => hubCamp, everyPhoneLeft: () => everyPhoneLeft,
+            campActive: async () => hubCamp, everyPhoneLeft: () => everyPhoneLeft, isStarting: () => starting,
             startSharing: jest.fn(async () => {}), stopSharing: jest.fn(async () => {}), endCamp: jest.fn(async () => {}),
             skipPhone: jest.fn(async () => {}), closeCamp: jest.fn(async () => {})},
         clinicSpokeService: {onChange: () => () => {}, joined, lastSync, lastSyncedAt, hubRestarted, hubNetworkLost, leftCamp,
@@ -114,6 +114,14 @@ describe("ClinicSharingView", () => {
 
         const fresh = await show({admin: true});
         expect(fresh.lines()).not.toContain("clinicSharingHubWifiStopped");
+    });
+
+    it("while the hub is starting, as after the app reopens in a camp, says so and offers no button that would start it twice", async () => {
+        const {lines} = await show({admin: true, hubCamp: true, starting: true});
+
+        expect(lines()).toContain("clinicSharingHubStarting");
+        expect(lines()).not.toEqual(expect.arrayContaining(["clinicSharingStartHub"]));
+        expect(lines()).not.toContain("clinicSharingCloseCamp");
     });
 
     it("does not show Start hub at all to other users", async () => {

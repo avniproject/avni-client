@@ -73,6 +73,8 @@ class ClinicHubService extends BaseService {
 
     // Closing a camp ends sharing and drops what the hub kept for it, photo copies included.
     async closeCamp() {
+        // A start under way would set the camp on again after it was cleared.
+        if (this.starting) await this.starting.catch(_.noop);
         await this.clearLedger();
         this._changed();
     }
@@ -106,7 +108,7 @@ class ClinicHubService extends BaseService {
     // Only the first start of a camp asks for permissions; a restart starts by itself, but only on screen, as Android
     // refuses the foreground service from the background, and only with the permissions still granted.
     async resumeCamp(log) {
-        if (this.sharing || AppState.currentState !== 'active' || !(await this.campActive())) return null;
+        if (this.sharing || this.starting || AppState.currentState !== 'active' || !(await this.campActive())) return null;
         const {canStartHub} = require("../../framework/clinicsharing/ClinicHubWifi");
         const {ClinicRole, hasClinicHubPermissions} = require("../../framework/clinicsharing/ClinicHubPermissions");
         if (!canStartHub()) return null;
@@ -114,8 +116,24 @@ class ClinicHubService extends BaseService {
         return this.startSharing(log);
     }
 
+    isStarting() {
+        return !_.isNil(this.starting);
+    }
+
+    // One start at a time: a second start would stop the first one's server, and Android refuses a second hotspot while one starts.
+    startSharing(log = _.noop, options = {}) {
+        if (!this.starting) {
+            this.starting = this._startSharing(log, options).finally(() => {
+                this.starting = null;
+                this._changed();
+            });
+            this._changed();
+        }
+        return this.starting;
+    }
+
     // The hub's server and its hotspot start and stop together; required lazily, as the join module needs native Wi-Fi.
-    async startSharing(log = _.noop, {port = CLINIC_PORT} = {}) {
+    async _startSharing(log, {port = CLINIC_PORT} = {}) {
         this.hotspotStopped = false;
         const resuming = (await this._getMeta('campActive')) === 'true';
         // A phone that becomes the hub has left any camp it joined, and must not keep offering its Rejoin.

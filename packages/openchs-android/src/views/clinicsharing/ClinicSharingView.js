@@ -253,10 +253,11 @@ class ClinicSharingView extends AbstractComponent {
                         <View style={{paddingHorizontal: Distances.ContentDistanceFromEdge, paddingBottom: 24}}>
                             {this.state.permissionsDenied && this.renderText(this.I18n.t('clinicSharingPermissionsNeeded'), {warning: true})}
                             {this.state.error && this.renderText(this.errorText(this.state.error), {warning: true})}
-                            {sharing ? this.renderHub(sharing) : this.state.hubCamp ? this.renderHubCampPaused()
+                            {sharing ? this.renderHub(sharing) : this.hub.isStarting() ? this.renderText(this.I18n.t('clinicSharingHubStarting'))
+                                : this.state.hubCamp ? this.renderHubCampPaused()
                                 : joined ? this.renderJoined(joined) : this.renderNotJoined(canBeHub)}
                             {this.renderHeldUploads()}
-                            {this.state.busy && <ActivityIndicator style={{marginTop: 16}}/>}
+                            {(this.state.busy || this.hub.isStarting()) && <ActivityIndicator style={{marginTop: 16}}/>}
                         </View>
                     </ScrollView>
                 </CHSContent>

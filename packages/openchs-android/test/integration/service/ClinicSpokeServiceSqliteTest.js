@@ -513,6 +513,37 @@ describe('Phones syncing with the hub', () => {
             expect([hub.transport, hub.getSharing(), hubJoin.stopHubNetwork.mock.calls.length]).toEqual([null, null, 1]);
         });
 
+        it("runs one start at a time, so the automatic restart and a tap on Start hub share it", async () => {
+            await hub.stopHub();
+            hubJoin.startHubNetwork.mockClear();
+            let finish = null;
+            hubJoin.startHubNetwork.mockImplementation(({hubId}) => new Promise((resolve) => { finish = () => resolve({ssid: 'AndroidShare_1', passphrase: 'pass1234', qrValue: hubId}); }));
+
+            const restart = hub.startSharing(log, {port});
+            const tap = hub.startSharing(log, {port});
+            expect(hub.isStarting()).toBe(true);
+            while (!finish) await new Promise((resolve) => setTimeout(resolve, 5));
+            finish();
+
+            const [first, second] = await Promise.all([restart, tap]);
+            expect(second).toBe(first);
+            expect([hubJoin.startHubNetwork.mock.calls.length, hub.isStarting(), hub.transport !== null]).toEqual([1, false, true]);
+        });
+
+        it("waits for a start under way before closing the camp, so the camp does not come back on", async () => {
+            await hub.stopHub();
+            let finish = null;
+            hubJoin.startHubNetwork.mockImplementation(({hubId}) => new Promise((resolve) => { finish = () => resolve({ssid: 'AndroidShare_1', passphrase: 'pass1234', qrValue: hubId}); }));
+
+            const restart = hub.startSharing(log, {port});
+            const closing = hub.closeCamp();
+            while (!finish) await new Promise((resolve) => setTimeout(resolve, 5));
+            finish();
+            await Promise.all([restart, closing]);
+
+            expect([await hub.campActive(), hub.getSharing(), hub.transport]).toEqual([false, null, null]);
+        });
+
         it("keeps its list of phones and who has left across a restart within a camp", async () => {
             await hub.stopHub();
             hubJoin.startHubNetwork.mockImplementation(async ({hubId}) => ({ssid: 'AndroidShare_1', passphrase: 'pass1234', qrValue: hubId}));
