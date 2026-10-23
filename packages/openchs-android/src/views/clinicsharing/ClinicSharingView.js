@@ -21,14 +21,10 @@ import {parseJoinPayload} from "../../framework/clinicsharing/ClinicJoinPayload"
 import {HELD_UPLOAD_WARNING_DAYS} from "../../framework/clinicsharing/ClinicSharingConstants";
 import ClinicHubQrCode from "./ClinicHubQrCode";
 import ClinicHubScanner from "./ClinicHubScanner";
+import {clinicSharingErrorText, hubLog} from "./ClinicSharingMessages";
 
-const TRANSLATED_ERRORS = ['key', 'stale', 'setup', 'timeout', 'closed', 'hubNeedsAndroid10', 'badCode', 'joinFailed',
-    'cannotReadNetwork', 'wrongNetwork', 'hubNotFound', 'joinInProgress', 'rejoinFailed', 'hotspotStopped',
-    'hotspotFailed', 'locationOff', 'hotspotNotAllowed', 'wifiOff'];
 // The phones-synced count and held uploads change without an event this screen hears.
 const REFRESH_MS = 10 * 1000;
-// Without a log, phones the hub refuses leave no trace.
-const hubLog = (message) => General.logInfo('ClinicHub', message);
 
 @Path('/clinicSharingView')
 class ClinicSharingView extends AbstractComponent {
@@ -113,11 +109,7 @@ class ClinicSharingView extends AbstractComponent {
     };
 
     errorText(error) {
-        const code = _.get(error, 'code');
-        const details = _.get(error, 'details', {});
-        if (code === 'setup') return this.I18n.t('clinicSharingError_setup', {types: _.get(details, 'types', []).join(', ')});
-        if (_.includes(TRANSLATED_ERRORS, code)) return this.I18n.t(`clinicSharingError_${code}`, details);
-        return this.I18n.t('clinicSharingErrorOther', {message: _.get(error, 'message', '')});
+        return clinicSharingErrorText(this.I18n, error);
     }
 
     renderButton(label, onPress, primary = true) {

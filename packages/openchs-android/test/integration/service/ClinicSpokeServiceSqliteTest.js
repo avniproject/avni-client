@@ -60,7 +60,7 @@ function device() {
         stub(service) {
             service.findAll = () => queue;
             service.findByKey = (key, uuid) => records[uuid] && {toResource: {uuid, version: records[uuid].version}};
-            const clinic = {clinicMediaService: {pushToHub: async () => 0, cleanUpCopies: async () => 0, discardFetchedCopies: async () => {}, discardHubCopies: async () => {}}, clinicParkedRecordService: parkedRecords,
+            const clinic = {clinicMediaService: {pushToHub: async () => 0, discardStrayParts: async () => {}, discardFetchedCopies: async () => {}, discardHubCopies: async () => {}}, clinicParkedRecordService: parkedRecords,
                 clinicSpokeService: {camp: async () => null, leaveCamp: async () => {}}, clinicHubService: {campActive: async () => false}};
             const userInfo = {getUserSettings: () => ({disableAutoRefresh: false})};
             service.getService = (cls) => (cls === ClinicRecordService ? recordService : cls === UserInfoService ? userInfo : clinic[cls]);
@@ -156,7 +156,31 @@ describe('Phones syncing with the hub', () => {
         }
     });
 
-    it('after a hub restart, sends everything unsent again and pulls from the start, without duplicates', async () => {
+    it('after a hub restart within a camp, phones carry on from where they were: nothing is sent or fetched again', async () => {
+        await hub._setMeta('campActive', true);
+        await hub.stopHub();
+        await startHub();
+        const a = phone(), b = phone();
+        a.save('Individual', 'ind-1', 'v1');
+        await a.sync();
+        await b.sync();
+        const epochBefore = session.epoch;
+
+        await hub.stopHub();
+        await startHub();
+        const pushes = jest.spyOn(hub, '_handlePush');
+        const pulls = jest.spyOn(hub, '_handlePull');
+        b.recordService.applied.length = 0;
+        await a.sync();
+        await b.sync();
+
+        expect(session.epoch).toBe(epochBefore);
+        expect(pushes.mock.calls.map(([message]) => message.batches.length)).toEqual([0, 0]);
+        expect(pulls.mock.calls.every(([message]) => message.since > 0)).toBe(true);
+        expect(b.recordService.applied.flat()).toEqual([]);
+    });
+
+    it('after a hub restart outside a camp, sends everything unsent again and pulls from the start, without duplicates', async () => {
         const a = phone(), b = phone();
         a.save('Individual', 'ind-1', 'v1');
         await a.sync();
@@ -474,6 +498,20 @@ describe('Phones syncing with the hub', () => {
 
             await hub.stopSharing();
             expect([hub.transport, hub.getSharing(), hubJoin.stopHubNetwork.mock.calls.length]).toEqual([null, null, 1]);
+        });
+
+        it("keeps its list of phones and who has left across a restart within a camp", async () => {
+            await hub.stopHub();
+            hubJoin.startHubNetwork.mockImplementation(async ({hubId}) => ({ssid: 'AndroidShare_1', passphrase: 'pass1234', qrValue: hubId}));
+            await hub.startSharing(log, {port});
+            await hub._noteSync('device-nurse', 'Nurse');
+            await hub._noteSync('device-doctor', 'Doctor');
+            await hub.skipPhone('device-doctor');
+
+            await hub.stopSharing();
+            await hub.startSharing(log, {port});
+
+            expect(hub.phonesSynced().map(({name, skipped}) => `${name}${skipped ? ' (skipped)' : ''}`).sort()).toEqual(['Doctor (skipped)', 'Nurse']);
         });
 
         it("is in its own camp from Start hub until the camp is closed, even while the hub is stopped", async () => {

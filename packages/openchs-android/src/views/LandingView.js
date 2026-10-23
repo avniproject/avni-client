@@ -15,6 +15,7 @@ import Styles from "./primitives/Styles";
 import MyDashboardView from "./mydashbaord/MyDashboardView";
 import {Dimensions, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import EntityService from "../service/EntityService";
+import {resumeClinicCamp} from "./clinicsharing/ClinicSharingMessages";
 import {SubjectType} from "avni-models";
 import _ from "lodash";
 import Colors from "./primitives/Colors";
@@ -90,6 +91,10 @@ class LandingView extends AbstractComponent {
 
     viewName() {
         return "LandingView";
+    }
+
+    onViewDidMount() {
+        resumeClinicCamp(this.context.getService('clinicHubService'), this.I18n);
     }
 
     componentDidUpdate(prevProps, prevState) {

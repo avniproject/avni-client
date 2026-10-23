@@ -737,6 +737,7 @@
     "clinicSharingCloseCamp": "Close the camp",
     "clinicSharingCloseCampConfirm": "Phones still in the camp are not told. Each of them must tap Leave camp. Close the camp?",
     "clinicCampBlocksServerSync": "You are in a camp. Leave the camp to sync with the server.",
-    "clinicCampBlocksLogout": "You are in a camp. Leave the camp before logging out."
+    "clinicCampBlocksLogout": "You are in a camp. Leave the camp before logging out.",
+    "clinicSharingHubNotResumed": "The hub did not start again. {{reason}} Then open Clinic sharing and tap Start hub."
   }
 }

@@ -1,6 +1,4 @@
 export const CLINIC_PORT = 7373;
-export const LEDGER_RETENTION_DAYS = 7;
-export const LEDGER_PRUNE_INTERVAL_MS = 60 * 60 * 1000;
 export const CLINIC_SYNC_INTERVAL_SECONDS = 30;
 
 // Upload-queue names of the records phones share through the hub. Each has a round-trip test.

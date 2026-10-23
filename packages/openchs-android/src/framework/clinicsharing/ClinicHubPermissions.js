@@ -20,3 +20,9 @@ export const requestClinicHubPermissions = async (role, apiLevel = DeviceInfo.ge
     const denied = requiredPermissions(role, apiLevel).filter((permission) => results[permission] !== PermissionsAndroid.RESULTS.GRANTED);
     return {granted: denied.length === 0, denied};
 };
+
+// Asks nothing: Android can take a permission back, and an automatic start must not prompt.
+export const hasClinicHubPermissions = async (role, apiLevel = DeviceInfo.getApiLevelSync()) => {
+    const granted = await Promise.all(requiredPermissions(role, apiLevel).map((permission) => PermissionsAndroid.check(permission)));
+    return granted.every(Boolean);
+};
