@@ -246,9 +246,10 @@ class ClinicHubService extends BaseService {
         // Applying records now would roll back the server sync's open batch; the phone retries on its next sync.
         if (this._serverSyncRunning()) throw new Error('syncing with the server');
         const startedAt = Date.now();
-        this._noteSync(deviceId, phoneName);
         const applied = await this.getService(ClinicRecordService).applyBatches(batches, log, deviceId);
         await this._appendLedgerRows(batches, deviceId);
+        // Only once its records are kept, so a phone whose syncs all fail never shows as just synced.
+        this._noteSync(deviceId, phoneName);
         await this.getService('clinicParkedRecordService').afterSync(startedAt, log);
         return {type: MessageType.pushAck, upTo, applied};
     }
@@ -298,7 +299,6 @@ class ClinicHubService extends BaseService {
     }
 
     async _handlePull({deviceId, phoneName, since}, log) {
-        this._noteSync(deviceId, phoneName);
         await this._mirrorOwnQueue();
         const db = await this._ledger();
         const rows = this._sqliteRows(await db.execute(
@@ -325,6 +325,7 @@ class ClinicHubService extends BaseService {
             }))
             .filter((batch) => batch.resources.length > 0);
         log(`Serving ${rows.length} ledger rows (${batches.length} types) to ${deviceId}`);
+        this._noteSync(deviceId, phoneName);
         return {type: MessageType.pullResult, batches, maxSeq, epoch: await this._getMeta('epoch')};
     }
 }

@@ -397,6 +397,24 @@ describe('Phones syncing with the hub', () => {
             expect(hub.phonesSynced()[0].syncedAt).toBe(hub.lastSyncByDevice.get(doctorId).syncedAt);
         });
 
+        it("does not list a phone as synced when the hub could not keep its records", async () => {
+            const nurse = phone('Nurse · Pixel 9a');
+            nurse.save('Individual', 'ind-1', 'v1');
+            hubDevice.recordService.applyBatches = async () => { throw new Error('disk full'); };
+
+            await nurse.sync();
+
+            expect(hub.phonesSynced()).toEqual([]);
+        });
+
+        it("does not list a phone as synced when the hub could not build what it pulls", async () => {
+            hub._mirrorOwnQueue = async () => { throw new Error('disk full'); };
+
+            await expect(hub._handlePull({deviceId: 'device-1', phoneName: 'Nurse · Pixel 9a', since: 0}, log)).rejects.toThrow('disk full');
+
+            expect(hub.phonesSynced()).toEqual([]);
+        });
+
         it('stops its server again when the hotspot cannot start', async () => {
             await hub.stopHub();
             hubJoin.startHubNetwork.mockImplementation(async () => { throw new Error('Wi-Fi is off'); });
