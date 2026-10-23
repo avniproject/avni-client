@@ -2,6 +2,12 @@ import Service from "../../framework/bean/Service";
 import BaseService from "../BaseService";
 import {EntityMetaData, EntityQueue} from 'openchs-models';
 import _ from "lodash";
+import General from "../../utility/General";
+import ErrorUtil from "../../framework/errorHandling/ErrorUtil";
+import {HELD_UPLOAD_WARNING_DAYS} from "../../framework/clinicsharing/ClinicSharingConstants";
+
+export const HELD_UPLOAD_REPORT_SOURCE = 'ClinicSharingHeldUpload';
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 const linkedUuids = (resource) => _.compact(_.map(resource, (value, key) => (/uuid$/i.test(key) && _.isString(value) ? value : null)));
 
@@ -16,6 +22,7 @@ class ClinicHoldBackService extends BaseService {
         const db = await this.getService('clinicSpokeService')._state();
         if (!this.tableReady) {
             await db.execute('create table if not exists received_from_peer (uuid text primary key, entity_type text not null, received_at integer not null)');
+            await db.execute('create table if not exists held_reported (uuid text primary key)');
             this.tableReady = true;
         }
         return db;
@@ -105,6 +112,24 @@ class ClinicHoldBackService extends BaseService {
             .filter((item) => heldUuids.has(item.entityUUID))
             .map((item) => item.savedAt));
         return {count: held.length, oldest: oldest || null, items: held};
+    }
+
+    // The same mark as the clinic sharing screen's warning, so support sees a phone stuck behind a teammate's lost phone. Once per record.
+    async reportLongWaiting(now) {
+        const {items} = await this.getHeldUploads();
+        if (items.length === 0) return 0;
+        const firstSavedAt = _.mapValues(_.groupBy(this.findAll(EntityQueue.schema.name).slice(), 'entityUUID'),
+            (rows) => _.min(rows.map((row) => new Date(row.savedAt).getTime())));
+        const db = await this._state();
+        const reported = new Set(this._rows(await db.execute('select uuid from held_reported')).map((row) => row.uuid));
+        const due = items.filter(({uuid}) => !reported.has(uuid) && now - firstSavedAt[uuid] >= HELD_UPLOAD_WARNING_DAYS * DAY_MS);
+        due.forEach(({entityType, uuid, waitingOn}) => {
+            const error = new Error(`${HELD_UPLOAD_REPORT_SOURCE}: ${entityType} ${uuid} has waited ${HELD_UPLOAD_WARNING_DAYS} days for ${waitingOn}`);
+            General.logError(HELD_UPLOAD_REPORT_SOURCE, error);
+            ErrorUtil.notifyBugsnag(error, HELD_UPLOAD_REPORT_SOURCE);
+        });
+        if (due.length > 0) await db.executeBatch(due.map(({uuid}) => ['insert into held_reported (uuid) values (?) on conflict(uuid) do nothing', [uuid]]));
+        return due.length;
     }
 }
 

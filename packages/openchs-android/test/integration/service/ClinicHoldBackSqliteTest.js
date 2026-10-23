@@ -251,6 +251,44 @@ describe("Holding back uploads that depend on another phone", () => {
         expect(held.oldest.toISOString()).toBe(new Date(at.getTime() + 2 * 60000).toISOString());
     });
 
+    describe("an upload that has waited 3 days", () => {
+        const DAY = 24 * 60 * 60 * 1000;
+        const savedAt = () => mine.services.get(EntityQueueService).findAll("EntityQueue").map((item) => item.savedAt.getTime())[0];
+        let reports;
+        beforeEach(() => { reports = jest.spyOn(ErrorUtil, 'notifyBugsnag').mockImplementation(async () => {}); });
+        afterEach(() => reports.mockRestore());
+
+        it("is reported, naming the patient it waits on", async () => {
+            await receivePatient();
+            mine.saveLocally("Encounter", visit("v-1", "p-1"));
+
+            expect(await mine.holdBack.reportLongWaiting(savedAt() + 3 * DAY + 60000)).toBe(1);
+
+            expect(reports).toHaveBeenCalledTimes(1);
+            expect(reports.mock.calls[0][0].message).toBe("ClinicSharingHeldUpload: Encounter v-1 has waited 3 days for p-1");
+            expect(reports.mock.calls[0][1]).toBe("ClinicSharingHeldUpload");
+        });
+
+        it("is reported once, however many syncs follow", async () => {
+            await receivePatient();
+            mine.saveLocally("Encounter", visit("v-1", "p-1"));
+
+            await mine.holdBack.reportLongWaiting(savedAt() + 3 * DAY + 60000);
+            expect(await mine.holdBack.reportLongWaiting(savedAt() + 5 * DAY)).toBe(0);
+
+            expect(reports).toHaveBeenCalledTimes(1);
+        });
+
+        it("is not reported before 3 days", async () => {
+            await receivePatient();
+            mine.saveLocally("Encounter", visit("v-1", "p-1"));
+
+            expect(await mine.holdBack.reportLongWaiting(savedAt() + 3 * DAY - 60 * 60 * 1000)).toBe(0);
+
+            expect(reports).not.toHaveBeenCalled();
+        });
+    });
+
     describe("when a reset is due", () => {
         const txMetaData = () => EntityMetaData.model().filter((md) => md.type === 'tx');
         const queuedParentsFirst = () => txMetaData().reverse()

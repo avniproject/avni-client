@@ -280,7 +280,7 @@ class SyncService extends BaseService {
             .then(() => this.pushData(allTxEntityMetaData.slice(), onProgressPerEntity))
             .then(() => onAfterMediaPush("After_Media", 0));
         if (isOnlyUploadRequired) {
-            return uploadData;
+            return uploadData.then(() => this._reportLongWaitingUploads());
         }
         await uploadData
             .then(() => statusMessageCallBack("FetchingChangedResource"))
@@ -388,6 +388,8 @@ class SyncService extends BaseService {
             .then(() => this._dropParkedClinicRecords())
             // Progress is not reported: the bar already counted these uploads in the first push.
             .then(() => this._pushReleasedHoldBacks(allTxEntityMetaData))
+            // After the released uploads, so one that went up in this sync is not reported as stuck.
+            .then(() => this._reportLongWaitingUploads())
             .then(() => this.downloadNewsImages())
             .then(() => this.downloadExtensions())
             .then(() => this.downloadCustomCardHtmlFiles())
@@ -806,6 +808,15 @@ class SyncService extends BaseService {
     async _dropParkedClinicRecords() {
         if (!this._clinicSharingEnabled()) return;
         await this.getService('clinicParkedRecordService').afterServerSync();
+    }
+
+    async _reportLongWaitingUploads() {
+        if (!this._clinicSharingEnabled()) return;
+        try {
+            await this.getService('clinicHoldBackService').reportLongWaiting(Date.now());
+        } catch (error) {
+            General.logError("SyncService", error);
+        }
     }
 
     // Push runs before pull, so whatever the pull released would otherwise wait for the next sync.

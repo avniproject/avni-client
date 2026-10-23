@@ -203,6 +203,47 @@ describe('Uploads released by the pull', () => {
         expect(resetSync).toHaveBeenCalled();
     });
 
+    describe("uploads that have waited 3 days", () => {
+        function reportingSyncService() {
+            const built = buildSyncService({pullReleases: 1});
+            const {svc, steps} = built;
+            svc.db = {isSqlite: true};
+            const services = svc.getService;
+            svc.getService = jest.fn((name) => ({
+                ...services(name), getSettings: () => ({enableClinicSharing: true}),
+                afterServerSync: async () => ({dropped: 0, reported: 0}),
+                reportLongWaiting: async () => { steps.push('report'); return 0; },
+            }));
+            return built;
+        }
+
+        it("are reported after the uploads the pull released have gone up, so one that cleared in this sync is not reported", async () => {
+            const {svc, steps} = reportingSyncService();
+
+            await runSync(svc);
+
+            expect(steps).toEqual(['push', 'pull', 'push', 'report']);
+        });
+
+        it("are reported after the upload on an upload-only sync", async () => {
+            const {svc, steps} = reportingSyncService();
+
+            await svc.dataServerSync(ALL_ENTITIES_META_DATA, () => {}, () => {}, () => {}, () => {}, false, undefined, true);
+
+            expect(steps).toEqual(['push', 'report']);
+        });
+
+        it("never fail the sync when the report cannot be made", async () => {
+            const {svc, steps} = reportingSyncService();
+            const services = svc.getService;
+            svc.getService = jest.fn((name) => ({...services(name), reportLongWaiting: async () => { throw new Error("clinic file locked"); }}));
+
+            await runSync(svc);
+
+            expect(steps).toEqual(['push', 'pull', 'push']);
+        });
+    });
+
     it('cause no second push when the pull released nothing', async () => {
         const {svc, steps} = buildSyncService({pullReleases: 0});
 
