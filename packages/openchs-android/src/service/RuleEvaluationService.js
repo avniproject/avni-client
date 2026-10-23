@@ -1137,7 +1137,7 @@ class RuleEvaluationService extends BaseService {
     getDashboardCardResult(reportCard, ruleInput) {
         const queryResult = this.executeDashboardCardRule(reportCard, ruleInput);
         // A failed nested rule already comes back as one error tile per card; counting it as a list hid the error.
-        if (reportCard.nested && Array.isArray(queryResult)) return queryResult;
+        if (reportCard.nested && Array.isArray(queryResult) && queryResult.length > 0 && queryResult.every(r => r && r.hasErrorMsg === true)) return queryResult;
         if (!queryResult.hasErrorMsg && this.isOldStyleQueryResult(queryResult)) {
             General.logInfo("CardCount", `${reportCard.name} = ${queryResult.length}`);
             return ReportCardResult.create(queryResult.length, null, true);

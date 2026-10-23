@@ -31,6 +31,11 @@ describe("IN with an array parameter, on real SQLite", () => {
         expect(uuidsOf(results)).toEqual(["ind-1", "ind-2"]);
     });
 
+    it("returns subjects with an empty field when the array contains null", () => {
+        const results = db.proxy.objects("Individual").filtered("gender IN $0", [{uuid: "g-f"}, null]);
+        expect(uuidsOf(results)).toEqual(["ind-1", "ind-2", "ind-hh", "ind-user"]);
+    });
+
     it("accepts more values than SQLite allows bound parameters in one statement", () => {
         const many = Array.from({length: 40000}, (_, i) => `missing-${i}`).concat(["ind-1"]);
         expect(uuidsOf(db.proxy.objects("Individual").filtered("uuid IN $0", many))).toEqual(["ind-1"]);

@@ -1324,6 +1324,19 @@ describe("JsFallbackFilterEvaluator", () => {
             )).toBe(false);
         });
 
+        it("should match entity instances in the array by uuid, as the SQL translation does", () => {
+            expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
+                {program: {uuid: "p2"}}, "$e.program.uuid IN $0", "$e", [[{uuid: "p1"}, {uuid: "p2"}]], "TestSchema"
+            )).toBe(true);
+        });
+
+        it("should match dates in the array by their time, as the SQL translation does", () => {
+            const at = new Date(2026, 9, 1);
+            expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
+                {encounterDateTime: new Date(at.getTime())}, "$e.encounterDateTime IN $0", "$e", [[at]], "TestSchema"
+            )).toBe(true);
+        });
+
         it("should match nothing for IN $N with an empty array", () => {
             expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
                 {program: {uuid: "p1"}}, "$e.program.uuid IN $0", "$e", [[]], "TestSchema"

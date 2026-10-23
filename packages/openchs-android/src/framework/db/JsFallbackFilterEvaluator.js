@@ -17,7 +17,7 @@
  * parse — throws UnsupportedRealmQueryError rather than silently returning the
  * full or empty set (#1981).
  */
-import {UnsupportedRealmQueryError} from "./RealmQueryParser";
+import {UnsupportedRealmQueryError, toBindValue} from "./RealmQueryParser";
 import {parseDescriptors, extractTrailingCall, parseSortKeys, parseDistinctFields} from "./SortDistinctGrammar";
 
 class JsFallbackFilterEvaluator {
@@ -545,8 +545,9 @@ class JsFallbackFilterEvaluator {
             if (!Array.isArray(values)) {
                 throw new UnsupportedRealmQueryError(condition, `IN $${shape.index} expects an array argument for ${schemaName}`);
             }
-            const fieldValue = this._resolveItemFieldValue(item, shape.fieldPath, varName);
-            return values.some(value => this._compare(fieldValue, "==", value));
+            // Same coercion as the SQL translation, so both backends match the same rows.
+            const fieldValue = toBindValue(this._resolveItemFieldValue(item, shape.fieldPath, varName));
+            return values.some(value => this._compare(fieldValue, "==", toBindValue(value)));
         }
 
         // Treating an unparseable condition as matching would silently inflate .@count and

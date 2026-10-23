@@ -643,7 +643,7 @@ class SqliteProxy {
         }
     }
 
-    // Without statistics the planner searches child tables by `voided`, which nearly every row matches (#2215).
+    // Without statistics the planner searches child tables by `voided`, which nearly every row matches.
     optimize() {
         try {
             this.db.executeSync("PRAGMA optimize=0x10002");

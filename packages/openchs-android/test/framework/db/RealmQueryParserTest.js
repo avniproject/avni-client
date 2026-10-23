@@ -124,6 +124,18 @@ describe("RealmQueryParser", () => {
             expect(RealmQueryParser.parse("uuid IN $0", [[{uuid: "i1"}, {uuid: "i2"}]]).params).toEqual(['["i1","i2"]']);
         });
 
+        it("matches empty fields when the array contains null", () => {
+            const result = RealmQueryParser.parse("gender IN $0", [["g1", null]]);
+            expect(result.where).toBe('(t0."gender" IN (SELECT value FROM json_each(?)) OR t0."gender" IS NULL)');
+            expect(result.params).toEqual(['["g1"]']);
+        });
+
+        it("matches only empty fields when the array holds only null", () => {
+            const result = RealmQueryParser.parse("gender IN $0", [[null]]);
+            expect(result.where).toBe('t0."gender" IS NULL');
+            expect(result.params).toEqual([]);
+        });
+
         it("is not translated when the parameter is not an array", () => {
             expect(RealmQueryParser.parse("uuid IN $0", ["a"]).unsupported).toBe(true);
         });

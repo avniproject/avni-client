@@ -37,6 +37,12 @@ describe("RuleEvaluationService.getDashboardCardResult for a nested card whose r
         results.forEach(r => assert.isTrue(r.hasErrorMsg));
     });
 
+    it("still counts a nested rule that returns a plain list instead of passing its items through as tiles", () => {
+        const result = makeService().getDashboardCardResult(nestedCard("({params}) => [{uuid: 'a'}, {uuid: 'b'}]"), []);
+
+        assert.isNotArray(result);
+    });
+
     it("shows why the rule failed on each tile", () => {
         const results = makeService().getDashboardCardResult(nestedCard(failingRule), []);
 

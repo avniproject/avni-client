@@ -665,9 +665,13 @@ class SqlGenerator {
         if (!Array.isArray(values)) {
             throw new Error(`IN $${idx} expects an array argument`);
         }
-        if (values.length === 0) return "1=0";
-        this.params.push(JSON.stringify(values.map(toBindValue)));
-        return `${column} IN (SELECT value FROM json_each(?))`;
+        // SQL IN never matches NULL; Realm does when the array holds one.
+        const present = values.filter(v => !_.isNil(v));
+        const matchesNull = present.length < values.length;
+        if (present.length === 0) return matchesNull ? `${column} IS NULL` : "1=0";
+        this.params.push(JSON.stringify(present.map(toBindValue)));
+        const inList = `${column} IN (SELECT value FROM json_each(?))`;
+        return matchesNull ? `(${inList} OR ${column} IS NULL)` : inList;
     }
 
 }
@@ -1793,5 +1797,5 @@ class RealmQueryParser {
     }
 }
 
-export {RealmQueryParser, UnsupportedRealmQueryError, camelToSnake, schemaNameToTableName, normalizeRealmType};
+export {RealmQueryParser, UnsupportedRealmQueryError, camelToSnake, schemaNameToTableName, normalizeRealmType, toBindValue};
 export default RealmQueryParser;
