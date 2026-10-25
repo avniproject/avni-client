@@ -51,23 +51,52 @@ function nestedContainerStylesOn(os, osVersion, safeAreaInsets) {
 }
 
 const threeButtonNav = {top: 24, bottom: 48, left: 0, right: 0};
+const landscapeThreeButtonNav = {top: 24, bottom: 0, left: 0, right: 126};
+
 
 describe('CHSContainer navigation bar inset', () => {
     // Padding would not do: Yoga positions absolutely anchored children — the filter Apply button,
     // the landing bottom bar — against the padding box, so only a border moves them off the edge.
     it('reserves the navigation bar strip as a transparent bottom border on Android 16', () => {
         expect(containerStyleOn('android', 36, threeButtonNav)).toEqual(
-            [undefined, {borderBottomWidth: 48, borderBottomColor: 'transparent'}]);
+            [undefined, {
+         borderBottomWidth: 48,
+         borderBottomColor: 'transparent',
+         borderRightWidth: 0,
+         borderRightColor: 'transparent'
+           }]);
+    });
+
+    it('reserves the right navigation bar strip in landscape on Android 16', () => {
+    expect(containerStyleOn('android', 36, landscapeThreeButtonNav)).toEqual(
+        [undefined, {
+            borderBottomWidth: 0,
+            borderBottomColor: 'transparent',
+            borderRightWidth: 126,
+            borderRightColor: 'transparent'
+        }]);
     });
 
     it('reserves nothing on Android 15, which still opts out of edge-to-edge', () => {
         expect(containerStyleOn('android', 35, threeButtonNav)).toEqual(
-            [undefined, {borderBottomWidth: 0, borderBottomColor: 'transparent'}]);
+            [undefined, {
+            borderBottomWidth: 0,
+            borderBottomColor: 'transparent',
+            borderRightWidth: 0,
+            borderRightColor: 'transparent'
+        }]);
     });
 
     it('keeps the style the screen asked for', () => {
         expect(containerStyleOn('android', 36, threeButtonNav, {backgroundColor: 'white'})).toEqual(
-            [{backgroundColor: 'white'}, {borderBottomWidth: 48, borderBottomColor: 'transparent'}]);
+            [{backgroundColor: 'white'},
+        {
+        borderBottomWidth: 48,
+        borderBottomColor: 'transparent',
+        borderRightWidth: 0,
+        borderRightColor: 'transparent'
+        }
+       ]);
     });
 
     // LandingView nests a container per screen it hosts. The inset alone cannot tell them apart on the
@@ -75,7 +104,18 @@ describe('CHSContainer navigation bar inset', () => {
     // so both levels see 48 here — which is why nesting is tracked through a context instead.
     it('reserves the strip once when containers nest, from the very first render', () => {
         const styles = nestedContainerStylesOn('android', 36, threeButtonNav);
-        expect(styles.outer).toEqual([undefined, {borderBottomWidth: 48, borderBottomColor: 'transparent'}]);
-        expect(styles.inner).toEqual([undefined, {borderBottomWidth: 0, borderBottomColor: 'transparent'}]);
+        expect(styles.outer).toEqual([undefined, {
+    borderBottomWidth: 48,
+    borderBottomColor: 'transparent',
+    borderRightWidth: 0,
+    borderRightColor: 'transparent'
+        }]);
+
+        expect(styles.inner).toEqual([undefined, {
+    borderBottomWidth: 0,
+    borderBottomColor: 'transparent',
+    borderRightWidth: 0,
+    borderRightColor: 'transparent'
+        }]);
     });
 });
