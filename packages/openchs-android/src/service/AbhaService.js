@@ -50,6 +50,13 @@ class AbhaService extends BaseService {
             .catch(AbhaService._refusalAsAbhaError);
     }
 
+    // DEMO-ONLY abdm-hackathon: asks the server to link the patient's visits to their ABHA. Answers {careContexts: [...]}.
+    linkCareContexts(subjectUUID) {
+        return post(`${this.getServerUrl()}/abha/careContexts/link`, {subjectUUID})
+            .then((response) => response.json())
+            .catch(AbhaService._refusalAsAbhaError);
+    }
+
     // Today's Scan & Share check-ins at the user's health centre, in token order.
     getCheckIns() {
         return this._get('/abha/checkIns');

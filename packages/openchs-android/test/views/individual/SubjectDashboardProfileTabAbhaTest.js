@@ -27,9 +27,12 @@ import SubjectDashboardProfileTab from "../../../src/views/individual/SubjectDas
 import OrganisationConfigService from "../../../src/service/OrganisationConfigService";
 import UserInfoService from "../../../src/service/UserInfoService";
 import {Actions as ProfileActions} from "../../../src/action/individual/IndividualRegistrationDetailsActions";
+import AbhaService from "../../../src/service/AbhaService";
+import AbhaError from "../../../src/service/AbhaError";
 import en from "../../../translations/en.json";
 
 const context = {getService: () => ({getI18n: () => ({t: (key) => key})})};
+const abhaService = {linkCareContexts: jest.fn()};
 
 const individualWith = ({number, address, person = true, voided = false} = {}) => ({
     uuid: "subject-1",
@@ -44,6 +47,7 @@ function tabWith({individual, abhaOn = true, hipId = "hip-1"}) {
     const tab = Object.create(SubjectDashboardProfileTab.prototype);
     const services = new Map([
         [OrganisationConfigService, {isAbhaEnabled: () => abhaOn}],
+        [AbhaService, abhaService],
         [UserInfoService, {getUserSettings: () => (hipId ? {abhaHipId: hipId} : {})}],
     ]);
     Object.assign(tab, {
@@ -54,7 +58,7 @@ function tabWith({individual, abhaOn = true, hipId = "hip-1"}) {
         dispatchAction: jest.fn(),
         editProfile: jest.fn(),
     });
-    Object.defineProperty(tab, "I18n", {value: {t: (key) => key}});
+    Object.defineProperty(tab, "I18n", {value: {t: (key, params) => (params ? `${key}:${params.count}` : key)}});
     return tab;
 }
 
@@ -136,11 +140,12 @@ describe("SubjectDashboardProfileTab, ABHA section", () => {
         });
         afterEach(() => jest.restoreAllMocks());
 
-        it("is the one action of a linked patient's ABHA section", () => {
+        it("is the first of two actions of a linked patient's ABHA section", () => {
             const tab = tabWith({individual: individualWith({number: "91-1234-5678-9012"})});
             const actions = tab.abhaLinkedActions();
-            expect(actions).toHaveLength(1);
+            expect(actions).toHaveLength(2);
             expect(actions[0].labelKey).toBe("abhaViewCard");
+            expect(actions[1].labelKey).toBe("abhaLinkRecords");
         });
 
         it("shows on the profile of a linked patient and not on an unlinked one", () => {
@@ -180,8 +185,56 @@ describe("SubjectDashboardProfileTab, ABHA section", () => {
         });
     });
 
+    // DEMO-ONLY abdm-hackathon
+    describe("Link records to ABHA", () => {
+        const linkedTab = () => tabWith({individual: individualWith({number: "91-1234-5678-9012"})});
+        beforeEach(() => {
+            abhaService.linkCareContexts.mockReset();
+            jest.spyOn(ToastAndroid, "show").mockImplementation(() => {});
+        });
+        afterEach(() => jest.restoreAllMocks());
+
+        it("links the patient's visits and says how many, when there is internet", async () => {
+            getConnectionInfo.mockResolvedValue({isConnected: true});
+            abhaService.linkCareContexts.mockResolvedValue({careContexts: [{}, {}, {}]});
+
+            await linkedTab().abhaLinkedActions()[1].onPressFunc();
+
+            expect(abhaService.linkCareContexts).toHaveBeenCalledWith("subject-1");
+            expect(ToastAndroid.show).toHaveBeenCalledWith("abhaLinkRecordsStarted:3", ToastAndroid.LONG);
+        });
+
+        it("says it needs internet, and calls nothing, without internet", async () => {
+            getConnectionInfo.mockResolvedValue({isConnected: false});
+
+            await linkedTab().abhaLinkedActions()[1].onPressFunc();
+
+            expect(ToastAndroid.show).toHaveBeenCalledWith("abhaLinkRecordsNeedsInternet", ToastAndroid.LONG);
+            expect(abhaService.linkCareContexts).not.toHaveBeenCalled();
+        });
+
+        it("shows the failure message when the service fails", async () => {
+            getConnectionInfo.mockResolvedValue({isConnected: true});
+            abhaService.linkCareContexts.mockRejectedValue(new Error("boom"));
+
+            await linkedTab().abhaLinkedActions()[1].onPressFunc();
+
+            expect(ToastAndroid.show).toHaveBeenCalledWith("abhaLinkRecordsFailed", ToastAndroid.LONG);
+        });
+
+        it("shows the refusal's own message when the server names one", async () => {
+            getConnectionInfo.mockResolvedValue({isConnected: true});
+            abhaService.linkCareContexts.mockRejectedValue(new AbhaError("ABHA_NO_PRIVILEGE", 403));
+
+            await linkedTab().abhaLinkedActions()[1].onPressFunc();
+
+            expect(ToastAndroid.show).toHaveBeenCalledWith("abhaNoPermission", ToastAndroid.LONG);
+        });
+    });
+
     it("adds its labels to the platform translations", () => {
-        ["abhaSectionTitle", "abhaLinked", "abhaNotLinked", "abhaFindOrCreate", "abhaNumberLabel", "abhaAddressLabel"]
+        ["abhaSectionTitle", "abhaLinked", "abhaNotLinked", "abhaFindOrCreate", "abhaNumberLabel", "abhaAddressLabel",
+            "abhaLinkRecords", "abhaLinkRecordsStarted", "abhaLinkRecordsFailed", "abhaLinkRecordsNeedsInternet"]
             .forEach((key) => expect(en.translations[key]).toBeTruthy());
     });
 });
