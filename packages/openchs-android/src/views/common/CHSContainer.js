@@ -18,12 +18,21 @@ const ScreenBox = ({style, onLayout, children}) => {
     const navBarInsets = useEdgeToEdgeNavBarInset();
     return (
         <NavBarInsetReserved.Provider value={true}>
-            <Box style={[style, {
-                    borderBottomWidth: alreadyReserved ? 0 : navBarInsets.bottom,
-                    borderBottomColor: 'transparent',
-                    borderRightWidth: alreadyReserved ? 0 : navBarInsets.right,
-                    borderRightColor: 'transparent'
-             }]}
+           <Box
+                style={[
+                    style,
+                    {
+                        borderBottomWidth: alreadyReserved ? 0 : navBarInsets.bottom,
+                        borderBottomColor: 'transparent',
+                        ...(navBarInsets.right > 0
+                            ? {
+                                  borderRightWidth: alreadyReserved ? 0 : navBarInsets.right,
+                                  borderRightColor: 'transparent',
+                              }
+                            : {}),
+                    },
+                ]}
+
                  flex={1}
                  onLayout={onLayout}>
                 {children}

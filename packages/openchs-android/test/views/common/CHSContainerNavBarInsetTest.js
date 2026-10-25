@@ -61,9 +61,7 @@ describe('CHSContainer navigation bar inset', () => {
         expect(containerStyleOn('android', 36, threeButtonNav)).toEqual(
             [undefined, {
          borderBottomWidth: 48,
-         borderBottomColor: 'transparent',
-         borderRightWidth: 0,
-         borderRightColor: 'transparent'
+         borderBottomColor: 'transparent'
            }]);
     });
 
@@ -81,41 +79,63 @@ describe('CHSContainer navigation bar inset', () => {
         expect(containerStyleOn('android', 35, threeButtonNav)).toEqual(
             [undefined, {
             borderBottomWidth: 0,
-            borderBottomColor: 'transparent',
-            borderRightWidth: 0,
-            borderRightColor: 'transparent'
+            borderBottomColor: 'transparent'
         }]);
     });
 
-    it('keeps the style the screen asked for', () => {
-        expect(containerStyleOn('android', 36, threeButtonNav, {backgroundColor: 'white'})).toEqual(
-            [{backgroundColor: 'white'},
+    it('preserves caller right border styles when there is no right inset', () => {
+    const callerStyle = {
+        borderRightWidth: 2,
+        borderRightColor: 'red',
+    };
+expect(containerStyleOn('android', 35, threeButtonNav, callerStyle)).toEqual([
+        callerStyle,
         {
-        borderBottomWidth: 48,
-        borderBottomColor: 'transparent',
-        borderRightWidth: 0,
-        borderRightColor: 'transparent'
-        }
-       ]);
+            borderBottomWidth: 0,
+            borderBottomColor: 'transparent',
+        },
+    ]);
+});
+
+    it('preserves caller right border styles when there is no right inset', () => {
+    const callerStyle = {
+        borderRightWidth: 2,
+        borderRightColor: 'red',
+    };
+    expect(containerStyleOn('android', 35, threeButtonNav, callerStyle)).toEqual([
+        callerStyle,
+        {
+            borderBottomWidth: 0,
+            borderBottomColor: 'transparent',
+        },
+    ]);
+});
+
+
+    it('keeps the style the screen asked for', () => {
+    expect(containerStyleOn('android', 36, threeButtonNav, {backgroundColor: 'white'})).toEqual([
+        {backgroundColor: 'white'},
+        {
+            borderBottomWidth: 48,
+            borderBottomColor: 'transparent',
+        },
+    ]);
     });
 
     // LandingView nests a container per screen it hosts. The inset alone cannot tell them apart on the
     // first paint — NativeBaseProvider seeds every nested SafeAreaProvider with the full-window metrics,
     // so both levels see 48 here — which is why nesting is tracked through a context instead.
     it('reserves the strip once when containers nest, from the very first render', () => {
-        const styles = nestedContainerStylesOn('android', 36, threeButtonNav);
-        expect(styles.outer).toEqual([undefined, {
-    borderBottomWidth: 48,
-    borderBottomColor: 'transparent',
-    borderRightWidth: 0,
-    borderRightColor: 'transparent'
-        }]);
+    const styles = nestedContainerStylesOn('android', 36, threeButtonNav);
 
-        expect(styles.inner).toEqual([undefined, {
-    borderBottomWidth: 0,
-    borderBottomColor: 'transparent',
-    borderRightWidth: 0,
-    borderRightColor: 'transparent'
-        }]);
+    expect(styles.outer).toEqual([undefined, {
+        borderBottomWidth: 48,
+        borderBottomColor: 'transparent',
+    }]);
+
+    expect(styles.inner).toEqual([undefined, {
+        borderBottomWidth: 0,
+        borderBottomColor: 'transparent',
+    }]);
     });
 });
