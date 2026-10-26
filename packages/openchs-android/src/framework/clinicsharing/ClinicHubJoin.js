@@ -5,6 +5,8 @@ import {CLINIC_PORT} from "./ClinicSharingConstants";
 
 // A phone must join the hub's network within 60 seconds of scanning: Android's own search plus the person's Connect tap.
 export const JOIN_TIMEOUT_MS = 60 * 1000;
+// Android answers a hotspot start in seconds; one it never answers would leave the hub screen starting for good.
+export const HOTSPOT_START_TIMEOUT_MS = 30 * 1000;
 
 export const JoinError = Object.freeze({
     hubNeedsAndroid10: "hubNeedsAndroid10",
@@ -34,11 +36,27 @@ export class ClinicHubJoin {
 
     async startHubNetwork({hubId, epoch, key}) {
         if (!this.wifi.canStartHub()) throw joinError(JoinError.hubNeedsAndroid10, "A hub needs Android 10 or later");
-        const {ssid, passphrase} = await this.wifi.startHotspot().catch((error) => {
+        const started = this.wifi.startHotspot().catch((error) => {
             const code = HOTSPOT_START_ERRORS[error && error.code];
             throw code ? joinError(code, error.message, {}, error) : error;
         });
-        return {ssid, passphrase, qrValue: encodeJoinPayload({ssid, passphrase, hubId, epoch, key})};
+        let timer;
+        const tooLong = new Promise((resolve, reject) => {
+            timer = setTimeout(() => reject(joinError(JoinError.hotspotFailed, "Android did not start the hub's Wi-Fi in time")), HOTSPOT_START_TIMEOUT_MS);
+        });
+        try {
+            const {ssid, passphrase} = await Promise.race([started, tooLong]);
+            return {ssid, passphrase, qrValue: encodeJoinPayload({ssid, passphrase, hubId, epoch, key})};
+        } catch (error) {
+            if (error.code === JoinError.hotspotFailed && !error.cause) {
+                // The native stop also rejects the start still waiting, which nobody reads any more.
+                started.catch(() => {});
+                await this.wifi.stopHotspot().catch(() => {});
+            }
+            throw error;
+        } finally {
+            clearTimeout(timer);
+        }
     }
 
     stopHubNetwork() {

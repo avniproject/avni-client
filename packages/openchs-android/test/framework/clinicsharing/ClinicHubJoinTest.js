@@ -1,4 +1,4 @@
-import {ClinicHubJoin, JOIN_TIMEOUT_MS, JoinError} from "../../../src/framework/clinicsharing/ClinicHubJoin";
+import {ClinicHubJoin, HOTSPOT_START_TIMEOUT_MS, JOIN_TIMEOUT_MS, JoinError} from "../../../src/framework/clinicsharing/ClinicHubJoin";
 import {encodeJoinPayload, JoinPayloadError} from "../../../src/framework/clinicsharing/ClinicJoinPayload";
 
 const KEY = "q83vEjRWeJ-rze8SNFZ4kKvN7xI0VniQq83vEjRWeJA";
@@ -57,6 +57,21 @@ describe("ClinicHubJoin on the hub", () => {
         const {join, wifi} = setUp();
         wifi.startHotspot.mockReturnValue(Promise.reject(Object.assign(new Error("The hub was stopped before its hotspot started"), {code: "E_CANCELLED"})));
         await expect(join.startHubNetwork(HUB)).rejects.toMatchObject({code: "E_CANCELLED"});
+    });
+
+    it("gives up when Android never answers the hotspot start, stops the hotspot, and says the hub's Wi-Fi could not start", async () => {
+        jest.useFakeTimers();
+        try {
+            const {join, wifi} = setUp();
+            wifi.startHotspot.mockReturnValue(new Promise(() => {}));
+            const start = join.startHubNetwork(HUB);
+            const outcome = expect(start).rejects.toMatchObject({code: JoinError.hotspotFailed});
+            jest.advanceTimersByTime(HOTSPOT_START_TIMEOUT_MS);
+            await outcome;
+            expect(wifi.stopHotspot).toHaveBeenCalled();
+        } finally {
+            jest.useRealTimers();
+        }
     });
 
     it("on stop, stops the hotspot", async () => {
