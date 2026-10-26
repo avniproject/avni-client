@@ -22,9 +22,10 @@ export const CARD_WAIT_MS = 5000;
 export const ABHA_CONSENT_KEY = 'abhaRegistrationConsent';
 
 // The ABHA step of a person's registration or edit (ABDM M1): Create and Link open Eka's screens, and the ABHA that
-// comes back is checked against the organisation's patients before it fills anything in. The view supplies two
+// comes back is checked against the organisation's patients before it fills anything in. The view supplies three
 // dialogs: askAbhaConsent(text) resolves to the time the patient agreed, null when they do not agree, or undefined
-// when closed without an answer, and askAbhaReplace(rows) resolves true to apply the ABHA's details. Nothing here logs the ABHA number, address, Eka's IDs or the key.
+// when closed without an answer; askAbhaReplace(rows) resolves true to apply the ABHA's details; and
+// askAbhaDuplicate(name, rows) resolves true to open the patient who already holds the ABHA. Nothing here logs the ABHA number, address, Eka's IDs or the key.
 class AbhaRegistrationFlow {
     constructor(view) {
         this.view = view;
@@ -156,7 +157,7 @@ class AbhaRegistrationFlow {
             if (_.isNil(holders) || this.screenGone()) return false;
             const others = _.without(holders, individual.uuid);
             if (!_.isEmpty(others)) {
-                this.showDuplicate(others);
+                await this.showDuplicate(others, profile);
                 return false;
             }
         }
@@ -239,16 +240,15 @@ class AbhaRegistrationFlow {
         ], {cancelable: true, onDismiss: () => resolve(false)}));
     }
 
-    // Another patient holds this ABHA. Only a live patient on this phone can be opened; of one elsewhere in the
-    // organisation the worker learns nothing more.
-    showDuplicate(subjectUUIDs) {
+    // Another patient holds this ABHA. A live patient on this phone is shown beside the ABHA, name, gender, date of birth
+    // and phone (NHA's M1 case VRFY_ABHA_308), and can be opened; of one elsewhere in the organisation the worker learns
+    // nothing more.
+    async showDuplicate(subjectUUIDs, profile) {
         const individualService = this.view.getService(IndividualService);
         const onPhone = _.find(_.map(subjectUUIDs, (uuid) => individualService.findByUUID(uuid)), (subject) => !_.isNil(subject) && !subject.voided);
         if (onPhone) {
-            Alert.alert(this.I18n.t('abhaTitle'), this.I18n.t('abhaDuplicateOpen', {name: onPhone.nameString}), [
-                {text: this.I18n.t('cancel'), style: 'cancel'},
-                {text: this.I18n.t('abhaDuplicateOpenAction'), onPress: () => CHSNavigator.navigateToProgramEnrolmentDashboardView(this.view, onPhone.uuid)},
-            ]);
+            const open = await this.view.askAbhaDuplicate(onPhone.nameString, AbhaRegistrationFlow.duplicateRows(onPhone, profile, this.I18n));
+            if (open && !this.screenGone()) CHSNavigator.navigateToProgramEnrolmentDashboardView(this.view, onPhone.uuid);
         } else {
             Alert.alert(this.I18n.t('abhaTitle'), this.I18n.t('abhaDuplicateElsewhere'), [{text: this.I18n.t('ok')}]);
         }
@@ -262,6 +262,13 @@ class AbhaRegistrationFlow {
             {label: I18n.t('name'), current: name(individual.firstName, individual.middleName, individual.lastName), abha: name(profile.firstName, profile.middleName, profile.lastName)},
             {label: I18n.t('gender'), current: gender(_.get(individual, 'gender.name')), abha: gender(profile.genderName)},
             {label: I18n.t('dateOfBirth'), current: date(individual.dateOfBirth), abha: date(profile.dateOfBirth)},
+        ];
+    }
+
+    static duplicateRows(individual, profile, I18n) {
+        return [
+            ...AbhaRegistrationFlow.replaceRows(individual, profile, I18n),
+            {label: I18n.t('phone'), current: _.trim(individual.getMobileNumber()), abha: _.trim(profile.mobile)},
         ];
     }
 

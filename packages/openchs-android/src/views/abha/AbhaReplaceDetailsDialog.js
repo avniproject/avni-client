@@ -6,12 +6,15 @@ import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 
 // When an ABHA is found for a patient being edited: their current name, gender and date of birth beside the ABHA's,
-// before anything is changed.
+// before anything is changed. Also, with its own title and action, when the ABHA already belongs to another patient:
+// that patient's details beside the ABHA's, before their record opens.
 class AbhaReplaceDetailsDialog extends AbstractComponent {
     static propTypes = {
         rows: PropTypes.arrayOf(PropTypes.shape({label: PropTypes.string, current: PropTypes.string, abha: PropTypes.string})).isRequired,
         onApply: PropTypes.func.isRequired,
         onCancel: PropTypes.func.isRequired,
+        title: PropTypes.string,
+        applyLabel: PropTypes.string,
     };
 
     constructor(props, context) {
@@ -29,12 +32,12 @@ class AbhaReplaceDetailsDialog extends AbstractComponent {
     }
 
     render() {
-        const {rows, onApply, onCancel} = this.props;
+        const {rows, onApply, onCancel, title = this.I18n.t('abhaReplaceDetails'), applyLabel = 'apply'} = this.props;
         return (
             <Modal visible transparent animationType="fade" onRequestClose={onCancel}>
                 <View style={styles.backdrop}>
                     <View style={styles.dialog}>
-                        <Text style={styles.title}>{this.I18n.t('abhaReplaceDetails')}</Text>
+                        <Text style={styles.title}>{title}</Text>
                         {this.renderRow('', this.I18n.t('abhaCurrentDetails'), this.I18n.t('abhaProfileDetails'), styles.heading, 'heading')}
                         {rows.map(({label, current, abha}) => this.renderRow(label, current, abha, null, label))}
                         <View style={styles.actions}>
@@ -42,7 +45,7 @@ class AbhaReplaceDetailsDialog extends AbstractComponent {
                                 <Text style={styles.cancelText}>{this.I18n.t('cancel')}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={onApply} style={styles.btn}>
-                                <Text style={styles.applyText}>{this.I18n.t('apply')}</Text>
+                                <Text style={styles.applyText}>{this.I18n.t(applyLabel)}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>

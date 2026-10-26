@@ -139,6 +139,10 @@ class PersonRegisterView extends AbstractComponent {
         return this.showAbhaDialog({kind: 'replace', rows});
     }
 
+    askAbhaDuplicate(name, rows) {
+        return this.showAbhaDialog({kind: 'duplicate', name, rows});
+    }
+
     // One dialog at a time: a second asked for while one is open gets no answer (undefined) at once, and the open
     // one keeps its answer.
     showAbhaDialog(abhaDialog) {
@@ -179,6 +183,10 @@ class PersonRegisterView extends AbstractComponent {
                                    onCancel={() => this.closeAbhaDialog(undefined)}/>}
                 {_.get(dialog, 'kind') === 'replace' &&
                 <AbhaReplaceDetailsDialog rows={dialog.rows} onApply={() => this.closeAbhaDialog(true)}
+                                          onCancel={() => this.closeAbhaDialog(false)}/>}
+                {_.get(dialog, 'kind') === 'duplicate' &&
+                <AbhaReplaceDetailsDialog rows={dialog.rows} title={this.I18n.t('abhaDuplicateOpen', {name: dialog.name})}
+                                          applyLabel="abhaDuplicateOpenAction" onApply={() => this.closeAbhaDialog(true)}
                                           onCancel={() => this.closeAbhaDialog(false)}/>}
             </View>
         );

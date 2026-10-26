@@ -47,7 +47,7 @@ const withAbhaNumber = (individual, abhaNumber) => {
 };
 
 function viewWith({editing = false, formHasConcepts = true, individual = person(), translations = {}, consent = null, replace = true,
-                      session = Promise.resolve(SESSION), holders = Promise.resolve([]), onPhone = {}, unsynced = []} = {}) {
+                      session = Promise.resolve(SESSION), holders = Promise.resolve([]), onPhone = {}, unsynced = [], duplicate = true} = {}) {
     const abhaService = {
         // A rejection is passed as a function, so it is made only when asked for and never left unhandled.
         getSession: jest.fn(() => (typeof session === "function" ? session() : session)),
@@ -67,6 +67,7 @@ function viewWith({editing = false, formHasConcepts = true, individual = person(
         dispatchAction: jest.fn(),
         askAbhaConsent: jest.fn(() => Promise.resolve(consent)),
         askAbhaReplace: jest.fn(() => Promise.resolve(replace)),
+        askAbhaDuplicate: jest.fn(() => Promise.resolve(duplicate)),
         // The screen's transition has settled already, unless a test says otherwise.
         runAfterSceneTransition: jest.fn((fn) => fn()),
         abhaService,
@@ -274,20 +275,46 @@ describe("AbhaRegistrationFlowTest", () => {
             expect(dispatched(view, Actions.ON_ABHA_BUSY).map(([, action]) => action.busy)).toEqual([true]);
         });
 
-        it("offers to open the patient on this phone who already holds it, and fills nothing", async () => {
-            const holder = person({uuid: "s-other", firstName: "Ravi"});
+        // NHA's M1 case VRFY_ABHA_308: the ABHA's details beside the patient's in Avni, before their record opens.
+        it("shows the patient on this phone who already holds it beside the ABHA, opens their record, and fills nothing", async () => {
+            const holder = person({uuid: "s-other", firstName: "Ravi", genderName: "Male"});
+            holder.lastName = "Kumar";
+            holder.dateOfBirth = new Date(1985, 5, 1);
             const view = viewWith({holders: Promise.resolve(["s-other"]), onPhone: {"s-other": holder}});
             await openAndReturn(view);
 
-            expect(Alert.alert).toHaveBeenCalledTimes(1);
-            const [, message, buttons] = Alert.alert.mock.calls[0];
-            expect(message).toBe("abhaDuplicateOpen");
-            expect(view.I18n.t).toHaveBeenCalledWith("abhaDuplicateOpen", {name: holder.nameString});
-            buttons.find((button) => button.text === "abhaDuplicateOpenAction").onPress();
+            expect(Alert.alert).not.toHaveBeenCalled();
+            expect(view.askAbhaDuplicate).toHaveBeenCalledWith(holder.nameString, [
+                {label: "name", current: "Ravi Kumar", abha: "Asha Rao"},
+                {label: "gender", current: "Male", abha: "Female"},
+                {label: "dateOfBirth", current: General.toDisplayDate(holder.dateOfBirth), abha: General.toDisplayDate(PROFILE.dateOfBirth)},
+                {label: "phone", current: "", abha: "9000000000"},
+            ]);
             expect(CHSNavigator.navigateToProgramEnrolmentDashboardView).toHaveBeenCalledWith(view, "s-other");
             expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(0);
             // Eka's screens did find or create the ABHA, so the action is recorded all the same.
             expect(view.abhaService.recordEvent).toHaveBeenCalledTimes(1);
+        });
+
+        it("cancel at the side-by-side step for a patient who already holds it opens nothing and fills nothing", async () => {
+            const holder = person({uuid: "s-other", firstName: "Ravi"});
+            const view = viewWith({holders: Promise.resolve(["s-other"]), onPhone: {"s-other": holder}, duplicate: false});
+            await openAndReturn(view);
+
+            expect(view.askAbhaDuplicate).toHaveBeenCalledTimes(1);
+            expect(CHSNavigator.navigateToProgramEnrolmentDashboardView).not.toHaveBeenCalled();
+            expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(0);
+            expect(view.abhaService.recordEvent).toHaveBeenCalledTimes(1);
+        });
+
+        it("does not open the holder's record once the registration screen has closed", async () => {
+            const holder = person({uuid: "s-other", firstName: "Ravi"});
+            const view = viewWith({holders: Promise.resolve(["s-other"]), onPhone: {"s-other": holder}});
+            view.askAbhaDuplicate.mockImplementation(() => { view._isUnmounted = true; return Promise.resolve(true); });
+            await openAndReturn(view);
+            await flush();
+
+            expect(CHSNavigator.navigateToProgramEnrolmentDashboardView).not.toHaveBeenCalled();
         });
 
         it("says the patient is already registered in the organisation when the holder is not on this phone, and nothing more", async () => {
@@ -309,9 +336,7 @@ describe("AbhaRegistrationFlowTest", () => {
             await openAndReturn(view);
 
             expect(view.entityQueueService.getQueuedEntityUUIDs).toHaveBeenCalledWith("Individual");
-            const [, message, buttons] = Alert.alert.mock.calls[0];
-            expect(message).toBe("abhaDuplicateOpen");
-            buttons.find((button) => button.text === "abhaDuplicateOpenAction").onPress();
+            expect(view.askAbhaDuplicate).toHaveBeenCalledWith(unsynced.nameString, expect.any(Array));
             expect(CHSNavigator.navigateToProgramEnrolmentDashboardView).toHaveBeenCalledWith(view, "s-unsynced");
             expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(0);
         });
