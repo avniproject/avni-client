@@ -47,6 +47,11 @@ const withAbhaNumber = (individual, abhaNumber) => {
     individual.observations = [Observation.create(abhaNumberConcept, new PrimitiveValue(abhaNumber))];
     return individual;
 };
+const abhaAddressConcept = EntityFactory.createConcept("ABHA Address", Concept.dataType.Text, "c-abha-address");
+const withAbhaAddress = (individual, abhaAddress) => {
+    individual.observations = [Observation.create(abhaAddressConcept, new PrimitiveValue(abhaAddress))];
+    return individual;
+};
 
 function viewWith({editing = false, formHasConcepts = true, individual = person(), translations = {}, consent = null, replace = true,
                       session = Promise.resolve(SESSION), holders = Promise.resolve([]), onPhone = {}, unsynced = [], duplicate = true,
@@ -242,7 +247,7 @@ describe("AbhaRegistrationFlowTest", () => {
             await openAndReturn(view, PROFILE, "create");
 
             expect(mockPopToBookmark).toHaveBeenCalledTimes(1);
-            expect(view.abhaService.findSubjectUUIDs).toHaveBeenCalledWith("st-person", "91-1234-5678-9012");
+            expect(view.abhaService.findSubjectUUIDs).toHaveBeenCalledWith("st-person", "91-1234-5678-9012", "asha.rao@sbx");
             expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toEqual([[Actions.ON_ABHA_PROFILE, {profile: PROFILE, choice: "create", subjectUUID: "s-new"}]]);
             expect(view.askAbhaReplace).not.toHaveBeenCalled();
         });
@@ -435,7 +440,7 @@ describe("AbhaRegistrationFlowTest", () => {
             const [, message, buttons] = Alert.alert.mock.calls[0];
             expect(message).toBe("abhaError");
             expect(buttons.map((button) => button.text)).toEqual(["cancel", "abhaTryAgain"]);
-            expect(view.abhaService.findSubjectUUIDs.mock.calls).toEqual([["st-person", "91-1234-5678-9012"], ["st-person", "91-1234-5678-9012"]]);
+            expect(view.abhaService.findSubjectUUIDs.mock.calls).toEqual([["st-person", "91-1234-5678-9012", "asha.rao@sbx"], ["st-person", "91-1234-5678-9012", "asha.rao@sbx"]]);
             expect(CHSNavigator.navigateToAbhaView).toHaveBeenCalledTimes(1);
             expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(1);
             expect(view.abhaService.recordEvent).toHaveBeenCalledTimes(1);
@@ -486,9 +491,26 @@ describe("AbhaRegistrationFlowTest", () => {
             expect(view.abhaService.recordEvent.mock.calls[0][0].subjectUUID).toBe("s-1");
         });
 
-        it("asks nothing of the server for an ABHA with an address only, which has no number to hold", async () => {
-            const view = viewWith();
+        // An ABHA made with a mobile number only has an address and no number (avni-server#1090).
+        it("asks the server by address for an ABHA with an address only", async () => {
+            const view = viewWith({holders: Promise.resolve(["s-elsewhere"])});
             await openAndReturn(view, {...PROFILE, abhaNumber: null});
+            expect(view.abhaService.findSubjectUUIDs).toHaveBeenCalledWith("st-person", null, "asha.rao@sbx");
+            expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(0);
+        });
+
+        it("counts a patient on this phone not yet synced who holds the same address, in any case, when there is no number", async () => {
+            const unsynced = withAbhaAddress(person({uuid: "s-unsynced", firstName: "Ravi"}), "Asha.Rao@SBX");
+            const view = viewWith({unsynced: ["s-unsynced"], onPhone: {"s-unsynced": unsynced}});
+            await openAndReturn(view, {...PROFILE, abhaNumber: null});
+
+            expect(view.askAbhaDuplicate).toHaveBeenCalledWith(unsynced.nameString, expect.any(Array));
+            expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(0);
+        });
+
+        it("asks nothing of the server for an ABHA with neither a number nor an address", async () => {
+            const view = viewWith();
+            await openAndReturn(view, {...PROFILE, abhaNumber: null, abhaAddress: null});
             expect(view.abhaService.findSubjectUUIDs).not.toHaveBeenCalled();
             expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(1);
         });

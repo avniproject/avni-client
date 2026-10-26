@@ -16,8 +16,8 @@ import {Actions} from "../../action/individual/PersonRegisterActions";
 // Eka's screens open on "Add Patient via ABHA" for both Create and Link, until Eka says whether they can open
 // straight on its other routes (open decision "Eka's answers that ABDM M1 needs", question 5).
 export const ABHA_SDK_METHOD = 'login_or_create_abha';
-// The organisation's own consent wording, set in its translations. The platform's translations do not define it,
-// so an organisation that sets none has no consent step.
+// The consent wording: the organisation's own, set in its translations, else the platform's, else the default the app
+// carries (config/beforeSyncMessages.en.json), so every organisation with ABHA on asks for consent (NHA's CRT_ABHA_102).
 // How long the card waits for the server to have the ABHA action before it opens anyway.
 export const CARD_WAIT_MS = 5000;
 export const ABHA_CONSENT_KEY = 'abhaRegistrationConsent';
@@ -154,8 +154,8 @@ class AbhaRegistrationFlow {
     // Checks the ABHA against the organisation's patients and fills the form with it. True once filled; false when
     // another patient holds it, the worker cancelled or gave up, or the screen has closed.
     async fillIn(profile, individual, route, consentGivenAt) {
-        if (profile.abhaNumber) {
-            const holders = await this.holdersOf(individual, profile.abhaNumber);
+        if (profile.abhaNumber || profile.abhaAddress) {
+            const holders = await this.holdersOf(individual, profile);
             if (_.isNil(holders) || this.screenGone()) return false;
             const others = _.without(holders, individual.uuid);
             if (!_.isEmpty(others)) {
@@ -249,11 +249,11 @@ class AbhaRegistrationFlow {
     // The patients in the organisation who hold this ABHA number, and those on this phone not yet synced, whom the
     // server cannot know of. When the server cannot be asked, the worker can try again with the same ABHA rather than
     // take the patient through Eka's OTP again. Null when the worker gives up, or the screen has closed.
-    async holdersOf(individual, abhaNumber) {
+    async holdersOf(individual, profile) {
         for (;;) {
             try {
-                const onServer = await this.view.getService(AbhaService).findSubjectUUIDs(individual.subjectType.uuid, abhaNumber);
-                return _.union(onServer, this.unsyncedHoldersOf(individual, abhaNumber));
+                const onServer = await this.view.getService(AbhaService).findSubjectUUIDs(individual.subjectType.uuid, profile.abhaNumber, profile.abhaAddress);
+                return _.union(onServer, this.unsyncedHoldersOf(individual, profile));
             } catch (error) {
                 const messageKey = AbhaError.messageKey(error);
                 General.logWarn('AbhaRegistrationFlow', `ABHA holders not found out: ${messageKey}`);
@@ -263,15 +263,20 @@ class AbhaRegistrationFlow {
     }
 
     // Only the queue of patients waiting to be synced is read, which is small; never every patient's answers. Numbers
-    // are compared as digits, and the patient being edited does not count.
-    unsyncedHoldersOf(individual, abhaNumber) {
-        const digits = AbhaProfile.digitsOnly(abhaNumber);
+    // are compared as digits; with no number, addresses by the part before '@' in any case, as the server does. The
+    // patient being edited does not count.
+    unsyncedHoldersOf(individual, profile) {
+        const digits = AbhaProfile.digitsOnly(profile.abhaNumber);
+        const addressName = (address) => _.toLower(_.head(_.split(_.trim(address), '@')));
+        const name = _.isEmpty(digits) && profile.abhaAddress ? addressName(profile.abhaAddress) : null;
         const individualService = this.view.getService(IndividualService);
         return _.filter(this.view.getService(EntityQueueService).getQueuedEntityUUIDs(Individual.schema.name), (uuid) => {
             if (uuid === individual.uuid) return false;
             const subject = individualService.findByUUID(uuid);
-            return !_.isNil(subject) && !subject.voided
-                && AbhaProfile.digitsOnly(subject.getObservationValue(ABHA_CONCEPT_NAMES.abhaNumber)) === digits;
+            if (_.isNil(subject) || subject.voided) return false;
+            if (!_.isEmpty(digits)) return AbhaProfile.digitsOnly(subject.getObservationValue(ABHA_CONCEPT_NAMES.abhaNumber)) === digits;
+            const theirs = subject.getObservationValue(ABHA_CONCEPT_NAMES.abhaAddress);
+            return !_.isEmpty(name) && !_.isEmpty(_.trim(theirs)) && addressName(theirs) === name;
         });
     }
 

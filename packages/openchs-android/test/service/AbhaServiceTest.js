@@ -222,6 +222,18 @@ describe("AbhaServiceTest", () => {
         expect(init.headers["AUTH-TOKEN"]).to.equal("avni-user-token");
     });
 
+    // An ABHA made with a mobile number only has an address and no number: the address goes too, in the body.
+    it("asks by ABHA address as well when there is one, or by it alone", async () => {
+        global.fetch = jest.fn(async () => reply(200, {subjectUUIDs: ["s-9"]}));
+
+        await service().findSubjectUUIDs("st-1", ABHA_NUMBER, "asha.rao@sbx");
+        await service().findSubjectUUIDs("st-1", null, "asha.rao@sbx");
+
+        expect(JSON.parse(global.fetch.mock.calls[0][1].body)).to.deep.equal({subjectTypeUUID: "st-1", abhaNumber: ABHA_DIGITS, abhaAddress: "asha.rao@sbx"});
+        expect(JSON.parse(global.fetch.mock.calls[1][1].body)).to.deep.equal({subjectTypeUUID: "st-1", abhaNumber: null, abhaAddress: "asha.rao@sbx"});
+        expect(global.fetch.mock.calls[1][0]).to.equal("https://server/abha/subjects/search");
+    });
+
     it("reads no holders as an empty list, and maps refusals as for the session", async () => {
         global.fetch = jest.fn(async () => reply(200, {subjectUUIDs: []}));
         expect(await service().findSubjectUUIDs("st-1", ABHA_NUMBER)).to.deep.equal([]);

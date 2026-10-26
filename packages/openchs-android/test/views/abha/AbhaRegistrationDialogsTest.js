@@ -155,7 +155,7 @@ describe("ABHA registration dialogs", () => {
         });
     });
 
-    it("has English wording for every message the ABHA registration step shows, and none for the consent key", () => {
+    it("has English wording for every message the ABHA registration step shows, the consent included", () => {
         ["abhaOptionFindOrCreate", "abhaOptionWithout", "abhaOptionFindOrCreateHelp", "abhaOptionWithoutHelp",
             "abhaFormNotSetUp", "abhaDuplicateOpen", "abhaDuplicateOpenAction", "abhaDuplicateElsewhere", "abhaReplaceDetails",
             "abhaCurrentDetails", "abhaProfileDetails", "abhaRemoveLink", "abhaRemoveLinkConfirm",
@@ -165,6 +165,7 @@ describe("ABHA registration dialogs", () => {
             expect([key, typeof en.translations[key]]).toEqual([key, "string"]));
         expect(en.translations.abhaDuplicateOpen).toContain("{{name}}");
         expect(en.translations.abhaReturningPatient).toContain("{{name}}");
-        expect(en.translations).not.toHaveProperty("abhaRegistrationConsent");
+        // A default, so every organisation with ABHA on asks for consent (NHA's CRT_ABHA_102); its own wording wins.
+        expect(typeof en.translations.abhaRegistrationConsent).toBe("string");
     });
 });
