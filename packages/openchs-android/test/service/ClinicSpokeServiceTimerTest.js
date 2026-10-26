@@ -76,6 +76,23 @@ describe('Syncing with the hub while joined', () => {
         expect(spoke.syncWithHub).toHaveBeenCalledTimes(2);
     });
 
+    it('leaves the camp after 15 seconds when its last sync with the hub gets no answer', async () => {
+        spoke.leaveCamp = jest.fn(async () => {});
+        spoke.join(joinInfo);
+        await settle();
+        const flush = async () => { for (let tick = 0; tick < 6; tick++) await Promise.resolve(); };
+
+        const leaving = spoke.leaveHub();
+        expect(spoke.syncWithHub).toHaveBeenCalledTimes(2);
+        jest.advanceTimersByTime(14999);
+        await flush();
+        expect(spoke.leaveCamp).not.toHaveBeenCalled();
+
+        jest.advanceTimersByTime(1);
+        await leaving;
+        expect(spoke.leaveCamp).toHaveBeenCalled();
+    });
+
     it('stops when the phone leaves the hub', async () => {
         spoke.join(joinInfo);
         await settle();
