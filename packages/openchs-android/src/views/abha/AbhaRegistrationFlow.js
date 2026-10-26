@@ -1,6 +1,7 @@
 import _ from "lodash";
 import {Alert, ToastAndroid} from "react-native";
-import {Individual} from "avni-models";
+import {Individual, WorkItem, WorkList, WorkLists} from "avni-models";
+import moment from "moment";
 import {getConnectionInfo} from "../../utility/ConnectionInfo";
 import CHSNavigator from "../../utility/CHSNavigator";
 import TypedTransition from "../../framework/routing/TypedTransition";
@@ -25,7 +26,8 @@ export const ABHA_CONSENT_KEY = 'abhaRegistrationConsent';
 // comes back is checked against the organisation's patients before it fills anything in. The view supplies three
 // dialogs: askAbhaConsent(text) resolves to the time the patient agreed, null when they do not agree, or undefined
 // when closed without an answer; askAbhaReplace(rows) resolves true to apply the ABHA's details; and
-// askAbhaDuplicate(name, rows) resolves true to open the patient who already holds the ABHA. Nothing here logs the ABHA number, address, Eka's IDs or the key.
+// askAbhaDuplicate(name, rows) resolves true to open the patient who already holds the ABHA. DEMO-ONLY abdm-hackathon:
+// askAbhaMatch(name, rows) resolves true to link the ABHA to a returning patient instead. Nothing here logs the ABHA number, address, Eka's IDs or the key.
 class AbhaRegistrationFlow {
     constructor(view) {
         this.view = view;
@@ -134,7 +136,7 @@ class AbhaRegistrationFlow {
         let filled = false;
         let recorded;
         try {
-            filled = await this.fillIn(profile, individual, route);
+            filled = await this.fillIn(profile, individual, route, consentGivenAt);
         } finally {
             this.setBusy(individual, false);
             // After the fill, so the form never waits on the network, and sent even when the fill failed.
@@ -151,7 +153,7 @@ class AbhaRegistrationFlow {
 
     // Checks the ABHA against the organisation's patients and fills the form with it. True once filled; false when
     // another patient holds it, the worker cancelled or gave up, or the screen has closed.
-    async fillIn(profile, individual, route) {
+    async fillIn(profile, individual, route, consentGivenAt) {
         if (profile.abhaNumber) {
             const holders = await this.holdersOf(individual, profile.abhaNumber);
             if (_.isNil(holders) || this.screenGone()) return false;
@@ -164,9 +166,49 @@ class AbhaRegistrationFlow {
         if (this.view.props.params.editing) {
             const apply = await this.view.askAbhaReplace(AbhaRegistrationFlow.replaceRows(individual, profile, this.I18n));
             if (!apply || this.screenGone()) return false;
+        } else {
+            const returning = this.returningPatientOf(individual, profile);
+            if (returning) {
+                const link = await this.view.askAbhaMatch(returning.nameString, AbhaRegistrationFlow.duplicateRows(returning, profile, this.I18n));
+                if (this.screenGone()) return false;
+                if (link) {
+                    this.openWithAbha(returning, profile, route, consentGivenAt);
+                    return false;
+                }
+            }
         }
         this.view.dispatchAction(Actions.ON_ABHA_PROFILE, {profile, choice: route, subjectUUID: individual.uuid});
         return true;
+    }
+
+    // DEMO-ONLY abdm-hackathon (NHA's M1 case CRT_ABHA_116; the real check is avni-server#1096, still to be analysed): a
+    // patient registered on this phone before they had an ABHA, with the ABHA's name, gender and date of birth.
+    returningPatientOf(individual, profile) {
+        if (!profile.firstName || !profile.genderName || !profile.dateOfBirth) return null;
+        const same = (a, b) => _.toLower(_.trim(a)) === _.toLower(_.trim(b));
+        const candidates = this.view.getService(IndividualService).findAll()
+            .filtered('voided = false AND subjectType.uuid = $0 AND firstName LIKE[c] $1', individual.subjectType.uuid, _.trim(profile.firstName));
+        return _.find(_.map(candidates, _.identity), (subject) => subject.uuid !== individual.uuid && !subject.voided
+            && same(subject.firstName, profile.firstName) && same(subject.lastName, profile.lastName)
+            && _.get(subject, 'gender.name') === profile.genderName
+            && !_.isNil(subject.dateOfBirth) && moment(subject.dateOfBirth).isSame(profile.dateOfBirth, 'day')) || null;
+    }
+
+    // DEMO-ONLY abdm-hackathon: the returning patient's registration replaces this one, in edit, with the ABHA waiting
+    // for it (takePendingLink). There the edit's side-by-side step applies it, as a Link would.
+    openWithAbha(returning, profile, route, consentGivenAt) {
+        AbhaRegistrationFlow.pendingLinks.set(returning.uuid, {profile, route, consentGivenAt});
+        const workLists = new WorkLists(new WorkList(`${returning.subjectType.name} `, [new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION,
+            {uuid: returning.uuid, subjectTypeName: returning.subjectType.name})]));
+        TypedTransition.from(this.view)
+            .with({subjectUUID: returning.uuid, individualUUID: returning.uuid, editing: true, workLists})
+            .to(this.view.constructor, false, true);
+    }
+
+    static takePendingLink(subjectUUID) {
+        const pending = AbhaRegistrationFlow.pendingLinks.get(subjectUUID);
+        AbhaRegistrationFlow.pendingLinks.delete(subjectUUID);
+        return pending;
     }
 
     // The card is asked of the server, which serves a patient it does not have yet only to the user who recorded
@@ -289,5 +331,8 @@ class AbhaRegistrationFlow {
         };
     }
 }
+
+// DEMO-ONLY abdm-hackathon: an ABHA on its way to a returning patient's registration, by subject uuid.
+AbhaRegistrationFlow.pendingLinks = new Map();
 
 export default AbhaRegistrationFlow;

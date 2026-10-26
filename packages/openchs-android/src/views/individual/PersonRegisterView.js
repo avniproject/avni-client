@@ -105,8 +105,18 @@ class PersonRegisterView extends AbstractComponent {
                 taskUuid: params.taskUuid,
                 onCompletion: (newState) => {
                     this.dispatchAction(Actions.USE_THIS_STATE, {state: newState});
+                    this.runAfterSceneTransition(() => this.applyPendingAbhaLink());
                 }
             });
+    }
+
+    // DEMO-ONLY abdm-hackathon: a returning patient found by the ABHA's details (NHA's M1 case CRT_ABHA_116) opens here,
+    // in edit, with the ABHA waiting; the edit's side-by-side step then applies it, as a Link would.
+    applyPendingAbhaLink() {
+        const individual = _.get(this.state, 'individual');
+        const pending = individual && this.props.params.editing && AbhaRegistrationFlow.takePendingLink(individual.uuid);
+        if (pending) this.abhaFlow.onProfile(pending.profile, {route: pending.route, consentGivenAt: pending.consentGivenAt})
+            .catch(() => this.abhaFlow.failed('ABHA for a returning patient not filled in'));
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -141,6 +151,10 @@ class PersonRegisterView extends AbstractComponent {
 
     askAbhaDuplicate(name, rows) {
         return this.showAbhaDialog({kind: 'duplicate', name, rows});
+    }
+
+    askAbhaMatch(name, rows) {
+        return this.showAbhaDialog({kind: 'match', name, rows});
     }
 
     // One dialog at a time: a second asked for while one is open gets no answer (undefined) at once, and the open
@@ -188,6 +202,10 @@ class PersonRegisterView extends AbstractComponent {
                 <AbhaReplaceDetailsDialog rows={dialog.rows} title={this.I18n.t('abhaDuplicateOpen', {name: dialog.name})}
                                           applyLabel="abhaDuplicateOpenAction" onApply={() => this.closeAbhaDialog(true)}
                                           onCancel={() => this.closeAbhaDialog(false)}/>}
+                {_.get(dialog, 'kind') === 'match' &&
+                <AbhaReplaceDetailsDialog rows={dialog.rows} title={this.I18n.t('abhaReturningPatient', {name: dialog.name})}
+                                          applyLabel="abhaReturningPatientLink" cancelLabel="abhaReturningPatientNew"
+                                          onApply={() => this.closeAbhaDialog(true)} onCancel={() => this.closeAbhaDialog(false)}/>}
             </View>
         );
     }

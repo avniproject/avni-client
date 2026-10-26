@@ -15,6 +15,7 @@ class AbhaReplaceDetailsDialog extends AbstractComponent {
         onCancel: PropTypes.func.isRequired,
         title: PropTypes.string,
         applyLabel: PropTypes.string,
+        cancelLabel: PropTypes.string,
     };
 
     constructor(props, context) {
@@ -32,7 +33,7 @@ class AbhaReplaceDetailsDialog extends AbstractComponent {
     }
 
     render() {
-        const {rows, onApply, onCancel, title = this.I18n.t('abhaReplaceDetails'), applyLabel = 'apply'} = this.props;
+        const {rows, onApply, onCancel, title = this.I18n.t('abhaReplaceDetails'), applyLabel = 'apply', cancelLabel = 'cancel'} = this.props;
         return (
             <Modal visible transparent animationType="fade" onRequestClose={onCancel}>
                 <View style={styles.backdrop}>
@@ -42,7 +43,7 @@ class AbhaReplaceDetailsDialog extends AbstractComponent {
                         {rows.map(({label, current, abha}) => this.renderRow(label, current, abha, null, label))}
                         <View style={styles.actions}>
                             <TouchableOpacity onPress={onCancel} style={styles.btn}>
-                                <Text style={styles.cancelText}>{this.I18n.t('cancel')}</Text>
+                                <Text style={styles.cancelText}>{this.I18n.t(cancelLabel)}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={onApply} style={styles.btn}>
                                 <Text style={styles.applyText}>{this.I18n.t(applyLabel)}</Text>
