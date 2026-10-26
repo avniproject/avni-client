@@ -152,8 +152,8 @@ class AbhaRegistrationFlow {
     // Checks the ABHA against the organisation's patients and fills the form with it. True once filled; false when
     // another patient holds it, the worker cancelled or gave up, or the screen has closed.
     async fillIn(profile, individual, route) {
-        if (profile.abhaNumber) {
-            const holders = await this.holdersOf(individual, profile.abhaNumber);
+        if (profile.abhaNumber || profile.abhaAddress) {
+            const holders = await this.holdersOf(individual, profile);
             if (_.isNil(holders) || this.screenGone()) return false;
             const others = _.without(holders, individual.uuid);
             if (!_.isEmpty(others)) {
@@ -207,11 +207,11 @@ class AbhaRegistrationFlow {
     // The patients in the organisation who hold this ABHA number, and those on this phone not yet synced, whom the
     // server cannot know of. When the server cannot be asked, the worker can try again with the same ABHA rather than
     // take the patient through Eka's OTP again. Null when the worker gives up, or the screen has closed.
-    async holdersOf(individual, abhaNumber) {
+    async holdersOf(individual, profile) {
         for (;;) {
             try {
-                const onServer = await this.view.getService(AbhaService).findSubjectUUIDs(individual.subjectType.uuid, abhaNumber);
-                return _.union(onServer, this.unsyncedHoldersOf(individual, abhaNumber));
+                const onServer = await this.view.getService(AbhaService).findSubjectUUIDs(individual.subjectType.uuid, profile.abhaNumber, profile.abhaAddress);
+                return _.union(onServer, this.unsyncedHoldersOf(individual, profile));
             } catch (error) {
                 const messageKey = AbhaError.messageKey(error);
                 General.logWarn('AbhaRegistrationFlow', `ABHA holders not found out: ${messageKey}`);
@@ -221,15 +221,20 @@ class AbhaRegistrationFlow {
     }
 
     // Only the queue of patients waiting to be synced is read, which is small; never every patient's answers. Numbers
-    // are compared as digits, and the patient being edited does not count.
-    unsyncedHoldersOf(individual, abhaNumber) {
-        const digits = AbhaProfile.digitsOnly(abhaNumber);
+    // are compared as digits; with no number, addresses by the part before '@' in any case, as the server does. The
+    // patient being edited does not count.
+    unsyncedHoldersOf(individual, profile) {
+        const digits = AbhaProfile.digitsOnly(profile.abhaNumber);
+        const addressName = (address) => _.toLower(_.head(_.split(_.trim(address), '@')));
+        const name = _.isEmpty(digits) && profile.abhaAddress ? addressName(profile.abhaAddress) : null;
         const individualService = this.view.getService(IndividualService);
         return _.filter(this.view.getService(EntityQueueService).getQueuedEntityUUIDs(Individual.schema.name), (uuid) => {
             if (uuid === individual.uuid) return false;
             const subject = individualService.findByUUID(uuid);
-            return !_.isNil(subject) && !subject.voided
-                && AbhaProfile.digitsOnly(subject.getObservationValue(ABHA_CONCEPT_NAMES.abhaNumber)) === digits;
+            if (_.isNil(subject) || subject.voided) return false;
+            if (!_.isEmpty(digits)) return AbhaProfile.digitsOnly(subject.getObservationValue(ABHA_CONCEPT_NAMES.abhaNumber)) === digits;
+            const theirs = subject.getObservationValue(ABHA_CONCEPT_NAMES.abhaAddress);
+            return !_.isEmpty(name) && !_.isEmpty(_.trim(theirs)) && addressName(theirs) === name;
         });
     }
 

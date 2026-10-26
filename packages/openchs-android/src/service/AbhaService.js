@@ -36,11 +36,15 @@ class AbhaService extends BaseService {
         return this._get(`/abha/session?subjectTypeUUID=${encodeURIComponent(subjectTypeUUID)}`);
     }
 
-    // The patients in the organisation who hold this ABHA number. The number travels in the body, as digits:
-    // request addresses are logged, here and in the server's access log. An answer without the list is a failure:
-    // read as "no holder", it would let a second patient take the ABHA.
-    findSubjectUUIDs(subjectTypeUUID, abhaNumber) {
-        return post(`${this.getServerUrl()}/abha/subjects/search`, {subjectTypeUUID, abhaNumber: AbhaProfile.digitsOnly(abhaNumber)})
+    // The patients in the organisation who hold this ABHA number, or this ABHA address (an ABHA made with a mobile number
+    // only has no number). Both travel in the body, the number as digits: request addresses are logged, here and in the
+    // server's access log. An answer without the list is a failure: read as "no holder", it would let a second patient
+    // take the ABHA.
+    findSubjectUUIDs(subjectTypeUUID, abhaNumber, abhaAddress) {
+        const digits = AbhaProfile.digitsOnly(abhaNumber);
+        const body = _.isNil(abhaAddress) ? {subjectTypeUUID, abhaNumber: digits}
+            : {subjectTypeUUID, abhaNumber: _.isEmpty(digits) ? null : digits, abhaAddress};
+        return post(`${this.getServerUrl()}/abha/subjects/search`, body)
             .then((response) => response.json())
             .then((body) => {
                 const subjectUUIDs = _.get(body, 'subjectUUIDs');
