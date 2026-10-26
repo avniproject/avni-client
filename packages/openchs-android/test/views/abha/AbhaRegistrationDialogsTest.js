@@ -131,6 +131,17 @@ describe("ABHA registration dialogs", () => {
             expect(onApply).toHaveBeenCalledTimes(1);
             expect(onCancel).toHaveBeenCalledTimes(1);
         });
+
+        // The same side-by-side step when the ABHA already belongs to another patient (NHA's M1 case VRFY_ABHA_308).
+        it("can carry its own title and action, for a patient who already holds the ABHA", async () => {
+            const onApply = jest.fn();
+            const screen = await show(<AbhaReplaceDetailsDialog rows={rows} title="This ABHA is already linked to Ravi Kumar."
+                                                                applyLabel="abhaDuplicateOpenAction" onApply={onApply} onCancel={() => {}}/>);
+            expect(screen.texts()).toContain("This ABHA is already linked to Ravi Kumar.");
+            expect(screen.texts()).not.toContain("abhaReplaceDetails");
+            await screen.press("abhaDuplicateOpenAction");
+            expect(onApply).toHaveBeenCalledTimes(1);
+        });
     });
 
     it("has English wording for every message the ABHA registration step shows, and none for the consent key", () => {
