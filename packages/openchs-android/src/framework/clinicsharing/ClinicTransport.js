@@ -92,6 +92,15 @@ const WIRE_ENCODING = 'latin1';
 
 const writeLine = (socket, keyBytes, message) => socket.write(seal(keyBytes, message) + '\n', WIRE_ENCODING);
 
+// The socket library throws "Socket is closed" for a write after a close, and inside its event handler nothing would catch it.
+const writeHello = (socket, keyBytes, message, onClosed) => {
+    try {
+        writeLine(socket, keyBytes, message);
+    } catch (error) {
+        onClosed(error);
+    }
+};
+
 function lineReader(onLine) {
     let buffer = '';
     return (data) => {
@@ -229,7 +238,7 @@ export async function startHub({key, appVersion, hubId, epoch, setup, port = CLI
             socket.setTimeout(0);
             sockets.delete(socket);
         });
-        writeLine(socket, keyBytes, hello({appVersion, hubId, epoch, setup}));
+        writeHello(socket, keyBytes, hello({appVersion, hubId, epoch, setup}), () => socket.destroy());
     });
 
     await new Promise((resolve, reject) => {
@@ -267,7 +276,7 @@ export async function connectToHub({host, key, appVersion, hubId, epoch, setup, 
         };
         const timer = setTimeout(() => fail('timeout'), timeoutMs);
 
-        socket.on('connect', () => writeLine(socket, keyBytes, hello({appVersion, hubId, epoch, setup})));
+        socket.on('connect', () => writeHello(socket, keyBytes, hello({appVersion, hubId, epoch, setup}), () => fail('closed')));
         socket.on('data', lineReader((line) => {
             const message = open(keyBytes, line);
             if (connection) return message === null ? undefined : connection._deliver(message);
