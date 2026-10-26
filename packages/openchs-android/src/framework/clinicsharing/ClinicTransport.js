@@ -191,8 +191,11 @@ export async function startHub({key, appVersion, hubId, epoch, setup, port = CLI
         socket.setEncoding(WIRE_ENCODING);
         sockets.add(socket);
         const peerName = socket.remoteAddress;
+        let closed = false;
         socket.setTimeout(HANDSHAKE_TIMEOUT_MS);
+        // The socket library keeps a closed socket's timer running, so a phone that closed after its sync is not "dropped".
         socket.on('timeout', () => {
+            if (closed) return;
             log(`Dropped ${peerName}: nothing received for a while`);
             socket.destroy();
         });
@@ -221,7 +224,11 @@ export async function startHub({key, appVersion, hubId, epoch, setup, port = CLI
             onConnection(connection);
         }));
         socket.on('error', (error) => log(`Socket error from ${peerName}: ${error.message}`));
-        socket.on('close', () => sockets.delete(socket));
+        socket.on('close', () => {
+            closed = true;
+            socket.setTimeout(0);
+            sockets.delete(socket);
+        });
         writeLine(socket, keyBytes, hello({appVersion, hubId, epoch, setup}));
     });
 

@@ -394,7 +394,7 @@ class ClinicHubService extends BaseService {
                     .filter((resource) => !_.isNil(resource)),
             }))
             .filter((batch) => batch.resources.length > 0);
-        log(`Serving ${rows.length} ledger rows (${batches.length} types) to ${deviceId}`);
+        if (rows.length > 0) log(`Serving ${rows.length} ledger rows (${batches.length} types) to ${deviceId}`);
         await this._noteSync(deviceId, phoneName);
         // The phone pushed before this pull, so this reply ends its last send and fetch.
         if (this.campEnding) await this._saveCampPhone(deviceId, {leftAt: Date.now()});
