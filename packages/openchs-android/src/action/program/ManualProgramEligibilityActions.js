@@ -50,7 +50,8 @@ class ManualProgramEligibilityActions {
 
     static onSave(state, action, context) {
         const newState = state.clone();
-        const subjectProgramEligibility = newState.subjectProgramEligibility;
+        const subjectProgramEligibility = newState.subjectProgramEligibility.cloneForEdit();
+        newState.subjectProgramEligibility = subjectProgramEligibility;
         const ruleEvaluationService = context.get(RuleEvaluationService);
         subjectProgramEligibility.eligible = newState.isEligible(subjectProgramEligibility.subject, subjectProgramEligibility.program, ruleEvaluationService);
 
