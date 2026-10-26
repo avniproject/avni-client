@@ -187,6 +187,15 @@ describe("ClinicSharingView", () => {
         expect(lines()).not.toContain('clinicSharingError_rejoinFailed {"hub":"AndroidShare_1"}');
     });
 
+    it("shows the date of a phone's last sync when it was on an earlier day of the camp", async () => {
+        const eightDaysAgo = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000);
+        const {lines} = await show({sharing: {ssid: "AndroidShare_1", passphrase: "pass1234", qrValue: "{}"}, hubCamp: true,
+            phones: [{deviceId: "d-1", name: "Nurse", syncedAt: eightDaysAgo.getTime()}]});
+
+        const line = lines().find((text) => text.startsWith('clinicSharingPhoneLastSynced {"phone":"Nurse"'));
+        expect(line).toContain(require("moment")(eightDaysAgo).format('D MMM'));
+    });
+
     it("ends the camp from the hub, then lists who has left, lets the hub skip a phone that is gone, and closes only when all have", async () => {
         const sharing = {ssid: "AndroidShare_1", passphrase: "pass1234", qrValue: "{}"};
         const running = await show({sharing, hubCamp: true});

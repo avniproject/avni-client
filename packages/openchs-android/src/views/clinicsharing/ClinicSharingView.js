@@ -131,7 +131,8 @@ class ClinicSharingView extends AbstractComponent {
     }
 
     renderPhoneLine({deviceId, name, syncedAt, leftAt, skipped}) {
-        const time = moment(syncedAt).format('LT');
+        // A camp can run for days, so a sync from an earlier day shows its date.
+        const time = moment(syncedAt).format(moment(syncedAt).isSame(moment(), 'day') ? 'LT' : 'D MMM, LT');
         const text = !this.hub.campEnding ? this.I18n.t('clinicSharingPhoneLastSynced', {phone: name, time})
             : leftAt ? this.I18n.t('clinicSharingPhoneLeft', {phone: name})
                 : skipped ? this.I18n.t('clinicSharingPhoneSkipped', {phone: name})

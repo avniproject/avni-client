@@ -741,6 +741,7 @@
     "clinicCampBlocksServerSync": "You are in a camp. Leave the camp to sync with the server.",
     "clinicCampBlocksLogout": "You are in a camp. Leave the camp before logging out.",
     "clinicSharingHubStarting": "Starting the hub. Its code shows here in a few seconds.",
-    "clinicSharingHubNotResumed": "The hub did not start again. {{reason}} Then open Clinic sharing and tap Start hub."
+    "clinicSharingHubNotResumed": "The hub did not start again. {{reason}}",
+    "clinicSharingHubNotResumedOther": "The hub did not start again. {{reason}} Open Clinic sharing and tap Start hub."
   }
 }

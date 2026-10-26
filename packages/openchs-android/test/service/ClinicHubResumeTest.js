@@ -20,7 +20,7 @@ jest.mock("../../src/framework/clinicsharing/ClinicHubPermissions", () => ({
 
 import {Alert, AppState} from "react-native";
 import ClinicHubService from "../../src/service/clinicsharing/ClinicHubService";
-import {resumeClinicCamp} from "../../src/views/clinicsharing/ClinicSharingMessages";
+import {resumeClinicCamp, resumeClinicCampWhenOpened} from "../../src/views/clinicsharing/ClinicSharingMessages";
 import {canStartHub} from "../../src/framework/clinicsharing/ClinicHubWifi";
 import {hasClinicHubPermissions} from "../../src/framework/clinicsharing/ClinicHubPermissions";
 
@@ -85,5 +85,50 @@ describe('Resuming a camp when the app opens', () => {
 
         expect(alert).toHaveBeenCalledWith('clinicSharing', 'clinicSharingHubNotResumed {"reason":"clinicSharingError_locationOff {}"}');
         alert.mockRestore();
+    });
+
+    it("tells each reason once, as the app comes back to the screen often, and again after the hub has started", async () => {
+        const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+        const service = hub();
+        const I18n = {t: (key, params) => (params ? `${key} ${JSON.stringify(params)}` : key)};
+        service.startSharing.mockRejectedValue(Object.assign(new Error('permission'), {code: 'hotspotNotAllowed'}));
+
+        await resumeClinicCamp(service, I18n);
+        await resumeClinicCamp(service, I18n);
+        expect(alert).toHaveBeenCalledTimes(1);
+
+        service.startSharing.mockResolvedValueOnce({ssid: 'AndroidShare_1'});
+        await resumeClinicCamp(service, I18n);
+        await resumeClinicCamp(service, I18n);
+        expect(alert).toHaveBeenCalledTimes(2);
+        alert.mockRestore();
+    });
+
+    it("points to Start hub only when the reason does not already say what to do", async () => {
+        const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+        const service = hub();
+        service.startSharing.mockRejectedValue(new Error('disk error'));
+        const I18n = {t: (key, params) => (params ? `${key} ${JSON.stringify(params)}` : key)};
+
+        await resumeClinicCamp(service, I18n);
+
+        expect(alert.mock.calls[0][1]).toMatch(/^clinicSharingHubNotResumedOther /);
+        alert.mockRestore();
+    });
+
+    it("tries again whenever the app comes back to the screen, until Home is gone", async () => {
+        let onChange;
+        const remove = jest.fn();
+        jest.spyOn(AppState, 'addEventListener').mockImplementation((event, handler) => { onChange = handler; return {remove}; });
+        const service = hub();
+        service.resumeCamp = jest.fn(async () => null);
+
+        const stop = resumeClinicCampWhenOpened(service, {t: (key) => key});
+        onChange('background');
+        onChange('active');
+        expect(service.resumeCamp).toHaveBeenCalledTimes(2);
+
+        stop();
+        expect(remove).toHaveBeenCalled();
     });
 });

@@ -553,6 +553,9 @@ describe('Phones syncing with the hub', () => {
             await hub.skipPhone('device-doctor');
 
             await hub.stopSharing();
+            // A restart is a new app process, which remembers nothing but the hub file.
+            hub.lastSyncByDevice.clear();
+            hub.campPhones.clear();
             await hub.startSharing(log, {port});
 
             expect(hub.phonesSynced().map(({name, skipped}) => `${name}${skipped ? ' (skipped)' : ''}`).sort()).toEqual(['Doctor (skipped)', 'Nurse']);

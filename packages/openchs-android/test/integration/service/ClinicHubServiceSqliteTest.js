@@ -148,6 +148,16 @@ describe("Clinic hub ledger", () => {
         expect(ledger).not.toHaveBeenCalled();
     });
 
+    it('clears stray parts of cut-off photo transfers each time it starts', async () => {
+        const media = {discardStrayParts: jest.fn(async () => {}), afterSync: async () => 0};
+        hub.getService = (cls) => (cls === ClinicRecordService ? {setupVersion: () => ({Form: 1})} : media);
+
+        await hub.startHub(() => {}, {port: 17900 + (process.pid % 90)});
+        await hub.stopHub();
+
+        expect(media.discardStrayParts).toHaveBeenCalledTimes(1);
+    });
+
     it('keeps everything it shared for the whole camp, however long ago it arrived', async () => {
         stored['day-one'] = 1;
         await push('phone-a', 'Individual', ['day-one']);
