@@ -4,58 +4,54 @@ jest.mock("../../../src/framework/bean/Service", () => () => (target) => target)
 
 import {ManualProgramEligibilityActions} from "../../../src/action/program/ManualProgramEligibilityActions";
 import SubjectProgramEligibilityService from "../../../src/service/program/SubjectProgramEligibilityService";
-import RuleEvaluationService from "../../../src/service/RuleEvaluationService";
+import FormMappingService from "../../../src/service/FormMappingService";
+import SubjectProgramEligibilityState from "../../../src/state/SubjectProgramEligibilityState";
 
-describe("ManualProgramEligibilityActions.onSave", () => {
-    it("saves a cloned eligibility entity without modifying the original", () => {
+describe("ManualProgramEligibilityActions.onLoad", () => {
+    it("clones an existing eligibility entity before creating the form state", () => {
+        const detachedEligibility = {eligible: false};
         const original = {
-            eligible: false,
-            subject: {uuid: "subject-1"},
-            program: {uuid: "program-1"},
-            cloneForEdit: jest.fn(() => ({
-                eligible: false,
-                subject: {uuid: "subject-1"},
-                program: {uuid: "program-1"}
-            }))
+            cloneForEdit: jest.fn(() => detachedEligibility)
         };
 
-        const savedEntities = [];
+        const form = {
+            nonVoidedFormElementGroups: () => []
+        };
+
         const eligibilityService = {
-            saveOrUpdate: jest.fn(entity => savedEntities.push(entity))
+            findBySubjectAndProgram: jest.fn(() => original)
         };
 
-        const ruleEvaluationService = {};
+        const formMappingService = {
+            getManualEnrolmentEligibilityForm: jest.fn(() => form)
+        };
+
         const context = {
             get: klass => {
                 if (klass === SubjectProgramEligibilityService) return eligibilityService;
-                if (klass === RuleEvaluationService) return ruleEvaluationService;
+                if (klass === FormMappingService) return formMappingService;
             }
         };
 
-        const state = {
-            subjectProgramEligibility: original,
-            clone() {
-                return {
-                    subjectProgramEligibility: this.subjectProgramEligibility,
-                    isEligible: () => true
-                };
-            }
-        };
+        const expectedState = {};
+        const stateSpy = jest.spyOn(
+            SubjectProgramEligibilityState,
+            "createOnLoadStateForEmptyForm"
+        ).mockReturnValue(expectedState);
 
-        const callback = jest.fn();
+        const subject = {subjectType: {uuid: "type-1"}};
+        const program = {uuid: "program-1"};
 
-        const result = ManualProgramEligibilityActions.onSave(
-            state,
-            {cb: callback},
+        const result = ManualProgramEligibilityActions.onLoad(
+            null,
+            {subject, program},
             context
         );
 
-        assert.equal(original.eligible, false);
         assert.equal(original.cloneForEdit.mock.calls.length, 1);
-        assert.equal(savedEntities.length, 1);
-        assert.notStrictEqual(savedEntities[0], original);
-        assert.equal(savedEntities[0].eligible, true);
-        assert.strictEqual(result.subjectProgramEligibility, savedEntities[0]);
-        assert.equal(callback.mock.calls.length, 1);
+        assert.strictEqual(stateSpy.mock.calls[0][0], detachedEligibility);
+        assert.strictEqual(result, expectedState);
+
+        stateSpy.mockRestore();
     });
 });

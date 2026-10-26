@@ -23,6 +23,9 @@ class ManualProgramEligibilityActions {
         const {subject, program} = action;
         const form = context.get(FormMappingService).getManualEnrolmentEligibilityForm(subject.subjectType, program);
         let subjectProgramEligibility = context.get(SubjectProgramEligibilityService).findBySubjectAndProgram(subject, program);
+        if (!_.isNil(subjectProgramEligibility)) {
+            subjectProgramEligibility = subjectProgramEligibility.cloneForEdit();
+        }
         const isNewEntity = _.isNil(subjectProgramEligibility);
         if(isNewEntity) {
             subjectProgramEligibility = SubjectProgramEligibility.createEmptyInstance(program, subject);
@@ -50,8 +53,7 @@ class ManualProgramEligibilityActions {
 
     static onSave(state, action, context) {
         const newState = state.clone();
-        const subjectProgramEligibility = newState.subjectProgramEligibility.cloneForEdit();
-        newState.subjectProgramEligibility = subjectProgramEligibility;
+        const subjectProgramEligibility = newState.subjectProgramEligibility;
         const ruleEvaluationService = context.get(RuleEvaluationService);
         subjectProgramEligibility.eligible = newState.isEligible(subjectProgramEligibility.subject, subjectProgramEligibility.program, ruleEvaluationService);
 
