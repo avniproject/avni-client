@@ -4,23 +4,25 @@ import IndividualService from "../../src/service/IndividualService";
 import IndividualSearchCriteria from "../../src/service/query/IndividualSearchCriteria";
 
 describe("IndividualService chunked search (#2110)", () => {
-    it("checks UUIDs passed to chunked search", () => {
-        const individuals = Array.from({length: 1001}, (_, i) => ({
-            uuid: `subject-${i}`,
-            name: `Subject ${String(i).padStart(4, "0")}`
-        }));
+    const runSearch = (inputUUIDs) => {
+        const individuals = Array.from(
+            new Set(inputUUIDs),
+            uuid => ({uuid, name: `Subject ${uuid}`})
+        );
 
         const filterCalls = [];
 
         const makeResults = (items) => ({
             filtered: jest.fn((query, ...args) => {
                 filterCalls.push({query, args});
-                // The first filtered() call applies the general criteria.
-                if (query.includes("voided=false")) {
+
+                if (!query.includes("uuid =")) {
                     return makeResults(items);
                 }
-                // Later calls apply the UUID chunks.
-                return makeResults(items.filter(individual => args.includes(individual.uuid)));
+
+                return makeResults(
+                    items.filter(individual => args.includes(individual.uuid))
+                );
             }),
             sorted: jest.fn(() => makeResults(items)),
             asArray: jest.fn(() => items),
@@ -41,15 +43,56 @@ describe("IndividualService chunked search (#2110)", () => {
         const criteria = IndividualSearchCriteria.empty();
         criteria.addNameCriteria("Subject");
 
-        const result = service.search(criteria, individuals.map(individual => individual.uuid));
+        const result = service.search(criteria, inputUUIDs);
 
-        expect(result).toHaveLength(1001);
-        expect(new Set(result.map(individual => individual.uuid)).size).toBe(1001);
-        const uuidChunkCalls = filterCalls.filter(({query}) => query.includes('uuid ='));
-        expect(uuidChunkCalls).toHaveLength(3);
-        expect(uuidChunkCalls[0].args).toHaveLength(500);
-        expect(uuidChunkCalls[1].args).toHaveLength(500);
-        expect(uuidChunkCalls[2].args).toHaveLength(1); 
+        return {result, filterCalls};
+    };
+
+    it.each([500, 501, 1000, 1001])(
+        "returns all %i matching subjects",
+        (count) => {
+            const uuids = Array.from(
+                {length: count},
+                (_, i) => `subject-${i}`
+            );
+
+            const {result, filterCalls} = runSearch(uuids);
+            const uuidChunkCalls = filterCalls.filter(
+                ({query}) => query.includes("uuid =")
+            );
+
+            expect(result).toHaveLength(count);
+            expect(new Set(result.map(individual => individual.uuid)).size)
+                .toBe(count);
+            expect(uuidChunkCalls).toHaveLength(Math.ceil(count / 500));
+
+            uuidChunkCalls.forEach((call, index) => {
+                const expectedSize = Math.min(500, count - index * 500);
+                expect(call.args).toHaveLength(expectedSize);
+            });
+        }
+    );
+
+    it("removes duplicate UUIDs before searching", () => {
+        const uuids = [
+            "subject-1",
+            "subject-2",
+            "subject-1",
+            "subject-3",
+            "subject-2"
+        ];
+
+        const {result, filterCalls} = runSearch(uuids);
+        const uuidChunkCalls = filterCalls.filter(
+            ({query}) => query.includes("uuid =")
+        );
+
+        expect(result.map(individual => individual.uuid).sort()).toEqual([
+            "subject-1",
+            "subject-2",
+            "subject-3"
+        ]);
+        expect(uuidChunkCalls).toHaveLength(1);
+        expect(uuidChunkCalls[0].args).toHaveLength(3);
     });
-
 });

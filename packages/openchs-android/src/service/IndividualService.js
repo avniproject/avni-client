@@ -366,6 +366,7 @@ class IndividualService extends BaseService {
         } else {
             function filterIndividualsByChunks(baseResult) {
                 // if chunkSize is less/more than 500, processing is slower
+                individualUUIDs = _.uniq(individualUUIDs);
                 const chunkSize = 500;
                 const noOfChunks = Math.ceil(individualUUIDs.length / chunkSize);
                 for (let chunk = 0; chunk < noOfChunks; chunk++) {
