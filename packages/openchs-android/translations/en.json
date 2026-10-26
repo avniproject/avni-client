@@ -500,6 +500,7 @@
     "abhaRemoveLinkConfirm": "Remove this patient's ABHA number and ABHA address? The ABHA itself is not deleted.",
     "abhaConsentAgree": "The patient agrees",
     "abhaConsentContinue": "Continue",
+    "abhaRegistrationConsent": "This health worker will use your Aadhaar number or mobile number, and a one-time code sent to your phone, to find your ABHA or create one. This app does not keep your Aadhaar number. Your name, gender, date of birth, ABHA number and ABHA address will be saved with your record here, so that your health records can be linked to your ABHA. You can register without an ABHA, and you can ask for your ABHA to be removed from your record later.",
     "abhaConsentDecline": "Does not agree",
     "abhaSectionTitle": "ABHA",
     "abhaLinked": "Linked",

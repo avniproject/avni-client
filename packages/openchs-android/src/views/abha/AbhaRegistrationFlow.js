@@ -15,8 +15,8 @@ import {Actions} from "../../action/individual/PersonRegisterActions";
 // Eka's screens open on "Add Patient via ABHA" for both Create and Link, until Eka says whether they can open
 // straight on its other routes (open decision "Eka's answers that ABDM M1 needs", question 5).
 export const ABHA_SDK_METHOD = 'login_or_create_abha';
-// The organisation's own consent wording, set in its translations. The platform's translations do not define it,
-// so an organisation that sets none has no consent step.
+// The consent wording: the organisation's own, set in its translations, else the platform's, else the default the app
+// carries (config/beforeSyncMessages.en.json), so every organisation with ABHA on asks for consent (NHA's CRT_ABHA_102).
 // How long the card waits for the server to have the ABHA action before it opens anyway.
 export const CARD_WAIT_MS = 5000;
 export const ABHA_CONSENT_KEY = 'abhaRegistrationConsent';
