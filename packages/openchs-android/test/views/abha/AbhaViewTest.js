@@ -53,6 +53,41 @@ async function show(environment = "sandbox", {handBack = () => undefined} = {}) 
     return {navigator, onProfile, onSkip, webViews, send, sendRaw, lines};
 }
 
+// The page's script, as the WebView is given it.
+async function pageFor(props) {
+    const context = {getService: () => ({getI18n: () => ({t: (key) => key})}), navigator: () => ({pop: jest.fn(), getCurrentRoutes: () => []})};
+    let renderer;
+    await act(async () => {
+        renderer = TestRenderer.create(<ServiceContext.Provider value={context}>
+            <AbhaView session={sessionFor("sandbox")} method="login_or_create_abha" onProfile={jest.fn()} onSkip={jest.fn()} {...props}/>
+        </ServiceContext.Provider>);
+    });
+    mounted.push(renderer);
+    const webView = renderer.root.findAll((node) => node.props.testID === "webview" && typeof node.type !== "string")[0];
+    return webView.props.source.html;
+}
+
+// An ABHA address known before Eka's screens open (a "Checked in today" patient) opens them on that address: Eka's SDK
+// takes it as identifier, of identifier_type phr_address (eka-abdm plugin, abdm-m1-abha/references/web-sdk.md).
+describe("AbhaView with an ABHA address to start from", () => {
+    afterEach(() => {
+        mounted.forEach((renderer) => act(() => renderer.unmount()));
+        mounted = [];
+    });
+
+    it("hands the address to Eka's screens as a PHR address", async () => {
+        const html = await pageFor({prefillAbhaAddress: "asha.rao@sbx"});
+        expect(html).toContain('"identifier":"asha.rao@sbx"');
+        expect(html).toContain('"identifier_type":"phr_address"');
+    });
+
+    it("hands nothing over when there is none", async () => {
+        const html = await pageFor({});
+        expect(html).not.toContain('"identifier"');
+        expect(html).not.toContain('"identifier_type"');
+    });
+});
+
 describe("AbhaViewTest", () => {
     afterEach(() => {
         mounted.forEach((renderer) => act(() => renderer.unmount()));

@@ -29,7 +29,9 @@ class AbhaView extends AbstractComponent {
             environment: PropTypes.string,
         }).isRequired,
         method: PropTypes.string,
-        // For "Checked in today" (#2200); it reaches Eka's screens once the sandbox shows which key they read.
+        // An ABHA address known before the screens open ("Checked in today", #2200). Eka's SDK takes it as identifier, of
+        // identifier_type phr_address (eka-abdm plugin, abdm-m1-abha/references/web-sdk.md). How Eka's screens use it is
+        // not yet seen in the sandbox.
         prefillAbhaAddress: PropTypes.string,
         onProfile: PropTypes.func.isRequired,
         onSkip: PropTypes.func.isRequired,
@@ -42,10 +44,11 @@ class AbhaView extends AbstractComponent {
         this.hostedPageLoaded = false;
         const {accessToken, hipId, environment} = props.session;
         try {
+            const prefill = _.isEmpty(_.trim(props.prefillAbhaAddress)) ? {} : {identifier: _.trim(props.prefillAbhaAddress), identifier_type: 'phr_address'};
             this.html = buildAbhaHostHtml({
                 environment,
                 method: props.method,
-                initData: {accessToken, hipId, skipABHAEnable: true},
+                initData: {accessToken, hipId, skipABHAEnable: true, ...prefill},
             });
         } catch (e) {
             General.logWarn(this.viewName(), `ABHA screens not shown: ${e.message}`);
