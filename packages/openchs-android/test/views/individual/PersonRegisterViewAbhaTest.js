@@ -22,6 +22,7 @@ import AbhaRegistrationOptions from "../../../src/views/abha/AbhaRegistrationOpt
 import AbhaConsentDialog from "../../../src/views/abha/AbhaConsentDialog";
 import AbhaReplaceDetailsDialog from "../../../src/views/abha/AbhaReplaceDetailsDialog";
 import {Actions} from "../../../src/action/individual/PersonRegisterActions";
+import AbhaRegistrationFlow from "../../../src/views/abha/AbhaRegistrationFlow";
 
 const context = {getService: () => ({getI18n: () => ({t: (key) => key})})};
 const ON = {enabledForUser: true, formHasConcepts: true, linked: false, choice: null};
@@ -180,5 +181,24 @@ describe("PersonRegisterView, ABHA", () => {
         const again = render(view).root.findByType(AbhaReplaceDetailsDialog);
         act(() => again.props.onCancel());
         expect(await cancel).toBe(false);
+    });
+
+    // DEMO-ONLY abdm-hackathon: "Link to their record" opens the returning patient's edit with no page to move to, and
+    // the load calls onCompletion only when it moves to one, so the ABHA waiting for them was never applied and the
+    // edit saved the record with its old ABHA.
+    it("applies the ABHA waiting for a returning patient once their edit has loaded, with no page to move to", () => {
+        const profile = {abhaNumber: "91-1111-2222-3333", firstName: "Asha"};
+        AbhaRegistrationFlow.pendingLinks.set("s-returning", {profile, route: "findOrCreate", consentGivenAt: "agreed"});
+        const view = screenWith({abha: ON, editing: true});
+        Object.assign(view.props.params, {individualUUID: "s-returning"});
+        view.state.individual = {uuid: "s-returning"};
+        view.runAfterSceneTransition = jest.fn((fn) => fn());
+        view.abhaFlow = {onProfile: jest.fn(() => Promise.resolve(true)), failed: jest.fn()};
+
+        view.loadData();
+
+        expect(view.dispatchAction).toHaveBeenCalledWith(Actions.ON_LOAD, expect.objectContaining({individualUUID: "s-returning"}));
+        expect(view.abhaFlow.onProfile).toHaveBeenCalledWith(profile, {route: "findOrCreate", consentGivenAt: "agreed"});
+        expect(AbhaRegistrationFlow.takePendingLink("s-returning")).toBeUndefined();
     });
 });

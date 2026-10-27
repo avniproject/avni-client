@@ -105,9 +105,10 @@ class PersonRegisterView extends AbstractComponent {
                 taskUuid: params.taskUuid,
                 onCompletion: (newState) => {
                     this.dispatchAction(Actions.USE_THIS_STATE, {state: newState});
-                    this.runAfterSceneTransition(() => this.applyPendingAbhaLink());
                 }
             });
+        // ON_LOAD calls onCompletion only when it moves to a page, and a returning patient's edit opens with none.
+        this.runAfterSceneTransition(() => this.applyPendingAbhaLink());
     }
 
     // DEMO-ONLY abdm-hackathon: a returning patient found by the ABHA's details (NHA's M1 case CRT_ABHA_116) opens here,
