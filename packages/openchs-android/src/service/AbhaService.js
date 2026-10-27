@@ -140,16 +140,16 @@ class AbhaService extends BaseService {
 
     // The ABHA card image, fetched into the cache folder, and the path of that file. The card is the patient's
     // number, name, photo and QR code: the file is for the card screen, which deletes it when it closes. A failed fetch
-    // deletes whatever was written, since a refusal is written to the file too, and throws an AbhaError. abhaLastFour
-    // names the ABHA whose card is wanted, so the server never serves a later lookup of another; a header, kept out of
-    // request logs.
-    async getCardFile(subjectUUID, abhaLastFour) {
+    // deletes whatever was written, since a refusal is written to the file too, and throws an AbhaError. abhaLastFour,
+    // else abhaAddress for an ABHA with no number, names the ABHA whose card is wanted, so the server never serves a later
+    // lookup of another; headers, kept out of request logs.
+    async getCardFile(subjectUUID, abhaLastFour, abhaAddress) {
         await AbhaService.deleteLeftoverCardFiles();
         const targetPath = `${ReactNativeBlobUtil.fs.dirs.CacheDir}/abha-card-${General.randomUUID()}.png`;
         try {
             const downloaded = await downloadWithAuth(this.getService("authService"), this.getService("settingsService"),
                 `${this.getServerUrl()}/abha/card?subjectUUID=${encodeURIComponent(subjectUUID)}`, targetPath, null,
-                /^[0-9]{4}$/.test(abhaLastFour || '') ? {'X-Abha-Last-Four': abhaLastFour} : {});
+                AbhaService.cardHeaders(abhaLastFour, abhaAddress));
             const status = downloaded.info().status;
             if (status === 200) return downloaded.path();
             let code = null;
@@ -161,6 +161,12 @@ class AbhaService extends BaseService {
             await AbhaService.deleteCardFile(targetPath);
             throw error;
         }
+    }
+
+    static cardHeaders(abhaLastFour, abhaAddress) {
+        if (/^[0-9]{4}$/.test(abhaLastFour || '')) return {'X-Abha-Last-Four': abhaLastFour};
+        const address = _.trim(abhaAddress);
+        return _.isEmpty(address) ? {} : {'X-Abha-Address': address};
     }
 
     // Card files a card screen did not get to delete, as when the app was stopped while one was open. Only one card

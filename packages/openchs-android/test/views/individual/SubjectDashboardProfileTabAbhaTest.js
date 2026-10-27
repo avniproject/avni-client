@@ -156,7 +156,7 @@ describe("SubjectDashboardProfileTab, ABHA section", () => {
 
             await tab.abhaLinkedActions()[0].onPressFunc();
 
-            expect(CHSNavigator.navigateToAbhaCardView).toHaveBeenCalledWith(tab, {subjectUUID: "subject-1", subjectTypeUUID: "st-person", abhaNumber: "91-1234-5678-9012"});
+            expect(CHSNavigator.navigateToAbhaCardView).toHaveBeenCalledWith(tab, {subjectUUID: "subject-1", subjectTypeUUID: "st-person", abhaNumber: "91-1234-5678-9012", abhaAddress: undefined});
             expect(ToastAndroid.show).not.toHaveBeenCalled();
         });
 
@@ -170,13 +170,14 @@ describe("SubjectDashboardProfileTab, ABHA section", () => {
             expect(CHSNavigator.navigateToAbhaCardView).not.toHaveBeenCalled();
         });
 
-        it("works for a patient linked through the mobile route, who has an address and no number", async () => {
+        // The card is asked for by the address then, so it is this ABHA's and never a later lookup's (27 Oct sweep).
+    it("works for a patient linked through the mobile route, who has an address and no number", async () => {
             getConnectionInfo.mockResolvedValue({isConnected: true});
             const tab = tabWith({individual: individualWith({address: "asha@sbx"})});
 
             await tab.abhaLinkedActions()[0].onPressFunc();
 
-            expect(CHSNavigator.navigateToAbhaCardView).toHaveBeenCalledWith(tab, {subjectUUID: "subject-1", subjectTypeUUID: "st-person", abhaNumber: undefined});
+            expect(CHSNavigator.navigateToAbhaCardView).toHaveBeenCalledWith(tab, {subjectUUID: "subject-1", subjectTypeUUID: "st-person", abhaNumber: undefined, abhaAddress: "asha@sbx"});
         });
     });
 

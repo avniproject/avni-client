@@ -440,6 +440,18 @@ describe("AbhaServiceTest", () => {
             expect(downloadWithAuth.mock.calls[2][5]).to.deep.equal({});
         });
 
+        // An ABHA made with a mobile number has no number: it is named by its address, never in the request's address.
+        it("names an ABHA with no number by its address in a header, and only by its number when it has one", async () => {
+            downloadWithAuth.mockResolvedValue(downloaded(200));
+
+            await service().getCardFile("s-1", null, " asha@sbx ");
+            await service().getCardFile("s-1", "4533", "asha@sbx");
+
+            expect(downloadWithAuth.mock.calls[0][2]).to.equal("https://server/abha/card?subjectUUID=s-1");
+            expect(downloadWithAuth.mock.calls[0][5]).to.deep.equal({"X-Abha-Address": "asha@sbx"});
+            expect(downloadWithAuth.mock.calls[1][5]).to.deep.equal({"X-Abha-Last-Four": "4533"});
+        });
+
         it("reads no ABHA card only from the server's code: a 404 with no code is a general failure", async () => {
             downloadWithAuth.mockResolvedValue(downloaded(404, {code: "ABHA_NO_CARD"}));
             expect(AbhaError.messageKey(await failureOf(service().getCardFile("s-1")))).to.equal("abhaNoCard");

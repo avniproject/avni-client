@@ -143,7 +143,7 @@ class AbhaRegistrationFlow {
             recorded = abhaService.recordEvent(event);
         }
         // Not awaited: the card is shown over the registration, which is already filled in and can be saved.
-        if (filled) this.showCardOnceRecorded(recorded, individual, profile.abhaNumber);
+        if (filled) this.showCardOnceRecorded(recorded, individual, profile.abhaNumber, profile.abhaAddress);
     }
 
     // While busy the options are hidden and a progress indicator shows. Nothing is changed once the screen has closed.
@@ -219,13 +219,13 @@ class AbhaRegistrationFlow {
     // the record has not reached the server it is sent once more, for at most as long again. After that the card
     // opens anyway and offers Try again. A worker who has left the registration meanwhile is not shown it. Showing
     // the card never creates or links an ABHA again.
-    async showCardOnceRecorded(recorded, individual, abhaNumber) {
+    async showCardOnceRecorded(recorded, individual, abhaNumber, abhaAddress) {
         await AbhaRegistrationFlow.untilRecorded(recorded, this.view.getService(AbhaService), () => this.screenGone());
         if (this.screenGone()) return;
         // Eka's screen may still be sliding away: a push queued behind that pop reaches the navigator's focus
         // handler with no route. So the card waits until the registration screen's transition has settled.
         this.view.runAfterSceneTransition(() => {
-            if (!this.screenGone()) CHSNavigator.navigateToAbhaCardView(this.view, {subjectUUID: individual.uuid, subjectTypeUUID: individual.subjectType.uuid, abhaNumber});
+            if (!this.screenGone()) CHSNavigator.navigateToAbhaCardView(this.view, {subjectUUID: individual.uuid, subjectTypeUUID: individual.subjectType.uuid, abhaNumber, abhaAddress});
         });
     }
 

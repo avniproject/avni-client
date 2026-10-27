@@ -47,7 +47,7 @@ let mounted = [];
 
 // translations are the organisation's own strings, such as its consent wording; patient is the subject as the phone
 // holds it, null for a registration not saved yet.
-async function show({getCardFile = () => Promise.resolve(CARD_PATH), abhaLastFour = LAST_FOUR, abha = {}, translations = {}, patient = null} = {}) {
+async function show({getCardFile = () => Promise.resolve(CARD_PATH), abhaLastFour = LAST_FOUR, abhaAddress, abha = {}, translations = {}, patient = null} = {}) {
     const navigator = {pop: jest.fn(), getCurrentRoutes: () => []};
     const abhaService = {getCardFile: jest.fn(getCardFile), ...abha};
     const individualService = {findByUUID: jest.fn(() => patient && {getObservationValue: (name) => ({"ABHA Number": patient.number, "ABHA Address": patient.address}[name])})};
@@ -59,7 +59,7 @@ async function show({getCardFile = () => Promise.resolve(CARD_PATH), abhaLastFou
     let renderer;
     await act(async () => {
         renderer = TestRenderer.create(<ServiceContext.Provider value={context}>
-            <AbhaCardView subjectUUID="s-1" subjectTypeUUID="st-1" abhaLastFour={abhaLastFour}/>
+            <AbhaCardView subjectUUID="s-1" subjectTypeUUID="st-1" abhaLastFour={abhaLastFour} abhaAddress={abhaAddress}/>
         </ServiceContext.Provider>);
     });
     mounted.push(renderer);
@@ -86,10 +86,15 @@ describe("AbhaCardViewTest", () => {
     });
 
     // The card asked for is the ABHA this screen was opened for: a later lookup of another ABHA, left unsaved, is not it.
+    it("asks for the card of an ABHA with no number by its address", async () => {
+        const view = await show({abhaLastFour: null, abhaAddress: "asha@sbx"});
+        expect(view.abhaService.getCardFile).toHaveBeenCalledWith("s-1", null, "asha@sbx");
+    });
+
     it("fetches the card for the subject and shows it with Download, Share and Close", async () => {
         const view = await show();
 
-        expect(view.abhaService.getCardFile).toHaveBeenCalledWith("s-1", LAST_FOUR);
+        expect(view.abhaService.getCardFile).toHaveBeenCalledWith("s-1", LAST_FOUR, undefined);
         expect(view.renderer.root.findByType(Image).props.source).toEqual({uri: `file://${CARD_PATH}`});
         expect(view.titles()).toEqual(["abhaCardDownload", "abhaCardShare", "abhaCardClose"]);
     });

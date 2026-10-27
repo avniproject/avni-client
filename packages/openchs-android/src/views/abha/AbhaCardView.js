@@ -40,6 +40,8 @@ class AbhaCardView extends AbstractComponent {
         subjectTypeUUID: PropTypes.string,
         // The last four digits of the ABHA number, which name the downloaded file.
         abhaLastFour: PropTypes.string,
+        // An ABHA with no number (made with a mobile number) is named by its address.
+        abhaAddress: PropTypes.string,
     };
 
     constructor(props, context) {
@@ -61,7 +63,7 @@ class AbhaCardView extends AbstractComponent {
         this.setState({status: 'loading', errorKey: null, downloadedName: null, expired: false});
         let path;
         try {
-            path = await this.getService(AbhaService).getCardFile(this.props.subjectUUID, this.props.abhaLastFour);
+            path = await this.getService(AbhaService).getCardFile(this.props.subjectUUID, this.props.abhaLastFour, this.props.abhaAddress);
         } catch (error) {
             General.logWarn(this.viewName(), `ABHA card not fetched: ${AbhaError.messageKey(error)}`);
             if (!this.unmounted) this.setState({status: 'failed', errorKey: this.failureKey(error), expired: _.get(error, 'code') === 'ABHA_SESSION_EXPIRED'});
