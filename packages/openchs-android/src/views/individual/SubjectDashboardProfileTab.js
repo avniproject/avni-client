@@ -50,8 +50,6 @@ import FormShareService from "../../service/FormShareService";
 import FormShareActionSheetController from "../common/FormShareActionSheetController";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
 import AbhaProfileSection from "../abha/AbhaProfileSection";
-import AbhaService from "../../service/AbhaService";
-import AbhaError from "../../service/AbhaError";
 import {ABHA_CONCEPT_NAMES} from "../abha/AbhaProfile";
 
 class SubjectDashboardProfileTab extends AbstractComponent {
@@ -217,24 +215,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
     }
 
     abhaLinkedActions() {
-        return [new ContextAction(this.I18n.t('abhaViewCard'), () => this.viewAbhaCard()),
-            new ContextAction(this.I18n.t('abhaLinkRecords'), () => this.linkRecordsToAbha())];
-    }
-
-    // DEMO-ONLY abdm-hackathon
-    async linkRecordsToAbha() {
-        const {isConnected} = await getConnectionInfo();
-        if (!isConnected) {
-            ToastAndroid.show(this.I18n.t('abhaLinkRecordsNeedsInternet'), ToastAndroid.LONG);
-            return;
-        }
-        try {
-            const {careContexts} = await this.getService(AbhaService).linkCareContexts(this.state.individual.uuid);
-            ToastAndroid.show(this.I18n.t('abhaLinkRecordsStarted', {count: _.size(careContexts)}), ToastAndroid.LONG);
-        } catch (error) {
-            const key = AbhaError.messageKey(error);
-            ToastAndroid.show(this.I18n.t(key === 'abhaError' ? 'abhaLinkRecordsFailed' : key), ToastAndroid.LONG);
-        }
+        return [new ContextAction(this.I18n.t('abhaViewCard'), () => this.viewAbhaCard())];
     }
 
     renderAbha() {
