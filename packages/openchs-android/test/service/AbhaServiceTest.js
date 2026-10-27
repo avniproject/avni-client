@@ -424,6 +424,22 @@ describe("AbhaServiceTest", () => {
             expect(mockUnlink.mock.calls.length).to.equal(0);
         });
 
+        // The server serves the card of the ABHA named, not of a later lookup of another. In a header, so no request log
+        // on the way holds it; an older server ignores it.
+        it("names the ABHA it wants the card of in a header, never in the address", async () => {
+            downloadWithAuth.mockResolvedValue(downloaded(200));
+
+            await service().getCardFile("s-1", "4533");
+            await service().getCardFile("s-1", null);
+            await service().getCardFile("s-1", "45-33");
+
+            const [, , url, , , headers] = downloadWithAuth.mock.calls[0];
+            expect(url).to.equal("https://server/abha/card?subjectUUID=s-1");
+            expect(headers).to.deep.equal({"X-Abha-Last-Four": "4533"});
+            expect(downloadWithAuth.mock.calls[1][5]).to.deep.equal({});
+            expect(downloadWithAuth.mock.calls[2][5]).to.deep.equal({});
+        });
+
         it("reads no ABHA card only from the server's code: a 404 with no code is a general failure", async () => {
             downloadWithAuth.mockResolvedValue(downloaded(404, {code: "ABHA_NO_CARD"}));
             expect(AbhaError.messageKey(await failureOf(service().getCardFile("s-1")))).to.equal("abhaNoCard");

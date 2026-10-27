@@ -61,7 +61,7 @@ class AbhaCardView extends AbstractComponent {
         this.setState({status: 'loading', errorKey: null, downloadedName: null, expired: false});
         let path;
         try {
-            path = await this.getService(AbhaService).getCardFile(this.props.subjectUUID);
+            path = await this.getService(AbhaService).getCardFile(this.props.subjectUUID, this.props.abhaLastFour);
         } catch (error) {
             General.logWarn(this.viewName(), `ABHA card not fetched: ${AbhaError.messageKey(error)}`);
             if (!this.unmounted) this.setState({status: 'failed', errorKey: this.failureKey(error), expired: _.get(error, 'code') === 'ABHA_SESSION_EXPIRED'});

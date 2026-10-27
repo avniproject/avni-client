@@ -9,9 +9,9 @@ async function authHeaders(authService, settingsService) {
     return idpType === IDP_PROVIDERS.NONE ? {'USER-NAME': token} : {'AUTH-TOKEN': token};
 }
 
-export async function downloadWithAuth(authService, settingsService, url, targetFilePath, cb) {
+export async function downloadWithAuth(authService, settingsService, url, targetFilePath, cb, extraHeaders = {}) {
     const headers = await authHeaders(authService, settingsService);
-    return download(url, targetFilePath, headers, cb);
+    return download(url, targetFilePath, {...extraHeaders, ...headers}, cb);
 }
 
 // Presigned storage URLs (S3/GCS) carry their own auth in the query string;

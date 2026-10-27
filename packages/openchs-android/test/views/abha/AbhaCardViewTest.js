@@ -85,10 +85,11 @@ describe("AbhaCardViewTest", () => {
         jest.restoreAllMocks();
     });
 
+    // The card asked for is the ABHA this screen was opened for: a later lookup of another ABHA, left unsaved, is not it.
     it("fetches the card for the subject and shows it with Download, Share and Close", async () => {
         const view = await show();
 
-        expect(view.abhaService.getCardFile).toHaveBeenCalledWith("s-1");
+        expect(view.abhaService.getCardFile).toHaveBeenCalledWith("s-1", LAST_FOUR);
         expect(view.renderer.root.findByType(Image).props.source).toEqual({uri: `file://${CARD_PATH}`});
         expect(view.titles()).toEqual(["abhaCardDownload", "abhaCardShare", "abhaCardClose"]);
     });

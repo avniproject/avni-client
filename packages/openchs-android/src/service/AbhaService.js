@@ -140,13 +140,16 @@ class AbhaService extends BaseService {
 
     // The ABHA card image, fetched into the cache folder, and the path of that file. The card is the patient's
     // number, name, photo and QR code: the file is for the card screen, which deletes it when it closes. A failed fetch
-    // deletes whatever was written, since a refusal is written to the file too, and throws an AbhaError.
-    async getCardFile(subjectUUID) {
+    // deletes whatever was written, since a refusal is written to the file too, and throws an AbhaError. abhaLastFour
+    // names the ABHA whose card is wanted, so the server never serves a later lookup of another; a header, kept out of
+    // request logs.
+    async getCardFile(subjectUUID, abhaLastFour) {
         await AbhaService.deleteLeftoverCardFiles();
         const targetPath = `${ReactNativeBlobUtil.fs.dirs.CacheDir}/abha-card-${General.randomUUID()}.png`;
         try {
             const downloaded = await downloadWithAuth(this.getService("authService"), this.getService("settingsService"),
-                `${this.getServerUrl()}/abha/card?subjectUUID=${encodeURIComponent(subjectUUID)}`, targetPath, null);
+                `${this.getServerUrl()}/abha/card?subjectUUID=${encodeURIComponent(subjectUUID)}`, targetPath, null,
+                /^[0-9]{4}$/.test(abhaLastFour || '') ? {'X-Abha-Last-Four': abhaLastFour} : {});
             const status = downloaded.info().status;
             if (status === 200) return downloaded.path();
             let code = null;
