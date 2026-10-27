@@ -182,13 +182,16 @@ class AbhaRegistrationFlow {
     }
 
     // DEMO-ONLY abdm-hackathon (NHA's M1 case CRT_ABHA_116; the real check is avni-server#1096, still to be analysed): a
-    // patient registered on this phone before they had an ABHA, with the ABHA's name, gender and date of birth.
+    // patient registered on this phone before they had an ABHA, with the ABHA's name, gender and date of birth. One
+    // holding an ABHA already is not offered: linking would silently replace it.
     returningPatientOf(individual, profile) {
         if (!profile.firstName || !profile.genderName || !profile.dateOfBirth) return null;
         const same = (a, b) => _.toLower(_.trim(a)) === _.toLower(_.trim(b));
+        const holdsAbha = (subject) => !_.isEmpty(_.trim(subject.getObservationValue(ABHA_CONCEPT_NAMES.abhaNumber)))
+            || !_.isEmpty(_.trim(subject.getObservationValue(ABHA_CONCEPT_NAMES.abhaAddress)));
         const candidates = this.view.getService(IndividualService).findAll()
             .filtered('voided = false AND subjectType.uuid = $0 AND firstName LIKE[c] $1', individual.subjectType.uuid, _.trim(profile.firstName));
-        return _.find(_.map(candidates, _.identity), (subject) => subject.uuid !== individual.uuid && !subject.voided
+        return _.find(_.map(candidates, _.identity), (subject) => subject.uuid !== individual.uuid && !subject.voided && !holdsAbha(subject)
             && same(subject.firstName, profile.firstName) && same(subject.lastName, profile.lastName)
             && _.get(subject, 'gender.name') === profile.genderName
             && !_.isNil(subject.dateOfBirth) && moment(subject.dateOfBirth).isSame(profile.dateOfBirth, 'day')) || null;

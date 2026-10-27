@@ -422,6 +422,19 @@ describe("AbhaRegistrationFlowTest", () => {
                 expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(1);
             });
 
+            // "Before they had an ABHA": a patient holding another ABHA is someone the found ABHA does not belong to, or one
+            // whose ABHA a link would silently replace (27 Oct run: 2009 on the record, 4533 found).
+            it("does not count a patient who already holds an ABHA, by number or by address", async () => {
+                const holdsNumber = withAbhaNumber(returning("s-number"), "91-1111-2222-2009");
+                holdsNumber.lastName = "RAO";
+                const holdsAddress = withAbhaAddress(returning("s-address"), "asha.rao.old@sbx");
+                const view = viewWith({candidates: [holdsNumber, holdsAddress]});
+                await openAndReturn(view);
+
+                expect(view.askAbhaMatch).not.toHaveBeenCalled();
+                expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(1);
+            });
+
             it("does not look while a patient is being edited", async () => {
                 const view = viewWith({editing: true, individual: person({uuid: "s-1"}), candidates: [returning()]});
                 await openAndReturn(view);
