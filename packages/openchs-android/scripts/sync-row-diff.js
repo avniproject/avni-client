@@ -8,7 +8,7 @@
  *   node scripts/sync-row-diff.js rows <today.db> <direct.db>
  *   node scripts/sync-row-diff.js timings <copy.db>
  *
- * Exit codes: 0 every table matches apart from kept parent links (timings: it printed), 1 a table
+ * Exit codes: 0 every table matches apart from links kept to a parent the copy does not hold (timings: it printed), 1 a table
  * differs, 2 the arguments are wrong or a copy or table could not be read. A table that cannot be read
  * is named on its own line and the others are still compared; 2 outranks 1.
  */
@@ -38,8 +38,21 @@ function diffTable(today, direct, table) {
     const columns = rowsOf(today, 'today copy', `PRAGMA table_info(${table})`).map((column) => column.name);
     // A parent link is a declared foreign key, bar the approval link. created_by_uuid, filled_by_uuid,
     // entity_uuid and the like are plain text.
-    const links = new Set(rowsOf(today, 'today copy', `PRAGMA foreign_key_list(${table})`)
-        .map((fk) => fk.from).filter((column) => column !== APPROVAL_LINK));
+    const links = new Map(rowsOf(today, 'today copy', `PRAGMA foreign_key_list(${table})`)
+        .filter((fk) => fk.from !== APPROVAL_LINK)
+        .map((fk) => [fk.from, {parent: fk.table, key: fk.to || 'uuid'}]));
+    // A kept link is the intended difference only when the direct copy has no such parent. A parent that is
+    // there means today's path left out a link it could have written, which is a difference to look at.
+    const parentLookups = new Map();
+    const parentMissing = (column, uuid) => {
+        const {parent, key} = links.get(column);
+        try {
+            if (!parentLookups.has(column)) parentLookups.set(column, direct.prepare(`SELECT 1 FROM ${parent} WHERE "${key}" = ? LIMIT 1`));
+            return parentLookups.get(column).get(uuid) === undefined;
+        } catch (error) {
+            throw new UnreadableTable(parent, 'direct copy');
+        }
+    };
     const byUuid = (db, copy) => new Map(rowsOf(db, copy, `SELECT * FROM ${table}`).map((row) => [row.uuid, row]));
     const todayRows = byUuid(today, 'today copy');
     const directRows = byUuid(direct, 'direct copy');
@@ -53,7 +66,8 @@ function diffTable(today, direct, table) {
         const changed = columns.filter((column) => todayRow[column] !== directRow[column]);
         if (changed.length === 0) return;
         // The one intended difference: today's path leaves a missing parent's link empty, the new path keeps its uuid.
-        if (changed.every((column) => links.has(column) && todayRow[column] === null && directRow[column] !== null)) {
+        if (changed.every((column) => links.has(column) && todayRow[column] === null && directRow[column] !== null
+            && parentMissing(column, directRow[column]))) {
             result.parentKept++;
             return;
         }

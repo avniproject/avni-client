@@ -59,6 +59,25 @@ describe("Comparing two phone databases", () => {
         expect(isClean(result)).toBe(true);
     });
 
+    it("counts a filled-in link whose parent is in the direct copy as a difference, never as a kept parent link", () => {
+        // A parent on the phone means today's path left out a link it could have written: not a parent outside the catchment.
+        const direct = subjects([["i-1", "Meera Rao", "u-1", "al-1"]]);
+        direct.prepare("INSERT INTO address_level VALUES (?)").run("al-1");
+        const result = diffTable(subjects([["i-1", "Meera Rao", "u-1", null]]), direct, "individual");
+
+        expect(result.parentKept).toBe(0);
+        expect(result.differing).toEqual({lowest_address_level_uuid: 1});
+        expect(isClean(result)).toBe(false);
+    });
+
+    it("names the parent table, and no value, when it cannot check a kept link's parent", () => {
+        const direct = subjects([["i-1", "Meera Rao", "u-1", "al-elsewhere"]]);
+        direct.exec("DROP TABLE address_level");
+
+        expect(() => diffTable(subjects([["i-1", "Meera Rao", "u-1", null]]), direct, "individual"))
+            .toThrow(/^address_level: not readable in direct copy$/);
+    });
+
     it("counts a filled-in plain uuid column as a difference, never as a kept parent link", () => {
         const result = diffTable(subjects([["i-1", "Meera Rao", null, "al-1"]]), subjects([["i-1", "Meera Rao", "u-1", "al-1"]]), "individual");
 

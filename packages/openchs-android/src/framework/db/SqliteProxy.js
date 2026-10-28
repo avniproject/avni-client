@@ -582,10 +582,11 @@ class SqliteProxy {
 
     /**
      * Whether this connection enforces foreign keys right now. SQLite keeps the setting per connection.
+     * An answer that cannot be read counts as on, so a caller that needs them off never goes ahead on a guess.
      */
     foreignKeysEnabled() {
         const rows = this._executeQuery("PRAGMA foreign_keys");
-        return rows.length > 0 && Number(Object.values(rows[0])[0]) === 1;
+        return !(rows.length > 0 && Number(Object.values(rows[0])[0]) === 0);
     }
 
     /**

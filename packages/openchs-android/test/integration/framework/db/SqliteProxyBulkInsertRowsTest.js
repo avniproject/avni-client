@@ -71,4 +71,14 @@ describe("Reading whether foreign keys are enforced", () => {
         expect(proxy.foreignKeysEnabled()).toBe(false);
         rawDb.close();
     });
+
+    // The sync takes the direct-rows path only when this reads false, so a guess must never read false.
+    it("reads true when the answer cannot be read", () => {
+        const {proxy, rawDb} = openSeededDb();
+        const query = jest.spyOn(proxy, "_executeQuery").mockReturnValue([]);
+
+        expect(proxy.foreignKeysEnabled()).toBe(true);
+        query.mockRestore();
+        rawDb.close();
+    });
 });
