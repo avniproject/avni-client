@@ -1,7 +1,6 @@
 import React, {Fragment} from 'react';
 import AbstractFormElement from "./AbstractFormElement";
 import {StyleSheet, TextInput, TouchableOpacity, View, Text} from "react-native";
-import {Checkbox as CheckBox} from "native-base";
 import ValidationErrorMessage from "../ValidationErrorMessage";
 import GroupSubjectService from "../../../service/GroupSubjectService";
 import _ from 'lodash';
@@ -12,18 +11,19 @@ import SubjectInfoCard from "../../common/SubjectInfoCard";
 import Separator from "../../primitives/Separator";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import AttendanceFormElementHelper from "./AttendanceFormElementHelper";
+import AnyChip from "../../primitives/AnyChip";
 
 class AttendanceFormElement extends AbstractFormElement {
     constructor(props, context) {
         super(props, context);
-        this.state = {searchText: ''};
+        this.state = {searchText: '', isSortDescending: false};
     }
 
     getGroupsSubjects() {
         const subjectTypeUUID = _.get(this.props, 'element.concept').recordValueByKey(Concept.keys.subjectTypeUUID);
         const members = this.getService(GroupSubjectService).getAllByGroupSubjectUUID(this.props.subjectUUID, subjectTypeUUID).map(_.identity);
         const applicableMembers = members.filter(({memberSubject}) => this.props.element.isApplicableSubjectUUID(memberSubject.uuid));
-        return AttendanceFormElementHelper.sortByName(applicableMembers);
+        return AttendanceFormElementHelper.sortByName(applicableMembers, this.state.isSortDescending);
     }
 
     renderSearchBox() {
@@ -45,6 +45,20 @@ class AttendanceFormElement extends AbstractFormElement {
         );
     }
 
+    renderSortToggle() {
+        const {isSortDescending} = this.state;
+        const label = isSortDescending ? 'Z–A' : 'A–Z';
+        return (
+            <TouchableOpacity onPress={() => this.setState({isSortDescending: !isSortDescending})} accessibilityLabel={label}>
+                <View style={styles.sortChip}>
+                    <Icon name={isSortDescending ? 'sort-alphabetical-descending' : 'sort-alphabetical-ascending'}
+                          size={18} color={Colors.ActionButtonColor} style={{marginRight: 4}}/>
+                    <Text style={styles.sortChipText}>{label}</Text>
+                </View>
+            </TouchableOpacity>
+        );
+    }
+
     renderSubject({memberSubject}, subjectUUIDs) {
         const onPress = () => {
             this.dispatchAction(this.props.actionName, {
@@ -55,15 +69,15 @@ class AttendanceFormElement extends AbstractFormElement {
             });
         };
         const isChecked = _.includes(subjectUUIDs, memberSubject.uuid);
-        return (<TouchableOpacity style={{paddingVertical: 5}} onPress={onPress}>
-
-            <View key={memberSubject.uuid}
-                  style={styles.memberContainer}>
+        return (<TouchableOpacity key={memberSubject.uuid} style={isChecked && styles.memberSelected} onPress={onPress}>
+            <View style={styles.memberContainer}>
                 <View style={{flex: .8}}>
                     <SubjectInfoCard individual={memberSubject}/>
                 </View>
                 <View style={{flex: .2, alignItems: 'flex-end', marginRight: 15}}>
-                    <CheckBox onPress={onPress} isChecked={isChecked}/>
+                    <View style={[styles.checkbox, isChecked && styles.checkboxChecked]}>
+                        {isChecked && <Icon name="check" size={18} color={Colors.TextOnPrimaryColor}/>}
+                    </View>
                 </View>
             </View>
             <Separator backgroundColor={Colors.InputBorderNormal}/>
@@ -97,14 +111,19 @@ class AttendanceFormElement extends AbstractFormElement {
         const subjectUUIDs = _.get(this.props.value, 'answer') || [];
         const selected = groupSize === _.size(subjectUUIDs);
         const selectAllLabel = selected ? this.I18n.t("unselectAllLabel") : this.I18n.t("selectAllLabel");
+        const isSelectAllShown = groupSize > 0 && this.props.element.isMultiSelect();
 
         return (
             <Fragment>
                 <FormElementLabelWithDocumentation element={this.props.element}/>
                 {this.renderSearchBox()}
-                {groupSize>0 && this.props.element.isMultiSelect() && <TouchableOpacity onPress={()=>this.handleSelectPress(groupsSubjects,subjectUUIDs,selected)}>
-                    <Text style={{color: 'blue', textAlign: 'right', textDecorationLine: 'underline'}} >{selectAllLabel}</Text>
-                </TouchableOpacity>}
+                {groupSize > 0 &&
+                    <View style={styles.toolbar}>
+                        {this.renderSortToggle()}
+                        {isSelectAllShown &&
+                            <AnyChip label={selectAllLabel} active={selected}
+                                     onPress={() => this.handleSelectPress(groupsSubjects, subjectUUIDs, selected)}/>}
+                    </View>}
                 { _.map(visibleGroupsSubjects, (groupSubject, index) =>
                     this.renderSubject(groupSubject, subjectUUIDs)
                 )}
@@ -124,6 +143,44 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 10,
         paddingHorizontal: 5,
+    },
+    memberSelected: {
+        backgroundColor: '#E0F2F1',
+    },
+    checkbox: {
+        width: 24,
+        height: 24,
+        borderRadius: 4,
+        borderWidth: 2,
+        borderColor: Colors.InputBorderNormal,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: Colors.WhiteContentBackground,
+    },
+    checkboxChecked: {
+        backgroundColor: Colors.ActionButtonColor,
+        borderColor: Colors.ActionButtonColor,
+    },
+    toolbar: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    sortChip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 12,
+        paddingVertical: 4,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: Colors.ActionButtonColor,
+        backgroundColor: Colors.FilterButtonColor,
+    },
+    sortChipText: {
+        color: Colors.ActionButtonColor,
+        fontSize: 14,
+        lineHeight: 18,
     },
     searchContainer: {
         flexDirection: 'row',

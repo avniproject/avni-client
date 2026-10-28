@@ -2,8 +2,9 @@ import _ from "lodash";
 
 class AttendanceFormElementHelper {
 
-    static sortByName(groupSubjects) {
-        return _.sortBy(groupSubjects, ({memberSubject}) => _.toLower(memberSubject.nameString));
+    static sortByName(groupSubjects, isSortDescending = false) {
+        const sorted = _.sortBy(groupSubjects, ({memberSubject}) => _.toLower(memberSubject.nameString));
+        return isSortDescending ? _.reverse(sorted) : sorted;
     }
 
     static matchingName(groupSubjects, searchText) {

@@ -9,6 +9,11 @@ describe("AttendanceFormElementHelper.sortByName", () => {
         assert.deepEqual(namesOf(AttendanceFormElementHelper.sortByName([member("Zoya"), member("asha"), member("Ravi")])),
             ["asha", "Ravi", "Zoya"]);
     });
+
+    it("sorts members Z to A when asked, ignoring upper and lower case", () => {
+        assert.deepEqual(namesOf(AttendanceFormElementHelper.sortByName([member("asha"), member("Zoya"), member("Ravi")], true)),
+            ["Zoya", "Ravi", "asha"]);
+    });
 });
 
 describe("AttendanceFormElementHelper.matchingName", () => {
