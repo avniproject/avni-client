@@ -67,7 +67,7 @@ class ProgressBarView extends AbstractComponent {
         if (!this.props.syncing) return null;
 
         const {message, currentPageNumber, totalNumberOfPages} = this.props;
-        const currentEntityProgressMessage = _.isNil(currentPageNumber) ? "" : ` (${currentPageNumber + 1}/${totalNumberOfPages})`;
+        const currentEntityProgressMessage = _.isNil(currentPageNumber) || !(totalNumberOfPages > 0) ? "" : ` (${currentPageNumber + 1}/${totalNumberOfPages})`;
         const displayMessage = `${this.I18n.t(message)}${currentEntityProgressMessage}`;
 
         return (

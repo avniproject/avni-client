@@ -136,7 +136,7 @@ class SyncService extends BaseService {
 
         this.deviceId = await DeviceInfo.getAndroidId();
         const progressBarStatus = new ProgressbarStatus(trackProgress,
-            AllSyncableEntityMetaData.getProgressSteps(this.mediaQueueService.isMediaUploadRequired(), allEntitiesMetaData, this.entityQueueService.getPresentEntities()));
+            AllSyncableEntityMetaData.getProgressSteps(this.mediaQueueService.isMediaUploadRequired(), allEntitiesMetaData, _.map(this.entityQueueService.getPresentEntities(), 'entity')));
         const updateProgressSteps = (entityMetadata, entitySyncStatus) => progressBarStatus.updateProgressSteps(entityMetadata, entitySyncStatus);
         const onProgressPerEntity = (entityType, totalNumberOfPages, currentPageNumber) => {
             progressBarStatus.onComplete(entityType, totalNumberOfPages, currentPageNumber);
