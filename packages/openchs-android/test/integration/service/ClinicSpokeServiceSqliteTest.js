@@ -561,6 +561,27 @@ describe('Phones syncing with the hub', () => {
             expect(hub.phonesSynced().map(({name, skipped}) => `${name}${skipped ? ' (skipped)' : ''}`).sort()).toEqual(['Doctor (skipped)', 'Nurse']);
         });
 
+        it("keeps the hub's screen awake while it runs, turns it back on when it serves a phone, and lets it sleep when the hub stops", async () => {
+            const keepAwake = {activate: jest.fn(), deactivate: jest.fn()};
+            NativeModules.KCKeepAwake = keepAwake;
+            try {
+                await hub.stopHub();
+                hubJoin.startHubNetwork.mockImplementation(async ({hubId}) => ({ssid: 'AndroidShare_1', passphrase: 'pass1234', qrValue: hubId}));
+
+                await hub.startSharing(log, {port});
+                expect(keepAwake.activate).toHaveBeenCalledTimes(1);
+                await hub._noteSync('device-1', 'Nurse');
+                expect(keepAwake.activate).toHaveBeenCalledTimes(2);
+
+                await hub.stopSharing();
+                expect(keepAwake.deactivate).toHaveBeenCalledTimes(1);
+                await hub._noteSync('device-1', 'Nurse');
+                expect(keepAwake.activate).toHaveBeenCalledTimes(2);
+            } finally {
+                delete NativeModules.KCKeepAwake;
+            }
+        });
+
         it("is in its own camp from Start hub until the camp is closed, even while the hub is stopped", async () => {
             await hub.stopHub();
             hubJoin.startHubNetwork.mockImplementation(async ({hubId}) => ({ssid: 'AndroidShare_1', passphrase: 'pass1234', qrValue: hubId}));

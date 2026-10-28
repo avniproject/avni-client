@@ -77,7 +77,11 @@ class ClinicSharingView extends AbstractComponent {
     }
 
     startHub = () => this.run(() => this.withPermissions(ClinicRole.hub, () => this.hub.startSharing(hubLog)));
-    endCamp = () => this.run(() => this.hub.endCamp());
+    // One tap would end the camp for every phone, so it asks first.
+    endCamp = () => Alert.alert(this.I18n.t('clinicSharingEndCamp'), this.I18n.t('clinicSharingEndCampConfirm'), [
+        {text: this.I18n.t('clinicSharingCancel'), style: 'cancel'},
+        {text: this.I18n.t('clinicSharingEndCamp'), onPress: () => this.run(() => this.hub.endCamp())},
+    ]);
     skipPhone = (deviceId) => this.run(() => this.hub.skipPhone(deviceId));
     closeHub = () => this.run(() => this.hub.closeCamp());
     // Phones still in the camp are not told, so each has to leave it by hand.
@@ -90,7 +94,7 @@ class ClinicSharingView extends AbstractComponent {
     // A restarted hub has a new network, and the old one failing to appear looks the same as being out of range.
     rejoin = () => this.run(() => this.withPermissions(ClinicRole.phone, async () => {
         try {
-            await this.spoke.joinWithCode(this.state.savedJoinCode);
+            await this.joinAndGoHome(this.state.savedJoinCode);
         } catch (error) {
             if (!_.includes(['joinFailed', 'hubNotFound'], _.get(error, 'code'))) throw error;
             const rejoinFailed = new Error(error.message);
@@ -105,8 +109,16 @@ class ClinicSharingView extends AbstractComponent {
     onScanned = (parsed, qrText) => {
         if (!this.state.scanning) return;
         this.setState({scanning: false});
-        this.run(() => this.spoke.joinWithCode(qrText));
+        this.run(() => this.joinAndGoHome(qrText));
     };
+
+    // Staff go back to work once joined; a phone refused on its first sync stays here, where the screen says why.
+    async joinAndGoHome(qrText) {
+        await this.spoke.joinWithCode(qrText);
+        if (this.spoke.inFlight) await this.spoke.inFlight;
+        // Required here: the navigator imports most of the app's screens.
+        if (this.spoke.joined && !this._isUnmounted) require("../../utility/CHSNavigator").default.navigateToLandingView(this, true, {menuProps: {startSync: false}});
+    }
 
     errorText(error) {
         return clinicSharingErrorText(this.I18n, error);

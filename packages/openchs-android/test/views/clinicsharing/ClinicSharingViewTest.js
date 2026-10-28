@@ -1,5 +1,5 @@
 import React from "react";
-import {Text, TouchableNativeFeedback} from "react-native";
+import {Alert, Text, TouchableNativeFeedback} from "react-native";
 import TestRenderer, {act} from "react-test-renderer";
 
 jest.mock('react-native-libsodium', () => require('libsodium-wrappers'));
@@ -30,6 +30,7 @@ jest.mock("react-native-qrcode-svg", () => ({
     default: (props) => require("react").createElement(require("react-native").View, {testID: "qr", ...props}),
 }));
 jest.mock("../../../src/framework/clinicsharing/ClinicHubWifi", () => ({canStartHub: () => true}));
+jest.mock("../../../src/utility/CHSNavigator", () => ({__esModule: true, default: {navigateToLandingView: jest.fn()}}));
 jest.mock("../../../src/framework/clinicsharing/ClinicHubPermissions", () => ({
     ClinicRole: {hub: "hub", phone: "phone"},
     requestClinicHubPermissions: jest.fn(async () => ({granted: true, denied: []})),
@@ -199,8 +200,14 @@ describe("ClinicSharingView", () => {
     it("ends the camp from the hub, then lists who has left, lets the hub skip a phone that is gone, and closes only when all have", async () => {
         const sharing = {ssid: "AndroidShare_1", passphrase: "pass1234", qrValue: "{}"};
         const running = await show({sharing, hubCamp: true});
+        const confirm = jest.spyOn(Alert, "alert").mockImplementation(() => {});
         await running.press("clinicSharingEndCamp");
+        expect(running.fakes.clinicHubService.endCamp).not.toHaveBeenCalled();
+        const [, message, buttons] = confirm.mock.calls[0];
+        expect(message).toBe("clinicSharingEndCampConfirm");
+        await act(async () => buttons.find(({text}) => text === "clinicSharingEndCamp").onPress());
         expect(running.fakes.clinicHubService.endCamp).toHaveBeenCalled();
+        confirm.mockRestore();
 
         const phones = [
             {deviceId: "d-1", name: "Doctor", syncedAt: Date.now(), leftAt: Date.now()},
@@ -235,6 +242,19 @@ describe("ClinicSharingView", () => {
 
         const differs = await show({leftCamp: {code: "setup", details: {types: ["Form", "Concept"]}}});
         expect(differs.lines()).toContain('clinicSharingError_setup {"types":"Form, Concept"}');
+    });
+
+    it("goes back to Home once joined, but stays when the first sync refused the phone", async () => {
+        const navigator = require("../../../src/utility/CHSNavigator").default;
+        const joined = await show({});
+        joined.fakes.clinicSpokeService.joinWithCode.mockImplementation(async () => { joined.fakes.clinicSpokeService.joined = {ssid: "AndroidShare_1"}; });
+        await act(async () => joined.renderer.root.findByType(ClinicSharingView).instance.joinAndGoHome("code"));
+        expect(navigator.navigateToLandingView).toHaveBeenCalledTimes(1);
+
+        const refused = await show({});
+        refused.fakes.clinicSpokeService.joinWithCode.mockImplementation(async () => {});
+        await act(async () => refused.renderer.root.findByType(ClinicSharingView).instance.joinAndGoHome("code"));
+        expect(navigator.navigateToLandingView).toHaveBeenCalledTimes(1);
     });
 
     it("counts held uploads, and names the patient they wait on after 3 days", async () => {

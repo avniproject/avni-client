@@ -168,8 +168,17 @@ class ClinicHubService extends BaseService {
         }
         await this._setMeta('campActive', true);
         this.campEnding = (await this._getMeta('campEnding')) === 'true';
+        this._keepScreenOn(true);
         this._changed();
         return this.sharing;
+    }
+
+    // Some phones freeze an app in the background despite its foreground service, so the hub keeps its screen, and Avni, in front.
+    _keepScreenOn(on) {
+        if (!NativeModules.KCKeepAwake) return;
+        const KeepAwake = require('react-native-keep-awake').default;
+        if (on) KeepAwake.activate();
+        else KeepAwake.deactivate();
     }
 
     async stopSharing() {
@@ -177,6 +186,7 @@ class ClinicHubService extends BaseService {
         this.stopWatchingHotspot = null;
         const wasSharing = !_.isNil(this.sharing);
         this.sharing = null;
+        this._keepScreenOn(false);
         await this.stopHub();
         if (wasSharing) await require("../../framework/clinicsharing/ClinicHubJoin").default.stopHubNetwork().catch((error) => General.logError('ClinicHubService', error));
         this._changed();
@@ -364,6 +374,8 @@ class ClinicHubService extends BaseService {
     }
 
     async _noteSync(deviceId, phoneName) {
+        // Another screen closing turns keep-awake off for the whole app, so each sync a running hub serves turns it on again.
+        if (this.sharing) this._keepScreenOn(true);
         this.lastSyncByDevice.set(deviceId, {deviceId, name: phoneName || deviceId, syncedAt: Date.now()});
         await this._saveCampPhone(deviceId, {});
     }
