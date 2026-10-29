@@ -254,7 +254,7 @@ describe("ConventionalRestClient no-count pull: sync bar and telemetry", () => {
         getJSONTimed.mockReset();
     });
 
-    it("moves the bar once per kind of record, after its last batch", async () => {
+    it("clears the label first, then moves the bar once per kind of record, after its last batch", async () => {
         const events = [];
         getJSONTimed.mockImplementation((url) => {
             events.push(`get page ${queryOf(url).page}`);
@@ -266,7 +266,7 @@ describe("ConventionalRestClient no-count pull: sync bar and telemetry", () => {
             (entityName, totalNumberOfPages, currentPageNumber) => events.push(["bar", entityName, totalNumberOfPages, currentPageNumber]),
             NOW, "device1");
 
-        assert.deepEqual(events, ["get page 0", "get page 1", "get page 2", ["bar", "Individual", 1, undefined]]);
+        assert.deepEqual(events, [["bar", "Individual", Infinity, undefined], "get page 0", "get page 1", "get page 2", ["bar", "Individual", 1, undefined]]);
     });
 
     it("records no expected count for a no-count pull", async () => {
@@ -303,6 +303,27 @@ describe("ConventionalRestClient no-count pull: sync bar and telemetry", () => {
         assert.isTrue(seen.every(s => _.isUndefined(s.currentPageNumber)), "no batch number, so the label shows none");
         status.onSyncComplete();
         assert.equal(_.last(seen).progress, 1);
+    });
+
+    it("clears the batch number the step before left on the label before its first batch, without moving the bar", async () => {
+        const seen = [];
+        const status = new ProgressbarStatus((progress, totalNumberOfPages, currentPageNumber) => seen.push({progress, currentPageNumber}),
+            [{name: "UserInfo", syncWeight: 1}, {name: "Individual", syncWeight: 5}]);
+        status.onComplete("UserInfo", 1, 0);
+        let atFirstRequest;
+        getJSONTimed.mockImplementation((url) => {
+            const page = Number(queryOf(url).page);
+            if (page === 0) atFirstRequest = _.last(seen);
+            return Promise.resolve(sliceAnswer("individual", [`r${page}`], page < 1));
+        });
+
+        await pullClient().getAllForEntity(metadataFor("Individual", "st1"), () => Promise.resolve(), _.noop,
+            (entityName, totalNumberOfPages, currentPageNumber) => status.onComplete(entityName, totalNumberOfPages, currentPageNumber),
+            NOW, "device1");
+
+        assert.isUndefined(atFirstRequest.currentPageNumber, "the user-info pull's (1/1) is gone while subjects download");
+        assert.closeTo(atFirstRequest.progress, 1 / 100, 1e-9, "clearing the label does not move the bar");
+        assert.closeTo(_.last(seen).progress, (1 + 5) / 100, 1e-9, "the kind's whole weight still arrives after its last batch");
     });
 });
 

@@ -9,8 +9,9 @@ import {
     to_base64
 } from 'react-native-libsodium';
 import _ from 'lodash';
+import {CLINIC_PORT} from './ClinicSharingConstants';
 
-export const CLINIC_PORT = 7373;
+export {CLINIC_PORT};
 const HANDSHAKE_TIMEOUT_MS = 5000;
 const REQUEST_TIMEOUT_MS = 2 * 60 * 1000;
 // A phone that walks out of range sends no FIN, so the hub would otherwise keep its socket all day.
@@ -33,7 +34,7 @@ export const MessageType = {
 const RefusalMessage = {
     key: () => "This phone's code is out of date. Scan the hub's current QR code.",
     stale: () => "This phone's code is from before the hub restarted. Scan the hub's current QR code.",
-    version: ({hub, peer}) => `This phone is on app version ${peer} and the hub is on ${hub}. Both need the same version.`,
+    setup: ({types = []}) => `This phone's organisation setup differs from the hub's (${types.join(', ')}). Sync this phone with the server, then join again.`,
     timeout: () => 'The hub did not answer. Check this phone is on the hub\'s Wi-Fi.',
     closed: () => 'The hub closed the connection.',
 };
@@ -90,6 +91,15 @@ export async function openLine(key, line) {
 const WIRE_ENCODING = 'latin1';
 
 const writeLine = (socket, keyBytes, message) => socket.write(seal(keyBytes, message) + '\n', WIRE_ENCODING);
+
+// The socket library throws "Socket is closed" for a write after a close, and inside its event handler nothing would catch it.
+const writeHello = (socket, keyBytes, message, onClosed) => {
+    try {
+        writeLine(socket, keyBytes, message);
+    } catch (error) {
+        onClosed(error);
+    }
+};
 
 function lineReader(onLine) {
     let buffer = '';
@@ -175,9 +185,13 @@ class Connection {
     }
 }
 
-const hello = ({appVersion, hubId, epoch}) => ({type: MessageType.hello, appVersion, hubId, epoch});
+const hello = ({appVersion, hubId, epoch, setup}) => _.omitBy({type: MessageType.hello, appVersion, hubId, epoch, setup}, _.isUndefined);
 
-export async function startHub({key, appVersion, hubId, epoch, port = CLINIC_PORT, onConnection, log = _.noop}) {
+// Only types both sides send are compared, so a later release can add one and still share with the release before it.
+export const setupDifferences = (ours = {}, theirs = {}) =>
+    Object.keys(ours).filter((type) => _.has(theirs, type) && theirs[type] !== ours[type]).sort();
+
+export async function startHub({key, appVersion, hubId, epoch, setup, port = CLINIC_PORT, onConnection, log = _.noop}) {
     await ready;
     const keyBytes = from_base64(key);
     const sockets = new Set();
@@ -186,8 +200,11 @@ export async function startHub({key, appVersion, hubId, epoch, port = CLINIC_POR
         socket.setEncoding(WIRE_ENCODING);
         sockets.add(socket);
         const peerName = socket.remoteAddress;
+        let closed = false;
         socket.setTimeout(HANDSHAKE_TIMEOUT_MS);
+        // The socket library keeps a closed socket's timer running, so a phone that closed after its sync is not "dropped".
         socket.on('timeout', () => {
+            if (closed) return;
             log(`Dropped ${peerName}: nothing received for a while`);
             socket.destroy();
         });
@@ -207,17 +224,21 @@ export async function startHub({key, appVersion, hubId, epoch, port = CLINIC_POR
             if (connection) return connection._deliver(message);
 
             if (message.type !== MessageType.hello) return refuse({reason: 'closed'}, `sent ${message.type} before hello`);
-            if (message.appVersion !== appVersion)
-                return refuse({reason: 'version', hub: appVersion, peer: message.appVersion}, `app version ${message.appVersion}, hub is on ${appVersion}`);
             if (message.hubId !== hubId || message.epoch !== epoch)
                 return refuse({reason: 'stale'}, `scanned an earlier code (epoch ${message.epoch})`);
+            const differing = setupDifferences(setup, message.setup);
+            if (differing.length > 0) return refuse({reason: 'setup', types: differing}, `its organisation setup differs: ${differing.join(', ')}`);
             connection = new Connection(socket, keyBytes, _.pick(message, ['appVersion', 'hubId', 'epoch']));
             socket.setTimeout(HUB_IDLE_TIMEOUT_MS);
             onConnection(connection);
         }));
         socket.on('error', (error) => log(`Socket error from ${peerName}: ${error.message}`));
-        socket.on('close', () => sockets.delete(socket));
-        writeLine(socket, keyBytes, hello({appVersion, hubId, epoch}));
+        socket.on('close', () => {
+            closed = true;
+            socket.setTimeout(0);
+            sockets.delete(socket);
+        });
+        writeHello(socket, keyBytes, hello({appVersion, hubId, epoch, setup}), () => socket.destroy());
     });
 
     await new Promise((resolve, reject) => {
@@ -235,7 +256,7 @@ export async function startHub({key, appVersion, hubId, epoch, port = CLINIC_POR
     };
 }
 
-export async function connectToHub({host, key, appVersion, hubId, epoch, port = CLINIC_PORT, timeoutMs = HANDSHAKE_TIMEOUT_MS}) {
+export async function connectToHub({host, key, appVersion, hubId, epoch, setup, port = CLINIC_PORT, timeoutMs = HANDSHAKE_TIMEOUT_MS}) {
     await ready;
     const keyBytes = from_base64(key);
 
@@ -255,15 +276,16 @@ export async function connectToHub({host, key, appVersion, hubId, epoch, port = 
         };
         const timer = setTimeout(() => fail('timeout'), timeoutMs);
 
-        socket.on('connect', () => writeLine(socket, keyBytes, hello({appVersion, hubId, epoch})));
+        socket.on('connect', () => writeHello(socket, keyBytes, hello({appVersion, hubId, epoch, setup}), () => fail('closed')));
         socket.on('data', lineReader((line) => {
             const message = open(keyBytes, line);
             if (connection) return message === null ? undefined : connection._deliver(message);
             if (message === null) return fail('key');
-            if (message.type === MessageType.refused) return fail(message.reason, _.pick(message, ['hub', 'peer']));
+            if (message.type === MessageType.refused) return fail(RefusalMessage[message.reason] ? message.reason : 'closed', _.pick(message, ['types']));
             if (message.type !== MessageType.hello) return fail('closed');
-            if (message.appVersion !== appVersion) return fail('version', {hub: message.appVersion, peer: appVersion});
             if (message.hubId !== hubId || message.epoch !== epoch) return fail('stale');
+            const differing = setupDifferences(setup, message.setup);
+            if (differing.length > 0) return fail('setup', {types: differing});
 
             settled = true;
             clearTimeout(timer);

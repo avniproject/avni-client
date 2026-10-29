@@ -1,5 +1,8 @@
 import _ from 'lodash'
 
+// Work after the last counted step (and entities pulled again after a backend switch) must not show 100% early
+const MAX_PROGRESS_BEFORE_COMPLETION = 0.99;
+
 class ProgressbarStatus {
     constructor(onprogress, progressSteps) {
         this.progressSteps = progressSteps;
@@ -11,7 +14,8 @@ class ProgressbarStatus {
         const entityMetaData = _.head(this.progressSteps.filter((step) => step.name === event));
         //SyncTelemetry is called twice during sync
         const syncWeight = !_.isNil(entityMetaData) ? (entityMetaData.name === 'SyncTelemetry' ? entityMetaData.syncWeight / 2 : entityMetaData.syncWeight) : 0;
-        this.progress += (syncWeight / ((totalNumberOfPages === 0 ? 1 : totalNumberOfPages) * 100));
+        this.progress = Math.min(MAX_PROGRESS_BEFORE_COMPLETION,
+            this.progress + (syncWeight / ((totalNumberOfPages === 0 ? 1 : totalNumberOfPages) * 100)));
         this.onprogress(this.progress, totalNumberOfPages, currentPageNumber);
     }
 

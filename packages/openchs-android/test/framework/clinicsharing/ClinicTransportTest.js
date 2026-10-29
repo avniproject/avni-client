@@ -99,14 +99,35 @@ describe('ClinicTransport', () => {
         await waitFor(() => logs.some((l) => /could not be read/.test(l)));
     });
 
-    it('refuses a phone on another app version, telling both sides both versions', async () => {
-        const port = await startTestHub();
+    it('lets a phone on another app version join, as a release reaches phones over several days', async () => {
+        const port = await startTestHub({setup: {Form: 100}});
 
-        const error = await connect(port, {appVersion: '18.1.0'}).catch((e) => e);
+        const phone = await connect(port, {appVersion: '18.1.0', setup: {Form: 100}});
 
-        expect(error.code).toBe('version');
-        expect(error.details).toEqual({hub: '18.1.1', peer: '18.1.0'});
-        await waitFor(() => logs.some((l) => l.includes('18.1.0') && l.includes('18.1.1')));
+        expect(phone.peer.appVersion).toBe('18.1.1');
+    });
+
+    it('refuses a phone whose organisation setup differs, naming the types on both sides', async () => {
+        const port = await startTestHub({setup: {Form: 100, Concept: 50, SubjectType: 10}});
+
+        const error = await connect(port, {setup: {Form: 101, Concept: 50, SubjectType: 9}}).catch((e) => e);
+
+        expect(error.code).toBe('setup');
+        expect(error.details).toEqual({types: ['Form', 'SubjectType']});
+        expect(error.message).toContain('Form, SubjectType');
+        await waitFor(() => logs.some((l) => l.includes('setup differs: Form, SubjectType')));
+    });
+
+    it('compares only the setup types both sides send, so a later release can add one', async () => {
+        const port = await startTestHub({setup: {Form: 100, Concept: 50}});
+
+        await expect(connect(port, {setup: {Form: 100, Concept: 50, ChecklistDetail: 7}})).resolves.toBeDefined();
+    });
+
+    it('accepts a hello with no app version or setup, and ignores fields it does not know', async () => {
+        const port = await startTestHub({setup: {Form: 100}});
+
+        await expect(connect(port, {appVersion: undefined, setup: undefined})).resolves.toBeDefined();
     });
 
     it('refuses a phone that scanned an earlier code from a restarted hub', async () => {

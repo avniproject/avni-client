@@ -1,8 +1,59 @@
+diff --git a/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketClient.java b/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketClient.java
+index 6ef8269..f4d9b90 100644
+--- a/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketClient.java
++++ b/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketClient.java
+@@ -151,6 +151,13 @@ class TcpSocketClient extends TcpSocket {
+      * @param data data to be sent
+      */
+     public void write(final int msgId, final byte[] data) {
++        // Avni patch: a write racing a close must report, not throw on a shut-down executor and kill the app.
++        if (writeExecutor.isShutdown()) {
++            IOException closedError = new IOException("Attempted to write to closed socket");
++            receiverListener.onWritten(getId(), msgId, closedError);
++            receiverListener.onError(getId(), closedError);
++            return;
++        }
+         writeExecutor.execute(new Runnable() {
+             @Override
+             public void run() {
+@@ -192,6 +199,9 @@ class TcpSocketClient extends TcpSocket {
+         } catch (IOException e) {
+             receiverListener.onClose(getId(), e);
+         }
++        // Avni patch: each socket owns two threads; without this every closed connection leaves them running.
++        listenExecutor.shutdown();
++        writeExecutor.shutdown();
+     }
+ 
+     /**
 diff --git a/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketModule.java b/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketModule.java
-index 121edb4..3d941c7 100644
+index 121edb4..73d30f7 100644
 --- a/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketModule.java
 +++ b/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketModule.java
-@@ -128,6 +128,8 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+@@ -69,6 +69,22 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+         return TAG;
+     }
+ 
++    // Avni patch: a JS reload (the RESTART after a crash) keeps the process, so a server left open would hold its port and fail the next listen.
++    @Override
++    public void invalidate() {
++        for (TcpSocket socket : socketMap.values()) {
++            try {
++                if (socket instanceof TcpSocketServer) ((TcpSocketServer) socket).close();
++                else if (socket instanceof TcpSocketClient) ((TcpSocketClient) socket).destroy();
++            } catch (Exception e) {
++                Log.w(TAG, "Could not close socket " + socket.getId() + " on reload", e);
++            }
++        }
++        socketMap.clear();
++        executorService.shutdownNow();
++        super.invalidate();
++    }
++
+     /**
+      * Creates a TCP Socket and establish a connection with the given host
+      *
+@@ -128,6 +144,8 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
      @SuppressWarnings("unused")
      @ReactMethod
      public void write(final int cId, @NonNull final String base64String, final int msgId) {
@@ -11,7 +62,7 @@ index 121edb4..3d941c7 100644
          TcpSocketClient socketClient = getTcpClient(cId);
          byte[] data = Base64.decode(base64String, Base64.NO_WRAP);
          socketClient.write(msgId, data);
-@@ -140,6 +142,8 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+@@ -140,6 +158,8 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
          executorService.execute(new Runnable() {
              @Override
              public void run() {
@@ -20,7 +71,7 @@ index 121edb4..3d941c7 100644
                  TcpSocketClient socketClient = getTcpClient(cId);
                  socketClient.destroy();
              }
-@@ -231,6 +235,7 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+@@ -231,6 +251,7 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
          // Keep: Required for RN built in Event Emitter Calls.
      }
  
@@ -28,7 +79,7 @@ index 121edb4..3d941c7 100644
      private void requestNetwork(final int transportType, @Nullable final String iotDeviceHost) throws InterruptedException {
          final NetworkRequest.Builder requestBuilder = new NetworkRequest.Builder();
          requestBuilder.addTransportType(transportType);
-@@ -293,7 +298,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+@@ -293,7 +314,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
                              // Single network scenario --> // Use that network in any case
                              Network network = wifiNetworks.get(0);
                              currentNetwork.setNetwork(network);
@@ -36,7 +87,7 @@ index 121edb4..3d941c7 100644
                              networkFound = true;
                          } else {
                              // Multiple network scenario
-@@ -312,7 +316,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+@@ -312,7 +332,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
                                          if (foundAddress != null && foundAddress.contains(iotDeviceHost)) {
                                              // found ioT device network
                                              currentNetwork.setNetwork(network);
@@ -44,7 +95,7 @@ index 121edb4..3d941c7 100644
                                              networkFound = true;
                                              break;
                                          }
-@@ -326,7 +329,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+@@ -326,7 +345,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
                                              if (address.getAddress().getHostAddress().startsWith(iotSubnetAddress)) {
                                                  // Found IoT device network
                                                  currentNetwork.setNetwork(network);
@@ -52,7 +103,7 @@ index 121edb4..3d941c7 100644
                                                  networkFound = true;
                                                  break;
                                              }
-@@ -343,7 +345,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+@@ -343,7 +361,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
                                              if(address.getAddress().getHostAddress().startsWith(iotSubnetAddress)) {
                                                  // found ioT device network
                                                  currentNetwork.setNetwork(network);
@@ -60,7 +111,7 @@ index 121edb4..3d941c7 100644
                                                  networkFound = true;
                                                  break;
                                              }
-@@ -371,7 +372,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+@@ -371,7 +388,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
                                                  if (matchedNetwork != null) {
                                                      // Found IoT device network
                                                      currentNetwork.setNetwork(matchedNetwork);
@@ -68,7 +119,7 @@ index 121edb4..3d941c7 100644
                                                      networkFound = true;
                                                      break;
                                                  }
-@@ -384,7 +384,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+@@ -384,7 +400,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
                                  if (!networkFound && wifiNetworks.size() > 1) {
                                      Network fallbackNetwork = wifiNetworks.get(wifiNetworks.size() - 1); // Get last network from the list
                                      currentNetwork.setNetwork(fallbackNetwork);
@@ -76,7 +127,7 @@ index 121edb4..3d941c7 100644
                                  }
                              }
                          }
-@@ -393,7 +392,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+@@ -393,7 +408,6 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
                          if (!networkFound && wifiNetworks.size() > 1) {
                              Network fallbackNetwork = wifiNetworks.get(wifiNetworks.size() - 1); // Get last network from the list
                              currentNetwork.setNetwork(fallbackNetwork);
@@ -84,6 +135,15 @@ index 121edb4..3d941c7 100644
                          }
                      }
  
+@@ -415,6 +429,8 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+             }
+         }, 5, TimeUnit.SECONDS);
+         awaitingNetwork.await();
++        // Avni patch: a new timer thread per connection otherwise outlives it.
++        exec.shutdownNow();
+     }
+ 
+     /**
 diff --git a/node_modules/react-native-tcp-socket/src/Socket.js b/node_modules/react-native-tcp-socket/src/Socket.js
 index 6ed2141..920511a 100644
 --- a/node_modules/react-native-tcp-socket/src/Socket.js

@@ -43,6 +43,7 @@ import IssueUploadUtil from "../utility/IssueUploadUtil";
 import RNRestart from 'react-native-restart';
 import ProgressBarView from "./ProgressBarView";
 import LocalCacheService from "../service/LocalCacheService";
+import GlobalContext from "../GlobalContext";
 
 @Path('/loginView')
 class LoginView extends AbstractComponent {
@@ -59,6 +60,10 @@ class LoginView extends AbstractComponent {
 
     onViewDidMount() {
         this.dispatchAction(Actions.ON_LOAD);
+        // Only when this user's data is in SQLite and it would not open at launch (#2196 QA).
+        if (GlobalContext.getInstance().takeCommittedDatabaseUnavailable()) {
+            ToastAndroid.show(this.I18n.t('committedDatabaseUnavailable'), ToastAndroid.LONG);
+        }
     }
 
     reset() {

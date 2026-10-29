@@ -44,6 +44,7 @@ const LOCK = 'lock-2141';
 function buildSyncService({lastFullSyncHoursAgo = 1, serverSyncFails = false} = {}) {
     const svc = Object.create(SyncService.prototype);
     svc.syncLock = LOCK;
+    svc.db = {isSqlite: false};
     svc.mediaQueueService = {isMediaUploadRequired: () => false};
     svc.entityQueueService = {getPresentEntities: () => []};
     svc.metricsService = {getAppInfo: async () => ({})};

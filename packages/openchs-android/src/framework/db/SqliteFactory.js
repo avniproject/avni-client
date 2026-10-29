@@ -102,7 +102,9 @@ class SqliteFactory {
         const entityMappingConfig = EntityMappingConfig.getInstance();
         const tableMetaMap = SchemaGenerator.generateAll(entityMappingConfig);
         const realmSchemaMap = SchemaGenerator.buildRealmSchemaMap(entityMappingConfig);
-        return new SqliteProxy(db, entityMappingConfig, tableMetaMap, realmSchemaMap);
+        const proxy = new SqliteProxy(db, entityMappingConfig, tableMetaMap, realmSchemaMap);
+        proxy.optimize();
+        return proxy;
     }
 
     // The SQLite counterpart of EntityMappingConfig.getSchemaVersion(): the newest migration this

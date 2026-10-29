@@ -56,6 +56,7 @@ function open(options = {}) {
 
         // Match op-sqlite's executeBatch: run all commands in a single transaction
         executeBatch(commands) {
+            if (!commands || commands.length === 0) return Promise.reject(new Error("No SQL commands provided"));
             const transaction = db.transaction((cmds) => {
                 for (const cmd of cmds) {
                     const sql = cmd[0];

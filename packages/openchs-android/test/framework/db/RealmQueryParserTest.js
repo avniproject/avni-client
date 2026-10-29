@@ -97,6 +97,50 @@ describe("RealmQueryParser", () => {
         });
     });
 
+    describe("IN with an array parameter", () => {
+        it("binds the whole array as one JSON parameter", () => {
+            const result = RealmQueryParser.parse("uuid IN $0", [["a", "b"]]);
+            expect(result.unsupported).toBe(false);
+            expect(result.where).toBe('t0."uuid" IN (SELECT value FROM json_each(?))');
+            expect(result.params).toEqual(['["a","b"]']);
+        });
+
+        it("matches nothing for an empty array", () => {
+            const result = RealmQueryParser.parse("voided = false AND uuid IN $0", [[]]);
+            expect(result.unsupported).toBe(false);
+            expect(result.where).toBe('(t0."voided" = ? AND 1=0)');
+            expect(result.params).toEqual([0]);
+        });
+
+        it("keeps its position among other parameters", () => {
+            const result = RealmQueryParser.parse("name = $0 AND uuid IN $1", ["John", ["a"]]);
+            expect(result.where).toBe('(t0."name" = ? AND t0."uuid" IN (SELECT value FROM json_each(?)))');
+            expect(result.params).toEqual(["John", '["a"]']);
+        });
+
+        it("binds dates and entity instances in the array the same way as single parameters", () => {
+            const date = new Date(2026, 9, 1);
+            expect(RealmQueryParser.parse("scheduledDate IN $0", [[date]]).params).toEqual([`[${date.getTime()}]`]);
+            expect(RealmQueryParser.parse("uuid IN $0", [[{uuid: "i1"}, {uuid: "i2"}]]).params).toEqual(['["i1","i2"]']);
+        });
+
+        it("matches empty fields when the array contains null", () => {
+            const result = RealmQueryParser.parse("gender IN $0", [["g1", null]]);
+            expect(result.where).toBe('(t0."gender" IN (SELECT value FROM json_each(?)) OR t0."gender" IS NULL)');
+            expect(result.params).toEqual(['["g1"]']);
+        });
+
+        it("matches only empty fields when the array holds only null", () => {
+            const result = RealmQueryParser.parse("gender IN $0", [[null]]);
+            expect(result.where).toBe('t0."gender" IS NULL');
+            expect(result.params).toEqual([]);
+        });
+
+        it("is not translated when the parameter is not an array", () => {
+            expect(RealmQueryParser.parse("uuid IN $0", ["a"]).unsupported).toBe(true);
+        });
+    });
+
     describe("logical operators", () => {
         it("should parse AND", () => {
             const result = RealmQueryParser.parse("voided = false AND active = true");
@@ -705,6 +749,15 @@ describe("RealmQueryParser", () => {
             expect(r.unsupported).toBe(false);
             expect(r.where).toContain('t0."uuid" IN (SELECT "individual_uuid" FROM program_enrolment');
             expect(r.where).toMatch(/t0\."voided" = \?/);   // the trailing clause survives
+        });
+
+        it("translates IN with an array parameter inside a SUBQUERY", () => {
+            const r = RealmQueryParser.parse(
+                "SUBQUERY(enrolments, $e, $e.voided = false AND $e.uuid IN $0).@count > 0",
+                [["e1", "e2"]], "Individual", schemaMap);
+            expect(r.unsupported).toBe(false);
+            expect(r.where).toContain('"uuid" IN (SELECT value FROM json_each(?))');
+            expect(r.params).toContain('["e1","e2"]');
         });
 
         it("a SUBQUERY with a single bare-column condition keeps its trailing clause", () => {
