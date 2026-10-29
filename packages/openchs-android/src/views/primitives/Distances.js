@@ -72,7 +72,14 @@ export function edgeToEdgeStatusBarInset(insets) {
 // dialog window, which RN keeps fitted to the system bars unless given navigationBarTranslucent, so
 // modals must not add the inset again.
 export function edgeToEdgeNavBarInset(insets) {
-    return (Platform.OS === 'android' && Platform.Version >= 36) ? (insets?.bottom ?? 0) : 0;
+    if (Platform.OS !== 'android' || Platform.Version < 36) {
+        return {bottom: 0, right: 0};
+    }
+
+    return {
+        bottom: insets?.bottom ?? 0,
+        right: insets?.right ?? 0
+    };
 }
 
 // Needs a SafeAreaProvider above it — NativeBaseProvider renders one inside every CHSContainer.

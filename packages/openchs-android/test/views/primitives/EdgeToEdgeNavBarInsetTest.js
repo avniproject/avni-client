@@ -31,22 +31,26 @@ function insetUnder(os, osVersion, safeAreaInsets) {
 }
 
 const threeButtonNav = {top: 24, bottom: 48, left: 0, right: 0};
+const landscapeThreeButtonNav = {top: 24, bottom: 0, left: 0, right: 126};
 
 describe('useEdgeToEdgeNavBarInset', () => {
     it('reserves the measured navigation bar strip on Android 16, which cannot opt out of edge-to-edge', () => {
-        expect(insetUnder('android', 36, threeButtonNav)).toBe(48);
+        expect(insetUnder('android', 36, threeButtonNav)).toEqual({bottom: 48, right: 0});
     });
 
     it('reserves the smaller gesture-navigation strip when that is what the device reports', () => {
-        expect(insetUnder('android', 36, {top: 24, bottom: 24, left: 0, right: 0})).toBe(24);
+        expect(insetUnder('android', 36, {top: 24, bottom: 24, left: 0, right: 0})).toEqual({bottom: 24, right: 0});
     });
 
     it('reserves nothing on Android 15, where styles.xml still opts out and the window is already inset', () => {
-        expect(insetUnder('android', 35, threeButtonNav)).toBe(0);
+        expect(insetUnder('android', 35, threeButtonNav)).toEqual({bottom: 0, right: 0});
     });
 
     it('reserves nothing when no safe area provider is above it, rather than throwing', () => {
-        expect(insetUnder('android', 36, null)).toBe(0);
+        expect(insetUnder('android', 36, null)).toEqual({bottom: 0, right: 0});
+    });
+    it('reserves the right navigation bar strip in landscape on Android 16', () => {
+    expect(insetUnder('android', 36, landscapeThreeButtonNav)).toEqual({bottom: 0, right: 126});
     });
 });
 
