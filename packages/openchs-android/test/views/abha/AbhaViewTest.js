@@ -20,7 +20,7 @@ import AbhaError from "../../../src/service/AbhaError";
 import en from "../../../translations/en.json";
 
 const EKA_KEY = "eka-access-key-7f3a";
-const sessionFor = (environment) => ({accessToken: EKA_KEY, expiresAt: "2026-10-20T10:30:00Z", environment, hipId: "hip-1"});
+const sessionFor = (environment) => ({accessToken: EKA_KEY, expiresAt: "2026-10-20T10:30:00Z", expiresInSeconds: 1800, environment, hipId: "hip-1"});
 const ekaReply = JSON.stringify({
     response: {
         txn_id: "txn-1",
@@ -258,7 +258,92 @@ describe("AbhaViewTest", () => {
     it("has English wording for every message the screen and the server's refusals show", () => {
         const refusals = ["ABHA_NOT_CONFIGURED", "ABHA_NO_HEALTH_CENTRE", "ABHA_NO_PRIVILEGE", "ABHA_DISABLED", null]
             .map((code) => AbhaError.messageKey(new AbhaError(code, 403)));
-        [...refusals, "abhaTitle", "abhaFindOrCreate", "abhaNeedsInternet", "abhaError", "abhaNoProfile"].forEach((key) =>
+        [...refusals, "abhaTitle", "abhaFindOrCreate", "abhaNeedsInternet", "abhaError", "abhaNoProfile", "abhaSessionEnded"].forEach((key) =>
             expect([key, typeof en.translations[key]]).toEqual([key, "string"]));
+    });
+});
+
+// Eka's key lives about 30 minutes and nothing renews it while the screens are open. Past its end every Eka call fails
+// with Eka's own "Something went wrong" (seen 29 Oct 2026, 26 minutes in), so the screen ends itself a minute early.
+// It is timed from when the session arrived, in the server's seconds, never by the phone's clock.
+describe("AbhaView ending before its key expires", () => {
+    const MINUTE = 60 * 1000;
+    let rendered = [];
+
+    beforeEach(() => {
+        jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+        rendered.forEach((renderer) => act(() => renderer.unmount()));
+        rendered = [];
+        jest.useRealTimers();
+        jest.restoreAllMocks();
+    });
+
+    function mount(expiresInSeconds, {onProfile = jest.fn()} = {}) {
+        const navigator = {pop: jest.fn(), getCurrentRoutes: () => []};
+        const context = {getService: () => ({getI18n: () => ({t: (key) => key})}), navigator: () => navigator};
+        const session = {...sessionFor("sandbox"), expiresInSeconds};
+        let renderer;
+        act(() => {
+            renderer = TestRenderer.create(<ServiceContext.Provider value={context}>
+                <AbhaView session={session} method="login_or_create_abha" onProfile={onProfile} onSkip={jest.fn()}/>
+            </ServiceContext.Provider>);
+        });
+        rendered.push(renderer);
+        const webViews = () => renderer.root.findAll((node) => node.props.testID === "webview" && typeof node.type !== "string");
+        const lines = () => renderer.root.findAllByType(Text).map((text) => [].concat(text.props.children).join(""));
+        return {renderer, webViews, lines};
+    }
+
+    it("ends the screens a minute before the key expires, and says so", () => {
+        const screen = mount(300);
+        act(() => jest.advanceTimersByTime(4 * MINUTE - 1000));
+        expect(screen.webViews().length).toBe(1);
+
+        act(() => jest.advanceTimersByTime(2000));
+
+        expect(screen.webViews().length).toBe(0);
+        expect(screen.lines()).toContain("abhaSessionEnded");
+    });
+
+    it("ends at once for a key with a minute or less left", () => {
+        const screen = mount(60);
+        act(() => jest.advanceTimersByTime(0));
+
+        expect(screen.webViews().length).toBe(0);
+        expect(screen.lines()).toContain("abhaSessionEnded");
+    });
+
+    it("keeps the screens open when the session gives no lifetime or an unreadable one", () => {
+        const noLifetime = mount(undefined);
+        const unreadable = mount("soon");
+
+        act(() => jest.advanceTimersByTime(60 * MINUTE));
+
+        expect(noLifetime.webViews().length).toBe(1);
+        expect(unreadable.webViews().length).toBe(1);
+    });
+
+    it("does not end a screen whose result was already handed back", async () => {
+        const screen = mount(300);
+        await act(async () => screen.webViews()[0].props.onMessage({nativeEvent: {url: "about:blank",
+            data: JSON.stringify({type: ABHA_MESSAGE.SUCCESS, payload: ekaReply})}}));
+
+        act(() => jest.advanceTimersByTime(10 * MINUTE));
+
+        expect(screen.lines()).not.toContain("abhaSessionEnded");
+    });
+
+    it("stops its timer when the screen closes", () => {
+        const before = jest.getTimerCount();
+        const screen = mount(300);
+        expect(jest.getTimerCount()).toBeGreaterThan(before);
+
+        act(() => screen.renderer.unmount());
+        rendered = rendered.filter((r) => r !== screen.renderer);
+
+        expect(jest.getTimerCount()).toBe(before);
     });
 });

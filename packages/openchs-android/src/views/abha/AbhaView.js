@@ -22,11 +22,18 @@ export const HOSTED_PAGE_URLS = ['about:blank', 'null'];
 // lives only in this screen's page.
 @Path('/abhaView')
 class AbhaView extends AbstractComponent {
+    // Eka's key lives about 30 minutes and nothing renews it while the screens are open; past its end every Eka call
+    // fails with Eka's own "Something went wrong". The screen ends a minute early and says how to reopen it, timed
+    // from when the session arrived, never by the phone's clock against the server's.
+    static END_BEFORE_EXPIRY_MS = 60 * 1000;
+
     static propTypes = {
         session: PropTypes.shape({
             accessToken: PropTypes.string,
             hipId: PropTypes.string,
             environment: PropTypes.string,
+            // The key's remaining life when the server issued it; the screen ends itself a minute before it runs out.
+            expiresInSeconds: PropTypes.number,
         }).isRequired,
         method: PropTypes.string,
         // An ABHA address known before the screens open ("Checked in today", #2200). Eka's SDK takes it as identifier, of
@@ -39,7 +46,7 @@ class AbhaView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-        this.state = {errorKey: null, errorDetail: null};
+        this.state = {errorKey: null, errorDetail: null, sessionEnded: false};
         this.resultHandled = false;
         this.hostedPageLoaded = false;
         const {accessToken, hipId, environment} = props.session;
@@ -59,6 +66,20 @@ class AbhaView extends AbstractComponent {
 
     viewName() {
         return 'AbhaView';
+    }
+
+    onViewDidMount() {
+        const seconds = _.get(this.props, 'session.expiresInSeconds');
+        if (!_.isFinite(seconds)) return;
+        this.sessionEndTimer = setTimeout(() => {
+            if (this.resultHandled) return;
+            this.setState({sessionEnded: true});
+        }, Math.max(0, seconds * 1000 - AbhaView.END_BEFORE_EXPIRY_MS));
+    }
+
+    componentWillUnmount() {
+        clearTimeout(this.sessionEndTimer);
+        super.componentWillUnmount();
     }
 
     // Only Eka's error code is logged and shown, never its message: the payload can carry the partial API response,
@@ -148,14 +169,15 @@ class AbhaView extends AbstractComponent {
     }
 
     render() {
-        const {errorKey, errorDetail} = this.state;
-        const error = errorKey && (errorDetail ? `${this.I18n.t(errorKey)} (${errorDetail})` : this.I18n.t(errorKey));
+        const {errorKey, errorDetail, sessionEnded} = this.state;
+        const error = sessionEnded ? this.I18n.t('abhaSessionEnded')
+            : errorKey && (errorDetail ? `${this.I18n.t(errorKey)} (${errorDetail})` : this.I18n.t(errorKey));
         return (
             <CHSContainer>
                 <AppHeader title={this.I18n.t('abhaTitle')}/>
                 <SafeAreaView style={{flex: 1}}>
                     {error && <Text style={{padding: 16, color: Colors.ValidationError}}>{error}</Text>}
-                    {this.html && <WebView
+                    {this.html && !sessionEnded && <WebView
                         source={{html: this.html}}
                         style={{flex: 1}}
                         originWhitelist={['https://*']}
