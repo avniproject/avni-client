@@ -136,6 +136,8 @@ class ConventionalRestClient {
 
     // Stop only on hasNext: there is no total, and the server serves at most 1000 rows whatever size is asked.
     async drainNoCountPull(onGetOfAnEntity, entityMetadata, afterGetOfEntity, resourceEndpoint, params, pageSize) {
+        // The step before leaves its batch number on the label; an endless page count clears it and adds no weight.
+        afterGetOfEntity(entityMetadata.entityName, Infinity);
         for (let pageNumber = 0; ; pageNumber++) {
             const {body, timings} = await getJSONTimed(`${resourceEndpoint}?${params(pageNumber, pageSize)}`);
             const hasNext = _.get(body, "slice.hasNext");
