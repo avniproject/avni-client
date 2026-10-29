@@ -1,5 +1,5 @@
 import React from "react";
-import {Text, ToastAndroid} from "react-native";
+import {AppState, Text, ToastAndroid} from "react-native";
 import TestRenderer, {act} from "react-test-renderer";
 
 jest.mock("react-native-webview", () => ({
@@ -334,6 +334,50 @@ describe("AbhaView ending before its key expires", () => {
         act(() => jest.advanceTimersByTime(10 * MINUTE));
 
         expect(screen.lines()).not.toContain("abhaSessionEnded");
+    });
+
+    // A timer does not run while the phone sleeps (Android's monotonic clock stops in deep sleep): a worker who locks
+    // the phone for a quarter of an hour mid-registration comes back to a key about to die (final review, 29 Oct).
+    // On coming back the screen checks the time spent, by the phone's own clock against itself.
+    function resumeHandler() {
+        const handlers = [];
+        const remove = jest.fn();
+        jest.spyOn(AppState, "addEventListener").mockImplementation((type, handler) => {
+            if (type === "change") handlers.push(handler);
+            return {remove};
+        });
+        return {resume: () => act(() => handlers.forEach((h) => h("active"))), remove};
+    }
+
+    it("ends the screens on coming back from sleep when the key has run out meanwhile", () => {
+        const app = resumeHandler();
+        const screen = mount(300);
+
+        jest.setSystemTime(Date.now() + 5 * MINUTE);
+        app.resume();
+
+        expect(screen.webViews().length).toBe(0);
+        expect(screen.lines()).toContain("abhaSessionEnded");
+    });
+
+    it("keeps the screens on coming back while the key still has more than a minute", () => {
+        const app = resumeHandler();
+        const screen = mount(300);
+
+        jest.setSystemTime(Date.now() + 2 * MINUTE);
+        app.resume();
+
+        expect(screen.webViews().length).toBe(1);
+    });
+
+    it("stops listening for the app coming back when the screen closes", () => {
+        const app = resumeHandler();
+        const screen = mount(300);
+
+        act(() => screen.renderer.unmount());
+        rendered = rendered.filter((r) => r !== screen.renderer);
+
+        expect(app.remove).toHaveBeenCalled();
     });
 
     it("stops its timer when the screen closes", () => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import {SafeAreaView, Text, ToastAndroid} from 'react-native';
+import {AppState, SafeAreaView, Text, ToastAndroid} from 'react-native';
 import PropTypes from 'prop-types';
 import {WebView} from 'react-native-webview';
 import _ from 'lodash';
@@ -71,14 +71,23 @@ class AbhaView extends AbstractComponent {
     onViewDidMount() {
         const seconds = _.get(this.props, 'session.expiresInSeconds');
         if (!_.isFinite(seconds)) return;
-        this.sessionEndTimer = setTimeout(() => {
+        const usableMs = Math.max(0, seconds * 1000 - AbhaView.END_BEFORE_EXPIRY_MS);
+        const endSession = () => {
             if (this.resultHandled) return;
             this.setState({sessionEnded: true});
-        }, Math.max(0, seconds * 1000 - AbhaView.END_BEFORE_EXPIRY_MS));
+        };
+        this.sessionEndTimer = setTimeout(endSession, usableMs);
+        // A timer does not run while the phone sleeps, so on coming back the time spent is checked too, by the phone's
+        // own clock against itself.
+        const openedAt = Date.now();
+        this.appStateSubscription = AppState.addEventListener('change', (state) => {
+            if (state === 'active' && Date.now() - openedAt >= usableMs) endSession();
+        });
     }
 
     componentWillUnmount() {
         clearTimeout(this.sessionEndTimer);
+        if (this.appStateSubscription) this.appStateSubscription.remove();
         super.componentWillUnmount();
     }
 
