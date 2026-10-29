@@ -3,8 +3,10 @@ import * as ClinicHubWifi from "./ClinicHubWifi";
 import {encodeJoinPayload, parseJoinPayload} from "./ClinicJoinPayload";
 import {CLINIC_PORT} from "./ClinicSharingConstants";
 
-// A phone must join the hub's network within 30 seconds of scanning.
-export const JOIN_TIMEOUT_MS = 30 * 1000;
+// A phone must join the hub's network within 60 seconds of scanning: Android's own search plus the person's Connect tap.
+export const JOIN_TIMEOUT_MS = 60 * 1000;
+// Android answers a hotspot start in seconds; one it never answers would leave the hub screen starting for good.
+export const HOTSPOT_START_TIMEOUT_MS = 30 * 1000;
 
 export const JoinError = Object.freeze({
     hubNeedsAndroid10: "hubNeedsAndroid10",
@@ -14,7 +16,14 @@ export const JoinError = Object.freeze({
     wrongNetwork: "wrongNetwork",
     hubNotFound: "hubNotFound",
     joinInProgress: "joinInProgress",
+    wifiOff: "wifiOff",
+    hotspotFailed: "hotspotFailed",
+    locationOff: "locationOff",
+    hotspotNotAllowed: "hotspotNotAllowed",
 });
+
+// The native module's reasons a hotspot did not start, as errors the screen can put in words staff can act on.
+const HOTSPOT_START_ERRORS = {E_HOTSPOT: JoinError.hotspotFailed, E_LOCATION_OFF: JoinError.locationOff, E_PERMISSION: JoinError.hotspotNotAllowed};
 
 const joinError = (code, message, details = {}, cause) => Object.assign(new Error(message), {code, details, cause});
 
@@ -27,8 +36,27 @@ export class ClinicHubJoin {
 
     async startHubNetwork({hubId, epoch, key}) {
         if (!this.wifi.canStartHub()) throw joinError(JoinError.hubNeedsAndroid10, "A hub needs Android 10 or later");
-        const {ssid, passphrase} = await this.wifi.startHotspot();
-        return {ssid, passphrase, qrValue: encodeJoinPayload({ssid, passphrase, hubId, epoch, key})};
+        const started = this.wifi.startHotspot().catch((error) => {
+            const code = HOTSPOT_START_ERRORS[error && error.code];
+            throw code ? joinError(code, error.message, {}, error) : error;
+        });
+        let timer;
+        const tooLong = new Promise((resolve, reject) => {
+            timer = setTimeout(() => reject(joinError(JoinError.hotspotFailed, "Android did not start the hub's Wi-Fi in time")), HOTSPOT_START_TIMEOUT_MS);
+        });
+        try {
+            const {ssid, passphrase} = await Promise.race([started, tooLong]);
+            return {ssid, passphrase, qrValue: encodeJoinPayload({ssid, passphrase, hubId, epoch, key})};
+        } catch (error) {
+            if (error.code === JoinError.hotspotFailed && !error.cause) {
+                // The native stop also rejects the start still waiting, which nobody reads any more.
+                started.catch(() => {});
+                await this.wifi.stopHotspot().catch(() => {});
+            }
+            throw error;
+        } finally {
+            clearTimeout(timer);
+        }
     }
 
     stopHubNetwork() {
@@ -51,6 +79,8 @@ export class ClinicHubJoin {
         const parsed = parseJoinPayload(qrText);
         if (!parsed.ok) throw joinError(JoinError.badCode, "This is not a hub's code", {payloadError: parsed.error});
         const {ssid, passphrase, hubId, epoch, key} = parsed.payload;
+        // An unanswered check must not stop a join that might work.
+        if (!(await this.wifi.wifiEnabled().catch(() => true))) throw joinError(JoinError.wifiOff, "Wi-Fi is off on this phone");
         let gateway;
         if (this.wifi.canJoinByScan()) {
             try {
@@ -62,7 +92,7 @@ export class ClinicHubJoin {
             if (!gateway) await this.wifi.leaveNetwork().catch(() => {});
         } else {
             await this._checkJoinedByHand(ssid);
-            gateway = await this.wifi.wifiGateway();
+            gateway = await this.wifi.wifiGateway().catch(() => null);
         }
         if (!gateway) throw joinError(JoinError.hubNotFound, `Android gave no gateway address on ${ssid}`);
         return {host: gateway, port: CLINIC_PORT, hubId, epoch, key, ssid};

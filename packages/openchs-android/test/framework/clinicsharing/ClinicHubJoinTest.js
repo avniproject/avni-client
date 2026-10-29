@@ -1,4 +1,4 @@
-import {ClinicHubJoin, JOIN_TIMEOUT_MS, JoinError} from "../../../src/framework/clinicsharing/ClinicHubJoin";
+import {ClinicHubJoin, HOTSPOT_START_TIMEOUT_MS, JOIN_TIMEOUT_MS, JoinError} from "../../../src/framework/clinicsharing/ClinicHubJoin";
 import {encodeJoinPayload, JoinPayloadError} from "../../../src/framework/clinicsharing/ClinicJoinPayload";
 
 const KEY = "q83vEjRWeJ-rze8SNFZ4kKvN7xI0VniQq83vEjRWeJA";
@@ -17,6 +17,7 @@ const setUp = ({level = 34} = {}) => {
         joinNetwork: jest.fn(() => Promise.resolve({ssid: NETWORK.ssid, gateway: "192.168.49.1"})),
         currentSsid: jest.fn(() => Promise.resolve(NETWORK.ssid)),
         wifiConnected: jest.fn(() => Promise.resolve(true)),
+        wifiEnabled: jest.fn(() => Promise.resolve(true)),
         wifiGateway: jest.fn(() => Promise.resolve("192.168.43.1")),
         leaveNetwork: jest.fn(() => Promise.resolve(true)),
         onNetworkLost: jest.fn((listener) => { lost.push(listener); return () => lost.splice(lost.indexOf(listener), 1); }),
@@ -42,6 +43,37 @@ describe("ClinicHubJoin on the hub", () => {
         expect(wifi.startHotspot).not.toHaveBeenCalled();
     });
 
+    it.each([
+        ["E_HOTSPOT", JoinError.hotspotFailed],
+        ["E_LOCATION_OFF", JoinError.locationOff],
+        ["E_PERMISSION", JoinError.hotspotNotAllowed],
+    ])("says why the hotspot did not start when Android refuses with %s", async (nativeCode, joinCode) => {
+        const {join, wifi} = setUp();
+        wifi.startHotspot.mockReturnValue(Promise.reject(Object.assign(new Error("The hotspot could not start: generic"), {code: nativeCode})));
+        await expect(join.startHubNetwork(HUB)).rejects.toMatchObject({code: joinCode});
+    });
+
+    it("passes on a hotspot failure it has no words for", async () => {
+        const {join, wifi} = setUp();
+        wifi.startHotspot.mockReturnValue(Promise.reject(Object.assign(new Error("The hub was stopped before its hotspot started"), {code: "E_CANCELLED"})));
+        await expect(join.startHubNetwork(HUB)).rejects.toMatchObject({code: "E_CANCELLED"});
+    });
+
+    it("gives up when Android never answers the hotspot start, stops the hotspot, and says the hub's Wi-Fi could not start", async () => {
+        jest.useFakeTimers();
+        try {
+            const {join, wifi} = setUp();
+            wifi.startHotspot.mockReturnValue(new Promise(() => {}));
+            const start = join.startHubNetwork(HUB);
+            const outcome = expect(start).rejects.toMatchObject({code: JoinError.hotspotFailed});
+            jest.advanceTimersByTime(HOTSPOT_START_TIMEOUT_MS);
+            await outcome;
+            expect(wifi.stopHotspot).toHaveBeenCalled();
+        } finally {
+            jest.useRealTimers();
+        }
+    });
+
     it("on stop, stops the hotspot", async () => {
         const {join, wifi} = setUp();
         await join.startHubNetwork(HUB);
@@ -55,6 +87,20 @@ describe("ClinicHubJoin on a phone", () => {
         const {join, wifi} = setUp({level: 34});
         await expect(join.joinHub(QR)).resolves.toEqual({host: "192.168.49.1", port: 7373, ...HUB, ssid: NETWORK.ssid});
         expect(wifi.joinNetwork).toHaveBeenCalledWith(NETWORK.ssid, NETWORK.passphrase, JOIN_TIMEOUT_MS);
+    });
+
+    it.each([[34], [28]])("on API %i, says Wi-Fi is off instead of trying to join, as Android would refuse without saying why", async (level) => {
+        const {join, wifi} = setUp({level});
+        wifi.wifiEnabled.mockReturnValue(Promise.resolve(false));
+        await expect(join.joinHub(QR)).rejects.toMatchObject({code: JoinError.wifiOff});
+        expect(wifi.joinNetwork).not.toHaveBeenCalled();
+        expect(wifi.currentSsid).not.toHaveBeenCalled();
+    });
+
+    it("still tries to join when Android does not answer whether Wi-Fi is on", async () => {
+        const {join, wifi} = setUp();
+        wifi.wifiEnabled.mockReturnValue(Promise.reject(new Error("no answer")));
+        await expect(join.joinHub(QR)).resolves.toMatchObject({host: "192.168.49.1"});
     });
 
     it("says why a code is no good", async () => {
@@ -120,6 +166,12 @@ describe("ClinicHubJoin on a phone", () => {
         wifi.joinNetwork.mockReturnValueOnce(Promise.reject(new Error("Could not join")));
         await expect(join.joinHub(QR)).rejects.toMatchObject({code: JoinError.joinFailed});
         await expect(join.joinHub(QR)).resolves.toMatchObject({host: "192.168.49.1"});
+    });
+
+    it("below Android 10, says the hub was not found when Android refuses to give the gateway", async () => {
+        const {join, wifi} = setUp({level: 28});
+        wifi.wifiGateway.mockReturnValue(Promise.reject(Object.assign(new Error("denied"), {code: "E_PERMISSION"})));
+        await expect(join.joinHub(QR)).rejects.toMatchObject({code: JoinError.hubNotFound});
     });
 
     it("below Android 10, says the hub was not found when Android gives no gateway, and never leaves a network the person joined by hand", async () => {

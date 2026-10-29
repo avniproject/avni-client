@@ -17,7 +17,6 @@ jest.mock('react-native-keychain', () => ({
 
 import ClinicHubService from "../../../src/service/clinicsharing/ClinicHubService";
 import ClinicRecordService from "../../../src/service/clinicsharing/ClinicRecordService";
-import {LEDGER_PRUNE_INTERVAL_MS, LEDGER_RETENTION_DAYS} from "../../../src/framework/clinicsharing/ClinicSharingConstants";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 let ledgerCount = 0;
@@ -30,8 +29,8 @@ describe("Clinic hub ledger", () => {
         applied = [];
         ownQueue = [];
         stored = {};
-        const p2p = {applyBatches: async (batches) => { applied.push(batches); return batches.length; }, toSharedResource: (entityName, entity) => entity.toResource};
-        hub = new ClinicHubService({}, {getService: (cls) => (cls === ClinicRecordService ? p2p : {cleanUpCopies: async () => 0, afterSync: async () => 0})});
+        const p2p = {applyBatches: async (batches) => { applied.push(batches); return batches.length; }, toSharedResource: (entityName, entity) => entity.toResource, setupVersion: () => ({Form: 1})};
+        hub = new ClinicHubService({}, {getService: (cls) => (cls === ClinicRecordService ? p2p : {discardStrayParts: async () => {}, afterSync: async () => 0})});
         hub.ledgerName = `clinic_hub_ledger_test_${process.pid}_${ledgerCount++}.db`;
         hub.findAll = () => ownQueue;
         hub.findByKey = (key, uuid, entityName) => stored[uuid] && {toResource: {uuid, entityName, version: stored[uuid]}};
@@ -141,51 +140,34 @@ describe("Clinic hub ledger", () => {
         expect(uuidsIn(await pull('phone-a'))).toEqual(['ind-own', 'enc-own']);
     });
 
-    it("mirrors its own queue before server sync pops it on a phone that has been a hub, even with the hub stopped", async () => {
-        stored['ind-own'] = 1;
-        ownQueue = [{entity: 'Individual', entityUUID: 'ind-own', savedAt: new Date()}];
-        hub._hasLedger = async () => true;
-        await hub.mirrorOwnQueue();
-        ownQueue = [];
-
-        expect(uuidsIn(await pull('phone-a'))).toEqual(['ind-own']);
-    });
-
-    it("leaves a phone that has never been a hub without a hub list", async () => {
-        stored['ind-own'] = 1;
-        ownQueue = [{entity: 'Individual', entityUUID: 'ind-own', savedAt: new Date()}];
+    it("answers that a phone that has never been a hub is not in a camp, without creating a hub file", async () => {
         hub._hasLedger = async () => false;
         const ledger = jest.spyOn(hub, '_ledger');
 
-        await hub.mirrorOwnQueue();
-
+        expect(await hub.campActive()).toBe(false);
         expect(ledger).not.toHaveBeenCalled();
     });
 
-    it(`clears ledger rows older than ${LEDGER_RETENTION_DAYS} days`, async () => {
-        stored['old'] = 1;
-        stored['recent'] = 1;
-        await push('phone-a', 'Individual', ['old', 'recent']);
-        const db = await hub._ledger();
-        await db.execute("update ledger set created_at = ? where entity_uuid = 'old'", [Date.now() - (LEDGER_RETENTION_DAYS * DAY_MS + 60000)]);
+    it('clears stray parts of cut-off photo transfers each time it starts', async () => {
+        const media = {discardStrayParts: jest.fn(async () => {}), afterSync: async () => 0};
+        hub.getService = (cls) => (cls === ClinicRecordService ? {setupVersion: () => ({Form: 1})} : media);
 
-        await hub.pruneLedger();
+        await hub.startHub(() => {}, {port: 17900 + (process.pid % 90)});
+        await hub.stopHub();
 
-        expect(uuidsIn(await pull('phone-b'))).toEqual(['recent']);
+        expect(media.discardStrayParts).toHaveBeenCalledTimes(1);
     });
 
-    it('prunes when a phone syncs over an hour after the last prune, since JS timers stall with the screen off', async () => {
-        stored['old'] = 1;
-        stored['recent'] = 1;
-        await push('phone-a', 'Individual', ['old', 'recent']);
+    it('keeps everything it shared for the whole camp, however long ago it arrived', async () => {
+        stored['day-one'] = 1;
+        await push('phone-a', 'Individual', ['day-one']);
         const db = await hub._ledger();
-        await db.execute("update ledger set created_at = ? where entity_uuid = 'old'", [Date.now() - (LEDGER_RETENTION_DAYS * DAY_MS + 60000)]);
-        hub.lastPrunedAt = Date.now() - LEDGER_PRUNE_INTERVAL_MS - 1;
+        await db.execute("update ledger set created_at = ? where entity_uuid = 'day-one'", [Date.now() - 10 * DAY_MS]);
 
-        expect(uuidsIn(await pull('phone-b'))).toEqual(['recent']);
+        expect(uuidsIn(await pull('phone-joining-late'))).toEqual(['day-one']);
     });
 
-    it('keeps its hub id but takes a new epoch every time it starts', async () => {
+    it('keeps its hub id but takes a new epoch every time it starts outside a camp', async () => {
         const hubId = await hub.hubId();
         const first = await hub._beginSession();
         const second = await hub._beginSession();
@@ -194,5 +176,15 @@ describe("Clinic hub ledger", () => {
         expect(second.hubId).toBe(hubId);
         expect(second.epoch).not.toBe(first.epoch);
         expect(second.key).not.toBe(first.key);
+    });
+
+    // Phones holding the same epoch keep their place, so nobody sends or fetches everything again after a restart.
+    it('keeps its epoch across restarts within a camp, changing only the key', async () => {
+        const first = await hub._beginSession();
+        await hub._setMeta('campActive', true);
+        const restarted = await hub._beginSession();
+
+        expect(restarted.epoch).toBe(first.epoch);
+        expect(restarted.key).not.toBe(first.key);
     });
 });

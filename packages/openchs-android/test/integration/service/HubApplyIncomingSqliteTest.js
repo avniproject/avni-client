@@ -115,6 +115,17 @@ describe("Hub sync save path on SQLite", () => {
         expect(rowsOf("individual")).toEqual(["ind-1"]);
     });
 
+    it("marks records as received from another phone before saving them, so a save cut off partway leaves them marked", async () => {
+        joinGroup("admins", {hasAllPrivileges: true});
+        const recordReceived = jest.fn(async () => {});
+        p2pService.getService = (key) => (key === 'clinicHoldBackService' ? {recordReceived} : ClinicRecordService.prototype.getService.call(p2pService, key));
+        jest.spyOn(syncService, "applyIncoming").mockRejectedValue(new Error("disk full"));
+
+        await expect(p2pService.applyBatches([{entityName: "Individual", resources: [individualResource("ind-1", "st-patient")]}], log)).rejects.toThrow("disk full");
+
+        expect(recordReceived).toHaveBeenCalledWith("Individual", ["ind-1"]);
+    });
+
     it("refreshes the subject's latest approval when an approval is applied", async () => {
         create("Individual", {uuid: "ind-1", firstName: "a", subjectType: {uuid: "st-patient"}, registrationDate: new Date(at), voided: false, observations: []});
         const metaData = EntityMetaData.findByName("SubjectEntityApprovalStatus");

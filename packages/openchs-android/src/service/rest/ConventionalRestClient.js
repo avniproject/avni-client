@@ -4,6 +4,7 @@ import moment from "moment";
 import ChainedRequests from "../../framework/http/ChainedRequests";
 import General from "../../utility/General";
 import {RuleFailureTelemetry} from 'openchs-models';
+import {noCountPullPath} from "./NoCountPullPaths";
 
 class ConventionalRestClient {
     constructor(settingsService, privilegeService) {
@@ -92,6 +93,10 @@ class ConventionalRestClient {
             size: size,
             page: page
         }));
+        const noCountPath = noCountPullPath(entityMetadata);
+        if (!_.isNil(noCountPath)) {
+            return this.drainNoCountPull(onGetOfAnEntity, entityMetadata, afterGetOfEntity, `${settings.serverURL}/${noCountPath}`, params, settings.pageSize);
+        }
         return this.fireRequest(onGetOfAnEntity, entityMetadata, afterGetOfEntity, settings, resourceEndpoint, params, onGetOfFirstPage);
     }
 
@@ -127,6 +132,23 @@ class ConventionalRestClient {
 
             return chainedRequests.fire();
         });
+    }
+
+    // Stop only on hasNext: there is no total, and the server serves at most 1000 rows whatever size is asked.
+    async drainNoCountPull(onGetOfAnEntity, entityMetadata, afterGetOfEntity, resourceEndpoint, params, pageSize) {
+        // The step before leaves its batch number on the label; no page number clears it, and an endless page count adds no weight.
+        afterGetOfEntity(entityMetadata.entityName, Infinity);
+        for (let pageNumber = 0; ; pageNumber++) {
+            const {body, timings} = await getJSONTimed(`${resourceEndpoint}?${params(pageNumber, pageSize)}`);
+            const hasNext = _.get(body, "slice.hasNext");
+            if (!_.isBoolean(hasNext)) {
+                throw new Error(`${entityMetadata.entityName} pull: batch ${pageNumber} came back without slice.hasNext`);
+            }
+            await onGetOfAnEntity(entityMetadata, _.get(body, `_embedded.${entityMetadata.resourceName}`, []), timings);
+            if (!hasNext) break;
+        }
+        // No total to move by, so the bar takes the kind's whole weight in one step.
+        afterGetOfEntity(entityMetadata.entityName, 1);
     }
 
     getAll(entitiesMetadataWithSyncStatus, onGetOfAnEntity, onGetOfFirstPage, afterGetOfEntity, now, deviceId) {

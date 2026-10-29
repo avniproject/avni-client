@@ -9,16 +9,15 @@ import OrganisationConfigService from "../OrganisationConfigService";
 import {connectToHub, MessageType} from "../../framework/clinicsharing/ClinicTransport";
 import {
     HUB_MIN_FREE_STORAGE_MB,
-    LEDGER_RETENTION_DAYS,
     MEDIA_BYTES_PER_HUB_SYNC,
     MEDIA_CHUNK_BYTES
 } from "../../framework/clinicsharing/ClinicSharingConstants";
 
 const MB = 1024 * 1024;
-const DAY_MS = 24 * 60 * 60 * 1000;
 const FETCH_IDLE_TIMEOUT_MS = 30 * 1000;
 const STRAY_PART_AGE_MS = 60 * 60 * 1000;
 const MEDIA_TYPES = ['Image', 'Profile-Pics', 'Video', 'Audio', 'File'];
+const OBSERVATION_LISTS = ['observations', 'cancelObservations', 'programExitObservations'];
 const FILE_NAME = /^[0-9A-Fa-f-]{36}\.\w+$/;
 
 // A bare file name means the photo hasn't reached the server yet; afterwards the value is its URL.
@@ -138,12 +137,16 @@ class ClinicMediaService extends BaseService {
                 .map(({fileName}) => [fileNameOf(fileName), fileName]));
             const kept = mediaQueueService.mediaItems(incoming, schemaName)
                 .filter(({fileName}) => isBareFileName(fileName) && links.has(fileName));
+            if (kept.length === 0) return;
+            // Editable copies first: an answer inside a question group is otherwise edited on a parsed copy and the link is lost.
+            const lists = OBSERVATION_LISTS.filter((list) => !_.isNil(incoming[list]));
+            lists.forEach((list) => incoming[list] = ObservationsHolder.clone(incoming[list]));
             kept.forEach(({fileName, entityTargetField, conceptUUID}) => {
                 if (entityTargetField === 'profilePicture') incoming.updateProfilePicture(links.get(fileName));
                 else incoming.replaceMediaObservation(fileName, links.get(fileName), conceptUUID);
             });
-            // A replaced answer is left as an object, and saved unconverted it would read back as "[object Object]".
-            if (kept.length > 0) [incoming.observations, incoming.cancelObservations].filter(Boolean).forEach(ObservationsHolder.convertObsForSave);
+            // Every answer is now an object, and saved unconverted it would read back as "[object Object]".
+            lists.forEach((list) => ObservationsHolder.convertObsForSave(incoming[list]));
         });
     }
 
@@ -263,15 +266,8 @@ class ClinicMediaService extends BaseService {
         return this.storageRefusal;
     }
 
-    _uploaded(row) {
-        const entity = this.findByUUID(row.entity_uuid, row.entity_name);
-        if (_.isNil(entity)) return false;
-        return this.getService('mediaQueueService').mediaItems(entity, row.entity_name)
-            .some(({fileName}) => /^https?:\/\//.test(fileName) && fileNameOf(fileName) === row.file_name);
-    }
-
-    // Only copies received from other phones are tracked, so the hub phone's own photos are never deleted.
-    async _discardStrayParts() {
+    // Parts of a transfer that was cut off can never become a photo, so a long camp must not collect them.
+    async discardStrayParts() {
         const cutoff = Date.now() - STRAY_PART_AGE_MS;
         for (const mediaType of MEDIA_TYPES) {
             const dir = this.getService('mediaQueueService').getDirByType({type: mediaType});
@@ -299,19 +295,6 @@ class ClinicMediaService extends BaseService {
                 if (path) await this._discard(path);
             }
         }
-    }
-
-    async cleanUpCopies(db) {
-        await this._discardStrayParts();
-        const cutoff = Date.now() - LEDGER_RETENTION_DAYS * DAY_MS;
-        const done = rowsOf(await db.execute('select file_name, media_type, entity_name, entity_uuid, received_at from hub_media'))
-            .filter((row) => row.received_at < cutoff || this._uploaded(row));
-        for (const row of done) {
-            const path = this._pathFor(row.file_name, row.media_type);
-            if (path) await this._discard(path);
-        }
-        if (done.length > 0) await db.executeBatch(done.map((row) => ['delete from hub_media where file_name = ?', [row.file_name]]));
-        return done.length;
     }
 
     fetchFromHub(source, mediaType) {

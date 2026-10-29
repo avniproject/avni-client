@@ -88,9 +88,10 @@ internal class ClinicHubHotspot(
             })
         }
 
+        // Closed, not just dropped: an unclosed reservation's finalizer later stops whatever hotspot or Wi-Fi state is live.
         override fun onStopped() {
             if (lifecycle.stopped(id)) {
-                reservation = null
+                closeReservation()
                 onStopped("stopped")
             }
         }
@@ -102,7 +103,7 @@ internal class ClinicHubHotspot(
                     starts.remove(id)?.reject(ClinicHubWifiModule.E_HOTSPOT, "The hotspot could not start: ${failureReason(reason)}")
                 // A hotspot that dies after starting, so the hub stops showing a code for a network that has gone.
                 HotspotLifecycle.OnFailed.REPORT_STOPPED -> {
-                    reservation = null
+                    closeReservation()
                     onStopped(failureReason(reason))
                 }
                 HotspotLifecycle.OnFailed.IGNORE -> {}

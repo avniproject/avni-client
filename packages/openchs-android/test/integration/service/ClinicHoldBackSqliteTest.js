@@ -95,6 +95,8 @@ function phone({clinicSharing = true} = {}) {
     create("ApprovalStatus", {uuid: "approved", status: "Approved", voided: false});
     create("Concept", {uuid: "c-photo", name: "Photo", datatype: "Image", voided: false});
     create("Concept", {uuid: "c-photo-2", name: "Second photo", datatype: "Image", voided: false});
+    create("Concept", {uuid: "c-group", name: "Photos group", datatype: "QuestionGroup", voided: false});
+    create("Concept", {uuid: "c-repeat", name: "Repeated photos", datatype: "QuestionGroup", voided: false});
     create("Groups", {uuid: "admins", name: "Administrators", hasAllPrivileges: true});
     create("MyGroups", {uuid: "my-admins", groupUuid: "admins", groupName: "Administrators", voided: false});
 
@@ -233,12 +235,15 @@ describe("Holding back uploads that depend on another phone", () => {
         expect(mine.queued()).toEqual(["eas-mine"]);
     });
 
-    it("reports what is held, since when, and what it waits on", async () => {
+    it("reports what is held, since the first server sync that held it, and what it waits on", async () => {
         await receivePatient();
         mine.saveLocally("Individual", patient("own-1", "Kamla"));
         mine.saveLocally("Encounter", visit("v-1", "p-1"));
         mine.saveLocally("Encounter", visit("v-2", "p-1"));
+        expect((await mine.holdBack.getHeldUploads()).oldest).toBeNull();
 
+        const before = Date.now();
+        await mine.push();
         const held = await mine.holdBack.getHeldUploads();
 
         expect(held.count).toBe(2);
@@ -246,7 +251,140 @@ describe("Holding back uploads that depend on another phone", () => {
             {entityType: "Encounter", uuid: "v-1", waitingOn: "p-1"},
             {entityType: "Encounter", uuid: "v-2", waitingOn: "p-1"},
         ]);
-        expect(held.oldest.toISOString()).toBe(new Date(at.getTime() + 2 * 60000).toISOString());
+        expect(held.oldest.getTime()).toBeGreaterThanOrEqual(before);
+    });
+
+    it("says whether this phone holds records from other phones, counting only those still on it", async () => {
+        expect(await mine.holdBack.hasRecordsFromOtherPhones()).toBe(false);
+        await receivePatient();
+        expect(await mine.holdBack.hasRecordsFromOtherPhones()).toBe(true);
+
+        await mine.holdBack.release(["p-1"]);
+        expect(await mine.holdBack.hasRecordsFromOtherPhones()).toBe(false);
+
+        const db = await mine.holdBack._state();
+        await db.execute("insert into received_from_peer (uuid, entity_type, received_at) values ('wiped-by-reset', 'Individual', 1)");
+        expect(await mine.holdBack.hasRecordsFromOtherPhones()).toBe(false);
+    });
+
+    describe("an upload that has waited 3 days", () => {
+        const DAY = 24 * 60 * 60 * 1000;
+        const savedAt = () => mine.services.get(EntityQueueService).findAll("EntityQueue").map((item) => item.savedAt.getTime())[0];
+        const heldAt = async () => (await mine.holdBack.getHeldUploads()).oldest.getTime();
+        let reports;
+        beforeEach(() => { reports = jest.spyOn(ErrorUtil, 'notifyBugsnag').mockImplementation(async () => {}); });
+        afterEach(() => reports.mockRestore());
+
+        it("is reported, naming the patient it waits on", async () => {
+            await receivePatient();
+            mine.saveLocally("Encounter", visit("v-1", "p-1"));
+            await mine.push();
+
+            expect(await mine.holdBack.reportLongWaiting(await heldAt() + 3 * DAY + 60000)).toBe(1);
+
+            expect(reports).toHaveBeenCalledTimes(1);
+            expect(reports.mock.calls[0][0].message).toBe("ClinicSharingHeldUpload: Encounter v-1 has waited 3 days for p-1");
+            expect(reports.mock.calls[0][1]).toBe("ClinicSharingHeldUpload");
+        });
+
+        it("is reported once, however many syncs follow", async () => {
+            await receivePatient();
+            mine.saveLocally("Encounter", visit("v-1", "p-1"));
+            await mine.push();
+
+            await mine.holdBack.reportLongWaiting(await heldAt() + 3 * DAY + 60000);
+            await mine.push();
+            expect(await mine.holdBack.reportLongWaiting(await heldAt() + 5 * DAY)).toBe(0);
+
+            expect(reports).toHaveBeenCalledTimes(1);
+        });
+
+        it("is not reported before 3 days", async () => {
+            await receivePatient();
+            mine.saveLocally("Encounter", visit("v-1", "p-1"));
+            await mine.push();
+
+            expect(await mine.holdBack.reportLongWaiting(await heldAt() + 3 * DAY - 60 * 60 * 1000)).toBe(0);
+
+            expect(reports).not.toHaveBeenCalled();
+        });
+
+        it("counts from the first server sync that held it, so a camp of several days does not report it at once", async () => {
+            await receivePatient();
+            mine.saveLocally("Encounter", visit("v-1", "p-1"));
+
+            expect(await mine.holdBack.reportLongWaiting(savedAt() + 4 * DAY)).toBe(0);
+            await mine.push();
+            expect(await mine.holdBack.reportLongWaiting(await heldAt() + DAY)).toBe(0);
+            expect(await mine.holdBack.reportLongWaiting(await heldAt() + 3 * DAY + 60000)).toBe(1);
+
+            expect(reports).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    describe("when a reset is due", () => {
+        const txMetaData = () => EntityMetaData.model().filter((md) => md.type === 'tx');
+        const queuedParentsFirst = () => txMetaData().reverse()
+            .map((metaData) => mine.sync.entityQueueService.getAllQueuedItems(metaData))
+            .filter(({entities}) => entities.length > 0);
+        const uuidsOf = (entitiesToPost) => entitiesToPost.flatMap(({entities}) => entities.map(({resource}) => resource.uuid));
+
+        it("offers the uploads waiting on a parent, and not this phone's edits of another phone's records", async () => {
+            await receivePatient();
+            await mine.recordService.applyBatches([{entityName: 'Encounter',
+                resources: [fromAnotherPhone('Encounter', 'Encounter', visit("v-nurse", "p-1", {name: "nurse"}))]}], log);
+            mine.saveLocally("Encounter", visit("v-1", "p-1"));
+            mine.saveLocally("Encounter", visit("v-nurse", "p-1", {name: "doctor"}));
+
+            expect(uuidsOf(await mine.holdBack.heldToTry(queuedParentsFirst()))).toEqual(["v-1"]);
+        });
+
+        it("offers a whole chain made on a received patient, parents first", async () => {
+            await receivePatient();
+            mine.saveLocally("ProgramEnrolment", enrolment("enl-1", "p-1"));
+            mine.saveLocally("ProgramEncounter", {uuid: "pe-1", encounterType: {uuid: "et-anc"}, programEnrolment: {uuid: "enl-1"}, encounterDateTime: at,
+                observations: [], cancelObservations: [], voided: false});
+
+            expect(uuidsOf(await mine.holdBack.heldToTry(queuedParentsFirst()))).toEqual(["enl-1", "pe-1"]);
+        });
+
+        it("does not offer a reply in another phone's comment thread, which the server would save without its thread", async () => {
+            mine.create("Individual", patient("own-1", "Kamla"));
+            const thread = {uuid: "th-1", status: "Open", openDateTime: at, voided: false};
+            await mine.recordService.applyBatches([{entityName: 'CommentThread', resources: [fromAnotherPhone('CommentThread', 'CommentThread', thread)]}], log);
+            mine.saveLocally("Comment", {uuid: "cm-1", text: "Reply", subject: {uuid: "own-1"}, commentThread: {uuid: "th-1"}, displayUsername: "doctor",
+                createdByUsername: "doctor", createdDateTime: at, lastModifiedDateTime: at, voided: false});
+
+            expect((await mine.holdBack.getHeldUploads()).items.map(({uuid}) => uuid)).toEqual(["cm-1"]);
+            expect(uuidsOf(await mine.holdBack.heldToTry(queuedParentsFirst()))).toEqual([]);
+        });
+
+        it("keeps what the server took before a refusal, and deletes nothing", async () => {
+            await receivePatient();
+            await mine.recordService.applyBatches([{entityName: 'Individual', resources: [fromAnotherPhone('Individual', 'Individual', patient('p-2'))]}], log);
+            mine.saveLocally("Encounter", visit("v-1", "p-1"));
+            mine.saveLocally("Encounter", visit("v-2", "p-2"));
+            const refuseV2 = mine.sync.conventionalRestClient.postAllEntities;
+            mine.sync.conventionalRestClient.postAllEntities = async (allEntities, onCompleteOfIndividualPost, onComplete) => {
+                const accepted = allEntities.map(({metaData, entities}) => ({metaData, entities: entities.filter(({resource}) => resource.uuid !== "v-2")}));
+                await refuseV2(accepted, onCompleteOfIndividualPost, onComplete);
+                if (uuidsOf(allEntities).includes("v-2")) throw new Error("Http 500: Individual not found");
+            };
+
+            expect(await mine.sync._tryHeldUploads(txMetaData())).toBe(false);
+
+            expect(mine.postedUuids()).toEqual(["v-1"]);
+            expect(mine.queued()).toEqual(["v-2"]);
+        });
+
+        it("reports nothing waiting once the server takes every offered upload", async () => {
+            await receivePatient();
+            mine.saveLocally("Encounter", visit("v-1", "p-1"));
+
+            expect(await mine.sync._tryHeldUploads(txMetaData())).toBe(true);
+
+            expect(mine.queued()).toEqual([]);
+        });
     });
 
     it("changes nothing for an organisation not using clinic sharing", async () => {
@@ -272,6 +410,12 @@ const photos = (first, second) => [
     ...(second ? [{concept: {uuid: "c-photo-2"}, valueJSON: JSON.stringify({answer: second})}] : []),
 ];
 const answerOf = (encounter, conceptUUID) => JSON.parse(encounter.observations.find((o) => o.concept.uuid === conceptUUID).valueJSON).answer;
+const enrolment = (uuid, individualUUID, extra = {}) => ({uuid, program: {uuid: "pr-mother"}, individual: {uuid: individualUUID}, enrolmentDateTime: at,
+    observations: [], programExitObservations: [], voided: false, ...extra});
+const photoInGroup = (fileName) => ({concept: {uuid: "c-photo", name: "Photo", datatype: "Image"}, valueJSON: {answer: fileName}});
+const groupPhoto = (fileName) => ({concept: {uuid: "c-group"}, valueJSON: JSON.stringify({groupObservations: [photoInGroup(fileName)]})});
+const repeatableGroupPhoto = (fileName) => ({concept: {uuid: "c-repeat"},
+    valueJSON: JSON.stringify({repeatableObservations: [{groupObservations: [photoInGroup(fileName)]}]})});
 
 describe("Photos in records from another phone", () => {
     let mine;
@@ -335,6 +479,43 @@ describe("Photos in records from another phone", () => {
         expect([mine.media.isFromAnotherPhone(DOCTOR_PHOTO), mine.media.isFromAnotherPhone(NURSE_PHOTO)]).toEqual([false, true]);
     });
 
+    describe("keep their link when another phone's copy arrives with the bare name", () => {
+        const link = `https://s3.example.org/org-1/${NURSE_PHOTO}`;
+        // As after this phone's upload: the local copy holds the link and nothing is queued.
+        const uploadedLocally = (schema, data) => {
+            mine.saveLocally(schema, data);
+            mine.rawDb.executeSync("DELETE FROM entity_queue");
+        };
+
+        it("on a programme exit form, saved as text the exit screen can read", async () => {
+            uploadedLocally("ProgramEnrolment", enrolment("e-1", "p-1", {observations: photos(link), programExitObservations: photos(link)}));
+
+            await receive('ProgramEnrolment', enrolment("e-1", "p-1", {observations: photos(NURSE_PHOTO), programExitObservations: photos(NURSE_PHOTO)}));
+
+            const local = mine.read("ProgramEnrolment", "e-1");
+            expect([...local.programExitObservations].map((o) => typeof o.valueJSON)).toEqual(["string"]);
+            expect([JSON.parse(local.programExitObservations[0].valueJSON).answer, answerOf(local, "c-photo")]).toEqual([link, link]);
+        });
+
+        it("inside a question group", async () => {
+            uploadedLocally("Encounter", visit("v-1", "p-1", {observations: [groupPhoto(link)]}));
+
+            await receive('Encounter', visit("v-1", "p-1", {observations: [groupPhoto(NURSE_PHOTO)]}));
+
+            const group = JSON.parse(mine.read("Encounter", "v-1").observations[0].valueJSON);
+            expect(group.groupObservations[0].valueJSON.answer).toEqual(link);
+        });
+
+        it("inside a repeatable question group", async () => {
+            uploadedLocally("Encounter", visit("v-1", "p-1", {observations: [repeatableGroupPhoto(link)]}));
+
+            await receive('Encounter', visit("v-1", "p-1", {observations: [repeatableGroupPhoto(NURSE_PHOTO)]}));
+
+            const repeats = JSON.parse(mine.read("Encounter", "v-1").observations[0].valueJSON);
+            expect(repeats.repeatableObservations[0].groupObservations[0].valueJSON.answer).toEqual(link);
+        });
+    });
+
     it("are queued as today for an organisation not using clinic sharing", async () => {
         const plain = phone({clinicSharing: false});
         await plain.recordService.applyBatches([{entityName: 'Individual', resources: [fromAnotherPhone('Individual', 'Individual', patient('p-1'))]}], log);
@@ -377,14 +558,25 @@ describe("Records that arrive before their parent", () => {
         expect(reports).not.toHaveBeenCalled();
     });
 
-    it("appear once the patient comes down from the server", async () => {
+    // After a camp the visit's own phone uploads it, and it comes down from the server like any other record.
+    it("are dropped at the server sync after a camp, without a report when the patient has come down", async () => {
         await receive('Encounter', visit("v-1", "p-1"));
 
-        const syncStartedAt = Date.now();
         await mine.sync.persistAll(pulled('Individual'), [fromServer(mine.recordService, 'Individual', fromAnotherPhone('Individual', 'Individual', patient('p-1')))]);
-        await mine.sync._applyParkedClinicRecords(syncStartedAt);
+        await mine.sync._dropParkedClinicRecords();
 
-        expect(visitParent("v-1")).toEqual(["p-1"]);
+        expect([mine.read("Encounter", "v-1") ?? null, parked()]).toEqual([null, []]);
+        expect(reports).not.toHaveBeenCalled();
+    });
+
+    it("are reported at the server sync after a camp when their patient still has not come down, then dropped", async () => {
+        await receive('Encounter', visit("v-1", "p-missing"));
+
+        await mine.sync._dropParkedClinicRecords();
+
+        expect(reports).toHaveBeenCalledTimes(1);
+        expect(reports.mock.calls[0][0].message).toBe("ClinicSharingOrphan: Encounter v-1 is still missing its parent Individual p-missing");
+        expect(parked()).toEqual([]);
     });
 
     it("are reported once, with type and IDs only, when still waiting after a sync that began after they arrived", async () => {
@@ -404,16 +596,16 @@ describe("Records that arrive before their parent", () => {
         expect(parked()).toEqual(["v-1"]);
     });
 
-    it("give way to the server's copy when it arrives first", async () => {
-        await receive('Encounter', visit("v-1", "p-1", {name: "hub copy"}));
-        const serverVisit = fromAnotherPhone('Encounter', 'Encounter', visit("v-1", "p-1", {name: "server copy"}));
+    // A server sync runs only outside a camp, so the server's copy is the newest: a waiting copy must not go on top of it.
+    it("leave the server's copy in place at the server sync after a camp, so an older waiting copy never replaces a newer one", async () => {
+        await receive('Encounter', visit("v-1", "p-1", {name: "edited on phone A during the camp"}));
+        const serverVisit = fromAnotherPhone('Encounter', 'Encounter', visit("v-1", "p-1", {name: "edited again on the web after the camp"}));
 
-        const syncStartedAt = Date.now();
         await mine.sync.persistAll(pulled('Individual'), [fromServer(mine.recordService, 'Individual', fromAnotherPhone('Individual', 'Individual', patient('p-1')))]);
         await mine.sync.persistAll(pulled('Encounter'), [fromServer(mine.recordService, 'Encounter', serverVisit)]);
-        await mine.sync._applyParkedClinicRecords(syncStartedAt);
+        await mine.sync._dropParkedClinicRecords();
 
-        expect([mine.read("Encounter", "v-1").name, parked()]).toEqual(["server copy", []]);
+        expect([mine.read("Encounter", "v-1").name, visitParent("v-1"), parked()]).toEqual(["edited again on the web after the camp", ["p-1"], []]);
     });
 
     it("on the hub, go into the ledger under the phone that sent them once applied, for phones whose cursor has passed", async () => {

@@ -3,16 +3,19 @@
 export const BLOCKER_KEYS = {
     lastSyncIncomplete: 'uploadCatchmentDatabaseLocalOneSyncNeeded',
     unsavedData: 'uploadCatchmentDatabaseLocalUnsavedData',
-    resetPending: 'uploadCatchmentDatabaseResetPending'
+    resetPending: 'uploadCatchmentDatabaseResetPending',
+    recordsFromOtherPhones: 'uploadCatchmentDatabaseRecordsFromOtherPhones'
 };
 
 // Returns the reasons the upload must not proceed, empty when it may. Every input is read as
 // "block unless proven otherwise": an absent argument is a reading that failed, not a pass.
 export function catchmentUploadBlockers(state) {
-    const {lastSyncCompleted, hasUnsyncedTxData, hasPendingReset} = state || {};
+    const {lastSyncCompleted, hasUnsyncedTxData, hasPendingReset, hasRecordsFromOtherPhones} = state || {};
     const blockers = [];
     if (lastSyncCompleted !== true) blockers.push(BLOCKER_KEYS.lastSyncIncomplete);
     if (hasUnsyncedTxData === true) blockers.push(BLOCKER_KEYS.unsavedData);
     if (hasPendingReset === true) blockers.push(BLOCKER_KEYS.resetPending);
+    // Clinic sharing: records from other phones may not have reached the server, and are not this user's to publish.
+    if (hasRecordsFromOtherPhones !== false) blockers.push(BLOCKER_KEYS.recordsFromOtherPhones);
     return blockers;
 }

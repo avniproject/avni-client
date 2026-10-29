@@ -52,7 +52,6 @@ import ClinicHubService from "../../../src/service/clinicsharing/ClinicHubServic
 import ClinicSpokeService from "../../../src/service/clinicsharing/ClinicSpokeService";
 import ClinicRecordService from "../../../src/service/clinicsharing/ClinicRecordService";
 import ClinicMediaService from "../../../src/service/clinicsharing/ClinicMediaService";
-import {LEDGER_RETENTION_DAYS} from "../../../src/framework/clinicsharing/ClinicSharingConstants";
 
 let dbCount = 0;
 let nextPort = 18700 + (process.pid % 500);
@@ -74,7 +73,7 @@ function device(kind) {
         },
         mediaItems: (entity) => entity.media,
     };
-    const recordService = {applyBatches: async () => 0, toSharedResource: () => ({})};
+    const recordService = {applyBatches: async () => 0, toSharedResource: () => ({}), setupVersion: () => ({Form: 1})};
     services.set('mediaQueueService', mediaQueueService);
     services.set(ClinicRecordService, recordService);
     services.set('clinicParkedRecordService', {afterSync: async () => ({applied: 0, reported: 0})});
@@ -235,7 +234,7 @@ describe('Photos and files through the hub', () => {
         nodeFs.writeFileSync(hubPhone.pathOf(`${fileName(3)}.part`), 'new');
         const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
         nodeFs.utimesSync(hubPhone.pathOf(`${fileName(2)}.part`), twoHoursAgo, twoHoursAgo);
-        await hubPhone.hub.pruneLedger();
+        await hubPhone.media.discardStrayParts();
 
         expect([hubPhone.has(`${fileName(2)}.part`), hubPhone.has(`${fileName(3)}.part`)]).toEqual([false, true]);
     });
@@ -279,20 +278,18 @@ describe('Photos and files through the hub', () => {
         expect([doctor.has(fileName(1)), doctor.has(fileName(2))]).toEqual([false, true]);
     });
 
-    it('deletes its copy once the record holds the photo\'s link, or after a week, and never the hub phone\'s own photos', async () => {
+    it("keeps every photo copy for the whole camp, however old, and deletes them only when the camp is closed", async () => {
         const nurse = phone('nurse');
-        [1, 2, 3].forEach((n) => nurse.takePhoto(fileName(n), 1000));
+        [1, 2].forEach((n) => nurse.takePhoto(fileName(n), 1000));
         await nurse.sync();
         await nurse.sync();
-        hubPhone.takePhoto(fileName(4), 1000);
-        hubPhone.records[`enc-${fileName(1)}`] = {media: [{fileName: `https://s3.example.org/org-1/${fileName(1)}`}]};
-        hubPhone.records[`enc-${fileName(2)}`] = {media: [{fileName: fileName(2)}]};
-        hubPhone.records[`enc-${fileName(3)}`] = {media: [{fileName: fileName(3)}]};
         const ledger = await hubPhone.hub._ledger();
-        await ledger.execute('update hub_media set received_at = ? where file_name = ?', [Date.now() - (LEDGER_RETENTION_DAYS + 1) * DAY_MS, fileName(3)]);
+        await ledger.execute('update hub_media set received_at = ?', [Date.now() - 10 * DAY_MS]);
 
-        await hubPhone.hub.pruneLedger();
+        await hubPhone.media.discardStrayParts();
+        expect([1, 2].map((n) => hubPhone.has(fileName(n)))).toEqual([true, true]);
 
-        expect([1, 2, 3, 4].map((n) => hubPhone.has(fileName(n)))).toEqual([false, true, false, true]);
+        await hubPhone.hub.closeCamp();
+        expect([1, 2].map((n) => hubPhone.has(fileName(n)))).toEqual([false, false]);
     });
 });

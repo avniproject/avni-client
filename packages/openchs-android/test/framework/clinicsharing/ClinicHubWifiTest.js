@@ -8,6 +8,7 @@ const native = {
     currentSsid: jest.fn(() => Promise.resolve("AndroidShare_4821")),
     wifiConnected: jest.fn(() => Promise.resolve(true)),
     wifiGateway: jest.fn(() => Promise.resolve("192.168.43.1")),
+    wifiEnabled: jest.fn(() => Promise.resolve(true)),
     addListener: jest.fn(),
     removeListeners: jest.fn(),
 };
@@ -31,6 +32,7 @@ describe("ClinicHubWifi", () => {
         await expect(ClinicHubWifi.currentSsid()).resolves.toBe("AndroidShare_4821");
         await expect(ClinicHubWifi.wifiConnected()).resolves.toBe(true);
         await expect(ClinicHubWifi.wifiGateway()).resolves.toBe("192.168.43.1");
+        await expect(ClinicHubWifi.wifiEnabled()).resolves.toBe(true);
     });
 
     it("tells a listener when the joined network goes, until it unsubscribes", () => {

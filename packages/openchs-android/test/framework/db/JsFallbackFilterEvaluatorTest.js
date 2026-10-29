@@ -1315,6 +1315,44 @@ describe("JsFallbackFilterEvaluator", () => {
             )).toBe(false);
         });
 
+        it("should evaluate IN $N against an array parameter", () => {
+            expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
+                {program: {uuid: "p2"}}, "$e.program.uuid IN $0", "$e", [["p1", "p2"]], "TestSchema"
+            )).toBe(true);
+            expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
+                {program: {uuid: "p9"}}, "$e.program.uuid IN $0", "$e", [["p1", "p2"]], "TestSchema"
+            )).toBe(false);
+        });
+
+        it("should match entity instances in the array by uuid, as the SQL translation does", () => {
+            expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
+                {program: {uuid: "p2"}}, "$e.program.uuid IN $0", "$e", [[{uuid: "p1"}, {uuid: "p2"}]], "TestSchema"
+            )).toBe(true);
+        });
+
+        it("should match dates in the array by their time, as the SQL translation does", () => {
+            const at = new Date(2026, 9, 1);
+            expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
+                {encounterDateTime: new Date(at.getTime())}, "$e.encounterDateTime IN $0", "$e", [[at]], "TestSchema"
+            )).toBe(true);
+        });
+
+        it("should match nothing for IN $N with an empty array", () => {
+            expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
+                {program: {uuid: "p1"}}, "$e.program.uuid IN $0", "$e", [[]], "TestSchema"
+            )).toBe(false);
+        });
+
+        it("should keep subjects whose enrolment program is in the array, through apply", () => {
+            const inProgram = makeEntity({uuid: "i1", enrolments: [makeEnrolment({program: {uuid: "p1"}})]});
+            const otherProgram = makeEntity({uuid: "i2", enrolments: [makeEnrolment({program: {uuid: "p9"}})]});
+            const result = JsFallbackFilterEvaluator.apply([inProgram, otherProgram], [{
+                query: "SUBQUERY(enrolments, $e, $e.voided == false AND $e.program.uuid IN $0).@count > 0",
+                args: [["p1", "p2"]],
+            }], "Individual");
+            expect(result.map(i => i.uuid)).toEqual(["i1"]);
+        });
+
         it("should resolve $N params and numeric values inside IN {…}", () => {
             expect(JsFallbackFilterEvaluator._evaluateAtomicCondition(
                 {concept: {uuid: "c2"}}, "$o.concept.uuid IN {$0, $1}", "$o", ["c1", "c2"], "TestSchema"
