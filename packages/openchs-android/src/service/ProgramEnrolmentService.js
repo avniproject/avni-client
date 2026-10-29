@@ -122,6 +122,8 @@ class ProgramEnrolmentService extends BaseService {
             programEnrolment.updateAudit(this.getUserInfo(), false);
             this.repository.create(programEnrolment, UpdateMode.Modified);
             this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
+            // Without this a photo or file on the exit form is never uploaded.
+            this.getService(MediaQueueService).addMediaToQueue(programEnrolment, ProgramEnrolment.schema.name);
             _.forEach(groupSubjectObservations, this.getService(GroupSubjectService).addSubjectToGroup(individual));
         });
     }

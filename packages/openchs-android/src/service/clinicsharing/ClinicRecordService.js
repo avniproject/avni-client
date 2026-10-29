@@ -5,7 +5,8 @@ import _ from "lodash";
 import EntityService from "../EntityService";
 import PrivilegeService from "../PrivilegeService";
 import SyncService from "../SyncService";
-import {SHAREABLE_ENTITIES} from "../../framework/clinicsharing/ClinicSharingConstants";
+import EntitySyncStatusService from "../EntitySyncStatusService";
+import {SETUP_TYPES, SHAREABLE_ENTITIES} from "../../framework/clinicsharing/ClinicSharingConstants";
 
 const txMetaDataParentsFirst = () => EntityMetaData.model().filter((md) => md.type === 'tx').reverse();
 
@@ -29,6 +30,15 @@ class ClinicRecordService extends BaseService {
     }
 
     // toResource is the upload format; the receiving fromResource also needs what the server adds on download.
+    // loadedSince is the newest server timestamp pulled, so phones synced to the same server state hold the same values.
+    setupVersion() {
+        const statusService = this.getService(EntitySyncStatusService);
+        return _.fromPairs(SETUP_TYPES.map((type) => {
+            const loadedSince = _.get(statusService.get(type), 'loadedSince');
+            return [type, loadedSince ? loadedSince.getTime() : 0];
+        }));
+    }
+
     toSharedResource(entityName, entity) {
         const resource = entity.toResource;
         if (entityName === 'Comment') {
@@ -70,14 +80,16 @@ class ClinicRecordService extends BaseService {
             return 0;
         }
         const ordered = _.sortBy(batches, (batch) => parentsFirstIndex(batch.entityName));
-        let total = 0;
-        for (const batch of ordered) {
-            if (!SHAREABLE_ENTITIES.includes(batch.entityName)) continue;
-            for (const [metaData, resources] of this._metaDataGroups(batch)) {
-                total += await this._applyGroup(batch.entityName, metaData, resources, log, origin);
+        return this.db.inShortTransactions(async () => {
+            let total = 0;
+            for (const batch of ordered) {
+                if (!SHAREABLE_ENTITIES.includes(batch.entityName)) continue;
+                for (const [metaData, resources] of this._metaDataGroups(batch)) {
+                    total += await this._applyGroup(batch.entityName, metaData, resources, log, origin);
+                }
             }
-        }
-        return total;
+            return total;
+        });
     }
 
     async _applyGroup(entityName, metaData, resources, log, origin) {
@@ -111,8 +123,10 @@ class ClinicRecordService extends BaseService {
 
         // A record already on this phone came from the server or was received before, so the server has it or it is already held.
         const newHere = kept.filter(({entity}) => _.isNil(this.findByKey('uuid', entity.uuid, metaData.schemaName))).map(({entity}) => entity.uuid);
-        await this.getService(SyncService).applyIncoming(metaData, kept.map(({resource}) => resource), kept.map(({entity}) => entity));
+        this.getService('clinicMediaService').keepLocalLinks(metaData.schemaName, kept.map(({entity}) => entity));
+        // Marked first: the save goes in chunks, and a retry after a failed chunk no longer sees the saved ones as new here.
         await this.getService('clinicHoldBackService').recordReceived(entityName, newHere);
+        await this.getService(SyncService).applyIncoming(metaData, kept.map(({resource}) => resource), kept.map(({entity}) => entity));
         await this.getService('clinicMediaService').recordReceivedMedia(entityName, kept.map(({entity}) => entity));
         log(`applied ${kept.length} ${entityName}`);
         return kept.length;

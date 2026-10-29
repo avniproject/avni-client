@@ -1,6 +1,6 @@
 import {catchmentUploadBlockers, BLOCKER_KEYS} from '../../src/utility/CatchmentUploadGuard';
 
-const clean = {lastSyncCompleted: true, hasUnsyncedTxData: false, hasPendingReset: false};
+const clean = {lastSyncCompleted: true, hasUnsyncedTxData: false, hasPendingReset: false, hasRecordsFromOtherPhones: false};
 
 describe('catchmentUploadBlockers', () => {
     it('allows the upload when the last sync finished, nothing is unsaved and no reset is pending', () => {
@@ -22,9 +22,16 @@ describe('catchmentUploadBlockers', () => {
             .toEqual([BLOCKER_KEYS.resetPending]);
     });
 
+    it('blocks while this phone holds clinic sharing records from other phones that may not be on the server yet', () => {
+        expect(catchmentUploadBlockers({...clean, hasRecordsFromOtherPhones: true}))
+            .toEqual(['uploadCatchmentDatabaseRecordsFromOtherPhones']);
+        expect(catchmentUploadBlockers({...clean, hasRecordsFromOtherPhones: undefined}))
+            .toEqual(['uploadCatchmentDatabaseRecordsFromOtherPhones']);
+    });
+
     it('reports every reason at once, so the worker is not sent round twice', () => {
-        expect(catchmentUploadBlockers({lastSyncCompleted: false, hasUnsyncedTxData: true, hasPendingReset: true}))
-            .toEqual([BLOCKER_KEYS.lastSyncIncomplete, BLOCKER_KEYS.unsavedData, BLOCKER_KEYS.resetPending]);
+        expect(catchmentUploadBlockers({lastSyncCompleted: false, hasUnsyncedTxData: true, hasPendingReset: true, hasRecordsFromOtherPhones: true}))
+            .toEqual([BLOCKER_KEYS.lastSyncIncomplete, BLOCKER_KEYS.unsavedData, BLOCKER_KEYS.resetPending, 'uploadCatchmentDatabaseRecordsFromOtherPhones']);
     });
 
     it('fails closed on missing input rather than allowing the upload', () => {

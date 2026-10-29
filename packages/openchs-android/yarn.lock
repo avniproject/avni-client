@@ -11715,13 +11715,6 @@ react-native-windows@^0.75.0:
     ws "^6.2.2"
     yargs "^17.6.2"
 
-react-native-zeroconf@0.17.4:
-  version "0.17.4"
-  resolved "https://registry.npmjs.org/react-native-zeroconf/-/react-native-zeroconf-0.17.4.tgz"
-  integrity sha512-Xg9Sg8X66T7aUWRYI4BnGQ+ihs7Dn/aFT16j5R7mi19plnYf9yowXlwK4dGcbyILkJfxSxXa4zsZPjHXO1VLcg==
-  dependencies:
-    events "^3.0.0"
-
 react-native-zip-archive@6.0.8:
   version "6.0.8"
   resolved "https://registry.npmjs.org/react-native-zip-archive/-/react-native-zip-archive-6.0.8.tgz"

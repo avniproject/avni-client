@@ -21,10 +21,14 @@ jest.mock('../../../src/framework/clinicsharing/ClinicHubJoin', () => ({
 }));
 jest.mock('../../../src/framework/clinicsharing/ClinicHubWifi', () => ({leaveNetwork: jest.fn(async () => {}), onHotspotStopped: jest.fn(() => jest.fn())}));
 
+import {DeviceEventEmitter, NativeModules} from "react-native";
 import hubJoin from "../../../src/framework/clinicsharing/ClinicHubJoin";
+import {onHotspotStopped} from "../../../src/framework/clinicsharing/ClinicHubWifi";
 import ClinicHubService from "../../../src/service/clinicsharing/ClinicHubService";
 import ClinicSpokeService from "../../../src/service/clinicsharing/ClinicSpokeService";
 import ClinicRecordService from "../../../src/service/clinicsharing/ClinicRecordService";
+import UserInfoService from "../../../src/service/UserInfoService";
+import {MyDashboardActionNames} from "../../../src/action/mydashboard/MyDashboardActions";
 
 let dbCount = 0;
 let nextPort = 18100 + (process.pid % 500);
@@ -38,6 +42,8 @@ function device() {
     let clock = Date.now();
     const recordService = {
         applied: [],
+        setup: {Form: 100, Concept: 50},
+        setupVersion: () => recordService.setup,
         toSharedResource: (entityName, entity) => entity.toResource,
         applyBatches: async (batches) => {
             batches.forEach(({entityName, resources}) => resources.forEach((r) => { records[r.uuid] = {entityName, version: r.version}; }));
@@ -54,8 +60,10 @@ function device() {
         stub(service) {
             service.findAll = () => queue;
             service.findByKey = (key, uuid) => records[uuid] && {toResource: {uuid, version: records[uuid].version}};
-            const clinic = {clinicMediaService: {pushToHub: async () => 0, cleanUpCopies: async () => 0}, clinicParkedRecordService: parkedRecords};
-            service.getService = (cls) => (cls === ClinicRecordService ? recordService : clinic[cls]);
+            const clinic = {clinicMediaService: {pushToHub: async () => 0, discardStrayParts: async () => {}, discardFetchedCopies: async () => {}, discardHubCopies: async () => {}}, clinicParkedRecordService: parkedRecords,
+                clinicSpokeService: {camp: async () => null, leaveCamp: async () => {}}, clinicHubService: {campActive: async () => false}};
+            const userInfo = {getUserSettings: () => ({disableAutoRefresh: false})};
+            service.getService = (cls) => (cls === ClinicRecordService ? recordService : cls === UserInfoService ? userInfo : clinic[cls]);
             service.dispatchAction = jest.fn();
             return service;
         },
@@ -71,10 +79,11 @@ describe('Phones syncing with the hub', () => {
         return session;
     }
 
-    function phone() {
+    function phone(name = 'Nurse · Pixel 9a') {
         const d = device();
         const spoke = d.stub(new ClinicSpokeService({}, {}));
         spoke.stateName = uniqueName('spoke');
+        spoke.phoneName = () => name;
         const p = {...d, spoke, sync: () => spoke.syncWithHub({host: '127.0.0.1', port, ...session}, log)};
         phones.push(p);
         return p;
@@ -147,7 +156,31 @@ describe('Phones syncing with the hub', () => {
         }
     });
 
-    it('after a hub restart, sends everything unsent again and pulls from the start, without duplicates', async () => {
+    it('after a hub restart within a camp, phones carry on from where they were: nothing is sent or fetched again', async () => {
+        await hub._setMeta('campActive', true);
+        await hub.stopHub();
+        await startHub();
+        const a = phone(), b = phone();
+        a.save('Individual', 'ind-1', 'v1');
+        await a.sync();
+        await b.sync();
+        const epochBefore = session.epoch;
+
+        await hub.stopHub();
+        await startHub();
+        const pushes = jest.spyOn(hub, '_handlePush');
+        const pulls = jest.spyOn(hub, '_handlePull');
+        b.recordService.applied.length = 0;
+        await a.sync();
+        await b.sync();
+
+        expect(session.epoch).toBe(epochBefore);
+        expect(pushes.mock.calls.map(([message]) => message.batches.length)).toEqual([0, 0]);
+        expect(pulls.mock.calls.every(([message]) => message.since > 0)).toBe(true);
+        expect(b.recordService.applied.flat()).toEqual([]);
+    });
+
+    it('after a hub restart outside a camp, sends everything unsent again and pulls from the start, without duplicates', async () => {
         const a = phone(), b = phone();
         a.save('Individual', 'ind-1', 'v1');
         await a.sync();
@@ -178,7 +211,7 @@ describe('Phones syncing with the hub', () => {
         expect(Object.keys(late.records).sort()).toEqual(['enc-1', 'ind-1']);
     });
 
-    it('refreshes open lists only when something arrived', async () => {
+    it("recounts the home dashboard only when something arrived, without moving the user off a search", async () => {
         const a = phone(), b = phone();
         await b.sync();
         expect(b.spoke.dispatchAction).not.toHaveBeenCalled();
@@ -186,7 +219,7 @@ describe('Phones syncing with the hub', () => {
         a.save('Individual', 'ind-1', 'v1');
         await a.sync();
         await b.sync();
-        expect(b.spoke.dispatchAction).toHaveBeenCalled();
+        expect(b.spoke.dispatchAction.mock.calls).toEqual([[MyDashboardActionNames.ON_RECOUNT, {fetchFromDB: true}]]);
     });
 
     it("sends a save made after the phone's clock was set back", async () => {
@@ -238,6 +271,25 @@ describe('Phones syncing with the hub', () => {
         expect(b.recordService.applied.flatMap((batches) => batches.flatMap((batch) => batch.resources.map((r) => r.uuid)))).toEqual(['ind-1']);
     });
 
+    // A start taken after the pull would hold back the report on a record this pull failed to bring the parent of.
+    it("checks records waiting for a parent against a start taken before the pull", async () => {
+        const b = phone();
+        let pulledAt, checkedWithStart;
+        const apply = b.recordService.applyBatches;
+        b.recordService.applyBatches = async (batches) => { pulledAt = Date.now(); return apply(batches); };
+        b.parkedRecords.afterSync = async (syncStartedAt) => { checkedWithStart = syncStartedAt; return {applied: 0, reported: 0}; };
+        let clock = Date.now();
+        const now = jest.spyOn(Date, 'now').mockImplementation(() => clock++);
+
+        try {
+            await b.sync();
+        } finally {
+            now.mockRestore();
+        }
+
+        expect(checkedWithStart).toBeLessThan(pulledAt);
+    });
+
     it('refreshes open lists when a record that waited for its parent is applied after the sync', async () => {
         const b = phone();
         b.parkedRecords.afterSync = async () => ({applied: 1, reported: 0});
@@ -255,6 +307,41 @@ describe('Phones syncing with the hub', () => {
         };
         const settled = (p) => p.spoke.inFlight || Promise.resolve();
         afterEach(() => phones.forEach((p) => p.spoke.leave()));
+
+        describe('with the native clinic service', () => {
+            let native;
+            beforeEach(() => {
+                native = {startForegroundService: jest.fn(), stopForegroundService: jest.fn(), addListener: jest.fn(), removeListeners: jest.fn()};
+                NativeModules.ClinicHub = native;
+            });
+            afterEach(() => { delete NativeModules.ClinicHub; });
+
+            // Android withdraws a camera allowed "Only this time" by killing the app, unless a foreground service started on screen is running.
+            it('keeps a joined-phone service running while joined, and stops only that role on leaving', async () => {
+                const a = phone();
+                await joinWith(a);
+                await settled(a);
+                expect(native.startForegroundService.mock.calls).toEqual([['phone']]);
+
+                await a.spoke.leaveHub();
+                expect(native.stopForegroundService).toHaveBeenLastCalledWith('phone');
+            });
+
+            it("leaves the camp when Leave camp is tapped on the phone's notification, after a last sync with the hub", async () => {
+                const a = phone();
+                await joinWith(a);
+                await settled(a);
+                a.save('Individual', 'ind-last', 'v1');
+                const left = new Promise((resolve) => a.spoke.onChange(() => !a.spoke.joined && resolve()));
+
+                DeviceEventEmitter.emit('ClinicPhoneLeaveRequested');
+                await left;
+                await new Promise((resolve) => setImmediate(resolve));
+
+                expect([a.spoke.joined, await a.spoke.savedJoinCode(), await a.spoke.camp()]).toEqual([null, null, null]);
+                expect(hubDevice.records['ind-last']).toEqual({entityName: 'Individual', version: 'v1'});
+            });
+        });
 
         it('remembers the scanned code for Rejoin, records the sync, and forgets the code on leaving', async () => {
             const a = phone();
@@ -279,6 +366,77 @@ describe('Phones syncing with the hub', () => {
             expect([a.spoke.hubNetworkLost, a.spoke.joined, await a.spoke.savedJoinCode()]).toEqual([true, null, code]);
         });
 
+        describe('in a camp', () => {
+            it("puts a phone in the camp when it joins, and keeps it there when it loses the hub's Wi-Fi or the hub restarts", async () => {
+                const a = phone(), b = phone();
+                let lost;
+                hubJoin.watchHubNetwork.mockImplementation((info, onLost) => { lost = onLost; return jest.fn(); });
+                await joinWith(b);
+                await settled(b);
+                lost();
+                expect([b.spoke.joined, await b.spoke.isInCamp()]).toEqual([null, true]);
+
+                await joinWith(a);
+                await settled(a);
+                expect(await a.spoke.camp()).toEqual({hubId: session.hubId, epoch: session.epoch});
+                await hub.stopHub();
+                await startHub();
+                await a.spoke.syncNow(log);
+
+                expect([a.spoke.hubRestarted, await a.spoke.isInCamp()]).toEqual([true, true]);
+            });
+
+            it("refuses a phone whose organisation setup differs, takes none of its records, and the phone leaves the camp saying which types", async () => {
+                const a = phone();
+                a.recordService.setup = {Form: 999, Concept: 50};
+                a.save('Individual', 'ind-1', 'v1');
+
+                await joinWith(a);
+                await settled(a);
+
+                expect(a.spoke.leftCamp).toMatchObject({code: 'setup', details: {types: ['Form']}});
+                expect([await a.spoke.camp(), a.spoke.joined]).toEqual([null, null]);
+                expect(hubDevice.records['ind-1']).toBeUndefined();
+            });
+
+            it("on End camp, each phone sends and fetches once more and leaves; the hub lists who has left and lets it close once the rest are skipped", async () => {
+                const a = phone('Nurse'), b = phone('Doctor');
+                await joinWith(a);
+                await settled(a);
+                await b.sync();
+                b.save('Individual', 'ind-b', 'v1');
+                await b.sync();
+
+                await hub.endCamp();
+                a.save('Encounter', 'enc-a', 'v1');
+                await a.spoke.syncNow(log);
+
+                expect(hubDevice.records['enc-a']).toEqual({entityName: 'Encounter', version: 'v1'});
+                expect(a.records['ind-b']).toEqual({entityName: 'Individual', version: 'v1'});
+                expect([await a.spoke.camp(), a.spoke.joined, a.spoke.leftCamp]).toEqual([null, null, {code: 'campEnded'}]);
+                const status = Object.fromEntries(hub.phonesSynced().map(({name, leftAt, skipped}) => [name, leftAt ? 'left' : skipped ? 'skipped' : 'in camp']));
+                expect(status).toEqual({Nurse: 'left', Doctor: 'in camp'});
+                expect(hub.everyPhoneLeft()).toBe(false);
+
+                const doctor = hub.phonesSynced().find(({name}) => name === 'Doctor');
+                await hub.skipPhone(doctor.deviceId);
+                expect(hub.everyPhoneLeft()).toBe(true);
+            });
+
+            it("on End camp, a phone whose last photo send fails still leaves, as the hub already lists it as left", async () => {
+                const a = phone('Nurse');
+                await joinWith(a);
+                await settled(a);
+                a.spoke.getService('clinicMediaService').pushToHub = async () => { throw new Error('The hub closed the connection.'); };
+
+                await hub.endCamp();
+                await a.spoke.syncNow(log);
+
+                expect(hub.phonesSynced().find(({name}) => name === 'Nurse').leftAt).toBeTruthy();
+                expect([await a.spoke.camp(), a.spoke.joined, a.spoke.leftCamp]).toEqual([null, null, {code: 'campEnded'}]);
+            });
+        });
+
         it('asks for a new scan when the hub restarted with a new code, and keeps the last good sync time', async () => {
             const a = phone();
             await joinWith(a);
@@ -301,9 +459,38 @@ describe('Phones syncing with the hub', () => {
             await b.sync();
             await c.sync();
             const [first] = hub.lastSyncByDevice.keys();
-            hub.lastSyncByDevice.set(first, Date.now() - 6 * 60 * 1000);
+            hub.lastSyncByDevice.set(first, {...hub.lastSyncByDevice.get(first), syncedAt: Date.now() - 6 * 60 * 1000});
 
             expect(hub.recentPhoneCount()).toBe(2);
+        });
+
+        it("lists each phone by its user and model with when it last synced, newest first, including one that has gone quiet", async () => {
+            const nurse = phone('Nurse · Pixel 9a'), doctor = phone('Doctor · Galaxy A15');
+            await nurse.sync();
+            await doctor.sync();
+            const [nurseId, doctorId] = hub.lastSyncByDevice.keys();
+            hub.lastSyncByDevice.set(nurseId, {...hub.lastSyncByDevice.get(nurseId), syncedAt: Date.now() - 20 * 60 * 1000});
+
+            expect(hub.phonesSynced().map(({name}) => name)).toEqual(['Doctor · Galaxy A15', 'Nurse · Pixel 9a']);
+            expect(hub.phonesSynced()[0].syncedAt).toBe(hub.lastSyncByDevice.get(doctorId).syncedAt);
+        });
+
+        it("does not list a phone as synced when the hub could not keep its records", async () => {
+            const nurse = phone('Nurse · Pixel 9a');
+            nurse.save('Individual', 'ind-1', 'v1');
+            hubDevice.recordService.applyBatches = async () => { throw new Error('disk full'); };
+
+            await nurse.sync();
+
+            expect(hub.phonesSynced()).toEqual([]);
+        });
+
+        it("does not list a phone as synced when the hub could not build what it pulls", async () => {
+            hub._mirrorOwnQueue = async () => { throw new Error('disk full'); };
+
+            await expect(hub._handlePull({deviceId: 'device-1', phoneName: 'Nurse · Pixel 9a', since: 0}, log)).rejects.toThrow('disk full');
+
+            expect(hub.phonesSynced()).toEqual([]);
         });
 
         it('stops its server again when the hotspot cannot start', async () => {
@@ -316,6 +503,7 @@ describe('Phones syncing with the hub', () => {
 
         it('starts and stops the hotspot with its server', async () => {
             await hub.stopHub();
+            hubJoin.stopHubNetwork.mockClear();
             hubJoin.startHubNetwork.mockImplementation(async ({hubId}) => ({ssid: 'AndroidShare_1', passphrase: 'pass1234', qrValue: hubId}));
 
             const sharing = await hub.startSharing(log, {port});
@@ -323,6 +511,154 @@ describe('Phones syncing with the hub', () => {
 
             await hub.stopSharing();
             expect([hub.transport, hub.getSharing(), hubJoin.stopHubNetwork.mock.calls.length]).toEqual([null, null, 1]);
+        });
+
+        it("runs one start at a time, so the automatic restart and a tap on Start hub share it", async () => {
+            await hub.stopHub();
+            hubJoin.startHubNetwork.mockClear();
+            let finish = null;
+            hubJoin.startHubNetwork.mockImplementation(({hubId}) => new Promise((resolve) => { finish = () => resolve({ssid: 'AndroidShare_1', passphrase: 'pass1234', qrValue: hubId}); }));
+
+            const restart = hub.startSharing(log, {port});
+            const tap = hub.startSharing(log, {port});
+            expect(hub.isStarting()).toBe(true);
+            while (!finish) await new Promise((resolve) => setTimeout(resolve, 5));
+            finish();
+
+            const [first, second] = await Promise.all([restart, tap]);
+            expect(second).toBe(first);
+            expect([hubJoin.startHubNetwork.mock.calls.length, hub.isStarting(), hub.transport !== null]).toEqual([1, false, true]);
+        });
+
+        it("waits for a start under way before closing the camp, so the camp does not come back on", async () => {
+            await hub.stopHub();
+            let finish = null;
+            hubJoin.startHubNetwork.mockImplementation(({hubId}) => new Promise((resolve) => { finish = () => resolve({ssid: 'AndroidShare_1', passphrase: 'pass1234', qrValue: hubId}); }));
+
+            const restart = hub.startSharing(log, {port});
+            const closing = hub.closeCamp();
+            while (!finish) await new Promise((resolve) => setTimeout(resolve, 5));
+            finish();
+            await Promise.all([restart, closing]);
+
+            expect([await hub.campActive(), hub.getSharing(), hub.transport]).toEqual([false, null, null]);
+        });
+
+        it("keeps its list of phones and who has left across a restart within a camp", async () => {
+            await hub.stopHub();
+            hubJoin.startHubNetwork.mockImplementation(async ({hubId}) => ({ssid: 'AndroidShare_1', passphrase: 'pass1234', qrValue: hubId}));
+            await hub.startSharing(log, {port});
+            await hub._noteSync('device-nurse', 'Nurse');
+            await hub._noteSync('device-doctor', 'Doctor');
+            await hub.skipPhone('device-doctor');
+
+            await hub.stopSharing();
+            // A restart is a new app process, which remembers nothing but the hub file.
+            hub.lastSyncByDevice.clear();
+            hub.campPhones.clear();
+            await hub.startSharing(log, {port});
+
+            expect(hub.phonesSynced().map(({name, skipped}) => `${name}${skipped ? ' (skipped)' : ''}`).sort()).toEqual(['Doctor (skipped)', 'Nurse']);
+        });
+
+        it("keeps the hub's screen awake while it runs, turns it back on when it serves a phone, and lets it sleep when the hub stops", async () => {
+            const keepAwake = {activate: jest.fn(), deactivate: jest.fn()};
+            NativeModules.KCKeepAwake = keepAwake;
+            try {
+                await hub.stopHub();
+                hubJoin.startHubNetwork.mockImplementation(async ({hubId}) => ({ssid: 'AndroidShare_1', passphrase: 'pass1234', qrValue: hubId}));
+
+                await hub.startSharing(log, {port});
+                expect(keepAwake.activate).toHaveBeenCalledTimes(1);
+                await hub._noteSync('device-1', 'Nurse');
+                expect(keepAwake.activate).toHaveBeenCalledTimes(2);
+
+                await hub.stopSharing();
+                expect(keepAwake.deactivate).toHaveBeenCalledTimes(1);
+                await hub._noteSync('device-1', 'Nurse');
+                expect(keepAwake.activate).toHaveBeenCalledTimes(2);
+            } finally {
+                delete NativeModules.KCKeepAwake;
+            }
+        });
+
+        it("is in its own camp from Start hub until the camp is closed, even while the hub is stopped", async () => {
+            await hub.stopHub();
+            hubJoin.startHubNetwork.mockImplementation(async ({hubId}) => ({ssid: 'AndroidShare_1', passphrase: 'pass1234', qrValue: hubId}));
+
+            await hub.startSharing(log, {port});
+            expect(await hub.campActive()).toBe(true);
+            await hub.stopSharing();
+            expect(await hub.campActive()).toBe(true);
+
+            await hub.closeCamp();
+            expect([await hub.campActive(), hub.campEnding, hub.phonesSynced()]).toEqual([false, false, []]);
+        });
+
+        it('fails the start instead of showing a code when the hotspot stops while starting', async () => {
+            await hub.stopHub();
+            hubJoin.stopHubNetwork.mockClear();
+            const stopListening = jest.fn();
+            onHotspotStopped.mockImplementationOnce((listener) => {
+                hubJoin.startHubNetwork.mockImplementationOnce(async () => { listener({reason: 'stopped'}); return {ssid: 'AndroidShare_1', passphrase: 'pass1234', qrValue: 'x'}; });
+                return stopListening;
+            });
+
+            await expect(hub.startSharing(log, {port})).rejects.toMatchObject({code: 'hotspotStopped'});
+            expect([hub.transport, hub.getSharing(), stopListening.mock.calls.length, hubJoin.stopHubNetwork.mock.calls.length]).toEqual([null, null, 1, 1]);
+        });
+
+        it('stops sharing when the hotspot stops after it started', async () => {
+            await hub.stopHub();
+            let hotspotStopped;
+            onHotspotStopped.mockImplementationOnce((listener) => { hotspotStopped = listener; return jest.fn(); });
+            hubJoin.startHubNetwork.mockImplementationOnce(async () => ({ssid: 'AndroidShare_1', passphrase: 'pass1234', qrValue: 'x'}));
+
+            await hub.startSharing(log, {port});
+            await hotspotStopped({reason: 'stopped'});
+            await new Promise((resolve) => setImmediate(resolve));
+            expect([hub.transport, hub.getSharing()]).toEqual([null, null]);
+        });
+
+        it('says why it stopped when the hotspot stops after it started, until the next start', async () => {
+            await hub.stopHub();
+            let hotspotStopped;
+            onHotspotStopped.mockImplementationOnce((listener) => { hotspotStopped = listener; return jest.fn(); });
+            hubJoin.startHubNetwork.mockImplementation(async () => ({ssid: 'AndroidShare_1', passphrase: 'pass1234', qrValue: 'x'}));
+
+            await hub.startSharing(log, {port});
+            expect(hub.hotspotStopped).toBe(false);
+            await hotspotStopped({reason: 'stopped'});
+            await new Promise((resolve) => setImmediate(resolve));
+            expect(hub.hotspotStopped).toBe(true);
+
+            await hub.startSharing(log, {port});
+            expect(hub.hotspotStopped).toBe(false);
+            await hub.stopSharing();
+        });
+
+        it('stopping the hub on purpose is not reported as the hotspot stopping', async () => {
+            await hub.stopHub();
+            hubJoin.startHubNetwork.mockImplementation(async () => ({ssid: 'AndroidShare_1', passphrase: 'pass1234', qrValue: 'x'}));
+
+            await hub.startSharing(log, {port});
+            await hub.stopSharing();
+
+            expect(hub.hotspotStopped).toBe(false);
+        });
+
+        it("runs the native service in the hub's role, and stops only that role", async () => {
+            const native = {startForegroundService: jest.fn(), stopForegroundService: jest.fn(), addListener: jest.fn(), removeListeners: jest.fn()};
+            NativeModules.ClinicHub = native;
+            try {
+                await hub.stopHub();
+                await hub.startHub(log, {port});
+                await hub.stopHub();
+            } finally {
+                delete NativeModules.ClinicHub;
+            }
+
+            expect([native.startForegroundService.mock.calls, native.stopForegroundService.mock.calls.slice(-1)]).toEqual([[['hub']], [['hub']]]);
         });
     });
 });

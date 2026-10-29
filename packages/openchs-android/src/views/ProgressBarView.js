@@ -21,7 +21,8 @@ class ProgressBarView extends AbstractComponent {
         showOkButton: PropTypes.bool,
         currentPageNumber: PropTypes.number,
         totalNumberOfPages: PropTypes.number,
-        contentDownloadWarning: PropTypes.bool
+        contentDownloadWarning: PropTypes.bool,
+        resetWaitingWarning: PropTypes.bool
     };
 
     constructor(props, context) {
@@ -66,7 +67,7 @@ class ProgressBarView extends AbstractComponent {
         if (!this.props.syncing) return null;
 
         const {message, currentPageNumber, totalNumberOfPages} = this.props;
-        const currentEntityProgressMessage = _.isNil(currentPageNumber) ? "" : ` (${currentPageNumber + 1}/${totalNumberOfPages})`;
+        const currentEntityProgressMessage = _.isNil(currentPageNumber) || !(totalNumberOfPages > 0) ? "" : ` (${currentPageNumber + 1}/${totalNumberOfPages})`;
         const displayMessage = `${this.I18n.t(message)}${currentEntityProgressMessage}`;
 
         return (
@@ -94,6 +95,11 @@ class ProgressBarView extends AbstractComponent {
                                             <Text style={[Fonts.typography("paperFontBody1"),
                                                 {color: Colors.TextOnPrimaryColor, paddingTop: 12, textAlign: 'center'}]}>
                                                 {this.I18n.t("contentNotDownloaded")}
+                                            </Text>}
+                                        {this.props.resetWaitingWarning &&
+                                            <Text style={[Fonts.typography("paperFontBody1"),
+                                                {color: Colors.TextOnPrimaryColor, paddingTop: 12, textAlign: 'center'}]}>
+                                                {this.I18n.t("resetWaitingOnUploads")}
                                             </Text>}
                                         <View style={{paddingTop: 20}}>
                                             <Button

@@ -367,6 +367,10 @@ class Parser {
             // field IN {value1, value2, ...}  — Realm IN syntax
             if (opToken?.type === TOKEN_TYPES.IN) {
                 this.consume(); // consume IN
+                // field IN $N — the argument is an array of values
+                if (this.peek()?.type === TOKEN_TYPES.PARAMETER) {
+                    return {type: "IN", field, param: this.consume()};
+                }
                 this.consume(TOKEN_TYPES.LBRACE);
                 const values = [];
                 while (this.peek()?.type !== TOKEN_TYPES.RBRACE) {
@@ -647,11 +651,27 @@ class SqlGenerator {
 
     visitIn(node) {
         const {column} = this.resolveField(node.field);
+        if (node.param) return this._visitInArrayParam(column, node.param.value);
         if (node.values.length === 0) {
             return "1=0"; // empty IN → always false
         }
         const placeholders = node.values.map(v => this.resolveValue(v)).join(", ");
         return `${column} IN (${placeholders})`;
+    }
+
+    // One JSON parameter instead of one per value: a catchment-wide list can exceed SQLite's bound-parameter limit.
+    _visitInArrayParam(column, idx) {
+        const values = this.args[idx];
+        if (!Array.isArray(values)) {
+            throw new Error(`IN $${idx} expects an array argument`);
+        }
+        // SQL IN never matches NULL; Realm does when the array holds one.
+        const present = values.filter(v => !_.isNil(v));
+        const matchesNull = present.length < values.length;
+        if (present.length === 0) return matchesNull ? `${column} IS NULL` : "1=0";
+        this.params.push(JSON.stringify(present.map(toBindValue)));
+        const inList = `${column} IN (SELECT value FROM json_each(?))`;
+        return matchesNull ? `(${inList} OR ${column} IS NULL)` : inList;
     }
 
 }
@@ -1777,5 +1797,5 @@ class RealmQueryParser {
     }
 }
 
-export {RealmQueryParser, UnsupportedRealmQueryError, camelToSnake, schemaNameToTableName, normalizeRealmType};
+export {RealmQueryParser, UnsupportedRealmQueryError, camelToSnake, schemaNameToTableName, normalizeRealmType, toBindValue};
 export default RealmQueryParser;
