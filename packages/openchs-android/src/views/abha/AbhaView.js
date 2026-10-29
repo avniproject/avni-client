@@ -22,9 +22,7 @@ export const HOSTED_PAGE_URLS = ['about:blank', 'null'];
 // lives only in this screen's page.
 @Path('/abhaView')
 class AbhaView extends AbstractComponent {
-    // Eka's key lives about 30 minutes and nothing renews it while the screens are open; past its end every Eka call
-    // fails with Eka's own "Something went wrong". The screen ends a minute early and says how to reopen it, timed
-    // from when the session arrived, never by the phone's clock against the server's.
+    // Eka's key is not renewed while the screens are open, so they end a minute before it runs out.
     static END_BEFORE_EXPIRY_MS = 60 * 1000;
 
     static propTypes = {
@@ -32,7 +30,6 @@ class AbhaView extends AbstractComponent {
             accessToken: PropTypes.string,
             hipId: PropTypes.string,
             environment: PropTypes.string,
-            // The key's remaining life when the server issued it; the screen ends itself a minute before it runs out.
             expiresInSeconds: PropTypes.number,
         }).isRequired,
         method: PropTypes.string,
@@ -77,8 +74,7 @@ class AbhaView extends AbstractComponent {
             this.setState({sessionEnded: true});
         };
         this.sessionEndTimer = setTimeout(endSession, usableMs);
-        // A timer does not run while the phone sleeps, so on coming back the time spent is checked too, by the phone's
-        // own clock against itself.
+        // Timers stop while the phone sleeps, so the time spent is checked again on coming back.
         const openedAt = Date.now();
         this.appStateSubscription = AppState.addEventListener('change', (state) => {
             if (state === 'active' && Date.now() - openedAt >= usableMs) endSession();

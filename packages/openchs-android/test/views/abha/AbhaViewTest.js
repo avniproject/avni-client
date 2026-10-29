@@ -263,9 +263,6 @@ describe("AbhaViewTest", () => {
     });
 });
 
-// Eka's key lives about 30 minutes and nothing renews it while the screens are open. Past its end every Eka call fails
-// with Eka's own "Something went wrong" (seen 29 Oct 2026, 26 minutes in), so the screen ends itself a minute early.
-// It is timed from when the session arrived, in the server's seconds, never by the phone's clock.
 describe("AbhaView ending before its key expires", () => {
     const MINUTE = 60 * 1000;
     let rendered = [];
@@ -336,9 +333,6 @@ describe("AbhaView ending before its key expires", () => {
         expect(screen.lines()).not.toContain("abhaSessionEnded");
     });
 
-    // A timer does not run while the phone sleeps (Android's monotonic clock stops in deep sleep): a worker who locks
-    // the phone for a quarter of an hour mid-registration comes back to a key about to die (final review, 29 Oct).
-    // On coming back the screen checks the time spent, by the phone's own clock against itself.
     function resumeHandler() {
         const handlers = [];
         const remove = jest.fn();
