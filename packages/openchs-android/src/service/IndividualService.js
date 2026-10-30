@@ -368,10 +368,12 @@ class IndividualService extends BaseService {
         } else {
             function filterIndividualsByChunks(baseResult) {
                 // if chunkSize is less/more than 500, processing is slower
-                const chunkSize = 500, noOfChunks = individualUUIDs.length / chunkSize;
+                const chunkSize = 500;
+                const uniqueUUIDs = _.uniq(individualUUIDs);
+                const noOfChunks = Math.ceil(uniqueUUIDs.length / chunkSize);
                 for (let chunk = 0; chunk < noOfChunks; chunk++) {
-                    let individualUuidsChunk = _.slice(individualUUIDs, chunk * chunkSize, ((chunk + 1) * chunkSize) - 1);
-                    let individualQuery = _.map(individualUuidsChunk, individualUUID => `uuid = "${individualUUID}"`).join(" OR ")
+                    let individualUuidsChunk = _.slice(uniqueUUIDs, chunk * chunkSize, (chunk + 1) * chunkSize);
+                    let individualQuery = _.map(individualUuidsChunk, individualUUID => `uuid = "${individualUUID}"`).join(" OR ");
                     let searchResultsChunk = baseResult.filtered(individualQuery, ...individualUuidsChunk);
                     finalSearchResults = _.concat(finalSearchResults, searchResultsChunk.asArray());
                 }
