@@ -3,7 +3,7 @@ import Service from "../framework/bean/Service";
 import {Concept, Encounter, Individual, MediaQueue, ProgramEncounter, ProgramEnrolment} from 'openchs-models';
 import General from "../utility/General";
 import _ from 'lodash';
-import {get, isHttpRequestSuccessful} from '../framework/http/requests';
+import {get, post, isHttpRequestSuccessful} from '../framework/http/requests';
 import RNFetchBlob from 'react-native-blob-util';
 import FileSystem from "../model/FileSystem";
 import fs from 'react-native-fs';
@@ -18,14 +18,40 @@ import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 import MediaUploadError from "../framework/errorHandling/MediaUploadError";
 import AuthenticationError from "./AuthenticationError";
 const PARALLEL_UPLOAD_COUNT = 1;
+// The server refuses more names than this in one POST /media/uploadUrls.
+const UPLOAD_URL_BATCH_SIZE = 50;
+// S3 and MinIO answer an expired or wrong signature with 403; GCS answers an expired one with 400 ExpiredToken.
+function isSignatureRejected(error) {
+    return error.httpStatus === 403 || (error.httpStatus === 400 && _.includes(error.responseBody, 'ExpiredToken'));
+}
+// Room for one upload on a slow link, so a URL is not started this close to its expiry.
+const UPLOAD_URL_EXPIRY_MARGIN_MS = 2 * 60 * 1000;
 const UPLOAD_PROGRESS_TIMEOUT_MS = 60000;
+const MAX_ERROR_BODY_LENGTH = 500;
 
-function checkUploadStatus(response, mediaDisplayText) {
+async function responseBody(response) {
+    try {
+        return _.toString(await response.text());
+    } catch (e) {
+        return '';
+    }
+}
+
+async function checkUploadStatus(response, mediaDisplayText) {
     const statusCode = response.info().status;
     if (!isHttpRequestSuccessful(statusCode)) {
-        throw new Error("Media upload failed. HTTP Status:" + statusCode + ". " + mediaDisplayText);
+        const error = new Error("Media upload failed. HTTP Status:" + statusCode + ". " + mediaDisplayText);
+        error.httpStatus = statusCode;
+        // Only a 400 needs its body read, to tell an expired GCS signature from a bad request.
+        if (statusCode === 400) error.responseBody = (await responseBody(response)).substring(0, MAX_ERROR_BODY_LENGTH);
+        throw error;
     }
     General.logDebug('MediaQueueService', `Upload of ${mediaDisplayText} done`);
+}
+
+function urlLifetimeMs(url) {
+    const match = /[?&]X-(?:Amz|Goog)-Expires=(\d+)/.exec(url);
+    return match ? Number(match[1]) * 1000 : null;
 }
 
 @Service("mediaQueueService")
@@ -125,12 +151,39 @@ class MediaQueueService extends BaseService {
             return get(`${serverUrl}/media/uploadUrl/${fileName}`, false, false);
     }
 
-    getUploadUrl(mediaQueueItem) {
-        return this.getUploadUrlForFile(mediaQueueItem.fileName);
+    // The server answers for every name or for none: any non-200 rejects before a URL is read.
+    getUploadUrls(fileNames) {
+        return post(`${this.getServerUrl()}/media/uploadUrls`, fileNames)
+            .then((response) => response.json());
     }
 
-    getUploadUrlForFile(file) {
-        return get(`${this.getServerUrl()}/media/uploadUrl/${file}`, false, false);
+    // Timed from before the request is sent, as the server signs while the request is in flight.
+    async issueUploadUrls(mediaQueueItems) {
+        const requestedAt = moment.now();
+        const urls = await this.getUploadUrls(_.map(mediaQueueItems, 'fileName'));
+        return {urls, requestedAt};
+    }
+
+    // Measured on the phone's clock alone, so the phone's clock being off from the server's does not matter.
+    isNearExpiry(url, requestedAt) {
+        const lifetime = urlLifetimeMs(url);
+        if (lifetime === null) return false;
+        // Half the lifetime at most, so a short-lived URL is not already near expiry when it arrives.
+        const margin = Math.min(UPLOAD_URL_EXPIRY_MARGIN_MS, lifetime / 2);
+        return moment.now() - requestedAt + margin >= lifetime;
+    }
+
+    getUploadUrl(mediaQueueItem) {
+        return this.getUploadUrls([mediaQueueItem.fileName])
+            .then((uploadUrls) => this.urlFor(mediaQueueItem, uploadUrls));
+    }
+
+    urlFor(mediaQueueItem, uploadUrls) {
+        const url = uploadUrls[mediaQueueItem.fileName];
+        if (_.isEmpty(url)) {
+            throw new Error(`No upload URL was returned for ${mediaQueueItem.fileName}`);
+        }
+        return url;
     }
 
     mediaExists(mediaQueueItem) {
@@ -239,88 +292,94 @@ class MediaQueueService extends BaseService {
         return true;
     }
 
-    async uploadMediaQueueItem(mediaQueueItem) {
-        // Media can get deleted from the system by a user action.
-        // The system should still work with missing media.
-        // However, we need to find some way of highlighting this to user.
-        const exists = await this.mediaExists(mediaQueueItem);
-        if (!exists) {
-            // Note to Developers: We are missing media from the system,
-            // and in-order to highlight this to user, we should not clean up these dangling mediaQueueItems
-            General.logDebug("MediaQueueService", `mediaQueueItem ${mediaQueueItem.fileName} does not exist. Ignoring...`);
+    // A missing file is left in the queue so it can be surfaced to the user; nothing is requested for it.
+    async itemsWithMediaPresent(mediaQueueItems) {
+        const exists = await Promise.all(_.map(mediaQueueItems, (mediaQueueItem) => this.mediaExists(mediaQueueItem)));
+        return _.filter(mediaQueueItems, (mediaQueueItem, i) => {
+            if (!exists[i]) this.logMissing(mediaQueueItem);
+            return exists[i];
+        });
+    }
+
+    logMissing(mediaQueueItem) {
+        General.logDebug("MediaQueueService", `mediaQueueItem ${mediaQueueItem.fileName} does not exist. Ignoring...`);
+    }
+
+    // A URL checked before the upload started can still expire during it, or carry no lifetime to check.
+    async uploadWithFreshUrlOnRejection(mediaQueueItem, uploadUrl) {
+        try {
+            await this.uploadToUrl(uploadUrl, mediaQueueItem);
+            return uploadUrl;
+        } catch (error) {
+            if (!isSignatureRejected(error)) throw error;
+            General.logInfo("MediaQueueService", `Upload of ${mediaQueueItem.fileName} was refused with ${error.httpStatus}; retrying once with a fresh URL`);
+            const freshUrl = await this.getUploadUrl(mediaQueueItem);
+            await this.uploadToUrl(freshUrl, mediaQueueItem);
+            return freshUrl;
+        }
+    }
+
+    async uploadMediaQueueItem(mediaQueueItem, uploadUrl) {
+        // The user can remove a photo while a long media sync is still working through the queue.
+        if (!await this.mediaExists(mediaQueueItem)) {
+            this.logMissing(mediaQueueItem);
             return;
         }
-
-        let uploadUrl = "";
-
-        return this.getUploadUrl(mediaQueueItem)
-            .then((url) => {
-                uploadUrl = url
-            })
-            .then(() => this.uploadToUrl(uploadUrl, mediaQueueItem))
-            .then(() => this.replaceObservation(mediaQueueItem, uploadUrl))
-            .then((replaced) => {
-                if (!replaced) {
-                    // Benign causes are common — the user edited/removed the photo between enqueue
-                    // and sync — so log loudly but don't page.
-                    const message = `replaceMediaObservation found no observation referencing '${mediaQueueItem.fileName}' on ${mediaQueueItem.entityName} ${mediaQueueItem.entityUUID} (concept ${mediaQueueItem.conceptUUID})`;
-                    General.logError("MediaQueueService", message);
-                }
-                return this.popItem(mediaQueueItem);
-            })
-            .catch((error) => {
-                General.logError("MediaQueueService", error);
-                return Promise.reject(error);
-            });
+        const url = await this.uploadWithFreshUrlOnRejection(mediaQueueItem, uploadUrl);
+        const replaced = this.replaceObservation(mediaQueueItem, url);
+        if (!replaced) {
+            // Benign causes are common — the user edited/removed the photo between enqueue
+            // and sync — so log loudly but don't page.
+            const message = `replaceMediaObservation found no observation referencing '${mediaQueueItem.fileName}' on ${mediaQueueItem.entityName} ${mediaQueueItem.entityUUID} (concept ${mediaQueueItem.conceptUUID})`;
+            General.logError("MediaQueueService", message);
+        }
+        return this.popItem(mediaQueueItem);
     }
 
     isMediaUploadRequired() {
         return this.findAll().length > 0;
     }
 
-    uploadMedia(statusMessageCallback) {
-        // Chunked push to S3 to minimize sync failures on low bandwidth.
-        // Stops on first chunk with error or when all chunks are processed successfully
+    // Stops at the first failure; a refused URL request fails its whole group.
+    async uploadMedia(statusMessageCallback) {
         const mediaQueueItems = _.map(this.findAll(), (mediaQueueItem) => mediaQueueItem.clone());
         General.logDebug("MediaQueueService", `Number of media queue items: ${mediaQueueItems.length}`);
-        const chunkedMediaQueueItems = _.chunk(mediaQueueItems, PARALLEL_UPLOAD_COUNT);
-        General.logInfo("MediaQueueService", `Upload batch size ${PARALLEL_UPLOAD_COUNT}`);
-        let startTime = moment.now();
-        let current = Promise.resolve();
-        let count = 0;
-        for (const mediaQueueItemsChunk of chunkedMediaQueueItems) {
-            current = current.then(() => Promise.all(
-                _.map(mediaQueueItemsChunk, (mediaQueueItem) => {
+        General.logInfo("MediaQueueService", `Upload URL batch size ${UPLOAD_URL_BATCH_SIZE}, upload batch size ${PARALLEL_UPLOAD_COUNT}`);
+        const startTime = moment.now();
+        try {
+            let count = 0;
+            for (const queuedGroup of _.chunk(mediaQueueItems, UPLOAD_URL_BATCH_SIZE)) {
+                const group = await this.itemsWithMediaPresent(queuedGroup);
+                count += queuedGroup.length - group.length;
+                if (_.isEmpty(group)) continue;
+                const chunks = _.chunk(group, PARALLEL_UPLOAD_COUNT);
+                let issued = await this.issueUploadUrls(group);
+                for (const [chunkIndex, mediaQueueItemsChunk] of chunks.entries()) {
                     if (statusMessageCallback) {
                         statusMessageCallback(`${I18n.t("uploadMedia")} (${count}/${mediaQueueItems.length})`);
                     }
-                    return this.uploadMediaQueueItem(mediaQueueItem);
-                })
-            )).then(() => {
-                count += PARALLEL_UPLOAD_COUNT
-                General.logInfo("MediaQueueService", `MediaUpload: Time taken ${(moment.now() - startTime)}`);
-                return Promise.resolve();
-            })
+                    // Every URL is looked up before any upload starts, so a missing one cannot orphan a running upload.
+                    let urls = _.map(mediaQueueItemsChunk, (mediaQueueItem) => this.urlFor(mediaQueueItem, issued.urls));
+                    if (_.some(urls, (url) => this.isNearExpiry(url, issued.requestedAt))) {
+                        General.logInfo("MediaQueueService", `Upload URLs are close to expiry; asking again for the rest of the group`);
+                        issued = await this.issueUploadUrls(_.flatten(chunks.slice(chunkIndex)));
+                        urls = _.map(mediaQueueItemsChunk, (mediaQueueItem) => this.urlFor(mediaQueueItem, issued.urls));
+                    }
+                    await Promise.all(_.map(mediaQueueItemsChunk,
+                        (mediaQueueItem, i) => this.uploadMediaQueueItem(mediaQueueItem, urls[i])));
+                    count += mediaQueueItemsChunk.length;
+                    General.logInfo("MediaQueueService", `MediaUpload: Time taken ${(moment.now() - startTime)}`);
+                }
+            }
+            General.logInfo("MediaQueueService", `MediaUpload:Total time taken ${(moment.now() - startTime)}`);
+        } catch (error) {
+            General.logError("MediaQueueService", error);
+            ErrorUtil.notifyBugsnag(error, "MediaQueueService");
+            // Unwrapped, so SyncComponent still sends an expired session to login.
+            if (error instanceof AuthenticationError) throw error;
+            // Wrapped so the sync dialog can say a media file is stuck.
+            throw new MediaUploadError(error);
         }
-        // One catch for the whole chain, not one per chunk. Attached inside the loop it fired
-        // once per remaining chunk on a single failure — with 50 queued items and a batch size
-        // of 1, that was 50 Bugsnag reports for one failure. Chaining the summary log through
-        // `current` also stops it dangling as an uncaught rejection when the upload fails.
-        current = current
-            .then(() => {
-                General.logInfo("MediaQueueService", `MediaUpload:Total time taken ${(moment.now() - startTime)}`);
-            })
-            .catch((error) => {
-                // notify bugsnag of the original underlying error, so we can check if there are multiple causes for failure
-                ErrorUtil.notifyBugsnag(error, "MediaQueueService");
-                // An expired Cognito session must keep reaching SyncComponent's login-redirect
-                // branch; wrapping it is what made a dead session read as a network problem.
-                if (error instanceof AuthenticationError) return Promise.reject(error);
-                // Wrapped so the sync dialog can say a media file is stuck, instead of the raw
-                // "syncTimeoutError" key this used to reject with. #2097
-                return Promise.reject(new MediaUploadError(error));
-            });
-        return current;
     }
 }
 
