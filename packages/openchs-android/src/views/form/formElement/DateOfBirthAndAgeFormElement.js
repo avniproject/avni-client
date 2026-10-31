@@ -39,7 +39,8 @@ class DateOfBirthAndAgeFormElement extends AbstractComponent {
     showPicker() {
         const datePickerMode = _.isNil(this.userSettings.datePickerMode) ? 'calendar' : this.userSettings.datePickerMode;
         const dateOfBirth = this.props.state.individual.dateOfBirth || new Date();
-        const options = {value: dateOfBirth, mode: datePickerMode, onChange: this.onDateOfBirthChanged.bind(this)};
+        // mode is what is picked (date); the user's spinner/calendar choice is the display. #1615
+        const options = {value: dateOfBirth, mode: 'date', display: datePickerMode, onChange: this.onDateOfBirthChanged.bind(this)};
 
         DateTimePickerAndroid.open(options);
     }
