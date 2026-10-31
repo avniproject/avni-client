@@ -114,8 +114,14 @@ class AbstractDataEntryState {
             if (this.timerState.isPreviousNotAllowed(this.formElementGroup)) return;
             else this.timerState.resetForPrevious();
         }
+        // avni-client#2225: previous() returns undefined when already at the first group. Without this
+        // guard movePrevious nulls out formElementGroup and still steps the wizard back, so the next
+        // Back press crashes (updateFormElements / removeNonApplicableObs dereference the undefined group).
+        // Bail instead: there is no earlier page to move to.
+        const previousFormElementGroup = this.formElementGroup.previous();
+        if (_.isNil(previousFormElementGroup)) return;
         this.wizard.movePrevious();
-        this.formElementGroup = this.formElementGroup.previous();
+        this.formElementGroup = previousFormElementGroup;
     }
 
     get observationsHolder() {
