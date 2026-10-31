@@ -100,7 +100,9 @@ class LoginActions {
                 General.logError("Unreachable code");
             }, (error) => {
                 General.logError("LoginActions", error);
-                const errorMsg = _.includes(error.message, "Network request failed") ? error.message.concat('. Network is slow or disconnected. Please check internet connection') : error.authErrCode;
+                // "Network request failed" is the fetch failure; "Network error" is how Cognito reports the same thing.
+                const isNetworkFailure = _.some(["Network request failed", "Network error"], (m) => _.includes(error.message, m));
+                const errorMsg = isNetworkFailure ? error.message.concat('. Network is slow or disconnected. Please check internet connection') : error.authErrCode;
                 logEvent(firebaseEvents.LOG_IN_ERROR, {error_message: errorMsg});
                 action.failure(errorMsg);
             });
