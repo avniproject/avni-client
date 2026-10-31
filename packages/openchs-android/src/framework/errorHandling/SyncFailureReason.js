@@ -4,13 +4,13 @@ import AuthenticationError from "../../service/AuthenticationError";
 import ServerError from "../../service/ServerError";
 import MediaUploadError from "./MediaUploadError";
 import AvniError from "./AvniError";
-import {DNS_FAILURE_PREFIX, RN_FETCH_FAILURE_MESSAGE, SYNC_TIMEOUT_ERROR} from "./ExpectedTransientNetworkError";
+import {DNS_FAILURE_PREFIX, RN_FETCH_FAILURE_MESSAGE, SYNC_TIMEOUT_ERROR, UPLOAD_STALLED_MESSAGE} from "./ExpectedTransientNetworkError";
 
 // Firebase rejects event parameter values longer than this.
 const FIREBASE_PARAM_VALUE_LIMIT = 100;
 
 // Messages are only used when they are one of our fixed signatures; free text can carry server bodies or user data.
-const KNOWN_MESSAGES = [SYNC_TIMEOUT_ERROR, RN_FETCH_FAILURE_MESSAGE, 'internetConnectionError'];
+const KNOWN_MESSAGES = [SYNC_TIMEOUT_ERROR, RN_FETCH_FAILURE_MESSAGE, 'internetConnectionError', UPLOAD_STALLED_MESSAGE];
 
 function reasonOf(error) {
     if (_.isNil(error)) return 'unknown';

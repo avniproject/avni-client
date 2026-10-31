@@ -1,10 +1,14 @@
 import {
+    isExpectedNonDefect,
+    UPLOAD_STALLED_MESSAGE,
     isExpectedTransientNetworkError,
     RN_FETCH_FAILURE_MESSAGE,
     DNS_FAILURE_PREFIX,
     SYNC_TIMEOUT_ERROR
 } from "../../src/framework/errorHandling/ExpectedTransientNetworkError";
-import AuthenticationError, {NETWORK_ERROR, NO_USER, HTTP_403} from "../../src/service/AuthenticationError";
+import AuthenticationError, {NETWORK_ERROR, NO_USER, HTTP_401, HTTP_403, NOT_AUTHORIZED, UNREADABLE_AUTH_RESPONSE} from "../../src/service/AuthenticationError";
+import MediaUploadError from "../../src/framework/errorHandling/MediaUploadError";
+import {syncFailureReason} from "../../src/framework/errorHandling/SyncFailureReason";
 
 describe("isExpectedTransientNetworkError — excluded from Bugsnag", () => {
     it("excludes the per-page sync timeout", () => {
@@ -56,5 +60,44 @@ describe("the timeout message is shared, not re-typed", () => {
     // requests.js raises it and this predicate matches it; a rename must break both together.
     it("matches the constant the http layer actually rejects with", () => {
         expect(SYNC_TIMEOUT_ERROR).toBe("syncTimeoutError");
+    });
+});
+
+describe("isExpectedNonDefect — forced re-login and stalled uploads are left out (#2159)", () => {
+    [NO_USER, HTTP_401, NOT_AUTHORIZED, 'Authentication failure'].forEach((code) => {
+        it(`excludes a login failure that sends the user to log in again: ${code}`, () => {
+            expect(isExpectedNonDefect(new AuthenticationError(code, "x"))).toBe(true);
+        });
+    });
+
+    it("still excludes everything the network gate excludes", () => {
+        expect(isExpectedNonDefect(new Error(SYNC_TIMEOUT_ERROR))).toBe(true);
+        expect(isExpectedNonDefect(new AuthenticationError(NETWORK_ERROR, "Network error"))).toBe(true);
+    });
+
+    it("excludes our upload stall, bare or wrapped for the sync dialog", () => {
+        expect(isExpectedNonDefect(new Error(UPLOAD_STALLED_MESSAGE))).toBe(true);
+        expect(isExpectedNonDefect(new MediaUploadError(new Error(UPLOAD_STALLED_MESSAGE)))).toBe(true);
+    });
+
+    it("reports a login failure with no reason code, which may be a defect", () => {
+        expect(isExpectedNonDefect(new AuthenticationError(undefined, "x"))).toBe(false);
+    });
+
+    it("reports login failures that do not end the session", () => {
+        expect(isExpectedNonDefect(new AuthenticationError(UNREADABLE_AUTH_RESPONSE, "x"))).toBe(false);
+        expect(isExpectedNonDefect(new AuthenticationError(HTTP_403, "x"))).toBe(false);
+    });
+
+    it("reports a bare cancel, another media failure and an unrelated error", () => {
+        expect(isExpectedNonDefect(new Error("canceled"))).toBe(false);
+        expect(isExpectedNonDefect(new MediaUploadError(new Error("Media upload failed. HTTP Status:500. a.jpg")))).toBe(false);
+        expect(isExpectedNonDefect(new TypeError("Cannot read property 'x' of undefined"))).toBe(false);
+        expect(isExpectedNonDefect(null)).toBe(false);
+    });
+
+    it("records a stalled sync-time upload as a stall in the sync failure reason", () => {
+        expect(syncFailureReason(new MediaUploadError(new Error(UPLOAD_STALLED_MESSAGE))))
+            .toBe(`MediaUploadError: ${UPLOAD_STALLED_MESSAGE}`);
     });
 });

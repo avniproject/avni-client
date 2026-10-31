@@ -4,7 +4,7 @@ import ErrorStackParser from "error-stack-parser";
 import EnvironmentConfig from "../EnvironmentConfig";
 import General from "../../utility/General";
 import bugsnag from "../../utility/bugsnag";
-import {isExpectedTransientNetworkError} from "./ExpectedTransientNetworkError";
+import {isExpectedNonDefect} from "./ExpectedTransientNetworkError";
 
 function createNavigableStackTrace(stackFrames) {
     return stackFrames.map((sf) => {
@@ -57,8 +57,8 @@ class ErrorUtil {
 
     // Every reporter passes through here, so a transient network failure is left out once, for all of them.
     static notifyBugsnag(error, source, {reportTransient = false} = {}) {
-        if (!reportTransient && isExpectedTransientNetworkError(error)) {
-            General.logDebug('Bugsnag', `Not reporting an expected transient network failure: ${source} - ${error.message}`);
+        if (!reportTransient && isExpectedNonDefect(error)) {
+            General.logDebug('Bugsnag', `Not reporting an expected failure: ${source} - ${error.message}`);
             return Promise.resolve(error);
         }
         return ErrorUtil.createBugsnagStackFrames(error).then((frameArray) => {

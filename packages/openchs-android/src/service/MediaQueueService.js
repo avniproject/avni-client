@@ -17,8 +17,10 @@ import I18n from 'i18n-js';
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 import MediaUploadError from "../framework/errorHandling/MediaUploadError";
 import AuthenticationError from "./AuthenticationError";
+import {UPLOAD_STALLED_MESSAGE} from "../framework/errorHandling/ExpectedTransientNetworkError";
 const PARALLEL_UPLOAD_COUNT = 1;
-const UPLOAD_PROGRESS_TIMEOUT_MS = 60000;
+// UPLOAD_STALLED_MESSAGE names this duration; change both together.
+export const UPLOAD_PROGRESS_TIMEOUT_MS = 60000;
 
 function checkUploadStatus(response, mediaDisplayText) {
     const statusCode = response.info().status;
@@ -145,15 +147,22 @@ class MediaQueueService extends BaseService {
                 "Content-Type": contentType,
             }, RNFetchBlob.wrap(this.getAbsoluteFileName(mediaQueueItem)));
 
-        let jobTimeoutHandler = this.cancelUploadIfNoProgress(new Date(), uploadTask, mediaQueueItem.fileName)
+        // cancel() rejects with a generic "canceled"; flag our stall so the error names it. #2159
+        let stalled = false;
+        const markStalled = () => { stalled = true; };
+        let jobTimeoutHandler = this.cancelUploadIfNoProgress(new Date(), uploadTask, mediaQueueItem.fileName, markStalled)
         const returnPromise = uploadTask
             .then((x) => checkUploadStatus(x, mediaQueueItem.getDisplayText()))
+            .catch((error) => {
+                if (stalled) throw new Error(UPLOAD_STALLED_MESSAGE);
+                throw error;
+            })
             .finally(() => clearTimeout(jobTimeoutHandler));
 
         uploadTask.uploadProgress({interval: 1000},(sent, total) => {
             General.logDebug('MediaQueueService', `${mediaQueueItem.fileName} uploadProgress ${sent}/${total}`);
             clearTimeout(jobTimeoutHandler);
-            jobTimeoutHandler = this.cancelUploadIfNoProgress(new Date(), uploadTask, mediaQueueItem.fileName);
+            jobTimeoutHandler = this.cancelUploadIfNoProgress(new Date(), uploadTask, mediaQueueItem.fileName, markStalled);
         });
         return returnPromise;
     }
@@ -188,7 +197,7 @@ class MediaQueueService extends BaseService {
             .then((x) => checkUploadStatus(x, uploadFileName))
             .catch((error) => {
                 if (stalled)
-                    throw new Error(`Upload stalled - no progress for ${UPLOAD_PROGRESS_TIMEOUT_MS / 1000} seconds`);
+                    throw new Error(UPLOAD_STALLED_MESSAGE);
                 throw error;
             })
             .finally(() => clearTimeout(jobTimeoutHandler));
