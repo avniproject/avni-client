@@ -541,5 +541,37 @@ describe('EncounterActionsTest', () => {
             expect(answerOf(state.encounter)).is.equal(5);
             expect(state.isDraft).is.equal(true);
         });
+
+        describe('a form with nothing to show (issue #2055)', () => {
+            const emptyForm = () => {
+                const form = EntityFactory.createForm('ZeeForm');
+                EntityFactory.createFormElementGroup('Empty', 1, form);
+                return form;
+            };
+
+            it('saves a draft for a new visit when drafts are on', () => {
+                const form = emptyForm();
+                const individual = Individual.createEmptyInstance();
+                const encounterType = EncounterType.create('Oral Screening');
+
+                const state = open(form, visit(form, individual, encounterType), {}, false);
+
+                expect(state.saveDrafts).is.equal(true);
+            });
+
+            it('resumes the draft left behind instead of discarding it', () => {
+                const form = emptyForm();
+                const individual = Individual.createEmptyInstance();
+                const encounterType = EncounterType.create('Oral Screening');
+                const leftBehindVisit = visit(form, individual, encounterType);
+                const leftBehind = DraftEncounter.create(leftBehindVisit);
+
+                const state = open(form, visit(form, individual, encounterType), {draftEncounter: leftBehind}, false);
+
+                expect(state.encounter.uuid).is.equal(leftBehindVisit.uuid);
+                expect(state.isDraft).is.equal(true);
+                expect(state.saveDrafts).is.equal(true);
+            });
+        });
     });
 });

@@ -90,7 +90,11 @@ export class EncounterActions {
         )]));
 
         if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
-            return EncounterActionState.createOnLoadStateForEmptyForm(encounterToPass, form, isNewEntity, workLists)
+            // Same draft rules as the form-with-fields path below; without them an empty form saves no draft and drops the one found above (#2055).
+            const isFirstFlow = isNewEntity || !action.editing;
+            const isDraft = !!draftEncounter;
+            const saveDrafts = context.get(DraftConfigService).shouldSaveDraft(isFirstFlow, isDraft);
+            return EncounterActionState.createOnLoadStateForEmptyForm(shouldLoadDraft(context) ? editableEncounter : encounterToPass, form, isNewEntity, workLists, null, isFirstFlow, isDraft, saveDrafts)
         }
 
         const formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(encounterToPass, Encounter.schema.name, firstGroupWithAtLeastOneVisibleElement);

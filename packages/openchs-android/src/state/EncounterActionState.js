@@ -79,8 +79,8 @@ class EncounterActionState extends AbstractDataEntryState {
         return state;
     }
 
-    static createOnLoadStateForEmptyForm(encounter, form, isNewEntity, workLists, messageDisplayed) {
-        let state = new EncounterActionState([], new StaticFormElementGroup(form), new Wizard(1), isNewEntity, encounter, [], workLists, messageDisplayed);
+    static createOnLoadStateForEmptyForm(encounter, form, isNewEntity, workLists, messageDisplayed, isFirstFlow = isNewEntity, isDraft = false, saveDrafts = false) {
+        let state = new EncounterActionState([], new StaticFormElementGroup(form), new Wizard(1), isNewEntity, encounter, [], workLists, messageDisplayed, null, isFirstFlow, isDraft, saveDrafts);
         return state;
     }
 
