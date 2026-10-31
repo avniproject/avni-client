@@ -109,6 +109,14 @@ describe("ClinicHubJoin on a phone", () => {
         expect(wifi.joinNetwork).not.toHaveBeenCalled();
     });
 
+    it.each([[34], [28]])("on API %i, a code that is not a hub's gets the bad-code message even with Wi-Fi off, since turning Wi-Fi on would not help", async (level) => {
+        const {join, wifi} = setUp({level});
+        wifi.wifiEnabled.mockReturnValue(Promise.resolve(false));
+        await expect(join.joinHub("hello")).rejects.toMatchObject({code: JoinError.badCode});
+        expect(wifi.wifiEnabled).not.toHaveBeenCalled();
+        expect(wifi.joinNetwork).not.toHaveBeenCalled();
+    });
+
     it("says when the phone could not join the hotspot", async () => {
         const {join, wifi} = setUp();
         wifi.joinNetwork.mockReturnValue(Promise.reject(new Error("Could not join")));
