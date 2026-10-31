@@ -15,7 +15,7 @@ import General from "../../utility/General";
 import PrivilegeService from "../../service/PrivilegeService";
 import EntityService from "../../service/EntityService";
 import {RECENT_PHONE_WINDOW_MS} from "../../service/clinicsharing/ClinicHubService";
-import {canStartHub} from "../../framework/clinicsharing/ClinicHubWifi";
+import {canStartHub, wifiEnabled} from "../../framework/clinicsharing/ClinicHubWifi";
 import {ClinicRole, requestClinicHubPermissions} from "../../framework/clinicsharing/ClinicHubPermissions";
 import {parseJoinPayload} from "../../framework/clinicsharing/ClinicJoinPayload";
 import {HELD_UPLOAD_WARNING_DAYS} from "../../framework/clinicsharing/ClinicSharingConstants";
@@ -32,7 +32,7 @@ class ClinicSharingView extends AbstractComponent {
         super(props, context);
         this.hub = context.getService('clinicHubService');
         this.spoke = context.getService('clinicSpokeService');
-        this.state = {busy: false, scanning: false, error: null, permissionsDenied: false, savedJoinCode: null, held: null, hubCamp: false, phoneCamp: null};
+        this.state = {busy: false, scanning: false, error: null, permissionsDenied: false, savedJoinCode: null, held: null, hubCamp: false, phoneCamp: null, wifiOn: true};
     }
 
     viewName() {
@@ -52,9 +52,12 @@ class ClinicSharingView extends AbstractComponent {
     }
 
     async refresh() {
-        const [savedJoinCode, held, hubCamp, phoneCamp] = await Promise.all([this.spoke.savedJoinCode(),
-            this.getService('clinicHoldBackService').getHeldUploads(), this.hub.campActive(), this.spoke.camp()]);
-        if (!this._isUnmounted) this.setState({savedJoinCode, held, hubCamp, phoneCamp});
+        const [savedJoinCode, held, hubCamp, phoneCamp, wifiOn] = await Promise.all([this.spoke.savedJoinCode(),
+            this.getService('clinicHoldBackService').getHeldUploads(), this.hub.campActive(), this.spoke.camp(),
+            wifiEnabled().catch(() => true)]);
+        // The Wi-Fi-off message goes once Wi-Fi is back on, instead of waiting for the next action (#2232).
+        if (!this._isUnmounted) this.setState((prev) => ({savedJoinCode, held, hubCamp, phoneCamp, wifiOn,
+            error: wifiOn && _.get(prev.error, 'code') === 'wifiOff' ? null : prev.error}));
     }
 
     async run(work) {
@@ -223,7 +226,7 @@ class ClinicSharingView extends AbstractComponent {
             <View>
                 {!inCamp && leftCamp && this.renderText(leftCamp.code === 'campEnded' ? this.I18n.t('clinicSharingCampEndedByHub') : this.errorText(leftCamp), {warning: leftCamp.code !== 'campEnded'})}
                 {this.spoke.hubRestarted && this.renderText(this.I18n.t('clinicSharingHubRestarted'), {warning: true})}
-                {this.spoke.hubNetworkLost && savedHub && this.renderText(this.I18n.t('clinicSharingHubNetworkLost', {hub: savedHub}), {warning: true})}
+                {this.spoke.hubNetworkLost && savedHub && this.renderText(this.state.wifiOn ? this.I18n.t('clinicSharingHubNetworkLost', {hub: savedHub}) : this.I18n.t('clinicSharingError_wifiOff'), {warning: true})}
                 {this.renderText(this.I18n.t('clinicSharingJoinTitle'), {title: true})}
                 {inCamp && this.renderText(this.I18n.t('clinicSharingInCamp'))}
                 {savedHub && this.renderButton(this.I18n.t('clinicSharingRejoin', {hub: savedHub}), this.rejoin)}

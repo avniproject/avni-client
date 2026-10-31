@@ -29,7 +29,8 @@ jest.mock("react-native-qrcode-svg", () => ({
     __esModule: true,
     default: (props) => require("react").createElement(require("react-native").View, {testID: "qr", ...props}),
 }));
-jest.mock("../../../src/framework/clinicsharing/ClinicHubWifi", () => ({canStartHub: () => true}));
+let mockWifiOn = true;
+jest.mock("../../../src/framework/clinicsharing/ClinicHubWifi", () => ({canStartHub: () => true, wifiEnabled: async () => mockWifiOn}));
 jest.mock("../../../src/utility/CHSNavigator", () => ({__esModule: true, default: {navigateToLandingView: jest.fn()}}));
 jest.mock("../../../src/framework/clinicsharing/ClinicHubPermissions", () => ({
     ClinicRole: {hub: "hub", phone: "phone"},
@@ -83,6 +84,10 @@ async function show(options) {
 }
 
 describe("ClinicSharingView", () => {
+    beforeEach(() => {
+        mockWifiOn = true;
+    });
+
     afterEach(() => {
         mounted.forEach((renderer) => act(() => renderer.unmount()));
         mounted = [];
@@ -181,11 +186,36 @@ describe("ClinicSharingView", () => {
         const code = encodeJoinPayload({ssid: "AndroidShare_1", passphrase: "pass1234", hubId: "hub-1", epoch: "epoch-1", key: "A".repeat(43)});
         const {fakes, lines, press} = await show({savedJoinCode: code, hubNetworkLost: true});
         fakes.clinicSpokeService.joinWithCode.mockRejectedValue(Object.assign(new Error("Wi-Fi is off on this phone"), {code: "wifiOff"}));
+        mockWifiOn = false;
 
         await press('clinicSharingRejoin {"hub":"AndroidShare_1"}');
 
         expect(lines()).toContain("clinicSharingError_wifiOff {}");
         expect(lines()).not.toContain('clinicSharingError_rejoinFailed {"hub":"AndroidShare_1"}');
+    });
+
+    it("says Wi-Fi is off on the lost-hub screen itself, before anything is tapped (issue #2232)", async () => {
+        const code = encodeJoinPayload({ssid: "AndroidShare_1", passphrase: "pass1234", hubId: "hub-1", epoch: "epoch-1", key: "A".repeat(43)});
+        mockWifiOn = false;
+        const {lines} = await show({savedJoinCode: code, hubNetworkLost: true});
+
+        expect(lines()).toContain("clinicSharingError_wifiOff");
+        expect(lines()).not.toContain('clinicSharingHubNetworkLost {"hub":"AndroidShare_1"}');
+    });
+
+    it("drops the Wi-Fi-off message on the next refresh once Wi-Fi is back on (issue #2232)", async () => {
+        const code = encodeJoinPayload({ssid: "AndroidShare_1", passphrase: "pass1234", hubId: "hub-1", epoch: "epoch-1", key: "A".repeat(43)});
+        const {fakes, lines, press, renderer} = await show({savedJoinCode: code, hubNetworkLost: true});
+        fakes.clinicSpokeService.joinWithCode.mockRejectedValue(Object.assign(new Error("Wi-Fi is off on this phone"), {code: "wifiOff"}));
+        mockWifiOn = false;
+        await press('clinicSharingRejoin {"hub":"AndroidShare_1"}');
+        expect(lines()).toContain("clinicSharingError_wifiOff {}");
+
+        mockWifiOn = true;
+        await act(async () => renderer.root.findByType(ClinicSharingView).instance.refresh());
+
+        expect(lines()).not.toContain("clinicSharingError_wifiOff {}");
+        expect(lines()).toContain('clinicSharingHubNetworkLost {"hub":"AndroidShare_1"}');
     });
 
     it("shows the date of a phone's last sync when it was on an earlier day of the camp", async () => {
