@@ -158,6 +158,8 @@
     "observationSummary": "Observations",
     "deleteSchemaConfirmationMessage": "You will lose information that is not synced",
     "deleteSchemaNoticeTitle": "Delete Data?",
+    "deleteSchemaUnsyncedRecordsMessage": "Records not yet synced: {{count}}. Deleting data will remove them permanently.",
+    "deleteAnyway": "Delete anyway",
     "userId": "User ID",
     "password": "Password",
     "chooseVisit": "Choose Visit",
