@@ -47,6 +47,7 @@ import LastSyncCompleted from "../service/LastSyncCompleted";
 import ResetSyncService from "../service/ResetSyncService";
 import EntitySyncStatusService from "../service/EntitySyncStatusService";
 import {catchmentUploadBlockers} from "../utility/CatchmentUploadGuard";
+import EntityQueueService from "../service/EntityQueueService";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -151,6 +152,18 @@ class MenuView extends AbstractComponent {
 
     async onDelete() {
         if (await this.blockedByCamp()) return;
+        const unsyncedCount = this.getService(EntityQueueService).getPendingFieldDataCount();
+        if (unsyncedCount > 0) {
+            Alert.alert(
+                this.I18n.t('deleteSchemaNoticeTitle'),
+                this.I18n.t('deleteSchemaUnsyncedRecordsMessage', {count: unsyncedCount}),
+                [
+                    {text: this.I18n.t('cancel'), onPress: _.noop, style: 'cancel'},
+                    {text: this.I18n.t('deleteAnyway'), onPress: () => this.deleteData()}
+                ]
+            );
+            return;
+        }
         Alert.alert(
             this.I18n.t('deleteSchemaNoticeTitle'),
             this.I18n.t('deleteSchemaConfirmationMessage'),
