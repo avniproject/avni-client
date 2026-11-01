@@ -71,8 +71,8 @@ export function ErrorDisplay({avniError, context, username = null}) {
         }
     };
 
+    // No Close and not cancelable: dismissing left the bare logo screen with no way out (#2188).
     const buttons = [
-        {text: "Close", onPress: () => setShowErrorAlert(false)},
         {text: "Restart", onPress: () => {
             setShowErrorAlert(false);
             RNRestart.Restart();
@@ -85,7 +85,7 @@ export function ErrorDisplay({avniError, context, username = null}) {
         if (!Config.allowServerURLConfig && !isUploading && showErrorAlert) {
             Alert.alert("App will restart now", avniError.getDisplayMessage(),
                 buttons,
-                {cancelable: true}
+                {cancelable: false}
             );
         }
     }, [Config.allowServerURLConfig, isUploading, showErrorAlert, avniError, buttons]);
