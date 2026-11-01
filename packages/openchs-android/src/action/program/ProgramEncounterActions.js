@@ -219,7 +219,7 @@ class ProgramEncounterActions {
         newState.handleValidationResults(newState.programEncounter.validate(), context);
         const formElementStatuses = ObservationsHolderActions.updateFormElements(newState.formElementGroup, newState, context);
         newState.observationsHolder.removeNonApplicableObs(newState.formElementGroup.getFormElements(), newState.filteredFormElements);
-        newState.observationsHolder.updatePrimitiveCodedObs(newState.filteredFormElements, formElementStatuses);
+        ObservationsHolderActions.applyRuleValuesAndRefreshStatuses(newState, formElementStatuses, context);
         return newState;
     }
 

@@ -88,10 +88,7 @@ export class ProgramEnrolmentActions {
                 saveDrafts
             );
             programEnrolmentState = programEnrolmentState.clone();
-            programEnrolmentState.observationsHolder.updatePrimitiveCodedObs(filteredElements, formElementStatuses);
-            if (ObservationsHolderActions.hasQuestionGroupWithValueInElementStatus(formElementStatuses, formElementGroup.getFormElements())) {
-                ObservationsHolderActions.updateFormElements(formElementGroup, state, context);
-            }
+            ObservationsHolderActions.applyRuleValuesAndRefreshStatuses(programEnrolmentState, formElementStatuses, context, {removeHiddenValues: false});
             if (!isProgramEnrolment) {
                 programEnrolmentState.groupAffiliation.removeMemberFromGroup();
             }

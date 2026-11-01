@@ -32,10 +32,7 @@ class ProgramEncounterState extends AbstractDataEntryState {
         // Timer is not initialized for draft flows
         const timerState = formElementGroup.timed && isFirstFlow && !isDraft ? new TimerState(formElementGroup.startTime, formElementGroup.stayTime) : null;
         let state = new ProgramEncounterState(formElementGroup, new Wizard(form.numberOfPages, indexOfGroup, indexOfGroup), isNewEntity, programEncounter, filteredFormElements, workLists, messageDisplayed, timerState, isFirstFlow, isDraft, saveDrafts);
-        state.observationsHolder.updatePrimitiveCodedObs(filteredFormElements, formElementStatuses);
-        if (ObservationHolderActions.hasQuestionGroupWithValueInElementStatus(formElementStatuses, formElementGroup.getFormElements())) {
-            ObservationHolderActions.updateFormElements(formElementGroup, state, context);
-        }
+        ObservationHolderActions.applyRuleValuesAndRefreshStatuses(state, formElementStatuses, context, {removeHiddenValues: false});
         return state;
     }
 

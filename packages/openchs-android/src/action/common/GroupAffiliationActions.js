@@ -20,9 +20,9 @@ export default class GroupAffiliationActions {
             (obs) => !_.isNil(_.get(obs, "groupSubject.groupSubject.uuid")) && obs.concept.uuid === formElement.concept.uuid && groupSubject.uuid === obs.groupSubject.groupSubject.uuid);
         const groupSubjectEntity = _.isNil(existingGroupSubjectObs) ? GroupAffiliationActions.createEmptyGroupSubject(groupRole, groupSubject) : existingGroupSubjectObs.groupSubject;
         newState.groupAffiliation.groupSubjectObservations = newState.groupAffiliation.updateGroupSubjectObservations(formElement.concept, groupSubjectEntity);
-        const formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
+        const formElementStatuses = ObservationsHolderActions.applyRuleValuesAndRefreshStatuses(newState,
+            ObservationsHolderActions._getFormElementStatuses(newState, context), context);
         const hiddenFormElementStatus = _.filter(formElementStatuses, (form) => form.visibility === false);
-        newState.observationsHolder.updatePrimitiveCodedObs(newState.filteredFormElements, formElementStatuses);
         newState.removeHiddenFormValidationResults(hiddenFormElementStatus);
         newState.handleValidationResults(GroupAffiliationActions._validate(formElement, groupSubjectEntity, newState.validationResults), context);
         return newState;

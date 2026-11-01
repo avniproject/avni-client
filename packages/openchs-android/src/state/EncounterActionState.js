@@ -72,10 +72,7 @@ class EncounterActionState extends AbstractDataEntryState {
         const timerState = formElementGroup.timed && isFirstFlow && !isDraft ? new TimerState(formElementGroup.startTime, formElementGroup.stayTime) : null;
         const saveDrafts = draftConfigService.shouldSaveDraft(isFirstFlow, isDraft);
         let state = new EncounterActionState([], formElementGroup, new Wizard(form.numberOfPages, indexOfGroup, indexOfGroup), isNewEntity, encounter, filteredFormElements, workLists, messageDisplayed, timerState, isFirstFlow, isDraft, saveDrafts);
-        state.observationsHolder.updatePrimitiveCodedObs(filteredFormElements, formElementStatuses);
-        if (ObservationHolderActions.hasQuestionGroupWithValueInElementStatus(formElementStatuses, formElementGroup.getFormElements())) {
-            ObservationHolderActions.updateFormElements(formElementGroup, state, context);
-        }
+        ObservationHolderActions.applyRuleValuesAndRefreshStatuses(state, formElementStatuses, context, {removeHiddenValues: false});
         return state;
     }
 

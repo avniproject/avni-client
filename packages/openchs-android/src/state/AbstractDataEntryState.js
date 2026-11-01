@@ -224,12 +224,9 @@ class AbstractDataEntryState {
         if (action.popVerificationVew)
             action.popVerificationVewFunc();
         this.moveNext();
-        const formElementStatuses = ObservationsHolderActions.updateFormElements(this.formElementGroup, this, context);
+        let formElementStatuses = ObservationsHolderActions.updateFormElements(this.formElementGroup, this, context);
         this.observationsHolder.removeNonApplicableObs(this.formElementGroup.getFormElements(), this.filteredFormElements);
-        this.observationsHolder.updatePrimitiveCodedObs(this.filteredFormElements, formElementStatuses);
-        if (ObservationsHolderActions.hasQuestionGroupWithValueInElementStatus(formElementStatuses, this.formElementGroup.getFormElements())) {
-            ObservationsHolderActions.updateFormElements(this.formElementGroup, this, context);
-        }
+        formElementStatuses = ObservationsHolderActions.applyRuleValuesAndRefreshStatuses(this, formElementStatuses, context);
         if (this.hasNoFormElements()) {
             General.logDebug("AbstractDataEntryState", "handleNext - No form elements here. Moving to next screen");
             this.removeResultsForEmptyFormElementGroup();
@@ -245,12 +242,9 @@ class AbstractDataEntryState {
         if (action.popVerificationVew)
             action.popVerificationVewFunc();
         this.moveNext();
-        const formElementStatuses = ObservationsHolderActions.updateFormElements(this.formElementGroup, this, context);
+        let formElementStatuses = ObservationsHolderActions.updateFormElements(this.formElementGroup, this, context);
         this.observationsHolder.removeNonApplicableObs(this.formElementGroup.getFormElements(), this.filteredFormElements);
-        this.observationsHolder.updatePrimitiveCodedObs(this.filteredFormElements, formElementStatuses);
-        if (ObservationsHolderActions.hasQuestionGroupWithValueInElementStatus(formElementStatuses, this.formElementGroup.getFormElements())) {
-            ObservationsHolderActions.updateFormElements(this.formElementGroup, this, context);
-        }
+        formElementStatuses = ObservationsHolderActions.applyRuleValuesAndRefreshStatuses(this, formElementStatuses, context);
         if (this.hasNoFormElements()) {
             General.logDebug("AbstractDataEntryState", "handleNext - No form elements here. Moving to next screen");
             this.removeResultsForEmptyFormElementGroup();

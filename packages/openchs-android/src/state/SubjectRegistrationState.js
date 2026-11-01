@@ -60,10 +60,7 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         state.minLevelTypeUUIDs = minLevelTypeUUIDs;
         state.saveDrafts = isNewEntity && isSaveDraftOn;
         state.groupAffiliation = groupAffiliationState;
-        state.observationsHolder.updatePrimitiveCodedObs(filteredFormElements, formElementStatuses);
-        if (ObservationHolderActions.hasQuestionGroupWithValueInElementStatus(formElementStatuses, formElementGroup.getFormElements())) {
-            ObservationHolderActions.updateFormElements(formElementGroup, state, context);
-        }
+        ObservationHolderActions.applyRuleValuesAndRefreshStatuses(state, formElementStatuses, context, {removeHiddenValues: false});
         return state;
     }
 
