@@ -574,4 +574,33 @@ describe('EncounterActionsTest', () => {
             });
         });
     });
+    describe('onToggleShowingPreviousEncounter (#2161)', () => {
+        const encounterOf = (uuid, {done = false, cancelled = false, voided = false} = {}) => {
+            const encounter = Encounter.create();
+            encounter.uuid = uuid;
+            encounter.encounterDateTime = done ? new Date() : null;
+            encounter.cancelDateTime = cancelled ? new Date() : null;
+            encounter.earliestVisitDateTime = new Date();
+            encounter.voided = voided;
+            return encounter;
+        };
+
+        it('lists only the subject\'s other completed or cancelled visits, not planned ones or the one being filled', () => {
+            const {state} = createIntialState(Concept.dataType.Numeric, false, false);
+            state.encounter.uuid = 'current';
+            const all = [
+                encounterOf('current', {done: true}),
+                encounterOf('completed', {done: true}),
+                encounterOf('cancelled', {cancelled: true}),
+                encounterOf('planned'),
+                encounterOf('voided', {done: true, voided: true}),
+            ];
+            const context = {get: () => ({getEncounters: () => all})};
+
+            const newState = EncounterActions.onToggleShowingPreviousEncounter(state, {}, context);
+
+            expect(newState.previousEncountersDisplayed).to.equal(true);
+            expect(_.map(newState.previousEncounters, 'uuid')).to.deep.equal(['completed', 'cancelled']);
+        });
+    });
 });

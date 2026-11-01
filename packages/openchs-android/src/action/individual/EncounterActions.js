@@ -168,7 +168,10 @@ export class EncounterActions {
     static onToggleShowingPreviousEncounter(state, action, context) {
         const newState = state.clone();
         newState.previousEncountersDisplayed = !newState.previousEncountersDisplayed;
-        newState.previousEncounters = context.get(EncounterService).getEncounters(state.encounter.individual);
+        // Only visits already done or cancelled: a planned visit (or the one being filled) offers Do/Cancel,
+        // which would take the user out of the form they are filling.
+        newState.previousEncounters = _.filter(context.get(EncounterService).getEncounters(state.encounter.individual),
+            (encounter) => !encounter.voided && !encounter.isScheduled() && encounter.uuid !== state.encounter.uuid);
         return newState;
     }
 

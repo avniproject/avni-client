@@ -187,7 +187,11 @@ class PreviousEncounters extends AbstractComponent {
         if (containsDrafts) {
             this.addDeleteDraftAction(encounter, this.I18n.t('delete'), Colors.ValidationError, actions);
         }
-        this.addScheduledEncounterActions(encounter, this.I18n.t('do'), Colors.ScheduledVisitColor, actions, containsDrafts);
+        // Do and Cancel belong to a planned visit (or a draft); a visit already done or cancelled gets neither (#2161).
+        const actionable = containsDrafts || encounter.isScheduled();
+        if (actionable) {
+            this.addScheduledEncounterActions(encounter, this.I18n.t('do'), Colors.ScheduledVisitColor, actions, containsDrafts);
+        }
         const canEditEncounter = this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid);
         return <View>
             <TouchableOpacity
@@ -201,7 +205,7 @@ class PreviousEncounters extends AbstractComponent {
                 <View style={{paddingTop: 6}}>
                     <ObservationsSectionOptions
                         contextActions={actions}
-                        primaryAction={this.cancelVisitAction(encounter, Colors.ValidationError)}/>
+                        primaryAction={actionable ? this.cancelVisitAction(encounter, Colors.ValidationError) : undefined}/>
                 </View>
             </TouchableOpacity>
         </View>;
