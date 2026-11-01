@@ -4,7 +4,7 @@ import moment from "moment";
 import ChainedRequests from "../../framework/http/ChainedRequests";
 import General from "../../utility/General";
 import {RuleFailureTelemetry} from 'openchs-models';
-import {noCountPullPath} from "./NoCountPullPaths";
+import {noCountPullPath, takesResumeCursor} from "./NoCountPullPaths";
 
 class ConventionalRestClient {
     constructor(settingsService, privilegeService) {
@@ -74,7 +74,7 @@ class ConventionalRestClient {
         ]
             .filter(p => !_.isEmpty(p))
             .join("/");
-        const {loadedSince, entityTypeUuid} = entityMetadata.syncStatus;
+        const {loadedSince, entityTypeUuid, lastUuid} = entityMetadata.syncStatus;
         const {privilegeParam, apiQueryParams, apiQueryParamKey} = entityMetadata;
         const apiQueryParamsHolder = {}
         if (privilegeParam) {
@@ -86,6 +86,12 @@ class ConventionalRestClient {
         if (!_.isEmpty(apiQueryParams)) {
             if (_.has(apiQueryParams, 'deviceId')) apiQueryParams['deviceId'] = deviceId;
             _.merge(apiQueryParamsHolder, apiQueryParams);
+        }
+        // The uuid of the last row held at loadedSince, so a resumed pull carries on inside a group of rows sharing
+        // one timestamp instead of starting it again (#2099). loadedSince stays fixed and pages are counted as before,
+        // so a server that ignores afterUuid (an older one, or a directly assignable subject type) answers as today.
+        if (!_.isEmpty(lastUuid) && takesResumeCursor(entityMetadata)) {
+            _.merge(apiQueryParamsHolder, {afterUuid: lastUuid});
         }
         const params = (page, size) => this.makeParams(_.merge(apiQueryParamsHolder, {
             lastModifiedDateTime: moment(loadedSince).toISOString(),

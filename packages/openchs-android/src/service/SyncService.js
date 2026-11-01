@@ -583,7 +583,8 @@ class SyncService extends BaseService {
             .map((entityMetadata) => {
                 const entitiesToSync = _.filter(syncDetails, ({entityName}) => entityMetadata.entityName === entityName);
                 return _.reduce(entitiesToSync, (acc, m) => {
-                    acc.push(_.assignIn({syncStatus: m}, entityMetadata));
+                    const syncStatus = _.assign({}, m, {lastUuid: this.entitySyncStatusService.lastUuidFor(m)});
+                    acc.push(_.assignIn({syncStatus}, entityMetadata));
                     return acc;
                 }, [])
             }).flat(1);
@@ -646,7 +647,9 @@ class SyncService extends BaseService {
             return;
         }
         entityResources = _.sortBy(entityResources, 'lastModifiedDateTime');
+        // sortBy is stable, so rows sharing a timestamp keep the server's order and the last one is where the server stopped.
         const loadedSince = _.last(entityResources).lastModifiedDateTime;
+        const lastUuid = _.last(entityResources).uuid;
         const shared = this._clinicSharingEnabled() && SHAREABLE_ENTITIES.includes(entityMetaData.schemaName);
         const releasing = shared
             ? await this.getService('clinicHoldBackService').receivedAmong(entityResources.map((resource) => resource.uuid))
@@ -676,9 +679,9 @@ class SyncService extends BaseService {
 
         // Use batch path for SQLite — one native call for all entities via executeBatch
         if (this.db.isSqlite && typeof this.db.bulkCreate === 'function') {
-            await this._persistAllBatch(entityMetaData, entityResources, entities, loadedSince);
+            await this._persistAllBatch(entityMetaData, entityResources, entities, loadedSince, lastUuid);
         } else {
-            this._persistAllSync(entityMetaData, entityResources, entities, loadedSince);
+            this._persistAllSync(entityMetaData, entityResources, entities, loadedSince, lastUuid);
         }
         if (!_.isEmpty(releasing.release)) this.releasedHoldBacks += await this.getService('clinicHoldBackService').release(releasing.release);
 
@@ -691,7 +694,7 @@ class SyncService extends BaseService {
         });
     }
 
-    async _persistAllBatch(entityMetaData, entityResources, entities, loadedSince) {
+    async _persistAllBatch(entityMetaData, entityResources, entities, loadedSince, lastUuid = null) {
         await this.applyIncoming(entityMetaData, entityResources, entities);
 
         const currentEntitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName, entityMetaData.syncStatus.entityTypeUuid);
@@ -700,6 +703,7 @@ class SyncService extends BaseService {
         entitySyncStatus.entityTypeUuid = entityMetaData.syncStatus.entityTypeUuid;
         entitySyncStatus.uuid = currentEntitySyncStatus.uuid;
         entitySyncStatus.loadedSince = new Date(loadedSince);
+        entitySyncStatus.lastUuid = lastUuid;
         this.bulkSaveOrUpdate(this.getCreateEntityFunctions(EntitySyncStatus.schema.name, [entitySyncStatus]));
     }
 
@@ -724,7 +728,7 @@ class SyncService extends BaseService {
     }
 
     // Original sync path for Realm (synchronous)
-    _persistAllSync(entityMetaData, entityResources, entities, loadedSince) {
+    _persistAllSync(entityMetaData, entityResources, entities, loadedSince, lastUuid = null) {
         General.logDebug("SyncService", `Creating entity create functions for schema ${entityMetaData.schemaName}`);
         let entitiesToCreateFns = this.getCreateEntityFunctions(entityMetaData.schemaName, entities);
 
@@ -746,6 +750,7 @@ class SyncService extends BaseService {
         entitySyncStatus.entityTypeUuid = entityMetaData.syncStatus.entityTypeUuid;
         entitySyncStatus.uuid = currentEntitySyncStatus.uuid;
         entitySyncStatus.loadedSince = new Date(loadedSince);
+        entitySyncStatus.lastUuid = lastUuid;
         General.logDebug("SyncService", `Creating entity create functions for ${currentEntitySyncStatus}`);
         this.bulkSaveOrUpdate(entitiesToCreateFns.concat(this.getCreateEntityFunctions(EntitySyncStatus.schema.name, [entitySyncStatus])));
     }

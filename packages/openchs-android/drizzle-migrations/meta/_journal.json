@@ -64,6 +64,13 @@
       "when": 1789706854499,
       "tag": "0008_program_encounter_pending_visits",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1793510527891,
+      "tag": "0009_entity_sync_status_last_uuid",
+      "breakpoints": true
     }
   ]
 }

@@ -69,6 +69,13 @@ export const journal = {
       "when": 1789706854499,
       "tag": "0008_program_encounter_pending_visits",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1793510527891,
+      "tag": "0009_entity_sync_status_last_uuid",
+      "breakpoints": true
     }
   ]
 };
@@ -82,5 +89,6 @@ export const sqlFiles = {
   "0005_add_downloadable_content_and_1_33_71": "CREATE TABLE `downloadable_content` (\n\t`uuid` text PRIMARY KEY NOT NULL,\n\t`name` text,\n\t`category` text,\n\t`content_key` text,\n\t`sha256` text,\n\t`needs_key` integer DEFAULT 0,\n\t`payload` text,\n\t`voided` integer DEFAULT 0\n);\n--> statement-breakpoint\nCREATE INDEX `idx_downloadable_content_voided` ON `downloadable_content` (`voided`);--> statement-breakpoint\nALTER TABLE `attendance_record` ADD `other_reason_text` text;",
   "0006_add_entity_approval_status_entity_uuid_index": "CREATE INDEX `idx_entity_approval_status_entity_uuid` ON `entity_approval_status` (`entity_uuid`);",
   "0007_entity_approval_status_observations": "ALTER TABLE `entity_approval_status` ADD `observations` text DEFAULT '[]';",
-  "0008_program_encounter_pending_visits": "CREATE INDEX `idx_program_encounter_pending_visits` ON `program_encounter` (`voided`,`encounter_date_time`,`cancel_date_time`,`max_visit_date_time`);"
+  "0008_program_encounter_pending_visits": "CREATE INDEX `idx_program_encounter_pending_visits` ON `program_encounter` (`voided`,`encounter_date_time`,`cancel_date_time`,`max_visit_date_time`);",
+  "0009_entity_sync_status_last_uuid": "ALTER TABLE `entity_sync_status` ADD `last_uuid` text;"
 };

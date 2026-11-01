@@ -105,9 +105,23 @@ class EntitySyncStatusService extends BaseService {
 
     updateAsPerSyncDetails(entitySyncStatuses) {
         _.forEach(entitySyncStatuses, ({uuid, entityName, loadedSince, entityTypeUuid}) => {
-            const entitySyncStatus = EntitySyncStatus.create(entityName, loadedSince, uuid, entityTypeUuid);
+            const existing = _.isEmpty(uuid) ? null : this.findByUUID(uuid);
+            const lastUuid = EntitySyncStatusService._sameTime(_.get(existing, 'loadedSince'), loadedSince) ? existing.lastUuid : null;
+            const entitySyncStatus = EntitySyncStatus.create(entityName, loadedSince, uuid, entityTypeUuid, lastUuid);
             this.saveOrUpdate(entitySyncStatus);
         })
+    }
+
+    // The resume cursor (#2099) is the uuid of the last row held at loadedSince. It means nothing at any other
+    // loadedSince, so it is handed out only while the checkpoint still sits where it was stored.
+    lastUuidFor({entityName, entityTypeUuid, loadedSince}) {
+        const stored = this.get(entityName, entityTypeUuid);
+        if (_.isNil(stored) || _.isEmpty(stored.lastUuid)) return null;
+        return EntitySyncStatusService._sameTime(stored.loadedSince, loadedSince) ? stored.lastUuid : null;
+    }
+
+    static _sameTime(a, b) {
+        return !_.isNil(a) && !_.isNil(b) && new Date(a).getTime() === new Date(b).getTime();
     }
 
     removeRevokedPrivileges(entityMetaDataModel, syncDetails) {

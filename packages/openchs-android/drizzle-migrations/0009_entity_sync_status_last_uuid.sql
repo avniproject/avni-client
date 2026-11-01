@@ -1,0 +1,1 @@
+ALTER TABLE `entity_sync_status` ADD `last_uuid` text;

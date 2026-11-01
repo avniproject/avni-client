@@ -399,3 +399,64 @@ describe("ConventionalRestClient: what the no-count change leaves alone", () => 
         }
     });
 });
+
+// avniproject/avni-client#2099: the stored cursor goes to the server as afterUuid on every request of the
+// pull, with loadedSince fixed and pages counted as before. Where the server does not apply it (directly
+// assignable subject types, or a server without the parameter) the request is exactly today's.
+describe("ConventionalRestClient resume cursor", () => {
+    const cursorKinds = ["Individual", "ProgramEnrolment", "ProgramEncounter", "Encounter", "Checklist", "ChecklistItem",
+        "IndividualRelationship", "GroupSubject", "Comment", "CommentThread", "SubjectMigration", "SubjectProgramEligibility",
+        "SubjectEntityApprovalStatus", "EncounterEntityApprovalStatus", "ProgramEncounterEntityApprovalStatus",
+        "ProgramEnrolmentEntityApprovalStatus", "ChecklistItemEntityApprovalStatus"];
+
+    function withCursor(entityName, lastUuid) {
+        const metadata = metadataFor(entityName, "t1");
+        metadata.syncStatus = {...metadata.syncStatus, loadedSince: new Date("2023-12-11T05:01:41.519Z"), lastUuid};
+        return metadata;
+    }
+
+    beforeEach(() => {
+        getJSONTimed.mockReset();
+    });
+
+    it("sends afterUuid on every page, with loadedSince fixed and the page number walking on", async () => {
+        getJSONTimed
+            .mockResolvedValueOnce(sliceAnswer("encounter", ["a", "b"], true))
+            .mockResolvedValueOnce(sliceAnswer("encounter", ["c"], false));
+        const {onGetOfAnEntity} = savedRows();
+
+        await pullClient().getAllForEntity(withCursor("Encounter", "last-row"), onGetOfAnEntity, _.noop, _.noop, NOW, "device1");
+
+        const queries = getJSONTimed.mock.calls.map(([url]) => queryOf(url));
+        assert.deepEqual(queries.map(q => q.afterUuid), ["last-row", "last-row"]);
+        assert.deepEqual(queries.map(q => q.page), ["0", "1"]);
+        assert.deepEqual(_.uniq(queries.map(q => q.lastModifiedDateTime)), ["2023-12-11T05:01:41.519Z"]);
+    });
+
+    it("sends it to every endpoint that takes it", async () => {
+        for (const entityName of cursorKinds) {
+            getJSONTimed.mockReset();
+            const metadata = withCursor(entityName, "last-row");
+            getJSONTimed.mockResolvedValueOnce(sliceAnswer(metadata.resourceName, [], false));
+            await pullClient().getAllForEntity(metadata, savedRows().onGetOfAnEntity, _.noop, _.noop, NOW, "device1");
+            assert.equal(queryOf(getJSONTimed.mock.calls[0][0]).afterUuid, "last-row", entityName);
+        }
+    });
+
+    it("never sends it to an endpoint that does not take it", async () => {
+        const others = EntityMetaData.model().filter(m => !_.isNil(noCountPullPath(m)) && !_.includes(cursorKinds, m.entityName));
+        assert.includeMembers(others.map(m => m.entityName), ["Task", "UserSubjectAssignment", "News", "Session"]);
+        for (const kind of others) {
+            getJSONTimed.mockReset();
+            getJSONTimed.mockResolvedValueOnce(sliceAnswer(kind.resourceName, [], false));
+            await pullClient().getAllForEntity(withCursor(kind.entityName, "last-row"), savedRows().onGetOfAnEntity, _.noop, _.noop, NOW, "device1");
+            assert.notProperty(queryOf(getJSONTimed.mock.calls[0][0]), "afterUuid", kind.entityName);
+        }
+    });
+
+    it("sends nothing when there is no stored cursor", async () => {
+        getJSONTimed.mockResolvedValueOnce(sliceAnswer("encounter", [], false));
+        await pullClient().getAllForEntity(withCursor("Encounter", null), savedRows().onGetOfAnEntity, _.noop, _.noop, NOW, "device1");
+        assert.notProperty(queryOf(getJSONTimed.mock.calls[0][0]), "afterUuid");
+    });
+});

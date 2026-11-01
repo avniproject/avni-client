@@ -27,3 +27,11 @@ const noCountPullPaths = {
 };
 
 export const noCountPullPath = (entityMetadata) => noCountPullPaths[entityMetadata.entityName];
+
+// Pulls whose server endpoint takes afterUuid, the uuid half of the resume cursor (avni-client#2099).
+const resumeCursorPulls = ["Individual", "ProgramEnrolment", "ProgramEncounter", "Encounter", "Checklist", "ChecklistItem",
+    "IndividualRelationship", "GroupSubject", "Comment", "CommentThread", "SubjectMigration", "SubjectProgramEligibility",
+    "SubjectEntityApprovalStatus", "EncounterEntityApprovalStatus", "ProgramEncounterEntityApprovalStatus",
+    "ProgramEnrolmentEntityApprovalStatus", "ChecklistItemEntityApprovalStatus"];
+
+export const takesResumeCursor = (entityMetadata) => resumeCursorPulls.includes(entityMetadata.entityName);
