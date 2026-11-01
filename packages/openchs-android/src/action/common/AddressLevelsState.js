@@ -47,11 +47,16 @@ class AddressLevelsState {
         this.anyActiveTypes = new Set([...anyActiveTypes].filter(t => visibleTypes.has(t)));
     }
 
-    canBeUsed(level) {
+    canBeUsed(level, selectedAddresses = this.selectedAddresses) {
+        const maxSelectedLevel = _.isEmpty(selectedAddresses) ? null : _.maxBy(selectedAddresses, l => l.level).level;
+        return this._canBeUsed(level, maxSelectedLevel, _.isEmpty(selectedAddresses));
+    }
+
+    _canBeUsed(level, maxSelectedLevel, noneSelected) {
         return level.isSelected
             || this.anyActiveTypes.has(level.type)
-            || level.level === this.maxSelectedLevel
-            || (_.isEmpty(this.selectedAddresses) && this.anyActiveTypes.size === 0)
+            || level.level === maxSelectedLevel
+            || (noneSelected && this.anyActiveTypes.size === 0)
             || _.isEmpty(level.locationMappings);
     }
 
@@ -134,10 +139,17 @@ class AddressLevelsState {
 
     removeUnwantedLevels() {
         const levels = this._asList();
-        const getParent = parentUUID => _.filter(levels, it => it.uuid === parentUUID);
+        // Selection and parents are looked up once, not per row: per-row scans made "Any" over thousands of
+        // villages quadratic and froze the picker (#2168).
+        const selected = levels.filter(l => l.isSelected);
+        const maxSelectedLevel = _.isEmpty(selected) ? null : _.maxBy(selected, l => l.level).level;
+        const noneSelected = _.isEmpty(selected);
+        const canBeUsed = l => this._canBeUsed(l, maxSelectedLevel, noneSelected);
+        const byUuid = _.groupBy(levels, 'uuid');
+        const getParent = parentUUID => byUuid[parentUUID] || [];
         return new AddressLevelsState(levels.filter(l => {
-            return this.canBeUsed(l) || _(getParent(l.parentUuid)).reject(p => _.isNil(p) || (!p.isSelected && !this.anyActiveTypes.has(p.type)))
-                .some(p => this.canBeUsed(p));
+            return canBeUsed(l) || _(getParent(l.parentUuid)).reject(p => _.isNil(p) || (!p.isSelected && !this.anyActiveTypes.has(p.type)))
+                .some(p => canBeUsed(p));
         }), this.anyActiveTypes);
     }
 
