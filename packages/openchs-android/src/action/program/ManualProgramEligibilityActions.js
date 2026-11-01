@@ -23,6 +23,9 @@ class ManualProgramEligibilityActions {
         const {subject, program} = action;
         const form = context.get(FormMappingService).getManualEnrolmentEligibilityForm(subject.subjectType, program);
         let subjectProgramEligibility = context.get(SubjectProgramEligibilityService).findBySubjectAndProgram(subject, program);
+        if (!_.isNil(subjectProgramEligibility)) {
+            subjectProgramEligibility = subjectProgramEligibility.cloneForEdit();
+        }
         const isNewEntity = _.isNil(subjectProgramEligibility);
         if(isNewEntity) {
             subjectProgramEligibility = SubjectProgramEligibility.createEmptyInstance(program, subject);
