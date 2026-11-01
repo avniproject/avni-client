@@ -231,7 +231,7 @@ class CustomFilterService extends BaseService {
         const selectedOption = _.head(selectedOptions);
         switch (concept.datatype) {
             case (Concept.dataType.Coded) :
-                const codedFilterQuery = _.map(selectedOptions, c => ` (observations.concept.uuid == '${concept.uuid}' AND  observations.valueJSON CONTAINS[c] '${c.uuid}') `).join(" OR ");
+                const codedFilterQuery = this.codedFilterQuery(concept, selectedOptions);
                 return () => codedFilterQuery;
             case (Concept.dataType.Text) :
             case (Concept.dataType.Notes) :
@@ -268,7 +268,7 @@ class CustomFilterService extends BaseService {
     getConceptFilterQueryFunctionV2(concept, filterValue, widget) {
         switch (concept.datatype) {
             case (Concept.dataType.Coded) :
-                const codedFilterQuery = _.map(filterValue, c => ` (observations.concept.uuid == '${concept.uuid}' AND  observations.valueJSON CONTAINS[c] '${c.uuid}') `).join(" OR ");
+                const codedFilterQuery = this.codedFilterQuery(concept, filterValue);
                 return () => codedFilterQuery;
             case (Concept.dataType.Text) :
             case (Concept.dataType.Notes) :
@@ -306,6 +306,16 @@ class CustomFilterService extends BaseService {
             default:
                 return () => 'uuid != null';
         }
+    }
+
+    // Realm keeps the loose query without SUBQUERY (#836: SUBQUERY hung search on large orgs); the
+    // exact answer check runs in memory afterwards. On SQLite the loose form compares the whole
+    // observations column and matches no one, so it needs the per-observation SUBQUERY.
+    codedFilterQuery(concept, selectedOptions) {
+        if (this.db.isSqlite) {
+            return this.getObsSubQueryForQuery(_.map(selectedOptions, c => ` (concept.uuid == '${concept.uuid}' AND  valueJSON CONTAINS[c] '${c.uuid}') `).join(" OR "));
+        }
+        return _.map(selectedOptions, c => ` (observations.concept.uuid == '${concept.uuid}' AND  observations.valueJSON CONTAINS[c] '${c.uuid}') `).join(" OR ");
     }
 
     getObsSubQueryForQuery(query) {
