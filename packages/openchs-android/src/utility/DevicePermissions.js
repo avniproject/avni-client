@@ -22,8 +22,16 @@ export default class DevicePermissions {
         return false;
     }
 
-    static hasDeviceLocation() {
-        return PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
+    // Android 12+ lets the user grant approximate location only. An approximate fix is good enough for a
+    // geotag (#2064), so either grant counts; the caller records which one was used.
+    static async locationPrecision() {
+        if (await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION)) return "precise";
+        if (await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION)) return "approximate";
+        return null;
+    }
+
+    static async hasDeviceLocation() {
+        return !_.isNil(await DevicePermissions.locationPrecision());
     }
 
     static showPermissionDeniedAlert({titleKey, messageKey}) {

@@ -112,6 +112,7 @@ export default class MediaV2FormElement extends AbstractFormElement {
             longitude: _.get(tags, 'gps.Longitude') || _.get(this.state.deviceLocation, 'coords.longitude'),
             locationInExif: !_.isNil(_.get(tags, 'gps.Latitude')),
             locationAccuracy: _.get(this.state.deviceLocation, 'coords.accuracy'),
+            locationPrecision: _.isNil(this.state.deviceLocation) ? undefined : this.state.deviceLocationPrecision,
             gpsDOP: _.get(tags, 'exif.GPSDOP.description'),
             gpsProcessingMethod: _.get(tags, 'exif.GPSProcessingMethod.description'),
             deviceModel: _.get(tags, 'exif.Model.description') || DeviceInfo.getModel(),
@@ -139,7 +140,7 @@ export default class MediaV2FormElement extends AbstractFormElement {
     }
 
     debouncedGetPosition = _.debounce((callback) => {
-        DeviceLocation.getPosition(callback, true, null, this.context);
+        DeviceLocation.getPosition(callback, true, null, this.context, true);
     }, 1000, {leading: true, trailing: false});
 
     async launchCamera(onUpdateObservations) {
@@ -162,14 +163,15 @@ export default class MediaV2FormElement extends AbstractFormElement {
         // started once the batch above has resolved - and only if location was actually granted, otherwise
         // DeviceLocation would re-prompt for what the user just declined. It still runs while the user
         // frames the shot; a photo without a geotag is warned about on screen rather than blocked.
-        if (includeLocationInfoValue && await DevicePermissions.hasDeviceLocation()) {
-            this.debouncedGetPosition((position) => this.setState(state => ({...state, deviceLocation: position})));
+        const locationPrecision = includeLocationInfoValue ? await DevicePermissions.locationPrecision() : null;
+        if (locationPrecision) {
+            this.debouncedGetPosition((position) => this.setState(state => ({...state, deviceLocation: position, deviceLocationPrecision: locationPrecision})));
         }
         launchCamera(options, (response) => this.addMediaFromPicker(response, onUpdateObservations));
     }
 
     async launchMediaLibrary(onUpdateObservations) {
-        this.setState(state => ({...state, mode: Mode.MediaLibrary, deviceLocation: null}));
+        this.setState(state => ({...state, mode: Mode.MediaLibrary, deviceLocation: null, deviceLocationPrecision: null}));
 
         const includeLocationInfoValue = this.includeLocationInfo();
         const options = {

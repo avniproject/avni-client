@@ -6,7 +6,8 @@ import _ from "lodash";
 import IssueUploadUtil from "./IssueUploadUtil";
 
 export default class DeviceLocation {
-    static async askLocationPermission() {
+    // acceptApproximate: an approximate-only grant is enough, so the user is not asked again for precise location.
+    static async askLocationPermission(acceptApproximate = false) {
         if (Platform.OS === "ios" || (Platform.OS === "android" && Platform.Version < 23)) {
             return true;
         }
@@ -14,6 +15,7 @@ export default class DeviceLocation {
         const hasPermission = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
 
         if (hasPermission) return true;
+        if (acceptApproximate && await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION)) return true;
 
         try {
             const status = await Promise.race([
@@ -94,8 +96,8 @@ export default class DeviceLocation {
         ]);
     }
 
-    static getPosition = async function(successCallbackFn, silent = true, errorCallbackFn = null, context = null) {
-        const hasPermission = await DeviceLocation.askLocationPermission();
+    static getPosition = async function(successCallbackFn, silent = true, errorCallbackFn = null, context = null, acceptApproximate = false) {
+        const hasPermission = await DeviceLocation.askLocationPermission(acceptApproximate);
 
         if (hasPermission) {
             Geolocation.getCurrentPosition(
