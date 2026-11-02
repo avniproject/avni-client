@@ -462,6 +462,7 @@
     "dashboards": "Dashboards",
     "subjectsList": "Subject List",
     "dashboardsNotAvailable": "No dashboard available",
+    "dashboardNotAvailableToUser": "This dashboard is not available to you",
     "draft": "Draft",
     "draftDeleteMessage": "Drafts will stay here for 30 days, after which they are deleted",
     "drafts": "Drafts",

@@ -13,6 +13,7 @@ import {
     ScrollView,
     StyleSheet,
     Text,
+    ToastAndroid,
     TouchableNativeFeedback,
     TouchableOpacity,
     View
@@ -194,8 +195,8 @@ class CustomDashboardView extends AbstractComponent {
     }
 
     UNSAFE_componentWillMount() {
-        const {customDashboardType} = this.props;
-        performCustomDashboardActionAndClearRefresh(this, Actions.ON_LOAD, {customDashboardType});
+        const {customDashboardType, dashboardUUID} = this.props;
+        performCustomDashboardActionAndClearRefresh(this, Actions.ON_LOAD, {customDashboardType, dashboardUUID});
         super.UNSAFE_componentWillMount();
     }
 
@@ -381,6 +382,16 @@ class CustomDashboardView extends AbstractComponent {
                     ruleInputArray,
                     displayName,
                 }).to(CustomCardDetailView, true);
+            },
+            onOpenDashboard: (targetDashboardUUID) => {
+                this.dispatchAction(Actions.LOAD_INDICATOR, {loading: false});
+                // The opened dashboard takes over the shared dashboard state, so note which dashboard to put back.
+                this.dashboardToRestore = this.context.getStore().getState()[Reducers.reducerKeys.customDashboard].activeDashboardUUID;
+                openDashboardFrom(this, targetDashboardUUID);
+            },
+            onDashboardNotAvailable: () => {
+                this.dispatchAction(Actions.LOAD_INDICATOR, {loading: false});
+                ToastAndroid.show(this.I18n.t('dashboardNotAvailableToUser'), ToastAndroid.SHORT);
             }
         }), 0);
     }
@@ -408,11 +419,11 @@ class CustomDashboardView extends AbstractComponent {
         General.logDebug("CustomDashboardView", "render");
 
         const settings = this.getService(UserInfoService).getUserSettingsObject();
-        const {hideBackButton, startSync, renderSync, icon, customDashboardType, onSearch, showSearch} = this.props;
-        const showWelcomeMessage = this.context.getService(OrganisationConfigService).isGuideUserToRegisterButtonOn();
-        const title = showWelcomeMessage
-            ? this.I18n.t('welcomeMessage', {userName: this.context.getService(UserInfoService).getUserInfo().getDisplayUsername()?.split(' ')[0]})
-            : this.I18n.t(this.props.title || 'dashboards');
+        const {hideBackButton, startSync, renderSync, icon, customDashboardType, onSearch, showSearch, dashboardUUID} = this.props;
+        // A screen opened for one dashboard shows that dashboard alone: titled with its own name, with no welcome
+        // message and no tab strip to switch to another dashboard. An empty uuid counts as none, as it does when
+        // ON_LOAD loads the dashboards.
+        const isSingleDashboard = !_.isEmpty(dashboardUUID);
         const {hasFiltersSet, loading} = this.state;
         const dashboardFilterService = this.getService(DashboardFilterService);
 
@@ -427,6 +438,12 @@ class CustomDashboardView extends AbstractComponent {
             asOnDateFilterValue = (asOnDateFilterUUID && this.state.customDashboardFilters[asOnDateFilterUUID])
                 ? this.state.customDashboardFilters[asOnDateFilterUUID] : new Date();
         }
+
+        const showWelcomeMessage = !isSingleDashboard && this.context.getService(OrganisationConfigService).isGuideUserToRegisterButtonOn();
+        const ownName = isSingleDashboard ? _.get(dashboard, 'name') : undefined;
+        const title = showWelcomeMessage
+            ? this.I18n.t('welcomeMessage', {userName: this.context.getService(UserInfoService).getUserInfo().getDisplayUsername()?.split(' ')[0]})
+            : this.I18n.t(this.props.title || ownName || 'dashboards');
 
         return (
             <CHSContainer style={{
@@ -443,13 +460,14 @@ class CustomDashboardView extends AbstractComponent {
                 />
                 <ScrollView>
                     <Line/>
-                    {(_.isNil(customDashboardType) || customDashboardType === CustomDashboardType.None) &&
+                    {!isSingleDashboard && (_.isNil(customDashboardType) || customDashboardType === CustomDashboardType.None) &&
                         <SafeAreaView style={{height: 50}}>
                             <ScrollView horizontal style={{backgroundColor: Colors.cardBackgroundColor}}>
                                 {this.renderDashboards()}
                                 {this.renderZeroResultsMessageIfNeeded()}
                             </ScrollView>
                         </SafeAreaView>}
+                    {isSingleDashboard && !hasDashboards && this.renderZeroResultsMessageIfNeeded()}
                     {hasDashboards && <>
                         <View style={{display: "flex", flexDirection: "row", flex: 1, justifyContent: "space-between"}}>
                             <View style={{flex: 0.65}}>
@@ -480,6 +498,24 @@ class CustomDashboardView extends AbstractComponent {
             </CHSContainer>
         );
     }
+}
+
+// The screen a dashboard tile opens: one dashboard on its own, given as the prop `dashboardUUID`. It has its own
+// path because the router reuses the screen underneath when the same path is pushed twice, so the opened dashboard
+// would show the dashboard it was opened from. It sits in this file because CustomDashboardView opens it, and a
+// file of its own would import this one back.
+@Path('/openedDashboardView')
+export class OpenedDashboardView extends CustomDashboardView {
+    viewName() {
+        return 'OpenedDashboardView';
+    }
+}
+
+// Opens the dashboard a tile points at. From an opened dashboard it replaces that screen rather than adding
+// another, so the back button always returns to the dashboard the user started from.
+export function openDashboardFrom(view, targetDashboardUUID) {
+    const replace = !_.isEmpty(view.props.dashboardUUID);
+    TypedTransition.from(view).with({dashboardUUID: targetDashboardUUID}).to(OpenedDashboardView, true, replace);
 }
 
 const styles = StyleSheet.create({
