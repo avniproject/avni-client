@@ -11,6 +11,7 @@ import {CustomFilter, Range} from "openchs-models";
 jest.mock("../../../src/framework/bean/Service", () => () => (target) => target);
 
 import CustomDashboardService, {filterSettingsMatch, isChosenFilterValue} from "../../../src/service/customDashboard/CustomDashboardService";
+import CustomDashboardCacheService from "../../../src/service/CustomDashboardCacheService";
 import DashboardFilterService from "../../../src/service/reports/DashboardFilterService";
 import FormMetaDataSelection from "../../../src/model/FormMetaDataSelection";
 import AddressFilterValue from "../../../src/model/AddressFilterValue";
@@ -47,16 +48,20 @@ const codedAnswers = () => [{uuid: "answer-1", name: "Answer 1"}];
 const individuals = () => [{uuid: "individual-1", name: "Household 1"}];
 
 // A service of its own for each test, with the two dashboards' filters and saved values behind it.
-// getDashboardData and setSelectedFilterValues are spies, so nothing reaches the phone database.
+// getDashboardData, setSelectedFilterValues and the cache's clearResults are spies, so nothing reaches the phone database.
 function setUp({sourceFilters = [], targetFilters = [], sourceValues = {}, targetValues = {}}) {
     const filters = {source: sourceFilters, target: targetFilters};
     const savedValues = {source: sourceValues, target: targetValues};
-    const stubs = new Map([[DashboardFilterService, {getFilters: (dashboardUUID) => filters[dashboardUUID]}]]);
+    const clearResults = jest.fn();
+    const stubs = new Map([
+        [DashboardFilterService, {getFilters: (dashboardUUID) => filters[dashboardUUID]}],
+        [CustomDashboardCacheService, {clearResults}],
+    ]);
     const service = new CustomDashboardService(null, null);
     service.getService = (klass) => stubs.get(klass);
     jest.spyOn(service, "getDashboardData").mockImplementation((dashboardUUID) => ({selectedFilterValues: savedValues[dashboardUUID], dashboardCache: {}}));
     const setSelectedFilterValues = jest.spyOn(service, "setSelectedFilterValues").mockImplementation(() => undefined);
-    return {service, setSelectedFilterValues};
+    return {service, setSelectedFilterValues, clearResults};
 }
 
 const writtenValues = (setSelectedFilterValues) => setSelectedFilterValues.mock.calls[0][1];
@@ -345,6 +350,51 @@ describe("CustomDashboardService.carryFiltersOver", () => {
         assert.isTrue(service.carryFiltersOver("source", "target"));
 
         assert.strictEqual(writtenValues(setSelectedFilterValues).t1, chosen);
+    });
+
+    describe("the target's cached counts", () => {
+        // With auto refresh off, the counts refresh reuses cached counts, so counts kept from the target's old filters
+        // would show beside the carried ones. Every other write of a dashboard's filters clears its cached counts too.
+        it("are cleared once, right after the write, when something carried", () => {
+            const {service, setSelectedFilterValues, clearResults} = setUp({
+                sourceFilters: [filterRow("s1", "Village", settings(Type.Address))],
+                targetFilters: [filterRow("t1", "Village", settings(Type.Address))],
+                sourceValues: {s1: addressSelection()},
+                targetValues: {t1: AddressFilterValue.empty()},
+            });
+
+            assert.isTrue(service.carryFiltersOver("source", "target"));
+
+            assert.deepEqual(clearResults.mock.calls, [["target"]]);
+            assert.isBelow(setSelectedFilterValues.mock.invocationCallOrder[0], clearResults.mock.invocationCallOrder[0], "the clear comes after the write");
+        });
+
+        it("are never cleared when nothing carried", () => {
+            const {service, clearResults} = setUp({
+                sourceFilters: [filterRow("s1", "Village", settings(Type.Address))],
+                targetFilters: [filterRow("t1", "Registered", settings(Type.RegistrationDate, {widget: Widget.Range}))],
+                sourceValues: {s1: addressSelection()},
+                targetValues: {t1: dateRange()},
+            });
+
+            assert.isFalse(service.carryFiltersOver("source", "target"));
+            assert.isFalse(service.carryFiltersOver("source", "target", {}));
+
+            assert.equal(clearResults.mock.calls.length, 0);
+        });
+
+        it("are cleared when only an override was written, as an override is a write", () => {
+            const {service, setSelectedFilterValues, clearResults} = setUp({
+                sourceFilters: [],
+                targetFilters: [filterRow("t-address", "Village", settings(Type.Address))],
+                targetValues: {"t-address": AddressFilterValue.empty()},
+            });
+
+            assert.isTrue(service.carryFiltersOver("source", "target", {"t-address": addressSelection("Override")}));
+
+            assert.deepEqual(clearResults.mock.calls, [["target"]]);
+            assert.isBelow(setSelectedFilterValues.mock.invocationCallOrder[0], clearResults.mock.invocationCallOrder[0], "the clear comes after the write");
+        });
     });
 });
 

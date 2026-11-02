@@ -175,6 +175,9 @@ class CustomDashboardService extends BaseService {
 
         if (!changed) return false;
         this.setSelectedFilterValues(targetDashboardUUID, values, true);
+        // The target's cached counts belong to its old filters. With auto refresh off they would be shown again, so they
+        // are cleared, as every other write of a dashboard's filters does through FILTER_APPLIED.
+        this.getService(CustomDashboardCacheService).clearResults(targetDashboardUUID);
         return true;
     }
 }

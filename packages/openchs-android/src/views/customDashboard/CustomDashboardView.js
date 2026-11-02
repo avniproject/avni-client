@@ -214,9 +214,30 @@ class CustomDashboardView extends AbstractComponent {
 
     // Every dashboard screen shares one piece of dashboard state, and a dashboard opened from a tile takes it over.
     // Until the state is this screen's own again, the screen keeps showing its own dashboard, the back slide included.
+    // If another screen takes the state while this one is in front, this one loads its own dashboard again. That
+    // happens when a background full sync's reset empties the state and mounts Home underneath.
     refreshState() {
-        if (!ownsStoreState(this.sharedDashboardState().ownerKey, this.ownOwnerKey())) return;
-        super.refreshState();
+        if (ownsStoreState(this.sharedDashboardState().ownerKey, this.ownOwnerKey())) super.refreshState();
+        if (this.inFrontWithoutItsState()) this.reloadWhileInFront();
+    }
+
+    // True when the scene in front is this screen's route and the shared state is not its own. A state nobody owns is
+    // not its own, so the screen in front also reloads after a reset. The router's live focus is null during a
+    // transition, so no screen counts as in front while one runs.
+    inFrontWithoutItsState() {
+        return sceneFocusNeedsReload(_.invoke(this.context, 'focusedRoute'), this.ownRoutePath(), this.sharedDashboardState().ownerKey, this.ownOwnerKey());
+    }
+
+    // Waits two frames, as the focus path does, then reloads only if the screen is still mounted, still in front and
+    // still without its state. One reload waits at a time, so a burst of store changes gives one reload.
+    reloadWhileInFront() {
+        if (this._inFrontReloadPending) return;
+        this._inFrontReloadPending = true;
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            this._inFrontReloadPending = false;
+            if (this._isUnmounted || !this.inFrontWithoutItsState()) return;
+            this.reloadOwnDashboard();
+        }));
     }
 
     // When the user comes back to this screen after an opened dashboard took the state over, the screen loads its own
@@ -264,6 +285,12 @@ class CustomDashboardView extends AbstractComponent {
     }
 
     onDashboardNamePress(uuid) {
+        // Remembered, so a later reload comes back on the tab the user is on: after an opened dashboard, or after a
+        // background sync while this screen is in front.
+        this.dashboardToRestore = uuid;
+        // Without the shared state the tap would land on another screen's state. The reload that is on its way, as this
+        // screen is in front, lands on the remembered tab instead. A state nobody owns still counts.
+        if (!ownsStoreState(this.sharedDashboardState().ownerKey, this.ownOwnerKey())) return;
         this.dispatchAction(FilterActionNames.ON_LOAD, {dashboardUUID: uuid});
         performCustomDashboardActionAndRefresh(this, Actions.ON_DASHBOARD_CHANGE, {dashboardUUID: uuid});
     }
@@ -354,6 +381,9 @@ class CustomDashboardView extends AbstractComponent {
     }
 
     onCardPress(reportCardUUID) {
+        // A press that arrives after another screen took the shared state, such as the second of two quick taps on a tile
+        // that opened a dashboard, would act on that screen's state. It is ignored. A state nobody owns still counts.
+        if (!ownsStoreState(this.sharedDashboardState().ownerKey, this.ownOwnerKey())) return;
         this.dispatchAction(Actions.LOAD_INDICATOR, {loading: true});
         return setTimeout(() => this.dispatchAction(Actions.ON_CARD_PRESS, {
             reportCardUUID,

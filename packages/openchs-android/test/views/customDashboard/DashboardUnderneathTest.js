@@ -55,6 +55,7 @@ import EntityService from "../../../src/service/EntityService";
 
 const d1 = {uuid: "d1", name: "Supervisor view", voided: false};
 const d2 = {uuid: "d2", name: "Monthly review", voided: false};
+const d3 = {uuid: "d3", name: "Field visits", voided: false};
 const t1 = {uuid: "t1", name: "Village detail", voided: false};
 
 // These actions go through the real dashboard reducer, as they decide whose state the store holds and which tab is
@@ -64,8 +65,9 @@ const reducedActions = [Actions.ON_LOAD, Actions.ON_DASHBOARD_CHANGE, Actions.CL
 // The phone as these tests need it: a store that runs the dashboard reducer and tells its subscribers of every
 // dispatch, screens that can be mounted on top of one another, and a router whose scene focus the test reports.
 // `dashboardsOfType` can be changed after mount, as a sync can change which dashboards a user has.
-const buildPhone = (dashboardsOfType) => {
-    const dashboards = [d1, d2, t1];
+// With `tileOpens`, a card press opens that dashboard, as the reducer's Open dashboard branch does for a visible target.
+const buildPhone = (dashboardsOfType, {tileOpens} = {}) => {
+    const dashboards = [d1, d2, d3, t1];
     const reducerServices = new Map([
         [CustomDashboardService, {
             // As the real service does, a missing type gives the None list.
@@ -83,6 +85,7 @@ const buildPhone = (dashboardsOfType) => {
     const dispatch = jest.fn((action) => {
         if (action.type === "RESET") state = CustomDashboardActions.getInitialState();
         else if (_.includes(reducedActions, action.type)) state = CustomDashboardActionMap.get(action.type)(state, action, reducerContext);
+        else if (action.type === Actions.ON_CARD_PRESS && tileOpens) setTimeout(() => action.onOpenDashboard(tileOpens), 0);
         [...storeListeners].forEach((listener) => listener());
     });
     const store = {
@@ -99,6 +102,8 @@ const buildPhone = (dashboardsOfType) => {
         focusListeners.add(listener);
         return jest.fn(() => focusListeners.delete(listener));
     });
+    // The route in front, as the Router's focusedRoute gives it: set when a scene focuses, null while a transition runs.
+    let liveFocus = null;
 
     const i18n = {t: (key) => `i18n:${key}`};
     const viewServices = new Map([
@@ -122,6 +127,7 @@ const buildPhone = (dashboardsOfType) => {
         subscribeSceneDidFocus,
         // Stale on purpose, as the router's path is while Home mounts during a pop. A screen must not go by it.
         currentRoutePath: () => "/openedDashboardView",
+        focusedRoute: () => liveFocus,
     };
 
     const show = (ViewClass, props = {}) => {
@@ -149,8 +155,16 @@ const buildPhone = (dashboardsOfType) => {
         dispatched: () => dispatch.mock.calls.map(([action]) => action),
         // A store change from outside the screens, such as a full sync's reset.
         dispatchFromOutside: (action) => act(() => store.dispatch(action)),
-        // The router's signal that a scene has finished its transition, as Router.didFocus sends it.
-        focus: (path) => act(() => [...focusListeners].forEach((listener) => listener({path}))),
+        // The router's signal that a scene has finished its transition, as Router.didFocus sends it. The scene is then
+        // the one in front.
+        focus: (path) => act(() => {
+            liveFocus = {path};
+            [...focusListeners].forEach((listener) => listener(liveFocus));
+        }),
+        // A transition has started, as Router.willFocus marks it. No scene is in front until the next focus.
+        startTransition: () => {
+            liveFocus = null;
+        },
     };
 };
 
@@ -186,6 +200,14 @@ describe("The dashboard underneath an opened dashboard", () => {
         due.forEach((callback) => callback(Date.now()));
     });
     const types = (actions) => actions.map((action) => action.type);
+    // A tile press, then its zero-delay steps: the card press, then the open the reducer schedules from inside it. Fake
+    // timers give a timer set while another runs a delay of 1 ms, so 1 ms runs both and none of the 500 ms refreshes.
+    const press = (screen) => {
+        act(() => screen.instance.onCardPress("card-1"));
+        act(() => {
+            jest.advanceTimersByTime(1);
+        });
+    };
 
     beforeEach(() => {
         jest.useFakeTimers();
@@ -413,6 +435,201 @@ describe("The dashboard underneath an opened dashboard", () => {
         });
     });
 
+    describe("when another screen takes the state while it is in front", () => {
+        it("Menu → Dashboards takes its own dashboards back after a background full sync mounts Home under it, and a tab press then works", () => {
+            const phone = buildPhone({None: [d1, d2, t1], Primary: [d1]});
+            const menu = phone.show(CustomDashboardView, menuDashboards);
+            phone.focus("/customDashboardView");
+
+            // The full sync's reset, then LandingView's load, which mounts Home under Menu → Dashboards.
+            phone.dispatchFromOutside({type: "RESET"});
+            const homeScreen = phone.show(CustomDashboardView, home);
+            expect(phone.state().ownerKey).toBe("Primary|");
+            const homeState = homeScreen.instance.state;
+            nextFrame();
+            nextFrame();
+
+            expect(phone.state().ownerKey).toBe("None|");
+            expect(menu.instance.state.ownerKey).toBe("None|");
+            expect(menu.tabs()).toEqual(["d1", "d2", "t1"]);
+            expect(menu.instance.state.activeDashboardUUID).toBe("d1");
+
+            expect(() => act(() => menu.instance.onDashboardNamePress("d2"))).not.toThrow();
+            expect(menu.instance.state.activeDashboardUUID).toBe("d2");
+            expect(phone.state().ownerKey).toBe("None|");
+            expect(homeScreen.instance.state).toBe(homeState);
+            expect(homeScreen.instance.state).toMatchObject({ownerKey: "Primary|", dashboards: [d1], activeDashboardUUID: "d1"});
+        });
+
+        it.each([
+            ["Menu → Dashboards", CustomDashboardView, menuDashboards, "/customDashboardView", "None|", {customDashboardType: undefined, dashboardUUID: undefined}],
+            ["An opened dashboard", OpenedDashboardView, {dashboardUUID: "t1"}, "/openedDashboardView", "None|t1", {customDashboardType: undefined, dashboardUUID: "t1"}],
+        ])("%s, in front, loads its own dashboard again two frames after a reset leaves the state nobody's", (name, ViewClass, props, path, ownKey, asked) => {
+            const phone = buildPhone({None: [d1, d2, t1]});
+            const screen = phone.show(ViewClass, props);
+            phone.focus(path);
+            phone.dispatch.mockClear();
+
+            phone.dispatchFromOutside({type: "RESET"});
+            expect(types(phone.dispatched())).toEqual(["RESET"]);
+            nextFrame();
+            expect(types(phone.dispatched())).toEqual(["RESET"]);
+            nextFrame();
+
+            expect(phone.dispatched()[1]).toEqual({type: Actions.ON_LOAD, ...asked, activeDashboardUUID: undefined});
+            expect(phone.state().ownerKey).toBe(ownKey);
+            expect(screen.instance.state.ownerKey).toBe(ownKey);
+            expect(screen.instance.state.activeDashboardUUID).not.toBeNull();
+        });
+
+        describe("a screen that is not in front never reloads", () => {
+            it("Home under Menu → Dashboards", () => {
+                const phone = buildPhone({None: [d1, d2], Primary: [d1]});
+                const homeScreen = phone.show(CustomDashboardView, home);
+                phone.focus("/landingView");
+                // Menu → Dashboards is pushed over LandingView: the transition starts, it mounts and loads, then it focuses.
+                phone.startTransition();
+                phone.show(CustomDashboardView, menuDashboards);
+                phone.focus("/customDashboardView");
+                phone.dispatch.mockClear();
+
+                phone.dispatchFromOutside({type: Actions.LOAD_INDICATOR, loading: true});
+                expect(frames).toEqual([]);
+                nextFrame();
+                nextFrame();
+
+                expect(types(phone.dispatched())).toEqual([Actions.LOAD_INDICATOR]);
+                expect(homeScreen.instance.state.ownerKey).toBe("Primary|");
+            });
+
+            it("the screen underneath an opened dashboard", () => {
+                const phone = buildPhone({None: [d1, d2, t1]});
+                const menu = phone.show(CustomDashboardView, menuDashboards);
+                phone.focus("/customDashboardView");
+                // A tile pushes the opened dashboard: the transition starts, it mounts and takes the state, then it focuses.
+                phone.startTransition();
+                phone.show(OpenedDashboardView, {dashboardUUID: "t1"});
+                phone.focus("/openedDashboardView");
+                phone.dispatch.mockClear();
+
+                phone.dispatchFromOutside({type: Actions.LOAD_INDICATOR, loading: true});
+                expect(frames).toEqual([]);
+                nextFrame();
+                nextFrame();
+
+                expect(types(phone.dispatched())).toEqual([Actions.LOAD_INDICATOR]);
+                expect(menu.instance.state.ownerKey).toBe("None|");
+            });
+
+            it("any screen while a transition runs, as no scene is in front then", () => {
+                const phone = buildPhone({None: [d1, d2], Primary: [d1]});
+                const menu = phone.show(CustomDashboardView, menuDashboards);
+                phone.focus("/customDashboardView");
+                phone.startTransition();
+                phone.dispatch.mockClear();
+
+                // Another screen's load, such as Home mounting during a pop.
+                phone.dispatchFromOutside({type: Actions.ON_LOAD, customDashboardType: CustomDashboardType.Primary});
+                expect(frames).toEqual([]);
+                nextFrame();
+                nextFrame();
+
+                expect(types(phone.dispatched())).toEqual([Actions.ON_LOAD]);
+                expect(phone.state().ownerKey).toBe("Primary|");
+                expect(menu.instance.state.ownerKey).toBe("None|");
+            });
+        });
+
+        it("does not reload when the focus moves away within the two frames", () => {
+            const phone = buildPhone({None: [d1, d2]});
+            phone.show(CustomDashboardView, menuDashboards);
+            phone.focus("/customDashboardView");
+            phone.dispatchFromOutside({type: "RESET"});
+            expect(frames).toHaveLength(1);
+            phone.dispatch.mockClear();
+
+            nextFrame();
+            // The user starts another screen's transition before the second frame.
+            phone.startTransition();
+            nextFrame();
+
+            expect(phone.dispatched()).toEqual([]);
+            expect(phone.state().ownerKey).toBeNull();
+        });
+
+        it("does not reload the screen underneath even if a pushed screen took the state before the focus was cleared", () => {
+            // The Navigator clears the focus before it mounts a pushed or replacing screen. Were it the other way round, the
+            // screen underneath would still be in front when the pushed screen takes the state, and would schedule a reload.
+            // The live check at the second frame then finds no scene in front and stops it.
+            const phone = buildPhone({None: [d1, d2, t1]});
+            const menu = phone.show(CustomDashboardView, menuDashboards);
+            phone.focus("/customDashboardView");
+            phone.dispatch.mockClear();
+
+            phone.show(OpenedDashboardView, {dashboardUUID: "t1"});
+            expect(frames).not.toEqual([]);
+            phone.startTransition();
+            nextFrame();
+            nextFrame();
+
+            expect(phone.dispatched().filter((action) => action.type === Actions.ON_LOAD)).toEqual([
+                {type: Actions.ON_LOAD, customDashboardType: undefined, dashboardUUID: "t1"},
+            ]);
+            expect(phone.state().ownerKey).toBe("None|t1");
+            expect(menu.instance.state.ownerKey).toBe("None|");
+        });
+
+        it("loads once, from one pending reload, after a burst of store changes", () => {
+            const phone = buildPhone({None: [d1, d2], Primary: [d1]});
+            phone.show(CustomDashboardView, menuDashboards);
+            phone.focus("/customDashboardView");
+            phone.dispatch.mockClear();
+
+            phone.dispatchFromOutside({type: "RESET"});
+            phone.show(CustomDashboardView, home);
+            phone.dispatchFromOutside({type: Actions.LOAD_INDICATOR, loading: false});
+            expect(frames).toHaveLength(1);
+            nextFrame();
+            nextFrame();
+
+            const reloads = phone.dispatched().filter((action) => action.type === Actions.ON_LOAD && _.isNil(action.customDashboardType));
+            expect(reloads).toEqual([{type: Actions.ON_LOAD, customDashboardType: undefined, dashboardUUID: undefined, activeDashboardUUID: undefined}]);
+            expect(phone.state().ownerKey).toBe("None|");
+        });
+
+        it.each(screensUnderneath)("%s, in front with its own state, asks for no frame on any store change", (name, props, path, type) => {
+            const phone = buildPhone({[_.defaultTo(type, CustomDashboardType.None)]: [d1, d2]});
+            const screen = phone.show(CustomDashboardView, props);
+            phone.focus(path);
+
+            phone.dispatchFromOutside({type: Actions.LOAD_INDICATOR, loading: true});
+            act(() => screen.instance.onDashboardNamePress("d2"));
+            phone.dispatchFromOutside({type: Actions.CLEAR_COUNTS});
+
+            expect(requestAnimationFrame).not.toHaveBeenCalled();
+        });
+
+        it("Home does not reload when the bottom bar puts the second tab in its place", () => {
+            // React mounts the incoming tab, whose load takes the state, before it unmounts the outgoing one. For that moment
+            // Home is still in front without its state, so it may schedule a reload. It is gone by the second frame.
+            const phone = buildPhone({Primary: [d1], Secondary: [d2]});
+            const homeScreen = phone.show(CustomDashboardView, home);
+            phone.focus("/landingView");
+            phone.dispatch.mockClear();
+
+            const second = phone.show(CustomDashboardView, secondTab);
+            homeScreen.close();
+            nextFrame();
+            nextFrame();
+
+            expect(phone.dispatched().filter((action) => action.type === Actions.ON_LOAD)).toEqual([
+                {type: Actions.ON_LOAD, customDashboardType: CustomDashboardType.Secondary, dashboardUUID: undefined},
+            ]);
+            expect(phone.state().ownerKey).toBe("Secondary|");
+            expect(second.instance.state.ownerKey).toBe("Secondary|");
+        });
+    });
+
     describe("when nothing was opened on top", () => {
         it.each(screensUnderneath)("%s loads nothing when its own route focuses", (name, props, path, type) => {
             const phone = buildPhone({[_.defaultTo(type, CustomDashboardType.None)]: [d1]});
@@ -469,6 +686,165 @@ describe("The dashboard underneath an opened dashboard", () => {
             expect(screen.instance.state.activeDashboardUUID).toBe("d2");
             expect(screen.tabs()).toEqual(["d1", "d2", "t1"]);
             expect(_.last(phone.dispatched())).toEqual({type: FilterActionNames.ON_LOAD, dashboardUUID: "d2"});
+        });
+    });
+
+    describe("a tile press", () => {
+        // Opens the tile's dashboard from Menu → Dashboards on tab d2, as a first tap does. The opened screen's load takes the state.
+        const openFromTabD2 = () => {
+            const phone = buildPhone({None: [d1, d2, t1]}, {tileOpens: "t1"});
+            const menu = phone.show(CustomDashboardView, menuDashboards);
+            act(() => menu.instance.onDashboardNamePress("d2"));
+            press(menu);
+            return {phone, menu};
+        };
+
+        it("is ignored once the dashboard it opened has taken the state: nothing is dispatched, the tab to restore stays, nothing is pushed", () => {
+            const {phone, menu} = openFromTabD2();
+            expect(phone.nav.push).toHaveBeenCalledTimes(1);
+            expect(menu.instance.dashboardToRestore).toBe("d2");
+            phone.show(OpenedDashboardView, phone.nav.push.mock.calls[0][0].queryParams);
+            expect(phone.state().ownerKey).toBe("None|t1");
+            phone.dispatch.mockClear();
+
+            // The second of two quick taps, let through when the screen redraws between them.
+            press(menu);
+
+            expect(phone.dispatched()).toEqual([]);
+            expect(menu.instance.dashboardToRestore).toBe("d2");
+            expect(phone.nav.push).toHaveBeenCalledTimes(1);
+        });
+
+        it("works as before when the state is the screen's own", () => {
+            const phone = buildPhone({None: [d1, d2, t1]}, {tileOpens: "t1"});
+            const menu = phone.show(CustomDashboardView, menuDashboards);
+            act(() => menu.instance.onDashboardNamePress("d2"));
+            phone.dispatch.mockClear();
+
+            press(menu);
+
+            expect(phone.dispatched().slice(0, 2)).toEqual([
+                {type: Actions.LOAD_INDICATOR, loading: true},
+                expect.objectContaining({type: Actions.ON_CARD_PRESS, reportCardUUID: "card-1"}),
+            ]);
+            expect(menu.instance.dashboardToRestore).toBe("d2");
+            expect(phone.nav.push).toHaveBeenCalledTimes(1);
+            expect(phone.nav.push).toHaveBeenCalledWith({path: "/openedDashboardView", queryParams: {dashboardUUID: "t1"}, isTyped: true});
+        });
+
+        it("still works when the state is nobody's, as today", () => {
+            const phone = buildPhone({None: [d1, d2, t1]}, {tileOpens: "t1"});
+            const menu = phone.show(CustomDashboardView, menuDashboards);
+            phone.dispatchFromOutside({type: "RESET"});
+            phone.dispatch.mockClear();
+
+            press(menu);
+
+            expect(types(phone.dispatched()).slice(0, 2)).toEqual([Actions.LOAD_INDICATOR, Actions.ON_CARD_PRESS]);
+            expect(phone.nav.push).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    describe("a tab tap", () => {
+        const reloadOnTab = (uuid) => ({type: Actions.ON_LOAD, customDashboardType: undefined, dashboardUUID: undefined, activeDashboardUUID: uuid});
+
+        it("is remembered, so the reload after a reset while Menu → Dashboards is in front comes back on that tab", () => {
+            const phone = buildPhone({None: [d1, d2, d3]});
+            const menu = phone.show(CustomDashboardView, menuDashboards);
+            phone.focus("/customDashboardView");
+            act(() => menu.instance.onDashboardNamePress("d3"));
+            phone.dispatch.mockClear();
+
+            phone.dispatchFromOutside({type: "RESET"});
+            nextFrame();
+            nextFrame();
+
+            expect(phone.dispatched()[1]).toEqual(reloadOnTab("d3"));
+            expect(menu.instance.state.activeDashboardUUID).toBe("d3");
+        });
+
+        it("made after the return from an opened dashboard wins over the tab the tile was pressed on", () => {
+            const phone = buildPhone({None: [d1, d2, d3, t1]}, {tileOpens: "t1"});
+            const menu = phone.show(CustomDashboardView, menuDashboards);
+            phone.focus("/customDashboardView");
+            act(() => menu.instance.onDashboardNamePress("d2"));
+            // The tile on d2 opens t1: the push starts a transition, the opened screen mounts and takes the state, it focuses.
+            press(menu);
+            phone.startTransition();
+            const opened = phone.show(OpenedDashboardView, phone.nav.push.mock.calls[0][0].queryParams);
+            phone.focus("/openedDashboardView");
+            // Back: the pop starts a transition, the opened screen goes, Menu → Dashboards focuses and comes back on d2.
+            phone.startTransition();
+            opened.close();
+            phone.focus("/customDashboardView");
+            nextFrame();
+            nextFrame();
+            expect(menu.instance.state.activeDashboardUUID).toBe("d2");
+
+            act(() => menu.instance.onDashboardNamePress("d3"));
+            phone.dispatch.mockClear();
+            phone.dispatchFromOutside({type: "RESET"});
+            nextFrame();
+            nextFrame();
+
+            expect(phone.dispatched()[1]).toEqual(reloadOnTab("d3"));
+            expect(menu.instance.state.activeDashboardUUID).toBe("d3");
+        });
+
+        it("made before the reload, after a background full sync mounted Home under Menu → Dashboards, dispatches nothing, and the reload lands on that tab", () => {
+            const phone = buildPhone({None: [d1, d2, t1], Primary: [d1]});
+            const menu = phone.show(CustomDashboardView, menuDashboards);
+            phone.focus("/customDashboardView");
+            phone.dispatchFromOutside({type: "RESET"});
+            const homeScreen = phone.show(CustomDashboardView, home);
+            const homeState = homeScreen.instance.state;
+            phone.dispatch.mockClear();
+
+            // Within the two frames before the reload, the state is Home's.
+            expect(() => act(() => menu.instance.onDashboardNamePress("d2"))).not.toThrow();
+            expect(phone.dispatched()).toEqual([]);
+            nextFrame();
+            nextFrame();
+
+            expect(phone.dispatched()[0]).toEqual(reloadOnTab("d2"));
+            expect(phone.state().ownerKey).toBe("None|");
+            expect(menu.instance.state.activeDashboardUUID).toBe("d2");
+            expect(homeScreen.instance.state).toBe(homeState);
+        });
+
+        it("with the state its own works as before", () => {
+            const phone = buildPhone({None: [d1, d2]});
+            const menu = phone.show(CustomDashboardView, menuDashboards);
+            phone.dispatch.mockClear();
+
+            act(() => menu.instance.onDashboardNamePress("d2"));
+
+            expect(phone.dispatched()).toEqual([
+                {type: FilterActionNames.ON_LOAD, dashboardUUID: "d2"},
+                {type: Actions.ON_DASHBOARD_CHANGE, dashboardUUID: "d2"},
+            ]);
+            expect(menu.instance.state.activeDashboardUUID).toBe("d2");
+            act(() => {
+                jest.advanceTimersByTime(500);
+            });
+            expect(types(phone.dispatched())).toEqual([FilterActionNames.ON_LOAD, Actions.ON_DASHBOARD_CHANGE, Actions.REFRESH_COUNT]);
+        });
+
+        it("with the state nobody's, after a reset, works as before", () => {
+            const phone = buildPhone({None: [d1, d2]});
+            const menu = phone.show(CustomDashboardView, menuDashboards);
+            phone.dispatchFromOutside({type: "RESET"});
+            phone.dispatch.mockClear();
+
+            act(() => menu.instance.onDashboardNamePress("d2"));
+
+            // The tap's own two dispatches come first. The reset emptied the screen, so its applied-filters bar comes
+            // back with the tab and points the filter state at it once more, as it does today.
+            expect(phone.dispatched().slice(0, 2)).toEqual([
+                {type: FilterActionNames.ON_LOAD, dashboardUUID: "d2"},
+                {type: Actions.ON_DASHBOARD_CHANGE, dashboardUUID: "d2"},
+            ]);
+            expect(phone.state().activeDashboardUUID).toBe("d2");
         });
     });
 });

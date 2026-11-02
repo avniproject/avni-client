@@ -65,6 +65,13 @@ function getDoVisitFilteredCount(reportCard, result, countResult) {
     return filteredCount;
 }
 
+// A card with the Open dashboard action opens its dashboard whatever its query returns, so its number is tappable
+// unless the result is an error. `clickable` is transient, outside the ReportCardResult and NestedReportCardResult
+// schemas, so setting it on a result that is later saved to the cache stores nothing.
+function makeOpenDashboardResultTappable(reportCard, result) {
+    if (reportCard.isActionOpenDashboard() && !_.isNil(result) && !result.hasErrorMsg) result.clickable = true;
+}
+
 function getReportsCards(dashboardUUID, context) {
     return context.get(DashboardSectionCardMappingService).getAllCardsForDashboard(dashboardUUID);
 }
@@ -375,6 +382,7 @@ class CustomDashboardActions {
 
                 if (reportCardResults && reportCardResults.length === rcm.card.countOfCards) {
                     _.forEach(reportCardResults, (reportCardResult, index) => {
+                        makeOpenDashboardResultTappable(rcm.card, reportCardResult);
                         newState.cardToCountResultMap[rcm.card.getCardId(index)] = reportCardResult;
                     });
                 } else if (hasError) {
@@ -394,6 +402,7 @@ class CustomDashboardActions {
                     customDashboardCacheService.updateReportCardResult(state.activeDashboardUUID, rcm.card, reportCardResult);
                     pendingSingleResults.push({card: rcm.card, result: reportCardResult});
                 }
+                makeOpenDashboardResultTappable(rcm.card, reportCardResult);
                 newState.cardToCountResultMap[rcm.card.getCardId()] = reportCardResult;
             }
             General.logDebug('CustomDashboardActions', `${rcm.card.name} took ${new Date() - start} ms`);
