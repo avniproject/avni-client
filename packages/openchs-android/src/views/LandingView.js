@@ -323,6 +323,7 @@ class LandingView extends AbstractComponent {
                 hideBackButton={true}
                 renderSync={true}
                 customDashboardType={CustomDashboardType.Primary}
+                routePath={LandingView.path()}
                 onSearch={() => this.dispatchAction(Actions.ON_SEARCH_CLICK)}
                 showSearch={true}
             />
@@ -438,6 +439,7 @@ class LandingView extends AbstractComponent {
                         hideBackButton={true}
                         renderSync={true}
                         customDashboardType={CustomDashboardType.Secondary}
+                        routePath={LandingView.path()}
                         onSearch={() => this.dispatchAction(Actions.ON_SEARCH_CLICK)}
                     />;
                 }.bind(this)())}

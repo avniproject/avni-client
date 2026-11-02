@@ -116,6 +116,18 @@ export function dashboardOwnerKey(customDashboardType, dashboardUUID) {
     return `${_.defaultTo(customDashboardType, CustomDashboardType.None)}|${_.defaultTo(dashboardUUID, '')}`;
 }
 
+// Whether a dashboard screen loads its own dashboard again when a route comes into focus: only when the route is its
+// own and another screen has taken the shared dashboard state. A screen that does not know its own route never does.
+export function sceneFocusNeedsReload(focusedRoute, ownRoutePath, currentOwnerKey, ownOwnerKey) {
+    if (_.isNil(ownRoutePath) || _.get(focusedRoute, 'path') !== ownRoutePath) return false;
+    return currentOwnerKey !== ownOwnerKey;
+}
+
+// Whether a dashboard screen shows the shared dashboard state: when it is the screen's own, or nobody's yet.
+export function ownsStoreState(storeOwnerKey, ownOwnerKey) {
+    return _.isNil(storeOwnerKey) || storeOwnerKey === ownOwnerKey;
+}
+
 // One chosen dashboard on its own when the screen names one, otherwise the dashboards of its type.
 // A chosen dashboard that is missing or voided loads nothing, and never falls back to the type's list.
 function loadDashboards(dashboardService, action) {

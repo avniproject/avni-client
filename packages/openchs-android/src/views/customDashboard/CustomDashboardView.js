@@ -5,8 +5,11 @@ import React, {Fragment} from "react";
 import Reducers from "../../reducer";
 import {
     CustomDashboardActionNames as Actions,
+    dashboardOwnerKey,
+    ownsStoreState,
     performCustomDashboardActionAndClearRefresh,
-    performCustomDashboardActionAndRefresh
+    performCustomDashboardActionAndRefresh,
+    sceneFocusNeedsReload
 } from "../../action/customDashboard/CustomDashboardActions";
 import {
     SafeAreaView,
@@ -198,6 +201,62 @@ class CustomDashboardView extends AbstractComponent {
         const {customDashboardType, dashboardUUID} = this.props;
         performCustomDashboardActionAndClearRefresh(this, Actions.ON_LOAD, {customDashboardType, dashboardUUID});
         super.UNSAFE_componentWillMount();
+    }
+
+    onViewDidMount() {
+        this.unsubscribeSceneFocus = _.invoke(this.context, 'subscribeSceneDidFocus', (route) => this.onSceneFocus(route));
+    }
+
+    componentWillUnmount() {
+        if (_.isFunction(this.unsubscribeSceneFocus)) this.unsubscribeSceneFocus();
+        super.componentWillUnmount();
+    }
+
+    // Every dashboard screen shares one piece of dashboard state, and a dashboard opened from a tile takes it over.
+    // Until the state is this screen's own again, the screen keeps showing its own dashboard, the back slide included.
+    refreshState() {
+        if (!ownsStoreState(this.sharedDashboardState().ownerKey, this.ownOwnerKey())) return;
+        super.refreshState();
+    }
+
+    // When the user comes back to this screen after an opened dashboard took the state over, the screen loads its own
+    // dashboard again. It waits two frames, as a screen's first load does, so the back slide's last frame is painted
+    // before the load blocks the JS thread (AbstractComponent, #2054).
+    onSceneFocus(route) {
+        const needsReload = () => sceneFocusNeedsReload(route, this.ownRoutePath(), this.sharedDashboardState().ownerKey, this.ownOwnerKey());
+        if (!needsReload()) return;
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            if (this._isUnmounted || !needsReload()) return;
+            this.reloadOwnDashboard();
+        }));
+    }
+
+    // Loads this screen's dashboard on the tab the user left, then points the filter screen's state back at it, as a
+    // tab change does: the applied-filters bar points it only when it mounts, and the opened dashboard's bar pointed it
+    // at the opened dashboard. With no dashboard left to show, the screen shows no filters and there is nothing to point at.
+    reloadOwnDashboard() {
+        const {customDashboardType, dashboardUUID} = this.props;
+        performCustomDashboardActionAndClearRefresh(this, Actions.ON_LOAD, {customDashboardType, dashboardUUID, activeDashboardUUID: this.dashboardToRestore});
+        const {activeDashboardUUID} = this.sharedDashboardState();
+        if (!_.isNil(activeDashboardUUID)) {
+            this.dispatchAction(FilterActionNames.ON_LOAD, {dashboardUUID: activeDashboardUUID});
+        }
+    }
+
+    // The route this screen sits on. LandingView passes its own for Home and the second tab, which it draws. The router
+    // is not asked: its current path is stale when Home mounts during a pop, as when the header's home icon pops to the
+    // top and switches LandingView to Home in the same tap.
+    ownRoutePath() {
+        return this.props.routePath || this.constructor.path();
+    }
+
+    // The owner key this screen's own load records in the shared dashboard state.
+    ownOwnerKey() {
+        return dashboardOwnerKey(this.props.customDashboardType, this.props.dashboardUUID);
+    }
+
+    sharedDashboardState() {
+        return this.context.getStore().getState()[Reducers.reducerKeys.customDashboard];
     }
 
     onClearFilters() {
