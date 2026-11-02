@@ -64,6 +64,13 @@
       "when": 1789706854499,
       "tag": "0008_program_encounter_pending_visits",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1793614593835,
+      "tag": "0009_report_card_action_detail_dashboard_uuid",
+      "breakpoints": true
     }
   ]
 }
