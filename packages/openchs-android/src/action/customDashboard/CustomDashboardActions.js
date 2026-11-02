@@ -209,6 +209,21 @@ class CustomDashboardActions {
             const countResult = state.cardToCountResultMap[itemKey];
             const displayName = (countResult && countResult.cardName) || reportCard.name;
             setTimeout(() => action.onFullyCustomCardPress(reportCard, ruleInputArray, displayName), 0);
+        } else if (reportCard.isActionOpenDashboard()) {
+            // Opens another dashboard, so no card result is computed and nothing here reaches the subject dashboard.
+            const targetDashboardUUID = reportCard.actionDetailDashboardUUID;
+            const customDashboardService = context.get(CustomDashboardService);
+            // A card with no target counts as not visible. A nil is checked on its own, so it can never match a dashboard.
+            const targetVisible = !_.isNil(targetDashboardUUID)
+                && _.some(customDashboardService.getDashboards(CustomDashboardType.None), dashboard => _.get(dashboard, 'uuid') === targetDashboardUUID);
+            if (targetVisible) {
+                General.logDebug('CustomDashboardActions', `onCardPress - Open dashboard card "${reportCard.name}": opening ${targetDashboardUUID} from ${state.activeDashboardUUID}`);
+                customDashboardService.carryFiltersOver(state.activeDashboardUUID, targetDashboardUUID);
+                setTimeout(() => action.onOpenDashboard(targetDashboardUUID), 0);
+            } else {
+                General.logDebug('CustomDashboardActions', `onCardPress - Open dashboard card "${reportCard.name}": target ${targetDashboardUUID} is not available to this user`);
+                setTimeout(() => action.onDashboardNotAvailable(), 0);
+            }
         } else if (reportCard.isStandardTaskType()) {
             General.logDebug('CustomDashboardActions', `onCardPress - Navigating to task lists for ${reportCard.name}, took ${new Date() - cardPressStartTime} ms`);
             action.goToTaskLists(reportCard.standardReportCardType.getTaskTypeType(), ruleInputArray);

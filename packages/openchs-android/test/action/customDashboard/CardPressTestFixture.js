@@ -45,6 +45,7 @@ export function makeReportCard(overrides) {
         isStandardTaskType: () => false,
         isActionDoVisit: () => false,
         isActionMarkAttendance: () => false,
+        isActionOpenDashboard: () => false,
         ...overrides,
     };
 }
