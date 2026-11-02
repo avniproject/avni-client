@@ -1,5 +1,5 @@
 import _ from "lodash";
-import CustomDashboardService from "../../service/customDashboard/CustomDashboardService";
+import CustomDashboardService, {CustomDashboardType} from "../../service/customDashboard/CustomDashboardService";
 import DashboardSectionCardMappingService from "../../service/customDashboard/DashboardSectionCardMappingService";
 import EntityService from "../../service/EntityService";
 import {ReportCard, Encounter, ProgramEncounter, ReportCardResult, Individual} from "openchs-models";
@@ -110,6 +110,32 @@ function getViewName(standardReportCardType) {
     }
 }
 
+// Names the screen that the shared dashboard state belongs to: the kind of dashboard it was asked for
+// and, when it was asked for one dashboard on its own, which one. A missing type counts as None.
+export function dashboardOwnerKey(customDashboardType, dashboardUUID) {
+    return `${_.defaultTo(customDashboardType, CustomDashboardType.None)}|${_.defaultTo(dashboardUUID, '')}`;
+}
+
+// One chosen dashboard on its own when the screen names one, otherwise the dashboards of its type.
+// A chosen dashboard that is missing or voided loads nothing, and never falls back to the type's list.
+function loadDashboards(dashboardService, action) {
+    if (_.isEmpty(action.dashboardUUID)) {
+        return dashboardService.getDashboards(action.customDashboardType);
+    }
+    const dashboard = dashboardService.findByUUID(action.dashboardUUID);
+    if (_.isNil(dashboard) || dashboard.voided) {
+        General.logDebug('CustomDashboardActions', `onLoad - requested dashboard ${action.dashboardUUID} is ${_.isNil(dashboard) ? 'missing' : 'voided'}, loading nothing`);
+        return [];
+    }
+    return [dashboard];
+}
+
+// The tab to restore when it is in the loaded list, otherwise the first dashboard.
+function chooseActiveDashboardUUID(dashboards, restoreUUID) {
+    const restored = _.isNil(restoreUUID) ? null : _.find(dashboards, dashboard => _.get(dashboard, 'uuid') === restoreUUID);
+    return _.get(restored || _.head(dashboards), 'uuid');
+}
+
 class CustomDashboardActions {
     static getInitialState(context) {
         return {
@@ -120,7 +146,8 @@ class CustomDashboardActions {
             filtersPresent: false,
             hasFiltersSet: false,
             activeDashboardUUID: null,
-            customDashboardFilters: []
+            customDashboardFilters: [],
+            ownerKey: null
         };
     }
 
@@ -129,10 +156,11 @@ class CustomDashboardActions {
         const startTime = new Date();
         General.logDebug('CustomDashboardActions', `onLoad started - customDashboardType: ${action.customDashboardType}, currentActiveDashboard: ${state.activeDashboardUUID}`);
         let newState = {...state};
+        newState.ownerKey = dashboardOwnerKey(action.customDashboardType, action.dashboardUUID);
         const dashboardService = context.get(CustomDashboardService);
-        const dashboards = dashboardService.getDashboards(action.customDashboardType);
+        const dashboards = loadDashboards(dashboardService, action);
         newState.dashboards = dashboards;
-        newState.activeDashboardUUID = _.get(_.head(dashboards), 'uuid');
+        newState.activeDashboardUUID = chooseActiveDashboardUUID(dashboards, action.activeDashboardUUID);
         if (state.dashboardUUID !== newState.activeDashboardUUID) {
             General.logDebug('CustomDashboardActions', `onLoad - Clearing cardToCountResultMap due to dashboard change: ${state.dashboardUUID} -> ${newState.activeDashboardUUID}`);
             newState.cardToCountResultMap = {};
