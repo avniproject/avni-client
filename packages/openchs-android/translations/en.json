@@ -463,6 +463,8 @@
     "subjectsList": "Subject List",
     "dashboardsNotAvailable": "No dashboard available",
     "dashboardNotAvailableToUser": "This dashboard is not available to you",
+    "recordNotOnThisPhone": "This record is not on this phone",
+    "noPermissionForThisAction": "You do not have permission to do this",
     "draft": "Draft",
     "draftDeleteMessage": "Drafts will stay here for 30 days, after which they are deleted",
     "drafts": "Drafts",
