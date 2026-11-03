@@ -13,13 +13,17 @@ export const visit = (uuid = 'v1', {subjectUuid = 's1', enrolmentUuid = null, ..
 // records: {schemaName: {uuid: record}}. rights: {privilegeName: [subjectTypeUuid, ...]}.
 export const servicesFor = ({records = {}, rights = {}, allPrivileges = false, forms = {}, rule, activeTypes, findByUUID} = {}) => {
     const criteriaSeen = [];
+    const pairsSeen = [];
     const entityService = {
         findByUUID: jest.fn(findByUUID || ((uuid, schema) => (records[schema] || {})[uuid])),
     };
     const privilegeService = {
         hasAllPrivileges: () => allPrivileges,
-        allowedEntityTypeUUIDListForCriteria: jest.fn((criteria) => {
+        // The real one filters and maps on the field, so the list comes back only for the field the real code asks for.
+        allowedEntityTypeUUIDListForCriteria: jest.fn((criteria, field) => {
             criteriaSeen.push(criteria);
+            pairsSeen.push([criteria, field]);
+            if (field !== 'subjectTypeUuid') return [];
             const name = /privilege\.name = '([^']*)'/.exec(criteria);
             return (name && rights[name[1]]) || [];
         }),
@@ -27,6 +31,7 @@ export const servicesFor = ({records = {}, rights = {}, allPrivileges = false, f
     const beans = {EntityService: entityService, PrivilegeService: privilegeService, ...forms, ...(rule ? {RuleEvaluationService: rule} : {}), ...(activeTypes ? {activeTypes} : {})};
     const getService = (cls) => beans[cls.name];
     getService.criteriaSeen = criteriaSeen;
+    getService.pairsSeen = pairsSeen;
     getService.entityService = entityService;
     return getService;
 };

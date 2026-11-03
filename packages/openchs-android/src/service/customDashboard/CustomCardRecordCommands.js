@@ -65,7 +65,7 @@ const openOutcome = (getService, subject, enrolmentUUID, tab) => {
 export const resolveOpenSubject = (getService, args) => {
     const {subjectUUID, tab} = args || {};
     const noTab = _.isNil(tab);
-    if (!noTab && !(typeof tab === 'string' && _.has(TAB_NUMBERS, tab))) return {message: MessageKeys.notAvailable};
+    if (!noTab && !(typeof tab === 'string' && Object.prototype.hasOwnProperty.call(TAB_NUMBERS, tab))) return {message: MessageKeys.notAvailable};
     const subject = findLiveSubject(getService, subjectUUID);
     if (subject == null) return notOnPhone();
     if (!canViewSubject(getService, subject.subjectType)) return {message: MessageKeys.noPermission};
