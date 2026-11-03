@@ -259,7 +259,9 @@ describe('startVisit finds the subject and the visit type first', () => {
     });
 });
 
-describe('startVisit checks a named enrolment before any right', () => {
+// A named enrolment is a record, checked with the subject before any right. Whether it has exited is its state, which
+// only a user who may see the subject is told (D3).
+describe('startVisit with a named enrolment', () => {
     const programmeArgs = (enrolmentUUID) => ({subjectUUID: 's1', visitTypeUUID: 'pt1', enrolmentUUID});
     it.each([
         ["another subject's enrolment", 'eOther'],
@@ -272,15 +274,22 @@ describe('startVisit checks a named enrolment before any right', () => {
         ["a visit type's uuid", 'pt1'],
         ['an empty enrolment uuid', ''],
         ['a number as the enrolment uuid', 123],
-    ])('says not on this phone for %s', (label, enrolmentUUID) => {
+    ])('says not on this phone for %s, before any right', (label, enrolmentUUID) => {
         const getService = svc();
         expect(resolveStartVisit(getService, programmeArgs(enrolmentUUID))).toEqual(NOT_ON_PHONE);
         expectNothingAsked(getService);
     });
-    it("is not available for the subject's exited enrolment, before any right is asked", () => {
-        const getService = svc({rights: {}});
+    it("gives the no-permission message for the subject's exited enrolment to a user who may not view the subject", () => {
+        const getService = svc({rights: _.omit(rights, 'View subject')});
+        expect(resolveStartVisit(getService, programmeArgs('ex'))).toEqual(NO_PERMISSION);
+        expect(getService.pairsSeen).toEqual([VIEW_PAIR]);
+        expectNoTypeLookup(getService);
+    });
+    it("is not available for the subject's exited enrolment to a user who may view the subject, before the visit types in use or the perform right", () => {
+        const getService = svc();
         expect(resolveStartVisit(getService, programmeArgs('ex'))).toEqual(NOT_AVAILABLE);
-        expectNothingAsked(getService);
+        expect(getService.pairsSeen).toEqual([VIEW_PAIR]);
+        expectNoTypeLookup(getService);
     });
     it('is not available for an exited enrolment, even with all privileges', () => {
         expect(resolveStartVisit(svc({allPrivileges: true}), programmeArgs('ex'))).toEqual(NOT_AVAILABLE);

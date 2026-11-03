@@ -12,7 +12,8 @@ import RuleEvaluationService from "../RuleEvaluationService";
 
 // Commands a Custom Design Card page can send to open, edit or start a record. Plain functions: the command service
 // calls them with itself, the page's arguments and a page handle. Order in every resolver: the record, then the
-// user's right to see it, then the checks the profile runs for that action, then the navigation. Every check
+// user's right to see it, then the checks the profile runs for that action, then the navigation. A record's state,
+// such as an exited enrolment, is one of those checks, so a user without the right is never told it. Every check
 // finishes before an outcome with `navigate` is returned.
 
 export const MessageKeys = {
@@ -275,10 +276,10 @@ export const resolveStartVisit = (getService, args) => {
         const found = findLiveEnrolment(getService, enrolmentUUID);
         if (found == null || found.subject.uuid !== subject.uuid) return notOnPhone();
         enrolment = found.enrolment;
-        if (!enrolment.isActive) return {message: MessageKeys.notAvailable};
     }
     const {subjectType} = subject;
     if (!canViewSubject(getService, subjectType)) return {message: MessageKeys.noPermission};
+    if (enrolment != null && !enrolment.isActive) return {message: MessageKeys.notAvailable};
     const program = enrolment == null ? null : enrolment.program;
     const formMappingService = getService(FormMappingService);
     const typesInUse = enrolment == null
