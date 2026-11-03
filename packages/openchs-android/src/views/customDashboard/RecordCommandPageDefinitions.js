@@ -6,4 +6,5 @@ export const RECORD_PAGE_COMMAND_DEFINITIONS = [
     "avni.editRegistration = function (subjectUUID) { send('editRegistration', {subjectUUID: subjectUUID}); };",
     "avni.editEnrolment = function (enrolmentUUID) { send('editEnrolment', {enrolmentUUID: enrolmentUUID}); };",
     "avni.editExit = function (enrolmentUUID) { send('editExit', {enrolmentUUID: enrolmentUUID}); };",
+    "avni.editVisit = function (visitUUID) { send('editVisit', {visitUUID: visitUUID}); };",
 ];

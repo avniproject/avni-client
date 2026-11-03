@@ -27,6 +27,7 @@ describe('record page command definitions', () => {
         ['editRegistration', 's1', {subjectUUID: 's1'}],
         ['editEnrolment', 'e1', {enrolmentUUID: 'e1'}],
         ['editExit', 'e1', {enrolmentUUID: 'e1'}],
+        ['editVisit', 'v1', {visitUUID: 'v1'}],
     ])('sends %s with its one id', (name, id, args) => {
         const {avni, send} = evaluate();
         expect(avni[name]).toHaveLength(1);

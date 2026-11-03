@@ -1,5 +1,5 @@
 import _ from "lodash";
-import {Encounter, Individual, Privilege, ProgramEncounter, ProgramEnrolment, WorkItem, WorkList, WorkLists} from "avni-models";
+import {Encounter, Form, Individual, Privilege, ProgramEncounter, ProgramEnrolment, WorkItem, WorkList, WorkLists} from "avni-models";
 import CHSNavigator from "../../utility/CHSNavigator";
 import General from "../../utility/General";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
@@ -102,14 +102,19 @@ export const editRuleMessage = (getService, form, entity, entityName) => {
     return _.isString(message) && _.trim(message) !== '' ? message : MessageKeys.noPermission;
 };
 
-// The checks after the view right, in order: the edit right, a form, then the form's edit rule. The rule reads the
-// form with no null check, so the form is checked first. Null when the edit may go ahead.
-const editRefusal = (getService, {criteria, privilegeParam, findForm, entity, entityName}) => {
-    if (!getService(PrivilegeService).hasActionPrivilegeForCriteria(criteria, privilegeParam)) return {message: MessageKeys.noPermission};
-    const form = findForm(getService(FormMappingService));
+// A form, then the form's edit rule. The rule reads the form with no null check, so the form is checked first. Null
+// when the edit may go ahead.
+const formRuleRefusal = (getService, form, entity, entityName) => {
     if (_.isNil(form)) return {message: MessageKeys.notAvailable};
     const ruleMessage = editRuleMessage(getService, form, entity, entityName);
     return ruleMessage == null ? null : {message: ruleMessage};
+};
+
+// The checks after the view right, in order: the edit right, a form, then the form's edit rule. Null when the edit may
+// go ahead.
+const editRefusal = (getService, {criteria, privilegeParam, findForm, entity, entityName}) => {
+    if (!getService(PrivilegeService).hasActionPrivilegeForCriteria(criteria, privilegeParam)) return {message: MessageKeys.noPermission};
+    return formRuleRefusal(getService, findForm(getService(FormMappingService)), entity, entityName);
 };
 
 // One work list holding one work item, as the profile builds it, flagged so its save comes back to the card page.
@@ -190,6 +195,70 @@ export const resolveEditExit = (getService, args) => resolveEditProgramForm(getS
     },
 });
 
+// Criteria copied from SubjectDashboardGeneralTab.js:76 and :95 for a general visit, and from
+// SubjectDashboardProgramsTab.js:247 (edit) and :393 (perform) for a programme visit. Those two name the uuids in
+// opposite orders.
+const visitCriteria = (privilegeName, subjectType, program) => {
+    const head = `privilege.name = '${privilegeName}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}'`;
+    if (_.isNil(program)) return `${head} AND programUuid = null AND subjectTypeUuid = '${subjectType.uuid}'`;
+    return privilegeName === Privilege.privilegeName.performVisit
+        ? `${head} AND subjectTypeUuid = '${subjectType.uuid}' AND programUuid = '${program.uuid}'`
+        : `${head} AND programUuid = '${program.uuid}' AND subjectTypeUuid = '${subjectType.uuid}'`;
+};
+
+// A visit right is given per visit type: all privileges, or the type in the list, as PreviousEncounters.js:105 and
+// :140 check it. No programme means a general visit.
+export const visitTypeAllowed = (getService, privilegeName, subjectType, program, encounterTypeUuid) => {
+    const privilegeService = getService(PrivilegeService);
+    if (privilegeService.hasAllPrivileges()) return true;
+    const field = _.isNil(program) ? 'encounterTypeUuid' : 'programEncounterTypeUuid';
+    const allowed = privilegeService.allowedEntityTypeUUIDListForCriteria(visitCriteria(privilegeName, subjectType, program), field);
+    return _.includes(allowed, encounterTypeUuid);
+};
+
+// The form whose edit rule the profile runs (D6). A programme visit takes its cancel form when it is cancelled
+// (ProgramEnrolmentDashboardActions.js:218). A general visit takes its visit form even then, because the profile picks
+// by action.cancel, which an edit never sets (IndividualGeneralHistoryActions.js:111).
+const visitRuleFormType = (visit, isProgramVisit) => {
+    if (!isProgramVisit) return Form.formTypes.Encounter;
+    return visit.isCancelled() ? Form.formTypes.ProgramEncounterCancellation : Form.formTypes.ProgramEncounter;
+};
+
+// As PreviousEncounters.editEncounter, with the profile's reducers for a done or cancelled visit
+// (IndividualGeneralHistoryActions.onEditEncounter, ProgramEnrolmentDashboardActions.onEditProgramEncounter). A planned
+// visit is the profile's Do, which needs only the right to perform its type (D4). The visit screen logs the edit event,
+// and opens a cancelled visit's cancel form.
+export const resolveEditVisit = (getService, args) => {
+    const found = findLiveVisit(getService, (args || {}).visitUUID);
+    if (found == null) return notOnPhone();
+    const {visit, isProgramVisit, subject, enrolment} = found;
+    const {subjectType} = subject;
+    if (!canViewSubject(getService, subjectType)) return {message: MessageKeys.noPermission};
+    const program = isProgramVisit ? enrolment.program : null;
+    const {encounterType} = visit;
+    // One clone, as PreviousEncounters.js:77-79 makes it. The rule and the visit screen both get this object.
+    const clone = visit.cloneForEdit();
+    const editing = !clone.isScheduled();
+    if (_.isNil(clone.encounterDateTime)) clone.encounterDateTime = new Date();
+    if (!editing) {
+        if (!visitTypeAllowed(getService, Privilege.privilegeName.performVisit, subjectType, program, encounterType.uuid)) return {message: MessageKeys.noPermission};
+    } else {
+        if (encounterType.immutable) return {message: MessageKeys.notAvailable};
+        if (!visitTypeAllowed(getService, Privilege.privilegeName.editVisit, subjectType, program, encounterType.uuid)) return {message: MessageKeys.noPermission};
+        const form = getService(FormMappingService).findFormForEncounterType(encounterType, visitRuleFormType(clone, isProgramVisit), subjectType);
+        const refusal = formRuleRefusal(getService, form, clone, isProgramVisit ? 'ProgramEncounter' : 'Encounter');
+        if (refusal != null) return refusal;
+    }
+    return {
+        navigate: view => CHSNavigator.navigateToEncounterView(view, {
+            encounter: clone,
+            editing,
+            individualUUID: subject.uuid,
+            onSaveCallback: source => CHSNavigator.navigateBackAfterDoVisit(source),
+        })
+    };
+};
+
 // Runs a resolver and acts on its outcome.
 export const runOutcome = (page, outcome) => {
     if (outcome.navigate) page.navigate(outcome.navigate);
@@ -206,4 +275,5 @@ export const RECORD_COMMANDS = {
     editRegistration: command(resolveEditRegistration),
     editEnrolment: command(resolveEditEnrolment),
     editExit: command(resolveEditExit),
+    editVisit: command(resolveEditVisit),
 };
