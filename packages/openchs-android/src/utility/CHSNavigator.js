@@ -188,11 +188,12 @@ class CHSNavigator {
         TypedTransition.from(source).with({checklistItem: checklistItem}).to(ChecklistItemView);
     }
 
-    static navigateToProgramEncounterCancelView(source, programEncounter, editing = false, pageNumber) {
+    static navigateToProgramEncounterCancelView(source, programEncounter, editing = false, pageNumber, onSaveCallback) {
         TypedTransition.from(source).with({
             programEncounter: programEncounter,
             editing,
-            pageNumber
+            pageNumber,
+            onSaveCallback
         }).to(ProgramEncounterCancelView);
     }
 
@@ -259,6 +260,7 @@ class CHSNavigator {
                     }, true)
                 ]);
         };
+        const givenOnSaveCallback = onSaveCallback;
         onSaveCallback = onSaveCallback || defaultOnSaveCallback;
 
         let onPreviousCallback = undefined;
@@ -281,7 +283,8 @@ class CHSNavigator {
                             encounter,
                             individualUUID: encounter.individual.uuid,
                             editing: true,
-                            pageNumber
+                            pageNumber,
+                            onSaveCallback: givenOnSaveCallback
                         }, true)]);
             }
         }
@@ -687,7 +690,7 @@ class CHSNavigator {
         const eventName = encounter instanceof Encounter ? 'EDIT_ENCOUNTER' : 'EDIT_PROGRAM_ENCOUNTER';
         editing && logEvent(firebaseEvents[eventName]);
         if (isCancelPage) {
-            CHSNavigator.navigateToProgramEncounterCancelView(source, encounter, editing, params.pageNumber);
+            CHSNavigator.navigateToProgramEncounterCancelView(source, encounter, editing, params.pageNumber, params.onSaveCallback);
         } else if (encounter instanceof Encounter) {
             CHSNavigator.navigateToIndividualEncounterLandingView(
                 source, params.individualUUID, encounter, editing, params.pageNumber, params.onSaveCallback);
