@@ -705,6 +705,14 @@ class CHSNavigator {
         );
     }
 
+    static navigateBackToSource(source) {
+        TypedTransition.from(source).resetStack(
+            [SystemRecommendationView, PersonRegisterView, PersonRegisterFormView, SubjectRegisterView, SubjectRegisterFormView,
+                ProgramEnrolmentView, ProgramExitView, ProgramEncounterCancelView],
+            []
+        );
+    }
+
     static proceedEncounter(typeorencounter, parent, onSaveCallback, source) {
         const selectedEncounter = typeorencounter instanceof EncounterType
             ? parent instanceof Individual

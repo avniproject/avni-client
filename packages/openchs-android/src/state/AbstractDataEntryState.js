@@ -15,6 +15,7 @@ import PrivilegeService from "../service/PrivilegeService";
 import Perf from "../utility/perf";
 import {EncounterType, Privilege} from "openchs-models";
 import ProgramService from "../service/program/ProgramService";
+import {keepReturnToSource, returnsToSource} from "../utility/ReturnToSource";
 
 class AbstractDataEntryState {
     locationError;
@@ -328,6 +329,7 @@ class AbstractDataEntryState {
     updateWorkLists(ruleService, oldWorkLists, nextScheduledVisits, context) {
         if (_.isNil(oldWorkLists))
             return null;
+        const returnToSource = returnsToSource(oldWorkLists);
         let workLists = oldWorkLists;
         let currentWorkItem = workLists.getCurrentWorkItem();
         if (currentWorkItem.type === WorkItem.type.REGISTRATION) {
@@ -343,6 +345,7 @@ class AbstractDataEntryState {
         // Run the WorkListUpdation rule first so anything the rule queues (e.g. a SHARE work item)
         // takes precedence over the default "register another of the same type" fallback below.
         workLists = ruleService.updateWorkLists(workLists, {entity: this.getEntity()}, this.getEntityType());
+        if (returnToSource) keepReturnToSource(workLists);
 
         if (!workLists.peekNextWorkItem()) {
             if (currentWorkItem.type === WorkItem.type.REGISTRATION) {

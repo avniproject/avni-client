@@ -25,6 +25,7 @@ import SummaryButton from "../common/SummaryButton";
 import BackgroundTimer from "react-native-background-timer";
 import Timer from "../common/Timer";
 import Colors from "../primitives/Colors";
+import {returnsToSource} from "../../utility/ReturnToSource";
 
 class ProgramFormComponent extends AbstractComponent {
     static propTypes = {
@@ -47,6 +48,7 @@ class ProgramFormComponent extends AbstractComponent {
                 const observations = this.props.context.usage === ProgramEnrolmentState.UsageKeys.Enrol ? state.enrolment.observations : state.enrolment.programExitObservations;
                 const message = this.props.context.usage === ProgramEnrolmentState.UsageKeys.Enrol ? this.I18n.t('enrolmentSavedMsg', {programName: state.enrolment.program.name}) : this.I18n.t('enrolmentExitMsg', {programName: state.enrolment.program.name});
                 const onSaveCallback = (source) => {
+                    if (returnsToSource(state.workListState.workLists)) return CHSNavigator.navigateBackToSource(source);
                     CHSNavigator.navigateToProgramEnrolmentDashboardView(source, state.enrolment.individual.uuid, state.enrolment.uuid, true,null, message);
                 };
                 const headerMessage = `${this.I18n.t(state.enrolment.program.displayName)}, ${this.I18n.t(ProgramEnrolmentState.UsageKeys.Enrol ? 'enrol' : 'exit')} - ${this.I18n.t('summaryAndRecommendations')}`;
