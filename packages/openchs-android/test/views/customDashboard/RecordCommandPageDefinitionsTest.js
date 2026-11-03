@@ -23,4 +23,14 @@ describe('record page command definitions', () => {
         avni.openVisit('v1');
         expect(send).toHaveBeenCalledWith('openVisit', {visitUUID: 'v1'});
     });
+    it.each([
+        ['editRegistration', 's1', {subjectUUID: 's1'}],
+        ['editEnrolment', 'e1', {enrolmentUUID: 'e1'}],
+        ['editExit', 'e1', {enrolmentUUID: 'e1'}],
+    ])('sends %s with its one id', (name, id, args) => {
+        const {avni, send} = evaluate();
+        expect(avni[name]).toHaveLength(1);
+        avni[name](id);
+        expect(send).toHaveBeenCalledWith(name, args);
+    });
 });
