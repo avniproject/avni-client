@@ -52,6 +52,7 @@ import RosterView from "../views/attendance/RosterView";
 import DidntHappenPickerView from "../views/attendance/DidntHappenPickerView";
 import CalendarService from "../service/CalendarService";
 import {ReportCard} from "avni-models";
+import {subjectDashboardParams} from "./SubjectDashboardRoute";
 
 
 class CHSNavigator {
@@ -92,7 +93,7 @@ class CHSNavigator {
                 }, true)
             ]);
         } else {
-            from.with({individualUUID: individualUUID, backFunction: backFn, tab: 2}).to(GenericDashboardView, true);
+            from.with(subjectDashboardParams(individualUUID, selectedEnrolmentUUID, backFn, tab)).to(GenericDashboardView, true);
         }
     }
 
