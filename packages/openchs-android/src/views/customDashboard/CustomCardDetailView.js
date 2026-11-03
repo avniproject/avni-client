@@ -29,6 +29,10 @@ class CustomCardDetailView extends AbstractComponent {
         reportCard: PropTypes.object.isRequired,
         ruleInputArray: PropTypes.array,
         displayName: PropTypes.string,
+        // The dashboard the card was pressed on, and how to open another one above this page. Both come from the
+        // dashboard screen; without the callback a card page opens no dashboard.
+        sourceDashboardUUID: PropTypes.string,
+        onOpenDashboard: PropTypes.func,
     };
 
     constructor(props, context) {
@@ -92,6 +96,19 @@ class CustomCardDetailView extends AbstractComponent {
                 navigateFrom(this);
                 this._commandNavigated = true;
                 return true;
+            },
+            sourceDashboardUUID: this.props.sourceDashboardUUID,
+            // Opens the target above this page. beforeOpen runs first, only when the screen really opens, so a double
+            // tap carries nothing, and a throw from it or from the open leaves the page taking commands.
+            openDashboard: (target, beforeOpen = _.noop) => {
+                if (!_.isFunction(this.props.onOpenDashboard)) {
+                    General.logDebug('CustomCardDetailView', 'No open callback on this page, so no dashboard is opened');
+                    return false;
+                }
+                return this.page().navigate(view => {
+                    beforeOpen();
+                    view.props.onOpenDashboard(view, target);
+                });
             },
         };
     }

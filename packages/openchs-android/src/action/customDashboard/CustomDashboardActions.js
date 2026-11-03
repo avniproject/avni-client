@@ -125,8 +125,12 @@ export function dashboardOwnerKey(customDashboardType, dashboardUUID) {
 
 // Whether a dashboard screen loads its own dashboard again when a route comes into focus: only when the route is its
 // own and another screen has taken the shared dashboard state. A screen that does not know its own route never does.
-export function sceneFocusNeedsReload(focusedRoute, ownRoutePath, currentOwnerKey, ownOwnerKey) {
+// Opened dashboards all share one path, so a screen that shows one dashboard names it, and a route that names
+// another dashboard is not its own. Otherwise two opened dashboards on the stack reload each other for ever.
+export function sceneFocusNeedsReload(focusedRoute, ownRoutePath, currentOwnerKey, ownOwnerKey, ownDashboardUUID) {
     if (_.isNil(ownRoutePath) || _.get(focusedRoute, 'path') !== ownRoutePath) return false;
+    const focusedDashboardUUID = _.get(focusedRoute, 'queryParams.dashboardUUID');
+    if (!_.isUndefined(ownDashboardUUID) && !_.isUndefined(focusedDashboardUUID) && focusedDashboardUUID !== ownDashboardUUID) return false;
     return currentOwnerKey !== ownOwnerKey;
 }
 

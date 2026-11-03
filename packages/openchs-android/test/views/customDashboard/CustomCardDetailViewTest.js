@@ -38,7 +38,7 @@ const flush = async () => {
     });
 };
 
-const mount = ({executeCustomCardDataRule = jest.fn(() => ({data: {n: 1}}))} = {}) => {
+const mount = ({executeCustomCardDataRule = jest.fn(() => ({data: {n: 1}})), props = {}} = {}) => {
     const readHtmlTemplate = jest.fn(() => Promise.resolve("<p>${data.n}</p>"));
     const dispatch = jest.fn(() => true);
     const services = new Map([
@@ -59,7 +59,7 @@ const mount = ({executeCustomCardDataRule = jest.fn(() => ({data: {n: 1}}))} = {
     act(() => {
         tr = TestRenderer.create(
             <ServiceContext.Provider value={context}>
-                <CustomCardDetailView customCardConfig={{}} reportCard={{name: "Card"}} ruleInputArray={[]}/>
+                <CustomCardDetailView customCardConfig={{}} reportCard={{name: "Card"}} ruleInputArray={[]} {...props}/>
             </ServiceContext.Provider>,
         );
     });
@@ -180,6 +180,59 @@ describe("CustomCardDetailView", () => {
         const next = jest.fn();
         expect(page.navigate(next)).toBe(true);
         expect(next).toHaveBeenCalled();
+    });
+
+    it("the page carries the source dashboard and opens through the callback", async () => {
+        const onOpenDashboard = jest.fn();
+        const {dispatch, instance} = mount({props: {sourceDashboardUUID: "d2", onOpenDashboard}});
+        await flush();
+        send(message(command()));
+        const page = pageOf(dispatch);
+        expect(page.sourceDashboardUUID).toBe("d2");
+        expect(page.openDashboard("t1")).toBe(true);
+        expect(onOpenDashboard).toHaveBeenCalledTimes(1);
+        expect(onOpenDashboard).toHaveBeenCalledWith(instance, "t1");
+        expect(instance._commandNavigated).toBe(true);
+    });
+
+    it("without the open callback, opening does nothing and does not crash", async () => {
+        const {dispatch, instance} = mount();
+        await flush();
+        send(message(command()));
+        const beforeOpen = jest.fn();
+        expect(pageOf(dispatch).openDashboard("t1", beforeOpen)).toBe(false);
+        expect(beforeOpen).not.toHaveBeenCalled();
+        expect(instance._commandNavigated).toBeFalsy();
+    });
+
+    it("beforeOpen runs only when the screen opens, before it opens", async () => {
+        const order = [];
+        const onOpenDashboard = jest.fn(() => order.push("open"));
+        const {dispatch} = mount({props: {onOpenDashboard}});
+        await flush();
+        send(message(command()));
+        const page = pageOf(dispatch);
+        const beforeOpen = jest.fn(() => order.push("carry"));
+        expect(page.openDashboard("t1", beforeOpen)).toBe(true);
+        expect(order).toEqual(["carry", "open"]);
+        // A second tap while the first screen opens runs neither.
+        expect(page.openDashboard("t1", beforeOpen)).toBe(false);
+        expect(order).toEqual(["carry", "open"]);
+    });
+
+    it("a carry that throws leaves commands open", async () => {
+        const onOpenDashboard = jest.fn();
+        const {dispatch, instance} = mount({props: {onOpenDashboard}});
+        await flush();
+        send(message(command()));
+        const page = pageOf(dispatch);
+        expect(() => page.openDashboard("t1", () => {
+            throw new Error("carry failed");
+        })).toThrow("carry failed");
+        expect(onOpenDashboard).not.toHaveBeenCalled();
+        expect(instance._commandNavigated).toBeFalsy();
+        expect(page.openDashboard("t1")).toBe(true);
+        expect(onOpenDashboard).toHaveBeenCalledTimes(1);
     });
 
     it("runs the rule again once after a command navigated", async () => {

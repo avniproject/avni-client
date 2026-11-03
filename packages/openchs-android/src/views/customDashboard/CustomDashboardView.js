@@ -225,7 +225,7 @@ class CustomDashboardView extends AbstractComponent {
     // not its own, so the screen in front also reloads after a reset. The router's live focus is null during a
     // transition, so no screen counts as in front while one runs.
     inFrontWithoutItsState() {
-        return sceneFocusNeedsReload(_.invoke(this.context, 'focusedRoute'), this.ownRoutePath(), this.sharedDashboardState().ownerKey, this.ownOwnerKey());
+        return sceneFocusNeedsReload(_.invoke(this.context, 'focusedRoute'), this.ownRoutePath(), this.sharedDashboardState().ownerKey, this.ownOwnerKey(), this.props.dashboardUUID);
     }
 
     // Waits two frames, as the focus path does, then reloads only if the screen is still mounted, still in front and
@@ -244,7 +244,7 @@ class CustomDashboardView extends AbstractComponent {
     // dashboard again. It waits two frames, as a screen's first load does, so the back slide's last frame is painted
     // before the load blocks the JS thread (AbstractComponent, #2054).
     onSceneFocus(route) {
-        const needsReload = () => sceneFocusNeedsReload(route, this.ownRoutePath(), this.sharedDashboardState().ownerKey, this.ownOwnerKey());
+        const needsReload = () => sceneFocusNeedsReload(route, this.ownRoutePath(), this.sharedDashboardState().ownerKey, this.ownOwnerKey(), this.props.dashboardUUID);
         if (!needsReload()) return;
         requestAnimationFrame(() => requestAnimationFrame(() => {
             if (this._isUnmounted || !needsReload()) return;
@@ -465,11 +465,19 @@ class CustomDashboardView extends AbstractComponent {
             },
             onFullyCustomCardPress: (reportCard, ruleInputArray, displayName) => {
                 this.dispatchAction(Actions.LOAD_INDICATOR, {loading: false});
+                // Taken once, here. The store is not read later: after the first back from an opened dashboard it still
+                // holds that dashboard, and a second link would remember the wrong tab.
+                const sourceDashboardUUID = this.state.activeDashboardUUID;
                 TypedTransition.from(this).with({
                     reportCard,
                     customCardConfig: reportCard.customCardConfig,
                     ruleInputArray,
                     displayName,
+                    sourceDashboardUUID,
+                    onOpenDashboard: (fromView, target) => {
+                        this.dashboardToRestore = sourceDashboardUUID;
+                        openDashboardFrom(fromView, target);
+                    },
                 }).to(CustomCardDetailView, true);
             },
             onOpenDashboard: (targetDashboardUUID) => {
