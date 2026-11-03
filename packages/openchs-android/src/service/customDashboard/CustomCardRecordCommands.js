@@ -1,5 +1,6 @@
 import _ from "lodash";
-import {Encounter, Form, Individual, Privilege, ProgramEncounter, ProgramEnrolment, WorkItem, WorkList, WorkLists} from "avni-models";
+import {Encounter, EncounterType, Form, Individual, Privilege, ProgramEncounter, ProgramEnrolment, WorkItem, WorkList, WorkLists} from "avni-models";
+import {findScheduledEncounters} from "../../action/customDashboard/CustomDashboardActions";
 import CHSNavigator from "../../utility/CHSNavigator";
 import General from "../../utility/General";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
@@ -259,6 +260,39 @@ export const resolveEditVisit = (getService, args) => {
     };
 };
 
+// As the New visit menu (NewVisitMenuView.js:86, :94) and the Do visit card (CustomDashboardActions.js:28-38): the
+// planned visit of that type if there is one, else a new one. No enrolment means a general visit. The type must be one
+// the record uses, as the profile lists them (IndividualGeneralHistoryActions.js:35, StartProgramActions.js:46). No
+// eligibility rule runs, planned or new (D5).
+export const resolveStartVisit = (getService, args) => {
+    const {subjectUUID, visitTypeUUID, enrolmentUUID} = args || {};
+    const subject = findLiveSubject(getService, subjectUUID);
+    if (subject == null) return notOnPhone();
+    const encounterType = findLiveRecord(getService, visitTypeUUID, EncounterType.schema.name);
+    if (encounterType == null) return notOnPhone();
+    let enrolment = null;
+    if (!_.isNil(enrolmentUUID)) {
+        const found = findLiveEnrolment(getService, enrolmentUUID);
+        if (found == null || found.subject.uuid !== subject.uuid) return notOnPhone();
+        enrolment = found.enrolment;
+        if (!enrolment.isActive) return {message: MessageKeys.notAvailable};
+    }
+    const {subjectType} = subject;
+    if (!canViewSubject(getService, subjectType)) return {message: MessageKeys.noPermission};
+    const program = enrolment == null ? null : enrolment.program;
+    const formMappingService = getService(FormMappingService);
+    const typesInUse = enrolment == null
+        ? formMappingService.findActiveEncounterTypesForEncounter(subjectType)
+        : formMappingService.findActiveEncounterTypesForProgram(program, subjectType);
+    if (!_.some(typesInUse, type => type.uuid === encounterType.uuid)) return {message: MessageKeys.notAvailable};
+    if (!visitTypeAllowed(getService, Privilege.privilegeName.performVisit, subjectType, program, encounterType.uuid)) return {message: MessageKeys.noPermission};
+    const parent = enrolment == null ? subject : enrolment;
+    const planned = findScheduledEncounters(parent, encounterType)[0];
+    return {
+        navigate: view => CHSNavigator.proceedEncounter(planned || encounterType, parent, source => CHSNavigator.navigateBackAfterDoVisit(source), view)
+    };
+};
+
 // Runs a resolver and acts on its outcome.
 export const runOutcome = (page, outcome) => {
     if (outcome.navigate) page.navigate(outcome.navigate);
@@ -276,4 +310,5 @@ export const RECORD_COMMANDS = {
     editEnrolment: command(resolveEditEnrolment),
     editExit: command(resolveEditExit),
     editVisit: command(resolveEditVisit),
+    startVisit: command(resolveStartVisit),
 };

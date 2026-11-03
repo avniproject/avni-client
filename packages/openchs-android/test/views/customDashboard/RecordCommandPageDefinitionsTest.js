@@ -34,4 +34,19 @@ describe('record page command definitions', () => {
         avni[name](id);
         expect(send).toHaveBeenCalledWith(name, args);
     });
+    it('sends startVisit with the subject, the visit type and the enrolment', () => {
+        const {avni, send} = evaluate();
+        expect(avni.startVisit).toHaveLength(3);
+        avni.startVisit('s1', 'pt1', 'e1');
+        expect(send).toHaveBeenCalledWith('startVisit', {subjectUUID: 's1', visitTypeUUID: 'pt1', enrolmentUUID: 'e1'});
+    });
+    it('sends startVisit with no enrolment for a general visit', () => {
+        const {avni, send} = evaluate();
+        avni.startVisit('s1', 'gt1');
+        expect(send).toHaveBeenCalledTimes(1);
+        const [name, args] = send.mock.calls[0];
+        expect(name).toBe('startVisit');
+        expect(args).toEqual({subjectUUID: 's1', visitTypeUUID: 'gt1'});
+        expect(args.enrolmentUUID).toBeUndefined();
+    });
 });

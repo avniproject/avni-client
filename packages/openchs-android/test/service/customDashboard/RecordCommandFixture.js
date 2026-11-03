@@ -1,10 +1,32 @@
 // Stand-ins for the services and records the record commands read. Not a test file: the unit project matches *Test.js.
 import _ from "lodash";
 import {ActionEligibilityResponse} from "rules-config";
+import {Encounter, EncounterType, Individual, ProgramEncounter, ProgramEnrolment} from "avni-models";
 import EntityService from "../../../src/service/EntityService";
 import PrivilegeService from "../../../src/service/PrivilegeService";
 
 const live = (uuid, extra = {}) => ({uuid, voided: false, ...extra});
+
+// Real avni-models instances, for the start command: CHSNavigator.proceedEncounter tells a visit from a visit type, and
+// a subject from an enrolment, by instanceof (CHSNavigator.js:720-723). Each wraps a plain record, as a database row is
+// wrapped. A parent's list wraps its records again on every read (RealmListProxy.pushAll), so a visit read through its
+// parent is a new object around the same record.
+export const realVisitType = (uuid, extra = {}) => new EncounterType({uuid, name: uuid, voided: false, ...extra});
+export const realSubject = (uuid = 's1', extra = {}) => new Individual(live(uuid, {subjectType: {uuid: 'st1'}, encounters: [], ...extra}));
+export const realEnrolment = (uuid, subject, extra = {}) =>
+    new ProgramEnrolment(live(uuid, {individual: subject.that, program: {uuid: 'p1'}, programExitDateTime: null, encounters: [], ...extra}));
+// A visit put on its parent's list: an Encounter on a subject, a ProgramEncounter on an enrolment. It points back to the
+// parent by uuid only. The parent itself would close a loop, and jest-worker sends a failed test's values as JSON.
+export const realVisit = (uuid, parent, encounterType, extra = {}) => {
+    const isProgramVisit = parent instanceof ProgramEnrolment;
+    const VisitClass = isProgramVisit ? ProgramEncounter : Encounter;
+    const visit = new VisitClass(live(uuid, {
+        [isProgramVisit ? 'programEnrolment' : 'individual']: {uuid: parent.uuid},
+        encounterType: encounterType.that, earliestVisitDateTime: null, encounterDateTime: null, cancelDateTime: null, ...extra,
+    }));
+    parent.that.encounters.push(visit.that);
+    return visit;
+};
 
 export const subject = (uuid = 's1', extra = {}) => live(uuid, {subjectType: {uuid: 'st1'}, ...extra});
 // isActive mirrors the model's getter: no exit date.
@@ -45,10 +67,15 @@ const profileField = (privilegeName, criteria) => {
     return _.isFunction(field) ? field(criteria) : field;
 };
 
+// The real lookups read each visit type from the database again, so they never give back the object the caller holds.
+const freshVisitTypes = (uuids = []) => uuids.map(uuid => new EncounterType({uuid}));
+
 // records: {schemaName: {uuid: record}}. rights: {privilegeName: [uuid of the kind its field holds, ...]}.
 // forms: {formType: form}, the form mapped for each Form.formTypes value, whatever the visit type.
 // rule: (form, entity, entityName) => response.
-export const servicesFor = ({records = {}, rights = {}, allPrivileges = false, forms = {}, rule, activeTypes, findByUUID} = {}) => {
+// activeTypes: the visit types in use, {general: {subjectTypeUuid: [uuid, ...]}, program: {programUuid: {subjectTypeUuid: [uuid, ...]}}}.
+// The lookups answer only for the subject type and programme they are given.
+export const servicesFor = ({records = {}, rights = {}, allPrivileges = false, forms = {}, rule, activeTypes = {}, findByUUID} = {}) => {
     const criteriaSeen = [];
     const pairsSeen = [];
     const entityService = {
@@ -71,17 +98,21 @@ export const servicesFor = ({records = {}, rights = {}, allPrivileges = false, f
         findFormForProgramEnrolment: jest.fn(() => forms.ProgramEnrolment),
         findFormForProgramExit: jest.fn(() => forms.ProgramExit),
         findFormForEncounterType: jest.fn((encounterType, formType) => forms[formType]),
+        findActiveEncounterTypesForEncounter: jest.fn((subjectType) => freshVisitTypes(_.get(activeTypes, ['general', subjectType.uuid]))),
+        findActiveEncounterTypesForProgram: jest.fn((program, subjectType) =>
+            freshVisitTypes(_.get(activeTypes, ['program', program.uuid, subjectType.uuid]))),
     };
-    // With no rule the real one allows, as it does for a form with no edit rule.
+    // With no rule the real one allows, as it does for a form with no edit rule. The eligibility rule refuses every
+    // visit type, so a start that ran it would be refused (D5: a start never runs it).
     const ruleEvaluationService = {
         runEditFormRule: jest.fn(rule || (() => ActionEligibilityResponse.createAllowedResponse())),
+        isEligibleForEncounter: jest.fn(() => false),
     };
     const beans = {
         EntityService: entityService,
         PrivilegeService: privilegeService,
         FormMappingService: formMappingService,
         RuleEvaluationService: ruleEvaluationService,
-        ...(activeTypes ? {activeTypes} : {}),
     };
     const getService = (cls) => beans[cls.name];
     getService.criteriaSeen = criteriaSeen;

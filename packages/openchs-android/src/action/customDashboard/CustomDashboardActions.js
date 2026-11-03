@@ -11,7 +11,7 @@ import CustomDashboardCacheService from "../../service/CustomDashboardCacheServi
 import UserInfoService from "../../service/UserInfoService";
 import Colors from "../../views/primitives/Colors";
 
-function findScheduledEncounters(enrolmentOrIndividual, encounterType) {
+export function findScheduledEncounters(enrolmentOrIndividual, encounterType) {
     return _.filter(enrolmentOrIndividual.encounters, enc =>
         !enc.voided && enc.encounterType.uuid === encounterType.uuid &&
         !_.isNil(enc.earliestVisitDateTime) && _.isNil(enc.encounterDateTime) && _.isNil(enc.cancelDateTime));
