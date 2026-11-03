@@ -1,5 +1,5 @@
 import _ from "lodash";
-import CustomDashboardService, {CustomDashboardType} from "../../service/customDashboard/CustomDashboardService";
+import CustomDashboardService, {CustomDashboardType, isDashboardAvailableToUser} from "../../service/customDashboard/CustomDashboardService";
 import DashboardSectionCardMappingService from "../../service/customDashboard/DashboardSectionCardMappingService";
 import EntityService from "../../service/EntityService";
 import {ReportCard, Encounter, ProgramEncounter, ReportCardResult, Individual} from "openchs-models";
@@ -233,8 +233,7 @@ class CustomDashboardActions {
             const targetDashboardUUID = reportCard.actionDetailDashboardUUID;
             const customDashboardService = context.get(CustomDashboardService);
             // A card with no target counts as not visible. A nil is checked on its own, so it can never match a dashboard.
-            const targetVisible = !_.isNil(targetDashboardUUID)
-                && _.some(customDashboardService.getDashboards(CustomDashboardType.None), dashboard => _.get(dashboard, 'uuid') === targetDashboardUUID);
+            const targetVisible = isDashboardAvailableToUser(customDashboardService, targetDashboardUUID);
             if (targetVisible) {
                 General.logDebug('CustomDashboardActions', `onCardPress - Open dashboard card "${reportCard.name}": opening ${targetDashboardUUID} from ${state.activeDashboardUUID}`);
                 customDashboardService.carryFiltersOver(state.activeDashboardUUID, targetDashboardUUID);

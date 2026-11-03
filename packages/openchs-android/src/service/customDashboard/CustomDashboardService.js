@@ -15,6 +15,12 @@ export const CustomDashboardType = {
     None: "None"
 }
 
+// Shared by a tile and a Custom Design Card's page: can this user see that dashboard. A nil uuid is checked on its own, so it can never match a dashboard.
+export function isDashboardAvailableToUser(customDashboardService, dashboardUUID) {
+    return !_.isNil(dashboardUUID)
+        && _.some(customDashboardService.getDashboards(CustomDashboardType.None), dashboard => _.get(dashboard, 'uuid') === dashboardUUID);
+}
+
 function getOneDashboard(dashboards) {
     return _.head(_.map(dashboards, ({dashboard}) => dashboard));
 }

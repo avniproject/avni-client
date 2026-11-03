@@ -7,7 +7,9 @@
 // Each module that adds commands to the app side (COMMANDS in CustomCardCommandService) adds its lines here, directly in
 // this array literal or spread from an import. Never push at runtime: the script is built when this module loads, so a
 // later push would come too late.
-export const PAGE_COMMAND_DEFINITIONS = [];
+export const PAGE_COMMAND_DEFINITIONS = [
+    "avni.runCardAction = function (args) { send('runCardAction', args); };",
+];
 
 export function buildCustomCardPageScript(definitions) {
     return [

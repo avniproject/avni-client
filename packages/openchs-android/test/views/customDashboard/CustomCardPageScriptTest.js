@@ -16,14 +16,29 @@ const runPage = (definitions = [PING]) => {
 };
 
 describe("CustomCardPageScript", () => {
-    it("defines avni with the commands it is given, and none in production", () => {
-        expect(PAGE_COMMAND_DEFINITIONS).toEqual([]);
+    it("defines avni with the commands it is given, and the production commands in the real script", () => {
+        expect(PAGE_COMMAND_DEFINITIONS).toEqual(["avni.runCardAction = function (args) { send('runCardAction', args); };"]);
         const {window} = runPage();
         expect(Object.keys(window.avni)).toEqual(["ping"]);
 
         const empty = {window: {}, document: {addEventListener() {}}, console: {warn() {}}};
         new Function("window", "document", "console", CUSTOM_CARD_PAGE_SCRIPT)(empty.window, empty.document, empty.console);
-        expect(Object.keys(empty.window.avni)).toEqual([]);
+        expect(Object.keys(empty.window.avni)).toEqual(["runCardAction"]);
+    });
+
+    it("the page's runCardAction posts its args after a touch", () => {
+        const listeners = [];
+        const posted = [];
+        const window = {ReactNativeWebView: {postMessage: (m) => posted.push(m)}};
+        const console = {warn: jest.fn()};
+        new Function("window", "document", "console", CUSTOM_CARD_PAGE_SCRIPT)(
+            window, {addEventListener: (type, fn) => listeners.push({type, fn})}, console);
+        window.avni.runCardAction({locationUUID: "abc"});
+        expect(posted).toEqual([]);
+        expect(console.warn).toHaveBeenCalledWith("avni: runCardAction ignored, the page has not been touched yet");
+        listeners.filter((l) => l.type === "touchstart").forEach((l) => l.fn({type: "touchstart"}));
+        window.avni.runCardAction({locationUUID: "abc"});
+        expect(posted).toEqual(['{"avniCommand":"runCardAction","args":{"locationUUID":"abc"}}']);
     });
 
     it("registers capturing touchstart and click listeners on the document", () => {
