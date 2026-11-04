@@ -123,7 +123,10 @@ export default class AppliedFiltersV2 extends AbstractComponent {
         super.UNSAFE_componentWillMount();
     }
 
+    // The screen can say the filter state is not its own, as right after an opened dashboard closes: clearing then would
+    // clear the opened dashboard's saved filters.
     onClearFilter(postClearAction) {
+        if (this.props.canClearFilter && !this.props.canClearFilter()) return;
         this.dispatchAction(FilterActionNames.CLEAR_FILTER);
         postClearAction();
     }

@@ -7,6 +7,7 @@
 import React from "react";
 import _ from "lodash";
 import TestRenderer, {act} from "react-test-renderer";
+import {Text, TouchableOpacity} from "react-native";
 
 // The same stand-ins as OpenedDashboardViewTest. The global setup stubs Analytics as undefined, which the
 // AbstractComponent constructor calls into.
@@ -37,6 +38,7 @@ jest.mock("../../../src/views/common/AppHeader", () => ({__esModule: true, defau
 jest.mock("../../../src/views/common/CHSContainer", () => ({__esModule: true, default: ({children}) => children}));
 
 import CustomDashboardView, {OpenedDashboardView} from "../../../src/views/customDashboard/CustomDashboardView";
+import AppliedFiltersV2 from "../../../src/views/filter/AppliedFiltersV2";
 import CustomDashboardTab from "../../../src/views/customDashboard/CustomDashboardTab";
 import ServiceContext from "../../../src/framework/context/ServiceContext";
 import {
@@ -66,7 +68,8 @@ const reducedActions = [Actions.ON_LOAD, Actions.ON_DASHBOARD_CHANGE, Actions.CL
 // dispatch, screens that can be mounted on top of one another, and a router whose scene focus the test reports.
 // `dashboardsOfType` can be changed after mount, as a sync can change which dashboards a user has.
 // With `tileOpens`, a card press opens that dashboard, as the reducer's Open dashboard branch does for a visible target.
-const buildPhone = (dashboardsOfType, {tileOpens} = {}) => {
+// With `asOnDate`, every dashboard has an As On Date filter, so the screen draws the quick date buttons.
+const buildPhone = (dashboardsOfType, {tileOpens, asOnDate} = {}) => {
     const dashboards = [d1, d2, d3, t1];
     const reducerServices = new Map([
         [CustomDashboardService, {
@@ -75,7 +78,7 @@ const buildPhone = (dashboardsOfType, {tileOpens} = {}) => {
             findByUUID: (uuid) => _.find(dashboards, (dashboard) => dashboard.uuid === uuid),
             getDashboardData: () => ({selectedFilterValues: {}, dashboardCache: {filterApplied: false}}),
         }],
-        [DashboardFilterService, {areFiltersPresent: () => false}],
+        [DashboardFilterService, {areFiltersPresent: () => !!asOnDate}],
         [DashboardSectionCardMappingService, {getAllCardsForDashboard: () => []}],
     ]);
     const reducerContext = {get: (Class) => reducerServices.get(Class)};
@@ -113,7 +116,10 @@ const buildPhone = (dashboardsOfType, {tileOpens} = {}) => {
             getUserInfo: () => ({getDisplayUsername: () => "Asha Devi"}),
         }],
         [OrganisationConfigService, {isGuideUserToRegisterButtonOn: () => false}],
-        [DashboardFilterService, {getFilters: () => [], getFilterConfigsForDashboard: () => ({})}],
+        [DashboardFilterService, {
+            getFilters: () => asOnDate ? [{uuid: "date-filter"}] : [],
+            getFilterConfigsForDashboard: () => asOnDate ? {"date-filter": {isAsOnDateFilter: () => true}} : {},
+        }],
         [EntityService, {findByUUID: () => undefined}],
     ]);
     const nav = {push: jest.fn(), replace: jest.fn(), pop: jest.fn(), getCurrentRoutes: jest.fn(() => [])};
@@ -140,6 +146,7 @@ const buildPhone = (dashboardsOfType, {tileOpens} = {}) => {
             );
         });
         return {
+            root: renderer.root,
             instance: renderer.root.findByType(ViewClass).instance,
             tabs: () => renderer.root.findAllByType(CustomDashboardTab).map((tab) => tab.props.dashboard.uuid),
             close: () => act(() => renderer.unmount()),
@@ -399,6 +406,25 @@ describe("The dashboard underneath an opened dashboard", () => {
             nextFrame();
             nextFrame();
 
+            expect(phone.dispatched()).toEqual([]);
+        });
+    });
+
+    describe("when its own route comes back into focus after an opened dashboard, and another transition follows", () => {
+        it("does not reload when another transition starts within the two frames, as a second back press does", () => {
+            const phone = buildPhone({None: [d1, d2]});
+            phone.show(CustomDashboardView, menuDashboards);
+            openAndGoBack(phone);
+            phone.dispatch.mockClear();
+
+            // The first back slide ends and reports Menu → Dashboards focused. The queued second pop starts at once, and
+            // its will-focus clears the live focus before the two frames have run.
+            phone.focus("/customDashboardView");
+            phone.startTransition();
+            nextFrame();
+            nextFrame();
+
+            expect(types(phone.dispatched())).not.toContain(Actions.ON_LOAD);
             expect(phone.dispatched()).toEqual([]);
         });
     });
@@ -845,6 +871,66 @@ describe("The dashboard underneath an opened dashboard", () => {
                 {type: Actions.ON_DASHBOARD_CHANGE, dashboardUUID: "d2"},
             ]);
             expect(phone.state().activeDashboardUUID).toBe("d2");
+        });
+    });
+
+    describe("the As On Date and clear-filters controls", () => {
+        const dashboards = {Primary: [d1], None: [d1, t1]};
+        // The controls as the screen hands them out: the Tomorrow button's handler and the applied-filters bar.
+        // Today is already filled, so pressing it does nothing.
+        const controlsOf = (screen) => {
+            const tomorrow = screen.root.findAll((node) => node.type === TouchableOpacity && node.findAllByType(Text)
+                .some((text) => text.props.children === "i18n:Tomorrow"))[0];
+            const pressed = tomorrow.props.onPress;
+            const bar = screen.root.findByType(AppliedFiltersV2).instance;
+            return {pressTomorrow: () => act(() => pressed()), clear: (postClear) => act(() => bar.onClearFilter(postClear))};
+        };
+        const showHome = (phone) => {
+            const screen = phone.show(CustomDashboardView, home);
+            return {screen, ...controlsOf(screen)};
+        };
+
+        it("do nothing on Home while an opened dashboard owns the state", () => {
+            const phone = buildPhone(dashboards, {asOnDate: true});
+            const homeScreen = showHome(phone);
+            // The opened dashboard takes the state, as a tile press does, and Home stays underneath.
+            phone.show(OpenedDashboardView, {dashboardUUID: "t1"});
+            expect(phone.state().ownerKey).toBe("None|t1");
+            phone.dispatch.mockClear();
+            const postClear = jest.fn();
+
+            homeScreen.pressTomorrow();
+            homeScreen.clear(postClear);
+
+            expect(phone.dispatched()).toEqual([]);
+            expect(postClear).not.toHaveBeenCalled();
+        });
+
+        it("work as before when the state is the screen's own", () => {
+            const phone = buildPhone(dashboards, {asOnDate: true});
+            const homeScreen = showHome(phone);
+            phone.dispatch.mockClear();
+            const postClear = jest.fn();
+
+            homeScreen.pressTomorrow();
+            homeScreen.clear(postClear);
+
+            expect(types(phone.dispatched())).toEqual(expect.arrayContaining([FilterActionNames.ON_FILTER_UPDATE, FilterActionNames.CLEAR_FILTER]));
+            expect(postClear).toHaveBeenCalledTimes(1);
+        });
+
+        it("are not drawn after a full sync's reset, and the screen counts the state nobody owns as its own, so they work once the reload brings them back", () => {
+            const phone = buildPhone(dashboards, {asOnDate: true});
+            const homeScreen = phone.show(CustomDashboardView, home);
+            expect(homeScreen.root.findAllByType(AppliedFiltersV2)).toHaveLength(1);
+
+            phone.dispatchFromOutside({type: "RESET"});
+
+            expect(phone.state().ownerKey).toBeNull();
+            // The reset leaves no dashboard to show, so the block holding the quick dates and the bar is not drawn.
+            expect(homeScreen.root.findAllByType(AppliedFiltersV2)).toHaveLength(0);
+            expect(homeScreen.root.findAll((node) => node.type === Text && node.props.children === "i18n:Tomorrow")).toHaveLength(0);
+            expect(homeScreen.instance.ownsSharedDashboardState()).toBe(true);
         });
     });
 });

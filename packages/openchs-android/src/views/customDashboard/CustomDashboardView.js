@@ -87,6 +87,9 @@ function RefreshSection({I18n, onRefreshPressed, lastUpdatedOn}) {
 function FilterSection({dispatcher, asOnDateValue, asOnDateFilter, I18n, onFilterPressed}) {
 
     const onAsOnDateChange = (date) => {
+        // Until the reload after an opened dashboard points the filter state back, the state is not this screen's, and a
+        // date set now would be looked up among the opened dashboard's filters.
+        if (!dispatcher.ownsSharedDashboardState()) return;
         dispatcher.dispatchAction(FilterActionNames.ON_FILTER_UPDATE, {
             filter: asOnDateFilter, value: date
         });
@@ -247,7 +250,9 @@ class CustomDashboardView extends AbstractComponent {
         const needsReload = () => sceneFocusNeedsReload(route, this.ownRoutePath(), this.sharedDashboardState().ownerKey, this.ownOwnerKey(), this.props.dashboardUUID);
         if (!needsReload()) return;
         requestAnimationFrame(() => requestAnimationFrame(() => {
-            if (this._isUnmounted || !needsReload()) return;
+            // Checked again with the router's live focus, as the in-front path does: a second back press starts the next
+            // pop within these frames, and the screen would then reload while it slides away.
+            if (this._isUnmounted || !needsReload() || !this.inFrontWithoutItsState()) return;
             this.reloadOwnDashboard();
         }));
     }
@@ -278,6 +283,12 @@ class CustomDashboardView extends AbstractComponent {
 
     sharedDashboardState() {
         return this.context.getStore().getState()[Reducers.reducerKeys.customDashboard];
+    }
+
+    // True when the shared dashboard state is this screen's or nobody's. False while another screen, such as an opened
+    // dashboard, holds it.
+    ownsSharedDashboardState() {
+        return ownsStoreState(this.sharedDashboardState().ownerKey, this.ownOwnerKey());
     }
 
     onClearFilters() {
@@ -583,6 +594,7 @@ class CustomDashboardView extends AbstractComponent {
                         </View>
                         <AppliedFiltersV2 dashboardUUID={this.state.activeDashboardUUID}
                                           postClearAction={() => this.onClearFilters()}
+                                          canClearFilter={() => this.ownsSharedDashboardState()}
                                           dashboard={dashboard}
                                           hasFiltersSet={hasFiltersSet}
                                           selectedFilterValues={this.state.customDashboardFilters}
@@ -608,8 +620,9 @@ export class OpenedDashboardView extends CustomDashboardView {
     }
 }
 
-// Opens the dashboard a tile points at. From an opened dashboard it replaces that screen rather than adding
-// another, so the back button always returns to the dashboard the user started from.
+// Opens the dashboard a tile or a Custom Design Card's page points at. From an opened dashboard it replaces that screen
+// rather than adding another, so back returns to the screen the first opened dashboard was opened from: the dashboard
+// with the tile, or the card's page.
 export function openDashboardFrom(view, targetDashboardUUID) {
     const replace = !_.isEmpty(view.props.dashboardUUID);
     TypedTransition.from(view).with({dashboardUUID: targetDashboardUUID}).to(OpenedDashboardView, true, replace);
