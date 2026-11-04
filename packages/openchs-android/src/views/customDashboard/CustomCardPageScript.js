@@ -5,15 +5,25 @@
 // One source line per command, such as
 //   avni.openSubject = function (subjectUUID, tab) { send('openSubject', {subjectUUID: subjectUUID, tab: tab}); };
 // Each module that adds commands to the app side (COMMANDS in CustomCardCommandService) adds its lines here, directly in
-// this array literal or spread from an import. Never push at runtime: the script is built when this module loads, so a
-// later push would come too late.
+// this array literal or spread from an import. Never push at runtime: each card page builds its script from this list
+// when the page is created, so a later push would reach only the pages created after it.
 export const PAGE_COMMAND_DEFINITIONS = [
     "avni.runCardAction = function (args) { send('runCardAction', args); };",
 ];
 
-export function buildCustomCardPageScript(definitions) {
+// token is the card page's own random value. Every command carries it and the card page takes no message without it,
+// so a frame inside the page, or the page posting to the bridge itself, cannot send a command. It lives only in this
+// script's closure.
+export function buildCustomCardPageScript(definitions, token) {
     return [
         "(function () {",
+        // On Android this script can run after the page's own scripts. A page that defines its own avni keeps it, and
+        // gets no commands.
+        "  if (typeof window.avni !== 'undefined') {",
+        "    console.warn('avni: the page already defines avni, so page commands are off on this page');",
+        "    return;",
+        "  }",
+        `  var token = ${JSON.stringify(token)};`,
         "  var touched = false;",
         "  function markTouched() { touched = true; }",
         "  document.addEventListener('touchstart', markTouched, true);",
@@ -23,7 +33,7 @@ export function buildCustomCardPageScript(definitions) {
         "      console.warn('avni: ' + name + ' ignored, the page has not been touched yet');",
         "      return;",
         "    }",
-        "    window.ReactNativeWebView.postMessage(JSON.stringify({avniCommand: name, args: args}));",
+        "    window.ReactNativeWebView.postMessage(JSON.stringify({avniCommand: name, args: args, token: token}));",
         "  }",
         "  var avni = window.avni = {};",
         ...definitions.map((line) => "  " + line),
@@ -31,5 +41,3 @@ export function buildCustomCardPageScript(definitions) {
         "true;",
     ].join("\n");
 }
-
-export const CUSTOM_CARD_PAGE_SCRIPT = buildCustomCardPageScript(PAGE_COMMAND_DEFINITIONS);

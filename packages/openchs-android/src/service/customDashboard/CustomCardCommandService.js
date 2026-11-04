@@ -16,6 +16,14 @@ import General from "../../utility/General";
 // A value that is not shaped like a uuid must never reach a query: a quote in it would break the query.
 const UUID_SHAPE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+// What a debug line may say about a value the page sent as an id. Debug lines can reach Bugsnag as breadcrumbs on a
+// release build, so a value not shaped like an id, which could be a name, is described and never written.
+function describeId(value) {
+    if (_.isString(value) && UUID_SHAPE.test(value)) return value;
+    if (_.isString(value)) return `a string of ${value.length} characters, not an id`;
+    return `a value of type ${typeof value}, not an id`;
+}
+
 // A card with the Open dashboard action, opened for the location the page names. The checks all come before the opening,
 // and the filters are carried inside it, so a link dropped while another command opens a screen changes no filters.
 function runCardAction(service, args, page) {
@@ -32,10 +40,11 @@ function runCardAction(service, args, page) {
         return;
     }
     const locationUUID = _.get(args, "locationUUID");
+    const addressLevelService = service.getService(AddressLevelService);
     const addressLevel = _.isString(locationUUID) && UUID_SHAPE.test(locationUUID)
-        ? service.getService(AddressLevelService).findByUUID(locationUUID) : null;
+        ? addressLevelService.findByUUID(locationUUID) : null;
     if (_.isNil(addressLevel) || addressLevel.voided) {
-        General.logDebug("CustomCardCommandService", `runCardAction - card "${cardName}": location ${_.isString(locationUUID) ? locationUUID : typeof locationUUID} is not on this phone (target ${target})`);
+        General.logDebug("CustomCardCommandService", `runCardAction - card "${cardName}": no location on this phone for ${describeId(locationUUID)} (target ${target})`);
         page.showMessage("recordNotOnThisPhone");
         return;
     }
@@ -43,7 +52,9 @@ function runCardAction(service, args, page) {
     const overrides = {};
     _.forOwn(filterConfigs, (filterConfig, filterUUID) => {
         if (_.get(filterConfig, "type") === CustomFilter.type.Address) {
-            overrides[filterUUID] = new AddressFilterValue([addressLevel], []);
+            // The location with its parents, from the top level down, as a choice on the Filter screen is stored, so
+            // that screen shows it as chosen. Counts go by the lowest level, the location itself.
+            overrides[filterUUID] = new AddressFilterValue([...addressLevelService.getParentsOfLeaf(addressLevel), addressLevel], []);
         }
     });
     General.logDebug("CustomCardCommandService", `runCardAction - card "${cardName}": opening ${target} for location ${locationUUID}`);
