@@ -1,6 +1,7 @@
 // The script a Custom Design Card's page is given before it loads. It defines `window.avni`, whose commands post a
 // message to the app through the WebView bridge. A command posts only once the user has touched or clicked the
 // page, so a page that runs a command on its own, without the user, does nothing.
+import {RECORD_PAGE_COMMAND_DEFINITIONS} from './RecordCommandPageDefinitions';
 
 // One source line per command, such as
 //   avni.openSubject = function (subjectUUID, tab) { send('openSubject', {subjectUUID: subjectUUID, tab: tab}); };
@@ -9,6 +10,7 @@
 // when the page is created, so a later push would reach only the pages created after it.
 export const PAGE_COMMAND_DEFINITIONS = [
     "avni.runCardAction = function (args) { send('runCardAction', args); };",
+    ...RECORD_PAGE_COMMAND_DEFINITIONS,
 ];
 
 // token is the card page's own random value. Every command carries it and the card page takes no message without it,

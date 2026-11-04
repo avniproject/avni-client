@@ -7,6 +7,7 @@ import DashboardFilterService from "../reports/DashboardFilterService";
 import AddressLevelService from "../AddressLevelService";
 import AddressFilterValue from "../../model/AddressFilterValue";
 import General from "../../utility/General";
+import {RECORD_COMMANDS} from './CustomCardRecordCommands';
 
 // name -> (service, args, page) => void. A module's handler map is spread into this literal, so the map sits in one place
 // and needs no other import to take effect.
@@ -64,6 +65,7 @@ function runCardAction(service, args, page) {
 
 export const COMMANDS = {
     runCardAction,
+    ...RECORD_COMMANDS,
 };
 
 @Service("customCardCommandService")

@@ -463,6 +463,7 @@
     "subjectsList": "Subject List",
     "dashboardsNotAvailable": "No dashboard available",
     "dashboardNotAvailableToUser": "This dashboard is not available to you",
+    "customCardActionNotAvailable": "This action is not available for this record",
     "recordNotOnThisPhone": "This record is not on this phone",
     "noPermissionForThisAction": "You do not have permission to do this",
     "draft": "Draft",

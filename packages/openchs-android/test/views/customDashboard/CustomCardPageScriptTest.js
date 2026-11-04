@@ -1,6 +1,7 @@
 // The script a Custom Design Card's page is given before it loads. It is run here on fakes of the page's window,
 // document and console, as the WebView would run it.
 import {buildCustomCardPageScript, PAGE_COMMAND_DEFINITIONS} from "../../../src/views/customDashboard/CustomCardPageScript";
+import {RECORD_PAGE_COMMAND_DEFINITIONS} from "../../../src/views/customDashboard/RecordCommandPageDefinitions";
 
 const PING = "avni.ping = function (args) { send('ping', args); };";
 // The card page's own token, which its script puts on every command.
@@ -23,12 +24,14 @@ describe("CustomCardPageScript", () => {
     it("defines avni with the commands it is given, and the production commands in the real script", () => {
         // Other modules spread their lines into the same list, so only this one's is checked for.
         expect(PAGE_COMMAND_DEFINITIONS).toEqual(expect.arrayContaining(["avni.runCardAction = function (args) { send('runCardAction', args); };"]));
+        expect(PAGE_COMMAND_DEFINITIONS).toEqual(expect.arrayContaining(RECORD_PAGE_COMMAND_DEFINITIONS));
         const {window} = runPage();
         expect(Object.keys(window.avni)).toEqual(["ping"]);
 
         const empty = {window: {}, document: {addEventListener() {}}, console: {warn() {}}};
         new Function("window", "document", "console", productionScript())(empty.window, empty.document, empty.console);
         expect(Object.keys(empty.window.avni)).toEqual(expect.arrayContaining(["runCardAction"]));
+        expect(Object.keys(empty.window.avni)).toEqual(expect.arrayContaining(["openSubject", "openEnrolment", "openVisit", "editRegistration", "editEnrolment", "editExit", "editVisit", "startVisit"]));
     });
 
     // Only the app's own script knows the token, so a frame inside the page, or the page posting to the bridge itself,

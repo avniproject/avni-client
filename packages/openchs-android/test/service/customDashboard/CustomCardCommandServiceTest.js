@@ -13,6 +13,7 @@ describe("CustomCardCommandService", () => {
     it("ignores a command it does not know", () => {
         // Other modules spread their commands into the same map, so only this one's is checked for.
         expect(Object.keys(COMMANDS)).toEqual(expect.arrayContaining(["runCardAction"]));
+        expect(Object.keys(COMMANDS)).toEqual(expect.arrayContaining(["openSubject", "openEnrolment", "openVisit", "editRegistration", "editEnrolment", "editExit", "editVisit", "startVisit"]));
         ["notACommand", "toString", "constructor", "__proto__", "hasOwnProperty"].forEach((name) => {
             expect(service.dispatch({avniCommand: name, args: {}}, page)).toBe(false);
         });

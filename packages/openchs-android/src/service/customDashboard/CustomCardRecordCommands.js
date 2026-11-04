@@ -1,14 +1,11 @@
 import _ from "lodash";
 import {Encounter, EncounterType, Form, Individual, Privilege, ProgramEncounter, ProgramEnrolment, WorkItem, WorkList, WorkLists} from "avni-models";
-import {findScheduledEncounters} from "../../action/customDashboard/CustomDashboardActions";
-import CHSNavigator from "../../utility/CHSNavigator";
 import General from "../../utility/General";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
 import {RETURN_TO_SOURCE} from "../../utility/ReturnToSource";
 import EntityService from "../EntityService";
 import FormMappingService from "../FormMappingService";
 import PrivilegeService from "../PrivilegeService";
-import RuleEvaluationService from "../RuleEvaluationService";
 
 // Commands a Custom Design Card page can send to open, edit or start a record. Plain functions: the command service
 // calls them with itself, the page's arguments and a page handle. Order in every resolver: the record, then the
@@ -23,6 +20,12 @@ export const MessageKeys = {
 };
 
 export const TAB_NUMBERS = {profile: 1, program: 2, general: 3};
+
+// CHSNavigator, the rule service and the dashboard actions are required where they are used, not when this module
+// loads. The command service imports this module, so what this module imports loads wherever the service loads.
+// CHSNavigator imports every screen, and a unit test cannot load them: one calls a native module at load. The other two
+// reach the Bugsnag setup, which warns in a unit test.
+const chsNavigator = () => require("../../utility/CHSNavigator").default;
 
 const SAFE_ID = /^[A-Za-z0-9_-]{1,255}$/;
 const notOnPhone = () => ({message: MessageKeys.notOnPhone});
@@ -67,7 +70,7 @@ export const canViewSubject = (getService, subjectType) => {
 
 const openOutcome = (getService, subject, enrolmentUUID, tab) => {
     if (!canViewSubject(getService, subject.subjectType)) return {message: MessageKeys.noPermission};
-    return {navigate: view => CHSNavigator.navigateToProgramEnrolmentDashboardView(view, subject.uuid, enrolmentUUID, false, null, null, tab)};
+    return {navigate: view => chsNavigator().navigateToProgramEnrolmentDashboardView(view, subject.uuid, enrolmentUUID, false, null, null, tab)};
 };
 
 export const resolveOpenSubject = (getService, args) => {
@@ -77,8 +80,8 @@ export const resolveOpenSubject = (getService, args) => {
     const subject = findLiveSubject(getService, subjectUUID);
     if (subject == null) return notOnPhone();
     if (!canViewSubject(getService, subject.subjectType)) return {message: MessageKeys.noPermission};
-    if (noTab) return {navigate: view => CHSNavigator.navigateToProgramEnrolmentDashboardView(view, subject.uuid)};
-    return {navigate: view => CHSNavigator.navigateToProgramEnrolmentDashboardView(view, subject.uuid, null, false, null, null, TAB_NUMBERS[tab])};
+    if (noTab) return {navigate: view => chsNavigator().navigateToProgramEnrolmentDashboardView(view, subject.uuid)};
+    return {navigate: view => chsNavigator().navigateToProgramEnrolmentDashboardView(view, subject.uuid, null, false, null, null, TAB_NUMBERS[tab])};
 };
 
 export const resolveOpenEnrolment = (getService, args) => {
@@ -98,6 +101,7 @@ export const resolveOpenVisit = (getService, args) => {
 // Null when the form's edit rule allows the edit. Otherwise the rule's own message, which the page shows as the
 // profile does, or the no-permission message when the rule gives none, so the message is never blank.
 export const editRuleMessage = (getService, form, entity, entityName) => {
+    const RuleEvaluationService = require("../RuleEvaluationService").default;
     const response = getService(RuleEvaluationService).runEditFormRule(form, entity, entityName);
     if (response.isAllowed()) return null;
     const message = response.getMessage();
@@ -149,7 +153,7 @@ export const resolveEditRegistration = (getService, args) => {
         navigate: view => {
             logEvent(firebaseEvents.EDIT_SUBJECT);
             const workLists = editWorkLists(`${subjectType.name} `, WorkItem.type.REGISTRATION, {uuid: subject.uuid, subjectTypeName: subjectType.name});
-            CHSNavigator.navigateToRegisterView(view, {workLists});
+            chsNavigator().navigateToRegisterView(view, {workLists});
         }
     };
 };
@@ -183,7 +187,7 @@ export const resolveEditEnrolment = (getService, args) => resolveEditProgramForm
     listName: 'Enrolment',
     navigate: (view, enrolment, workLists) => {
         logEvent(firebaseEvents.EDIT_ENROLMENT);
-        CHSNavigator.navigateToProgramEnrolmentView(view, enrolment, workLists, true);
+        chsNavigator().navigateToProgramEnrolmentView(view, enrolment, workLists, true);
     },
 });
 
@@ -193,7 +197,7 @@ export const resolveEditExit = (getService, args) => resolveEditProgramForm(getS
     listName: 'Exit',
     navigate: (view, enrolment, workLists) => {
         logEvent(firebaseEvents.EDIT_PROGRAM_EXIT);
-        CHSNavigator.navigateToExitProgram(view, enrolment, workLists, true);
+        chsNavigator().navigateToExitProgram(view, enrolment, workLists, true);
     },
 });
 
@@ -252,11 +256,11 @@ export const resolveEditVisit = (getService, args) => {
         if (refusal != null) return refusal;
     }
     return {
-        navigate: view => CHSNavigator.navigateToEncounterView(view, {
+        navigate: view => chsNavigator().navigateToEncounterView(view, {
             encounter: clone,
             editing,
             individualUUID: subject.uuid,
-            onSaveCallback: source => CHSNavigator.navigateBackAfterDoVisit(source),
+            onSaveCallback: source => chsNavigator().navigateBackAfterDoVisit(source),
         })
     };
 };
@@ -288,9 +292,10 @@ export const resolveStartVisit = (getService, args) => {
     if (!_.some(typesInUse, type => type.uuid === encounterType.uuid)) return {message: MessageKeys.notAvailable};
     if (!visitTypeAllowed(getService, Privilege.privilegeName.performVisit, subjectType, program, encounterType.uuid)) return {message: MessageKeys.noPermission};
     const parent = enrolment == null ? subject : enrolment;
+    const {findScheduledEncounters} = require("../../action/customDashboard/CustomDashboardActions");
     const planned = findScheduledEncounters(parent, encounterType)[0];
     return {
-        navigate: view => CHSNavigator.proceedEncounter(planned || encounterType, parent, source => CHSNavigator.navigateBackAfterDoVisit(source), view)
+        navigate: view => chsNavigator().proceedEncounter(planned || encounterType, parent, source => chsNavigator().navigateBackAfterDoVisit(source), view)
     };
 };
 
