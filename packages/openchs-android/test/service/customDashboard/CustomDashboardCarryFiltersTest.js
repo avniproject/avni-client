@@ -1,5 +1,5 @@
 // Verifies CustomDashboardService.carryFiltersOver. When a dashboard is opened from a tile, each filter it shares
-// with the dashboard the user came from starts with the value the user chose there.
+// with the dashboard the user came from starts with the value it has there, an unset one included, so a filter cleared there is cleared here.
 // Two filters are the same filter when the settings stored in DashboardFilter.filterConfig agree, so the rules are
 // also tested one by one through filterSettingsMatch and isChosenFilterValue.
 // Wherever a test expects nothing to carry, it also runs the same filters with identical settings (or a chosen value)
@@ -216,29 +216,65 @@ describe("CustomDashboardService.carryFiltersOver", () => {
         assert.sameMembers(Object.keys(values), ["t-address", "t-registered"]);
     });
 
-    describe("does not carry a value the user left unset", () => {
-        // [what is unset, the filter's settings, how to build the unset value, how to build a chosen one]
-        const unset = [
-            ["an empty date range", settings(Type.RegistrationDate, {widget: Widget.Range}), () => Range.empty(), dateRange],
-            ["an empty subject type selection", settings(Type.SubjectType), () => FormMetaDataSelection.createNew(), subjectTypeSelection],
-            ["an empty list", settings(Type.Gender), () => [], codedAnswers],
-            ["no value at all", settings(Type.AsOnDate), () => null, aDate],
-            ["an empty address selection", settings(Type.Address), () => AddressFilterValue.empty(), addressSelection],
-            ["an empty text", conceptSettings("c-text"), () => "", () => "typed text"],
-        ];
+    // [what is unset, the filter's settings, how to build the unset value, how to build a chosen one]
+    const unsetValues = [
+        ["an empty date range", settings(Type.RegistrationDate, {widget: Widget.Range}), () => Range.empty(), dateRange],
+        ["an empty subject type selection", settings(Type.SubjectType), () => FormMetaDataSelection.createNew(), subjectTypeSelection],
+        ["an empty list", settings(Type.Gender), () => [], codedAnswers],
+        ["no value at all", settings(Type.AsOnDate), () => null, aDate],
+        ["an empty address selection", settings(Type.Address), () => AddressFilterValue.empty(), addressSelection],
+        ["an empty text", conceptSettings("c-text"), () => "", () => "typed text"],
+        ["an unset location, as a new dashboard holds it", settings(Type.Address), () => [], addressSelection],
+    ];
 
-        unset.forEach(([label, filterSettings, unsetValue, chosenValue]) => {
+    describe("carries a value the user left unset, clearing the target's own", () => {
+        unsetValues.forEach(([label, filterSettings, unsetValue, chosenValue]) => {
             it(label, () => {
                 const pair = (sourceValue) => ({
                     source: {settings: filterSettings, value: sourceValue},
                     target: {settings: filterSettings, value: chosenValue},
                 });
 
-                assertNothingCarried(carryBetween(pair(unsetValue)));
-                // The same filters carry once the user has chosen a value.
+                assertCarried(carryBetween(pair(unsetValue)));
+                // A chosen value carries too.
                 assertCarried(carryBetween(pair(chosenValue)));
             });
         });
+    });
+
+    describe("writes nothing when the value is unset on both sides", () => {
+        unsetValues.forEach(([label, filterSettings, unsetValue, chosenValue]) => {
+            it(label, () => {
+                const pair = (sourceValue) => ({
+                    source: {settings: filterSettings, value: sourceValue},
+                    target: {settings: filterSettings, value: unsetValue},
+                });
+
+                assertNothingCarried(carryBetween(pair(unsetValue)));
+                // The same filters carry once the source has a chosen value.
+                assertCarried(carryBetween(pair(chosenValue)));
+            });
+        });
+    });
+
+    it("clears a shared filter and leaves one only the target has", () => {
+        const ownRange = dateRange();
+        const unsetAddress = [];
+        const {service, setSelectedFilterValues} = setUp({
+            sourceFilters: [filterRow("s-address", "Village", settings(Type.Address))],
+            targetFilters: [
+                filterRow("t-address", "Village", settings(Type.Address)),
+                filterRow("t-registered", "Registered", settings(Type.RegistrationDate, {widget: Widget.Range})),
+            ],
+            sourceValues: {"s-address": unsetAddress},
+            targetValues: {"t-address": addressSelection(), "t-registered": ownRange},
+        });
+
+        assert.isTrue(service.carryFiltersOver("source", "target"));
+
+        const values = writtenValues(setSelectedFilterValues);
+        assert.strictEqual(values["t-address"], unsetAddress);
+        assert.strictEqual(values["t-registered"], ownRange);
     });
 
     it("applies overrides after the copy", () => {
@@ -335,7 +371,7 @@ describe("CustomDashboardService.carryFiltersOver", () => {
         assert.strictEqual(writtenValues(setSelectedFilterValues).t1, fromFirst);
     });
 
-    it("skips a matching source filter whose value is not chosen and keeps looking", () => {
+    it("takes a matching source filter with a chosen value over an unset one", () => {
         const chosen = addressSelection("Chosen");
         const {service, setSelectedFilterValues} = setUp({
             sourceFilters: [
@@ -350,6 +386,47 @@ describe("CustomDashboardService.carryFiltersOver", () => {
         assert.isTrue(service.carryFiltersOver("source", "target"));
 
         assert.strictEqual(writtenValues(setSelectedFilterValues).t1, chosen);
+    });
+
+    it("clears the target with the first matching source filter's unset value when none is chosen", () => {
+        const fromB = AddressFilterValue.empty();
+        const fromA = AddressFilterValue.empty();
+        const {service, setSelectedFilterValues} = setUp({
+            sourceFilters: [
+                filterRow("s-1", "B", settings(Type.Address)),
+                filterRow("s-2", "A", settings(Type.Address)),
+            ],
+            targetFilters: [filterRow("t1", "Village", settings(Type.Address))],
+            sourceValues: {"s-1": fromB, "s-2": fromA},
+            targetValues: {t1: addressSelection()},
+        });
+
+        assert.isTrue(service.carryFiltersOver("source", "target"));
+
+        assert.strictEqual(writtenValues(setSelectedFilterValues).t1, fromA);
+    });
+
+    it("lets an override win over a cleared value, and clears the other shared filters", () => {
+        const override = addressSelection("Override");
+        const unsetRange = Range.empty();
+        const {service, setSelectedFilterValues} = setUp({
+            sourceFilters: [
+                filterRow("s-address", "Village", settings(Type.Address)),
+                filterRow("s-registered", "Registered", settings(Type.RegistrationDate, {widget: Widget.Range})),
+            ],
+            targetFilters: [
+                filterRow("t-address", "Village", settings(Type.Address)),
+                filterRow("t-registered", "Registered", settings(Type.RegistrationDate, {widget: Widget.Range})),
+            ],
+            sourceValues: {"s-address": [], "s-registered": unsetRange},
+            targetValues: {"t-address": addressSelection(), "t-registered": dateRange()},
+        });
+
+        assert.isTrue(service.carryFiltersOver("source", "target", {"t-address": override}));
+
+        const values = writtenValues(setSelectedFilterValues);
+        assert.strictEqual(values["t-address"], override, "an override wins over the cleared value");
+        assert.strictEqual(values["t-registered"], unsetRange, "a filter without an override is cleared");
     });
 
     describe("the target's cached counts", () => {
@@ -367,6 +444,37 @@ describe("CustomDashboardService.carryFiltersOver", () => {
 
             assert.deepEqual(clearResults.mock.calls, [["target"]]);
             assert.isBelow(setSelectedFilterValues.mock.invocationCallOrder[0], clearResults.mock.invocationCallOrder[0], "the clear comes after the write");
+        });
+
+        it("are cleared when a cleared value is carried", () => {
+            const {service, setSelectedFilterValues, clearResults} = setUp({
+                sourceFilters: [filterRow("s1", "Village", settings(Type.Address))],
+                targetFilters: [filterRow("t1", "Village", settings(Type.Address))],
+                sourceValues: {s1: []},
+                targetValues: {t1: addressSelection()},
+            });
+
+            assert.isTrue(service.carryFiltersOver("source", "target"));
+
+            assert.deepEqual(clearResults.mock.calls, [["target"]]);
+            assert.isBelow(setSelectedFilterValues.mock.invocationCallOrder[0], clearResults.mock.invocationCallOrder[0], "the clear comes after the write");
+        });
+
+        it("are not cleared when the value is unset on both sides", () => {
+            const run = (sourceValue) => {
+                const {service, clearResults} = setUp({
+                    sourceFilters: [filterRow("s1", "Village", settings(Type.Address))],
+                    targetFilters: [filterRow("t1", "Village", settings(Type.Address))],
+                    sourceValues: {s1: sourceValue},
+                    targetValues: {t1: []},
+                });
+                service.carryFiltersOver("source", "target");
+                return clearResults;
+            };
+
+            assert.equal(run([]).mock.calls.length, 0);
+            // The same filters clear the counts once the source has a chosen value.
+            assert.equal(run(addressSelection()).mock.calls.length, 1);
         });
 
         it("are never cleared when nothing carried", () => {

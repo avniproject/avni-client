@@ -73,7 +73,8 @@ export function filterSettingsMatch(sourceSettings, targetSettings) {
 }
 
 // A value is chosen unless it is nil, an empty array or string, or says it is empty itself (Range, FormMetaDataSelection, AddressFilterValue).
-// The cache saves none of those, so carrying one would only wipe what the target had saved.
+// The cache saves none of those. An unset value is still carried when the target's matching filter has a chosen value: writing it
+// leaves that filter out of what is saved, which clears it.
 // Not _.isEmpty on every value: lodash calls a Date empty.
 export function isChosenFilterValue(value) {
     if (_.isNil(value) || value === "") return false;
@@ -153,8 +154,9 @@ class CustomDashboardService extends BaseService {
         return this.getDashboardData(dashboardUUID);
     }
 
-    // Starts the filters of the dashboard a tile opens with the values the user chose on the dashboard they came from.
-    // A target filter takes the value of the first source filter, in order of name then uuid, that has the same settings and a chosen value.
+    // Starts the filters of the dashboard a tile opens with the values they have on the dashboard the user came from, an unset one included.
+    // A target filter takes the value of the first source filter, in order of name then uuid, that has the same settings and a chosen value,
+    // else of the first one with the same settings. So an unset value is carried too, and clears the target's own unless both are unset.
     // `overrides` maps a target filter uuid to a value and is applied last.
     // Writes the target's saved values, and returns true, only when something was carried or overridden.
     carryFiltersOver(sourceDashboardUUID, targetDashboardUUID, overrides = {}) {
@@ -166,13 +168,13 @@ class CustomDashboardService extends BaseService {
         let changed = false;
 
         targetFilters.forEach(targetFilter => {
-            const sourceFilter = sourceFilters.find(({uuid, settings}) =>
-                filterSettingsMatch(settings, targetFilter.settings) && isChosenFilterValue(sourceValues[uuid]));
-            if (sourceFilter) {
-                // TODO(avniproject/avni-client#2222): keep the target's Subject Type preset when the carried selection disagrees
-                values[targetFilter.uuid] = sourceValues[sourceFilter.uuid];
-                changed = true;
-            }
+            const matching = sourceFilters.filter(({settings}) => filterSettingsMatch(settings, targetFilter.settings));
+            if (_.isEmpty(matching)) return;
+            const sourceFilter = matching.find(({uuid}) => isChosenFilterValue(sourceValues[uuid])) || matching[0];
+            if (!isChosenFilterValue(sourceValues[sourceFilter.uuid]) && !isChosenFilterValue(values[targetFilter.uuid])) return;
+            // TODO(avniproject/avni-client#2222): keep the target's Subject Type preset when the carried selection disagrees with it, an empty one included, and count a target value equal to its preset as unset
+            values[targetFilter.uuid] = sourceValues[sourceFilter.uuid];
+            changed = true;
         });
         _.forOwn(overrides, (value, filterUUID) => {
             values[filterUUID] = value;
