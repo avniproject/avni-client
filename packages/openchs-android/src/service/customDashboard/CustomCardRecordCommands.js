@@ -1,5 +1,5 @@
 import _ from "lodash";
-import {Encounter, EncounterType, Form, Individual, Privilege, ProgramEncounter, ProgramEnrolment, WorkItem, WorkList, WorkLists} from "avni-models";
+import {Encounter, EncounterType, Form, Individual, Privilege, ProgramEncounter, ProgramEnrolment, SubjectType, WorkItem, WorkList, WorkLists} from "avni-models";
 import General from "../../utility/General";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
 import {RETURN_TO_SOURCE} from "../../utility/ReturnToSource";
@@ -8,7 +8,8 @@ import FormMappingService from "../FormMappingService";
 import PrivilegeService from "../PrivilegeService";
 
 // Commands a Custom Design Card page can send to open, edit or start a record. Plain functions: the command service
-// calls them with itself, the page's arguments and a page handle. Order in every resolver: the record, then the
+// calls them with itself, the page's arguments and a page handle. Order in every resolver but openSubject, which checks
+// the tab name first: the record, then the
 // user's right to see it, then the checks the profile runs for that action, then the navigation. A record's state,
 // such as an exited enrolment, is one of those checks, so a user without the right is never told it. Every check
 // finishes before an outcome with `navigate` is returned.
@@ -141,6 +142,8 @@ export const resolveEditRegistration = (getService, args) => {
     if (subject == null) return notOnPhone();
     const {subjectType} = subject;
     if (!canViewSubject(getService, subjectType)) return {message: MessageKeys.noPermission};
+    // The profile shows the registration section, and its Edit, only unless this setting is false (SubjectDashboardProfileTab.js:388).
+    if (subjectType.getSetting(SubjectType.settingKeys.displayRegistrationDetails) === false) return {message: MessageKeys.notAvailable};
     const refusal = editRefusal(getService, {
         criteria: editSubjectCriteria(subjectType),
         privilegeParam: 'subjectTypeUuid',
@@ -232,8 +235,8 @@ const visitRuleFormType = (visit, isProgramVisit) => {
 
 // As PreviousEncounters.editEncounter, with the profile's reducers for a done or cancelled visit
 // (IndividualGeneralHistoryActions.onEditEncounter, ProgramEnrolmentDashboardActions.onEditProgramEncounter). A planned
-// visit is the profile's Do, which needs only the right to perform its type (D4). The visit screen logs the edit event,
-// and opens a cancelled visit's cancel form.
+// visit is the profile's Do, which needs only the right to perform its type (D4). CHSNavigator.navigateToEncounterView logs
+// the edit event and opens a cancelled visit's cancel form.
 export const resolveEditVisit = (getService, args) => {
     const found = findLiveVisit(getService, (args || {}).visitUUID);
     if (found == null) return notOnPhone();
@@ -265,10 +268,16 @@ export const resolveEditVisit = (getService, args) => {
     };
 };
 
-// As the New visit menu (NewVisitMenuView.js:86, :94) and the Do visit card (CustomDashboardActions.js:28-38): the
-// planned visit of that type if there is one, else a new one. No enrolment means a general visit. The type must be one
+// The planned visit of that type if there is one, else a new one. That is this command's own rule. The New visit menu
+// (NewVisitMenuView.js:86, :94) lets the user pick between planned visits and types, and the Do visit card
+// (CustomDashboardActions.js:28-38) does one or the other by its setting, so neither does both. Of several planned
+// visits the earliest due starts. No enrolment (empty, or the text a card template writes for a missing value) means a
+// general visit. The type must be one
 // the record uses, as the profile lists them (IndividualGeneralHistoryActions.js:35, StartProgramActions.js:46). No
 // eligibility rule runs, planned or new (D5).
+// A card template builds a row with +, so a missing enrolment arrives as one of these.
+const NO_ENROLMENT = [null, undefined, '', 'null', 'undefined'];
+
 export const resolveStartVisit = (getService, args) => {
     const {subjectUUID, visitTypeUUID, enrolmentUUID} = args || {};
     const subject = findLiveSubject(getService, subjectUUID);
@@ -276,7 +285,7 @@ export const resolveStartVisit = (getService, args) => {
     const encounterType = findLiveRecord(getService, visitTypeUUID, EncounterType.schema.name);
     if (encounterType == null) return notOnPhone();
     let enrolment = null;
-    if (!_.isNil(enrolmentUUID)) {
+    if (!NO_ENROLMENT.includes(enrolmentUUID)) {
         const found = findLiveEnrolment(getService, enrolmentUUID);
         if (found == null || found.subject.uuid !== subject.uuid) return notOnPhone();
         enrolment = found.enrolment;
@@ -293,14 +302,15 @@ export const resolveStartVisit = (getService, args) => {
     if (!visitTypeAllowed(getService, Privilege.privilegeName.performVisit, subjectType, program, encounterType.uuid)) return {message: MessageKeys.noPermission};
     const parent = enrolment == null ? subject : enrolment;
     const {findScheduledEncounters} = require("../../action/customDashboard/CustomDashboardActions");
-    const planned = findScheduledEncounters(parent, encounterType)[0];
+    // The newer database lists a parent's visits in no set order, so the earliest due is taken. minBy keeps the first of a tie.
+    const planned = _.minBy(findScheduledEncounters(parent, encounterType), visit => visit.earliestVisitDateTime);
     return {
         navigate: view => chsNavigator().proceedEncounter(planned || encounterType, parent, source => chsNavigator().navigateBackAfterDoVisit(source), view)
     };
 };
 
-// Runs a resolver and acts on its outcome.
-export const runOutcome = (page, outcome) => {
+// Acts on a resolver's outcome: navigates, or shows its message. `command` runs the resolver.
+const runOutcome = (page, outcome) => {
     if (outcome.navigate) page.navigate(outcome.navigate);
     else page.showMessage(outcome.message);
 };

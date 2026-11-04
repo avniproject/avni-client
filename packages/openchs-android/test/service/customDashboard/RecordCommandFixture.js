@@ -28,7 +28,10 @@ export const realVisit = (uuid, parent, encounterType, extra = {}) => {
     return visit;
 };
 
-export const subject = (uuid = 's1', extra = {}) => live(uuid, {subjectType: {uuid: 'st1'}, ...extra});
+// A subject type's settings, as the model's getSetting reads them: a key that is not set gives undefined.
+export const subjectTypeWith = (fields = {}, settings = {}) => ({uuid: 'st1', getSetting: (key) => settings[key], ...fields});
+
+export const subject = (uuid = 's1', extra = {}) => live(uuid, {subjectType: subjectTypeWith(), ...extra});
 // isActive mirrors the model's getter: no exit date.
 export const enrolment = (uuid = 'e1', subjectUuid = 's1', extra = {}) => {
     const record = live(uuid, {individual: {uuid: subjectUuid}, program: {uuid: 'p1'}, programExitDateTime: null, ...extra});

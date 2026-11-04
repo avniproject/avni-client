@@ -1,3 +1,4 @@
+jest.mock("../../src/utility/bugsnag", () => ({__esModule: true, default: {notify: jest.fn()}}));
 import {WorkItem, WorkList, WorkLists} from "avni-models";
 
 jest.mock("../../src/utility/CHSNavigator", () => ({

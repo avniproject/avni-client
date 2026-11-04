@@ -1,3 +1,4 @@
+jest.mock("../../../src/utility/bugsnag", () => ({__esModule: true, default: {notify: jest.fn()}}));
 jest.mock("../../../src/utility/CHSNavigator", () => ({
     __esModule: true,
     default: {

@@ -136,9 +136,15 @@ describe.each([
         expect(parent).toBe(parentRecord);
         expectComesBackToTheCard(onSaveCallback);
     });
-    it("starts the first planned visit of the type in the parent's list, as the Do visit card does, even when a later one is due earlier", () => {
+    it('starts the planned visit due earliest, even when a later-due one comes first in the list', () => {
+        realVisit('later', parentOf(), visitType(), planned);
+        const earlier = realVisit('earlier', parentOf(), visitType(), {...planned, earliestVisitDateTime: new Date(2026, 8, 1)});
+        run(resolveStartVisit(svc(), args));
+        expect(started().visitOrType.that).toBe(earlier.that);
+    });
+    it('starts the first in list order when planned visits are due at the same time', () => {
         const first = realVisit('first', parentOf(), visitType(), planned);
-        realVisit('second', parentOf(), visitType(), {...planned, earliestVisitDateTime: new Date(2026, 8, 1)});
+        realVisit('second', parentOf(), visitType(), {...planned});
         run(resolveStartVisit(svc(), args));
         expect(started().visitOrType.that).toBe(first.that);
     });
@@ -272,8 +278,8 @@ describe('startVisit with a named enrolment', () => {
         ['an enrolment not on the phone', 'unknown'],
         ["the subject's own uuid", 's1'],
         ["a visit type's uuid", 'pt1'],
-        ['an empty enrolment uuid', ''],
         ['a number as the enrolment uuid', 123],
+        ['the text nullish', 'nullish'],
     ])('says not on this phone for %s, before any right', (label, enrolmentUUID) => {
         const getService = svc();
         expect(resolveStartVisit(getService, programmeArgs(enrolmentUUID))).toEqual(NOT_ON_PHONE);
@@ -291,10 +297,21 @@ describe('startVisit with a named enrolment', () => {
         expect(getService.pairsSeen).toEqual([VIEW_PAIR]);
         expectNoTypeLookup(getService);
     });
+    it.each(['', 'null', 'undefined'])('is not available for a visit type only a programme uses, when the enrolment uuid is %p', (enrolmentUUID) => {
+        const getService = svc();
+        expect(resolveStartVisit(getService, programmeArgs(enrolmentUUID))).toEqual(NOT_AVAILABLE);
+        expect(getService.pairsSeen).toEqual([VIEW_PAIR]);
+        expect(getService.formMappingService.findActiveEncounterTypesForEncounter).toHaveBeenCalledTimes(1);
+        expect(getService.formMappingService.findActiveEncounterTypesForProgram).not.toHaveBeenCalled();
+    });
+    it('still starts a programme visit for a real enrolment', () => {
+        run(resolveStartVisit(svc(), programmeArgs('e1')));
+        expect(started().parent).toBe(w.enrolments.e1);
+    });
     it('is not available for an exited enrolment, even with all privileges', () => {
         expect(resolveStartVisit(svc({allPrivileges: true}), programmeArgs('ex'))).toEqual(NOT_AVAILABLE);
     });
-    it.each([null, undefined])('starts a general visit on the subject when the enrolment uuid is %p', (enrolmentUUID) => {
+    it.each([null, undefined, '', 'null', 'undefined'])('starts a general visit on the subject when the enrolment uuid is %p, as a card template writes a missing enrolment', (enrolmentUUID) => {
         run(resolveStartVisit(svc(), {subjectUUID: 's1', visitTypeUUID: 'gt1', enrolmentUUID}));
         const {visitOrType, parent} = started();
         expect(visitOrType).toBe(w.types.gt1);

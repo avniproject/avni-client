@@ -22,7 +22,7 @@ import {
     resolveEditExit,
     resolveEditRegistration,
 } from "../../../src/service/customDashboard/CustomCardRecordCommands";
-import {enrolment, fakePage, servicesFor, subject} from "./RecordCommandFixture";
+import {enrolment, fakePage, servicesFor, subject, subjectTypeWith} from "./RecordCommandFixture";
 
 // The profile's literals with st1 and p1 put in: SubjectDashboardProfileTab.js:351, SubjectDashboardProgramsTab.js:268 and :312.
 const VIEW_PAIR = ["privilege.name = 'View subject' AND privilege.entityType = 'Subject'", 'subjectTypeUuid'];
@@ -34,7 +34,7 @@ const NO_PERMISSION = {message: 'noPermissionForThisAction'};
 const NOT_AVAILABLE = {message: 'customCardActionNotAvailable'};
 const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
-const subjectType = {uuid: 'st1', name: 'Woman'};
+const subjectType = subjectTypeWith({name: 'Woman'});
 const program = {uuid: 'p1', name: 'Pregnancy'};
 const exited = {programExitDateTime: new Date(2026, 9, 1)};
 const records = () => ({
@@ -105,6 +105,32 @@ describe('editRegistration', () => {
         expect(getService.pairsSeen).toEqual([VIEW_PAIR, EDIT_SUBJECT_PAIR]);
         expect(getService.formMappingService.findRegistrationForm).toHaveBeenCalledWith(recs.Individual.s1.subjectType);
         expect(getService.ruleEvaluationService.runEditFormRule).toHaveBeenCalledWith(forms.IndividualProfile, recs.Individual.s1, 'Individual');
+    });
+    describe("the subject type's display registration details setting", () => {
+        const withSetting = (settings) => {
+            const type = subjectTypeWith({name: 'Woman'}, settings);
+            return svc({records: {...recs, Individual: {s1: subject('s1', {subjectType: type})}}});
+        };
+        it('is not available when the setting is false, and no edit right, form or rule is asked after the view right', () => {
+            const getService = withSetting({displayRegistrationDetails: false});
+            expect(resolveEditRegistration(getService, {subjectUUID: 's1'})).toEqual(NOT_AVAILABLE);
+            expect(getService.pairsSeen).toEqual([VIEW_PAIR]);
+            expectNoFormLookup(getService);
+            expect(getService.ruleEvaluationService.runEditFormRule).not.toHaveBeenCalled();
+            expect(CHSNavigator.navigateToRegisterView).not.toHaveBeenCalled();
+        });
+        it('gives the no-permission message first to a user who may not view the subject', () => {
+            const type = subjectTypeWith({name: 'Woman'}, {displayRegistrationDetails: false});
+            const getService = servicesFor({records: {Individual: {s1: subject('s1', {subjectType: type})}}, rights: {}, forms});
+            expect(resolveEditRegistration(getService, {subjectUUID: 's1'})).toEqual(NO_PERMISSION);
+            expect(getService.pairsSeen).toEqual([VIEW_PAIR]);
+        });
+        it.each([[true], [undefined]])('works as before when the setting is %p', (value) => {
+            const getService = withSetting({displayRegistrationDetails: value});
+            run(resolveEditRegistration(getService, {subjectUUID: 's1'}));
+            expect(getService.pairsSeen).toEqual([VIEW_PAIR, EDIT_SUBJECT_PAIR]);
+            expect(CHSNavigator.navigateToRegisterView).toHaveBeenCalledTimes(1);
+        });
     });
     it.each(['sv', 'unknown', 'e1', undefined, 123])('says not on this phone for %p', (uuid) => {
         expect(resolveEditRegistration(svc(), {subjectUUID: uuid})).toEqual(NOT_ON_PHONE);
