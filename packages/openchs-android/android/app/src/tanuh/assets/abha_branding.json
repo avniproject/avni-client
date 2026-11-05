@@ -1,0 +1,20 @@
+{
+  "theme": {
+    "primary": {"brand": "#00767D"},
+    "surface": {"base": "#FFFFFF", "subtle": "#F2F2F2", "muted": "#E5E7EB", "strong": "#D1D5DB"},
+    "content": {"primary": "#111827", "secondary": "#6B7280", "muted": "#9CA3AF", "enabled": "#FFFFFF"},
+    "qrCodeColors": {"fgColor": "#111827", "bgColor": "#FFFFFF"}
+  },
+  "fontFamily": "Roboto, sans-serif",
+  "orgIcon": "abha_org_icon.png",
+  "logoInPlaceOfAbdm": true,
+  "textReplacements": [
+    {"find": "Allow Eka Care to\\s+create ABHA locker and\\s+link health data", "replace": "Allow creation of an ABHA locker and linking of health data"},
+    {"find": "Allow Eka Care to\\s+link health data", "replace": "Allow linking of health data"},
+    {"find": "Create Eka Profile", "replace": "Create Profile"},
+    {"find": "Select Eka Profile", "replace": "Select Profile"},
+    {"find": "Choose an Eka Profile", "replace": "Choose a Profile"},
+    {"find": "Unable to open Eka App", "replace": "Unable to open the app"}
+  ],
+  "imageTopCrops": {"cmj9r": 14}
+}

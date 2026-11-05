@@ -25,6 +25,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {downloadWithAuth} from "../../src/service/AuthAwareDownload";
 import AbhaService from "../../src/service/AbhaService";
 import AbhaError from "../../src/service/AbhaError";
+import AbhaBranding from "../../src/views/abha/AbhaBranding";
 import AuthenticationError from "../../src/service/AuthenticationError";
 import General from "../../src/utility/General";
 import en from "../../translations/en.json";
@@ -90,6 +91,21 @@ describe("AbhaServiceTest", () => {
         expect(url).to.equal("https://server/abha/session?subjectTypeUUID=st-1");
         expect(init.method).to.equal("GET");
         expect(init.headers["AUTH-TOKEN"]).to.equal("avni-user-token");
+    });
+
+    it("reads the build's branding with the session, so Eka's screens open already dressed", async () => {
+        global.fetch = jest.fn(async () => reply(200, SESSION));
+        const load = jest.spyOn(AbhaBranding, "load").mockResolvedValue({brandColour: "#00767D"});
+
+        expect(await service().getSession("st-1")).to.deep.equal(SESSION);
+        expect(load.mock.calls).to.have.length(1);
+    });
+
+    it("still refuses as before when the server refuses, branding or not", async () => {
+        global.fetch = jest.fn(async () => reply(409, {code: "ABHA_NOT_CONFIGURED"}));
+        jest.spyOn(AbhaBranding, "load").mockResolvedValue({brandColour: "#00767D"});
+
+        expect(await failureOf(service().getSession("st-1"))).to.be.instanceOf(AbhaError);
     });
 
     it("notConfigured409BecomesAbhaError", async () => {

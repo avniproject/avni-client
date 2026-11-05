@@ -5,6 +5,7 @@ import BaseService from "./BaseService";
 import {getJSON, post} from "../framework/http/requests";
 import AbhaError from "./AbhaError";
 import AbhaProfile from "../views/abha/AbhaProfile";
+import AbhaBranding from "../views/abha/AbhaBranding";
 import General from "../utility/General";
 import RNFS from "react-native-fs";
 import ReactNativeBlobUtil from "react-native-blob-util";
@@ -32,8 +33,11 @@ class AbhaService extends BaseService {
     }
 
     // {accessToken, expiresAt, environment: 'sandbox' | 'production', hipId}
+    // Every way into Eka's screens fetches a session first, so the build's branding is read here and is ready when
+    // AbhaView builds its page. Reading it never fails the session.
     getSession(subjectTypeUUID) {
-        return this._get(`/abha/session?subjectTypeUUID=${encodeURIComponent(subjectTypeUUID)}`);
+        return Promise.all([this._get(`/abha/session?subjectTypeUUID=${encodeURIComponent(subjectTypeUUID)}`), AbhaBranding.load()])
+            .then(([session]) => session);
     }
 
     // The patients in the organisation who hold this ABHA number, or this ABHA address (an ABHA made with a mobile number

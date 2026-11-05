@@ -15,6 +15,7 @@ jest.mock("../../../src/views/common/CHSContainer", () => ({
 import ServiceContext from "../../../src/framework/context/ServiceContext";
 import AbhaView from "../../../src/views/abha/AbhaView";
 import {ABHA_MESSAGE} from "../../../src/views/abha/AbhaHostHtml";
+import AbhaBranding from "../../../src/views/abha/AbhaBranding";
 import General from "../../../src/utility/General";
 import AbhaError from "../../../src/service/AbhaError";
 import en from "../../../translations/en.json";
@@ -383,5 +384,29 @@ describe("AbhaView ending before its key expires", () => {
         rendered = rendered.filter((r) => r !== screen.renderer);
 
         expect(jest.getTimerCount()).toBe(before);
+    });
+});
+
+describe("AbhaView in a build with its own branding", () => {
+    afterEach(() => {
+        mounted.forEach((renderer) => act(() => renderer.unmount()));
+        mounted = [];
+        jest.restoreAllMocks();
+    });
+
+    it("dresses Eka's screens in the branding the session's fetch already read", async () => {
+        jest.spyOn(AbhaBranding, "current").mockReturnValue({theme: {primary: {brand: "#00767D"}}, brandColour: "#00767D",
+            fontFamily: "Roboto, sans-serif", textReplacements: [], imageTopCrops: {}, logoUrl: "data:image/png;base64,TANUH"});
+        const html = await pageFor({});
+        expect(html).toContain('theme: {"primary":{"brand":"#00767D"}}');
+        expect(html).toContain('"orgIconUrl":"data:image/png;base64,TANUH"');
+        expect(html).toContain('<style id="abha-branding">');
+    });
+
+    it("shows Eka's screens as Eka ships them when there is no branding", async () => {
+        jest.spyOn(AbhaBranding, "current").mockReturnValue(null);
+        const html = await pageFor({});
+        expect(html).not.toContain("theme:");
+        expect(html).not.toContain("abha-branding");
     });
 });

@@ -181,3 +181,129 @@ describe('AbhaHostHtmlTest', () => {
         expect(JSON.parse(toScriptLiteral({t: "</x>"}))).to.deep.equal({t: "</x>"});
     });
 });
+
+// A build's branding, as AbhaBranding hands it over.
+const BRANDING = {
+    theme: {primary: {brand: "#00767D"}, content: {primary: "#111827"}},
+    brandColour: "#00767D",
+    fontFamily: "Roboto, sans-serif",
+    textReplacements: [
+        {find: "Allow Eka Care to\\s+create ABHA locker and\\s+link health data", replace: "Allow creation of an ABHA locker and linking of health data"},
+        {find: "Create Eka Profile", replace: "Create Profile"},
+    ],
+    imageTopCrops: {cmj9r: 14},
+    logoUrl: "data:image/png;base64,TANUH",
+    logoInPlaceOfAbdm: true,
+};
+
+// The few DOM pieces the wording script touches, so it can run in the vm sandbox.
+function fakeDom() {
+    const text = (value) => ({nodeType: 3, nodeValue: value});
+    const element = (nodeName, children = []) => {
+        const node = {nodeType: 1, nodeName, firstChild: null, nextSibling: null};
+        children.forEach((child, i) => {
+            child.parentNode = node;
+            if (i === 0) node.firstChild = child; else children[i - 1].nextSibling = child;
+        });
+        return node;
+    };
+    const observers = [];
+    const root = element("DIV", [element("SPAN", [text("Allow Eka Care to create ABHA locker and link health data")])]);
+    class MutationObserver {
+        constructor(callback) { this.callback = callback; observers.push(this); }
+        observe(target, options) { this.target = target; this.options = options; }
+    }
+    const document = {getElementById: (id) => id === "abha" ? root : null};
+    const mutate = (mutations) => observers.forEach((o) => o.callback(mutations));
+    return {document, MutationObserver, root, text, element, mutate, observers};
+}
+
+function runPageWithDom(html, dom) {
+    const window = {ReactNativeWebView: {postMessage: () => {}}, addEventListener: () => {}, document: dom.document, MutationObserver: dom.MutationObserver};
+    window.initAbhaApp = () => {};
+    window.window = window;
+    const context = vm.createContext(window);
+    [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)].forEach(([, body]) => vm.runInContext(body, context));
+}
+
+describe('AbhaHostHtmlTest with a build\'s branding', () => {
+    it('leaves the page as Eka ships it when the build has no branding', () => {
+        const page = buildAbhaHostHtml({environment: "sandbox", method: "login_or_create_abha", initData: {accessToken: "t"}});
+        expect(page).to.not.contain('abha-branding');
+        expect(page).to.not.contain('theme:');
+        expect(page).to.not.contain('MutationObserver');
+        expect(runPage(page).initOptions()).to.not.have.property('theme');
+        expect(runPage(page).initOptions().data).to.deep.equal({accessToken: "t"});
+    });
+
+    it('hands Eka its theme, and the logo for beside the ABDM logo and the link screen', () => {
+        const page = runPage(buildAbhaHostHtml({environment: "sandbox", initData: {accessToken: "t"}, branding: BRANDING}));
+        expect(page.initOptions().theme).to.deep.equal(BRANDING.theme);
+        expect(page.initOptions().data).to.deep.equal({accessToken: "t", orgIconUrl: BRANDING.logoUrl, linkToOrgIcon: BRANDING.logoUrl});
+    });
+
+    it('carries the brand colour to every rule of Eka\'s that holds its purple, and sets the font and the crops', () => {
+        const html = buildAbhaHostHtml({environment: "sandbox", initData: {}, branding: BRANDING});
+        const style = html.match(/<style id="abha-branding">([\s\S]*?)<\/style>/)[1];
+        ['pds2-bg-primary-brand {background-color: #00767D !important;}',
+            'pds2-text-primary-brand {color: #00767D !important;}',
+            'pds2-border-b-primary-brand {border-bottom-color: #00767D !important;}',
+            '.pds2-ring-primary-brand {--tw-ring-color: #00767D !important;}',
+            '.focus-within\\:pds2-ring-primary-brand:focus-within {--tw-ring-color: #00767D !important;}',
+            '.pds2-bg-primary-brand\\/20 {background-color: #00767D33 !important;}',
+            '.active\\:pds2-bg-primary-brand\\/20:active {background-color: #00767D33 !important;}',
+            '#abha, #abha * {font-family: Roboto, sans-serif !important;}',
+            '#abha img[alt="org-icon"] {background-color: #FFFFFF;',
+            '#abha img[src*="cmj9r"] {aspect-ratio: 100 / 86; object-fit: cover; object-position: center bottom;}',
+        ].forEach((rule) => expect(style, rule).to.contain(rule));
+        expect(style).to.not.match(/6b5ce0/i);
+        expect(html.indexOf('id="abha-branding"')).to.be.greaterThan(html.indexOf('id="abha-sdk-css"'));
+    });
+
+    it('puts the build\'s logo in place of the ABDM logo on the first screen only when asked', () => {
+        const rule = '#abha img[alt="abdm-icon"]:has(+ img[alt="org-icon"]) {display: none !important;}';
+        expect(buildAbhaHostHtml({environment: "sandbox", initData: {}, branding: BRANDING})).to.contain(rule);
+        expect(buildAbhaHostHtml({environment: "sandbox", initData: {}, branding: {...BRANDING, logoInPlaceOfAbdm: false}})).to.not.contain('abdm-icon');
+        expect(buildAbhaHostHtml({environment: "sandbox", initData: {}, branding: {...BRANDING, logoUrl: null}})).to.not.contain('abdm-icon');
+    });
+
+    it('keeps the page\'s rules with branding: every inline script carries the nonce, and no tag has an inline handler', () => {
+        const html = buildAbhaHostHtml({environment: "production", initData: {}, branding: BRANDING});
+        const nonce = nonceOf(html);
+        const inlineScripts = [...html.matchAll(/<script(?![^>]*\bsrc=)([^>]*)>/g)];
+        expect(inlineScripts.length).to.equal(3);
+        inlineScripts.forEach(([, attributes]) => expect(attribute(attributes, 'nonce')).to.equal(nonce));
+        expect(html).to.not.match(/<[a-z]+\s[^>]*\son[a-z]+=/i);
+        expect(policyOf(html)['script-src']).to.have.length(2);
+    });
+
+    it('rewrites Eka\'s wording already on the screen, and whatever Eka draws later', () => {
+        const dom = fakeDom();
+        runPageWithDom(buildAbhaHostHtml({environment: "sandbox", initData: {}, branding: BRANDING}), dom);
+        expect(dom.root.firstChild.firstChild.nodeValue).to.equal("Allow creation of an ABHA locker and linking of health data");
+        expect(dom.observers[0].target).to.equal(dom.root);
+        expect(dom.observers[0].options).to.deep.equal({childList: true, subtree: true, characterData: true});
+
+        const heading = dom.element("H1", [dom.text("Create Eka Profile")]);
+        dom.mutate([{type: "childList", addedNodes: [heading]}]);
+        expect(heading.firstChild.nodeValue).to.equal("Create Profile");
+
+        const redrawn = dom.text("Create Eka Profile");
+        dom.mutate([{type: "characterData", target: redrawn}]);
+        expect(redrawn.nodeValue).to.equal("Create Profile");
+    });
+
+    it('never rewrites what the worker types', () => {
+        const dom = fakeDom();
+        runPageWithDom(buildAbhaHostHtml({environment: "sandbox", initData: {}, branding: BRANDING}), dom);
+        const typed = dom.element("TEXTAREA", [dom.text("Create Eka Profile")]);
+        dom.mutate([{type: "childList", addedNodes: [typed]}]);
+        expect(typed.firstChild.nodeValue).to.equal("Create Eka Profile");
+    });
+
+    it('cannot be broken out of by wording that closes the script tag', () => {
+        const html = buildAbhaHostHtml({environment: "sandbox", initData: {}, branding: {...BRANDING,
+            textReplacements: [{find: "Eka", replace: "</script><script>alert(1)</script>"}]}});
+        expect(html).to.not.contain("</script><script>alert(1)");
+    });
+});

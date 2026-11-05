@@ -11,6 +11,7 @@ import Colors from '../primitives/Colors';
 import General from '../../utility/General';
 import AbhaProfile from './AbhaProfile';
 import {ABHA_MESSAGE, buildAbhaHostHtml} from './AbhaHostHtml';
+import AbhaBranding from './AbhaBranding';
 
 // The page this screen builds is loaded from a string with no address, so the WebView reports it as about:blank,
 // or by its origin, "null", on WebViews that pass messages by origin. A page with any other address is not ours.
@@ -53,6 +54,7 @@ class AbhaView extends AbstractComponent {
                 environment,
                 method: props.method,
                 initData: {accessToken, hipId, skipABHAEnable: true, ...prefill},
+                branding: AbhaBranding.current(),
             });
         } catch (e) {
             General.logWarn(this.viewName(), `ABHA screens not shown: ${e.message}`);
