@@ -46,7 +46,7 @@ describe("The Sync button during a camp", () => {
         expect(toast.mock.calls.map(([message]) => message)).toEqual(['clinicCampSyncingWithHub', 'clinicCampSyncedWithHub']);
     });
 
-    it("says a hub sync failed, pointing to Clinic sharing", async () => {
+    it("says a hub sync failed, pointing to Camp mode", async () => {
         const spoke = {joined: {ssid: 'AndroidShare_1'}, syncNow: jest.fn(async () => ({error: {code: 'timeout'}}))};
 
         await component().syncInCamp(spoke);
