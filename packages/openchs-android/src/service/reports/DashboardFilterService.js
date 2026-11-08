@@ -41,13 +41,25 @@ class DashboardFilterService extends BaseService {
         return filterConfigs;
     }
 
+    findLivePreset(uuid, schemaName) {
+        if (_.isEmpty(uuid)) return null;
+        const entity = this.findByUUID(uuid, schemaName);
+        return entity && entity.voided !== true ? entity : null;
+    }
+
     getDashboardFilterConfig(dashboardFilter) {
         const obj = JSON.parse(dashboardFilter.filterConfig);
         const filterConfig = new DashboardFilterConfig();
         filterConfig.widget = obj.widget;
         filterConfig.type = obj.type;
         filterConfig.subjectType = obj.subjectTypeUUID ? this.findByUUID(obj.subjectTypeUUID, SubjectType.schema.name) : null;
-        if (obj.type === CustomFilter.type.GroupSubject) {
+        filterConfig.presetSubjectType = null;
+        filterConfig.presetProgram = null;
+        if (obj.type === CustomFilter.type.SubjectType) {
+            // A preset that is missing or deleted on the phone is no preset; a program only counts with its subject type.
+            filterConfig.presetSubjectType = this.findLivePreset(obj.presetSubjectTypeUUID, SubjectType.schema.name);
+            filterConfig.presetProgram = filterConfig.presetSubjectType ? this.findLivePreset(obj.presetProgramUUID, Program.schema.name) : null;
+        } else if (obj.type === CustomFilter.type.GroupSubject) {
             filterConfig.groupSubjectTypeFilter = new GroupSubjectTypeFilter();
             filterConfig.groupSubjectTypeFilter.subjectType = obj.groupSubjectTypeFilter?.subjectTypeUUID ? 
                 this.findByUUID(obj.groupSubjectTypeFilter.subjectTypeUUID, SubjectType.schema.name) : null;
