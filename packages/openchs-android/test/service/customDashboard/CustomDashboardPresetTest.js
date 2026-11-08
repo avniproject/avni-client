@@ -117,3 +117,66 @@ describe("a Subject Type filter with a preset", () => {
         it("is hidden for another preset subject type", () => assert.isTrue(hidden({presetSubjectTypeUUID: "st-2"})));
     });
 });
+
+describe("what is saved for a Subject Type filter with a preset", () => {
+    const fresh = () => ({
+        dashboards: {d: [filterRow("f", "Type", subjectTypeSettings(presetST1P1))]},
+        subjectTypes: [{...st1}, {...st2}],
+        programs: [{...p1}],
+    });
+
+    it("does not save a value that is the preset", () => {
+        const phone = setUpPhone(fresh());
+        save(phone, sel([st1], [p1]));
+        assert.deepEqual(phone.savedValues("d"), {});
+        assert.isTrue(phone.cache("d").filterApplied);
+    });
+
+    it("shows no preset once the preset subject type is deleted, after an apply at the seed", () => {
+        const setup = fresh();
+        const phone = setUpPhone(setup);
+        save(phone, sel([st1], [p1]));
+        setup.subjectTypes[0].voided = true;
+        assert.isTrue(read(phone).isEmpty());
+    });
+
+    it("drops only the program once the preset program is deleted, after an apply at the seed", () => {
+        const setup = fresh();
+        const phone = setUpPhone(setup);
+        save(phone, sel([st1], [p1]));
+        setup.programs[0].voided = true;
+        assertSeed(read(phone), ["st-1"], []);
+    });
+
+    it("still saves a choice beyond the preset", () => {
+        const phone = setUpPhone(fresh());
+        save(phone, sel([st1], [p1], [{uuid: "e-1", name: "e-1"}]));
+        assert.deepEqual(phone.savedValues("d").f, {subjectTypes: ["st-1"], programs: ["p-1"], encounterTypes: ["e-1"]});
+    });
+
+    describe("after the upgrade", () => {
+        const Hashes = require("jshashes");
+        const olderBuildHash = (rows) => new Hashes.MD5().hex(JSON.stringify(rows.map((r) => r.filterConfig)));
+        const savedByOlderBuild = (settings) => {
+            const rows = [filterRow("f", "Type", settings)];
+            const phone = setUpPhone({dashboards: {d: rows}, subjectTypes, programs});
+            save(phone, sel([st2]));
+            const cache = phone.cache("d");
+            cache.dashboardFiltersHash = olderBuildHash(rows);
+            cache.reportCardResults.push({reportCard: "c", dashboard: "d"});
+            return phone;
+        };
+
+        it("resets a dashboard with a preset once", () => {
+            const phone = savedByOlderBuild(subjectTypeSettings({presetSubjectTypeUUID: "st-1"}));
+            assertSeed(read(phone), ["st-1"], []);
+            assert.equal(phone.cache("d").reportCardResults.length, 0);
+        });
+
+        it("keeps the saved choice and results of a dashboard without a preset", () => {
+            const phone = savedByOlderBuild(subjectTypeSettings());
+            assert.deepEqual(uuids(read(phone).subjectTypes), ["st-2"]);
+            assert.equal(phone.cache("d").reportCardResults.length, 1);
+        });
+    });
+});
