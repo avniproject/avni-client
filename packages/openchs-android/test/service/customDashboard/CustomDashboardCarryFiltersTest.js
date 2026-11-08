@@ -16,6 +16,7 @@ import DashboardFilterService from "../../../src/service/reports/DashboardFilter
 import EntityService from "../../../src/service/EntityService";
 import FormMetaDataSelection from "../../../src/model/FormMetaDataSelection";
 import AddressFilterValue from "../../../src/model/AddressFilterValue";
+import {filterRow, setUpWithRealSave} from "./DashboardFilterCacheTestPhone";
 
 const Type = CustomFilter.type;
 const Widget = CustomFilter.widget;
@@ -33,11 +34,6 @@ function conceptSettings(conceptUUID, scope = Scope.Registration, changes = {}) 
 
 function groupSubjectSettings(groupSubjectTypeUUID) {
     return settings(Type.GroupSubject, {groupSubjectTypeFilter: {subjectTypeUUID: groupSubjectTypeUUID}});
-}
-
-// A row as DashboardFilterService.getFilters returns it.
-function filterRow(uuid, name, filterSettings) {
-    return {uuid, name, filterConfig: JSON.stringify(filterSettings)};
 }
 
 // Each call builds a new value, so no two tests share one.
@@ -247,58 +243,6 @@ describe("CustomDashboardService.carryFiltersOver", () => {
     // store of the two dashboards and their caches, the filter rows and the subject type and concept they point at, and the
     // entities a saved uuid reads back as. The source's read stays stubbed, as above, so it gives the row's own value.
     describe("clears the target's saved value, through the real save", () => {
-        const fakeEntities = (uuids) => uuids.map((uuid) => ({uuid, name: uuid}));
-
-        function setUpWithRealSave(filterSettings) {
-            const rows = {s1: filterRow("s1", "Filter", filterSettings), t1: filterRow("t1", "Filter", filterSettings)};
-            const filterOf = (uuid) => {
-                const filter = new DashboardFilter();
-                filter.uuid = uuid;
-                filter.name = rows[uuid].name;
-                filter.filterConfig = rows[uuid].filterConfig;
-                filter.voided = false;
-                return filter;
-            };
-            const dashboardOf = (uuid, filterUUID) => {
-                const dashboard = new Dashboard();
-                dashboard.uuid = uuid;
-                dashboard.filters = [filterOf(filterUUID)];
-                return dashboard;
-            };
-            const dashboards = {source: dashboardOf("source", "s1"), target: dashboardOf("target", "t1")};
-            const filterRowsOf = {source: [rows.s1], target: [rows.t1]};
-            const caches = {};
-
-            const dashboardFilterService = new DashboardFilterService(null, null);
-            dashboardFilterService.getFilters = (dashboardUUID) => filterRowsOf[dashboardUUID];
-            dashboardFilterService.findByUUID = (uuid, schemaName) => {
-                if (schemaName === SubjectType.schema.name) return {uuid, name: "Household"};
-                if (schemaName === Concept.schema.name) return {uuid, name: uuid, datatype: Concept.dataType.Text};
-                return filterOf(uuid);
-            };
-            const entityService = {findAllByUUID: fakeEntities};
-
-            // The store keeps its own copy of each cache, as a database does, so a later write is the only way a saved value changes.
-            const cacheService = new CustomDashboardCacheService(null, null);
-            cacheService.findByFiltered = (_field, dashboardUUID) => caches[dashboardUUID];
-            cacheService.findByUUID = (uuid) => dashboards[uuid];
-            cacheService.save = (cache) => {
-                caches[cache.dashboard.uuid] = cache.clone();
-                return caches[cache.dashboard.uuid];
-            };
-            cacheService.saveOrUpdate = (cache) => {
-                caches[cache.dashboard.uuid] = cache.clone();
-                return caches[cache.dashboard.uuid];
-            };
-            const cacheServices = new Map([[DashboardFilterService, dashboardFilterService], [EntityService, entityService]]);
-            cacheService.getService = (klass) => cacheServices.get(klass);
-
-            const service = new CustomDashboardService(null, null);
-            const services = new Map([[DashboardFilterService, dashboardFilterService], [CustomDashboardCacheService, cacheService]]);
-            service.getService = (klass) => services.get(klass);
-            return {service, savedValues: (dashboardUUID) => JSON.parse(caches[dashboardUUID].selectedValuesJSON), cache: (dashboardUUID) => caches[dashboardUUID]};
-        }
-
         // Seeds the target with its own chosen value through the real save, carries the source's value over, and returns what the target holds.
         function carryThroughRealSave(filterSettings, sourceValue, chosenValue) {
             const phone = setUpWithRealSave(filterSettings);

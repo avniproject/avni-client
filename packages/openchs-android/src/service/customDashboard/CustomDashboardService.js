@@ -123,6 +123,14 @@ class CustomDashboardService extends BaseService {
     getDashboardData(dashboardUUID) {
         const {selectedFilterValues, dashboardCache} = this.getService(CustomDashboardCacheService).getDashboardCache(dashboardUUID);
         const dashboardFilterService = this.getService(DashboardFilterService);
+        // A Subject Type filter's preset is its default: a saved value that disagrees with it is replaced by it.
+        dashboardCache.dashboard.filters.filter(filter => !filter.voided && !_.isNil(selectedFilterValues[filter.uuid])).forEach(filter => {
+            const {presetSubjectType, presetProgram} = dashboardFilterService.getDashboardFilterConfig(filter);
+            const saved = selectedFilterValues[filter.uuid];
+            if (presetSubjectType && saved instanceof FormMetaDataSelection && !saved.agreesWithPreset(presetSubjectType, presetProgram)) {
+                selectedFilterValues[filter.uuid] = FormMetaDataSelection.forPreset(presetSubjectType, presetProgram);
+            }
+        });
         dashboardCache.dashboard.filters.filter(filter => !filter.voided && _.isNil(selectedFilterValues[filter.uuid])).forEach(filter => {
             const dashboardFilterConfig = dashboardFilterService.getDashboardFilterConfig(filter);
             const inputDataType = dashboardFilterConfig.getInputDataType();
@@ -135,7 +143,7 @@ class CustomDashboardService extends BaseService {
                 //value should not be an array but CustomFilterService and MyDashboard has been built on that assumption
                 selectedFilterValues[filter.uuid] = Range.empty();
             } else if (inputDataType === DashboardFilterConfig.dataTypes.formMetaData) {
-                selectedFilterValues[filter.uuid] = FormMetaDataSelection.createNew();
+                selectedFilterValues[filter.uuid] = FormMetaDataSelection.forPreset(dashboardFilterConfig.presetSubjectType, dashboardFilterConfig.presetProgram);
             } else {
                 selectedFilterValues[filter.uuid] = null;
             }
