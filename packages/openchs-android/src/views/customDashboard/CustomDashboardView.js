@@ -512,6 +512,9 @@ class CustomDashboardView extends AbstractComponent {
     }
 
     onFilterPressed() {
+        // Until the reload after an opened dashboard points the state back, the state is not this screen's. Applying the
+        // filters chosen on the Filter screen would then clear the opened dashboard's counts instead of this one's.
+        if (!this.ownsSharedDashboardState()) return;
         const {activeDashboardUUID} = this.state;
         TypedTransition.from(this)
             .with({
@@ -521,6 +524,12 @@ class CustomDashboardView extends AbstractComponent {
                     filterApplied: true
                 })
             }).to(FiltersViewV2, true);
+    }
+
+    onRefreshPressed() {
+        // The refresh would clear the counts of the dashboard the state holds, which until the reload is the opened one.
+        if (!this.ownsSharedDashboardState()) return;
+        performCustomDashboardActionAndClearRefresh(this, Actions.FORCE_REFRESH);
     }
 
     render() {
@@ -581,7 +590,7 @@ class CustomDashboardView extends AbstractComponent {
                             <View style={{flex: 0.65}}>
                                 {settings.autoRefreshDisabled && !_.isNil(this.state.resultUpdatedAt) &&
                                     <RefreshSection I18n={this.I18n}
-                                                    onRefreshPressed={() => performCustomDashboardActionAndClearRefresh(this, Actions.FORCE_REFRESH)}
+                                                    onRefreshPressed={() => this.onRefreshPressed()}
                                                     lastUpdatedOn={this.state.resultUpdatedAt}/>}
                             </View>
                         </View>

@@ -31,7 +31,8 @@ jest.mock("../../../src/views/individuallist/IndividualListView", () => ({__esMo
 jest.mock("../../../src/views/comment/CommentListView", () => ({__esModule: true, default: () => null}));
 jest.mock("../../../src/views/task/TaskListView", () => ({__esModule: true, default: () => null}));
 jest.mock("../../../src/views/customDashboard/CustomCardDetailView", () => ({__esModule: true, default: () => null}));
-jest.mock("../../../src/views/filter/FiltersViewV2", () => ({__esModule: true, default: () => null}));
+// The Filter screen needs the static path the router asks for, as the real screen's @Path gives it.
+jest.mock("../../../src/views/filter/FiltersViewV2", () => ({__esModule: true, default: Object.assign(() => null, {path: () => "/FilterViewV2"})}));
 jest.mock("../../../src/views/checklist/ChecklistListingView", () => ({__esModule: true, default: () => null}));
 // The header is read through its props, and the container only has to pass its children on.
 jest.mock("../../../src/views/common/AppHeader", () => ({__esModule: true, default: () => null}));
@@ -69,7 +70,9 @@ const reducedActions = [Actions.ON_LOAD, Actions.ON_DASHBOARD_CHANGE, Actions.CL
 // `dashboardsOfType` can be changed after mount, as a sync can change which dashboards a user has.
 // With `tileOpens`, a card press opens that dashboard, as the reducer's Open dashboard branch does for a visible target.
 // With `asOnDate`, every dashboard has an As On Date filter, so the screen draws the quick date buttons.
-const buildPhone = (dashboardsOfType, {tileOpens, asOnDate} = {}) => {
+// With `autoRefreshOff`, the user has turned auto refresh off, and the store stamps the time of the count refresh as its
+// reducer does, so the screen draws the refresh row once that refresh has run.
+const buildPhone = (dashboardsOfType, {tileOpens, asOnDate, autoRefreshOff} = {}) => {
     const dashboards = [d1, d2, d3, t1];
     const reducerServices = new Map([
         [CustomDashboardService, {
@@ -88,6 +91,7 @@ const buildPhone = (dashboardsOfType, {tileOpens, asOnDate} = {}) => {
     const dispatch = jest.fn((action) => {
         if (action.type === "RESET") state = CustomDashboardActions.getInitialState();
         else if (_.includes(reducedActions, action.type)) state = CustomDashboardActionMap.get(action.type)(state, action, reducerContext);
+        else if (action.type === Actions.REFRESH_COUNT && autoRefreshOff) state = {...state, resultUpdatedAt: new Date(2026, 10, 8, 10, 30)};
         else if (action.type === Actions.ON_CARD_PRESS && tileOpens) setTimeout(() => action.onOpenDashboard(tileOpens), 0);
         [...storeListeners].forEach((listener) => listener());
     });
@@ -112,7 +116,7 @@ const buildPhone = (dashboardsOfType, {tileOpens, asOnDate} = {}) => {
     const viewServices = new Map([
         [MessageService, {getI18n: () => i18n}],
         [UserInfoService, {
-            getUserSettingsObject: () => ({}),
+            getUserSettingsObject: () => autoRefreshOff ? {autoRefreshDisabled: true} : {},
             getUserInfo: () => ({getDisplayUsername: () => "Asha Devi"}),
         }],
         [OrganisationConfigService, {isGuideUserToRegisterButtonOn: () => false}],
@@ -931,6 +935,52 @@ describe("The dashboard underneath an opened dashboard", () => {
             expect(homeScreen.root.findAllByType(AppliedFiltersV2)).toHaveLength(0);
             expect(homeScreen.root.findAll((node) => node.type === Text && node.props.children === "i18n:Tomorrow")).toHaveLength(0);
             expect(homeScreen.instance.ownsSharedDashboardState()).toBe(true);
+        });
+    });
+
+    describe("the Filter button and the refresh row", () => {
+        const dashboards = {Primary: [d1], None: [d1, t1]};
+        // The controls as the screen draws them: the touchable under the Filter text, and the touchable of the element
+        // drawn with the onRefreshPressed prop. Taken from what is on screen, so the screen's own handlers run.
+        const showHome = (phone) => {
+            const screen = phone.show(CustomDashboardView, home);
+            // The count refresh the mount schedules runs 500 ms later and gives the screen its last refreshed time.
+            act(() => {
+                jest.advanceTimersByTime(500);
+            });
+            const filter = screen.root.findAll((node) => node.props.onPress && node.findAllByType(Text)
+                .some((text) => text.props.children === "i18n:filter"))[0];
+            const refreshRow = screen.root.findAll((node) => _.isFunction(node.props.onRefreshPressed))[0];
+            const refresh = refreshRow.findAll((node) => _.isFunction(node.props.onPress))[0];
+            return {screen, pressFilter: () => act(() => filter.props.onPress()), pressRefresh: () => act(() => refresh.props.onPress())};
+        };
+
+        it("do nothing on Home while an opened dashboard owns the state", () => {
+            const phone = buildPhone(dashboards, {asOnDate: true, autoRefreshOff: true});
+            const homeScreen = showHome(phone);
+            phone.show(OpenedDashboardView, {dashboardUUID: "t1"});
+            expect(phone.state().ownerKey).toBe("None|t1");
+            phone.dispatch.mockClear();
+
+            homeScreen.pressFilter();
+            homeScreen.pressRefresh();
+
+            expect(phone.nav.push).not.toHaveBeenCalled();
+            expect(phone.dispatched()).toEqual([]);
+        });
+
+        it("work as before when the state is the screen's own", () => {
+            const phone = buildPhone(dashboards, {asOnDate: true, autoRefreshOff: true});
+            const homeScreen = showHome(phone);
+            expect(phone.state().ownerKey).toBe("Primary|");
+            phone.dispatch.mockClear();
+
+            homeScreen.pressFilter();
+            homeScreen.pressRefresh();
+
+            expect(phone.nav.push).toHaveBeenCalledTimes(1);
+            expect(phone.nav.push).toHaveBeenCalledWith({path: "/FilterViewV2", queryParams: expect.objectContaining({dashboardUUID: "d1"}), isTyped: true});
+            expect(types(phone.dispatched()).slice(0, 2)).toEqual([Actions.FORCE_REFRESH, Actions.CLEAR_COUNTS]);
         });
     });
 });
