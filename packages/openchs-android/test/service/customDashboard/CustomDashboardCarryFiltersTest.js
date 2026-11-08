@@ -6,14 +6,13 @@
 // and expects them to carry. That way a mistake in the setup cannot make a "does not carry" test pass on its own.
 
 import {assert} from "chai";
-import {Concept, CustomFilter, Dashboard, DashboardFilter, Range, SubjectType} from "openchs-models";
+import {Concept, CustomFilter, Range, SubjectType} from "openchs-models";
 
 jest.mock("../../../src/framework/bean/Service", () => () => (target) => target);
 
 import CustomDashboardService, {filterSettingsMatch, isChosenFilterValue} from "../../../src/service/customDashboard/CustomDashboardService";
 import CustomDashboardCacheService from "../../../src/service/CustomDashboardCacheService";
 import DashboardFilterService from "../../../src/service/reports/DashboardFilterService";
-import EntityService from "../../../src/service/EntityService";
 import FormMetaDataSelection from "../../../src/model/FormMetaDataSelection";
 import AddressFilterValue from "../../../src/model/AddressFilterValue";
 import {filterRow, setUpPhone, setUpWithRealSave} from "./DashboardFilterCacheTestPhone";
@@ -41,6 +40,7 @@ const addressSelection = (name = "Village 1") => new AddressFilterValue([{uuid: 
 const dateRange = () => new Range(new Date("2026-01-01"), new Date("2026-01-31"));
 const aDate = () => new Date("2026-02-15");
 const subjectTypeSelection = () => new FormMetaDataSelection([{uuid: "st-1", name: "Household"}], [], []);
+const otherSubjectTypeSelection = () => new FormMetaDataSelection([{uuid: "st-2", name: "Person"}], [], []);
 const codedAnswers = () => [{uuid: "answer-1", name: "Answer 1"}];
 const individuals = () => [{uuid: "individual-1", name: "Household 1"}];
 
@@ -213,10 +213,11 @@ describe("CustomDashboardService.carryFiltersOver", () => {
         assert.sameMembers(Object.keys(values), ["t-address", "t-registered"]);
     });
 
-    // [what is unset, the filter's settings, how to build the unset value, how to build a chosen one]
+    // [what is unset, the filter's settings, how to build the unset value, how to build a chosen one, and how to build another chosen one
+    // for a target to hold, where the same value carried again is not a write: a Subject Type selection]
     const unsetValues = [
         ["an empty date range", settings(Type.RegistrationDate, {widget: Widget.Range}), () => Range.empty(), dateRange],
-        ["an empty subject type selection", settings(Type.SubjectType), () => FormMetaDataSelection.createNew(), subjectTypeSelection],
+        ["an empty subject type selection", settings(Type.SubjectType), () => FormMetaDataSelection.createNew(), subjectTypeSelection, otherSubjectTypeSelection],
         ["an empty list", settings(Type.Gender), () => [], codedAnswers],
         ["no value at all", settings(Type.AsOnDate), () => null, aDate],
         ["an empty address selection", settings(Type.Address), () => AddressFilterValue.empty(), addressSelection],
@@ -225,11 +226,11 @@ describe("CustomDashboardService.carryFiltersOver", () => {
     ];
 
     describe("carries a value the user left unset, clearing the target's own", () => {
-        unsetValues.forEach(([label, filterSettings, unsetValue, chosenValue]) => {
+        unsetValues.forEach(([label, filterSettings, unsetValue, chosenValue, targetValue = chosenValue]) => {
             it(label, () => {
                 const pair = (sourceValue) => ({
                     source: {settings: filterSettings, value: sourceValue},
-                    target: {settings: filterSettings, value: chosenValue},
+                    target: {settings: filterSettings, value: targetValue},
                 });
 
                 assertCarried(carryBetween(pair(unsetValue)));
@@ -260,9 +261,9 @@ describe("CustomDashboardService.carryFiltersOver", () => {
             return {phone, seeded, carried, afterwards: service.getDashboardData("target").selectedFilterValues.t1};
         }
 
-        unsetValues.forEach(([label, filterSettings, unsetValue, chosenValue]) => {
+        unsetValues.forEach(([label, filterSettings, unsetValue, chosenValue, targetValue = chosenValue]) => {
             it(label, () => {
-                const outcome = carryThroughRealSave(filterSettings, unsetValue, chosenValue);
+                const outcome = carryThroughRealSave(filterSettings, unsetValue, targetValue);
 
                 // The store keeps a chosen value, so the clearing below is the carry's doing.
                 assert.isTrue(isChosenFilterValue(outcome.seeded));
@@ -272,7 +273,7 @@ describe("CustomDashboardService.carryFiltersOver", () => {
                 assert.isFalse(isChosenFilterValue(outcome.afterwards));
 
                 // The same set-up carrying a chosen value stores it, and it reads back as chosen.
-                const control = carryThroughRealSave(filterSettings, chosenValue, chosenValue);
+                const control = carryThroughRealSave(filterSettings, chosenValue, targetValue);
                 assert.isTrue(control.carried);
                 assert.property(control.phone.savedValues("target"), "t1");
                 assert.isTrue(isChosenFilterValue(control.afterwards));
@@ -630,6 +631,35 @@ describe("CustomDashboardService.carryFiltersOver into a Subject Type filter wit
         assertWroteNothing(carry({sourceSettings: typeSettings(presetST1), targetSettings: typeSettings(presetST1)}));
         // The same filters carry once the source has a visit type chosen.
         assert.isTrue(carry({sourceSettings: typeSettings(presetST1), targetSettings: typeSettings(presetST1), sourceValue: sel([st1], [], [e("e-1")])}).carried);
+    });
+
+    it("writes nothing on a second open from a preset dashboard into one without a preset", () => {
+        const phone = setUpPhone({
+            dashboards: {
+                source: [filterRow("s1", "Filter", typeSettings(presetST1))],
+                target: [filterRow("t1", "Filter", typeSettings())],
+            },
+            subjectTypes: [st1, st2],
+            programs: [p1],
+        });
+        const {service, cacheService} = phone;
+        const clearResults = jest.spyOn(cacheService, "clearResults").mockImplementation(() => undefined);
+        const write = jest.spyOn(service, "setSelectedFilterValues");
+
+        assert.isTrue(service.carryFiltersOver("source", "target"));
+        assert.equal(write.mock.calls.length, 1);
+        assert.equal(clearResults.mock.calls.length, 1);
+
+        assert.isFalse(service.carryFiltersOver("source", "target"));
+        assert.equal(write.mock.calls.length, 1);
+        assert.equal(clearResults.mock.calls.length, 1);
+
+        // A different source value still carries.
+        service.setSelectedFilterValues("source", {s1: sel([st1], [], [e("e-1")])}, true);
+        write.mockClear();
+        assert.isTrue(service.carryFiltersOver("source", "target"));
+        assert.equal(clearResults.mock.calls.length, 2);
+        assert.deepEqual(uuids(service.getDashboardData("target").selectedFilterValues.t1.encounterTypes), ["e-1"]);
     });
 
     it("carries a source's preset into a target without one", () => {

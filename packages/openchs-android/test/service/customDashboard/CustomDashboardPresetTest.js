@@ -3,7 +3,7 @@
 // Everything runs through the shared phone: real DashboardFilterService, CustomDashboardCacheService and CustomDashboardService.
 
 import {assert} from "chai";
-import {CustomFilter} from "openchs-models";
+import {CustomFilter, Range} from "openchs-models";
 
 jest.mock("../../../src/framework/bean/Service", () => () => (target) => target);
 
@@ -72,13 +72,68 @@ describe("a Subject Type filter with a preset", () => {
             subjectTypes: [st1],
             programs,
         });
-        save(phone, sel([st1]));
+        // A choice beyond the preset, as only that is saved.
+        save(phone, sel([st1], [], [{uuid: "e-1", name: "e-1"}]));
         // The phone loses st-1 from what it reads back, as after a sync that removes it; the preset is st-1 itself, still looked up.
         phone.cacheService.getService = ((original) => (klass) => {
             const service = original(klass);
             return klass.name === "EntityService" ? {findAllByUUID: () => []} : service;
         })(phone.cacheService.getService);
         assertSeed(read(phone), ["st-1"], []);
+    });
+
+    describe("a choice saved beyond the preset", () => {
+        const beyond = () => sel([st1], [p1], [{uuid: "e-1", name: "e-1"}]);
+        const fresh = () => ({
+            dashboards: {d: [filterRow("f", "Type", subjectTypeSettings(presetST1P1))]},
+            subjectTypes: [{...st1}, {...st2}],
+            programs: [{...p1}],
+        });
+
+        it("reads back unchanged while nothing is deleted", () => {
+            const phone = setUpPhone(fresh());
+            save(phone, beyond());
+            const value = read(phone);
+            assert.deepEqual(uuids(value.subjectTypes), ["st-1"]);
+            assert.deepEqual(uuids(value.programs), ["p-1"]);
+            assert.deepEqual(uuids(value.encounterTypes), ["e-1"]);
+        });
+
+        it("drops a deleted preset programme from a choice saved beyond the preset", () => {
+            const setup = fresh();
+            const phone = setUpPhone(setup);
+            save(phone, beyond());
+            setup.programs[0].voided = true;
+            assertSeed(read(phone), ["st-1"], []);
+        });
+
+        it("drops a deleted preset subject type from a choice saved beyond the preset", () => {
+            const setup = {
+                dashboards: {d: [filterRow("f", "Type", subjectTypeSettings({presetSubjectTypeUUID: "st-1"}))]},
+                subjectTypes: [{...st1}, {...st2}],
+                programs: [{...p1}],
+            };
+            const phone = setUpPhone(setup);
+            save(phone, sel([st1], [], [{uuid: "e-1", name: "e-1"}]));
+            assert.deepEqual(uuids(read(phone).encounterTypes), ["e-1"]);
+            setup.subjectTypes[0].voided = true;
+            assert.isTrue(read(phone).isEmpty());
+        });
+    });
+
+    it("does not look up the settings of other saved filters", () => {
+        const phone = phoneWith(subjectTypeSettings(), [
+            filterRow("g", "Registered", {type: Type.RegistrationDate, widget: Widget.Range, subjectTypeUUID: "st-1"}),
+        ]);
+        phone.service.setSelectedFilterValues("d", {f: sel([st2]), g: new Range(new Date(2026, 0, 1), new Date(2026, 0, 31))}, true);
+        const lookup = jest.spyOn(phone.dashboardFilterService, "getDashboardFilterConfig");
+        // Reading the saved values back looks each one up once, whatever reads them. Both filters are saved, so the second pass makes none.
+        phone.cacheService.getDashboardCache("d");
+        const readingTheCache = lookup.mock.calls.length;
+        assert.equal(readingTheCache, 2);
+        lookup.mockClear();
+        phone.service.getDashboardData("d");
+        assert.equal(lookup.mock.calls.length, readingTheCache, "the first pass looked up the settings of a saved filter");
     });
 
     it("returns to the preset after the filters are cleared", () => {
