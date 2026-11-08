@@ -216,6 +216,8 @@ class FiltersViewV2 extends AbstractComponent {
                                         return <FilterContainerWithLabel filter={filter}>
                                             <FormMetaDataSelect isMulti={true} key={index}
                                                                    formMetaDataSelections={filterValue}
+                                                                   hideSubjectType={!_.isNil(filterConfig.presetSubjectType)}
+                                                                   hideProgram={!_.isNil(filterConfig.presetProgram)}
                                                                    onChange={(x) => this.dispatchFilterUpdate(filter, x)}/>
                                         </FilterContainerWithLabel>;
                                     default:

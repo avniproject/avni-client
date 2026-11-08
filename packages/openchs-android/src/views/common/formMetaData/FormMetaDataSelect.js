@@ -15,15 +15,22 @@ class FormMetaDataSelect extends AbstractComponent {
     static propTypes = {
         formMetaDataSelections: PropTypes.object.isRequired,
         onChange: PropTypes.func.isRequired,
-        isMulti: PropTypes.bool.isRequired
+        isMulti: PropTypes.bool.isRequired,
+        hideSubjectType: PropTypes.bool,
+        hideProgram: PropTypes.bool
+    }
+
+    static defaultProps = {
+        hideSubjectType: false,
+        hideProgram: false
     }
 
     render() {
         const programService = this.getService(ProgramService);
         const encounterTypeService = this.getService(EncounterTypeService);
-        const {formMetaDataSelections, onChange} = this.props;
+        const {formMetaDataSelections, onChange, hideSubjectType, hideProgram} = this.props;
         return <>
-            <SubjectTypeSelect
+            {!hideSubjectType && <SubjectTypeSelect
                 selectedSubjectTypes={formMetaDataSelections.subjectTypes}
                 onChange={(selectedSubjectTypes) => {
                     const programs = programService.getAllowedViewPrograms(selectedSubjectTypes);
@@ -31,8 +38,8 @@ class FormMetaDataSelect extends AbstractComponent {
                     formMetaDataSelections.updateSubjectTypes(selectedSubjectTypes, programs, encounterTypes);
                     onChange(formMetaDataSelections);
                 }}
-                isMulti={true}/>
-            {formMetaDataSelections.subjectTypes.length > 0 &&
+                isMulti={true}/>}
+            {!hideProgram && formMetaDataSelections.subjectTypes.length > 0 &&
                 <ProgramSelect
                     subjectTypes={formMetaDataSelections.subjectTypes}
                     selectedPrograms={formMetaDataSelections.programs}
