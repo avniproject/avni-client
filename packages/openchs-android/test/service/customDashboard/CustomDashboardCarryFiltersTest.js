@@ -16,7 +16,7 @@ import DashboardFilterService from "../../../src/service/reports/DashboardFilter
 import EntityService from "../../../src/service/EntityService";
 import FormMetaDataSelection from "../../../src/model/FormMetaDataSelection";
 import AddressFilterValue from "../../../src/model/AddressFilterValue";
-import {filterRow, setUpWithRealSave} from "./DashboardFilterCacheTestPhone";
+import {filterRow, setUpPhone, setUpWithRealSave} from "./DashboardFilterCacheTestPhone";
 
 const Type = CustomFilter.type;
 const Widget = CustomFilter.widget;
@@ -541,6 +541,103 @@ describe("CustomDashboardService.carryFiltersOver", () => {
             assert.deepEqual(clearResults.mock.calls, [["target"]]);
             assert.isBelow(setSelectedFilterValues.mock.invocationCallOrder[0], clearResults.mock.invocationCallOrder[0], "the clear comes after the write");
         });
+    });
+});
+
+// Both reads are the real ones, so a source's own preset is in its value. Seeds each side through the real save when a value is given.
+describe("CustomDashboardService.carryFiltersOver into a Subject Type filter with a preset", () => {
+    const st1 = {uuid: "st-1", name: "Household", voided: false};
+    const st2 = {uuid: "st-2", name: "Person", voided: false};
+    const p1 = {uuid: "p-1", name: "Child", voided: false};
+    const e = (uuid) => ({uuid, name: uuid});
+    const sel = (subjectTypes, programs = [], encounterTypes = []) => new FormMetaDataSelection(subjectTypes, programs, encounterTypes);
+    const uuids = (list) => list.map((x) => x.uuid);
+    const typeSettings = (preset = {}) => settings(Type.SubjectType, {widget: Widget.Default, subjectTypeUUID: null, ...preset});
+    const presetST1 = {presetSubjectTypeUUID: "st-1"};
+    const presetST1P1 = {presetSubjectTypeUUID: "st-1", presetProgramUUID: "p-1"};
+
+    function carry({sourceSettings = typeSettings(), targetSettings, sourceValue, targetValue}) {
+        const phone = setUpPhone({
+            dashboards: {
+                source: [filterRow("s1", "Filter", sourceSettings)],
+                target: [filterRow("t1", "Filter", targetSettings)],
+            },
+            subjectTypes: [st1, st2],
+            programs: [p1],
+        });
+        const {service, cacheService} = phone;
+        // Saved as not applied, so the check that the target ends up applied shows the carry set it.
+        if (sourceValue) service.setSelectedFilterValues("source", {s1: sourceValue}, true);
+        if (targetValue) service.setSelectedFilterValues("target", {t1: targetValue}, false);
+        const clearResults = jest.spyOn(cacheService, "clearResults").mockImplementation(() => undefined);
+        const write = jest.spyOn(service, "setSelectedFilterValues");
+        const carried = service.carryFiltersOver("source", "target");
+        return {phone, carried, writes: write.mock.calls.length, clears: clearResults.mock.calls.length, held: () => service.getDashboardData("target").selectedFilterValues.t1};
+    }
+
+    const assertWroteNothing = (outcome) => {
+        assert.isFalse(outcome.carried);
+        assert.equal(outcome.writes, 0);
+        assert.equal(outcome.clears, 0);
+    };
+
+    it("carries a selection that agrees with the preset, visit types included", () => {
+        const outcome = carry({targetSettings: typeSettings(presetST1P1), sourceValue: sel([st1], [p1], [e("e-1")])});
+        assert.isTrue(outcome.carried);
+        assert.property(outcome.phone.savedValues("target"), "t1");
+        assert.isTrue(outcome.phone.cache("target").filterApplied);
+        assert.equal(outcome.clears, 1);
+        assert.deepEqual(uuids(outcome.held().encounterTypes), ["e-1"]);
+    });
+
+    it("returns the target to its preset when the carried selection has another subject type", () => {
+        const outcome = carry({targetSettings: typeSettings(presetST1), sourceValue: sel([st2]), targetValue: sel([st1], [], [e("e-5")])});
+        assert.isTrue(outcome.carried);
+        assert.notProperty(outcome.phone.savedValues("target"), "t1");
+        assert.isTrue(outcome.phone.cache("target").filterApplied);
+        assert.equal(outcome.clears, 1);
+        assert.deepEqual(uuids(outcome.held().subjectTypes), ["st-1"]);
+        assert.deepEqual(outcome.held().encounterTypes, []);
+    });
+
+    it("writes nothing when the carried selection has another subject type and the target is at its preset", () => {
+        assertWroteNothing(carry({targetSettings: typeSettings(presetST1), sourceValue: sel([st2])}));
+        // The same filters carry once the selection agrees with the preset.
+        assert.isTrue(carry({targetSettings: typeSettings(presetST1), sourceValue: sel([st1], [], [e("e-1")])}).carried);
+    });
+
+    it("writes nothing when the carried selection lacks the preset program and the target is at its preset", () => {
+        assertWroteNothing(carry({targetSettings: typeSettings(presetST1P1), sourceValue: sel([st1], [], [e("e-9")])}));
+        assert.isTrue(carry({targetSettings: typeSettings(presetST1P1), sourceValue: sel([st1], [p1], [e("e-9")])}).carried);
+    });
+
+    it("returns the target to its preset when the carried value is unset", () => {
+        const outcome = carry({targetSettings: typeSettings(presetST1P1), targetValue: sel([st1], [p1], [e("e-1")])});
+        assert.isTrue(outcome.carried);
+        assert.notProperty(outcome.phone.savedValues("target"), "t1");
+        assert.isTrue(outcome.phone.cache("target").filterApplied);
+        assert.equal(outcome.clears, 1);
+        assert.deepEqual(outcome.held().encounterTypes, []);
+    });
+
+    it("writes nothing when the carried value is unset and the target is at its preset", () => {
+        assertWroteNothing(carry({targetSettings: typeSettings(presetST1P1)}));
+        // The same filters carry once the target holds a choice beyond its preset.
+        assert.isTrue(carry({targetSettings: typeSettings(presetST1P1), targetValue: sel([st1], [p1], [e("e-1")])}).carried);
+    });
+
+    it("writes nothing between two dashboards with the same preset, both at it", () => {
+        assertWroteNothing(carry({sourceSettings: typeSettings(presetST1), targetSettings: typeSettings(presetST1)}));
+        // The same filters carry once the source has a visit type chosen.
+        assert.isTrue(carry({sourceSettings: typeSettings(presetST1), targetSettings: typeSettings(presetST1), sourceValue: sel([st1], [], [e("e-1")])}).carried);
+    });
+
+    it("carries a source's preset into a target without one", () => {
+        const outcome = carry({sourceSettings: typeSettings(presetST1), targetSettings: typeSettings()});
+        assert.isTrue(outcome.carried);
+        assert.deepEqual(uuids(outcome.held().subjectTypes), ["st-1"]);
+        assert.deepEqual(outcome.held().programs, []);
+        assert.deepEqual(outcome.held().encounterTypes, []);
     });
 });
 

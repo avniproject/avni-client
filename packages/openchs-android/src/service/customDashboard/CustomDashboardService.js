@@ -84,8 +84,9 @@ export function isChosenFilterValue(value) {
 
 // The filters of one dashboard, each with the settings stored in its filterConfig parsed. Unlike
 // DashboardFilterService.getFilterConfigsForDashboard, it looks no entities up from them.
+// `row` is the row itself, for DashboardFilterService.getDashboardFilterConfig.
 function readFilters(dashboardFilters) {
-    return _.map(dashboardFilters, ({uuid, name, filterConfig}) => ({uuid, name, settings: JSON.parse(filterConfig)}));
+    return _.map(dashboardFilters, (row) => ({uuid: row.uuid, name: row.name, settings: JSON.parse(row.filterConfig), row}));
 }
 
 @Service("customDashboardService")
@@ -179,9 +180,25 @@ class CustomDashboardService extends BaseService {
             const matching = sourceFilters.filter(({settings}) => filterSettingsMatch(settings, targetFilter.settings));
             if (_.isEmpty(matching)) return;
             const sourceFilter = matching.find(({uuid}) => isChosenFilterValue(sourceValues[uuid])) || matching[0];
-            if (!isChosenFilterValue(sourceValues[sourceFilter.uuid]) && !isChosenFilterValue(values[targetFilter.uuid])) return;
-            // TODO(avniproject/avni-client#2222): keep the target's Subject Type preset when the carried selection disagrees with it, an empty one included, and count a target value equal to its preset as unset
-            values[targetFilter.uuid] = sourceValues[sourceFilter.uuid];
+            const carried = sourceValues[sourceFilter.uuid];
+            // A target Subject Type filter with a preset keeps it. The value written is the carried one when it is chosen and agrees with
+            // the preset, else the preset itself, and nothing when that is what the target already holds. A target with a preset always
+            // holds a selection, never an empty one, so the unset-on-both-sides check below cannot decide for it.
+            if (targetFilter.settings.presetSubjectTypeUUID) {
+                const {presetSubjectType, presetProgram} = dashboardFilterService.getDashboardFilterConfig(targetFilter.row);
+                if (presetSubjectType) {
+                    const value = isChosenFilterValue(carried) && carried instanceof FormMetaDataSelection && carried.agreesWithPreset(presetSubjectType, presetProgram)
+                        ? carried
+                        : FormMetaDataSelection.forPreset(presetSubjectType, presetProgram);
+                    const current = values[targetFilter.uuid];
+                    if (current instanceof FormMetaDataSelection && current.sameAs(value)) return;
+                    values[targetFilter.uuid] = value;
+                    changed = true;
+                    return;
+                }
+            }
+            if (!isChosenFilterValue(carried) && !isChosenFilterValue(values[targetFilter.uuid])) return;
+            values[targetFilter.uuid] = carried;
             changed = true;
         });
         _.forOwn(overrides, (value, filterUUID) => {
