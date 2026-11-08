@@ -6,13 +6,14 @@
 // and expects them to carry. That way a mistake in the setup cannot make a "does not carry" test pass on its own.
 
 import {assert} from "chai";
-import {CustomFilter, Range} from "openchs-models";
+import {Concept, CustomFilter, Dashboard, DashboardFilter, Range, SubjectType} from "openchs-models";
 
 jest.mock("../../../src/framework/bean/Service", () => () => (target) => target);
 
 import CustomDashboardService, {filterSettingsMatch, isChosenFilterValue} from "../../../src/service/customDashboard/CustomDashboardService";
 import CustomDashboardCacheService from "../../../src/service/CustomDashboardCacheService";
 import DashboardFilterService from "../../../src/service/reports/DashboardFilterService";
+import EntityService from "../../../src/service/EntityService";
 import FormMetaDataSelection from "../../../src/model/FormMetaDataSelection";
 import AddressFilterValue from "../../../src/model/AddressFilterValue";
 
@@ -238,6 +239,99 @@ describe("CustomDashboardService.carryFiltersOver", () => {
                 assertCarried(carryBetween(pair(unsetValue)));
                 // A chosen value carries too.
                 assertCarried(carryBetween(pair(chosenValue)));
+            });
+        });
+    });
+
+    // The same carry through the real save and the real read back. Only storage and entity lookups are fake: an in-memory
+    // store of the two dashboards and their caches, the filter rows and the subject type and concept they point at, and the
+    // entities a saved uuid reads back as. The source's read stays stubbed, as above, so it gives the row's own value.
+    describe("clears the target's saved value, through the real save", () => {
+        const fakeEntities = (uuids) => uuids.map((uuid) => ({uuid, name: uuid}));
+
+        function setUpWithRealSave(filterSettings) {
+            const rows = {s1: filterRow("s1", "Filter", filterSettings), t1: filterRow("t1", "Filter", filterSettings)};
+            const filterOf = (uuid) => {
+                const filter = new DashboardFilter();
+                filter.uuid = uuid;
+                filter.name = rows[uuid].name;
+                filter.filterConfig = rows[uuid].filterConfig;
+                filter.voided = false;
+                return filter;
+            };
+            const dashboardOf = (uuid, filterUUID) => {
+                const dashboard = new Dashboard();
+                dashboard.uuid = uuid;
+                dashboard.filters = [filterOf(filterUUID)];
+                return dashboard;
+            };
+            const dashboards = {source: dashboardOf("source", "s1"), target: dashboardOf("target", "t1")};
+            const filterRowsOf = {source: [rows.s1], target: [rows.t1]};
+            const caches = {};
+
+            const dashboardFilterService = new DashboardFilterService(null, null);
+            dashboardFilterService.getFilters = (dashboardUUID) => filterRowsOf[dashboardUUID];
+            dashboardFilterService.findByUUID = (uuid, schemaName) => {
+                if (schemaName === SubjectType.schema.name) return {uuid, name: "Household"};
+                if (schemaName === Concept.schema.name) return {uuid, name: uuid, datatype: Concept.dataType.Text};
+                return filterOf(uuid);
+            };
+            const entityService = {findAllByUUID: fakeEntities};
+
+            // The store keeps its own copy of each cache, as a database does, so a later write is the only way a saved value changes.
+            const cacheService = new CustomDashboardCacheService(null, null);
+            cacheService.findByFiltered = (_field, dashboardUUID) => caches[dashboardUUID];
+            cacheService.findByUUID = (uuid) => dashboards[uuid];
+            cacheService.save = (cache) => {
+                caches[cache.dashboard.uuid] = cache.clone();
+                return caches[cache.dashboard.uuid];
+            };
+            cacheService.saveOrUpdate = (cache) => {
+                caches[cache.dashboard.uuid] = cache.clone();
+                return caches[cache.dashboard.uuid];
+            };
+            const cacheServices = new Map([[DashboardFilterService, dashboardFilterService], [EntityService, entityService]]);
+            cacheService.getService = (klass) => cacheServices.get(klass);
+
+            const service = new CustomDashboardService(null, null);
+            const services = new Map([[DashboardFilterService, dashboardFilterService], [CustomDashboardCacheService, cacheService]]);
+            service.getService = (klass) => services.get(klass);
+            return {service, savedValues: (dashboardUUID) => JSON.parse(caches[dashboardUUID].selectedValuesJSON), cache: (dashboardUUID) => caches[dashboardUUID]};
+        }
+
+        // Seeds the target with its own chosen value through the real save, carries the source's value over, and returns what the target holds.
+        function carryThroughRealSave(filterSettings, sourceValue, chosenValue) {
+            const phone = setUpWithRealSave(filterSettings);
+            const {service} = phone;
+            const realGetDashboardData = service.getDashboardData.bind(service);
+            // The source's value is the row's own, so the stubbed read gives it. The target's read is the real one.
+            jest.spyOn(service, "getDashboardData").mockImplementation((dashboardUUID) => dashboardUUID === "source"
+                ? {selectedFilterValues: {s1: sourceValue()}, dashboardCache: {}}
+                : realGetDashboardData(dashboardUUID));
+
+            // Saved as not applied, so the check that the target ends up applied shows the carry set it.
+            service.setSelectedFilterValues("target", {t1: chosenValue()}, false);
+            const seeded = service.getDashboardData("target").selectedFilterValues.t1;
+            const carried = service.carryFiltersOver("source", "target");
+            return {phone, seeded, carried, afterwards: service.getDashboardData("target").selectedFilterValues.t1};
+        }
+
+        unsetValues.forEach(([label, filterSettings, unsetValue, chosenValue]) => {
+            it(label, () => {
+                const outcome = carryThroughRealSave(filterSettings, unsetValue, chosenValue);
+
+                // The store keeps a chosen value, so the clearing below is the carry's doing.
+                assert.isTrue(isChosenFilterValue(outcome.seeded));
+                assert.isTrue(outcome.carried);
+                assert.notProperty(outcome.phone.savedValues("target"), "t1");
+                assert.isTrue(outcome.phone.cache("target").filterApplied);
+                assert.isFalse(isChosenFilterValue(outcome.afterwards));
+
+                // The same set-up carrying a chosen value stores it, and it reads back as chosen.
+                const control = carryThroughRealSave(filterSettings, chosenValue, chosenValue);
+                assert.isTrue(control.carried);
+                assert.property(control.phone.savedValues("target"), "t1");
+                assert.isTrue(isChosenFilterValue(control.afterwards));
             });
         });
     });
