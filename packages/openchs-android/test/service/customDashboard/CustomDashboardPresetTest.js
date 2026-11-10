@@ -320,3 +320,30 @@ describe("a preset program the preset subject type no longer enrols into", () =>
         assertSeed(read(phone), ["st-1"], []);
     });
 });
+
+// With a preset subject type and no preset program that counts, the program step shows (FiltersViewV2.js:220), so a program the
+// user picks there is theirs: saved, read back on every refresh, and given to the cards.
+describe("a program the user picks under a preset subject type", () => {
+    const p2 = {uuid: "p-2", name: "Adult", voided: false};
+
+    it.each([
+        ["a preset subject type alone", {presetSubjectTypeUUID: "st-1"}],
+        ["a preset program the preset subject type no longer enrols into", presetST1P1],
+    ])("is saved, read back and given to the cards, with %s", (_label, preset) => {
+        const phone = setUpPhone({
+            dashboards: {d: [filterRow("f", "Type", subjectTypeSettings(preset))]},
+            subjectTypes,
+            programs: [p1, p2],
+            enrolledPrograms: {"st-1": ["p-2"], "st-2": ["p-1"]},
+        });
+        assert.isNull(phone.dashboardFilterService.getFilterConfigsForDashboard("d").f.presetProgram);
+        save(phone, sel([st1], [p2]));
+        assert.deepEqual(phone.savedValues("d").f, {subjectTypes: ["st-1"], programs: ["p-2"], encounterTypes: []});
+        const selected = phone.service.getDashboardData("d").selectedFilterValues;
+        assert.deepEqual(uuids(selected.f.subjectTypes), ["st-1"]);
+        assert.deepEqual(uuids(selected.f.programs), ["p-2"]);
+        const inputs = phone.dashboardFilterService.toRuleInputObjects("d", selected);
+        assert.equal(inputs.length, 1);
+        assert.deepEqual(uuids(inputs[0].filterValue.programs), ["p-2"]);
+    });
+});
