@@ -1,5 +1,6 @@
 // Verifies that DashboardFilterService.getDashboardFilterConfig reads a Subject Type filter's preset
 // (presetSubjectTypeUUID, presetProgramUUID) into live entities, and reads no preset when it is missing, deleted or not a Subject Type filter.
+// A preset program also counts only while the preset subject type enrols into it; getService is stubbed with a FormMappingService that answers from `enrolled`.
 
 import {assert} from "chai";
 import {Program, SubjectType} from "openchs-models";
@@ -7,16 +8,24 @@ import {Program, SubjectType} from "openchs-models";
 jest.mock("../../../src/framework/bean/Service", () => () => (target) => target);
 
 import DashboardFilterService from "../../../src/service/reports/DashboardFilterService";
+import FormMappingService from "../../../src/service/FormMappingService";
 
-const build = (settings, entities) => {
+const build = (settings, entities, enrolled = {"st-1": ["p-1"]}) => {
     const service = new DashboardFilterService(null, null);
     const calls = [];
+    const askedServices = [];
+    const findProgramsForSubjectTypes = jest.fn((subjectTypes) =>
+        subjectTypes.flatMap((st) => enrolled[st.uuid] || []).map((uuid) => entities[uuid]).filter((p) => p && !p.voided));
+    service.getService = (klass) => {
+        askedServices.push(klass);
+        return klass === FormMappingService ? {findProgramsForSubjectTypes} : undefined;
+    };
     service.findByUUID = (uuid, schemaName) => {
         calls.push({uuid, schemaName});
         return entities[uuid];
     };
     const config = service.getDashboardFilterConfig({uuid: "f1", name: "Filter", filterConfig: JSON.stringify(settings)});
-    return {config, calls};
+    return {config, calls, findProgramsForSubjectTypes, askedServices};
 };
 const entity = (uuid, voided = false) => ({uuid, name: uuid, voided});
 const subjectTypeSettings = (extra = {}) => ({type: "SubjectType", widget: "Default", ...extra});
@@ -81,5 +90,39 @@ describe("DashboardFilterService preset", () => {
         assert.isNull(config.presetProgram);
         assert.isEmpty(calls.filter(c => !c.uuid));
         assert.isEmpty(calls);
+    });
+
+    it("treats a preset program the preset subject type does not enrol into as no preset, and keeps the subject type", () => {
+        const settings = subjectTypeSettings({presetSubjectTypeUUID: "st-1", presetProgramUUID: "p-1"});
+        const entities = {"st-1": entity("st-1"), "p-1": entity("p-1"), "p-2": entity("p-2")};
+        [{"st-1": []}, {"st-1": ["p-2"], "st-2": ["p-1"]}].forEach((enrolled) => {
+            const {config} = build(settings, entities, enrolled);
+            assert.equal(config.presetSubjectType.uuid, "st-1");
+            assert.isNull(config.presetProgram);
+        });
+    });
+
+    it("asks which programs the preset subject type enrols into, and nothing about the user's rights", () => {
+        const {findProgramsForSubjectTypes, askedServices} = build(subjectTypeSettings({presetSubjectTypeUUID: "st-1", presetProgramUUID: "p-1"}),
+            {"st-1": entity("st-1"), "p-1": entity("p-1")});
+        assert.equal(findProgramsForSubjectTypes.mock.calls.length, 1);
+        const [subjectTypes] = findProgramsForSubjectTypes.mock.calls[0];
+        assert.deepEqual(subjectTypes.map((x) => x.uuid), ["st-1"]);
+        assert.deepEqual(askedServices, [FormMappingService]);
+    });
+
+    it("does not ask about enrolment without a live preset program", () => {
+        const withProgram = subjectTypeSettings({presetSubjectTypeUUID: "st-1", presetProgramUUID: "p-1"});
+        const cases = [
+            [subjectTypeSettings({presetSubjectTypeUUID: "st-1"}), {"st-1": entity("st-1")}],
+            [withProgram, {"st-1": entity("st-1")}],
+            [withProgram, {"st-1": entity("st-1"), "p-1": entity("p-1", true)}],
+            [withProgram, {"st-1": entity("st-1", true), "p-1": entity("p-1")}],
+        ];
+        cases.forEach(([settings, entities]) => {
+            const {findProgramsForSubjectTypes, askedServices} = build(settings, entities);
+            assert.equal(findProgramsForSubjectTypes.mock.calls.length, 0);
+            assert.isEmpty(askedServices);
+        });
     });
 });

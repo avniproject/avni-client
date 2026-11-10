@@ -25,11 +25,12 @@ const presetST1P1 = {presetSubjectTypeUUID: "st-1", presetProgramUUID: "p-1"};
 const sel = (st, p = [], e = []) => new FormMetaDataSelection(st, p, e);
 const uuids = (list) => list.map((x) => x.uuid);
 
-function phoneWith(filterSettings, extraRows = []) {
+function phoneWith(filterSettings, extraRows = [], enrolledPrograms) {
     return setUpPhone({
         dashboards: {d: [filterRow("f", "Type", filterSettings), ...extraRows]},
         subjectTypes,
         programs,
+        enrolledPrograms,
     });
 }
 
@@ -233,5 +234,54 @@ describe("what is saved for a Subject Type filter with a preset", () => {
             assert.deepEqual(uuids(read(phone).subjectTypes), ["st-2"]);
             assert.equal(phone.cache("d").reportCardResults.length, 1);
         });
+    });
+});
+
+describe("a preset program the preset subject type no longer enrols into", () => {
+    const notEnrolled = () => phoneWith(subjectTypeSettings(presetST1P1), [], {"st-1": [], "st-2": ["p-1"]});
+
+    it("starts the filter on the subject type alone", () => {
+        assertSeed(read(notEnrolled()), ["st-1"], []);
+    });
+
+    it("names no preset program, so the program step shows", () => {
+        // FiltersViewV2.js:220 hides the program step only for a preset program.
+        const config = notEnrolled().dashboardFilterService.getFilterConfigsForDashboard("d").f;
+        assert.isNull(config.presetProgram);
+        assert.equal(config.presetSubjectType.uuid, "st-1");
+    });
+
+    it("gives the cards the subject type alone", () => {
+        const phone = notEnrolled();
+        const inputs = phone.dashboardFilterService.toRuleInputObjects("d", phone.service.getDashboardData("d").selectedFilterValues);
+        assert.equal(inputs.length, 1);
+        assert.deepEqual(uuids(inputs[0].filterValue.subjectTypes), ["st-1"]);
+        assert.deepEqual(uuids(inputs[0].filterValue.programs), []);
+    });
+
+    it("returns to the subject type alone after the filters are cleared", () => {
+        const phone = notEnrolled();
+        save(phone, sel([st1], [], [{uuid: "e-1", name: "e-1"}]));
+        phone.cacheService.reset("d");
+        assertSeed(read(phone), ["st-1"], []);
+    });
+
+    it("does not save the subject type alone", () => {
+        const phone = notEnrolled();
+        save(phone, sel([st1]));
+        assert.deepEqual(phone.savedValues("d"), {});
+    });
+
+    it("resets a choice saved while the program was the preset, once the subject type stops enrolling into it", () => {
+        const setup = {
+            dashboards: {d: [filterRow("f", "Type", subjectTypeSettings(presetST1P1))]},
+            subjectTypes,
+            programs,
+            enrolledPrograms: {"st-1": ["p-1"]},
+        };
+        const phone = setUpPhone(setup);
+        save(phone, sel([st1], [p1], [{uuid: "e-1", name: "e-1"}]));
+        setup.enrolledPrograms["st-1"] = [];
+        assertSeed(read(phone), ["st-1"], []);
     });
 });

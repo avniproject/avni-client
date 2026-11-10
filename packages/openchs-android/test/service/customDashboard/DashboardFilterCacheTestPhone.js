@@ -1,6 +1,6 @@
 // A phone for tests that need the real dashboard save and read back. Only storage and entity lookups are fake: an in-memory
 // store of the dashboards and their caches, the filter rows and the subject types, programs and concept they point at, and
-// the entities a saved uuid reads back as. DashboardFilterService, CustomDashboardCacheService and CustomDashboardService are the real ones.
+// the entities a saved uuid reads back as, and the programs each subject type enrols into (a FormMappingService stand-in). DashboardFilterService, CustomDashboardCacheService and CustomDashboardService are the real ones.
 // Not named *Test.js, so jest does not run it as a test.
 
 import {Concept, Dashboard, DashboardFilter, Program, SubjectType} from "openchs-models";
@@ -11,6 +11,7 @@ import CustomDashboardService from "../../../src/service/customDashboard/CustomD
 import CustomDashboardCacheService from "../../../src/service/CustomDashboardCacheService";
 import DashboardFilterService from "../../../src/service/reports/DashboardFilterService";
 import EntityService from "../../../src/service/EntityService";
+import FormMappingService from "../../../src/service/FormMappingService";
 
 // A row as DashboardFilterService.getFilters returns it.
 export function filterRow(uuid, name, filterSettings) {
@@ -22,7 +23,9 @@ export const fakeEntities = (uuids) => uuids.map((uuid) => ({uuid, name: uuid}))
 // `dashboards` maps a dashboard uuid to its filter rows.
 // `subjectTypes` and `programs`, when given, are the only ones the phone has, each {uuid, name, voided}; a uuid outside them
 // looks up as nothing and reads back as nothing. When left out, any subject type uuid looks up as a "Household" and any saved uuid reads back as an entity.
-export function setUpPhone({dashboards: rowsByDashboard, subjectTypes, programs}) {
+// `enrolledPrograms` maps a subject type uuid to the uuids of the programs it enrols into, read at call time so a test can change its entries
+// after setUpPhone (replacing the object is not seen). When left out, every subject type enrols into every program the phone has.
+export function setUpPhone({dashboards: rowsByDashboard, subjectTypes, programs, enrolledPrograms}) {
     const rows = {};
     Object.values(rowsByDashboard).forEach((dashboardRows) => dashboardRows.forEach((row) => (rows[row.uuid] = row)));
     const filterOf = (uuid) => {
@@ -51,6 +54,16 @@ export function setUpPhone({dashboards: rowsByDashboard, subjectTypes, programs}
         if (schemaName === Concept.schema.name) return {uuid, name: uuid, datatype: Concept.dataType.Text};
         return filterOf(uuid);
     };
+    // As FormMappingService.findProgramsForSubjectTypes: the live programs any of the subject types enrols into (FormMappingService.js:41-47, :94).
+    const formMappingService = {
+        findProgramsForSubjectTypes: (subjectTypes) => {
+            const candidates = (programs || []).filter((program) => !program.voided);
+            if (!enrolledPrograms) return candidates;
+            const enrolled = subjectTypes.flatMap((subjectType) => enrolledPrograms[subjectType.uuid] || []);
+            return candidates.filter((program) => enrolled.includes(program.uuid));
+        },
+    };
+    dashboardFilterService.getService = (klass) => (klass === FormMappingService ? formMappingService : undefined);
     const entityService = {
         findAllByUUID: (uuids, schemaName) => {
             if (schemaName === SubjectType.schema.name && subjectTypes) return uuids.map((uuid) => declared(subjectTypes, uuid)).filter(Boolean);
