@@ -54,14 +54,11 @@ export function setUpPhone({dashboards: rowsByDashboard, subjectTypes, programs,
         if (schemaName === Concept.schema.name) return {uuid, name: uuid, datatype: Concept.dataType.Text};
         return filterOf(uuid);
     };
-    // As FormMappingService.findProgramsForSubjectTypes: the live programs any of the subject types enrols into (FormMappingService.js:41-47, :94).
+    // As FormMappingService.isEnrolmentMapped: whether the subject type enrols into the program. Left out, every subject type enrols into every program.
+    // findProgramsForSubjectTypes is left off, so a call to it throws. On the cache-read path that error is caught and the cache reset
+    // (CustomDashboardCacheService.js:95-99), so it shows only through this test's value checks.
     const formMappingService = {
-        findProgramsForSubjectTypes: (subjectTypes) => {
-            const candidates = (programs || []).filter((program) => !program.voided);
-            if (!enrolledPrograms) return candidates;
-            const enrolled = subjectTypes.flatMap((subjectType) => enrolledPrograms[subjectType.uuid] || []);
-            return candidates.filter((program) => enrolled.includes(program.uuid));
-        },
+        isEnrolmentMapped: (program, subjectType) => !enrolledPrograms || (enrolledPrograms[subjectType.uuid] || []).includes(program.uuid),
     };
     dashboardFilterService.getService = (klass) => (klass === FormMappingService ? formMappingService : undefined);
     const entityService = {

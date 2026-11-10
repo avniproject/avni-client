@@ -14,6 +14,10 @@ function getEncounterTypeCriteria(subjectType, formType, entityCriteria) {
     return criteria;
 }
 
+function programRelatedCriteria(program, formType, subjectType) {
+    return `voided = false AND entityUUID="${program.uuid}" AND form.formType="${formType}" and subjectType.uuid = "${subjectType.uuid}"`;
+}
+
 @Service("FormMappingService")
 class FormMappingService extends BaseService {
     constructor(db, beanStore) {
@@ -29,13 +33,19 @@ class FormMappingService extends BaseService {
     }
 
     _findProgramRelatedForm(program: Program, formType: string, subjectType: SubjectType) {
-        let criteria = `voided = false AND entityUUID="${program.uuid}" AND form.formType="${formType}" and subjectType.uuid = "${subjectType.uuid}"`;
-        const formMapping = this.findByCriteria(criteria);
+        const formMapping = this.findByCriteria(programRelatedCriteria(program, formType, subjectType));
         return _.isNil(formMapping) ? null : formMapping.form;
     }
 
     findFormForProgramEnrolment(program: Program, subjectType: SubjectType) {
         return this._findProgramRelatedForm(program, Form.formTypes.ProgramEnrolment, subjectType);
+    }
+
+    // One query for the one mapping, where findProgramsForSubjectTypes reads every form mapping. Counted through findAllByCriteria:
+    // findByCriteria answers an array when two rows match (BaseService.js:104-107), and findFormForProgramEnrolment then reads
+    // `.form` off that array, so a check built on it would miss a program with two enrolment mappings.
+    isEnrolmentMapped(program: Program, subjectType: SubjectType): boolean {
+        return this.findAllByCriteria(programRelatedCriteria(program, Form.formTypes.ProgramEnrolment, subjectType)).length > 0;
     }
 
     findProgramsForSubjectType(subjectType: SubjectType): Program[] {

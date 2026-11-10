@@ -50,13 +50,13 @@ class DashboardFilterService extends BaseService {
 
     // A program counts only while the preset subject type enrols into it, as the filter's program step lists the subject type's programs
     // (ProgramService.getAllowedViewPrograms through FormMappingService.findProgramsForSubjectTypes). The user's rights are not asked:
-    // a preset stays in force for a user who may not view the program.
+    // a preset stays in force for a user who may not view the program. The preset is read on every render, so this is one query
+    // for the one enrolment mapping, not a read of every form mapping.
     presetProgramOf(presetSubjectType, presetProgramUUID) {
         if (!presetSubjectType) return null;
         const program = this.findLivePreset(presetProgramUUID, Program.schema.name);
         if (!program) return null;
-        const enrolled = this.getService(FormMappingService).findProgramsForSubjectTypes([presetSubjectType]);
-        return _.some(enrolled, (x) => x.uuid === program.uuid) ? program : null;
+        return this.getService(FormMappingService).isEnrolmentMapped(program, presetSubjectType) ? program : null;
     }
 
     getDashboardFilterConfig(dashboardFilter) {
