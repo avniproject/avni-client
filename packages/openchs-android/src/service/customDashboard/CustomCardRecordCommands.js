@@ -273,8 +273,10 @@ export const resolveEditVisit = (getService, args) => {
 // (CustomDashboardActions.js:28-38) does one or the other by its setting, so neither does both. Of several planned
 // visits the earliest due starts. No enrolment (empty, or the text a card template writes for a missing value) means a
 // general visit. The type must be one
-// the record uses, as the profile lists them (IndividualGeneralHistoryActions.js:35, StartProgramActions.js:46). No
-// eligibility rule runs, planned or new (D5).
+// the record uses, as the profile lists them (IndividualGeneralHistoryActions.js:35, StartProgramActions.js:46). A new
+// visit also needs the type's eligibility rule to allow it, as the profile lists only the types the rule allows
+// (IndividualGeneralHistoryActions.js:35-37, StartProgramActions.js:47-48 and :55-56). A planned visit runs no rule, as
+// StartProgramActions.js:33-41 lists planned visits without one.
 // A card template builds a row with +, so a missing enrolment arrives as one of these.
 const NO_ENROLMENT = [null, undefined, '', 'null', 'undefined'];
 
@@ -304,6 +306,12 @@ export const resolveStartVisit = (getService, args) => {
     const {findScheduledEncounters} = require("../../action/customDashboard/CustomDashboardActions");
     // The newer database lists a parent's visits in no set order, so the earliest due is taken. minBy keeps the first of a tie.
     const planned = _.minBy(findScheduledEncounters(parent, encounterType), visit => visit.earliestVisitDateTime);
+    // Any falsy answer refuses: the profile filters its lists with Array.filter, which keeps a type on any truthy one.
+    // The subject goes to the rule for a programme visit too, as StartProgramActions.js:48 passes enrolment.individual.
+    if (planned == null) {
+        const RuleEvaluationService = require("../RuleEvaluationService").default;
+        if (!getService(RuleEvaluationService).isEligibleForEncounter(subject, encounterType)) return {message: MessageKeys.notAvailable};
+    }
     return {
         navigate: view => chsNavigator().proceedEncounter(planned || encounterType, parent, source => chsNavigator().navigateBackAfterDoVisit(source), view)
     };

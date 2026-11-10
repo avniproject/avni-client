@@ -78,7 +78,7 @@ const freshVisitTypes = (uuids = []) => uuids.map(uuid => new EncounterType({uui
 // rule: (form, entity, entityName) => response.
 // activeTypes: the visit types in use, {general: {subjectTypeUuid: [uuid, ...]}, program: {programUuid: {subjectTypeUuid: [uuid, ...]}}}.
 // The lookups answer only for the subject type and programme they are given.
-export const servicesFor = ({records = {}, rights = {}, allPrivileges = false, forms = {}, rule, activeTypes = {}, findByUUID} = {}) => {
+export const servicesFor = ({records = {}, rights = {}, allPrivileges = false, forms = {}, rule, activeTypes = {}, findByUUID, eligible} = {}) => {
     const criteriaSeen = [];
     const pairsSeen = [];
     const entityService = {
@@ -105,11 +105,11 @@ export const servicesFor = ({records = {}, rights = {}, allPrivileges = false, f
         findActiveEncounterTypesForProgram: jest.fn((program, subjectType) =>
             freshVisitTypes(_.get(activeTypes, ['program', program.uuid, subjectType.uuid]))),
     };
-    // With no rule the real one allows, as it does for a form with no edit rule. The eligibility rule refuses every
-    // visit type, so a start that ran it would be refused (D5: a start never runs it).
+    // With no rule the real one allows, as it does for a form with no edit rule. With no eligibility rule it allows too
+    // (RuleEvaluationService.js:1046), so the default allows, and a test passes `eligible` to give the rule another answer.
     const ruleEvaluationService = {
         runEditFormRule: jest.fn(rule || (() => ActionEligibilityResponse.createAllowedResponse())),
-        isEligibleForEncounter: jest.fn(() => false),
+        isEligibleForEncounter: jest.fn(eligible || (() => true)),
     };
     const beans = {
         EntityService: entityService,

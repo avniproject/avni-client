@@ -217,24 +217,55 @@ describe('startVisit asks which visit types the record uses', () => {
     });
 });
 
-describe('startVisit runs no eligibility rule, for a planned visit or a new one (D5)', () => {
+// A new visit only for a type the eligibility rule allows, as the profile lists the types it offers
+// (IndividualGeneralHistoryActions.js:35-37, StartProgramActions.js:47-48 and :55-56). A planned visit runs no rule, as the profile's Do button does.
+describe('startVisit and the eligibility rule', () => {
     const general = {subjectUUID: 's1', visitTypeUUID: 'gt1'};
     const programme = {subjectUUID: 's1', visitTypeUUID: 'pt1', enrolmentUUID: 'e1'};
-    it.each([
-        ['a new general visit', general, () => null],
-        ['a planned general visit', general, () => realVisit('gPlanned', w.s1, w.types.gt1, planned)],
-        ['a new programme visit', programme, () => null],
-        ['a planned programme visit', programme, () => realVisit('pPlanned', w.enrolments.e1, w.types.pt1, planned)],
-    ])('starts %s that the eligibility rule would refuse, and never runs the rule', (label, args, arrange) => {
-        arrange();
-        const getService = svc();
-        const isEligible = getService.ruleEvaluationService.isEligibleForEncounter;
-        // The stub's own function, called past the mock so the call is not counted: it refuses.
-        expect(isEligible.getMockImplementation()(w.s1, w.types[args.visitTypeUUID])).toBe(false);
+    const refuses = () => false;
 
+    it.each([['general visit', general], ['programme visit', programme]])
+    ('is not available for a new %s the rule refuses, and does not navigate', (label, args) => {
+        expect(resolveStartVisit(svc({eligible: refuses}), args)).toEqual(NOT_AVAILABLE);
+        expect(CHSNavigator.proceedEncounter).not.toHaveBeenCalled();
+    });
+    it.each([['general visit', general], ['programme visit', programme]])
+    ('asks the rule once, with the subject and the visit type, before starting a new %s', (label, args) => {
+        const getService = svc();
         run(resolveStartVisit(getService, args));
-        started();
-        expect(isEligible).not.toHaveBeenCalled();
+        const isEligible = getService.ruleEvaluationService.isEligibleForEncounter;
+        expect(isEligible).toHaveBeenCalledTimes(1);
+        expect(isEligible.mock.calls[0]).toHaveLength(2);
+        expect(isEligible.mock.calls[0][0]).toBe(w.s1);
+        expect(isEligible.mock.calls[0][1]).toBe(w.types[args.visitTypeUUID]);
+        expect(started().visitOrType).toBe(w.types[args.visitTypeUUID]);
+    });
+    it.each([
+        ['a planned general visit', general, () => realVisit('gPlanned', w.s1, w.types.gt1, planned)],
+        ['a planned programme visit', programme, () => realVisit('pPlanned', w.enrolments.e1, w.types.pt1, planned)],
+    ])('starts %s the rule would refuse, and never runs the rule', (label, args, arrange) => {
+        const plannedVisit = arrange();
+        const getService = svc({eligible: refuses});
+        run(resolveStartVisit(getService, args));
+        expect(started().visitOrType.that).toBe(plannedVisit.that);
+        expect(getService.ruleEvaluationService.isEligibleForEncounter).not.toHaveBeenCalled();
+    });
+    it.each([undefined, null, 0, ''])('refuses when the rule gives %p, as the profile drops the type', (given) => {
+        expect(resolveStartVisit(svc({eligible: () => given}), general)).toEqual(NOT_AVAILABLE);
+    });
+    it.each([1, 'yes', {}])('starts when the rule gives %p, as the profile keeps the type', (given) => {
+        run(resolveStartVisit(svc({eligible: () => given}), general));
+        expect(started().visitOrType).toBe(w.types.gt1);
+    });
+    it.each([
+        ['without the view right', {rights: _.omit(rights, 'View subject')}, general, NO_PERMISSION],
+        ['without the perform right', {rights: _.omit(rights, 'Perform visit')}, general, NO_PERMISSION],
+        ['for a type the record does not use', {}, {...general, visitTypeUUID: 'gt2'}, NOT_AVAILABLE],
+        ['for an exited enrolment', {}, {...programme, enrolmentUUID: 'ex'}, NOT_AVAILABLE],
+    ])('does not run the rule %s', (label, extra, args, outcome) => {
+        const getService = svc({eligible: refuses, ...extra});
+        expect(resolveStartVisit(getService, args)).toEqual(outcome);
+        expect(getService.ruleEvaluationService.isEligibleForEncounter).not.toHaveBeenCalled();
     });
 });
 
@@ -355,6 +386,12 @@ describe('RECORD_COMMANDS.startVisit', () => {
         expect(source).toBe(page.view);
         expect(visitOrType).toBe(w.types.pt1);
         expect(parent).toBe(w.enrolments.e1);
+    });
+    it('shows the not-available message when the eligibility rule refuses a new visit, and does not navigate', () => {
+        const page = fakePage();
+        RECORD_COMMANDS.startVisit(fakeService(svc({eligible: () => false})), {subjectUUID: 's1', visitTypeUUID: 'pt1', enrolmentUUID: 'e1'}, page);
+        expect(page.showMessage).toHaveBeenCalledWith('customCardActionNotAvailable');
+        expect(page.navigate).not.toHaveBeenCalled();
     });
     it('shows the not-available message for an exited enrolment and does not navigate', () => {
         const page = fakePage();
