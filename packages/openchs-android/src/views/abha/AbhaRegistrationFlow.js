@@ -16,6 +16,9 @@ import {Actions} from "../../action/individual/PersonRegisterActions";
 // Eka's screens open on "Add Patient via ABHA" for both Create and Link, until Eka says whether they can open
 // straight on its other routes (open decision "Eka's answers that ABDM M1 needs", question 5).
 export const ABHA_SDK_METHOD = 'login_or_create_abha';
+// Verifying an ABHA a patient already has runs on Avni's own screens (AbhaVerifyView), which keep to the order NHA
+// tests; Eka's screens stay for creating one. False puts both back on Eka's screens, as before 3 Nov 2026.
+export const ABHA_NATIVE_VERIFY = true;
 // The consent wording: the organisation's own, set in its translations, else the platform's, else the default the app
 // carries (config/beforeSyncMessages.en.json), so every organisation with ABHA on asks for consent (NHA's CRT_ABHA_102).
 // How long the card waits for the server to have the ABHA action before it opens anyway.
@@ -63,8 +66,8 @@ class AbhaRegistrationFlow {
         this.toast('abhaError');
     }
 
-    // route is the option the worker took ('findOrCreate'). Checked in today (#2200) passes prefillAbhaAddress.
-    // Never rejects: it runs from a button.
+    // route is the option the worker took: 'verify' (Avni's own screens), 'create' (Eka's), or 'findOrCreate' (Eka's,
+    // when ABHA_NATIVE_VERIFY is off). Checked in today (#2200) passes prefillAbhaAddress. Never rejects: it runs from a button.
     async open({route, prefillAbhaAddress} = {}) {
         if (this.opening || _.get(this.view.state, 'abha.busy')) return;
         this.opening = true;
@@ -101,20 +104,63 @@ class AbhaRegistrationFlow {
                 return;
             }
         }
-        let session;
+        const session = await this.session();
+        if (!session) return;
+        if (route === 'verify' && ABHA_NATIVE_VERIFY) {
+            this.openVerifyScreens(session, consentGivenAt);
+            return;
+        }
+        this.openEkaScreens(session, {route, consentGivenAt, prefillAbhaAddress});
+    }
+
+    // Eka's key for this phone and health centre, from Avni's server. Null after saying why it could not be had.
+    async session() {
         try {
-            session = await this.view.getService(AbhaService).getSession(this.view.state.individual.subjectType.uuid);
+            return await this.view.getService(AbhaService).getSession(this.view.state.individual.subjectType.uuid);
         } catch (error) {
             General.logWarn('AbhaRegistrationFlow', `ABHA screens not opened: ${AbhaError.messageKey(error)}`);
             this.toast(AbhaError.messageKey(error));
-            return;
+            return null;
         }
-        CHSNavigator.navigateToAbhaView(this.view, session, {method: ABHA_SDK_METHOD, prefillAbhaAddress},
+    }
+
+    openEkaScreens(session, {route, consentGivenAt, prefillAbhaAddress, abhaPrefill}) {
+        CHSNavigator.navigateToAbhaView(this.view, session, {method: ABHA_SDK_METHOD, prefillAbhaAddress, abhaPrefill},
             (profile) => {
                 TypedTransition.from(this.view).popToBookmark();
                 return this.onProfile(profile, {route, consentGivenAt}).catch(() => this.failed('ABHA from Eka not filled in'));
             },
             () => TypedTransition.from(this.view).popToBookmark());
+    }
+
+    // The patient's consent covers the whole ABHA step, so creating an ABHA after "not found" does not ask again.
+    openVerifyScreens(session, consentGivenAt) {
+        CHSNavigator.navigateToAbhaVerifyView(this.view, session, {
+            onProfile: (profile) => {
+                TypedTransition.from(this.view).popToBookmark();
+                return this.onProfile(profile, {route: 'verify', consentGivenAt}).catch(() => this.failed('ABHA verified, not filled in'));
+            },
+            onCreate: (aadhaar) => {
+                TypedTransition.from(this.view).popToBookmark();
+                this.view.runAfterSceneTransition(() => this.openCreateAfterNotFound(aadhaar, consentGivenAt)
+                    .catch(() => this.failed('ABHA screens not opened for creation')));
+            },
+            onWithout: () => {
+                TypedTransition.from(this.view).popToBookmark();
+                this.chooseWithout();
+            },
+        });
+    }
+
+    // VRFY_ABHA_403: no ABHA was found, and the worker chose to create one. A new key is fetched, so Eka's screens get
+    // their full time; the Aadhaar typed on the verify screens, when there was one, is carried over so it is not asked
+    // for again. It goes only into the navigation to Eka's screen, whose log redacts it.
+    async openCreateAfterNotFound(aadhaar, consentGivenAt) {
+        if (this.screenGone()) return;
+        const session = await this.session();
+        if (!session || this.screenGone()) return;
+        const abhaPrefill = _.isEmpty(aadhaar) ? undefined : {identifier: aadhaar, identifierType: 'aadhaar_number'};
+        this.openEkaScreens(session, {route: 'create', consentGivenAt, abhaPrefill});
     }
 
     // The registration screen this flow belongs to has closed. The store it fills is shared with whatever

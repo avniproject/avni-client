@@ -31,7 +31,7 @@ import StaticFormElement from "../viewmodel/StaticFormElement";
 import EntityService from "../../service/EntityService";
 import BackgroundDraftSaver from "../common/BackgroundDraftSaver";
 import Colors from "../primitives/Colors";
-import AbhaRegistrationFlow from "../abha/AbhaRegistrationFlow";
+import AbhaRegistrationFlow, {ABHA_NATIVE_VERIFY} from "../abha/AbhaRegistrationFlow";
 import AbhaRegistrationOptions from "../abha/AbhaRegistrationOptions";
 import AbhaConsentDialog from "../abha/AbhaConsentDialog";
 import AbhaReplaceDetailsDialog from "../abha/AbhaReplaceDetailsDialog";
@@ -184,8 +184,10 @@ class PersonRegisterView extends AbstractComponent {
             <View>
                 {abha.busy && <ActivityIndicator size="large" color={Colors.ActionButtonColor} style={this.formRow}/>}
                 {PersonRegisterActions.abhaOptionsShown(abha) &&
-                <AbhaRegistrationOptions onFindOrCreate={() => this.abhaFlow.open({route: 'findOrCreate'})}
-                                         onWithout={() => this.abhaFlow.chooseWithout()}/>}
+                (ABHA_NATIVE_VERIFY
+                    ? <AbhaRegistrationOptions onVerify={() => this.abhaFlow.open({route: 'verify'})}
+                                               onCreate={() => this.abhaFlow.open({route: 'create'})}/>
+                    : <AbhaRegistrationOptions onFindOrCreate={() => this.abhaFlow.open({route: 'findOrCreate'})}/>)}
                 {abha.linked &&
                 <View style={this.formRow}>
                     <Button title={this.I18n.t('abhaRemoveLink')} color={Colors.ActionButtonColor}

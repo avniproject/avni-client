@@ -40,6 +40,27 @@ class AbhaProfile {
         };
     }
 
+    // Avni's own verify screens: Eka's login/verify (or login/phr) reply, whose profile names its fields in full
+    // (first_name, day_of_birth, abha_address, ...). It is turned into the record the SDK hands back, so the rest of
+    // the registration takes it the same way. route is the screen's own: mobile, abha_number, abha_address, aadhaar.
+    static fromEkaLogin(reply, route) {
+        const p = _.get(reply, 'profile');
+        if (!_.isPlainObject(p)) return null;
+        const pad = (n) => _.padStart(_.toString(n), 2, '0');
+        const dob = p.year_of_birth && p.month_of_birth && p.day_of_birth ? `${p.year_of_birth}-${pad(p.month_of_birth)}-${pad(p.day_of_birth)}` : null;
+        const addresses = _.uniq(_.compact([p.abha_address, ...(_.isArray(p.abha_addresses) ? p.abha_addresses : [])]));
+        const record = {
+            fn: p.first_name, mn: p.middle_name, ln: p.last_name, fln: p.full_name, gen: p.gender, dob,
+            mobile: p.mobile, abha_number: p.abha_number, kyc_verified: p.kyc_verified === true || p.kyc_verified === 'true',
+            oid: _.get(reply, 'eka.oid'), 'health-ids': addresses,
+        };
+        return {
+            ...AbhaProfile.fromProfileRecord(record),
+            ekaTxnId: _.get(reply, 'txn_id') || null,
+            route: _.includes(_.values(ROUTES), route) ? route : 'unknown',
+        };
+    }
+
     static routeOf(ekaMethod) {
         return (_.isString(ekaMethod) && ROUTES[_.toLower(_.trim(ekaMethod))]) || 'unknown';
     }

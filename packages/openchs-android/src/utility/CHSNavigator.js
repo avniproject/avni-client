@@ -41,6 +41,7 @@ import {firebaseEvents, logEvent} from "./Analytics";
 import PhoneNumberVerificationView from "../views/common/PhoneNumberVerificationView";
 import AbhaView from "../views/abha/AbhaView";
 import AbhaCardView from "../views/abha/AbhaCardView";
+import AbhaVerifyView from "../views/abha/verify/AbhaVerifyView";
 import ApprovalDetailsView from "../views/approval/ApprovalDetailsView";
 import GroupSubjectService from "../service/GroupSubjectService";
 import RemoveMemberView from "../views/groupSubject/RemoveMemberView";
@@ -140,14 +141,22 @@ class CHSNavigator {
 
     // session is AbhaService.getSession's answer. onProfile and onSkip are called from the ABHA screen, which is
     // still showing; the caller returns to its own screen with popToBookmark.
-    static navigateToAbhaView(source, session, {method, prefillAbhaAddress} = {}, onProfile, onSkip) {
+    // abhaPrefill is {identifier, identifierType}: the Aadhaar number carried over from Avni's verify screens when the
+    // patient holds no ABHA, so Eka's creation does not ask for it again. JsonStringify redacts it in the navigation log.
+    static navigateToAbhaView(source, session, {method, prefillAbhaAddress, abhaPrefill} = {}, onProfile, onSkip) {
         TypedTransition.from(source).bookmark().with({
             session,
             method,
             prefillAbhaAddress,
+            abhaPrefill,
             onProfile,
             onSkip
         }).to(AbhaView, true)
+    }
+
+    // Avni's own ABHA verify screens (NHA's M1 verify cases), bookmarked like Eka's, so the caller pops back the same way.
+    static navigateToAbhaVerifyView(source, session, {onProfile, onCreate, onWithout}) {
+        TypedTransition.from(source).bookmark().with({session, onProfile, onCreate, onWithout}).to(AbhaVerifyView, true);
     }
 
     // The patient's ABHA card. The screen gets only the last four digits of the number, which name a downloaded

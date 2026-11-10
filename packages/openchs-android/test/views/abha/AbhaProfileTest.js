@@ -108,3 +108,41 @@ describe('AbhaProfileTest', () => {
         expect(AbhaProfile.maskAbhaNumber("12")).to.equal(null);
     });
 });
+
+describe("AbhaProfile.fromEkaLogin, for Avni's own verify screens", () => {
+    const reply = (profile, extra = {}) => ({txn_id: "txn-9", skip_state: "abha_end", eka: {oid: "oid-9", min_token: "patient-token"}, profile, ...extra});
+
+    it("reads Eka's login reply into the same profile the SDK's reply gives", () => {
+        const profile = AbhaProfile.fromEkaLogin(reply({
+            first_name: "Asha", middle_name: "", last_name: "Rao", full_name: "Asha Rao", gender: "F",
+            year_of_birth: 1990, month_of_birth: 4, day_of_birth: 3, mobile: "9876501234",
+            abha_number: "91-1234-5678-9012", abha_address: "asha.rao@sbx", abha_addresses: ["asha.rao@sbx", "asha.r@sbx"], kyc_verified: true,
+        }), "mobile");
+        expect(profile.firstName).to.equal("Asha");
+        expect(profile.middleName).to.equal(null);
+        expect(profile.lastName).to.equal("Rao");
+        expect(profile.genderName).to.equal("Female");
+        expect(moment(profile.dateOfBirth).format("YYYY-MM-DD")).to.equal("1990-04-03");
+        expect(profile.mobile).to.equal("9876501234");
+        expect(profile.abhaNumber).to.equal("91-1234-5678-9012");
+        expect(profile.abhaAddress).to.equal("asha.rao@sbx");
+        expect(profile.kycVerified).to.equal(true);
+        expect(profile.ekaOid).to.equal("oid-9");
+        expect(profile.ekaTxnId).to.equal("txn-9");
+        expect(profile.route).to.equal("mobile");
+        expect(profile.action).to.equal("linked");
+        expect(JSON.stringify(profile)).not.to.contain("patient-token");
+    });
+
+    it("takes the first of the addresses when the reply names no preferred one, and no date of birth from a partial one", () => {
+        const profile = AbhaProfile.fromEkaLogin(reply({first_name: "Asha", abha_addresses: ["asha.r@sbx"], year_of_birth: 1990}), "aadhaar");
+        expect(profile.abhaAddress).to.equal("asha.r@sbx");
+        expect(profile.dateOfBirth).to.equal(null);
+        expect(profile.route).to.equal("aadhaar");
+    });
+
+    it("is null with no profile, and a route it does not know reads unknown", () => {
+        expect(AbhaProfile.fromEkaLogin({skip_state: "abha_select"}, "mobile")).to.equal(null);
+        expect(AbhaProfile.fromEkaLogin(reply({first_name: "Asha"}), "fax").route).to.equal("unknown");
+    });
+});

@@ -72,7 +72,7 @@ describe("PersonRegisterView, ABHA", () => {
         expect(screenWith({abha: undefined}).renderAbha()).toBeNull();
     });
 
-    it("starts a new patient's registration with the three options, and no Remove ABHA link", () => {
+    it("starts a new patient's registration with the ABHA options, and no Remove ABHA link", () => {
         const renderer = render(screenWith({abha: ON}));
         expect(renderer.root.findAllByType(AbhaRegistrationOptions)).toHaveLength(1);
         expect(buttonTitles(renderer)).not.toContain("abhaRemoveLink");
@@ -82,13 +82,15 @@ describe("PersonRegisterView, ABHA", () => {
         expect(render(screenWith({abha: ON, editing: true})).root.findAllByType(AbhaRegistrationOptions)).toHaveLength(1);
     });
 
-    it("Find or Create opens the ABHA step; Register Without ABHA goes straight on", () => {
+    it("Verify opens Avni's verify screens, Create opens Eka's; there is no Register Without ABHA, the form is already open", () => {
         const view = screenWith({abha: ON});
         const options = render(view).root.findByType(AbhaRegistrationOptions).props;
-        options.onFindOrCreate();
-        options.onWithout();
-        expect(view.abhaFlow.open.mock.calls).toEqual([[{route: "findOrCreate"}]]);
-        expect(view.abhaFlow.chooseWithout).toHaveBeenCalledTimes(1);
+        expect(options.onFindOrCreate).toBeUndefined();
+        expect(options.onWithout).toBeUndefined();
+        options.onVerify();
+        options.onCreate();
+        expect(view.abhaFlow.open.mock.calls).toEqual([[{route: "verify"}], [{route: "create"}]]);
+        expect(view.abhaFlow.chooseWithout).not.toHaveBeenCalled();
     });
 
     it("shows progress instead of the options while an ABHA from Eka's screens is being checked", () => {

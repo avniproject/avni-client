@@ -38,8 +38,9 @@ const removeComma = function (str) {
 // covers camelCase/snake_case/plural variants: accessToken, refresh_token, tokens, jwtToken, etc.
 // The string-value check keeps non-secret flags like showPassword (a boolean) visible.
 // 'abha' covers a patient's ABHA number and address (abhaNumber, prefillAbhaAddress): navigation logs its
-// parameters, and debug logging is on in release builds.
-const sensitiveKeyPatterns = ['password', 'token', 'abha'];
+// parameters, and debug logging is on in release builds. 'aadhaar', 'mobile', 'otp' and 'identifier' cover what Avni's
+// own ABHA verify screens handle (abhaPrefill's identifier can be an Aadhaar number).
+const sensitiveKeyPatterns = ['password', 'token', 'abha', 'aadhaar', 'mobile', 'otp', 'identifier'];
 
 const isSensitiveKey = function (key) {
     if (typeof key !== 'string') return false;

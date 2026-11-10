@@ -48,3 +48,10 @@ it('should redact a patient\'s ABHA number and address under any key that names 
     // a flag that only names ABHA is not a secret
     assert.equal(JSONStringify({abhaShowOptions: true}), `{"abhaShowOptions":true}`);
 });
+
+it('should redact what Avni\'s own ABHA verify screens handle: Aadhaar numbers, mobiles, OTPs and identifiers', function () {
+    assert.equal(JSONStringify({abhaPrefill: {identifier: "234123412346", identifierType: "aadhaar_number"}}),
+        `{"abhaPrefill":{"identifier":"<redacted>","identifierType":"<redacted>"}}`);
+    assert.equal(JSONStringify({aadhaarNumber: "234123412346", mobile: "9876501234", otp: "482913"}),
+        `{"aadhaarNumber":"<redacted>","mobile":"<redacted>","otp":"<redacted>"}`);
+});

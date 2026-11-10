@@ -9,7 +9,7 @@ jest.mock("../../../src/framework/routing/TypedTransition", () => ({
 }));
 jest.mock("../../../src/utility/CHSNavigator", () => ({
     __esModule: true,
-    default: {navigateToAbhaView: jest.fn(), navigateToAbhaCardView: jest.fn(), navigateToProgramEnrolmentDashboardView: jest.fn()},
+    default: {navigateToAbhaView: jest.fn(), navigateToAbhaVerifyView: jest.fn(), navigateToAbhaCardView: jest.fn(), navigateToProgramEnrolmentDashboardView: jest.fn()},
 }));
 jest.mock("../../../src/utility/ConnectionInfo", () => ({getConnectionInfo: jest.fn()}));
 
@@ -112,6 +112,64 @@ describe("AbhaRegistrationFlowTest", () => {
     afterEach(() => {
         jest.restoreAllMocks();
         jest.clearAllMocks();
+    });
+
+    describe("Avni's own verify screens", () => {
+        const verifyOpened = () => CHSNavigator.navigateToAbhaVerifyView.mock.calls[0];
+        const AADHAAR = "234123412346";
+
+        it("Verify opens Avni's verify screens on the server's session, not Eka's", async () => {
+            const view = viewWith();
+            await new AbhaRegistrationFlow(view).open({route: "verify"});
+            expect(CHSNavigator.navigateToAbhaView).not.toHaveBeenCalled();
+            const [source, session, handlers] = verifyOpened();
+            expect(source).toBe(view);
+            expect(session).toEqual(SESSION);
+            expect(Object.keys(handlers).sort()).toEqual(["onCreate", "onProfile", "onWithout"]);
+        });
+
+        it("a verified ABHA returns to the registration and is filled in as Eka's would be, chosen as verify", async () => {
+            const view = viewWith();
+            await new AbhaRegistrationFlow(view).open({route: "verify"});
+            await verifyOpened()[2].onProfile(PROFILE);
+            expect(mockPopToBookmark).toHaveBeenCalledTimes(1);
+            expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toEqual([[Actions.ON_ABHA_PROFILE, {profile: PROFILE, choice: "verify", subjectUUID: "s-new"}]]);
+        });
+
+        it("Create ABHA after an Aadhaar held none fetches a fresh key and opens Eka's creation with that Aadhaar, not asking for it again", async () => {
+            const view = viewWith();
+            await new AbhaRegistrationFlow(view).open({route: "verify"});
+            verifyOpened()[2].onCreate(AADHAAR);
+            await flush();
+            expect(mockPopToBookmark).toHaveBeenCalledTimes(1);
+            expect(view.abhaService.getSession).toHaveBeenCalledTimes(2);
+            const [, session, options] = opened();
+            expect(session).toEqual(SESSION);
+            expect(options).toEqual({method: "login_or_create_abha", prefillAbhaAddress: undefined, abhaPrefill: {identifier: AADHAAR, identifierType: "aadhaar_number"}});
+            expect(JSON.stringify(General.logWarn.mock ? General.logWarn.mock.calls : [])).not.toContain(AADHAAR);
+        });
+
+        it("Create ABHA after a mobile held none opens Eka's creation with nothing filled in", async () => {
+            const view = viewWith();
+            await new AbhaRegistrationFlow(view).open({route: "verify"});
+            verifyOpened()[2].onCreate(null);
+            await flush();
+            expect(opened()[2].abhaPrefill).toBeUndefined();
+        });
+
+        it("Register without ABHA returns to the registration and chooses it", async () => {
+            const view = viewWith();
+            await new AbhaRegistrationFlow(view).open({route: "verify"});
+            verifyOpened()[2].onWithout();
+            expect(mockPopToBookmark).toHaveBeenCalledTimes(1);
+            expect(dispatched(view, Actions.ON_ABHA_CHOICE)).toEqual([[Actions.ON_ABHA_CHOICE, {choice: "without"}]]);
+        });
+
+        it("Create still opens Eka's screens", async () => {
+            await new AbhaRegistrationFlow(viewWith()).open({route: "create"});
+            expect(CHSNavigator.navigateToAbhaVerifyView).not.toHaveBeenCalled();
+            expect(opened()[2].method).toBe("login_or_create_abha");
+        });
     });
 
     describe("opening Eka's screens", () => {

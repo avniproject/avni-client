@@ -38,6 +38,10 @@ class AbhaView extends AbstractComponent {
         // identifier_type phr_address (eka-abdm plugin, abdm-m1-abha/references/web-sdk.md). How Eka's screens use it is
         // not yet seen in the sandbox.
         prefillAbhaAddress: PropTypes.string,
+        // An identifier carried over from Avni's verify screens: {identifier, identifierType}, with identifierType one of
+        // the SDK's (mobile, aadhaar_number, abha_number, phr_address). An Aadhaar number here starts Eka's creation
+        // without asking for it again (NHA's VRFY_ABHA_403).
+        abhaPrefill: PropTypes.shape({identifier: PropTypes.string, identifierType: PropTypes.string}),
         onProfile: PropTypes.func.isRequired,
         onSkip: PropTypes.func.isRequired,
     };
@@ -49,7 +53,7 @@ class AbhaView extends AbstractComponent {
         this.hostedPageLoaded = false;
         const {accessToken, hipId, environment} = props.session;
         try {
-            const prefill = _.isEmpty(_.trim(props.prefillAbhaAddress)) ? {} : {identifier: _.trim(props.prefillAbhaAddress), identifier_type: 'phr_address'};
+            const prefill = AbhaView.prefillOf(props);
             this.html = buildAbhaHostHtml({
                 environment,
                 method: props.method,
@@ -65,6 +69,16 @@ class AbhaView extends AbstractComponent {
 
     viewName() {
         return 'AbhaView';
+    }
+
+    static PREFILL_TYPES = ['mobile', 'aadhaar_number', 'abha_number', 'phr_address'];
+
+    // What Eka's SDK is opened with: abhaPrefill when it names one of the SDK's identifier types, else the ABHA address.
+    static prefillOf({abhaPrefill, prefillAbhaAddress}) {
+        const identifier = _.trim(_.get(abhaPrefill, 'identifier'));
+        const type = _.get(abhaPrefill, 'identifierType');
+        if (!_.isEmpty(identifier) && _.includes(AbhaView.PREFILL_TYPES, type)) return {identifier, identifier_type: type};
+        return _.isEmpty(_.trim(prefillAbhaAddress)) ? {} : {identifier: _.trim(prefillAbhaAddress), identifier_type: 'phr_address'};
     }
 
     onViewDidMount() {

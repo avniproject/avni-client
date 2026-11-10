@@ -1,5 +1,5 @@
 import React from "react";
-import {Alert, Button, Modal, Text, TouchableOpacity} from "react-native";
+import {Alert, Button, Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacity} from "react-native";
 import TestRenderer, {act} from "react-test-renderer";
 
 jest.mock("react-native-vector-icons/MaterialIcons", () => {
@@ -39,27 +39,38 @@ describe("ABHA registration dialogs", () => {
     });
 
     describe("the options", () => {
-        // Eka's screens find an ABHA the patient already has, or create one, so one option starts both.
-        it("offers Find or Create ABHA & Register and Register Without ABHA, each doing its own thing", async () => {
-            const handlers = {onFindOrCreate: jest.fn(), onWithout: jest.fn()};
+        // Eka's screens find an ABHA the patient already has, or create one, so one option starts both. There is no
+        // Register Without ABHA: the form below is already open for a patient with no ABHA (removed 4 Nov 2026).
+        it("offers Find or Create ABHA & Register alone", async () => {
+            const onFindOrCreate = jest.fn();
+            const {renderer} = await show(<AbhaRegistrationOptions onFindOrCreate={onFindOrCreate}/>);
+
+            const buttons = renderer.root.findAllByType(Button);
+            expect(buttons.map((button) => button.props.title)).toEqual(["abhaOptionFindOrCreate"]);
+            await act(async () => buttons[0].props.onPress());
+            expect(onFindOrCreate).toHaveBeenCalledTimes(1);
+        });
+
+        it("offers Verify ABHA & Register and Create ABHA & Register, each doing its own thing, and no Register Without ABHA", async () => {
+            const handlers = {onVerify: jest.fn(), onCreate: jest.fn()};
             const {renderer} = await show(<AbhaRegistrationOptions {...handlers}/>);
 
             const buttons = renderer.root.findAllByType(Button);
-            expect(buttons.map((button) => button.props.title)).toEqual(["abhaOptionFindOrCreate", "abhaOptionWithout"]);
+            expect(buttons.map((button) => button.props.title)).toEqual(["abhaOptionVerify", "abhaOptionCreate"]);
             await act(async () => buttons.forEach((button) => button.props.onPress()));
             Object.values(handlers).forEach((handler) => expect(handler).toHaveBeenCalledTimes(1));
         });
 
         it("opens each option's help text from its info icon", async () => {
-            const {renderer} = await show(<AbhaRegistrationOptions onFindOrCreate={() => {}} onWithout={() => {}}/>);
+            const {renderer} = await show(<AbhaRegistrationOptions onVerify={() => {}} onCreate={() => {}}/>);
             const infoIcons = renderer.root.findAllByType(TouchableOpacity)
                 .filter((node) => node.findAllByType(Text).some((text) => text.props.children === "icon:info-outline"));
 
             await act(async () => infoIcons.forEach((icon) => icon.props.onPress()));
 
             expect(Alert.alert.mock.calls.map(([title, message]) => [title, message])).toEqual([
-                ["abhaOptionFindOrCreate", "abhaOptionFindOrCreateHelp"],
-                ["abhaOptionWithout", "abhaOptionWithoutHelp"],
+                ["abhaOptionVerify", "abhaOptionVerifyHelp"],
+                ["abhaOptionCreate", "abhaOptionCreateHelp"],
             ]);
         });
 
@@ -99,6 +110,18 @@ describe("ABHA registration dialogs", () => {
             await act(async () => screen.renderer.root.findByType(Modal).props.onRequestClose());
             expect(onCancel).toHaveBeenCalledTimes(1);
             expect(onDecline).not.toHaveBeenCalled();
+        });
+
+        // NHA's approved wording runs to about 2,000 characters. Left to its own height the text box pushed the tick and
+        // the buttons below the screen, and since the box was as tall as its text it had nothing to scroll.
+        it("keeps a long consent in a box capped below the window's height, so the tick and the buttons stay on screen", async () => {
+            const screen = await show(<AbhaConsentDialog text={"I agree. ".repeat(300)} onContinue={() => {}} onDecline={() => {}}/>);
+            const box = StyleSheet.flatten(screen.renderer.root.findByType(ScrollView).props.style);
+            const windowHeight = Dimensions.get("window").height;
+            expect(typeof box.maxHeight).toBe("number");
+            expect(box.maxHeight).toBeLessThanOrEqual(windowHeight * 0.6);
+            expect(box.flexGrow).toBe(0);
+            expect(screen.touchable("abhaConsentAgree")).toBeTruthy();
         });
 
         it("Does not agree declines", async () => {
@@ -156,7 +179,9 @@ describe("ABHA registration dialogs", () => {
     });
 
     it("has English wording for every message the ABHA registration step shows, the consent included", () => {
-        ["abhaOptionFindOrCreate", "abhaOptionWithout", "abhaOptionFindOrCreateHelp", "abhaOptionWithoutHelp",
+        // abhaOptionWithout stays: the no-internet message and the verify screens' not-found step still offer it.
+        expect(en.translations.abhaOptionWithoutHelp).toBeUndefined();
+        ["abhaOptionFindOrCreate", "abhaOptionWithout", "abhaOptionFindOrCreateHelp",
             "abhaFormNotSetUp", "abhaDuplicateOpen", "abhaDuplicateOpenAction", "abhaDuplicateElsewhere", "abhaReplaceDetails",
             "abhaCurrentDetails", "abhaProfileDetails", "abhaRemoveLink", "abhaRemoveLinkConfirm",
             "abhaConsentAgree", "abhaConsentContinue", "abhaConsentDecline", "abhaTitle", "abhaNeedsInternet", "abhaTryAgain",

@@ -6,12 +6,15 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import Colors from "../primitives/Colors";
 import Distances from "../primitives/Distances";
 
-// The two ways a person's registration starts when ABHA is on, each with its help text behind an info icon. Eka's
-// screens find the ABHA a patient already has, or create one, so a single option starts both.
+// The ways a person's registration starts when ABHA is on, each with its help text behind an info icon: verify the
+// ABHA the patient has (Avni's own screens), or create one (Eka's screens). With onVerify and onCreate left out, a single
+// option opens Eka's screens for both, as before Avni had its own verify screens. There is no Register Without ABHA
+// option: the form below is already open for a patient with no ABHA, and no NHA case asks for one (removed 4 Nov 2026).
 class AbhaRegistrationOptions extends AbstractComponent {
     static propTypes = {
-        onFindOrCreate: PropTypes.func.isRequired,
-        onWithout: PropTypes.func.isRequired,
+        onVerify: PropTypes.func,
+        onCreate: PropTypes.func,
+        onFindOrCreate: PropTypes.func,
     };
 
     constructor(props, context) {
@@ -32,11 +35,13 @@ class AbhaRegistrationOptions extends AbstractComponent {
     }
 
     render() {
-        const {onFindOrCreate, onWithout} = this.props;
+        const {onVerify, onCreate, onFindOrCreate} = this.props;
+        const separate = !!onVerify && !!onCreate;
         return (
             <View style={{marginTop: Distances.ScaledVerticalSpacingBetweenFormElements}}>
-                {this.renderOption('abhaOptionFindOrCreate', 'abhaOptionFindOrCreateHelp', onFindOrCreate)}
-                {this.renderOption('abhaOptionWithout', 'abhaOptionWithoutHelp', onWithout)}
+                {separate && this.renderOption('abhaOptionVerify', 'abhaOptionVerifyHelp', onVerify)}
+                {separate && this.renderOption('abhaOptionCreate', 'abhaOptionCreateHelp', onCreate)}
+                {!separate && this.renderOption('abhaOptionFindOrCreate', 'abhaOptionFindOrCreateHelp', onFindOrCreate)}
             </View>
         );
     }

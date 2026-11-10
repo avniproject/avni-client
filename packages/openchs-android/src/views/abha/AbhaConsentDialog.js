@@ -1,5 +1,5 @@
 import React from "react";
-import {Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import PropTypes from "prop-types";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -29,7 +29,7 @@ class AbhaConsentDialog extends AbstractComponent {
             <Modal visible transparent animationType="fade" onRequestClose={onCancel}>
                 <View style={styles.backdrop}>
                     <View style={styles.dialog}>
-                        <ScrollView style={styles.textBox}>
+                        <ScrollView style={[styles.textBox, {maxHeight: textBoxMaxHeight()}]} persistentScrollbar>
                             <Text style={styles.body}>{text}</Text>
                         </ScrollView>
                         <TouchableOpacity style={styles.agree} onPress={() => this.setState({agreedAt: agreedAt ? null : new Date()})}>
@@ -53,10 +53,14 @@ class AbhaConsentDialog extends AbstractComponent {
     }
 }
 
+// A number, not the dialog's maxHeight alone: inside a dialog with only a percentage maxHeight, the text box took its
+// text's full height on Android, pushed the tick and the buttons off the screen, and had nothing left to scroll.
+const textBoxMaxHeight = () => Math.round(Dimensions.get('window').height * 0.55);
+
 const styles = StyleSheet.create({
     backdrop: {flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 24},
     dialog: {width: '100%', maxHeight: '90%', backgroundColor: Colors.WhiteContentBackground, borderRadius: 8, padding: 20},
-    textBox: {marginBottom: 16},
+    textBox: {marginBottom: 16, flexGrow: 0},
     body: {fontSize: Styles.normalTextSize, color: Colors.InputNormal},
     agree: {flexDirection: 'row', alignItems: 'center', marginBottom: 16},
     agreeText: {fontSize: Styles.normalTextSize, color: Colors.InputNormal, marginLeft: 8, flex: 1},
