@@ -1,6 +1,6 @@
 import BaseService from "../BaseService";
 import Service from "../../framework/bean/Service";
-import {CustomFilter, Dashboard, DashboardFilterConfig, GroupDashboard, Range} from "openchs-models";
+import {CustomFilter, Dashboard, DashboardFilterConfig, GroupDashboard, Program, Range} from "openchs-models";
 import PrivilegeService from "../PrivilegeService";
 import EntityService from "../EntityService";
 import _ from 'lodash';
@@ -89,6 +89,20 @@ function readFilters(dashboardFilters) {
     return _.map(dashboardFilters, (row) => ({uuid: row.uuid, name: row.name, settings: JSON.parse(row.filterConfig), row}));
 }
 
+// A selection that holds a preset part that no longer counts is not kept, and is not carried. A preset subject type that is deleted or
+// missing on the phone no longer counts. With the preset subject type in place, the preset program no longer counts once it is deleted or
+// missing on the phone, or the subject type no longer enrols into it (`presetProgram` is then null). Without the preset subject type,
+// only once the program itself is deleted or missing, because the user may then pick it under another subject type.
+// `settings` is the filter's parsed filterConfig. The program is looked up only when the selection holds it.
+function holdsGonePresetPart(dashboardFilterService, selection, settings, presetSubjectType, presetProgram) {
+    const holds = (list, uuid) => !_.isEmpty(uuid) && _.some(list, x => x.uuid === uuid);
+    if (!presetSubjectType && holds(selection.subjectTypes, settings.presetSubjectTypeUUID)) return true;
+    if (!holds(selection.programs, settings.presetProgramUUID)) return false;
+    return presetSubjectType
+        ? !presetProgram
+        : !dashboardFilterService.findLivePreset(settings.presetProgramUUID, Program.schema.name);
+}
+
 @Service("customDashboardService")
 class CustomDashboardService extends BaseService {
     constructor(db, context) {
@@ -124,18 +138,16 @@ class CustomDashboardService extends BaseService {
     getDashboardData(dashboardUUID) {
         const {selectedFilterValues, dashboardCache} = this.getService(CustomDashboardCacheService).getDashboardCache(dashboardUUID);
         const dashboardFilterService = this.getService(DashboardFilterService);
-        // A Subject Type filter's preset is its default: a saved value that disagrees with it is replaced by it. So is one that still holds
-        // a preset subject type or programme that has since been deleted, which the preset no longer names. Only a saved selection on a
-        // Subject Type filter with a preset needs its settings looked up, so the raw settings decide that first.
+        // A Subject Type filter's preset is its default: a saved value that disagrees with it is replaced by it. So is one that holds
+        // a preset part that no longer counts (see holdsGonePresetPart). Only a saved selection on a Subject Type filter with a preset
+        // needs its settings looked up, so the raw settings decide that first.
         dashboardCache.dashboard.filters.filter(filter => !filter.voided && selectedFilterValues[filter.uuid] instanceof FormMetaDataSelection).forEach(filter => {
             const raw = JSON.parse(filter.filterConfig);
             if (raw.type !== CustomFilter.type.SubjectType || !raw.presetSubjectTypeUUID) return;
             const {presetSubjectType, presetProgram} = dashboardFilterService.getDashboardFilterConfig(filter);
             const saved = selectedFilterValues[filter.uuid];
-            const holds = (list, uuid) => !_.isEmpty(uuid) && _.some(list, x => x.uuid === uuid);
-            const holdsDeletedPart = (!presetSubjectType && holds(saved.subjectTypes, raw.presetSubjectTypeUUID))
-                || (!presetProgram && holds(saved.programs, raw.presetProgramUUID));
-            if (holdsDeletedPart || (presetSubjectType && !saved.agreesWithPreset(presetSubjectType, presetProgram))) {
+            if (holdsGonePresetPart(dashboardFilterService, saved, raw, presetSubjectType, presetProgram)
+                || (presetSubjectType && !saved.agreesWithPreset(presetSubjectType, presetProgram))) {
                 selectedFilterValues[filter.uuid] = FormMetaDataSelection.forPreset(presetSubjectType, presetProgram);
             }
         });
@@ -175,8 +187,9 @@ class CustomDashboardService extends BaseService {
     // else of the first one with the same settings. So an unset value is carried too, and clears the target's own unless both are unset.
     // `overrides` maps a target filter uuid to a value and is applied last.
     // Writes the target's saved values, and returns true, only when something was carried or overridden.
-    // A target Subject Type filter with a preset takes the carried value only when it agrees with the preset, else the preset, and nothing
-    // is written when that is already its value. Nothing is written either when a Subject Type value is unchanged, whatever the preset.
+    // A target Subject Type filter with a preset takes the carried value only when it agrees with the preset and holds no preset part that
+    // no longer counts, else the preset, and nothing is written when that is already its value. When the preset subject type itself is gone,
+    // a carried value that holds a part that no longer counts is carried as no selection. Nothing is written either when a Subject Type value is unchanged, whatever the preset.
     carryFiltersOver(sourceDashboardUUID, targetDashboardUUID, overrides = {}) {
         const dashboardFilterService = this.getService(DashboardFilterService);
         const sourceFilters = _.sortBy(readFilters(dashboardFilterService.getFilters(sourceDashboardUUID)), ["name", "uuid"]);
@@ -189,14 +202,16 @@ class CustomDashboardService extends BaseService {
             const matching = sourceFilters.filter(({settings}) => filterSettingsMatch(settings, targetFilter.settings));
             if (_.isEmpty(matching)) return;
             const sourceFilter = matching.find(({uuid}) => isChosenFilterValue(sourceValues[uuid])) || matching[0];
-            const carried = sourceValues[sourceFilter.uuid];
+            let carried = sourceValues[sourceFilter.uuid];
             // A target Subject Type filter with a preset keeps it. The value written is the carried one when it is chosen and agrees with
-            // the preset, else the preset itself, and nothing when that is what the target already holds. A target with a preset always
-            // holds a selection, never an empty one, so the unset-on-both-sides check below cannot decide for it.
+            // the preset and holds no preset part that no longer counts (see holdsGonePresetPart), else the preset itself, and nothing
+            // when that is what the target already holds. A target with a preset subject type that is in place always holds a selection,
+            // never an empty one, so the unset-on-both-sides check below cannot decide for it.
             if (targetFilter.settings.presetSubjectTypeUUID) {
                 const {presetSubjectType, presetProgram} = dashboardFilterService.getDashboardFilterConfig(targetFilter.row);
                 if (presetSubjectType) {
                     const value = isChosenFilterValue(carried) && carried instanceof FormMetaDataSelection && carried.agreesWithPreset(presetSubjectType, presetProgram)
+                        && !holdsGonePresetPart(dashboardFilterService, carried, targetFilter.settings, presetSubjectType, presetProgram)
                         ? carried
                         : FormMetaDataSelection.forPreset(presetSubjectType, presetProgram);
                     const current = values[targetFilter.uuid];
@@ -204,6 +219,9 @@ class CustomDashboardService extends BaseService {
                     values[targetFilter.uuid] = value;
                     changed = true;
                     return;
+                }
+                if (carried instanceof FormMetaDataSelection && holdsGonePresetPart(dashboardFilterService, carried, targetFilter.settings, presetSubjectType, presetProgram)) {
+                    carried = FormMetaDataSelection.createNew();
                 }
             }
             const current = values[targetFilter.uuid];

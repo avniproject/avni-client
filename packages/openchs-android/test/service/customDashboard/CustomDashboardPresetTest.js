@@ -122,6 +122,41 @@ describe("a Subject Type filter with a preset", () => {
         });
     });
 
+    describe("a choice of the preset program under another subject type", () => {
+        const fresh = () => ({
+            dashboards: {d: [filterRow("f", "Type", subjectTypeSettings(presetST1P1))]},
+            subjectTypes: [{...st1}, {...st2}],
+            programs: [{...p1}],
+            enrolledPrograms: {"st-1": ["p-1"], "st-2": ["p-1"]},
+        });
+
+        it("keeps the user's own pick of the preset program under another subject type, once the preset subject type is deleted", () => {
+            const setup = fresh();
+            const phone = setUpPhone(setup);
+            setup.subjectTypes[0].voided = true;
+            save(phone, sel([st2], [p1]));
+            // A read saves nothing, so this one read stands for every refresh.
+            const value = read(phone);
+            assert.deepEqual(uuids(value.subjectTypes), ["st-2"]);
+            assert.deepEqual(uuids(value.programs), ["p-1"]);
+        });
+
+        it.each([
+            ["deleted", (setup) => { setup.programs[0].voided = true; }, []],
+            ["missing from the phone", (setup) => { setup.programs.length = 0; }, ["st-2"]],
+        ])("still drops the preset program from that pick once the program itself is %s", (_label, remove, expectedSubjectTypes) => {
+            const setup = fresh();
+            const phone = setUpPhone(setup);
+            setup.subjectTypes[0].voided = true;
+            save(phone, sel([st2], [p1]));
+            remove(setup);
+            // A deleted program is dropped with the whole pick, a missing one only drops out of what is read back.
+            const value = read(phone);
+            assert.deepEqual(value.programs, []);
+            assert.deepEqual(uuids(value.subjectTypes), expectedSubjectTypes);
+        });
+    });
+
     it("does not look up the settings of other saved filters", () => {
         const phone = phoneWith(subjectTypeSettings(), [
             filterRow("g", "Registered", {type: Type.RegistrationDate, widget: Widget.Range, subjectTypeUUID: "st-1"}),

@@ -557,14 +557,15 @@ describe("CustomDashboardService.carryFiltersOver into a Subject Type filter wit
     const presetST1 = {presetSubjectTypeUUID: "st-1"};
     const presetST1P1 = {presetSubjectTypeUUID: "st-1", presetProgramUUID: "p-1"};
 
-    function carry({sourceSettings = typeSettings(), targetSettings, sourceValue, targetValue}) {
+    function carry({sourceSettings = typeSettings(), targetSettings, sourceValue, targetValue, enrolledPrograms, programs = [p1], subjectTypes = [st1, st2]}) {
         const phone = setUpPhone({
             dashboards: {
                 source: [filterRow("s1", "Filter", sourceSettings)],
                 target: [filterRow("t1", "Filter", targetSettings)],
             },
-            subjectTypes: [st1, st2],
-            programs: [p1],
+            subjectTypes,
+            programs,
+            enrolledPrograms,
         });
         const {service, cacheService} = phone;
         // Saved as not applied, so the check that the target ends up applied shows the carry set it.
@@ -625,6 +626,68 @@ describe("CustomDashboardService.carryFiltersOver into a Subject Type filter wit
         assertWroteNothing(carry({targetSettings: typeSettings(presetST1P1)}));
         // The same filters carry once the target holds a choice beyond its preset.
         assert.isTrue(carry({targetSettings: typeSettings(presetST1P1), targetValue: sel([st1], [p1], [e("e-1")])}).carried);
+    });
+
+    it("writes nothing when the carried selection holds a preset program the preset subject type no longer enrols into, and the target is at its preset", () => {
+        const outcome = carry({targetSettings: typeSettings(presetST1P1), sourceValue: sel([st1], [p1]), enrolledPrograms: {"st-1": []}});
+        assertWroteNothing(outcome);
+        assert.deepEqual(outcome.held().programs, []);
+    });
+
+    it("writes nothing when the carried selection holds a deleted preset program, and the target is at its preset", () => {
+        const outcome = carry({targetSettings: typeSettings(presetST1P1), sourceValue: sel([st1], [p1]), programs: [{...p1, voided: true}]});
+        assertWroteNothing(outcome);
+        assert.deepEqual(outcome.held().programs, []);
+    });
+
+    it("still carries a selection holding nothing gone when the preset subject type no longer enrols into the preset program", () => {
+        const outcome = carry({targetSettings: typeSettings(presetST1P1), sourceValue: sel([st1], [], [e("e-1")]), enrolledPrograms: {"st-1": []}});
+        assert.isTrue(outcome.carried);
+        assert.equal(outcome.writes, 1);
+        assert.deepEqual(uuids(outcome.held().encounterTypes), ["e-1"]);
+    });
+
+    describe("when the preset subject type is gone from the phone", () => {
+        // The first open is the one `carry` makes. Returns what a second open adds.
+        const opensTwice = (options) => {
+            const outcome = carry({targetSettings: typeSettings(presetST1P1), ...options});
+            const second = outcome.phone.service.carryFiltersOver("source", "target");
+            return {outcome, second, extraWrites: outcome.phone.service.setSelectedFilterValues.mock.calls.length - outcome.writes};
+        };
+
+        it("does not write, again and again, a carried selection holding the deleted preset subject type", () => {
+            const {extraWrites, second, outcome} = opensTwice({sourceValue: sel([st1]), subjectTypes: [{...st1, voided: true}, st2]});
+            assert.isFalse(second);
+            assert.equal(extraWrites, 0);
+            assert.isTrue(outcome.held().isEmpty());
+        });
+
+        it("does not write, again and again, a carried selection holding the deleted preset program", () => {
+            const {extraWrites, second, outcome} = opensTwice({sourceValue: sel([st2], [p1]), subjectTypes: [{...st1, voided: true}, st2], programs: [{...p1, voided: true}]});
+            assert.isFalse(second);
+            assert.equal(extraWrites, 0);
+            assert.isTrue(outcome.held().isEmpty());
+        });
+
+        it("clears the target's own pick once, then writes nothing, when the carried selection holds the deleted preset subject type", () => {
+            const {extraWrites, second, outcome} = opensTwice({sourceValue: sel([st1]), targetValue: sel([st2]), subjectTypes: [{...st1, voided: true}, st2]});
+            assert.isTrue(outcome.carried);
+            assert.equal(outcome.writes, 1);
+            assert.equal(outcome.clears, 1);
+            assert.isTrue(outcome.held().isEmpty());
+            assert.isFalse(second);
+            assert.equal(extraWrites, 0);
+            assert.equal(outcome.phone.cacheService.clearResults.mock.calls.length, 1);
+        });
+
+        it("carries once, then writes nothing, a selection holding a live preset program under another subject type", () => {
+            const {extraWrites, second, outcome} = opensTwice({sourceValue: sel([st2], [p1]), subjectTypes: [{...st1, voided: true}, st2]});
+            assert.isTrue(outcome.carried);
+            assert.equal(outcome.writes, 1);
+            assert.isFalse(second);
+            assert.equal(extraWrites, 0);
+            assert.deepEqual(uuids(outcome.held().programs), ["p-1"]);
+        });
     });
 
     it("writes nothing between two dashboards with the same preset, both at it", () => {
