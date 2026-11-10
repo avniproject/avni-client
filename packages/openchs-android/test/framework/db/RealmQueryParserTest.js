@@ -1056,4 +1056,59 @@ describe("RealmQueryParser", () => {
             expect(ErrorUtil.notifyBugsnag).toHaveBeenCalledTimes(1);
         });
     });
+
+    describe("comparison on a path into an embedded list", () => {
+        const schemaMap = new Map([
+            ["Individual", {name: "Individual", primaryKey: "uuid", properties: {
+                uuid: "string", voided: "bool",
+                observations: {type: "list", objectType: "Observation"},
+                location: {type: "object", objectType: "Point"},
+            }}],
+            ["Observation", {name: "Observation", primaryKey: undefined, properties: {}}],
+            ["Point", {name: "Point", primaryKey: undefined, properties: {}}],
+        ]);
+        const parse = (query, args = []) => RealmQueryParser.parse(query, args, "Individual", schemaMap);
+        const anyElement = (condition) => `EXISTS (SELECT 1 FROM json_each(t0."observations") AS jobs WHERE ${condition})`;
+
+        it("== matches when any element has the value", () => {
+            const r = parse("observations.concept.uuid == 'c1'");
+            expect(r.unsupported).toBe(false);
+            expect(r.where).toBe(anyElement("json_extract(jobs.value, '$.concept.uuid') = ?"));
+            expect(r.params).toEqual(["c1"]);
+        });
+
+        it("!= matches when any element has another value", () => {
+            const r = parse("observations.concept.uuid != 'c1'");
+            expect(r.where).toBe(anyElement("json_extract(jobs.value, '$.concept.uuid') != ?"));
+        });
+
+        it("compares with null per element", () => {
+            expect(parse("observations.concept.uuid = null").where).toBe(anyElement("json_extract(jobs.value, '$.concept.uuid') IS NULL"));
+            expect(parse("observations.concept.uuid != null").where).toBe(anyElement("json_extract(jobs.value, '$.concept.uuid') IS NOT NULL"));
+        });
+
+        it("binds a $N argument", () => {
+            const r = parse("observations.concept.uuid = $0", ["c1"]);
+            expect(r.where).toBe(anyElement("json_extract(jobs.value, '$.concept.uuid') = ?"));
+            expect(r.params).toEqual(["c1"]);
+        });
+
+        it("keeps the coded custom-filter query a per-element concept check plus a text search", () => {
+            const r = parse("(observations.concept.uuid == 'c1' AND  observations.valueJSON CONTAINS[c] 'a1') OR (observations.concept.uuid == 'c1' AND  observations.valueJSON CONTAINS[c] 'a2')");
+            expect(r.unsupported).toBe(false);
+            expect(r.where).toBe(
+                `((${anyElement("json_extract(jobs.value, '$.concept.uuid') = ?")} AND LOWER(t0."observations") LIKE ?) OR ` +
+                `(${anyElement("json_extract(jobs.value, '$.concept.uuid') = ?")} AND LOWER(t0."observations") LIKE ?))`);
+            expect(r.params).toEqual(["c1", "%a1%", "c1", "%a2%"]);
+        });
+
+        it("leaves a text search on the list as a search of the whole column", () => {
+            const r = parse("observations.valueJSON CONTAINS[c] 'a1'");
+            expect(r.where).toBe('LOWER(t0."observations") LIKE ?');
+        });
+
+        it("leaves a comparison into an embedded object as before", () => {
+            expect(parse("location.x = 'p1'").where).toBe('t0."location" = ?');
+        });
+    });
 });

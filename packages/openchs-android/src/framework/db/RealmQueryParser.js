@@ -491,8 +491,13 @@ class SqlGenerator {
             // Embedded list/object (Observation, Point, etc.) stored as JSON column on parent table.
             // e.g., "observations.valueJSON" → search within the parent's "observations" JSON text column.
             // Remaining path parts (e.g., "valueJSON") are ignored since the JSON is searched as text.
+            // A comparison needs them to test each list element, as Realm does (see visitComparison).
             if (targetSchema && EMBEDDED_SCHEMA_NAMES.has(targetSchema)) {
-                return {column: `${currentAlias}."${camelToSnake(propName)}"`, needsJoin: false};
+                const column = `${currentAlias}."${camelToSnake(propName)}"`;
+                const embeddedList = propSchema.type === "list"
+                    ? {column, jsonPath: `$.${parts.slice(i + 1).join(".")}`}
+                    : undefined;
+                return {column, needsJoin: false, embeddedList};
             }
 
             // A path ending "<link>.uuid" looks like it could skip the JOIN and read the
@@ -585,8 +590,9 @@ class SqlGenerator {
     }
 
     visitComparison(node) {
-        const {column} = this.resolveField(node.field);
+        const {column, embeddedList} = this.resolveField(node.field);
         const op = node.op === "<>" ? "!=" : node.op;
+        if (embeddedList) return this._visitEmbeddedListComparison(embeddedList, op, node.value);
 
         if (node.value.type === TOKEN_TYPES.NULL) {
             return op === "=" ? `${column} IS NULL` : `${column} IS NOT NULL`;
@@ -594,6 +600,15 @@ class SqlGenerator {
 
         const valuePlaceholder = this.resolveValue(node.value);
         return `${column} ${op} ${valuePlaceholder}`;
+    }
+
+    // Realm matches a list path when any element matches; comparing the whole JSON column matches nothing.
+    _visitEmbeddedListComparison({column, jsonPath}, op, valueToken) {
+        const element = `json_extract(jobs.value, '${jsonPath}')`;
+        const condition = valueToken.type === TOKEN_TYPES.NULL
+            ? `${element} ${op === "=" ? "IS NULL" : "IS NOT NULL"}`
+            : `${element} ${op} ${this.resolveValue(valueToken)}`;
+        return `EXISTS (SELECT 1 FROM json_each(${column}) AS jobs WHERE ${condition})`;
     }
 
     visitStringOp(node) {
