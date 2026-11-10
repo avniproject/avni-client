@@ -250,6 +250,29 @@ describe('startVisit and the eligibility rule', () => {
         expect(started().visitOrType.that).toBe(plannedVisit.that);
         expect(getService.ruleEvaluationService.isEligibleForEncounter).not.toHaveBeenCalled();
     });
+    // A rule that allows a type once, such as a delivery, refuses because a visit of it is done. Only a planned visit of
+    // that very type skips the rule.
+    it.each([
+        ['general visit', general, () => w.s1, 'gt2'],
+        ['programme visit', programme, () => w.enrolments.e1, 'pt2'],
+    ])('runs the rule, and is not available for a new %s it refuses, when the visits of the type are done, cancelled or voided and only another type is planned', (label, args, parentOf, otherTypeUuid) => {
+        const parent = parentOf();
+        const visitType = w.types[args.visitTypeUUID];
+        realVisit('done', parent, visitType, {...planned, encounterDateTime: new Date(2026, 9, 6)});
+        realVisit('cancelled', parent, visitType, {...planned, cancelDateTime: new Date(2026, 9, 6)});
+        realVisit('voided', parent, visitType, {...planned, voided: true});
+        realVisit('plannedOfAnotherType', parent, w.types[otherTypeUuid], planned);
+        const getService = svc({eligible: refuses});
+        expect(resolveStartVisit(getService, args)).toEqual(NOT_AVAILABLE);
+        expect(getService.ruleEvaluationService.isEligibleForEncounter).toHaveBeenCalledTimes(1);
+        expect(CHSNavigator.proceedEncounter).not.toHaveBeenCalled();
+    });
+    it.each([['general visit', general], ['programme visit', programme]])
+    ('is not available for a new %s the rule refuses, for a user with all privileges and no rights', (label, args) => {
+        const getService = svc({eligible: refuses, rights: {}, allPrivileges: true});
+        expect(resolveStartVisit(getService, args)).toEqual(NOT_AVAILABLE);
+        expect(getService.ruleEvaluationService.isEligibleForEncounter).toHaveBeenCalledTimes(1);
+    });
     it.each([undefined, null, 0, ''])('refuses when the rule gives %p, as the profile drops the type', (given) => {
         expect(resolveStartVisit(svc({eligible: () => given}), general)).toEqual(NOT_AVAILABLE);
     });
