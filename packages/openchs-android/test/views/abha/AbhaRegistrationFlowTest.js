@@ -260,6 +260,21 @@ describe("AbhaRegistrationFlowTest", () => {
             expect(opened()[2]).toEqual({method: "login_or_create_abha", prefillAbhaAddress: "asha@abdm"});
         });
 
+        it("opens neither screen when the registration has closed while the key was fetched", async () => {
+            for (const route of ["verify", "create"]) {
+                let arrive;
+                const view = viewWith({session: () => new Promise((resolve) => { arrive = resolve; })});
+                const opening = new AbhaRegistrationFlow(view).open({route});
+                await flush();
+                view._isUnmounted = true;
+                arrive(SESSION);
+                await opening;
+            }
+
+            expect(CHSNavigator.navigateToAbhaVerifyView).not.toHaveBeenCalled();
+            expect(CHSNavigator.navigateToAbhaView).not.toHaveBeenCalled();
+        });
+
         it("ignores a second tap while the first is still opening", async () => {
             const flow = new AbhaRegistrationFlow(viewWith());
             await Promise.all([flow.open({route: "create"}), flow.open({route: "create"})]);
@@ -726,8 +741,9 @@ describe("AbhaRegistrationFlowTest", () => {
 
         it("opens no card when the worker has already left the registration screen", async () => {
             const view = viewWith();
+            await new AbhaRegistrationFlow(view).open({route: "create"});
             view._isUnmounted = true;
-            await openAndReturn(view);
+            await opened()[3](PROFILE);
             await flush();
             expect(cardOpened()).toHaveLength(0);
         });

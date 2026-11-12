@@ -58,6 +58,9 @@ export const hyphenatedAbhaNumber = (value) => {
     return `${d.slice(0, 2)}-${d.slice(2, 6)}-${d.slice(6, 10)}-${d.slice(10, 14)}`;
 };
 
+// Thrown in place of a reply to a step the worker has left, so nothing acts on it.
+const LEFT = new Error('ABHA verify step left');
+
 const INITIAL = {
     step: STEPS.METHOD, method: null, busy: false, errorKey: null, errorDetail: null, hint: null,
     profiles: [], addresses: [], otpChoices: [], notFoundKind: null,
@@ -74,6 +77,8 @@ class AbhaVerifyFlow {
         this.onVerified = onVerified;
         this.now = now;
         this.state = {...INITIAL};
+        // Raised by Back, a method choice and the screen closing; a reply to an earlier one is dropped.
+        this.generation = 0;
         this.clearPrivate();
     }
 
@@ -98,6 +103,7 @@ class AbhaVerifyFlow {
 
     chooseMethod(method) {
         if (!_.includes(_.values(METHODS), method)) return;
+        this.generation++;
         this.clearPrivate();
         this.set({...INITIAL, step: STEPS.IDENTIFIER, method});
     }
@@ -106,6 +112,7 @@ class AbhaVerifyFlow {
     back() {
         const {step} = this.state;
         if (step === STEPS.METHOD) return false;
+        this.generation++;
         if (step === STEPS.IDENTIFIER) {
             this.clearPrivate();
             this.set({...INITIAL});
@@ -116,7 +123,28 @@ class AbhaVerifyFlow {
         return true;
     }
 
+    // The screen has closed: no reply still to come is acted on, and nothing typed is kept.
+    close() {
+        this.generation++;
+        this.clearPrivate();
+    }
+
+    // Eka's reply, or LEFT when the worker has left the step that asked, whether Eka answered or refused.
+    async ask(call) {
+        const generation = this.generation;
+        let reply;
+        try {
+            reply = await call();
+        } catch (error) {
+            throw generation === this.generation ? error : LEFT;
+        }
+        if (generation !== this.generation) throw LEFT;
+        return reply;
+    }
+
+    // Every action's failures end here, so a reply to a step left is dropped here.
     failed(error, fallbackKey = 'abhaVerifyFailed') {
+        if (error === LEFT) return;
         if (error instanceof EkaAbhaError) {
             const unavailable = error.status === 0 || error.status >= 500;
             this.set({busy: false, errorKey: unavailable ? 'abhaEkaUnavailable' : fallbackKey,
@@ -136,6 +164,7 @@ class AbhaVerifyFlow {
 
     // otpSystem is asked for with an ABHA number only: the worker picks Aadhaar OTP or mobile OTP.
     async submitIdentifier(value, otpSystem) {
+        if (this.state.busy) return undefined;
         const {method} = this.state;
         const key = validationKey(method, value);
         if (key) {
@@ -170,7 +199,7 @@ class AbhaVerifyFlow {
     async search() {
         let reply;
         try {
-            reply = await this.client.search(this.identifier);
+            reply = await this.ask(() => this.client.search(this.identifier));
         } catch (error) {
             if (AbhaVerifyFlow.noAbha(error)) return this.notFound(METHODS.MOBILE);
             throw error;
@@ -186,7 +215,7 @@ class AbhaVerifyFlow {
     }
 
     async pickProfile(index) {
-        if (!_.find(this.state.profiles, {index})) return;
+        if (this.state.busy || !_.find(this.state.profiles, {index})) return;
         this.set({busy: true, errorKey: null, errorDetail: null});
         try {
             await this.sendOtp({method: 'search', identifier: index, txnId: this.searchTxn, otpSystem: OTP_SYSTEMS.MOBILE});
@@ -199,7 +228,7 @@ class AbhaVerifyFlow {
     async addressMethods() {
         const address = _.includes(this.identifier, '@') ? this.identifier : this.identifier + this.suffix;
         this.identifier = address;
-        const reply = await this.client.methods(address);
+        const reply = await this.ask(() => this.client.methods(address));
         const listed = _.isArray(reply.auth_methods) ? reply.auth_methods : [];
         const blocked = _.isArray(reply.blocked_methods) ? reply.blocked_methods : [];
         const offered = (name) => _.includes(listed, name) && !_.includes(blocked, name);
@@ -215,7 +244,7 @@ class AbhaVerifyFlow {
     // An address's Aadhaar OTP goes through its ABHA number: on 3 Nov 2026 Eka's verify timed out (504) every time
     // for an address with the Aadhaar OTP, while the ABHA number with the Aadhaar OTP worked.
     async chooseOtpSystem(otpSystem) {
-        if (!_.includes(this.state.otpChoices, otpSystem)) return;
+        if (this.state.busy || !_.includes(this.state.otpChoices, otpSystem)) return;
         this.set({busy: true, errorKey: null, errorDetail: null});
         try {
             if (otpSystem === OTP_SYSTEMS.AADHAAR && this.abhaNumberOfAddress) {
@@ -229,7 +258,7 @@ class AbhaVerifyFlow {
     }
 
     async sendOtp(params) {
-        const reply = await this.client.loginInit(params);
+        const reply = await this.ask(() => this.client.loginInit(params));
         this.lastInit = params;
         this.txn = reply.txn_id || null;
         this.set({busy: false, step: STEPS.OTP, hint: _.trim(reply.hint) || null, errorKey: null, errorDetail: null,
@@ -249,7 +278,7 @@ class AbhaVerifyFlow {
         }
         this.set({busy: true, errorKey: null, errorDetail: null});
         try {
-            const reply = await this.client.loginInit(this.lastInit);
+            const reply = await this.ask(() => this.client.loginInit(this.lastInit));
             this.txn = reply.txn_id || this.txn;
             this.set({busy: false, hint: _.trim(reply.hint) || this.state.hint, resendsUsed: this.state.resendsUsed + 1,
                 resendAvailableAt: this.now() + RESEND_AFTER_MS});
@@ -260,13 +289,14 @@ class AbhaVerifyFlow {
 
     // A wrong OTP keeps the transaction, so the worker can type it again.
     async submitOtp(otp) {
+        if (this.state.busy) return undefined;
         if (!/^\d{6}$/.test(_.trim(otp))) {
             this.set({errorKey: 'abhaVerifyOtpInvalid', errorDetail: null});
             return;
         }
         this.set({busy: true, errorKey: null, errorDetail: null});
         try {
-            const reply = await this.client.loginVerify({txnId: this.txn, otp: _.trim(otp)});
+            const reply = await this.ask(() => this.client.loginVerify({txnId: this.txn, otp: _.trim(otp)}));
             this.verified(reply);
         } catch (error) {
             if (this.state.method === METHODS.AADHAAR && AbhaVerifyFlow.noAbha(error)) return this.notFound(METHODS.AADHAAR);
@@ -301,10 +331,10 @@ class AbhaVerifyFlow {
 
     async selectAddress(i) {
         const chosen = _.find(this.state.addresses, {i});
-        if (!chosen || !chosen.abhaAddress) return;
+        if (this.state.busy || !chosen || !chosen.abhaAddress) return;
         this.set({busy: true, errorKey: null, errorDetail: null});
         try {
-            this.verified(await this.client.loginPhr({txnId: this.txn, abhaAddress: chosen.abhaAddress}));
+            this.verified(await this.ask(() => this.client.loginPhr({txnId: this.txn, abhaAddress: chosen.abhaAddress})));
         } catch (error) {
             this.failed(error);
         }

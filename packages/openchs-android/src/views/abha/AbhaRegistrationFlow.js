@@ -103,7 +103,7 @@ class AbhaRegistrationFlow {
             }
         }
         const session = await this.session();
-        if (!session) return;
+        if (!session || this.screenGone()) return;
         if (route === 'verify' && ABHA_NATIVE_VERIFY) {
             this.openVerifyScreens(session, consentGivenAt);
             return;

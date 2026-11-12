@@ -107,4 +107,34 @@ describe("AbhaVerifyView", () => {
         expect(verify().props.disabled).toBe(false);
         expect(texts().some((t) => t.startsWith("abhaVerifyResendIn"))).toBe(true);
     });
+
+    it("hands nothing back when Eka answers after the screen has closed", async () => {
+        let answer;
+        const c = client({loginVerify: jest.fn(() => new Promise((resolve) => { answer = resolve; }))});
+        const {renderer, props, press, type} = await show(c);
+        await press("abhaVerifyMethodAbhaNumber");
+        await type("91111122223333");
+        await press("abhaVerifyMobileOtp");
+        await act(async () => renderer.root.find((n) => n.props.testID === "pin").props.onTextChange("482913"));
+        await press("abhaVerifyVerify");
+
+        act(() => renderer.unmount());
+        mounted = mounted.filter((r) => r !== renderer);
+        await act(async () => answer({skip_state: "abha_end", txn_id: "v", profile: {first_name: "Asha"}, eka: {oid: "oid-1"}}));
+
+        expect(c.loginVerify).toHaveBeenCalledTimes(1);
+        expect(props.onProfile).not.toHaveBeenCalled();
+    });
+
+    it("sends what was typed once when Continue is tapped twice before Eka answers", async () => {
+        const c = client({search: jest.fn(() => new Promise(() => {}))});
+        const {renderer, press, type} = await show(c);
+        await press("abhaVerifyMethodMobile");
+        await type(MOBILE);
+        const continueButton = renderer.root.findAllByType(Button).find((b) => b.props.title === "abhaVerifyContinue");
+
+        await act(async () => { continueButton.props.onPress(); continueButton.props.onPress(); });
+
+        expect(c.search).toHaveBeenCalledTimes(1);
+    });
 });

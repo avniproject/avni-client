@@ -77,6 +77,7 @@ class AbhaVerifyView extends AbstractComponent {
     }
 
     componentWillUnmount() {
+        this.flow.close();
         clearInterval(this.ticker);
         clearTimeout(this.sessionEndTimer);
         if (this.appStateSubscription) this.appStateSubscription.remove();

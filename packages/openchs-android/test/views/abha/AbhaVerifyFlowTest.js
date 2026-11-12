@@ -304,4 +304,125 @@ describe("AbhaVerifyFlow", () => {
         expect(flow.back()).toBe(true);
         expect(flow.state.step).toBe(STEPS.METHOD);
     });
+
+    // A call Eka has not answered yet, settled by the test.
+    function pending() {
+        const settle = {};
+        const call = jest.fn(() => new Promise((resolve, reject) => Object.assign(settle, {resolve, reject})));
+        return {call, answer: (reply) => settle.resolve(reply), refuse: (error) => settle.reject(error)};
+    }
+
+    describe("a reply to a step the worker has left", () => {
+        it("is dropped after Back: the step gone back to stays as it is", async () => {
+            const loginInit = pending();
+            const {flow, onChange} = flowWith({loginInit: loginInit.call});
+            flow.chooseMethod(METHODS.ABHA_NUMBER);
+            const submitted = flow.submitIdentifier(ABHA_NUMBER, OTP_SYSTEMS.MOBILE);
+            flow.back();
+            const shown = onChange.mock.calls.length;
+
+            loginInit.answer({txn_id: "late-txn", hint: "late"});
+            await submitted;
+
+            expect(flow.state).toEqual(expect.objectContaining({step: STEPS.METHOD, busy: false, hint: null}));
+            expect(flow.txn).toBeNull();
+            expect(onChange.mock.calls.length).toBe(shown);
+        });
+
+        it("is dropped after Back when it is a refusal: no error and no not-found on the step gone back to", async () => {
+            const loginVerify = pending();
+            const {flow} = flowWith({loginVerify: loginVerify.call});
+            flow.chooseMethod(METHODS.AADHAAR);
+            await flow.submitIdentifier(AADHAAR);
+            const verifying = flow.submitOtp(OTP);
+            flow.back();
+
+            loginVerify.refuse(refusal(404));
+            await verifying;
+
+            expect(flow.state).toEqual(expect.objectContaining({step: STEPS.IDENTIFIER, method: METHODS.AADHAAR, errorKey: null, busy: false}));
+        });
+
+        it("is dropped once another method is chosen", async () => {
+            const search = pending();
+            const {flow} = flowWith({search: search.call});
+            flow.chooseMethod(METHODS.MOBILE);
+            const submitted = flow.submitIdentifier(MOBILE);
+            flow.chooseMethod(METHODS.AADHAAR);
+
+            search.answer({profiles: [{index: 0, name: "Asha", abha_number: ABHA_NUMBER}], txn_id: "late-txn"});
+            await submitted;
+
+            expect(flow.state).toEqual(expect.objectContaining({step: STEPS.IDENTIFIER, method: METHODS.AADHAAR, profiles: [], busy: false}));
+            expect(flow.searchTxn).toBeNull();
+        });
+
+        it("hands nothing back once the screen has closed, and nothing typed is kept", async () => {
+            const loginVerify = pending();
+            const {flow, onVerified} = flowWith({loginVerify: loginVerify.call});
+            flow.chooseMethod(METHODS.ABHA_NUMBER);
+            await flow.submitIdentifier(ABHA_NUMBER, OTP_SYSTEMS.MOBILE);
+            const verifying = flow.submitOtp(OTP);
+            flow.close();
+            expect([flow.identifier, flow.txn, flow.lastInit, flow.aadhaar]).toEqual([null, null, null, null]);
+
+            loginVerify.answer({skip_state: "abha_end", txn_id: "v-txn", profile: {first_name: "Asha"}});
+            await verifying;
+
+            expect(onVerified).not.toHaveBeenCalled();
+            expect(flow.txn).toBeNull();
+        });
+    });
+
+    // Each call reaches Eka before the action's first wait, so the count is known at once.
+    describe("a second tap while Eka is answering", () => {
+        it("sends the identifier once", async () => {
+            const loginInit = pending();
+            const {flow} = flowWith({loginInit: loginInit.call});
+            flow.chooseMethod(METHODS.ABHA_NUMBER);
+            flow.submitIdentifier(ABHA_NUMBER, OTP_SYSTEMS.MOBILE);
+            flow.submitIdentifier(ABHA_NUMBER, OTP_SYSTEMS.AADHAAR);
+            expect(loginInit.call).toHaveBeenCalledTimes(1);
+        });
+
+        it("sends the OTP once", async () => {
+            const loginVerify = pending();
+            const {flow} = flowWith({loginVerify: loginVerify.call});
+            flow.chooseMethod(METHODS.ABHA_NUMBER);
+            await flow.submitIdentifier(ABHA_NUMBER, OTP_SYSTEMS.MOBILE);
+            flow.submitOtp(OTP);
+            flow.submitOtp(OTP);
+            expect(loginVerify.call).toHaveBeenCalledTimes(1);
+        });
+
+        it("asks for an OTP once for the profile picked, the OTP way chosen, and logs in once to the address chosen", async () => {
+            const search = jest.fn(() => Promise.resolve({profiles: [{index: 0, name: "Asha"}], txn_id: "s-txn"}));
+            const methods = jest.fn(() => Promise.resolve({auth_methods: ["MOBILE_OTP"], blocked_methods: []}));
+            const loginInit = pending();
+            const loginPhr = pending();
+            const loginVerify = jest.fn(() => Promise.resolve({skip_state: "abha_select", txn_id: "v-txn", abha_profiles: [{abha_address: "asha@sbx"}]}));
+
+            const byMobile = flowWith({search, loginInit: loginInit.call});
+            byMobile.flow.chooseMethod(METHODS.MOBILE);
+            await byMobile.flow.submitIdentifier(MOBILE);
+            byMobile.flow.pickProfile(0);
+            byMobile.flow.pickProfile(0);
+            expect(loginInit.call).toHaveBeenCalledTimes(1);
+
+            const byAddress = flowWith({methods, loginInit: pending().call});
+            byAddress.flow.chooseMethod(METHODS.ABHA_ADDRESS);
+            await byAddress.flow.submitIdentifier("asha.rao");
+            byAddress.flow.chooseOtpSystem(OTP_SYSTEMS.MOBILE);
+            byAddress.flow.chooseOtpSystem(OTP_SYSTEMS.MOBILE);
+            expect(byAddress.client.loginInit).toHaveBeenCalledTimes(1);
+
+            const byAadhaar = flowWith({loginVerify, loginPhr: loginPhr.call});
+            byAadhaar.flow.chooseMethod(METHODS.AADHAAR);
+            await byAadhaar.flow.submitIdentifier(AADHAAR);
+            await byAadhaar.flow.submitOtp(OTP);
+            byAadhaar.flow.selectAddress(0);
+            byAadhaar.flow.selectAddress(0);
+            expect(loginPhr.call).toHaveBeenCalledTimes(1);
+        });
+    });
 });
