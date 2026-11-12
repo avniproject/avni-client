@@ -1,11 +1,10 @@
 import React from "react";
-import {ActivityIndicator, Button, PermissionsAndroid, SafeAreaView, ScrollView, Text, ToastAndroid, View} from "react-native";
+import {ActivityIndicator, Button, SafeAreaView, ScrollView, Text, ToastAndroid, View} from "react-native";
 import PropTypes from "prop-types";
 import _ from "lodash";
 import moment from "moment";
-import RNFS from "react-native-fs";
 import Share from "react-native-share";
-import DeviceInfo from "react-native-device-info";
+import {errorCodes, isErrorWithCode, saveDocuments} from "@react-native-documents/picker";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import TypedTransition from "../../framework/routing/TypedTransition";
@@ -28,7 +27,8 @@ const ABHA_VERIFIED = 'verified';
 
 // The patient's ABHA card: Download, Share and Close. The card is the ABHA number, name, photo and QR code, so the
 // image the app fetched lives in the cache folder only while this screen is open and is deleted when it closes.
-// The only copy that stays is one the worker chose to download. Nothing here logs the card, its path or the
+// The only copy that stays is one the worker saved through Android's Save-as picker, to a place and under a name
+// they chose. Nothing here logs the card, its path or the
 // number. The ABHA is never created or linked again from here: a failed fetch offers Try again. Eka hands over the
 // card only while the patient's ABHA login at Eka lasts, about 30 minutes after it; after that the card offers
 // Verify ABHA instead, which takes the patient through Eka's screens once more.
@@ -38,7 +38,7 @@ class AbhaCardView extends AbstractComponent {
         subjectUUID: PropTypes.string.isRequired,
         // For the key that opens Eka's screens when the ABHA is verified again.
         subjectTypeUUID: PropTypes.string,
-        // The last four digits of the ABHA number, which name the downloaded file.
+        // The last four digits of the ABHA number, which name the file the Save-as picker suggests.
         abhaLastFour: PropTypes.string,
         // An ABHA with no number (made with a mobile number) is named by its address.
         abhaAddress: PropTypes.string,
@@ -49,6 +49,7 @@ class AbhaCardView extends AbstractComponent {
         this.state = {status: 'loading', path: null, errorKey: null, downloadedName: null, expired: false, consent: null};
         this.unmounted = false;
         this.verifying = false;
+        this.saving = false;
     }
 
     viewName() {
@@ -192,24 +193,23 @@ class AbhaCardView extends AbstractComponent {
         return `${_.join(_.compact(['abha-card', abhaLastFour, moment(at).format('YYYYMMDD-HHmmss')]), '-')}.png`;
     }
 
-    // Before Android 10 saving to the Downloads folder needs the storage permission; after it, none.
-    async mayWriteDownloads() {
-        const apiLevel = await DeviceInfo.getApiLevel();
-        if (apiLevel >= General.STORAGE_PERMISSIONS_DEPRECATED_API_LEVEL) return true;
-        const grant = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
-        return grant === true || grant === PermissionsAndroid.RESULTS.GRANTED;
-    }
-
+    // Android's Save-as picker: the card is copied only to where the worker chooses, and needs no storage permission.
+    // A second tap while the picker is open would be refused by it as a failure, so it is ignored here.
     async download() {
+        if (this.saving) return;
+        this.saving = true;
         const fileName = AbhaCardView.downloadFileName(this.props.abhaLastFour);
         try {
-            if (!(await this.mayWriteDownloads())) throw new Error('No permission to write to Downloads');
-            await RNFS.copyFile(this.state.path, `${RNFS.DownloadDirectoryPath}/${fileName}`);
-            this.setState({downloadedName: fileName});
+            const [saved] = await saveDocuments({sourceUris: [`file://${this.state.path}`], mimeType: 'image/png', fileName});
+            if (_.isNil(saved) || saved.error) throw new Error('ABHA card not written to the place chosen');
+            if (!this.unmounted) this.setState({downloadedName: saved.name || fileName});
         } catch (error) {
+            if (isErrorWithCode(error) && error.code === errorCodes.OPERATION_CANCELED) return;
             // A fixed line: the error can carry the file's path.
             General.logWarn(this.viewName(), 'ABHA card not downloaded');
             ToastAndroid.show(this.I18n.t('abhaCardDownloadFailed'), ToastAndroid.LONG);
+        } finally {
+            this.saving = false;
         }
     }
 

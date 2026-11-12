@@ -514,7 +514,7 @@
     "abhaCardShare": "Share",
     "abhaCardClose": "Close",
     "abhaCardTryAgain": "Try again",
-    "abhaCardDownloaded": "Saved to your phone's Downloads folder as {{fileName}}",
+    "abhaCardDownloaded": "ABHA card saved as {{fileName}}",
     "abhaCardFailed": "The ABHA card could not be fetched. Registration is not affected.",
     "abhaCardDownloadFailed": "The ABHA card could not be saved to your phone",
     "abhaCardShareFailed": "The ABHA card could not be shared",

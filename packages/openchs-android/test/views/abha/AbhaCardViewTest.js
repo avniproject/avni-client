@@ -1,5 +1,5 @@
 import React from "react";
-import {Button, Image, Modal, Text, ToastAndroid, TouchableNativeFeedback} from "react-native";
+import {Button, Image, Modal, PermissionsAndroid, Text, ToastAndroid, TouchableNativeFeedback} from "react-native";
 import TestRenderer, {act} from "react-test-renderer";
 import {ImageViewer} from "react-native-image-zoom-viewer";
 
@@ -10,6 +10,15 @@ jest.mock("react-native-fs", () => ({
     copyFile: (...args) => mockCopyFile(...args),
     unlink: (...args) => mockUnlink(...args),
 }));
+// Android's Save-as picker: resolves to where the worker saved the card and the name they gave it.
+const SAVED = {uri: "content://com.android.providers.downloads.documents/document/7", name: "my-card.png", error: null};
+const mockSaveDocuments = jest.fn(() => Promise.resolve([SAVED]));
+jest.mock("@react-native-documents/picker", () => ({
+    saveDocuments: (...args) => mockSaveDocuments(...args),
+    errorCodes: {OPERATION_CANCELED: "OPERATION_CANCELED", IN_PROGRESS: "ASYNC_OP_IN_PROGRESS", UNABLE_TO_OPEN_FILE_TYPE: "UNABLE_TO_OPEN_FILE_TYPE"},
+    isErrorWithCode: (error) => error instanceof Error && "code" in error,
+}));
+const pickerError = (code, message = "picker") => Object.assign(new Error(message), {code});
 const mockShareOpen = jest.fn(() => Promise.resolve({success: true}));
 jest.mock("react-native-share", () => ({__esModule: true, default: {open: (...args) => mockShareOpen(...args)}}));
 jest.mock("react-native-device-info", () => ({getApiLevel: jest.fn(() => Promise.resolve(34))}));
@@ -74,6 +83,7 @@ describe("AbhaCardViewTest", () => {
         mockConnection.isConnected = true;
         CHSNavigator.navigateToAbhaView.mockClear();
         mockCopyFile.mockClear();
+        mockSaveDocuments.mockClear();
         mockUnlink.mockClear();
         mockShareOpen.mockClear();
         jest.spyOn(ToastAndroid, "show").mockImplementation(() => {});
@@ -99,18 +109,47 @@ describe("AbhaCardViewTest", () => {
         expect(view.titles()).toEqual(["abhaCardDownload", "abhaCardShare", "abhaCardClose"]);
     });
 
-    it("downloads to the phone's Downloads folder as abha-card with the last four digits and the time, and says where", async () => {
+    it("downloads through Android's Save-as picker, suggesting abha-card with the last four digits and the time, and says the name it was saved as", async () => {
+        const askedForStorage = jest.spyOn(PermissionsAndroid, "request");
         const view = await show();
 
         await view.press("abhaCardDownload");
 
-        const [from, to] = mockCopyFile.mock.calls[0];
-        expect(from).toBe(CARD_PATH);
-        expect(to).toMatch(/^\/storage\/Download\/abha-card-9012-\d{8}-\d{6}\.png$/);
-        const fileName = to.replace("/storage/Download/", "");
-        expect(view.lines().join("|")).toContain("abhaCardDownloaded");
-        expect(view.lines().join("|")).toContain(fileName);
+        expect(mockSaveDocuments).toHaveBeenCalledTimes(1);
+        const [options] = mockSaveDocuments.mock.calls[0];
+        expect(options.sourceUris).toEqual([`file://${CARD_PATH}`]);
+        expect(options.mimeType).toBe("image/png");
+        expect(options.fileName).toMatch(/^abha-card-9012-\d{8}-\d{6}\.png$/);
+        expect(view.lines()).toContain(`abhaCardDownloaded ${JSON.stringify({fileName: "my-card.png"})}`);
+        expect(askedForStorage).not.toHaveBeenCalled();
+        expect(mockCopyFile).not.toHaveBeenCalled();
         expect(mockUnlink).not.toHaveBeenCalled();
+    });
+
+    it("copies the card nowhere when the worker closes the picker, and says nothing", async () => {
+        const view = await show();
+        mockSaveDocuments.mockRejectedValueOnce(pickerError("OPERATION_CANCELED", "user canceled the document picker"));
+
+        await view.press("abhaCardDownload");
+
+        expect(mockCopyFile).not.toHaveBeenCalled();
+        expect(ToastAndroid.show).not.toHaveBeenCalled();
+        expect(General.logWarn).not.toHaveBeenCalled();
+        expect(view.lines().join("|")).not.toContain("abhaCardDownloaded");
+    });
+
+    it("opens the picker once however often Download is tapped while it is open", async () => {
+        let close;
+        mockSaveDocuments.mockImplementationOnce(() => new Promise((resolve) => { close = resolve; }));
+        const view = await show();
+
+        await view.press("abhaCardDownload");
+        await view.press("abhaCardDownload");
+        await act(async () => close([SAVED]));
+        await view.press("abhaCardDownload");
+
+        expect(mockSaveDocuments).toHaveBeenCalledTimes(2);
+        expect(ToastAndroid.show).not.toHaveBeenCalled();
     });
 
     it("names each download by the time it was saved, so another patient's card with the same last four digits is never overwritten", () => {
@@ -122,7 +161,7 @@ describe("AbhaCardViewTest", () => {
 
     it("logs only a fixed line when saving or sharing fails, never the error, which can carry the file's path", async () => {
         const view = await show();
-        mockCopyFile.mockRejectedValueOnce(new Error(`EACCES: open failed ${CARD_PATH}`));
+        mockSaveDocuments.mockRejectedValueOnce(pickerError("OTHER_PRESENTING_ERROR", `EACCES: open failed ${CARD_PATH}`));
         await view.press("abhaCardDownload");
         mockShareOpen.mockRejectedValueOnce(new Error(`No app can open file://${CARD_PATH}`));
         await view.press("abhaCardShare");
@@ -132,13 +171,14 @@ describe("AbhaCardViewTest", () => {
         ["EACCES", "/cache", "abha-card-1", "No app"].forEach((detail) => expect(logged).not.toContain(detail));
     });
 
-    it("says when saving fails", async () => {
+    it("says when saving fails, whether the picker fails or the card is not written to the place chosen", async () => {
         const view = await show();
-        mockCopyFile.mockRejectedValueOnce(new Error("EACCES"));
-
+        mockSaveDocuments.mockRejectedValueOnce(pickerError("UNABLE_TO_OPEN_FILE_TYPE"));
+        await view.press("abhaCardDownload");
+        mockSaveDocuments.mockResolvedValueOnce([{...SAVED, error: "No data was copied to the destination file"}]);
         await view.press("abhaCardDownload");
 
-        expect(ToastAndroid.show).toHaveBeenCalledWith("abhaCardDownloadFailed", ToastAndroid.LONG);
+        expect(ToastAndroid.show.mock.calls).toEqual([["abhaCardDownloadFailed", ToastAndroid.LONG], ["abhaCardDownloadFailed", ToastAndroid.LONG]]);
         expect(view.lines().join("|")).not.toContain("abhaCardDownloaded");
     });
 
@@ -410,5 +450,8 @@ describe("AbhaCardViewTest", () => {
             "abhaCardFailed", "abhaCardNeedsInternet", "abhaCardDownloadFailed", "abhaCardShareFailed", "abhaViewCard",
             "abhaCardSessionExpired", "abhaCardVerify", "abhaCardDifferentAbha"]
             .forEach((key) => expect(en.translations[key]).toBeTruthy());
+        // The worker chooses where the card goes, so the message names no folder.
+        expect(en.translations.abhaCardDownloaded).toContain("{{fileName}}");
+        expect(en.translations.abhaCardDownloaded).not.toContain("Downloads");
     });
 });
