@@ -1111,4 +1111,44 @@ describe("RealmQueryParser", () => {
             expect(parse("location.x = 'p1'").where).toBe('t0."location" = ?');
         });
     });
+
+    describe("a path into an embedded list that its stored elements don't hold", () => {
+        const schemaMap = new Map([
+            ["Individual", {name: "Individual", primaryKey: "uuid", properties: {
+                uuid: "string", voided: "bool",
+                observations: {type: "list", objectType: "Observation"},
+                encounters: {type: "list", objectType: "Encounter"},
+            }}],
+            ["Encounter", {name: "Encounter", primaryKey: "uuid", properties: {
+                uuid: "string", voided: "bool",
+                individual: {type: "object", objectType: "Individual"},
+                observations: {type: "list", objectType: "Observation"},
+            }}],
+            ["Observation", {name: "Observation", properties: {concept: {type: "object", objectType: "Concept"}, valueJSON: "string"}}],
+            ["Concept", {name: "Concept", primaryKey: "uuid", properties: {
+                uuid: "string", name: "string", keyValues: {type: "list", objectType: "EmbeddedKeyValue"}}}],
+        ]);
+        const parse = (query) => RealmQueryParser.parse(query, [], "Individual", schemaMap);
+
+        it("counts an answers list inside a SUBQUERY with its length", () => {
+            const r = parse("SUBQUERY(encounters, $enc, $enc.observations.@count > 0).@count > 0");
+            expect(r.unsupported).toBe(false);
+            expect(r.where).toContain('COALESCE(json_array_length("observations"), 0) > ?');
+            expect(r.params).toEqual([0]);
+        });
+
+        it.each([
+            "observations.concept.keyValues.key = 'primary_contact'",
+            "observations.concept.name = 'Phone'",
+            "observations.concept.name CONTAINS 'Phone'",
+            "observations.valueJSON.answer = 'x'",
+        ])("leaves %s to the JS fallback", (query) => {
+            expect(parse(query).unsupported).toBe(true);
+        });
+
+        it("still compares a linked object's uuid and an element's own field in SQL", () => {
+            expect(parse("observations.concept.uuid = 'c1'").unsupported).toBe(false);
+            expect(parse("observations.valueJSON CONTAINS 'a1'").where).toBe('t0."observations" LIKE ?');
+        });
+    });
 });

@@ -494,10 +494,13 @@ class SqlGenerator {
             // A comparison needs them to test each list element, as Realm does (see visitComparison).
             if (targetSchema && EMBEDDED_SCHEMA_NAMES.has(targetSchema)) {
                 const column = `${currentAlias}."${camelToSnake(propName)}"`;
-                const embeddedList = propSchema.type === "list"
-                    ? {column, jsonPath: `$.${parts.slice(i + 1).join(".")}`}
-                    : undefined;
-                return {column, needsJoin: false, embeddedList};
+                if (propSchema.type !== "list") return {column, needsJoin: false};
+                const elementPath = parts.slice(i + 1);
+                if (elementPath[0].startsWith("@")) {
+                    return {column: this._embeddedListSize(fieldPath, column, elementPath), needsJoin: false};
+                }
+                this._assertStoredInElement(fieldPath, targetSchema, elementPath);
+                return {column, needsJoin: false, embeddedList: {column, jsonPath: `$.${elementPath.join(".")}`}};
             }
 
             // A path ending "<link>.uuid" looks like it could skip the JOIN and read the
@@ -556,6 +559,38 @@ class SqlGenerator {
             return `${camelToSnake(propName)}_uuid`;
         }
         return camelToSnake(propName);
+    }
+
+    _embeddedListSize(fieldPath, column, elementPath) {
+        if (elementPath.length !== 1 || !["@count", "@size"].includes(elementPath[0])) {
+            throw new UnsupportedRealmQueryError(fieldPath, "aggregate on an embedded list");
+        }
+        return `COALESCE(json_array_length(${column}), 0)`;
+    }
+
+    // An embedded element keeps its own fields, nested embedded objects, and only the uuid of a linked
+    // object, so a path past a link's uuid (e.g. concept.keyValues.key) can't match in SQL.
+    _assertStoredInElement(fieldPath, elementSchemaName, elementPath) {
+        let schemaName = elementSchemaName;
+        for (let j = 0; j < elementPath.length; j++) {
+            const properties = this.schemaMap.get(schemaName)?.properties;
+            if (_.isEmpty(properties)) return;
+            const propSchema = properties[elementPath[j]];
+            const rawType = normalizeRealmType(typeof propSchema === "object" ? propSchema.type : propSchema);
+            const type = typeof rawType === "string" && rawType.endsWith("[]") ? "list" : rawType;
+            const isLast = j === elementPath.length - 1;
+            if (propSchema === undefined || type === "list" || (type !== "object" && !isLast)) {
+                throw new UnsupportedRealmQueryError(fieldPath, "path not stored in an embedded list element");
+            }
+            if (type !== "object") return;
+            if (EMBEDDED_SCHEMA_NAMES.has(propSchema.objectType)) {
+                if (isLast) throw new UnsupportedRealmQueryError(fieldPath, "comparison with a whole embedded object");
+                schemaName = propSchema.objectType;
+                continue;
+            }
+            if (j + 2 === elementPath.length && elementPath[j + 1] === "uuid") return;
+            throw new UnsupportedRealmQueryError(fieldPath, "path past a linked object's uuid in an embedded list element");
+        }
     }
 
     _findChildFkColumn(parentSchemaName, childSchemaName) {
