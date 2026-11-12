@@ -112,6 +112,13 @@ describe("AbhaViewTest", () => {
         expect(props.allowUniversalAccessFromFileURLs).toBe(false);
     });
 
+    // Eka's page holds the patient's Aadhaar, mobile and OTP while it runs.
+    it("opens Eka's page incognito and caches nothing of it", async () => {
+        const props = (await show()).webViews()[0].props;
+        expect(props.incognito).toBe(true);
+        expect(props.cacheEnabled).toBe(false);
+    });
+
     it("takes messages only from the page it built, never from a page loaded into it later", async () => {
         jest.spyOn(General, "logWarn").mockImplementation(() => {});
         const screen = await show();
