@@ -54,8 +54,7 @@ const withAbhaAddress = (individual, abhaAddress) => {
 };
 
 function viewWith({editing = false, formHasConcepts = true, individual = person(), translations = {}, consent = null, replace = true,
-                      session = Promise.resolve(SESSION), holders = Promise.resolve([]), onPhone = {}, unsynced = [], duplicate = true,
-                      candidates = [], match = true} = {}) {
+                      session = Promise.resolve(SESSION), holders = Promise.resolve([]), onPhone = {}, unsynced = [], duplicate = true} = {}) {
     const abhaService = {
         // A rejection is passed as a function, so it is made only when asked for and never left unhandled.
         getSession: jest.fn(() => (typeof session === "function" ? session() : session)),
@@ -64,7 +63,7 @@ function viewWith({editing = false, formHasConcepts = true, individual = person(
         recordEvent: jest.fn(() => Promise.resolve(true)),
         resendUnsentEvents: jest.fn(() => Promise.resolve()),
     };
-    const individualService = {findByUUID: jest.fn((uuid) => onPhone[uuid]), findAll: jest.fn(() => ({filtered: jest.fn(() => candidates)}))};
+    const individualService = {findByUUID: jest.fn((uuid) => onPhone[uuid]), findAll: jest.fn(() => ({filtered: jest.fn(() => [])}))};
     const entityQueueService = {getQueuedEntityUUIDs: jest.fn(() => unsynced)};
     const services = new Map([[AbhaService, abhaService], [IndividualService, individualService], [EntityQueueService, entityQueueService]]);
     return {
@@ -76,7 +75,6 @@ function viewWith({editing = false, formHasConcepts = true, individual = person(
         askAbhaConsent: jest.fn(() => Promise.resolve(consent)),
         askAbhaReplace: jest.fn(() => Promise.resolve(replace)),
         askAbhaDuplicate: jest.fn(() => Promise.resolve(duplicate)),
-        askAbhaMatch: jest.fn(() => Promise.resolve(match)),
         // The screen's transition has settled already, unless a test says otherwise.
         runAfterSceneTransition: jest.fn((fn) => fn()),
         abhaService,
@@ -435,70 +433,14 @@ describe("AbhaRegistrationFlowTest", () => {
             expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(1);
         });
 
-        // DEMO-ONLY abdm-hackathon: NHA's M1 case CRT_ABHA_116, a patient registered before they had an ABHA.
-        describe("a returning patient registered before they had an ABHA (demo only)", () => {
-            const returning = (uuid = "s-returning") => {
-                const subject = person({uuid, firstName: "asha", genderName: "Female"});
-                subject.lastName = "RAO";
-                subject.dateOfBirth = new Date(1990, 3, 23, 10, 0);
-                return subject;
-            };
+        // Another patient on the phone with the ABHA's name, gender and date of birth is not this ABHA's holder.
+        it("fills a new patient's ABHA in without looking through the phone's other patients by name", async () => {
+            const view = viewWith();
+            await openAndReturn(view);
 
-            it("offers to link the ABHA to a patient on this phone with its name, gender and date of birth, and opens their record with it", async () => {
-                const match = returning();
-                const view = viewWith({candidates: [match], translations: {abhaRegistrationConsent: "I agree"}, consent: new Date(2026, 9, 26, 13, 0)});
-                await openAndReturn(view);
-
-                expect(view.askAbhaMatch).toHaveBeenCalledWith(match.nameString, expect.arrayContaining([{label: "name", current: "asha RAO", abha: "Asha Rao"}]));
-                const [params] = mockWith.mock.calls[0];
-                expect(params).toEqual(expect.objectContaining({individualUUID: "s-returning", editing: true}));
-                expect(params.workLists.getCurrentWorkItem().parameters).toEqual({uuid: "s-returning", subjectTypeName: "Person"});
-                expect(mockTo).toHaveBeenCalledWith(view.constructor, false, true);
-                expect(AbhaRegistrationFlow.takePendingLink("s-returning")).toEqual({profile: PROFILE, route: "create", consentGivenAt: new Date(2026, 9, 26, 13, 0)});
-                expect(AbhaRegistrationFlow.takePendingLink("s-returning")).toBeUndefined();
-                expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(0);
-            });
-
-            it("registers the new patient with the ABHA when the worker chooses Register new", async () => {
-                const view = viewWith({candidates: [returning()], match: false});
-                await openAndReturn(view);
-
-                expect(mockTo).not.toHaveBeenCalled();
-                expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(1);
-            });
-
-            it("does not count a patient whose last name or date of birth differs, or one who is voided", async () => {
-                const otherBirthday = returning("s-a");
-                otherBirthday.dateOfBirth = new Date(1991, 3, 23);
-                const otherName = returning("s-b");
-                otherName.lastName = "Rani";
-                const voided = Object.assign(returning("s-c"), {voided: true});
-                const view = viewWith({candidates: [otherBirthday, otherName, voided]});
-                await openAndReturn(view);
-
-                expect(view.askAbhaMatch).not.toHaveBeenCalled();
-                expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(1);
-            });
-
-            // "Before they had an ABHA": a patient holding another ABHA is someone the found ABHA does not belong to, or one
-            // whose ABHA a link would silently replace (27 Oct run: 2009 on the record, 4533 found).
-            it("does not count a patient who already holds an ABHA, by number or by address", async () => {
-                const holdsNumber = withAbhaNumber(returning("s-number"), "91-1111-2222-2009");
-                holdsNumber.lastName = "RAO";
-                const holdsAddress = withAbhaAddress(returning("s-address"), "asha.rao.old@sbx");
-                const view = viewWith({candidates: [holdsNumber, holdsAddress]});
-                await openAndReturn(view);
-
-                expect(view.askAbhaMatch).not.toHaveBeenCalled();
-                expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(1);
-            });
-
-            it("does not look while a patient is being edited", async () => {
-                const view = viewWith({editing: true, individual: person({uuid: "s-1"}), candidates: [returning()]});
-                await openAndReturn(view);
-
-                expect(view.askAbhaMatch).not.toHaveBeenCalled();
-            });
+            expect(view.individualService.findAll).not.toHaveBeenCalled();
+            expect(mockTo).not.toHaveBeenCalled();
+            expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(1);
         });
 
         it("when the server cannot be asked, says why and offers Try again, which asks again about the same ABHA", async () => {

@@ -166,16 +166,6 @@ describe("ABHA registration dialogs", () => {
             expect(onApply).toHaveBeenCalledTimes(1);
         });
 
-        // DEMO-ONLY abdm-hackathon: for a returning patient, cancel means registering a new patient (CRT_ABHA_116).
-        it("can name its cancel", async () => {
-            const onCancel = jest.fn();
-            const screen = await show(<AbhaReplaceDetailsDialog rows={rows} title="Asha Rao is already registered here."
-                                                                applyLabel="abhaReturningPatientLink" cancelLabel="abhaReturningPatientNew"
-                                                                onApply={() => {}} onCancel={onCancel}/>);
-            expect(screen.texts()).not.toContain("cancel");
-            await screen.press("abhaReturningPatientNew");
-            expect(onCancel).toHaveBeenCalledTimes(1);
-        });
     });
 
     it("has English wording for every message the ABHA registration step shows, the consent included", () => {
@@ -185,11 +175,9 @@ describe("ABHA registration dialogs", () => {
             "abhaFormNotSetUp", "abhaDuplicateOpen", "abhaDuplicateOpenAction", "abhaDuplicateElsewhere", "abhaReplaceDetails",
             "abhaCurrentDetails", "abhaProfileDetails", "abhaRemoveLink", "abhaRemoveLinkConfirm",
             "abhaConsentAgree", "abhaConsentContinue", "abhaConsentDecline", "abhaTitle", "abhaNeedsInternet", "abhaTryAgain",
-            "cancel", "ok", "apply", "name", "gender", "dateOfBirth", "phone",
-            "abhaReturningPatient", "abhaReturningPatientLink", "abhaReturningPatientNew"].forEach((key) =>
+            "cancel", "ok", "apply", "name", "gender", "dateOfBirth", "phone"].forEach((key) =>
             expect([key, typeof en.translations[key]]).toEqual([key, "string"]));
         expect(en.translations.abhaDuplicateOpen).toContain("{{name}}");
-        expect(en.translations.abhaReturningPatient).toContain("{{name}}");
         // A default, so every organisation with ABHA on asks for consent (NHA's CRT_ABHA_102); its own wording wins.
         expect(typeof en.translations.abhaRegistrationConsent).toBe("string");
     });
