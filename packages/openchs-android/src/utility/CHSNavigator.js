@@ -143,11 +143,10 @@ class CHSNavigator {
     // still showing; the caller returns to its own screen with popToBookmark.
     // abhaPrefill is {identifier, identifierType}: the Aadhaar number carried over from Avni's verify screens when the
     // patient holds no ABHA, so Eka's creation does not ask for it again. JsonStringify redacts it in the navigation log.
-    static navigateToAbhaView(source, session, {method, prefillAbhaAddress, abhaPrefill} = {}, onProfile, onSkip) {
+    static navigateToAbhaView(source, session, {method, abhaPrefill} = {}, onProfile, onSkip) {
         TypedTransition.from(source).bookmark().with({
             session,
             method,
-            prefillAbhaAddress,
             abhaPrefill,
             onProfile,
             onSkip

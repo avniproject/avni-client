@@ -7,14 +7,12 @@ import Colors from "../primitives/Colors";
 import Distances from "../primitives/Distances";
 
 // The ways a person's registration starts when ABHA is on, each with its help text behind an info icon: verify the
-// ABHA the patient has (Avni's own screens), or create one (Eka's screens). With onVerify and onCreate left out, a single
-// option opens Eka's screens for both, as before Avni had its own verify screens. There is no Register Without ABHA
+// ABHA the patient has (Avni's own screens), or create one (Eka's screens). There is no Register Without ABHA
 // option: the form below is already open for a patient with no ABHA, and no NHA case asks for one (removed 4 Nov 2026).
 class AbhaRegistrationOptions extends AbstractComponent {
     static propTypes = {
-        onVerify: PropTypes.func,
-        onCreate: PropTypes.func,
-        onFindOrCreate: PropTypes.func,
+        onVerify: PropTypes.func.isRequired,
+        onCreate: PropTypes.func.isRequired,
     };
 
     constructor(props, context) {
@@ -35,13 +33,11 @@ class AbhaRegistrationOptions extends AbstractComponent {
     }
 
     render() {
-        const {onVerify, onCreate, onFindOrCreate} = this.props;
-        const separate = !!onVerify && !!onCreate;
+        const {onVerify, onCreate} = this.props;
         return (
             <View style={{marginTop: Distances.ScaledVerticalSpacingBetweenFormElements}}>
-                {separate && this.renderOption('abhaOptionVerify', 'abhaOptionVerifyHelp', onVerify)}
-                {separate && this.renderOption('abhaOptionCreate', 'abhaOptionCreateHelp', onCreate)}
-                {!separate && this.renderOption('abhaOptionFindOrCreate', 'abhaOptionFindOrCreateHelp', onFindOrCreate)}
+                {this.renderOption('abhaOptionVerify', 'abhaOptionVerifyHelp', onVerify)}
+                {this.renderOption('abhaOptionCreate', 'abhaOptionCreateHelp', onCreate)}
             </View>
         );
     }

@@ -15,9 +15,6 @@ import {Actions} from "../../action/individual/PersonRegisterActions";
 // Eka's screens open on "Add Patient via ABHA" for both Create and Link, until Eka says whether they can open
 // straight on its other routes (open decision "Eka's answers that ABDM M1 needs", question 5).
 export const ABHA_SDK_METHOD = 'login_or_create_abha';
-// Verifying an ABHA a patient already has runs on Avni's own screens (AbhaVerifyView), which keep to the order NHA
-// tests; Eka's screens stay for creating one. False puts both back on Eka's screens, as before 3 Nov 2026.
-export const ABHA_NATIVE_VERIFY = true;
 // The consent wording: the organisation's own, set in its translations, else the platform's, else the default the app
 // carries (config/beforeSyncMessages.en.json), so every organisation with ABHA on asks for consent (NHA's CRT_ABHA_102).
 // How long the card waits for the server to have the ABHA action before it opens anyway.
@@ -64,13 +61,13 @@ class AbhaRegistrationFlow {
         this.toast('abhaError');
     }
 
-    // route is the option the worker took: 'verify' (Avni's own screens), 'create' (Eka's), or 'findOrCreate' (Eka's,
-    // when ABHA_NATIVE_VERIFY is off). Checked in today (#2200) passes prefillAbhaAddress. Never rejects: it runs from a button.
-    async open({route, prefillAbhaAddress} = {}) {
+    // route is the option the worker took: 'verify' (Avni's own screens, which keep to the order NHA tests) or 'create'
+    // (Eka's). Never rejects: it runs from a button.
+    async open({route} = {}) {
         if (this.opening || _.get(this.view.state, 'abha.busy')) return;
         this.opening = true;
         try {
-            await this.openAbhaScreens(route, prefillAbhaAddress);
+            await this.openAbhaScreens(route);
         } catch (error) {
             this.failed('ABHA screens not opened');
         } finally {
@@ -78,7 +75,7 @@ class AbhaRegistrationFlow {
         }
     }
 
-    async openAbhaScreens(route, prefillAbhaAddress) {
+    async openAbhaScreens(route) {
         const {isConnected} = await getConnectionInfo();
         if (!isConnected) {
             Alert.alert(this.I18n.t('abhaTitle'), this.I18n.t('abhaNeedsInternet'), [
@@ -104,11 +101,11 @@ class AbhaRegistrationFlow {
         }
         const session = await this.session();
         if (!session || this.screenGone()) return;
-        if (route === 'verify' && ABHA_NATIVE_VERIFY) {
+        if (route === 'verify') {
             this.openVerifyScreens(session, consentGivenAt);
             return;
         }
-        this.openEkaScreens(session, {route, consentGivenAt, prefillAbhaAddress});
+        this.openEkaScreens(session, {route, consentGivenAt});
     }
 
     // Eka's key for this phone and health centre, from Avni's server. Null after saying why it could not be had.
@@ -122,8 +119,8 @@ class AbhaRegistrationFlow {
         }
     }
 
-    openEkaScreens(session, {route, consentGivenAt, prefillAbhaAddress, abhaPrefill}) {
-        CHSNavigator.navigateToAbhaView(this.view, session, {method: ABHA_SDK_METHOD, prefillAbhaAddress, abhaPrefill},
+    openEkaScreens(session, {route, consentGivenAt, abhaPrefill}) {
+        CHSNavigator.navigateToAbhaView(this.view, session, {method: ABHA_SDK_METHOD, abhaPrefill},
             (profile) => {
                 TypedTransition.from(this.view).popToBookmark();
                 return this.onProfile(profile, {route, consentGivenAt}).catch(() => this.failed('ABHA from Eka not filled in'));

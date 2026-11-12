@@ -34,10 +34,6 @@ class AbhaView extends AbstractComponent {
             expiresInSeconds: PropTypes.number,
         }).isRequired,
         method: PropTypes.string,
-        // An ABHA address known before the screens open ("Checked in today", #2200). Eka's SDK takes it as identifier, of
-        // identifier_type phr_address (eka-abdm plugin, abdm-m1-abha/references/web-sdk.md). How Eka's screens use it is
-        // not yet seen in the sandbox.
-        prefillAbhaAddress: PropTypes.string,
         // An identifier carried over from Avni's verify screens: {identifier, identifierType}, with identifierType one of
         // the SDK's (mobile, aadhaar_number, abha_number, phr_address). An Aadhaar number here starts Eka's creation
         // without asking for it again (NHA's VRFY_ABHA_403).
@@ -73,12 +69,11 @@ class AbhaView extends AbstractComponent {
 
     static PREFILL_TYPES = ['mobile', 'aadhaar_number', 'abha_number', 'phr_address'];
 
-    // What Eka's SDK is opened with: abhaPrefill when it names one of the SDK's identifier types, else the ABHA address.
-    static prefillOf({abhaPrefill, prefillAbhaAddress}) {
+    // What Eka's SDK is opened with: abhaPrefill when it names one of the SDK's identifier types, else nothing.
+    static prefillOf({abhaPrefill}) {
         const identifier = _.trim(_.get(abhaPrefill, 'identifier'));
         const type = _.get(abhaPrefill, 'identifierType');
-        if (!_.isEmpty(identifier) && _.includes(AbhaView.PREFILL_TYPES, type)) return {identifier, identifier_type: type};
-        return _.isEmpty(_.trim(prefillAbhaAddress)) ? {} : {identifier: _.trim(prefillAbhaAddress), identifier_type: 'phr_address'};
+        return !_.isEmpty(identifier) && _.includes(AbhaView.PREFILL_TYPES, type) ? {identifier, identifier_type: type} : {};
     }
 
     onViewDidMount() {

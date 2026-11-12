@@ -243,16 +243,6 @@ describe("AbhaServiceTest", () => {
         expect((await service().getSession("st-1")).accessToken).to.equal(EKA_KEY);
     });
 
-    it("fetches today's check-ins for the user's health centre, refusals mapped the same way", async () => {
-        const checkIns = [{uuid: "c-1", abhaAddress: "asha@abdm", abhaNumber: null, tokenNumber: 1, checkedInAt: "2026-10-20T04:00:00Z", subjectUUID: null}];
-        global.fetch = jest.fn(async () => reply(200, checkIns));
-        expect(await service().getCheckIns()).to.deep.equal(checkIns);
-        expect(global.fetch.mock.calls[0][0]).to.equal("https://server/abha/checkIns");
-
-        global.fetch = jest.fn(async () => reply(403, {code: "ABHA_NO_HEALTH_CENTRE"}));
-        expect((await failureOf(service().getCheckIns())).code).to.equal("ABHA_NO_HEALTH_CENTRE");
-    });
-
     it("asks which patients hold an ABHA number with the number in the body, as digits, never in the address", async () => {
         global.fetch = jest.fn(async () => reply(200, {subjectUUIDs: ["s-9"]}));
 

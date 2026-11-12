@@ -42,8 +42,8 @@ it('should redact sensitive keys', function () {
 });
 
 it('should redact a patient\'s ABHA number and address under any key that names ABHA', function () {
-    assert.equal(JSONStringify({subjectUUID: "s-1", abhaNumber: "91-1234-5678-9012", prefillAbhaAddress: "asha@abdm"}),
-        `{"subjectUUID":"s-1","abhaNumber":"<redacted>","prefillAbhaAddress":"<redacted>"}`);
+    assert.equal(JSONStringify({subjectUUID: "s-1", abhaNumber: "91-1234-5678-9012", abhaAddress: "asha@abdm"}),
+        `{"subjectUUID":"s-1","abhaNumber":"<redacted>","abhaAddress":"<redacted>"}`);
     assert.equal(JSONStringify({ABHA_NUMBER: "91123456789012"}), `{"ABHA_NUMBER":"<redacted>"}`);
     // a flag that only names ABHA is not a secret
     assert.equal(JSONStringify({abhaShowOptions: true}), `{"abhaShowOptions":true}`);

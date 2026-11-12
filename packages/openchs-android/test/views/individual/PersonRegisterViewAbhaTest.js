@@ -84,7 +84,6 @@ describe("PersonRegisterView, ABHA", () => {
     it("Verify opens Avni's verify screens, Create opens Eka's; there is no Register Without ABHA, the form is already open", () => {
         const view = screenWith({abha: ON});
         const options = render(view).root.findByType(AbhaRegistrationOptions).props;
-        expect(options.onFindOrCreate).toBeUndefined();
         expect(options.onWithout).toBeUndefined();
         options.onVerify();
         options.onCreate();

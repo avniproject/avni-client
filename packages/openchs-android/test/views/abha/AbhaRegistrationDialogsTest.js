@@ -39,18 +39,6 @@ describe("ABHA registration dialogs", () => {
     });
 
     describe("the options", () => {
-        // Eka's screens find an ABHA the patient already has, or create one, so one option starts both. There is no
-        // Register Without ABHA: the form below is already open for a patient with no ABHA (removed 4 Nov 2026).
-        it("offers Find or Create ABHA & Register alone", async () => {
-            const onFindOrCreate = jest.fn();
-            const {renderer} = await show(<AbhaRegistrationOptions onFindOrCreate={onFindOrCreate}/>);
-
-            const buttons = renderer.root.findAllByType(Button);
-            expect(buttons.map((button) => button.props.title)).toEqual(["abhaOptionFindOrCreate"]);
-            await act(async () => buttons[0].props.onPress());
-            expect(onFindOrCreate).toHaveBeenCalledTimes(1);
-        });
-
         it("offers Verify ABHA & Register and Create ABHA & Register, each doing its own thing, and no Register Without ABHA", async () => {
             const handlers = {onVerify: jest.fn(), onCreate: jest.fn()};
             const {renderer} = await show(<AbhaRegistrationOptions {...handlers}/>);
@@ -72,10 +60,6 @@ describe("ABHA registration dialogs", () => {
                 ["abhaOptionVerify", "abhaOptionVerifyHelp"],
                 ["abhaOptionCreate", "abhaOptionCreateHelp"],
             ]);
-        });
-
-        it("Find or Create's help text points the worker to Other add options for an ABHA number or address", () => {
-            expect(en.translations.abhaOptionFindOrCreateHelp).toContain("Other add options");
         });
     });
 
@@ -171,8 +155,7 @@ describe("ABHA registration dialogs", () => {
     it("has English wording for every message the ABHA registration step shows, the consent included", () => {
         // abhaOptionWithout stays: the no-internet message and the verify screens' not-found step still offer it.
         expect(en.translations.abhaOptionWithoutHelp).toBeUndefined();
-        ["abhaOptionFindOrCreate", "abhaOptionWithout", "abhaOptionFindOrCreateHelp",
-            "abhaFormNotSetUp", "abhaDuplicateOpen", "abhaDuplicateOpenAction", "abhaDuplicateElsewhere", "abhaReplaceDetails",
+        ["abhaOptionWithout", "abhaFormNotSetUp", "abhaDuplicateOpen", "abhaDuplicateOpenAction", "abhaDuplicateElsewhere", "abhaReplaceDetails",
             "abhaCurrentDetails", "abhaProfileDetails", "abhaRemoveLink", "abhaRemoveLinkConfirm",
             "abhaConsentAgree", "abhaConsentContinue", "abhaConsentDecline", "abhaTitle", "abhaNeedsInternet", "abhaTryAgain",
             "cancel", "ok", "apply", "name", "gender", "dateOfBirth", "phone"].forEach((key) =>

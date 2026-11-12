@@ -143,7 +143,7 @@ describe("AbhaRegistrationFlowTest", () => {
             expect(view.abhaService.getSession).toHaveBeenCalledTimes(2);
             const [, session, options] = opened();
             expect(session).toEqual(SESSION);
-            expect(options).toEqual({method: "login_or_create_abha", prefillAbhaAddress: undefined, abhaPrefill: {identifier: AADHAAR, identifierType: "aadhaar_number"}});
+            expect(options).toEqual({method: "login_or_create_abha", abhaPrefill: {identifier: AADHAAR, identifierType: "aadhaar_number"}});
             expect(JSON.stringify(General.logWarn.mock ? General.logWarn.mock.calls : [])).not.toContain(AADHAAR);
         });
 
@@ -205,7 +205,7 @@ describe("AbhaRegistrationFlowTest", () => {
             const [source, session, options, onProfile, onSkip] = opened();
             expect(source).toBe(view);
             expect(session).toBe(SESSION);
-            expect(options).toEqual({method: "login_or_create_abha", prefillAbhaAddress: undefined});
+            expect(options).toEqual({method: "login_or_create_abha"});
             expect(typeof onProfile).toBe("function");
             expect(typeof onSkip).toBe("function");
         });
@@ -253,11 +253,6 @@ describe("AbhaRegistrationFlowTest", () => {
 
             expect(ToastAndroid.show.mock.calls.map(([message]) => message)).toEqual(["abhaNotConfigured", "abhaError"]);
             expect(CHSNavigator.navigateToAbhaView).not.toHaveBeenCalled();
-        });
-
-        it("passes on an ABHA address to prefill, for Checked in today", async () => {
-            await new AbhaRegistrationFlow(viewWith()).open({route: "link", prefillAbhaAddress: "asha@abdm"});
-            expect(opened()[2]).toEqual({method: "login_or_create_abha", prefillAbhaAddress: "asha@abdm"});
         });
 
         it("opens neither screen when the registration has closed while the key was fetched", async () => {

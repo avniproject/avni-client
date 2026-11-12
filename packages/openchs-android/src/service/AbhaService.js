@@ -68,11 +68,6 @@ class AbhaService extends BaseService {
             .catch(AbhaService._refusalAsAbhaError);
     }
 
-    // Today's Scan & Share check-ins at the user's health centre, in token order.
-    getCheckIns() {
-        return this._get('/abha/checkIns');
-    }
-
     // The audit record of an ABHA action: kept on the phone, then sent. It resolves true once the server has it, and
     // false otherwise; it never rejects and never holds up the worker. The record stays kept while it is on its way
     // and is forgotten only when the server takes it or refuses it for good, so a record that does not get there

@@ -68,16 +68,16 @@ async function pageFor(props) {
     return webView.props.source.html;
 }
 
-// An ABHA address known before Eka's screens open (a "Checked in today" patient) opens them on that address: Eka's SDK
-// takes it as identifier, of identifier_type phr_address (eka-abdm plugin, abdm-m1-abha/references/web-sdk.md).
-describe("AbhaView with an ABHA address to start from", () => {
+// An identifier carried over from Avni's verify screens opens Eka's screens on it: Eka's SDK takes it as identifier,
+// with its identifier_type (eka-abdm plugin, abdm-m1-abha/references/web-sdk.md).
+describe("AbhaView with an identifier to start from", () => {
     afterEach(() => {
         mounted.forEach((renderer) => act(() => renderer.unmount()));
         mounted = [];
     });
 
-    it("hands the address to Eka's screens as a PHR address", async () => {
-        const html = await pageFor({prefillAbhaAddress: "asha.rao@abdm"});
+    it("hands the identifier to Eka's screens with its type", async () => {
+        const html = await pageFor({abhaPrefill: {identifier: "asha.rao@abdm", identifierType: "phr_address"}});
         expect(html).toContain('"identifier":"asha.rao@abdm"');
         expect(html).toContain('"identifier_type":"phr_address"');
     });
