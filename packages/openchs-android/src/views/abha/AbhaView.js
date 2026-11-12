@@ -207,8 +207,7 @@ class AbhaView extends AbstractComponent {
                         allowFileAccess={false}
                         allowFileAccessFromFileURLs={false}
                         allowUniversalAccessFromFileURLs={false}
-                        // Eka's page holds the patient's Aadhaar and OTP, so it opens on no cookies, cache or form data and caches nothing.
-                        incognito={true}
+                        // Eka's page holds the patient's Aadhaar and OTP, so none of it is cached; not incognito, which would clear Avni's cookies.
                         cacheEnabled={false}
                         onShouldStartLoadWithRequest={(request) => this.allowLoad(request)}
                         onLoadEnd={() => { this.hostedPageLoaded = true; }}

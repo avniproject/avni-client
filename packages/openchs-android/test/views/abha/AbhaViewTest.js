@@ -112,11 +112,11 @@ describe("AbhaViewTest", () => {
         expect(props.allowUniversalAccessFromFileURLs).toBe(false);
     });
 
-    // Eka's page holds the patient's Aadhaar, mobile and OTP while it runs.
-    it("opens Eka's page incognito and caches nothing of it", async () => {
+    // Not incognito: on Android that clears the cookies Avni's own requests share, the XSRF cookie among them.
+    it("caches nothing of Eka's page, and leaves the app's cookies alone", async () => {
         const props = (await show()).webViews()[0].props;
-        expect(props.incognito).toBe(true);
         expect(props.cacheEnabled).toBe(false);
+        expect(props).not.toHaveProperty("incognito");
     });
 
     it("takes messages only from the page it built, never from a page loaded into it later", async () => {
