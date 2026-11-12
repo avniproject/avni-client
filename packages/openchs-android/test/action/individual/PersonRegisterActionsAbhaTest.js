@@ -266,15 +266,25 @@ describe("PersonRegisterActions, ABHA", () => {
             expect(lockedOnLoad(null)).toBe(false);
         });
 
-        it("the lock follows the saved ABHA number for every user: one with no health centre, and with the organisation's ABHA off", () => {
+        it("the lock follows the saved ABHA number for a user with no health centre while the organisation has ABHA on", () => {
+            const saved = Object.assign(withNumber(), {firstName: "Asha", dateOfBirth: new Date(1990, 3, 23)});
+            const {abha} = load(contextWith({abhaOn: true, hipId: null, saved}), saved.uuid);
+            expect([abha.locked, abha.lockedFields]).toEqual([true, {firstName: true, middleName: false, lastName: false, dateOfBirth: true, gender: false}]);
+            // Remove ABHA link, which lifts the lock, is for users with a health centre.
+            expect(abha.enabledForUser).toBe(false);
+            expect(PersonRegisterActions.abhaOptionsShown(abha)).toBe(false);
+        });
+
+        // Remove ABHA link is hidden with ABHA off, so a lock there could never be lifted.
+        it("the lock follows the organisation's switch: with ABHA off a saved ABHA number locks nothing, ABHA questions included", () => {
             const person = () => Object.assign(withNumber(), {firstName: "Asha", dateOfBirth: new Date(1990, 3, 23)});
-            [{abhaOn: true, hipId: null}, {abhaOn: false, hipId: "hip-1"}, {abhaOn: false, hipId: null}].forEach((options) => {
+            [{abhaOn: false, hipId: "hip-1"}, {abhaOn: false, hipId: null}].forEach((options) => {
                 const saved = person();
                 const {abha} = load(contextWith({...options, saved}), saved.uuid);
-                expect([options, abha.locked, abha.lockedFields]).toEqual([options, true, {firstName: true, middleName: false, lastName: false, dateOfBirth: true, gender: false}]);
-                // Remove ABHA link, which lifts the lock, stays for users with ABHA on.
-                expect(abha.enabledForUser).toBe(false);
-                expect(PersonRegisterActions.abhaOptionsShown(abha)).toBe(false);
+                expect([options, abha.locked, abha.lockedFields]).toEqual([options, false, NO_LOCKS]);
+                expect(abha.linked).toBe(true);
+                const formElements = abhaForm().getFormElementGroups()[0].getFormElements();
+                expect(PersonRegisterActions.abhaFormElements(formElements, abha)).toBe(formElements);
             });
         });
 
