@@ -100,8 +100,10 @@ function loadCurrentDashboardInfo(context, state) {
     return state;
 }
 
-function getViewName(standardReportCardType) {
+function getViewName(standardReportCardType, opensApprovalList) {
     switch (true) {
+        case opensApprovalList :
+            return 'ApprovalListingView';
         case _.isNil(standardReportCardType) :
             return 'IndividualSearchResultPaginatedView';
         case standardReportCardType.isApprovalType() :
@@ -255,7 +257,10 @@ class CustomDashboardActions {
             General.logDebug('CustomDashboardActions', `onCardPress - getReportCardResult for ${reportCard.name} took ${new Date() - resultStartTime} ms`);
 
             const standardReportCardType = reportCard.standardReportCardType;
-            const viewName = getViewName(standardReportCardType);
+            // An Approve or Reject card with no state falls back to the ordinary list.
+            const approvalStatus = reportCard.getApprovalStatusForCard();
+            const opensApprovalList = standardReportCardType ? standardReportCardType.isApprovalType() : !_.isNil(approvalStatus);
+            const viewName = getViewName(standardReportCardType, opensApprovalList);
             const countResult = state.cardToCountResultMap[itemKey];
             const displayName = (countResult && countResult.cardName) || reportCard.name;
             const isArrayLike = isArrayLikeResult(result);
@@ -289,11 +294,11 @@ class CustomDashboardActions {
                     } else {
                         General.logDebug('CustomDashboardActions', `onCardPress - DoVisit zero results: navigating to IndividualListView`);
                         setTimeout(() => action.onCustomRecordCardResults(result, status, viewName,
-                            standardReportCardType && standardReportCardType.getApprovalStatusForType(), ruleInputArray, reportCard, displayName), 0);
+                            approvalStatus, ruleInputArray, reportCard, displayName), 0);
                     }
                 }
             } else if (result && (isArrayLike || isChecklistCard)) {
-                const isApprovalCard = standardReportCardType && standardReportCardType.isApprovalType();
+                const isApprovalCard = opensApprovalList;
                 // Deep-link only to something that really is a subject. Rows here can be Comments,
                 // approval entities or org-authored query output that merely carry a uuid, and
                 // SubjectDashboardView crashes on a non-subject uuid. Anything else opens the list.
@@ -306,7 +311,7 @@ class CustomDashboardActions {
                 } else {
                     General.logDebug('CustomDashboardActions', `onCardPress - Setting timeout for navigation to ${viewName}`);
                     setTimeout(() => action.onCustomRecordCardResults(result, status, viewName,
-                        standardReportCardType && standardReportCardType.getApprovalStatusForType(), ruleInputArray, reportCard, displayName), 0);
+                        approvalStatus, ruleInputArray, reportCard, displayName), 0);
                 }
             } else {
                 General.logDebug('CustomDashboardActions', `onCardPress - result not array-like, dismissing loader`);

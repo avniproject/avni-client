@@ -71,6 +71,13 @@
       "when": 1793614593835,
       "tag": "0009_report_card_action_detail_dashboard_uuid",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1794362706951,
+      "tag": "0010_report_card_action_detail_approval_status",
+      "breakpoints": true
     }
   ]
 }

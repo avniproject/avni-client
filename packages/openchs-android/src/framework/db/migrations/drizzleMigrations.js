@@ -76,6 +76,13 @@ export const journal = {
       "when": 1793614593835,
       "tag": "0009_report_card_action_detail_dashboard_uuid",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1794362706951,
+      "tag": "0010_report_card_action_detail_approval_status",
+      "breakpoints": true
     }
   ]
 };
@@ -90,5 +97,6 @@ export const sqlFiles = {
   "0006_add_entity_approval_status_entity_uuid_index": "CREATE INDEX `idx_entity_approval_status_entity_uuid` ON `entity_approval_status` (`entity_uuid`);",
   "0007_entity_approval_status_observations": "ALTER TABLE `entity_approval_status` ADD `observations` text DEFAULT '[]';",
   "0008_program_encounter_pending_visits": "CREATE INDEX `idx_program_encounter_pending_visits` ON `program_encounter` (`voided`,`encounter_date_time`,`cancel_date_time`,`max_visit_date_time`);",
-  "0009_report_card_action_detail_dashboard_uuid": "UPDATE `entity_sync_status` SET `loaded_since` = -2208988800000 WHERE `entity_name` = 'ReportCard';--> statement-breakpoint\nALTER TABLE `report_card` ADD `action_detail_dashboard_uuid` text;"
+  "0009_report_card_action_detail_dashboard_uuid": "UPDATE `entity_sync_status` SET `loaded_since` = -2208988800000 WHERE `entity_name` = 'ReportCard';--> statement-breakpoint\nALTER TABLE `report_card` ADD `action_detail_dashboard_uuid` text;",
+  "0010_report_card_action_detail_approval_status": "UPDATE `entity_sync_status` SET `loaded_since` = -2208988800000 WHERE `entity_name` = 'ReportCard';--> statement-breakpoint\nALTER TABLE `report_card` ADD `action_detail_approval_status` text;"
 };

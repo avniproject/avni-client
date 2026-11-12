@@ -1,6 +1,6 @@
 import BaseService from "../BaseService";
 import Service from "../../framework/bean/Service";
-import {ReportCard, StandardReportCardType} from "openchs-models";
+import {Individual, ReportCard, StandardReportCardType} from "openchs-models";
 import EntityApprovalStatusService from "../EntityApprovalStatusService";
 import RuleEvaluationService from "../RuleEvaluationService";
 import IndividualService from "../IndividualService";
@@ -46,6 +46,34 @@ function getSubjectCriteria(reportCard, formMetaData) {
     return subjectCriteria;
 }
 
+// A bare database object turns up when a query reaches past the model wrappers.
+function toSubject(row) {
+    const candidate = _.get(row, 'individual') || row;
+    if (candidate instanceof Individual) return candidate;
+    if (!_.isNil(candidate) && _.isNil(candidate.that) && _.isFunction(candidate.objectSchema)
+        && _.get(candidate.objectSchema(), 'name') === Individual.schema.name) return new Individual(candidate);
+    return null;
+}
+
+// A failed query reaches here as nothing, or as error results on a nested card.
+function isQueryError(result) {
+    if (_.isNil(result) || result.hasErrorMsg === true) return true;
+    return Array.isArray(result) && result.length > 0 && result.every(r => r && r.hasErrorMsg === true);
+}
+
+export function toApprovalListSubjects(result) {
+    if (_.isNil(result) || !(Array.isArray(result) || _.isFunction(result[Symbol.iterator]))) return [];
+    const seen = new Set();
+    const subjects = [];
+    for (const row of result) {
+        const subject = toSubject(row);
+        if (_.isNil(subject) || _.isNil(subject.uuid) || seen.has(subject.uuid)) continue;
+        seen.add(subject.uuid);
+        subjects.push(subject);
+    }
+    return subjects;
+}
+
 @Service("reportCardService")
 class ReportCardService extends BaseService {
     constructor(db, context) {
@@ -65,6 +93,13 @@ class ReportCardService extends BaseService {
     getResultForApprovalCardsType(standardReportCardType, reportFilters, formMapping) {
         const approvalStatus_status = standardReportCardType.getApprovalStatusForType();
         return this.getService(EntityApprovalStatusService).getAllSubjects(approvalStatus_status, reportFilters, formMapping);
+    }
+
+    getResultForCustomApprovalCard(reportCard, reportFilters) {
+        const result = this.getService(RuleEvaluationService).getDashboardCardQueryResult(reportCard, reportFilters);
+        // A failed query must not open an empty list; the tap then does nothing, like any custom card.
+        if (isQueryError(result)) return null;
+        return toApprovalListSubjects(result);
     }
 
     getCountForCommentCardType(reportFilters) {
@@ -183,6 +218,8 @@ class ReportCardService extends BaseService {
         General.logDebug("ReportCardService", `Executing report card: ${reportCard.name}`);
         const standardReportCardType = reportCard.standardReportCardType;
         switch (true) {
+            case _.isNil(standardReportCardType) && !_.isNil(reportCard.getApprovalStatusForCard()) :
+                return {status: null, result: this.getResultForCustomApprovalCard(reportCard, reportFilters)};
             case _.isNil(standardReportCardType) : {
                 const result = this.getService(RuleEvaluationService).getDashboardCardQueryResult(reportCard, reportFilters);
                 return {status: null, result};

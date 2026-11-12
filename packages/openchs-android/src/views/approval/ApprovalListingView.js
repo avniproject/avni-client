@@ -7,6 +7,7 @@ import CHSContainer from "../common/CHSContainer";
 import Colors from "../primitives/Colors";
 import AppHeader from "../common/AppHeader";
 import React from "react";
+import _ from "lodash";
 import DropDownPicker from 'react-native-dropdown-picker';
 import {getUnderlyingRealmCollection, Individual, ReportCard} from 'openchs-models';
 import EntityService from "../../service/EntityService";
@@ -16,6 +17,11 @@ import FormMappingService from "../../service/FormMappingService";
 import SubjectApprovalView from "./SubjectApprovalView";
 
 const placeHolderPicker = {label: 'All', value: null};
+
+// A custom query card's subjects are a plain array; the standard card's are a database collection.
+export function listRows(subjects) {
+    return Array.isArray(subjects) ? subjects : getUnderlyingRealmCollection(subjects);
+}
 
 @Path('/approvalListingView')
 class ApprovalListingView extends AbstractComponent {
@@ -32,6 +38,15 @@ class ApprovalListingView extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
         this.state = {subjects: props.results, selectedFilterPicker: placeHolderPicker, allFilterItems: []};
+        // The form-type list narrows the standard card's query, which a custom query card does not run.
+        const reportCard = this.getReportCard();
+        this.isCustomQueryCard = !_.isNil(reportCard) && !reportCard.isStandardReportType();
+    }
+
+    getReportCard() {
+        const {reportCardUUID} = this.props;
+        const rcUUID = this.getService(ReportCardService).getPlainUUIDFromCompositeReportCardUUID(reportCardUUID);
+        return this.getService(EntityService).findByUUID(rcUUID, ReportCard.schema.name);
     }
 
     viewName() {
@@ -52,8 +67,12 @@ class ApprovalListingView extends AbstractComponent {
 
     fetchSubjects(formMapping) {
         const {reportCardUUID, reportFilters} = this.props;
-        const rcUUID = this.getService(ReportCardService).getPlainUUIDFromCompositeReportCardUUID(reportCardUUID);
-        const reportCard = this.getService(EntityService).findByUUID(rcUUID, ReportCard.schema.name);
+        const reportCard = this.getReportCard();
+        if (this.isCustomQueryCard) {
+            // A nested card's query picks its own card by the composite uuid.
+            reportCard.itemKey = reportCardUUID;
+            return this.getService(ReportCardService).getResultForCustomApprovalCard(reportCard, reportFilters) || [];
+        }
         return this.getService(ReportCardService).getResultForApprovalCardsType(reportCard.standardReportCardType, reportFilters, formMapping);
     }
 
@@ -84,7 +103,7 @@ class ApprovalListingView extends AbstractComponent {
                 <View>
                     <Text style={{color: Colors.DetailsTextColor}}>{`Total ${subjects.length} subjects`}</Text>
                 </View>
-                <View style={{marginTop: 10}}>
+                {!this.isCustomQueryCard && <View style={{marginTop: 10}}>
                     <DropDownPicker
                         itemKey={"label"}
                         items={allFilterItems}
@@ -99,7 +118,7 @@ class ApprovalListingView extends AbstractComponent {
                         customArrowUp={() => <Icon name={'caret-up'} size={18}/>}
                         customArrowDown={() => <Icon name={'caret-down'} size={18}/>}
                     />
-                </View>
+                </View>}
             </View>
         )
     }
@@ -116,10 +135,11 @@ class ApprovalListingView extends AbstractComponent {
                 <AppHeader title={this.I18n.t(title)} func={this.onBackPress.bind(this)}/>
                 {this.renderFilter()}
                 <FlatList
-                    data={getUnderlyingRealmCollection(this.state.subjects)}
+                    data={listRows(this.state.subjects)}
                     keyExtractor={(item) => item.uuid}
                     renderItem={(x) =>
-                        <SubjectApprovalView subject={new Individual(x.item)} approvalStatus_status={this.props.approvalStatus_status}
+                        <SubjectApprovalView subject={x.item instanceof Individual ? x.item : new Individual(x.item)}
+                                             approvalStatus_status={this.props.approvalStatus_status}
                                              onApprovalSelection={(entity) => this.props.onApprovalSelection(this, entity)}/>}
                     initialNumToRender={50}
                     updateCellsBatchingPeriod={500}
