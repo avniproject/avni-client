@@ -170,6 +170,28 @@ describe("AbhaVerifyFlow", () => {
             expect(flow.state.errorKey).toBe("abhaVerifyNoMethods");
             expect(flow.state.step).toBe(STEPS.IDENTIFIER);
         });
+
+        // An environment Eka's session does not name gets no suffix: the worker types the whole address.
+        it("adds the suffix of the session's environment to an address typed without one, and none for an unknown environment", async () => {
+            const cases = [["sandbox", "asha.rao@sbx"], ["production", "asha.rao@abdm"], [undefined, "asha.rao"], ["staging", "asha.rao"]];
+            for (const [environment, expected] of cases) {
+                const client = {methods: jest.fn(() => Promise.resolve({auth_methods: ["MOBILE_OTP"], blocked_methods: []}))};
+                const flow = new AbhaVerifyFlow(client, {environment});
+                flow.chooseMethod(METHODS.ABHA_ADDRESS);
+                await flow.submitIdentifier("asha.rao");
+                expect([environment, client.methods.mock.calls[0][0]]).toEqual([environment, expected]);
+            }
+        });
+
+        it("sends a whole address as typed, whatever the environment", async () => {
+            for (const environment of ["sandbox", "production", undefined]) {
+                const client = {methods: jest.fn(() => Promise.resolve({auth_methods: ["MOBILE_OTP"], blocked_methods: []}))};
+                const flow = new AbhaVerifyFlow(client, {environment});
+                flow.chooseMethod(METHODS.ABHA_ADDRESS);
+                await flow.submitIdentifier("asha.rao@abdm");
+                expect([environment, client.methods.mock.calls[0][0]]).toEqual([environment, "asha.rao@abdm"]);
+            }
+        });
     });
 
     describe("by Aadhaar", () => {

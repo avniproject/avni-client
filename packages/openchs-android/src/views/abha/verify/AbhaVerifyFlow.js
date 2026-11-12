@@ -16,6 +16,7 @@ export const RESEND_AFTER_MS = 60 * 1000;
 export const MAX_RESENDS = 2;
 // ABDM's answer when no ABHA is registered for the mobile or Aadhaar given.
 export const NO_ABHA_CODES = ['ABDM-1114'];
+// Maps the environment Eka's session names to the suffix of ABHA addresses there.
 const ADDRESS_SUFFIX = {sandbox: '@sbx', production: '@abdm'};
 
 // Aadhaar numbers carry a Verhoeff check digit, so a mistyped digit is caught before any OTP is sent.
@@ -67,7 +68,8 @@ class AbhaVerifyFlow {
     // onVerified(reply, method) gets Eka's reply holding the profile; onChange(state) re-renders the screen.
     constructor(client, {environment, onChange = _.noop, onVerified = _.noop, now = () => Date.now()} = {}) {
         this.client = client;
-        this.suffix = ADDRESS_SUFFIX[environment] || '@sbx';
+        // An unknown environment has no suffix to add: the worker types the whole address.
+        this.suffix = ADDRESS_SUFFIX[environment] || '';
         this.onChange = onChange;
         this.onVerified = onVerified;
         this.now = now;
