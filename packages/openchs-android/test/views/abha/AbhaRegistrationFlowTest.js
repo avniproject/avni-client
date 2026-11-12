@@ -163,6 +163,25 @@ describe("AbhaRegistrationFlowTest", () => {
             expect(dispatched(view, Actions.ON_ABHA_CHOICE)).toEqual([[Actions.ON_ABHA_CHOICE, {choice: "without"}]]);
         });
 
+        it("takes only the first hand-off from the verify screens, so a double tap opens Eka's creation once", async () => {
+            const view = viewWith();
+            await new AbhaRegistrationFlow(view).open({route: "verify"});
+            const handlers = verifyOpened()[2];
+
+            handlers.onCreate(AADHAAR);
+            handlers.onCreate(AADHAAR);
+            handlers.onWithout();
+            await handlers.onProfile(PROFILE);
+            await flush();
+
+            expect(view.abhaService.getSession).toHaveBeenCalledTimes(2);
+            expect(CHSNavigator.navigateToAbhaView).toHaveBeenCalledTimes(1);
+            expect(mockPopToBookmark).toHaveBeenCalledTimes(1);
+            expect(view.runAfterSceneTransition).toHaveBeenCalledTimes(1);
+            expect(dispatched(view, Actions.ON_ABHA_CHOICE)).toEqual([]);
+            expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toEqual([]);
+        });
+
         it("Create still opens Eka's screens", async () => {
             await new AbhaRegistrationFlow(viewWith()).open({route: "create"});
             expect(CHSNavigator.navigateToAbhaVerifyView).not.toHaveBeenCalled();

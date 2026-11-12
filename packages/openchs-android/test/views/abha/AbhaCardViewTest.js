@@ -21,7 +21,6 @@ jest.mock("@react-native-documents/picker", () => ({
 const pickerError = (code, message = "picker") => Object.assign(new Error(message), {code});
 const mockShareOpen = jest.fn(() => Promise.resolve({success: true}));
 jest.mock("react-native-share", () => ({__esModule: true, default: {open: (...args) => mockShareOpen(...args)}}));
-jest.mock("react-native-device-info", () => ({getApiLevel: jest.fn(() => Promise.resolve(34))}));
 jest.mock("react-native-blob-util", () => ({fs: {dirs: {CacheDir: "/cache"}}}));
 jest.mock("../../../src/service/AuthAwareDownload", () => ({downloadWithAuth: jest.fn()}));
 jest.mock("../../../src/views/common/AppHeader", () => ({__esModule: true, default: () => null}));
@@ -420,6 +419,19 @@ describe("AbhaCardViewTest", () => {
             await verifyWithConsent(view);
 
             expect(ToastAndroid.show).toHaveBeenCalledWith("abhaNoHealthCentre", ToastAndroid.LONG);
+            expect(CHSNavigator.navigateToAbhaView).not.toHaveBeenCalled();
+        });
+
+        it("opens nothing when the card screen closes while the key is being fetched", async () => {
+            let arrive;
+            const view = await showLapsed();
+            view.abhaService.getSession.mockImplementation(() => new Promise((resolve) => { arrive = resolve; }));
+            await verifyWithConsent(view);
+
+            act(() => view.renderer.unmount());
+            await act(async () => arrive(SESSION));
+
+            expect(view.abhaService.getSession).toHaveBeenCalledTimes(1);
             expect(CHSNavigator.navigateToAbhaView).not.toHaveBeenCalled();
         });
 

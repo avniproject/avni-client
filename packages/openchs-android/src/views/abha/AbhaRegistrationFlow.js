@@ -130,20 +130,27 @@ class AbhaRegistrationFlow {
 
     // The patient's consent covers the whole ABHA step, so creating an ABHA after "not found" does not ask again.
     openVerifyScreens(session, consentGivenAt) {
+        // A double tap on the verify screens hands back twice; only the first hand-off is taken.
+        let handedBack = false;
+        const once = (handOff) => (...args) => {
+            if (handedBack) return undefined;
+            handedBack = true;
+            return handOff(...args);
+        };
         CHSNavigator.navigateToAbhaVerifyView(this.view, session, {
-            onProfile: (profile) => {
+            onProfile: once((profile) => {
                 TypedTransition.from(this.view).popToBookmark();
                 return this.onProfile(profile, {route: 'verify', consentGivenAt}).catch(() => this.failed('ABHA verified, not filled in'));
-            },
-            onCreate: (aadhaar) => {
+            }),
+            onCreate: once((aadhaar) => {
                 TypedTransition.from(this.view).popToBookmark();
                 this.view.runAfterSceneTransition(() => this.openCreateAfterNotFound(aadhaar, consentGivenAt)
                     .catch(() => this.failed('ABHA screens not opened for creation')));
-            },
-            onWithout: () => {
+            }),
+            onWithout: once(() => {
                 TypedTransition.from(this.view).popToBookmark();
                 this.chooseWithout();
-            },
+            }),
         });
     }
 

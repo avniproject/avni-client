@@ -112,6 +112,8 @@ class AbhaCardView extends AbstractComponent {
             ToastAndroid.show(this.I18n.t(AbhaError.messageKey(error)), ToastAndroid.LONG);
             return;
         }
+        // The worker may have closed the card while the key was fetched.
+        if (this.unmounted) return;
         CHSNavigator.navigateToAbhaView(this, session, {method: ABHA_SDK_METHOD},
             (profile) => {
                 TypedTransition.from(this).popToBookmark();
