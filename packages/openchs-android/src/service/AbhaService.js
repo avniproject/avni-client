@@ -8,6 +8,7 @@ import AbhaError from "./AbhaError";
 import AbhaProfile from "../views/abha/AbhaProfile";
 import AbhaBranding from "../views/abha/AbhaBranding";
 import General from "../utility/General";
+import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 import RNFS from "react-native-fs";
 import ReactNativeBlobUtil from "react-native-blob-util";
 import {downloadWithAuth} from "./AuthAwareDownload";
@@ -18,11 +19,12 @@ export const UNSENT_EVENTS_KEY = 'avni.abha.unsentEvents';
 // Their own keychain entry, encrypted by the Android keystore; the database key's entry has no service name.
 const KEYCHAIN_ENTRY = {service: UNSENT_EVENTS_KEY};
 const KEYCHAIN_USERNAME = 'avni.abha';
-// A phone that cannot reach the server for long keeps only the newest, so the keychain entry stays small.
-export const MAX_UNSENT_EVENTS = 50;
+// A phone that cannot reach the server for long keeps only the newest, so the keychain entry stays bounded.
+export const MAX_UNSENT_EVENTS = 500;
 // The only answers that mean the server will never take a record. An expired login, a timeout, too many requests,
 // a server error or no network can all clear later, so on those the record is kept.
 const REFUSED_STATUSES = [400, 403, 409];
+const UNREADABLE_KEPT = 'Unsent ABHA audit records unreadable: lost';
 // The card files getCardFile writes into the cache folder.
 const CARD_FILE_NAME = /^abha-card-.*\.png$/;
 // True once a clear has emptied the kept records in this app run, until ABHA is seen on again.
@@ -125,6 +127,7 @@ class AbhaService extends BaseService {
             const refused = _.includes(REFUSED_STATUSES, status);
             if (refused) await this._forget(event.uuid);
             General.logWarn('AbhaService', `ABHA event ${event.uuid} not recorded: ${refused ? `refused (Http ${status}), dropped` : 'kept to send again'}`);
+            if (refused) AbhaService.reportLoss(`ABHA audit records refused by the server (Http ${status}): 1 dropped`);
             return false;
         } finally {
             this.sending.delete(event.uuid);
@@ -132,21 +135,26 @@ class AbhaService extends BaseService {
     }
 
     _keep(event) {
-        return this._changeKept((events) => [..._.reject(events, ['uuid', event.uuid]), event]);
+        return this._changeKept((events) => [..._.reject(events, ['uuid', event.uuid]), event])
+            .then((kept) => { if (!kept) AbhaService.reportLoss('ABHA audit records not kept on the phone: 1'); });
     }
 
     _forget(uuid) {
         return this._changeKept((events) => _.reject(events, ['uuid', uuid]));
     }
 
-    // Never rejects. A record that could not be written is still sent; it is only not kept for a resend.
+    // Never rejects; false when the change was not made. A record that could not be written is still sent; it is only
+    // not kept for a resend.
     _changeKept(change) {
         const changed = this.storage.then(async () => {
             const events = await AbhaService._readKept();
             await AbhaService._writeKept(change(events));
         });
         this.storage = changed.catch(() => {});
-        return changed.catch(() => General.logWarn('AbhaService', 'ABHA audit records could not be kept on the phone'));
+        return changed.then(() => true, () => {
+            General.logWarn('AbhaService', 'ABHA audit records could not be kept on the phone');
+            return false;
+        });
     }
 
     // In line with the changes, since a read can move records out of AsyncStorage and so write.
@@ -170,26 +178,39 @@ class AbhaService extends BaseService {
         return written;
     }
 
-    // Unreadable contents read as none, so the next write replaces them.
+    // Unreadable contents read as none, so the next write replaces them: a loss, reported like the others.
     static _parsed(stored) {
+        let events = null;
         try {
-            const events = JSON.parse(stored || '[]');
-            return _.isArray(events) ? events : [];
-        } catch (e) {
-            return [];
-        }
+            events = JSON.parse(stored || '[]');
+        } catch (e) { /* unreadable */ }
+        if (_.isArray(events)) return events;
+        General.logWarn('AbhaService', UNREADABLE_KEPT);
+        AbhaService.reportLoss(UNREADABLE_KEPT);
+        return [];
     }
 
-    // The newest MAX_UNSENT_EVENTS, oldest first; the warning gives only how many went. None left removes the entry, so
-    // it exists only while records are unsent.
+    // The newest MAX_UNSENT_EVENTS, oldest first; the warning and the report give only how many went. None left removes
+    // the entry, so it exists only while records are unsent.
     static async _writeKept(events) {
         const kept = _.takeRight(events, MAX_UNSENT_EVENTS);
-        if (kept.length < events.length) {
-            General.logWarn('AbhaService', `ABHA audit records over the limit of ${MAX_UNSENT_EVENTS}: ${events.length - kept.length} oldest dropped`);
-        }
         if (_.isEmpty(kept)) await Keychain.resetGenericPassword(KEYCHAIN_ENTRY);
         else await Keychain.setGenericPassword(KEYCHAIN_USERNAME, JSON.stringify(kept), KEYCHAIN_ENTRY);
+        // Only once written: a failed write drops nothing.
+        if (kept.length < events.length) {
+            const dropped = `ABHA audit records over the limit of ${MAX_UNSENT_EVENTS}: ${events.length - kept.length} oldest dropped`;
+            General.logWarn('AbhaService', dropped);
+            AbhaService.reportLoss(dropped);
+        }
         return kept;
+    }
+
+    // A lost record strands that patient's visits on the server, so Bugsnag hears of each loss: a count, never a record.
+    // Never throws.
+    static reportLoss(line) {
+        try {
+            ErrorUtil.notifyBugsnag(new Error(line), 'AbhaService').catch(() => {});
+        } catch (e) { /* reporting never holds up the records */ }
     }
 
     // The ABHA card image, fetched into the cache folder, and the path of that file. The card is the patient's

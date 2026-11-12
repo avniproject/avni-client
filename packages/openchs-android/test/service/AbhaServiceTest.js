@@ -40,6 +40,7 @@ import AbhaError from "../../src/service/AbhaError";
 import AbhaBranding from "../../src/views/abha/AbhaBranding";
 import AuthenticationError from "../../src/service/AuthenticationError";
 import General from "../../src/utility/General";
+import ErrorUtil from "../../src/framework/errorHandling/ErrorUtil";
 import en from "../../translations/en.json";
 
 const EKA_KEY = "eka-access-key-7f3a";
@@ -82,6 +83,16 @@ function captureLogs() {
 }
 
 const asText = (arg) => typeof arg === "string" ? arg : JSON.stringify(arg) || "";
+
+// What reached Bugsnag: each report's message, and nothing else of the error.
+function bugsnagReports() {
+    const notify = jest.spyOn(ErrorUtil, "notifyBugsnag").mockImplementation((error) => Promise.resolve(error));
+    return () => notify.mock.calls.map(([error, source]) => {
+        expect(source).to.equal("AbhaService");
+        expect(Object.keys(error)).to.deep.equal([]);
+        return error.message;
+    });
+}
 
 // Lets the promises already queued run, until the check holds.
 async function until(check) {
@@ -489,21 +500,70 @@ describe("AbhaServiceTest", () => {
                 expect(global.fetch.mock.calls.length).to.equal(1);
             });
 
-            it("are at most 50: the oldest go first, with a warning that gives only how many", async () => {
+            it("are at most 500: the oldest go first, with a warning and a Bugsnag report that give only how many", async () => {
                 const logged = captureLogs();
+                const reported = bugsnagReports();
                 offline();
                 const abhaService = service();
-                for (let n = 1; n <= 52; n++) await abhaService.keepEvent(eventNumbered(n));
+                for (let n = 1; n <= 502; n++) await abhaService.keepEvent(eventNumbered(n));
 
                 const kept = keptInKeychain().map((event) => event.uuid);
-                expect(kept).to.have.length(50);
+                expect(kept).to.have.length(500);
                 expect(kept[0]).to.equal("ev-3");
-                expect(kept[49]).to.equal("ev-52");
+                expect(kept[499]).to.equal("ev-502");
                 const warnings = logged.filter((args) => asText(args[1]).includes("dropped"));
-                expect(warnings.map((args) => args[1])).to.deep.equal(["ABHA audit records over the limit of 50: 1 oldest dropped",
-                    "ABHA audit records over the limit of 50: 1 oldest dropped"]);
-                logged.forEach((args) => args.forEach((arg) => [...PATIENT_DETAILS, "ev-1", "ev-2"].forEach((detail) =>
-                    expect(asText(arg)).to.not.contain(detail))));
+                const line = "ABHA audit records over the limit of 500: 1 oldest dropped";
+                expect(warnings.map((args) => args[1])).to.deep.equal([line, line]);
+                expect(reported()).to.deep.equal([line, line]);
+                [...logged.flat(), ...reported()].forEach((arg) => [...PATIENT_DETAILS, "ev-1", "ev-2"].forEach((detail) =>
+                    expect(asText(arg)).to.not.contain(detail)));
+            });
+
+            it("that could not be kept reach Bugsnag as a count, never the record", async () => {
+                captureLogs();
+                const reported = bugsnagReports();
+                Keychain.setGenericPassword.mockImplementationOnce(async () => { throw new Error("keystore locked"); });
+
+                await service().keepEvent(EVENT);
+
+                expect(reported()).to.deep.equal(["ABHA audit records not kept on the phone: 1"]);
+            });
+
+            it("at the limit, when the write fails, are reported as not kept, never as the oldest dropped", async () => {
+                captureLogs();
+                mockKeychainStore.set(SERVICE, JSON.stringify(Array.from({length: 500}, (x, n) => eventNumbered(n))));
+                const reported = bugsnagReports();
+                Keychain.setGenericPassword.mockImplementationOnce(async () => { throw new Error("keystore locked"); });
+
+                await service().keepEvent(eventNumbered(500));
+
+                expect(reported()).to.deep.equal(["ABHA audit records not kept on the phone: 1"]);
+                expect(keptInKeychain()).to.have.length(500);
+                expect(keptInKeychain()[0].uuid).to.equal("ev-0");
+            });
+
+            it("tell Bugsnag nothing when they are only sent, kept or forgotten as usual", async () => {
+                captureLogs();
+                const reported = bugsnagReports();
+                offline();
+                await service().recordEvent(EVENT);
+                global.fetch = jest.fn(async () => reply(201, {}));
+                await service().resendUnsentEvents();
+
+                expect(reported()).to.deep.equal([]);
+            });
+
+            // A write replaces whatever could not be read, so the records in it are lost.
+            it("that cannot be read back are reported before a write replaces them", async () => {
+                captureLogs();
+                const reported = bugsnagReports();
+                mockKeychainStore.set(SERVICE, "{not json");
+                offline();
+
+                await service().keepEvent(EVENT);
+
+                expect(reported()).to.deep.equal(["Unsent ABHA audit records unreadable: lost"]);
+                expect(keptInKeychain()).to.deep.equal([EVENT]);
             });
 
             it("are still sent when the keychain cannot be read or written, with a warning that they are not kept", async () => {
@@ -566,6 +626,18 @@ describe("AbhaServiceTest", () => {
         global.fetch = jest.fn(async () => reply(201, {}));
         await abhaService.resendUnsentEvents();
         expect(global.fetch.mock.calls.length).to.equal(0);
+    });
+
+    it("tells Bugsnag of each record dropped on the server's refusal, as a count and the answer, never the record", async () => {
+        captureLogs();
+        const reported = bugsnagReports();
+        for (const status of [400, 403, 409, 401, 404, 429, 500]) {
+            mockKeychainStore.clear();
+            global.fetch = jest.fn(async () => reply(status, {code: "SOME_CODE"}));
+            await service().recordEvent(EVENT);
+        }
+
+        expect(reported()).to.deep.equal([400, 403, 409].map((status) => `ABHA audit records refused by the server (Http ${status}): 1 dropped`));
     });
 
     it("never logs the record's ABHA number, address or Eka's patient ID, sent or not", async () => {
