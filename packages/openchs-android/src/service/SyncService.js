@@ -184,11 +184,12 @@ class SyncService extends BaseService {
         try {
             const organisationConfigService = this.getService(OrganisationConfigService);
             if (_.isNil(organisationConfigService)) return;
-            // An organisation that has turned ABHA off keeps no patient's ABHA on the phone.
+            // An organisation that has turned ABHA off keeps no patient's ABHA on the phone; cleared once an app run.
             if (!organisationConfigService.isAbhaEnabled()) {
-                await AbhaService.clearUnsentEvents();
+                await AbhaService.clearUnsentEventsOnce();
                 return;
             }
+            AbhaService.unsentEventsMayBeKept();
             await this.getService(AbhaService).resendUnsentEvents();
         } catch (e) {
             General.logWarn('SyncService', 'Unsent ABHA audit records not sent again');

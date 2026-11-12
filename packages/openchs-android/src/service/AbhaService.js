@@ -25,6 +25,8 @@ export const MAX_UNSENT_EVENTS = 50;
 const REFUSED_STATUSES = [400, 403, 409];
 // The card files getCardFile writes into the cache folder.
 const CARD_FILE_NAME = /^abha-card-.*\.png$/;
+// True once a clear has emptied the kept records in this app run, until ABHA is seen on again.
+let unsentEventsCleared = false;
 
 // Avni's server holds Eka's secret and answers these online, outside sync. The Eka key in a session is handed to the
 // caller and never stored or logged; it lasts about 30 minutes.
@@ -96,7 +98,19 @@ class AbhaService extends BaseService {
             attempt(() => Keychain.resetGenericPassword(KEYCHAIN_ENTRY)),
             attempt(() => AsyncStorage.removeItem(UNSENT_EVENTS_KEY)),
         ]);
-        if (!_.every(cleared)) General.logWarn('AbhaService', 'Unsent ABHA audit records could not be cleared');
+        if (_.every(cleared)) unsentEventsCleared = true;
+        else General.logWarn('AbhaService', 'Unsent ABHA audit records could not be cleared');
+    }
+
+    // For each sync while the organisation has ABHA off: the first clear that succeeds holds for the rest of the app run.
+    static async clearUnsentEventsOnce() {
+        if (unsentEventsCleared) return;
+        await AbhaService.clearUnsentEvents();
+    }
+
+    // ABHA is on, so records can be kept again: the next sync with ABHA off clears them.
+    static unsentEventsMayBeKept() {
+        unsentEventsCleared = false;
     }
 
     async _send(event) {
@@ -166,13 +180,15 @@ class AbhaService extends BaseService {
         }
     }
 
-    // The newest MAX_UNSENT_EVENTS, oldest first; the warning gives only how many went.
+    // The newest MAX_UNSENT_EVENTS, oldest first; the warning gives only how many went. None left removes the entry, so
+    // it exists only while records are unsent.
     static async _writeKept(events) {
         const kept = _.takeRight(events, MAX_UNSENT_EVENTS);
         if (kept.length < events.length) {
             General.logWarn('AbhaService', `ABHA audit records over the limit of ${MAX_UNSENT_EVENTS}: ${events.length - kept.length} oldest dropped`);
         }
-        await Keychain.setGenericPassword(KEYCHAIN_USERNAME, JSON.stringify(kept), KEYCHAIN_ENTRY);
+        if (_.isEmpty(kept)) await Keychain.resetGenericPassword(KEYCHAIN_ENTRY);
+        else await Keychain.setGenericPassword(KEYCHAIN_USERNAME, JSON.stringify(kept), KEYCHAIN_ENTRY);
         return kept;
     }
 

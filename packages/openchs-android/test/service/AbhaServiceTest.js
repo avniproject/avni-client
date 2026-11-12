@@ -527,6 +527,19 @@ describe("AbhaServiceTest", () => {
                 expect(lines).to.include("Unsent ABHA audit records could not be read");
             });
 
+            // The entry exists only while records are unsent: the last one sent or dropped removes it, never leaves "[]".
+            it("leave no keychain entry once none is left unsent", async () => {
+                offline();
+                await service().recordEvent(EVENT);
+                expect(mockKeychainStore.has(SERVICE)).to.equal(true);
+
+                global.fetch = jest.fn(async () => reply(201, {}));
+                await service().resendUnsentEvents();
+
+                expect(mockKeychainStore.has(SERVICE)).to.equal(false);
+                expect(Keychain.setGenericPassword.mock.calls.some(([, password]) => password === "[]")).to.equal(false);
+            });
+
             it("are cleared from the keychain and from where an older app kept them, and clearing never rejects", async () => {
                 offline();
                 await service().recordEvent(EVENT);

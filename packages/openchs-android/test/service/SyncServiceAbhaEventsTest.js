@@ -24,6 +24,7 @@ jest.mock('../../src/utility/General', () => ({
 jest.mock('../../src/task/PruneMedia', () => ({pruneConceptMedia: jest.fn(async () => {})}));
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Keychain from 'react-native-keychain';
 import SyncService from '../../src/service/SyncService';
 import OrganisationConfigService from '../../src/service/OrganisationConfigService';
 import AbhaService from '../../src/service/AbhaService';
@@ -57,7 +58,11 @@ const runSync = (svc, syncSource) => svc.sync(LOCK, [], () => {}, () => {}, {}, 
 const flush = () => new Promise((resolve) => setImmediate(resolve));
 
 describe('SyncService.sync and unsent ABHA audit records', () => {
-    beforeEach(async () => await AsyncStorage.clear());
+    beforeEach(async () => {
+        await AsyncStorage.clear();
+        Keychain.resetGenericPassword.mockClear();
+        AbhaService.unsentEventsMayBeKept();
+    });
 
     it('sends them again on every sync, the hourly upload-only one included', async () => {
         const svc = buildSyncService();
@@ -78,14 +83,33 @@ describe('SyncService.sync and unsent ABHA audit records', () => {
         await expect(runSync(svc, SYNC_BUTTON)).resolves.toBe(SYNC_BUTTON);
     });
 
-    it('sends none of them when the organisation has ABHA off, and clears them instead', async () => {
-        const clear = jest.spyOn(AbhaService, 'clearUnsentEvents').mockResolvedValue(undefined);
+    // An organisation with ABHA off pays for one clear an app run, not one on every sync.
+    it('sends none of them when the organisation has ABHA off, and clears them instead, once an app run', async () => {
         const svc = buildSyncService({abhaOn: false});
         await runSync(svc, SYNC_BUTTON);
+        await runSync(svc, ONLY_UPLOAD_BACKGROUND_JOB);
         await flush();
         expect(svc.abhaService.resendUnsentEvents).not.toHaveBeenCalled();
-        expect(clear).toHaveBeenCalledTimes(1);
-        clear.mockRestore();
+        expect(Keychain.resetGenericPassword).toHaveBeenCalledTimes(1);
+    });
+
+    it('clears them again on a sync with ABHA off after one with ABHA on, which may have kept some', async () => {
+        await runSync(buildSyncService({abhaOn: false}), SYNC_BUTTON);
+        await flush();
+        await runSync(buildSyncService({abhaOn: true}), SYNC_BUTTON);
+        await flush();
+        await runSync(buildSyncService({abhaOn: false}), SYNC_BUTTON);
+        await flush();
+        expect(Keychain.resetGenericPassword).toHaveBeenCalledTimes(2);
+    });
+
+    it('tries the clear again on the next sync when it failed', async () => {
+        Keychain.resetGenericPassword.mockImplementationOnce(async () => { throw new Error('keystore locked'); });
+        await runSync(buildSyncService({abhaOn: false}), SYNC_BUTTON);
+        await flush();
+        await runSync(buildSyncService({abhaOn: false}), SYNC_BUTTON);
+        await flush();
+        expect(Keychain.resetGenericPassword).toHaveBeenCalledTimes(2);
     });
 
     it('keeps them while the organisation has ABHA on', async () => {
