@@ -102,6 +102,27 @@ class ReportCardService extends BaseService {
         return toApprovalListSubjects(result);
     }
 
+    // The tile shows the number of subjects the approval list will show, not the query's rows.
+    getCountForCustomApprovalCard(reportCard, reportFilters) {
+        const ruleService = this.getService(RuleEvaluationService);
+        const queryResult = ruleService.executeDashboardCardRule(reportCard, reportFilters);
+        const tile = ruleService.toDashboardCardResult(reportCard, queryResult);
+        const subjectCount = (lineListFunction) => _.toString(toApprovalListSubjects(ruleService.runLineListFunction(reportCard, lineListFunction)).length);
+        if (reportCard.nested) {
+            if (!Array.isArray(tile) || !Array.isArray(_.get(queryResult, "reportCards"))) return tile;
+            return tile.map((result, index) => {
+                const lineListFunction = _.get(queryResult.reportCards[index], "lineListFunction");
+                if (result.hasErrorMsg || !_.isFunction(lineListFunction)) return result;
+                result.primaryValue = subjectCount(lineListFunction);
+                return result;
+            });
+        }
+        if (_.isNil(tile) || tile.hasErrorMsg) return tile;
+        if (ruleService.isOldStyleQueryResult(queryResult)) return ReportCardResult.create(toApprovalListSubjects(queryResult).length, null, true);
+        if (_.isFunction(queryResult.lineListFunction)) tile.primaryValue = subjectCount(queryResult.lineListFunction);
+        return tile;
+    }
+
     getCountForCommentCardType(reportFilters) {
         return ReportCardResult.create(this.getResultForCommentCardType(reportFilters).length, null, true);
     }
@@ -199,6 +220,8 @@ class ReportCardService extends BaseService {
         switch (true) {
             case reportCard.isFullyCustom() :
                 return this.getCountForFullyCustomCard(reportCard, reportFilters);
+            case _.isNil(standardReportCardType) && !_.isNil(reportCard.getApprovalStatusForCard()) :
+                return this.getCountForCustomApprovalCard(reportCard, reportFilters);
             case _.isNil(standardReportCardType) :
                 return this.getService(RuleEvaluationService).getDashboardCardResult(reportCard, reportFilters);
             case standardReportCardType.isApprovalType() :

@@ -1135,7 +1135,14 @@ class RuleEvaluationService extends BaseService {
     }
 
     getDashboardCardResult(reportCard, ruleInput) {
-        const queryResult = this.executeDashboardCardRule(reportCard, ruleInput);
+        return this.toDashboardCardResult(reportCard, this.executeDashboardCardRule(reportCard, ruleInput));
+    }
+
+    runLineListFunction(reportCard, lineListFunction) {
+        return this.withLazyScope(() => executeLineListFunction(lineListFunction, reportCard, this.saveFailedRules.bind(this)));
+    }
+
+    toDashboardCardResult(reportCard, queryResult) {
         // A failed nested rule already comes back as one error tile per card; counting it as a list hid the error.
         if (reportCard.nested && Array.isArray(queryResult) && queryResult.length > 0 && queryResult.every(r => r && r.hasErrorMsg === true)) return queryResult;
         if (!queryResult.hasErrorMsg && this.isOldStyleQueryResult(queryResult)) {
@@ -1160,9 +1167,9 @@ class RuleEvaluationService extends BaseService {
             return queryResult;
         } else if (reportCard.nested) {
             const selectedCardItem = queryResult.reportCards.find((x, index) => reportCard.itemKey === reportCard.getCardId(index));
-            return this.withLazyScope(() => executeLineListFunction(selectedCardItem.lineListFunction, reportCard, this.saveFailedRules));
+            return this.withLazyScope(() => executeLineListFunction(selectedCardItem.lineListFunction, reportCard, this.saveFailedRules.bind(this)));
         } else {
-            return _.isFunction(queryResult.lineListFunction) ? this.withLazyScope(() => executeLineListFunction(queryResult.lineListFunction, reportCard, this.saveFailedRules)) : null;
+            return _.isFunction(queryResult.lineListFunction) ? this.withLazyScope(() => executeLineListFunction(queryResult.lineListFunction, reportCard, this.saveFailedRules.bind(this))) : null;
         }
     }
 

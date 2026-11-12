@@ -4,7 +4,7 @@ jest.mock("../../../src/framework/bean/Service", () => () => (target) => target)
 
 import ReportCardService, {toApprovalListSubjects} from "../../../src/service/customDashboard/ReportCardService";
 import RuleEvaluationService from "../../../src/service/RuleEvaluationService";
-import {Individual, ReportCard} from "openchs-models";
+import {Individual, ReportCard, ReportCardResult} from "openchs-models";
 
 function subject(uuid) {
     const individual = Individual.createEmptyInstance();
@@ -114,5 +114,95 @@ describe("ReportCardService.getReportCardResult for a custom query card", () => 
         assert.isNull(serviceAnswering(null).service.getResultForCustomApprovalCard(approveReject, []));
         assert.isNull(serviceAnswering({primaryValue: "Error", hasErrorMsg: true}).service.getResultForCustomApprovalCard(approveReject, []));
         assert.isNull(serviceAnswering([{hasErrorMsg: true}, {hasErrorMsg: true}]).service.getResultForCustomApprovalCard(approveReject, []));
+    });
+});
+
+describe("ReportCardService.getReportCardCount for an Approve or Reject card", () => {
+    function card(action, actionDetail, nested = false) {
+        return ReportCard.fromResource({
+            uuid: "rc1", name: "rc", colour: "#fff", voided: false, nested, countOfCards: nested ? 2 : 1,
+            standardReportCardInputSubjectTypes: [], standardReportCardInputPrograms: [], standardReportCardInputEncounterTypes: [],
+            action, actionDetail, _links: {},
+        }, {findByKey: () => null, findByUUID: () => null});
+    }
+
+    // The real tile-building code of the rule engine, with only the card's query answered by queryResult.
+    function countFor(reportCard, queryResult) {
+        const rules = Object.create(RuleEvaluationService.prototype);
+        rules.I18n = {t: (key) => key};
+        rules.executeDashboardCardRule = jest.fn(() => queryResult);
+        rules.runLineListFunction = (reportCard, lineListFunction) => lineListFunction();
+        const service = Object.create(ReportCardService.prototype);
+        service.getService = (klass) => {
+            if (klass === RuleEvaluationService) return rules;
+            throw new Error(`unexpected service ${klass && klass.name}`);
+        };
+        return {count: service.getReportCardCount(reportCard, []), rules};
+    }
+
+    const visit = (subjectUUID) => ({individual: subject(subjectUUID)});
+    const pending = (nested) => card("ApproveReject", {approvalStatus: "Pending"}, nested);
+
+    it("counts the subjects of a query that returns visits, not the visits", () => {
+        const {count, rules} = countFor(pending(), [visit("s1"), visit("s1"), visit("s2")]);
+
+        assert.equal(count.primaryValue, "2");
+        assert.isTrue(count.clickable);
+        assert.equal(rules.executeDashboardCardRule.mock.calls.length, 1);
+    });
+
+    it("counts nothing for a query whose rows are not subjects", () => {
+        const rows = [1, 2, 3, 4, 5].map((n) => ({uuid: `comment-${n}`, text: "hi"}));
+
+        assert.equal(countFor(pending(), rows).count.primaryValue, "0");
+    });
+
+    it("counts the subjects of the line list when the query gives its own number", () => {
+        const {count} = countFor(pending(), {primaryValue: "7", secondaryValue: "visits", lineListFunction: () => [visit("s1"), visit("s1"), visit("s2")]});
+
+        assert.equal(count.primaryValue, "2");
+        assert.equal(count.secondaryValue, "visits");
+    });
+
+    it("counts each nested card from its own query", () => {
+        const {count} = countFor(pending(true), {reportCards: [
+            {cardName: "Village A", primaryValue: "9", lineListFunction: () => [visit("a1"), visit("a2"), {uuid: "x"}]},
+            {cardName: "Village B", primaryValue: "9", lineListFunction: () => [visit("b1"), visit("b1")]},
+        ]});
+
+        assert.deepEqual(count.map((r) => r.primaryValue), ["2", "1"]);
+        assert.deepEqual(count.map((r) => r.cardName), ["Village A", "Village B"]);
+    });
+
+    it("counts nothing, and records the failure, when the line list throws", () => {
+        const reportCard = pending();
+        const rules = Object.create(RuleEvaluationService.prototype);
+        rules.I18n = {t: (key) => key};
+        rules.executeDashboardCardRule = () => ({primaryValue: "4", lineListFunction: () => { throw new Error("boom"); }});
+        const recorded = [];
+        // Only reachable through `this`, as on the phone, so an unbound saveFailedRules throws here.
+        rules.failedRuleExistsInDB = (...args) => { recorded.push(args); return true; };
+        const service = Object.create(ReportCardService.prototype);
+        service.getService = () => rules;
+
+        const count = service.getReportCardCount(reportCard, []);
+
+        assert.equal(count.primaryValue, "0");
+        assert.lengthOf(recorded, 1);
+    });
+
+    it("keeps the error tile when the query failed", () => {
+        const error = ReportCardResult.create("Error", "queryExecutionError", false, true);
+
+        const {count} = countFor(pending(), error);
+
+        assert.isTrue(count.hasErrorMsg);
+        assert.equal(count.primaryValue, "Error");
+    });
+
+    it("keeps counting the rows of a custom card with any other action", () => {
+        const {count} = countFor(card("ViewSubjectProfile", null), [visit("s1"), visit("s1"), visit("s2")]);
+
+        assert.equal(count.primaryValue, "3");
     });
 });
