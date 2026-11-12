@@ -24,6 +24,13 @@ export const MAX_UNSENT_EVENTS = 500;
 // The only answers that mean the server will never take a record. An expired login, a timeout, too many requests,
 // a server error or no network can all clear later, so on those the record is kept.
 const REFUSED_STATUSES = [400, 403, 409];
+// A full sync drops these quietly too: ABHA is off, so they are no loss to report.
+const UNREPORTED_REFUSAL = 'ABHA_DISABLED';
+// Enough to send quickly, few enough that a phone with hundreds waiting does not open them all at once.
+const SEND_BATCH = 20;
+// Bugsnag groups by name: a loss on the phone stays apart from the server's refusals.
+const LOST = 'AbhaRecordLost';
+const REFUSED = 'AbhaRecordRefused';
 const UNREADABLE_KEPT = 'Unsent ABHA audit records unreadable: lost';
 // The card files getCardFile writes into the cache folder.
 const CARD_FILE_NAME = /^abha-card-.*\.png$/;
@@ -73,7 +80,7 @@ class AbhaService extends BaseService {
     // and is forgotten only when the server takes it or refuses it for good, so a record that does not get there
     // goes again with resendUnsentEvents. The server stores each uuid once, so sending one twice is safe.
     recordEvent(event) {
-        return this._keep(event).then(() => this._send(event));
+        return this._keep(event).then(() => this._sendAll([event])).then((taken) => taken.has(event.uuid));
     }
 
     // Keeps the record on the phone without sending it, for an ABHA action whose outcome is not settled yet. Never
@@ -84,8 +91,7 @@ class AbhaService extends BaseService {
 
     // Sends every kept record not already on its way: after a registration with ABHA is saved, and with each sync.
     async resendUnsentEvents() {
-        const events = await this._kept();
-        await Promise.all(_.reject(events, (event) => this.sending.has(event.uuid)).map((event) => this._send(event)));
+        await this._sendAll(await this._kept());
     }
 
     // Never rejects. Clears the AsyncStorage key too, in case a read has not moved its records yet.
@@ -110,32 +116,64 @@ class AbhaService extends BaseService {
         unsentEventsCleared = false;
     }
 
-    async _send(event) {
-        if (this.sending.has(event.uuid)) return false;
-        this.sending.add(event.uuid);
+    // Sends SEND_BATCH at a time and forgets each batch's taken and refused records in one write, since every write
+    // re-encrypts the whole list. Records already on their way are left to that send. Never rejects; resolves to the
+    // uuids the server took. Logs and reports give counts only: Bugsnag keeps log lines as breadcrumbs.
+    async _sendAll(events) {
+        const mine = _.uniqBy(_.reject(events, (event) => this.sending.has(event.uuid)), 'uuid');
+        mine.forEach((event) => this.sending.add(event.uuid));
+        const taken = new Set();
+        const refusals = [];
+        let keptCount = 0;
+        try {
+            for (const batch of _.chunk(mine, SEND_BATCH)) {
+                const outcomes = await Promise.all(batch.map((event) => this._post(event)));
+                const settled = new Set();
+                outcomes.forEach((outcome, i) => {
+                    const {uuid} = batch[i];
+                    if (outcome.taken) taken.add(uuid);
+                    else if (outcome.refused) refusals.push(outcome);
+                    else keptCount++;
+                    if (outcome.taken || outcome.refused) settled.add(uuid);
+                });
+                if (settled.size > 0) await this._changeKept((kept) => _.reject(kept, (event) => settled.has(event.uuid)));
+            }
+        } finally {
+            mine.forEach((event) => this.sending.delete(event.uuid));
+        }
+        AbhaService._sayNotRecorded(refusals, keptCount);
+        return taken;
+    }
+
+    // {taken}, {refused, status, code} for an answer that means never, or {} when the record can go again. Never rejects.
+    async _post(event) {
         try {
             await post(`${this.getServerUrl()}/abha/events`, event);
-            await this._forget(event.uuid);
-            return true;
+            return {taken: true};
         } catch (error) {
             const status = _.get(error, 'response.status');
-            const refused = _.includes(REFUSED_STATUSES, status);
-            if (refused) await this._forget(event.uuid);
-            General.logWarn('AbhaService', `ABHA event ${event.uuid} not recorded: ${refused ? `refused (Http ${status}), dropped` : 'kept to send again'}`);
-            if (refused) AbhaService.reportLoss(`ABHA audit records refused by the server (Http ${status}): 1 dropped`);
-            return false;
-        } finally {
-            this.sending.delete(event.uuid);
+            if (!_.includes(REFUSED_STATUSES, status)) return {};
+            let code = null;
+            try {
+                code = _.get(await error.response.json(), 'code', null);
+            } catch (e) { /* not JSON: no reason given */ }
+            return {refused: true, status, code};
         }
+    }
+
+    // One line, and one report, for each answer the server refused with in a send.
+    static _sayNotRecorded(refusals, keptCount) {
+        _.forEach(_.groupBy(refusals, 'status'), (refused, status) => {
+            General.logWarn('AbhaService', `ABHA audit records not recorded: ${refused.length} refused (Http ${status}), dropped`);
+            const reported = _.reject(refused, ['code', UNREPORTED_REFUSAL]).length;
+            if (reported > 0) AbhaService.report(REFUSED, `ABHA audit records dropped: ${reported} refused (Http ${status})`);
+        });
+        if (keptCount > 0) General.logWarn('AbhaService', `ABHA audit records not recorded: ${keptCount} kept to send again`);
     }
 
     _keep(event) {
         return this._changeKept((events) => [..._.reject(events, ['uuid', event.uuid]), event])
-            .then((kept) => { if (!kept) AbhaService.reportLoss('ABHA audit records not kept on the phone: 1'); });
-    }
-
-    _forget(uuid) {
-        return this._changeKept((events) => _.reject(events, ['uuid', uuid]));
+            .then((kept) => { if (!kept) AbhaService.report(LOST, 'ABHA audit records not kept on the phone: 1'); });
     }
 
     // Never rejects; false when the change was not made. A record that could not be written is still sent; it is only
@@ -163,26 +201,40 @@ class AbhaService extends BaseService {
     }
 
     // Records in AsyncStorage move to the keychain before their key is removed, so a failure between the two loses none.
+    // Contents that cannot be read are lost: reported, and removed at once, so the loss is reported once.
     static async _readKept() {
-        const kept = AbhaService._parsed(_.get(await Keychain.getGenericPassword(KEYCHAIN_ENTRY), 'password'));
+        let kept = AbhaService._parsed(_.get(await Keychain.getGenericPassword(KEYCHAIN_ENTRY), 'password'));
+        if (_.isNil(kept)) {
+            AbhaService._sayUnreadable();
+            await Keychain.resetGenericPassword(KEYCHAIN_ENTRY);
+            kept = [];
+        }
         const legacy = await AsyncStorage.getItem(UNSENT_EVENTS_KEY).catch(() => null);
         if (_.isNil(legacy)) return kept;
-        const events = [..._.reject(AbhaService._parsed(legacy), (event) => _.some(kept, ['uuid', _.get(event, 'uuid')])), ...kept];
+        let moved = AbhaService._parsed(legacy);
+        if (_.isNil(moved)) {
+            AbhaService._sayUnreadable();
+            moved = [];
+        }
+        const events = [..._.reject(moved, (event) => _.some(kept, ['uuid', _.get(event, 'uuid')])), ...kept];
         const written = await AbhaService._writeKept(events);
         await AsyncStorage.removeItem(UNSENT_EVENTS_KEY).catch(() => {});
         return written;
     }
 
-    // Unreadable contents read as none, so the next write replaces them: a loss, reported like the others.
+    // The records kept, or null when the contents cannot be read.
     static _parsed(stored) {
-        let events = null;
         try {
-            events = JSON.parse(stored || '[]');
-        } catch (e) { /* unreadable */ }
-        if (_.isArray(events)) return events;
+            const events = JSON.parse(stored || '[]');
+            return _.isArray(events) ? events : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    static _sayUnreadable() {
         General.logWarn('AbhaService', UNREADABLE_KEPT);
-        AbhaService.reportLoss(UNREADABLE_KEPT);
-        return [];
+        AbhaService.report(LOST, UNREADABLE_KEPT);
     }
 
     // The newest MAX_UNSENT_EVENTS, oldest first; the warning and the report give only how many went. None left removes
@@ -195,16 +247,18 @@ class AbhaService extends BaseService {
         if (kept.length < events.length) {
             const dropped = `ABHA audit records over the limit of ${MAX_UNSENT_EVENTS}: ${events.length - kept.length} oldest dropped`;
             General.logWarn('AbhaService', dropped);
-            AbhaService.reportLoss(dropped);
+            AbhaService.report(LOST, dropped);
         }
         return kept;
     }
 
-    // A lost record strands that patient's visits on the server, so Bugsnag hears of each loss: a count, never a record.
-    // Never throws.
-    static reportLoss(line) {
+    // A lost record strands that patient's visits on the server, so Bugsnag hears of each loss under its kind's name: a
+    // count, never a record. Never throws.
+    static report(name, line) {
         try {
-            ErrorUtil.notifyBugsnag(new Error(line), 'AbhaService').catch(() => {});
+            const error = new Error(line);
+            error.name = name;
+            ErrorUtil.notifyBugsnag(error, 'AbhaService').catch(() => {});
         } catch (e) { /* reporting never holds up the records */ }
     }
 

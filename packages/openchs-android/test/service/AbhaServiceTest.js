@@ -1,4 +1,5 @@
 import {expect} from "chai";
+import _ from "lodash";
 
 jest.mock("@react-native-cookies/cookies", () => ({get: jest.fn(() => Promise.resolve({}))}));
 jest.mock("../../src/GlobalContext", () => ({
@@ -84,15 +85,17 @@ function captureLogs() {
 
 const asText = (arg) => typeof arg === "string" ? arg : JSON.stringify(arg) || "";
 
-// What reached Bugsnag: each report's message, and nothing else of the error.
+// What reached Bugsnag: each report as "name: message", Bugsnag's grouping and its line, and nothing else of the error.
 function bugsnagReports() {
     const notify = jest.spyOn(ErrorUtil, "notifyBugsnag").mockImplementation((error) => Promise.resolve(error));
     return () => notify.mock.calls.map(([error, source]) => {
         expect(source).to.equal("AbhaService");
-        expect(Object.keys(error)).to.deep.equal([]);
-        return error.message;
+        expect(_.without(Object.keys(error), "name")).to.deep.equal([]);
+        return `${error.name}: ${error.message}`;
     });
 }
+const LOST = "AbhaRecordLost";
+const REFUSED = "AbhaRecordRefused";
 
 // Lets the promises already queued run, until the check holds.
 async function until(check) {
@@ -504,7 +507,7 @@ describe("AbhaServiceTest", () => {
                 const warnings = logged.filter((args) => asText(args[1]).includes("dropped"));
                 const line = "ABHA audit records over the limit of 500: 1 oldest dropped";
                 expect(warnings.map((args) => args[1])).to.deep.equal([line, line]);
-                expect(reported()).to.deep.equal([line, line]);
+                expect(reported()).to.deep.equal([`${LOST}: ${line}`, `${LOST}: ${line}`]);
                 [...logged.flat(), ...reported()].forEach((arg) => [...PATIENT_DETAILS, "ev-1", "ev-2"].forEach((detail) =>
                     expect(asText(arg)).to.not.contain(detail)));
             });
@@ -516,7 +519,7 @@ describe("AbhaServiceTest", () => {
 
                 await service().keepEvent(EVENT);
 
-                expect(reported()).to.deep.equal(["ABHA audit records not kept on the phone: 1"]);
+                expect(reported()).to.deep.equal([`${LOST}: ABHA audit records not kept on the phone: 1`]);
             });
 
             it("at the limit, when the write fails, are reported as not kept, never as the oldest dropped", async () => {
@@ -527,7 +530,7 @@ describe("AbhaServiceTest", () => {
 
                 await service().keepEvent(eventNumbered(500));
 
-                expect(reported()).to.deep.equal(["ABHA audit records not kept on the phone: 1"]);
+                expect(reported()).to.deep.equal([`${LOST}: ABHA audit records not kept on the phone: 1`]);
                 expect(keptInKeychain()).to.have.length(500);
                 expect(keptInKeychain()[0].uuid).to.equal("ev-0");
             });
@@ -543,17 +546,42 @@ describe("AbhaServiceTest", () => {
                 expect(reported()).to.deep.equal([]);
             });
 
-            // A write replaces whatever could not be read, so the records in it are lost.
-            it("that cannot be read back are reported before a write replaces them", async () => {
+            // The records in an entry that cannot be read are lost; the entry goes at once, so the loss is told once.
+            it("that cannot be read back are reported once, and their entry is removed at once", async () => {
                 captureLogs();
                 const reported = bugsnagReports();
                 mockKeychainStore.set(SERVICE, "{not json");
                 offline();
 
+                await service().resendUnsentEvents();
+                expect(mockKeychainStore.has(SERVICE)).to.equal(false);
+                await service().resendUnsentEvents();
                 await service().keepEvent(EVENT);
 
-                expect(reported()).to.deep.equal(["Unsent ABHA audit records unreadable: lost"]);
+                expect(reported()).to.deep.equal([`${LOST}: Unsent ABHA audit records unreadable: lost`]);
                 expect(keptInKeychain()).to.deep.equal([EVENT]);
+            });
+
+            it("are sent at most 20 at a time, and each batch the server settles is forgotten in one write", async () => {
+                offline();
+                const abhaService = service();
+                for (let n = 1; n <= 45; n++) await abhaService.keepEvent(eventNumbered(n));
+                [Keychain.setGenericPassword, Keychain.resetGenericPassword].forEach((fn) => fn.mockClear());
+                let inFlight = 0;
+                let most = 0;
+                global.fetch = jest.fn(async () => {
+                    most = Math.max(most, ++inFlight);
+                    await new Promise((resolve) => setImmediate(resolve));
+                    inFlight--;
+                    return reply(201, {});
+                });
+
+                await abhaService.resendUnsentEvents();
+
+                expect(global.fetch.mock.calls.length).to.equal(45);
+                expect(most).to.equal(20);
+                expect(Keychain.setGenericPassword.mock.calls.length + Keychain.resetGenericPassword.mock.calls.length).to.equal(3);
+                expect(mockKeychainStore.has(SERVICE)).to.equal(false);
             });
 
             it("are still sent when the keychain cannot be read or written, with a warning that they are not kept", async () => {
@@ -618,7 +646,7 @@ describe("AbhaServiceTest", () => {
         expect(global.fetch.mock.calls.length).to.equal(0);
     });
 
-    it("tells Bugsnag of each record dropped on the server's refusal, as a count and the answer, never the record", async () => {
+    it("tells Bugsnag of a record dropped on the server's refusal, as a count and the answer, never the record", async () => {
         captureLogs();
         const reported = bugsnagReports();
         for (const status of [400, 403, 409, 401, 404, 429, 500]) {
@@ -627,7 +655,41 @@ describe("AbhaServiceTest", () => {
             await service().recordEvent(EVENT);
         }
 
-        expect(reported()).to.deep.equal([400, 403, 409].map((status) => `ABHA audit records refused by the server (Http ${status}): 1 dropped`));
+        expect(reported()).to.deep.equal([400, 403, 409].map((status) => `${REFUSED}: ABHA audit records dropped: 1 refused (Http ${status})`));
+    });
+
+    it("tells Bugsnag of a resend's refusals once for each answer, with how many, and not of those refused as ABHA is off", async () => {
+        captureLogs();
+        const abhaService = service();
+        global.fetch = jest.fn(async () => { throw new TypeError("Network request failed"); });
+        for (let n = 1; n <= 6; n++) await abhaService.keepEvent({...EVENT, uuid: `ev-${n}`});
+        const answers = {"ev-1": [403, "ABHA_NO_PRIVILEGE"], "ev-2": [403, "ABHA_NO_PRIVILEGE"], "ev-3": [400, "ABHA_EVENT_INVALID"],
+            "ev-4": [403, "ABHA_DISABLED"], "ev-5": [403, "ABHA_DISABLED"], "ev-6": [201, null]};
+        global.fetch = jest.fn(async (url, init) => {
+            const [status, code] = answers[JSON.parse(init.body).uuid];
+            return reply(status, {code});
+        });
+        const reported = bugsnagReports();
+
+        await abhaService.resendUnsentEvents();
+
+        expect(reported()).to.deep.equal([`${REFUSED}: ABHA audit records dropped: 1 refused (Http 400)`,
+            `${REFUSED}: ABHA audit records dropped: 2 refused (Http 403)`]);
+        global.fetch = jest.fn(async () => reply(201, {}));
+        await abhaService.resendUnsentEvents();
+        expect(global.fetch.mock.calls.length, "every refused record is dropped, reported or not").to.equal(0);
+    });
+
+    // Bugsnag keeps log lines as breadcrumbs, so a refused record's uuid stays out of them.
+    it("logs no record's uuid when the server refuses it or it is kept to send again", async () => {
+        const logged = captureLogs();
+        global.fetch = jest.fn(async () => reply(400, {code: "ABHA_EVENT_INVALID"}));
+        await service().recordEvent(EVENT);
+        global.fetch = jest.fn(async () => { throw new TypeError("Network request failed"); });
+        await service().recordEvent({...EVENT, uuid: "ev-2"});
+
+        expect(logged.length).to.be.greaterThan(0);
+        logged.forEach((args) => args.forEach((arg) => ["ev-1", "ev-2"].forEach((uuid) => expect(asText(arg)).to.not.contain(uuid))));
     });
 
     it("never logs the record's ABHA number, address or Eka's patient ID, sent or not", async () => {
