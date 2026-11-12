@@ -15,7 +15,7 @@ import enFile from "../../../translations/en.json";
 
 const en = enFile.translations;
 
-const SESSION = {accessToken: "eka-key", expiresInSeconds: 1800, environment: "sandbox", hipId: "TANUH"};
+const SESSION = {accessToken: "eka-key", expiresInSeconds: 1800, environment: "sandbox", hipId: "hip-1"};
 const MOBILE = "9876501234";
 const AADHAAR = "234123412346";
 

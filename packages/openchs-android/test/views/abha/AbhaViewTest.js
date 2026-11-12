@@ -27,7 +27,7 @@ const ekaReply = JSON.stringify({
         txn_id: "txn-1",
         data: {
             tokens: {sess: "patient-session-token"},
-            profile: {fn: "Asha", ln: "Rao", gen: "F", dob: "1990-04-23", abha_number: "91-1234-5678-9012", "health-ids": ["asha.rao@sbx"]},
+            profile: {fn: "Asha", ln: "Rao", gen: "F", dob: "1990-04-23", abha_number: "91-1234-5678-9012", "health-ids": ["asha.rao@abdm"]},
         },
     },
 });
@@ -77,8 +77,8 @@ describe("AbhaView with an ABHA address to start from", () => {
     });
 
     it("hands the address to Eka's screens as a PHR address", async () => {
-        const html = await pageFor({prefillAbhaAddress: "asha.rao@sbx"});
-        expect(html).toContain('"identifier":"asha.rao@sbx"');
+        const html = await pageFor({prefillAbhaAddress: "asha.rao@abdm"});
+        expect(html).toContain('"identifier":"asha.rao@abdm"');
         expect(html).toContain('"identifier_type":"phr_address"');
     });
 
@@ -169,7 +169,7 @@ describe("AbhaViewTest", () => {
 
         expect(screen.onProfile).toHaveBeenCalledTimes(1);
         expect(screen.onProfile.mock.calls[0][0]).toMatchObject({firstName: "Asha", lastName: "Rao", genderName: "Female",
-            abhaNumber: "91-1234-5678-9012", abhaAddress: "asha.rao@sbx"});
+            abhaNumber: "91-1234-5678-9012", abhaAddress: "asha.rao@abdm"});
         expect(JSON.stringify(screen.onProfile.mock.calls[0][0])).not.toContain("patient-session-token");
         expect(screen.navigator.pop).not.toHaveBeenCalled();
     });
@@ -223,13 +223,13 @@ describe("AbhaViewTest", () => {
         jest.spyOn(General, "logWarn").mockImplementation((...args) => warnings.push(args.join(" ")));
         const screen = await show();
         await screen.send(ABHA_MESSAGE.ERROR, JSON.stringify({
-            error: {code: "ABDM-1204", message: "Asha Rao, born 23/04/1990: Aadhaar 999988887777 is not linked to asha.rao@sbx, mobile 9000000000"},
+            error: {code: "ABDM-1204", message: "Asha Rao, born 23/04/1990: Aadhaar 999988887777 is not linked to asha.rao@abdm, mobile 9000000000"},
             response: {data: {profile: {fn: "Asha", abha_number: "91-1234-5678-9012"}}},
         }));
 
         expect(warnings).toHaveLength(1);
         expect(warnings[0]).toContain("ABDM-1204");
-        ["999988887777", "asha.rao@sbx", "9000000000", "Asha", "Rao", "23/04/1990", "91-1234-5678-9012", "is not linked"].forEach((detail) =>
+        ["999988887777", "asha.rao@abdm", "9000000000", "Asha", "Rao", "23/04/1990", "91-1234-5678-9012", "is not linked"].forEach((detail) =>
             expect(warnings[0]).not.toContain(detail));
         expect(screen.lines()).toContain("abhaError (ABDM-1204)");
         expect(screen.onProfile).not.toHaveBeenCalled();
@@ -403,10 +403,10 @@ describe("AbhaView in a build with its own branding", () => {
 
     it("dresses Eka's screens in the branding the session's fetch already read", async () => {
         jest.spyOn(AbhaBranding, "current").mockReturnValue({theme: {primary: {brand: "#00767D"}}, brandColour: "#00767D",
-            fontFamily: "Roboto, sans-serif", textReplacements: [], imageTopCrops: {}, logoUrl: "data:image/png;base64,TANUH"});
+            fontFamily: "Roboto, sans-serif", textReplacements: [], imageTopCrops: {}, logoUrl: "data:image/png;base64,TEST"});
         const html = await pageFor({});
         expect(html).toContain('theme: {"primary":{"brand":"#00767D"}}');
-        expect(html).toContain('"orgIconUrl":"data:image/png;base64,TANUH"');
+        expect(html).toContain('"orgIconUrl":"data:image/png;base64,TEST"');
         expect(html).toContain('<style id="abha-branding">');
     });
 

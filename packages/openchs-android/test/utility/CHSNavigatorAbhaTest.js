@@ -28,12 +28,12 @@ describe("CHSNavigator.navigateToAbhaView", () => {
         const onProfile = () => {};
         const onSkip = () => {};
 
-        CHSNavigator.navigateToAbhaView(source, session, {method: "login_or_create_abha", prefillAbhaAddress: "asha@sbx"}, onProfile, onSkip);
+        CHSNavigator.navigateToAbhaView(source, session, {method: "login_or_create_abha", prefillAbhaAddress: "asha@abdm"}, onProfile, onSkip);
 
         expect(navigator.countOfRoutes).toBe(2);
         expect(navigator.push).toHaveBeenCalledWith({
             path: AbhaView.path(), isTyped: true,
-            queryParams: {session, method: "login_or_create_abha", prefillAbhaAddress: "asha@sbx", onProfile, onSkip},
+            queryParams: {session, method: "login_or_create_abha", prefillAbhaAddress: "asha@abdm", onProfile, onSkip},
         });
     });
 
@@ -74,10 +74,10 @@ describe("CHSNavigator.navigateToAbhaCardView", () => {
 
         CHSNavigator.navigateToAbhaCardView(source, {subjectUUID: "s-1", abhaNumber: ABHA_NUMBER});
         CHSNavigator.navigateToAbhaView(source, {accessToken: EKA_KEY, environment: "sandbox", hipId: "hip-1"},
-            {method: "login_or_create_abha", prefillAbhaAddress: "asha.rao@sbx"}, () => {}, () => {});
+            {method: "login_or_create_abha", prefillAbhaAddress: "asha.rao@abdm"}, () => {}, () => {});
 
         expect(logged.some((line) => line.includes("/abhaCard"))).toBe(true);
-        logged.forEach((line) => ["91-1234-5678-9012", "91123456789012", "asha.rao@sbx"].forEach((detail) =>
+        logged.forEach((line) => ["91-1234-5678-9012", "91123456789012", "asha.rao@abdm"].forEach((detail) =>
             expect(line).not.toContain(detail)));
     });
 });

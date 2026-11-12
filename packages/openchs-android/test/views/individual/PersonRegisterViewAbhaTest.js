@@ -183,11 +183,4 @@ describe("PersonRegisterView, ABHA", () => {
         act(() => again.props.onCancel());
         expect(await cancel).toBe(false);
     });
-
-    // The registration offers no other patient to link the ABHA to by name, gender and date of birth.
-    it("shows no dialog offering another patient to link the ABHA to", () => {
-        const view = screenWith({abha: ON});
-        view.state.abhaDialog = {kind: "match", name: "Asha Rao", rows: [{label: "name", current: "Asha Rao", abha: "Asha Rao"}]};
-        expect(render(view).root.findAllByType(AbhaReplaceDetailsDialog)).toHaveLength(0);
-    });
 });

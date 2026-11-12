@@ -15,7 +15,7 @@ describe('AbhaProfileTest', () => {
     it('maps a verified ABHA profile to registration fields', () => {
         const profile = AbhaProfile.fromSdkPayload(sdkPayload({
             fn: "Asha", mn: "K", ln: "Rao", fln: "Asha K Rao", gen: "F", dob: "1990-04-23",
-            mobile: "9000000000", abha_number: "91-1234-5678-9012", "health-ids": ["asha.rao@sbx", "asha@sbx"],
+            mobile: "9000000000", abha_number: "91-1234-5678-9012", "health-ids": ["asha.rao@abdm", "asha@abdm"],
             kyc_verified: true, oid: "oid-1", at: "x"
         }));
         expect(profile.firstName).to.equal("Asha");
@@ -25,7 +25,7 @@ describe('AbhaProfileTest', () => {
         expect(moment(profile.dateOfBirth).format("YYYY-MM-DD")).to.equal("1990-04-23");
         expect(profile.mobile).to.equal("9000000000");
         expect(profile.abhaNumber).to.equal("91-1234-5678-9012");
-        expect(profile.abhaAddress).to.equal("asha.rao@sbx");
+        expect(profile.abhaAddress).to.equal("asha.rao@abdm");
         expect(profile.kycVerified).to.equal(true);
     });
 
@@ -116,7 +116,7 @@ describe("AbhaProfile.fromEkaLogin, for Avni's own verify screens", () => {
         const profile = AbhaProfile.fromEkaLogin(reply({
             first_name: "Asha", middle_name: "", last_name: "Rao", full_name: "Asha Rao", gender: "F",
             year_of_birth: 1990, month_of_birth: 4, day_of_birth: 3, mobile: "9876501234",
-            abha_number: "91-1234-5678-9012", abha_address: "asha.rao@sbx", abha_addresses: ["asha.rao@sbx", "asha.r@sbx"], kyc_verified: true,
+            abha_number: "91-1234-5678-9012", abha_address: "asha.rao@abdm", abha_addresses: ["asha.rao@abdm", "asha.r@abdm"], kyc_verified: true,
         }), "mobile");
         expect(profile.firstName).to.equal("Asha");
         expect(profile.middleName).to.equal(null);
@@ -125,7 +125,7 @@ describe("AbhaProfile.fromEkaLogin, for Avni's own verify screens", () => {
         expect(moment(profile.dateOfBirth).format("YYYY-MM-DD")).to.equal("1990-04-03");
         expect(profile.mobile).to.equal("9876501234");
         expect(profile.abhaNumber).to.equal("91-1234-5678-9012");
-        expect(profile.abhaAddress).to.equal("asha.rao@sbx");
+        expect(profile.abhaAddress).to.equal("asha.rao@abdm");
         expect(profile.kycVerified).to.equal(true);
         expect(profile.ekaOid).to.equal("oid-9");
         expect(profile.ekaTxnId).to.equal("txn-9");
@@ -135,8 +135,8 @@ describe("AbhaProfile.fromEkaLogin, for Avni's own verify screens", () => {
     });
 
     it("takes the first of the addresses when the reply names no preferred one, and no date of birth from a partial one", () => {
-        const profile = AbhaProfile.fromEkaLogin(reply({first_name: "Asha", abha_addresses: ["asha.r@sbx"], year_of_birth: 1990}), "aadhaar");
-        expect(profile.abhaAddress).to.equal("asha.r@sbx");
+        const profile = AbhaProfile.fromEkaLogin(reply({first_name: "Asha", abha_addresses: ["asha.r@abdm"], year_of_birth: 1990}), "aadhaar");
+        expect(profile.abhaAddress).to.equal("asha.r@abdm");
         expect(profile.dateOfBirth).to.equal(null);
         expect(profile.route).to.equal("aadhaar");
     });

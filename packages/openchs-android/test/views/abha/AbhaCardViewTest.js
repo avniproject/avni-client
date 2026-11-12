@@ -87,8 +87,8 @@ describe("AbhaCardViewTest", () => {
 
     // The card asked for is the ABHA this screen was opened for: a later lookup of another ABHA, left unsaved, is not it.
     it("asks for the card of an ABHA with no number by its address", async () => {
-        const view = await show({abhaLastFour: null, abhaAddress: "asha@sbx"});
-        expect(view.abhaService.getCardFile).toHaveBeenCalledWith("s-1", null, "asha@sbx");
+        const view = await show({abhaLastFour: null, abhaAddress: "asha@abdm"});
+        expect(view.abhaService.getCardFile).toHaveBeenCalledWith("s-1", null, "asha@abdm");
     });
 
     it("fetches the card for the subject and shows it with Download, Share and Close", async () => {
@@ -244,7 +244,7 @@ describe("AbhaCardViewTest", () => {
 
     describe("once the patient's ABHA login at Eka has lapsed", () => {
         const SESSION = {accessToken: "key-1", hipId: "HIP-1", environment: "sandbox"};
-        const SAME_ABHA = {abhaNumber: "91-1234-5678-9012", abhaAddress: "asha@sbx", ekaOid: "oid-2", ekaTxnId: "txn-2", route: "unknown", action: "linked"};
+        const SAME_ABHA = {abhaNumber: "91-1234-5678-9012", abhaAddress: "asha@abdm", ekaOid: "oid-2", ekaTxnId: "txn-2", route: "unknown", action: "linked"};
         const CONSENT = "The patient agrees to verify their ABHA.";
         let popToBookmark;
 
@@ -257,7 +257,7 @@ describe("AbhaCardViewTest", () => {
         function showLapsed(options = {}) {
             return show({
                 getCardFile: lapsedThenCard(),
-                patient: {number: "91-1234-5678-9012", address: "asha@sbx"},
+                patient: {number: "91-1234-5678-9012", address: "asha@abdm"},
                 translations: {abhaRegistrationConsent: CONSENT},
                 abha: {
                     getSession: jest.fn(() => Promise.resolve(SESSION)),
@@ -341,12 +341,12 @@ describe("AbhaCardViewTest", () => {
         });
 
         it("matches a patient linked through the mobile route by the ABHA address, having no number", async () => {
-            const view = await showLapsed({abhaLastFour: null, patient: {address: "Asha@sbx"}});
+            const view = await showLapsed({abhaLastFour: null, patient: {address: "Asha@abdm"}});
             const opened = await verifyWithConsent(view);
 
             await act(async () => { await opened.onProfile({...SAME_ABHA, abhaNumber: null}); });
 
-            expect(view.abhaService.recordEvent).toHaveBeenCalledWith(expect.objectContaining({action: "verified", abhaAddress: "asha@sbx"}));
+            expect(view.abhaService.recordEvent).toHaveBeenCalledWith(expect.objectContaining({action: "verified", abhaAddress: "asha@abdm"}));
         });
 
         it("opens nothing when the patient does not agree, or the consent is closed", async () => {

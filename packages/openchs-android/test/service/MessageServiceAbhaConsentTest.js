@@ -22,6 +22,6 @@ describe("The ABHA consent wording", () => {
     });
 
     it("is the organisation's own wording when it sets one, over the platform's and the app's", () => {
-        expect(serviceWith([["en", "The platform's wording"]], [["en", "TANUH's wording"]]).t("abhaRegistrationConsent")).toBe("TANUH's wording");
+        expect(serviceWith([["en", "The platform's wording"]], [["en", "the organisation's wording"]]).t("abhaRegistrationConsent")).toBe("the organisation's wording");
     });
 });

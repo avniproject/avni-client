@@ -111,20 +111,20 @@ describe("SubjectDashboardProfileTab, ABHA section", () => {
     });
 
     it("shows Linked, the number masked to its last four digits, and the address", () => {
-        const tab = tabWith({individual: individualWith({number: "91-1234-5678-9012", address: "asha@sbx"})});
+        const tab = tabWith({individual: individualWith({number: "91-1234-5678-9012", address: "asha@abdm"})});
         const shown = texts(render(tab.renderAbha()));
         expect(shown).toContain("abhaLinked");
         expect(shown.join("|")).toContain("xx-xxxx-xxxx-9012");
-        expect(shown.join("|")).toContain("asha@sbx");
+        expect(shown.join("|")).toContain("asha@abdm");
         expect(shown.join("|")).not.toContain("5678");
         expect(shown).not.toContain("abhaFindOrCreate");
     });
 
     it("shows a patient linked through the mobile route, an address and no number, as Linked with the address only", () => {
-        const tab = tabWith({individual: individualWith({address: "asha@sbx"})});
+        const tab = tabWith({individual: individualWith({address: "asha@abdm"})});
         const shown = texts(render(tab.renderAbha()));
         expect(shown).toContain("abhaLinked");
-        expect(shown.join("|")).toContain("asha@sbx");
+        expect(shown.join("|")).toContain("asha@abdm");
         expect(shown.join("|")).not.toContain("xx-xxxx");
         expect(shown).not.toContain("abhaNotLinked");
     });
@@ -173,11 +173,11 @@ describe("SubjectDashboardProfileTab, ABHA section", () => {
         // The card is asked for by the address then, so it is this ABHA's and never a later lookup's (27 Oct sweep).
     it("works for a patient linked through the mobile route, who has an address and no number", async () => {
             getConnectionInfo.mockResolvedValue({isConnected: true});
-            const tab = tabWith({individual: individualWith({address: "asha@sbx"})});
+            const tab = tabWith({individual: individualWith({address: "asha@abdm"})});
 
             await tab.abhaLinkedActions()[0].onPressFunc();
 
-            expect(CHSNavigator.navigateToAbhaCardView).toHaveBeenCalledWith(tab, {subjectUUID: "subject-1", subjectTypeUUID: "st-person", abhaNumber: undefined, abhaAddress: "asha@sbx"});
+            expect(CHSNavigator.navigateToAbhaCardView).toHaveBeenCalledWith(tab, {subjectUUID: "subject-1", subjectTypeUUID: "st-person", abhaNumber: undefined, abhaAddress: "asha@abdm"});
         });
     });
 

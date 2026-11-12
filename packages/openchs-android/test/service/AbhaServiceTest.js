@@ -66,10 +66,10 @@ const ABHA_NUMBER = "91-1234-5678-9012";
 const ABHA_DIGITS = "91123456789012";
 const EVENT = {
     uuid: "ev-1", subjectUUID: "s-1", subjectTypeUUID: "st-1", action: "linked", route: "aadhaar",
-    abhaNumber: ABHA_NUMBER, abhaAddress: "asha.rao@sbx", ekaOid: "oid-77", ekaTxnId: "txn-1",
+    abhaNumber: ABHA_NUMBER, abhaAddress: "asha.rao@abdm", ekaOid: "oid-77", ekaTxnId: "txn-1",
     consentGivenAt: "2026-10-20T04:00:00.000Z", occurredAt: "2026-10-20T04:01:00.000Z",
 };
-const PATIENT_DETAILS = [ABHA_NUMBER, ABHA_DIGITS, "asha.rao@sbx", "oid-77"];
+const PATIENT_DETAILS = [ABHA_NUMBER, ABHA_DIGITS, "asha.rao@abdm", "oid-77"];
 
 function captureLogs() {
     const logged = [];
@@ -233,7 +233,7 @@ describe("AbhaServiceTest", () => {
     });
 
     it("fetches today's check-ins for the user's health centre, refusals mapped the same way", async () => {
-        const checkIns = [{uuid: "c-1", abhaAddress: "asha@sbx", abhaNumber: null, tokenNumber: 1, checkedInAt: "2026-10-20T04:00:00Z", subjectUUID: null}];
+        const checkIns = [{uuid: "c-1", abhaAddress: "asha@abdm", abhaNumber: null, tokenNumber: 1, checkedInAt: "2026-10-20T04:00:00Z", subjectUUID: null}];
         global.fetch = jest.fn(async () => reply(200, checkIns));
         expect(await service().getCheckIns()).to.deep.equal(checkIns);
         expect(global.fetch.mock.calls[0][0]).to.equal("https://server/abha/checkIns");
@@ -258,11 +258,11 @@ describe("AbhaServiceTest", () => {
     it("asks by ABHA address as well when there is one, or by it alone", async () => {
         global.fetch = jest.fn(async () => reply(200, {subjectUUIDs: ["s-9"]}));
 
-        await service().findSubjectUUIDs("st-1", ABHA_NUMBER, "asha.rao@sbx");
-        await service().findSubjectUUIDs("st-1", null, "asha.rao@sbx");
+        await service().findSubjectUUIDs("st-1", ABHA_NUMBER, "asha.rao@abdm");
+        await service().findSubjectUUIDs("st-1", null, "asha.rao@abdm");
 
-        expect(JSON.parse(global.fetch.mock.calls[0][1].body)).to.deep.equal({subjectTypeUUID: "st-1", abhaNumber: ABHA_DIGITS, abhaAddress: "asha.rao@sbx"});
-        expect(JSON.parse(global.fetch.mock.calls[1][1].body)).to.deep.equal({subjectTypeUUID: "st-1", abhaNumber: null, abhaAddress: "asha.rao@sbx"});
+        expect(JSON.parse(global.fetch.mock.calls[0][1].body)).to.deep.equal({subjectTypeUUID: "st-1", abhaNumber: ABHA_DIGITS, abhaAddress: "asha.rao@abdm"});
+        expect(JSON.parse(global.fetch.mock.calls[1][1].body)).to.deep.equal({subjectTypeUUID: "st-1", abhaNumber: null, abhaAddress: "asha.rao@abdm"});
         expect(global.fetch.mock.calls[1][0]).to.equal("https://server/abha/subjects/search");
     });
 
@@ -626,11 +626,11 @@ describe("AbhaServiceTest", () => {
         it("names an ABHA with no number by its address in a header, and only by its number when it has one", async () => {
             downloadWithAuth.mockResolvedValue(downloaded(200));
 
-            await service().getCardFile("s-1", null, " asha@sbx ");
-            await service().getCardFile("s-1", "4533", "asha@sbx");
+            await service().getCardFile("s-1", null, " asha@abdm ");
+            await service().getCardFile("s-1", "4533", "asha@abdm");
 
             expect(downloadWithAuth.mock.calls[0][2]).to.equal("https://server/abha/card?subjectUUID=s-1");
-            expect(downloadWithAuth.mock.calls[0][5]).to.deep.equal({"X-Abha-Address": "asha@sbx"});
+            expect(downloadWithAuth.mock.calls[0][5]).to.deep.equal({"X-Abha-Address": "asha@abdm"});
             expect(downloadWithAuth.mock.calls[1][5]).to.deep.equal({"X-Abha-Last-Four": "4533"});
         });
 

@@ -1,7 +1,7 @@
 import EkaAbhaClient, {EKA_LOGIN_PATHS, EkaAbhaError} from "../../src/service/EkaAbhaClient";
 import General from "../../src/utility/General";
 
-const SESSION = {accessToken: "eka-key-7f3a", hipId: "TANUH", environment: "sandbox", expiresInSeconds: 1800};
+const SESSION = {accessToken: "eka-key-7f3a", hipId: "hip-1", environment: "sandbox", expiresInSeconds: 1800};
 // Made-up values in the shapes the calls carry; the Aadhaar-shaped one passes the check digit.
 const MOBILE = "9876501234";
 const AADHAAR = "234123412346";
@@ -23,7 +23,7 @@ describe("EkaAbhaClient", () => {
         expect(url).toBe("https://api.dev.eka.care" + EKA_LOGIN_PATHS.search);
         expect(options.method).toBe("POST");
         expect(options.headers).toEqual({
-            "Content-Type": "application/json", auth: "eka-key-7f3a", "client-id": "ext", "X-Hip-Id": "TANUH", "X-ABHA-SDK-Version": "1.0.0",
+            "Content-Type": "application/json", auth: "eka-key-7f3a", "client-id": "ext", "X-Hip-Id": "hip-1", "X-ABHA-SDK-Version": "1.0.0",
         });
         expect(Object.keys(options.headers)).not.toContain("AUTH-TOKEN");
         expect(Object.keys(options.headers)).not.toContain("Authorization");
@@ -42,8 +42,8 @@ describe("EkaAbhaClient", () => {
         await client.search(MOBILE);
         expect(bodyOf(fetch)).toEqual({mobile: MOBILE});
         fetch.mockClear();
-        await client.methods("asha@sbx");
-        expect(bodyOf(fetch)).toEqual({abha_address: "asha@sbx"});
+        await client.methods("asha@abdm");
+        expect(bodyOf(fetch)).toEqual({abha_address: "asha@abdm"});
         fetch.mockClear();
         await client.loginInit({method: "search", identifier: 2, txnId: "s-txn", otpSystem: "abdm"});
         expect(bodyOf(fetch)).toEqual({method: "search", identifier: "2", txn_id: "s-txn", otp_system: "abdm"});
@@ -54,8 +54,8 @@ describe("EkaAbhaClient", () => {
         await client.loginVerify({txnId: "t1", otp: "123456"});
         expect(bodyOf(fetch)).toEqual({txn_id: "t1", otp: "123456"});
         fetch.mockClear();
-        await client.loginPhr({txnId: "t2", abhaAddress: "asha@sbx"});
-        expect(bodyOf(fetch)).toEqual({txn_id: "t2", phr_address: "asha@sbx"});
+        await client.loginPhr({txnId: "t2", abhaAddress: "asha@abdm"});
+        expect(bodyOf(fetch)).toEqual({txn_id: "t2", phr_address: "asha@abdm"});
     });
 
     it("turns a refusal into its status and codes, and keeps Eka's message, which can quote what was typed, out of the error and the log", async () => {

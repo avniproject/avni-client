@@ -28,10 +28,10 @@ import General from "../../../src/utility/General";
 const SESSION = {accessToken: "eka-key", expiresAt: "2026-10-20T10:30:00Z", environment: "sandbox", hipId: "hip-1"};
 const PROFILE = {
     firstName: "Asha", middleName: null, lastName: "Rao", genderName: "Female", dateOfBirth: new Date(1990, 3, 23),
-    mobile: "9000000000", abhaNumber: "91-1234-5678-9012", abhaAddress: "asha.rao@sbx", kycVerified: true,
+    mobile: "9000000000", abhaNumber: "91-1234-5678-9012", abhaAddress: "asha.rao@abdm", kycVerified: true,
     ekaOid: "oid-1", ekaTxnId: "txn-1", route: "aadhaar", action: "linked",
 };
-const PATIENT_DETAILS = ["91-1234-5678-9012", "91123456789012", "asha.rao@sbx", "oid-1", "9000000000", "eka-key"];
+const PATIENT_DETAILS = ["91-1234-5678-9012", "91123456789012", "asha.rao@abdm", "oid-1", "9000000000", "eka-key"];
 
 function person({uuid = "s-new", firstName = "", genderName = null} = {}) {
     const individual = Individual.createEmptySubjectInstance();
@@ -256,8 +256,8 @@ describe("AbhaRegistrationFlowTest", () => {
         });
 
         it("passes on an ABHA address to prefill, for Checked in today", async () => {
-            await new AbhaRegistrationFlow(viewWith()).open({route: "link", prefillAbhaAddress: "asha@sbx"});
-            expect(opened()[2]).toEqual({method: "login_or_create_abha", prefillAbhaAddress: "asha@sbx"});
+            await new AbhaRegistrationFlow(viewWith()).open({route: "link", prefillAbhaAddress: "asha@abdm"});
+            expect(opened()[2]).toEqual({method: "login_or_create_abha", prefillAbhaAddress: "asha@abdm"});
         });
 
         it("ignores a second tap while the first is still opening", async () => {
@@ -303,7 +303,7 @@ describe("AbhaRegistrationFlowTest", () => {
             await openAndReturn(view, PROFILE, "create");
 
             expect(mockPopToBookmark).toHaveBeenCalledTimes(1);
-            expect(view.abhaService.findSubjectUUIDs).toHaveBeenCalledWith("st-person", "91-1234-5678-9012", "asha.rao@sbx");
+            expect(view.abhaService.findSubjectUUIDs).toHaveBeenCalledWith("st-person", "91-1234-5678-9012", "asha.rao@abdm");
             expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toEqual([[Actions.ON_ABHA_PROFILE, {profile: PROFILE, choice: "create", subjectUUID: "s-new"}]]);
             expect(view.askAbhaReplace).not.toHaveBeenCalled();
         });
@@ -453,7 +453,7 @@ describe("AbhaRegistrationFlowTest", () => {
             const [, message, buttons] = Alert.alert.mock.calls[0];
             expect(message).toBe("abhaError");
             expect(buttons.map((button) => button.text)).toEqual(["cancel", "abhaTryAgain"]);
-            expect(view.abhaService.findSubjectUUIDs.mock.calls).toEqual([["st-person", "91-1234-5678-9012", "asha.rao@sbx"], ["st-person", "91-1234-5678-9012", "asha.rao@sbx"]]);
+            expect(view.abhaService.findSubjectUUIDs.mock.calls).toEqual([["st-person", "91-1234-5678-9012", "asha.rao@abdm"], ["st-person", "91-1234-5678-9012", "asha.rao@abdm"]]);
             expect(CHSNavigator.navigateToAbhaView).toHaveBeenCalledTimes(1);
             expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(1);
             expect(view.abhaService.recordEvent).toHaveBeenCalledTimes(1);
@@ -508,7 +508,7 @@ describe("AbhaRegistrationFlowTest", () => {
         it("asks the server by address for an ABHA with an address only", async () => {
             const view = viewWith({holders: Promise.resolve(["s-elsewhere"])});
             await openAndReturn(view, {...PROFILE, abhaNumber: null});
-            expect(view.abhaService.findSubjectUUIDs).toHaveBeenCalledWith("st-person", null, "asha.rao@sbx");
+            expect(view.abhaService.findSubjectUUIDs).toHaveBeenCalledWith("st-person", null, "asha.rao@abdm");
             expect(dispatched(view, Actions.ON_ABHA_PROFILE)).toHaveLength(0);
         });
 
@@ -559,7 +559,7 @@ describe("AbhaRegistrationFlowTest", () => {
             const [event] = view.abhaService.recordEvent.mock.calls[0];
             expect(event).toEqual({
                 uuid: expect.any(String), subjectUUID: "s-new", subjectTypeUUID: "st-person", action: "linked", route: "aadhaar",
-                abhaNumber: "91-1234-5678-9012", abhaAddress: "asha.rao@sbx", ekaOid: "oid-1", ekaTxnId: "txn-1",
+                abhaNumber: "91-1234-5678-9012", abhaAddress: "asha.rao@abdm", ekaOid: "oid-1", ekaTxnId: "txn-1",
                 consentGivenAt: "2026-10-20T04:00:00.000Z", occurredAt: expect.stringMatching(/^\d{4}-\d\d-\d\dT.*Z$/),
             });
             expect(view.dispatchAction.mock.invocationCallOrder[0])
@@ -631,7 +631,7 @@ describe("AbhaRegistrationFlowTest", () => {
             await openAndReturn(view);
             await flush();
 
-            expect(cardOpened()).toEqual([[view, {subjectUUID: "s-new", subjectTypeUUID: "st-person", abhaNumber: "91-1234-5678-9012", abhaAddress: "asha.rao@sbx"}]]);
+            expect(cardOpened()).toEqual([[view, {subjectUUID: "s-new", subjectTypeUUID: "st-person", abhaNumber: "91-1234-5678-9012", abhaAddress: "asha.rao@abdm"}]]);
             expect(CHSNavigator.navigateToAbhaCardView.mock.invocationCallOrder[0])
                 .toBeGreaterThan(view.abhaService.recordEvent.mock.invocationCallOrder[0]);
             expect(CHSNavigator.navigateToAbhaCardView.mock.invocationCallOrder[0])
@@ -649,7 +649,7 @@ describe("AbhaRegistrationFlowTest", () => {
 
             expect(cardOpened()).toHaveLength(0);
             settle();
-            expect(cardOpened()).toEqual([[view, {subjectUUID: "s-new", subjectTypeUUID: "st-person", abhaNumber: "91-1234-5678-9012", abhaAddress: "asha.rao@sbx"}]]);
+            expect(cardOpened()).toEqual([[view, {subjectUUID: "s-new", subjectTypeUUID: "st-person", abhaNumber: "91-1234-5678-9012", abhaAddress: "asha.rao@abdm"}]]);
         });
 
         it("does not push the card when the screen closed before its transition settled", async () => {

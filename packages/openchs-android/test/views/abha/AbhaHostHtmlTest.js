@@ -192,7 +192,7 @@ const BRANDING = {
         {find: "Create Eka Profile", replace: "Create Profile"},
     ],
     imageTopCrops: {cmj9r: 14},
-    logoUrl: "data:image/png;base64,TANUH",
+    logoUrl: "data:image/png;base64,TEST",
     logoInPlaceOfAbdm: true,
 };
 

@@ -108,7 +108,7 @@ describe("AbhaBrandingTest", () => {
     });
 
     it("keeps the rest of the branding when the logo cannot be had", async () => {
-        for (const [orgIcon, logo] of [["tanuh.png", null], ["../../secret.png", "AAAA"], ["logo.svg", "AAAA"]]) {
+        for (const [orgIcon, logo] of [["missing.png", null], ["../../secret.png", "AAAA"], ["logo.svg", "AAAA"]]) {
             AbhaBranding.reset();
             const warnings = captureWarnings();
             mockAssets = {[ABHA_BRANDING_FILE]: brandingFile({fontFamily: "Roboto", orgIcon})};

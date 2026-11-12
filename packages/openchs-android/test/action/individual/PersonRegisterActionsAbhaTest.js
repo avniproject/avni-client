@@ -90,7 +90,7 @@ describe("PersonRegisterActions, ABHA", () => {
 
         it("a patient being edited is linked when they have either ABHA answer", () => {
             const withNumber = savedPerson([Observation.create(abhaNumberConcept, new PrimitiveValue("91-1234-5678-9012"))]);
-            const withAddressOnly = savedPerson([Observation.create(abhaAddressConcept, new PrimitiveValue("asha@sbx"))]);
+            const withAddressOnly = savedPerson([Observation.create(abhaAddressConcept, new PrimitiveValue("asha@abdm"))]);
             expect(load(contextWith({abhaOn: true, hipId: "hip-1", saved: withNumber}), withNumber.uuid).abha.linked).toBe(true);
             expect(load(contextWith({abhaOn: true, hipId: "hip-1", saved: withAddressOnly}), withAddressOnly.uuid).abha.linked).toBe(true);
             expect(load(contextWith({abhaOn: true, hipId: "hip-1", saved: savedPerson()}), "x").abha.linked).toBe(false);
@@ -115,7 +115,7 @@ describe("PersonRegisterActions, ABHA", () => {
     describe("the worker's choice and the ABHA's details", () => {
         const PROFILE = {
             firstName: "Asha", middleName: "K", lastName: "Rao", genderName: "Female", dateOfBirth: new Date(1990, 3, 23),
-            abhaNumber: "91-1234-5678-9012", abhaAddress: "asha.rao@sbx", ekaOid: "oid-1", ekaTxnId: "txn-1", route: "aadhaar", action: "linked",
+            abhaNumber: "91-1234-5678-9012", abhaAddress: "asha.rao@abdm", ekaOid: "oid-1", ekaTxnId: "txn-1", route: "aadhaar", action: "linked",
         };
         const loaded = (saved) => load(contextWith({abhaOn: true, hipId: "hip-1", saved}), saved && saved.uuid);
         const answer = (state, conceptName) => state.individual.findObservation(conceptName);
@@ -135,7 +135,7 @@ describe("PersonRegisterActions, ABHA", () => {
         it("shows no options with ABHA off, or for a patient already linked", () => {
             expect(PersonRegisterActions.abhaOptionsShown(load(contextWith({abhaOn: false, hipId: "hip-1"})).abha)).toBe(false);
             expect(PersonRegisterActions.abhaOptionsShown(undefined)).toBe(false);
-            const linked = savedPerson([Observation.create(abhaAddressConcept, new PrimitiveValue("asha@sbx"))]);
+            const linked = savedPerson([Observation.create(abhaAddressConcept, new PrimitiveValue("asha@abdm"))]);
             expect(PersonRegisterActions.abhaOptionsShown(loaded(linked).abha)).toBe(false);
         });
 
@@ -158,7 +158,7 @@ describe("PersonRegisterActions, ABHA", () => {
             const state = onAbhaProfile(load(context), {profile: PROFILE, choice: "link"}, context);
 
             expect(answer(state, "ABHA Number").getValue()).toBe("91-1234-5678-9012");
-            expect(answer(state, "ABHA Address").getValue()).toBe("asha.rao@sbx");
+            expect(answer(state, "ABHA Address").getValue()).toBe("asha.rao@abdm");
             expect(answer(state, "ABHA Number").getValueWrapper().answerSource).toBe(Observation.AnswerSource.Auto);
             expect(answer(state, "ABHA Address").getValueWrapper().answerSource).toBe(Observation.AnswerSource.Auto);
             expect(state.abha).toMatchObject({linked: true, choice: "link"});
@@ -202,10 +202,10 @@ describe("PersonRegisterActions, ABHA", () => {
             const person = savedPerson([Observation.create(abhaNumberConcept, new PrimitiveValue("11-1111-1111-1111"))]);
             const context = contextWith({abhaOn: true, hipId: "hip-1", saved: person});
             const state = onAbhaProfile(load(context, person.uuid),
-                {profile: {...PROFILE, abhaNumber: null, abhaAddress: "asha@sbx"}, choice: "link"}, context);
+                {profile: {...PROFILE, abhaNumber: null, abhaAddress: "asha@abdm"}, choice: "link"}, context);
 
             expect(answer(state, "ABHA Number")).toBeUndefined();
-            expect(answer(state, "ABHA Address").getValue()).toBe("asha@sbx");
+            expect(answer(state, "ABHA Address").getValue()).toBe("asha@abdm");
         });
 
         it("unknownGenderLeftBlank, for the worker to pick", () => {
@@ -233,7 +233,7 @@ describe("PersonRegisterActions, ABHA", () => {
             const person = savedPerson([
                 Observation.create(otherConcept, new PrimitiveValue("Farmer")),
                 Observation.create(abhaNumberConcept, new PrimitiveValue("91-1234-5678-9012")),
-                Observation.create(abhaAddressConcept, new PrimitiveValue("asha.rao@sbx")),
+                Observation.create(abhaAddressConcept, new PrimitiveValue("asha.rao@abdm")),
             ]);
             const context = contextWith({abhaOn: true, hipId: "hip-1", saved: person});
             const state = PersonRegisterActions.onAbhaLinkRemoved(load(context, person.uuid), {}, context);
@@ -249,7 +249,7 @@ describe("PersonRegisterActions, ABHA", () => {
     describe("the lock on the details an ABHA verified", () => {
         const PROFILE = {
             firstName: "Asha", lastName: "Rao", genderName: "Female", dateOfBirth: new Date(1990, 3, 23),
-            abhaNumber: "91-1234-5678-9012", abhaAddress: "asha.rao@sbx", route: "aadhaar", action: "linked",
+            abhaNumber: "91-1234-5678-9012", abhaAddress: "asha.rao@abdm", route: "aadhaar", action: "linked",
         };
         const MOBILE_ONLY = {...PROFILE, abhaNumber: null, route: "mobile"};
         const withNumber = () => savedPerson([Observation.create(abhaNumberConcept, new PrimitiveValue("91-1234-5678-9012"))]);
@@ -261,7 +261,7 @@ describe("PersonRegisterActions, ABHA", () => {
         });
 
         it("notLockedForAddressOnly, for a new patient, and for a patient with no ABHA", () => {
-            expect(lockedOnLoad(savedPerson([Observation.create(abhaAddressConcept, new PrimitiveValue("asha@sbx"))]))).toBe(false);
+            expect(lockedOnLoad(savedPerson([Observation.create(abhaAddressConcept, new PrimitiveValue("asha@abdm"))]))).toBe(false);
             expect(lockedOnLoad(savedPerson())).toBe(false);
             expect(lockedOnLoad(null)).toBe(false);
         });
@@ -290,7 +290,7 @@ describe("PersonRegisterActions, ABHA", () => {
 
         it("with ABHA off, a patient with no ABHA number locks nothing, as before", () => {
             expect(lockedOnLoad(savedPerson(), {abhaOn: false})).toBe(false);
-            expect(lockedOnLoad(savedPerson([Observation.create(abhaAddressConcept, new PrimitiveValue("asha@sbx"))]), {abhaOn: false})).toBe(false);
+            expect(lockedOnLoad(savedPerson([Observation.create(abhaAddressConcept, new PrimitiveValue("asha@abdm"))]), {abhaOn: false})).toBe(false);
         });
 
         it("locks straight after an ABHA with a number fills the details, and not for the mobile route", () => {
@@ -330,7 +330,7 @@ describe("PersonRegisterActions, ABHA", () => {
     describe("locking only what the ABHA filled", () => {
         const FULL = {
             firstName: "Asha", middleName: "K", lastName: "Rao", genderName: "Female", dateOfBirth: new Date(1990, 3, 23),
-            abhaNumber: "91-1234-5678-9012", abhaAddress: "asha.rao@sbx", route: "aadhaar", action: "linked",
+            abhaNumber: "91-1234-5678-9012", abhaAddress: "asha.rao@abdm", route: "aadhaar", action: "linked",
         };
         const MOBILE = {...FULL, abhaNumber: null, route: "mobile"};
         const context = () => contextWith({abhaOn: true, hipId: "hip-1"});
@@ -356,7 +356,7 @@ describe("PersonRegisterActions, ABHA", () => {
             person.dateOfBirth = new Date(1990, 3, 23);
             const state = load(contextWith({abhaOn: true, hipId: "hip-1", saved: person}), person.uuid);
             expect(state.abha.lockedFields).toEqual({firstName: true, middleName: false, lastName: false, dateOfBirth: true, gender: false});
-            const addressOnly = savedPerson([Observation.create(abhaAddressConcept, new PrimitiveValue("a@sbx"))]);
+            const addressOnly = savedPerson([Observation.create(abhaAddressConcept, new PrimitiveValue("a@abdm"))]);
             addressOnly.firstName = "Asha";
             expect(load(contextWith({abhaOn: true, hipId: "hip-1", saved: addressOnly}), addressOnly.uuid).abha.lockedFields).toEqual(NO_LOCKS);
         });
