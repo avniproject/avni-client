@@ -183,7 +183,12 @@ class SyncService extends BaseService {
     async resendAbhaEvents() {
         try {
             const organisationConfigService = this.getService(OrganisationConfigService);
-            if (_.isNil(organisationConfigService) || !organisationConfigService.isAbhaEnabled()) return;
+            if (_.isNil(organisationConfigService)) return;
+            // An organisation that has turned ABHA off keeps no patient's ABHA on the phone.
+            if (!organisationConfigService.isAbhaEnabled()) {
+                await AbhaService.clearUnsentEvents();
+                return;
+            }
             await this.getService(AbhaService).resendUnsentEvents();
         } catch (e) {
             General.logWarn('SyncService', 'Unsent ABHA audit records not sent again');
@@ -855,6 +860,8 @@ class SyncService extends BaseService {
         await LastSyncCompleted.clear();
         // ABHA audit records not yet sent: the server would take them as the next user's.
         await AbhaService.clearUnsentEvents();
+        // An ABHA card a card screen left in the cache folder is the previous user's patient's.
+        await AbhaService.deleteLeftoverCardFiles();
         // Clinic sharing keeps its own files: a hub cursor, parked records and holds from the previous data.
         await this.getService('clinicSpokeService').clearState();
         await this.getService('clinicHubService').clearLedger();

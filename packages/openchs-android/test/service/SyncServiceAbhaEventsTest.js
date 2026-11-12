@@ -78,10 +78,21 @@ describe('SyncService.sync and unsent ABHA audit records', () => {
         await expect(runSync(svc, SYNC_BUTTON)).resolves.toBe(SYNC_BUTTON);
     });
 
-    it('touches nothing of ABHA when the organisation has ABHA off', async () => {
+    it('sends none of them when the organisation has ABHA off, and clears them instead', async () => {
+        const clear = jest.spyOn(AbhaService, 'clearUnsentEvents').mockResolvedValue(undefined);
         const svc = buildSyncService({abhaOn: false});
         await runSync(svc, SYNC_BUTTON);
         await flush();
         expect(svc.abhaService.resendUnsentEvents).not.toHaveBeenCalled();
+        expect(clear).toHaveBeenCalledTimes(1);
+        clear.mockRestore();
+    });
+
+    it('keeps them while the organisation has ABHA on', async () => {
+        const clear = jest.spyOn(AbhaService, 'clearUnsentEvents').mockResolvedValue(undefined);
+        await runSync(buildSyncService(), SYNC_BUTTON);
+        await flush();
+        expect(clear).not.toHaveBeenCalled();
+        clear.mockRestore();
     });
 });

@@ -20,8 +20,20 @@ const mockReadDir = jest.fn(() => Promise.resolve([]));
 jest.mock("react-native-fs", () => ({unlink: (...args) => mockUnlink(...args), readDir: (...args) => mockReadDir(...args), exists: jest.fn(() => Promise.resolve(true))}));
 jest.mock("../../src/service/AuthAwareDownload", () => ({downloadWithAuth: jest.fn()}));
 jest.mock("react-native-blob-util", () => ({fs: {dirs: {CacheDir: "/cache"}}}));
+// The Android keychain, in memory, by service name.
+const mockKeychainStore = new Map();
+jest.mock("react-native-keychain", () => ({
+    getGenericPassword: jest.fn(async (options = {}) => (mockKeychainStore.has(options.service)
+        ? {username: "kept", password: mockKeychainStore.get(options.service), service: options.service} : false)),
+    setGenericPassword: jest.fn(async (username, password, options = {}) => {
+        mockKeychainStore.set(options.service, password);
+        return {service: options.service, storage: "KeystoreAESGCM_NoAuth"};
+    }),
+    resetGenericPassword: jest.fn(async (options = {}) => mockKeychainStore.delete(options.service)),
+}));
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Keychain from "react-native-keychain";
 import {downloadWithAuth} from "../../src/service/AuthAwareDownload";
 import AbhaService from "../../src/service/AbhaService";
 import AbhaError from "../../src/service/AbhaError";
@@ -78,7 +90,11 @@ async function until(check) {
 }
 
 describe("AbhaServiceTest", () => {
-    beforeEach(async () => await AsyncStorage.clear());
+    beforeEach(async () => {
+        await AsyncStorage.clear();
+        mockKeychainStore.clear();
+        [Keychain.getGenericPassword, Keychain.setGenericPassword, Keychain.resetGenericPassword].forEach((fn) => fn.mockClear());
+    });
     afterEach(() => jest.restoreAllMocks());
 
     it("asks the server for a session for the subject type and returns it as sent", async () => {
@@ -359,7 +375,7 @@ describe("AbhaServiceTest", () => {
         it("are dropped only on 400, 403 or 409, and kept on 401, 408, 429, a server error or a timeout", async () => {
             const answers = [[400, false], [403, false], [409, false], [401, true], [404, true], [408, true], [429, true], [500, true], [502, true], [503, true]];
             for (const [status, kept] of answers) {
-                await AsyncStorage.clear();
+                mockKeychainStore.clear();
                 global.fetch = jest.fn(async () => reply(status, {code: "SOME_CODE"}));
                 expect(await service().recordEvent(EVENT), String(status)).to.equal(false);
                 global.fetch = jest.fn(async () => reply(201, {}));
@@ -389,6 +405,143 @@ describe("AbhaServiceTest", () => {
             global.fetch = jest.fn(async () => reply(201, {}));
             await service().resendUnsentEvents();
             expect(global.fetch.mock.calls.length).to.equal(0);
+        });
+
+        describe("where they are kept", () => {
+            const SERVICE = "avni.abha.unsentEvents";
+            const offline = () => { global.fetch = jest.fn(async () => { throw new TypeError("Network request failed"); }); };
+            const keptInKeychain = () => JSON.parse(mockKeychainStore.get(SERVICE) || "[]");
+            const eventNumbered = (n) => ({...EVENT, uuid: `ev-${n}`});
+
+            it("are in the Android keychain under their own name, never in AsyncStorage", async () => {
+                AsyncStorage.setItem.mockClear();
+                AsyncStorage.multiSet.mockClear();
+                offline();
+                await service().recordEvent(EVENT);
+
+                expect(keptInKeychain()).to.deep.equal([EVENT]);
+                expect(await AsyncStorage.getItem(SERVICE)).to.equal(null);
+                expect(AsyncStorage.setItem.mock.calls.length + AsyncStorage.multiSet.mock.calls.length).to.equal(0);
+            });
+
+            // The database key is the keychain entry with no service name: no ABHA call may read or replace it.
+            it("never touch the keychain entry the database key is kept in", async () => {
+                offline();
+                await service().recordEvent(EVENT);
+                await service().resendUnsentEvents();
+                await AbhaService.clearUnsentEvents();
+
+                [Keychain.getGenericPassword, Keychain.setGenericPassword, Keychain.resetGenericPassword].forEach((fn) =>
+                    expect(fn.mock.calls.length).to.be.greaterThan(0));
+                expect(Keychain.getGenericPassword.mock.calls.every(([options]) => options.service === SERVICE)).to.equal(true);
+                expect(Keychain.resetGenericPassword.mock.calls.every(([options]) => options.service === SERVICE)).to.equal(true);
+                expect(Keychain.setGenericPassword.mock.calls.every(([, , options]) => options.service === SERVICE)).to.equal(true);
+            });
+
+            it("are moved out of AsyncStorage, where an older app kept them, on the first read, and sent", async () => {
+                await AsyncStorage.setItem(SERVICE, JSON.stringify([EVENT]));
+                offline();
+                await service().resendUnsentEvents();
+
+                expect(await AsyncStorage.getItem(SERVICE)).to.equal(null);
+                expect(keptInKeychain()).to.deep.equal([EVENT]);
+
+                global.fetch = jest.fn(async () => reply(201, {}));
+                await service().resendUnsentEvents();
+                expect(global.fetch.mock.calls.length).to.equal(1);
+                expect(JSON.parse(global.fetch.mock.calls[0][1].body)).to.deep.equal(EVENT);
+                expect(keptInKeychain()).to.deep.equal([]);
+            });
+
+            it("are moved once: a record in both places is kept once, and one already moved is not moved again", async () => {
+                const older = eventNumbered(0);
+                mockKeychainStore.set(SERVICE, JSON.stringify([EVENT]));
+                await AsyncStorage.setItem(SERVICE, JSON.stringify([older, EVENT]));
+                offline();
+
+                await service().keepEvent(eventNumbered(2));
+                await service().resendUnsentEvents();
+
+                expect(keptInKeychain().map((event) => event.uuid)).to.deep.equal(["ev-0", "ev-1", "ev-2"]);
+                expect(await AsyncStorage.getItem(SERVICE)).to.equal(null);
+            });
+
+            it("are kept in AsyncStorage still when the keychain cannot take them, to move on a later read", async () => {
+                await AsyncStorage.setItem(SERVICE, JSON.stringify([EVENT]));
+                Keychain.setGenericPassword.mockImplementationOnce(async () => { throw new Error("keystore locked"); });
+                jest.spyOn(General, "logWarn").mockImplementation(() => {});
+                offline();
+                await service().resendUnsentEvents();
+                expect(await AsyncStorage.getItem(SERVICE)).to.not.equal(null);
+
+                await service().resendUnsentEvents();
+                expect(await AsyncStorage.getItem(SERVICE)).to.equal(null);
+                expect(keptInKeychain()).to.deep.equal([EVENT]);
+            });
+
+            it("are still read from the keychain when AsyncStorage cannot be read", async () => {
+                offline();
+                await service().recordEvent(EVENT);
+                AsyncStorage.getItem.mockImplementationOnce(async () => { throw new Error("storage unreadable"); });
+
+                global.fetch = jest.fn(async () => reply(201, {}));
+                await service().resendUnsentEvents();
+                expect(global.fetch.mock.calls.length).to.equal(1);
+            });
+
+            it("are at most 50: the oldest go first, with a warning that gives only how many", async () => {
+                const logged = captureLogs();
+                offline();
+                const abhaService = service();
+                for (let n = 1; n <= 52; n++) await abhaService.keepEvent(eventNumbered(n));
+
+                const kept = keptInKeychain().map((event) => event.uuid);
+                expect(kept).to.have.length(50);
+                expect(kept[0]).to.equal("ev-3");
+                expect(kept[49]).to.equal("ev-52");
+                const warnings = logged.filter((args) => asText(args[1]).includes("dropped"));
+                expect(warnings.map((args) => args[1])).to.deep.equal(["ABHA audit records over the limit of 50: 1 oldest dropped",
+                    "ABHA audit records over the limit of 50: 1 oldest dropped"]);
+                logged.forEach((args) => args.forEach((arg) => [...PATIENT_DETAILS, "ev-1", "ev-2"].forEach((detail) =>
+                    expect(asText(arg)).to.not.contain(detail))));
+            });
+
+            it("are still sent when the keychain cannot be read or written, with a warning that they are not kept", async () => {
+                const logged = captureLogs();
+                const [read, write] = [Keychain.getGenericPassword.getMockImplementation(), Keychain.setGenericPassword.getMockImplementation()];
+                Keychain.getGenericPassword.mockImplementation(() => { throw new Error("keystore locked"); });
+                Keychain.setGenericPassword.mockImplementation(async () => { throw new Error("keystore locked"); });
+                try {
+                    global.fetch = jest.fn(async () => reply(201, {}));
+                    expect(await service().recordEvent(EVENT)).to.equal(true);
+                    expect(global.fetch.mock.calls.length).to.equal(1);
+                    await service().resendUnsentEvents();
+                    expect(global.fetch.mock.calls.length).to.equal(1);
+                    await service().keepEvent(EVENT);
+                } finally {
+                    Keychain.getGenericPassword.mockImplementation(read);
+                    Keychain.setGenericPassword.mockImplementation(write);
+                }
+                const lines = logged.map((args) => args[1]);
+                expect(lines).to.include("ABHA audit records could not be kept on the phone");
+                expect(lines).to.include("Unsent ABHA audit records could not be read");
+            });
+
+            it("are cleared from the keychain and from where an older app kept them, and clearing never rejects", async () => {
+                offline();
+                await service().recordEvent(EVENT);
+                await AsyncStorage.setItem(SERVICE, JSON.stringify([eventNumbered(0)]));
+
+                await AbhaService.clearUnsentEvents();
+
+                expect(mockKeychainStore.has(SERVICE)).to.equal(false);
+                expect(await AsyncStorage.getItem(SERVICE)).to.equal(null);
+
+                const logged = captureLogs();
+                Keychain.resetGenericPassword.mockImplementationOnce(() => { throw new Error("keystore locked"); });
+                await AbhaService.clearUnsentEvents();
+                expect(logged.map((args) => args[1])).to.include("Unsent ABHA audit records could not be cleared");
+            });
         });
     });
 

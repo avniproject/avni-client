@@ -1,5 +1,6 @@
 import _ from "lodash";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Keychain from "react-native-keychain";
 import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
 import {getJSON, post} from "../framework/http/requests";
@@ -14,6 +15,11 @@ import {downloadWithAuth} from "./AuthAwareDownload";
 // Audit records the server does not have yet, kept on the phone so a restart loses none. They carry the ABHA number:
 // nothing here logs them, and a data clear for another user drops them (SyncService.clearData).
 export const UNSENT_EVENTS_KEY = 'avni.abha.unsentEvents';
+// Their own keychain entry, encrypted by the Android keystore; the database key's entry has no service name.
+const KEYCHAIN_ENTRY = {service: UNSENT_EVENTS_KEY};
+const KEYCHAIN_USERNAME = 'avni.abha';
+// A phone that cannot reach the server for long keeps only the newest, so the keychain entry stays small.
+export const MAX_UNSENT_EVENTS = 50;
 // The only answers that mean the server will never take a record. An expired login, a timeout, too many requests,
 // a server error or no network can all clear later, so on those the record is kept.
 const REFUSED_STATUSES = [400, 403, 409];
@@ -83,9 +89,14 @@ class AbhaService extends BaseService {
         await Promise.all(_.reject(events, (event) => this.sending.has(event.uuid)).map((event) => this._send(event)));
     }
 
-    static clearUnsentEvents() {
-        return AsyncStorage.removeItem(UNSENT_EVENTS_KEY)
-            .catch(() => General.logWarn('AbhaService', 'Unsent ABHA audit records could not be cleared'));
+    // Never rejects. Clears the AsyncStorage key too, in case a read has not moved its records yet.
+    static async clearUnsentEvents() {
+        const attempt = (clear) => Promise.resolve().then(clear).then(() => true, () => false);
+        const cleared = await Promise.all([
+            attempt(() => Keychain.resetGenericPassword(KEYCHAIN_ENTRY)),
+            attempt(() => AsyncStorage.removeItem(UNSENT_EVENTS_KEY)),
+        ]);
+        if (!_.every(cleared)) General.logWarn('AbhaService', 'Unsent ABHA audit records could not be cleared');
     }
 
     async _send(event) {
@@ -118,28 +129,51 @@ class AbhaService extends BaseService {
     _changeKept(change) {
         const changed = this.storage.then(async () => {
             const events = await AbhaService._readKept();
-            await AsyncStorage.setItem(UNSENT_EVENTS_KEY, JSON.stringify(change(events)));
+            await AbhaService._writeKept(change(events));
         });
         this.storage = changed.catch(() => {});
         return changed.catch(() => General.logWarn('AbhaService', 'ABHA audit records could not be kept on the phone'));
     }
 
+    // In line with the changes, since a read can move records out of AsyncStorage and so write.
     _kept() {
-        return this.storage.then(() => AbhaService._readKept()).catch(() => {
+        const read = this.storage.then(() => AbhaService._readKept());
+        this.storage = read.catch(() => {});
+        return read.catch(() => {
             General.logWarn('AbhaService', 'Unsent ABHA audit records could not be read');
             return [];
         });
     }
 
-    // Unreadable contents read as none, so the next write replaces them.
+    // Records in AsyncStorage move to the keychain before their key is removed, so a failure between the two loses none.
     static async _readKept() {
-        const stored = await AsyncStorage.getItem(UNSENT_EVENTS_KEY);
+        const kept = AbhaService._parsed(_.get(await Keychain.getGenericPassword(KEYCHAIN_ENTRY), 'password'));
+        const legacy = await AsyncStorage.getItem(UNSENT_EVENTS_KEY).catch(() => null);
+        if (_.isNil(legacy)) return kept;
+        const events = [..._.reject(AbhaService._parsed(legacy), (event) => _.some(kept, ['uuid', _.get(event, 'uuid')])), ...kept];
+        const written = await AbhaService._writeKept(events);
+        await AsyncStorage.removeItem(UNSENT_EVENTS_KEY).catch(() => {});
+        return written;
+    }
+
+    // Unreadable contents read as none, so the next write replaces them.
+    static _parsed(stored) {
         try {
             const events = JSON.parse(stored || '[]');
             return _.isArray(events) ? events : [];
         } catch (e) {
             return [];
         }
+    }
+
+    // The newest MAX_UNSENT_EVENTS, oldest first; the warning gives only how many went.
+    static async _writeKept(events) {
+        const kept = _.takeRight(events, MAX_UNSENT_EVENTS);
+        if (kept.length < events.length) {
+            General.logWarn('AbhaService', `ABHA audit records over the limit of ${MAX_UNSENT_EVENTS}: ${events.length - kept.length} oldest dropped`);
+        }
+        await Keychain.setGenericPassword(KEYCHAIN_USERNAME, JSON.stringify(kept), KEYCHAIN_ENTRY);
+        return kept;
     }
 
     // The ABHA card image, fetched into the cache folder, and the path of that file. The card is the patient's

@@ -52,6 +52,8 @@ const SyncService = require('../../src/service/SyncService').default;
 const SqliteMigrationService = require('../../src/service/SqliteMigrationService').default;
 const SessionUsername = require('../../src/service/SessionUsername').default;
 const LastSyncCompleted = require('../../src/service/LastSyncCompleted').default;
+const AbhaService = require('../../src/service/AbhaService').default;
+const Keychain = require('react-native-keychain');
 
 const MIGRATION_KEY = 'avni.sqliteMigration.anjali@phulwari';
 const SESSION_KEY = 'avni.currentUsername';
@@ -100,13 +102,27 @@ describe('clearData wipes both backends (#2083)', () => {
         expect([svc.clinicSharing.clearState, svc.clinicSharing.clearLedger].map((fn) => fn.mock.calls.length)).toEqual([1, 1]);
     });
 
-    it("drops the ABHA audit records not yet sent, which the next user would send as their own", async () => {
+    it("drops the ABHA audit records not yet sent, which the next user would send as their own, from the keychain and the old store", async () => {
         AsyncStorage.__store.set('avni.abha.unsentEvents', JSON.stringify([{uuid: 'ev-1'}]));
         const svc = buildSyncService();
 
         await svc.clearData();
 
         expect(AsyncStorage.__store.has('avni.abha.unsentEvents')).toBe(false);
+        expect(Keychain.resetGenericPassword).toHaveBeenCalledWith({service: 'avni.abha.unsentEvents'});
+        expect(Keychain.resetGenericPassword.mock.invocationCallOrder[0]).toBeLessThan(svc.entityService.clearDataIn.mock.invocationCallOrder[0]);
+    });
+
+    // A card screen the app was stopped on leaves the patient's ABHA card in the cache folder.
+    it("deletes ABHA card files a card screen left behind, before it starts wiping", async () => {
+        const deleteCards = jest.spyOn(AbhaService, 'deleteLeftoverCardFiles');
+        const svc = buildSyncService();
+
+        await svc.clearData();
+
+        expect(deleteCards).toHaveBeenCalledTimes(1);
+        expect(deleteCards.mock.invocationCallOrder[0]).toBeLessThan(svc.entityService.clearDataIn.mock.invocationCallOrder[0]);
+        deleteCards.mockRestore();
     });
 
     it('clears both backends and lands on Realm, starting from Realm', async () => {
