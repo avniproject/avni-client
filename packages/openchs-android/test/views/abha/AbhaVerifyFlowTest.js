@@ -343,6 +343,23 @@ describe("AbhaVerifyFlow", () => {
             expect(flow.state).toEqual(expect.objectContaining({step: STEPS.IDENTIFIER, method: METHODS.AADHAAR, errorKey: null, busy: false}));
         });
 
+        it("is dropped after Back when it answers an OTP sent again", async () => {
+            const loginInit = pending();
+            const {flow, later} = flowWith();
+            flow.chooseMethod(METHODS.ABHA_NUMBER);
+            await flow.submitIdentifier(ABHA_NUMBER, OTP_SYSTEMS.MOBILE);
+            flow.client.loginInit = loginInit.call;
+            later(RESEND_AFTER_MS);
+            const resending = flow.resend();
+            flow.back();
+
+            loginInit.answer({txn_id: "late-txn", hint: "late"});
+            await resending;
+
+            expect(flow.state).toEqual(expect.objectContaining({step: STEPS.IDENTIFIER, resendsUsed: 0, hint: null, busy: false}));
+            expect(flow.txn).toBeNull();
+        });
+
         it("is dropped once another method is chosen", async () => {
             const search = pending();
             const {flow} = flowWith({search: search.call});

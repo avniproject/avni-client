@@ -396,10 +396,70 @@ describe("AbhaServiceTest", () => {
             global.fetch = jest.fn(() => new Promise((resolve) => { answer = resolve; }));
             const first = abhaService.resendUnsentEvents();
             await until(() => global.fetch.mock.calls.length === 1);
-            await abhaService.resendUnsentEvents();
+            const second = abhaService.resendUnsentEvents();
+            await new Promise((resolve) => setImmediate(resolve));
             expect(global.fetch.mock.calls.length).to.equal(1);
             answer(reply(201, {}));
-            await first;
+            await Promise.all([first, second]);
+            expect(global.fetch.mock.calls.length).to.equal(1);
+        });
+
+        it("are waited for, not given up at once, when one is asked to be recorded while another send has it", async () => {
+            const abhaService = service();
+            await abhaService.keepEvent(EVENT);
+            let answer;
+            global.fetch = jest.fn(() => new Promise((resolve) => { answer = resolve; }));
+            const resending = abhaService.resendUnsentEvents();
+            await until(() => global.fetch.mock.calls.length === 1);
+
+            let recorded;
+            const recording = abhaService.recordEvent(EVENT).then((landed) => { recorded = landed; });
+            for (let i = 0; i < 5; i++) await new Promise((resolve) => setImmediate(resolve));
+            expect(recorded, "not answered before the server answers the send that has it").to.equal(undefined);
+
+            answer(reply(201, {}));
+            await Promise.all([resending, recording]);
+            expect(recorded).to.equal(true);
+            expect(global.fetch.mock.calls.length).to.equal(1);
+        });
+
+        // Records still on their way when the phone's data is cleared for the next user would go out under that user's
+        // login: the server records them as the caller's.
+        it("stop going once the phone's data is cleared: at most the batch already on its way goes, and none come back", async () => {
+            global.fetch = jest.fn(async () => { throw new TypeError("Network request failed"); });
+            const abhaService = service();
+            for (let n = 1; n <= 45; n++) await abhaService.keepEvent({...EVENT, uuid: `ev-${n}`});
+            let release;
+            const held = new Promise((resolve) => { release = resolve; });
+            global.fetch = jest.fn(async () => { await held; return reply(201, {}); });
+            const sending = abhaService.resendUnsentEvents();
+            await until(() => global.fetch.mock.calls.length === 20);
+
+            await AbhaService.clearUnsentEvents();
+            release();
+            await sending;
+
+            expect(global.fetch.mock.calls.length).to.equal(20);
+            expect(mockKeychainStore.has("avni.abha.unsentEvents")).to.equal(false);
+        });
+
+        it("kept just before the phone's data is cleared are not brought back by that keep", async () => {
+            const reported = bugsnagReports();
+            global.fetch = jest.fn(async () => { throw new TypeError("Network request failed"); });
+            const abhaService = service();
+            let releaseRead;
+            Keychain.getGenericPassword.mockImplementationOnce(() => new Promise((resolve) => { releaseRead = () => resolve(false); }));
+            const resending = abhaService.resendUnsentEvents();
+            await until(() => !!releaseRead);
+            const keeping = abhaService.keepEvent(EVENT);
+
+            await AbhaService.clearUnsentEvents();
+            releaseRead();
+            await Promise.all([resending, keeping]);
+
+            expect(mockKeychainStore.has("avni.abha.unsentEvents")).to.equal(false);
+            expect(global.fetch.mock.calls.length).to.equal(0);
+            expect(reported(), "a clear is on purpose, not a loss").to.deep.equal([]);
         });
 
         it("are dropped when the phone's data is cleared for another user", async () => {
@@ -602,7 +662,43 @@ describe("AbhaServiceTest", () => {
                 }
                 const lines = logged.map((args) => args[1]);
                 expect(lines).to.include("ABHA audit records could not be kept on the phone");
-                expect(lines).to.include("Unsent ABHA audit records could not be read");
+                expect(lines).to.include("Unsent ABHA audit records unreadable: lost");
+            });
+
+            it("whose entry the keystore can no longer read are reported once, and the entry reset so keeping works again", async () => {
+                captureLogs();
+                const reported = bugsnagReports();
+                mockKeychainStore.set(SERVICE, JSON.stringify([eventNumbered(0)]));
+                Keychain.getGenericPassword.mockImplementationOnce(async () => { throw new Error("keystore cannot decrypt"); });
+                offline();
+
+                await service().keepEvent(EVENT);
+                await service().resendUnsentEvents();
+
+                expect(reported()).to.deep.equal([`${LOST}: Unsent ABHA audit records unreadable: lost`]);
+                expect(keptInKeychain()).to.deep.equal([EVENT]);
+            });
+
+            it("are not reported lost when the keychain cannot keep one the server then takes", async () => {
+                captureLogs();
+                const reported = bugsnagReports();
+                Keychain.setGenericPassword.mockImplementationOnce(async () => { throw new Error("keystore locked"); });
+                global.fetch = jest.fn(async () => reply(201, {}));
+
+                expect(await service().recordEvent(EVENT)).to.equal(true);
+
+                expect(reported()).to.deep.equal([]);
+            });
+
+            it("are reported lost when the keychain cannot keep one the server did not take either", async () => {
+                captureLogs();
+                const reported = bugsnagReports();
+                Keychain.setGenericPassword.mockImplementationOnce(async () => { throw new Error("keystore locked"); });
+                offline();
+
+                expect(await service().recordEvent(EVENT)).to.equal(false);
+
+                expect(reported()).to.deep.equal([`${LOST}: ABHA audit records not kept on the phone: 1`]);
             });
 
             // The entry exists only while records are unsent: the last one sent or dropped removes it, never leaves "[]".
@@ -764,6 +860,20 @@ describe("AbhaServiceTest", () => {
             downloadWithAuth.mockResolvedValue(downloaded(404, "<html>Not Found</html>"));
             expect(AbhaError.messageKey(await failureOf(service().getCardFile("s-1")))).to.equal("abhaError");
             expect(AbhaError.messageKey(new AbhaError(null, 404))).to.equal("abhaError");
+        });
+
+        // Android can stop the app while the Save-as picker is open, leaving the card screen no chance to delete its file.
+        it("deletes card files left in the cache folder when the app starts, and nothing else there", async () => {
+            mockReadDir.mockResolvedValueOnce([
+                {name: "abha-card-1f2e.png", path: "/cache/abha-card-1f2e.png"},
+                {name: "profile-pic.png", path: "/cache/profile-pic.png"},
+            ]);
+
+            service().init();
+
+            await until(() => mockUnlink.mock.calls.length > 0);
+            expect(mockReadDir.mock.calls[0][0]).to.equal("/cache");
+            expect(mockUnlink.mock.calls.map(([path]) => path)).to.deep.equal(["/cache/abha-card-1f2e.png"]);
         });
 
         it("first deletes card files a closed card screen left in the cache folder, and nothing else there", async () => {

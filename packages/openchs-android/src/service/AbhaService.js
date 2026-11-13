@@ -36,6 +36,8 @@ const UNREADABLE_KEPT = 'Unsent ABHA audit records unreadable: lost';
 const CARD_FILE_NAME = /^abha-card-.*\.png$/;
 // True once a clear has emptied the kept records in this app run, until ABHA is seen on again.
 let unsentEventsCleared = false;
+// Raised by every clear: a send or a change begun before it was for the previous user, so it stops.
+let clearCount = 0;
 
 // Avni's server holds Eka's secret and answers these online, outside sync. The Eka key in a session is handed to the
 // caller and never stored or logged; it lasts about 30 minutes.
@@ -43,10 +45,15 @@ let unsentEventsCleared = false;
 class AbhaService extends BaseService {
     constructor(db, context) {
         super(db, context);
-        // Records on their way to the server, by uuid, so a resend does not send one twice at once.
-        this.sending = new Set();
+        // Records on their way to the server: uuid to the promise of the server's answer, which a second send waits on.
+        this.sending = new Map();
         // Every change to the kept records reads and writes the whole list, so changes run one after another.
         this.storage = Promise.resolve();
+    }
+
+    // Android can stop the app while a card screen is open, as with its Save-as picker, leaving that screen's file.
+    init() {
+        AbhaService.deleteLeftoverCardFiles();
     }
 
     // {accessToken, expiresAt, environment: 'sandbox' | 'production', hipId}
@@ -79,23 +86,32 @@ class AbhaService extends BaseService {
     // false otherwise; it never rejects and never holds up the worker. The record stays kept while it is on its way
     // and is forgotten only when the server takes it or refuses it for good, so a record that does not get there
     // goes again with resendUnsentEvents. The server stores each uuid once, so sending one twice is safe.
-    recordEvent(event) {
-        return this._keep(event).then(() => this._sendAll([event])).then((taken) => taken.has(event.uuid));
+    // A record not kept is reported lost only when the server did not settle it either.
+    async recordEvent(event) {
+        const clears = clearCount;
+        // One already on its way was kept before it went.
+        const kept = this.sending.has(event.uuid) || await this._keep(event);
+        const {taken, settled} = await this._sendAll([event], clears);
+        if (!kept && !settled.has(event.uuid)) AbhaService.report(LOST, 'ABHA audit records not kept on the phone: 1');
+        return taken.has(event.uuid);
     }
 
     // Keeps the record on the phone without sending it, for an ABHA action whose outcome is not settled yet. Never
     // rejects; a later recordEvent or resendUnsentEvents sends it.
-    keepEvent(event) {
-        return this._keep(event);
+    async keepEvent(event) {
+        if (!(await this._keep(event))) AbhaService.report(LOST, 'ABHA audit records not kept on the phone: 1');
     }
 
-    // Sends every kept record not already on its way: after a registration with ABHA is saved, and with each sync.
+    // Sends every kept record, waiting for any already on its way: after a registration with ABHA is saved, and with
+    // each sync.
     async resendUnsentEvents() {
-        await this._sendAll(await this._kept());
+        const clears = clearCount;
+        await this._sendAll(await this._kept(), clears);
     }
 
     // Never rejects. Clears the AsyncStorage key too, in case a read has not moved its records yet.
     static async clearUnsentEvents() {
+        clearCount++;
         const attempt = (clear) => Promise.resolve().then(clear).then(() => true, () => false);
         const cleared = await Promise.all([
             attempt(() => Keychain.resetGenericPassword(KEYCHAIN_ENTRY)),
@@ -117,32 +133,41 @@ class AbhaService extends BaseService {
     }
 
     // Sends SEND_BATCH at a time and forgets each batch's taken and refused records in one write, since every write
-    // re-encrypts the whole list. Records already on their way are left to that send. Never rejects; resolves to the
-    // uuids the server took. Logs and reports give counts only: Bugsnag keeps log lines as breadcrumbs.
-    async _sendAll(events) {
-        const mine = _.uniqBy(_.reject(events, (event) => this.sending.has(event.uuid)), 'uuid');
-        mine.forEach((event) => this.sending.add(event.uuid));
-        const taken = new Set();
-        const refusals = [];
-        let keptCount = 0;
+    // re-encrypts the whole list. A record already on its way is waited for, not sent again. A clear since `clears`
+    // stops it before the next batch: the rest were the previous user's, and would go under the next user's login.
+    // Never rejects; resolves to the uuids the server took and those it settled (took or refused). Logs and reports give
+    // counts only: Bugsnag keeps log lines as breadcrumbs.
+    async _sendAll(events, clears) {
+        const unique = _.uniqBy(events, 'uuid');
+        const others = _.filter(unique, (event) => this.sending.has(event.uuid))
+            .map((event) => this.sending.get(event.uuid).then((outcome) => [event.uuid, outcome]));
+        const mine = _.reject(unique, (event) => this.sending.has(event.uuid));
+        const answerOf = new Map();
+        mine.forEach((event) => this.sending.set(event.uuid, new Promise((resolve) => answerOf.set(event.uuid, resolve))));
+        const outcomes = new Map();
         try {
             for (const batch of _.chunk(mine, SEND_BATCH)) {
-                const outcomes = await Promise.all(batch.map((event) => this._post(event)));
-                const settled = new Set();
-                outcomes.forEach((outcome, i) => {
-                    const {uuid} = batch[i];
-                    if (outcome.taken) taken.add(uuid);
-                    else if (outcome.refused) refusals.push(outcome);
-                    else keptCount++;
-                    if (outcome.taken || outcome.refused) settled.add(uuid);
-                });
-                if (settled.size > 0) await this._changeKept((kept) => _.reject(kept, (event) => settled.has(event.uuid)));
+                if (clearCount !== clears) break;
+                const answers = await Promise.all(batch.map((event) => this._post(event)));
+                batch.forEach((event, i) => outcomes.set(event.uuid, answers[i]));
+                const settled = new Set(_.filter(batch, (event) => AbhaService._settled(outcomes.get(event.uuid))).map((event) => event.uuid));
+                if (settled.size > 0) await this._changeKept((kept) => _.reject(kept, (event) => settled.has(event.uuid)), clears);
+                batch.forEach((event) => answerOf.get(event.uuid)(outcomes.get(event.uuid)));
             }
         } finally {
-            mine.forEach((event) => this.sending.delete(event.uuid));
+            mine.forEach((event) => {
+                answerOf.get(event.uuid)(outcomes.get(event.uuid) || {});
+                this.sending.delete(event.uuid);
+            });
         }
-        AbhaService._sayNotRecorded(refusals, keptCount);
-        return taken;
+        AbhaService._sayNotRecorded([...outcomes.values()]);
+        (await Promise.all(others)).forEach(([uuid, outcome]) => outcomes.set(uuid, outcome));
+        const uuidsWhere = (test) => new Set([...outcomes].filter(([, outcome]) => test(outcome)).map(([uuid]) => uuid));
+        return {taken: uuidsWhere((outcome) => outcome.taken), settled: uuidsWhere(AbhaService._settled)};
+    }
+
+    static _settled(outcome) {
+        return !!(outcome.taken || outcome.refused);
     }
 
     // {taken}, {refused, status, code} for an answer that means never, or {} when the record can go again. Never rejects.
@@ -162,7 +187,9 @@ class AbhaService extends BaseService {
     }
 
     // One line, and one report, for each answer the server refused with in a send.
-    static _sayNotRecorded(refusals, keptCount) {
+    static _sayNotRecorded(outcomes) {
+        const refusals = _.filter(outcomes, 'refused');
+        const keptCount = _.filter(outcomes, (outcome) => !AbhaService._settled(outcome)).length;
         _.forEach(_.groupBy(refusals, 'status'), (refused, status) => {
             General.logWarn('AbhaService', `ABHA audit records not recorded: ${refused.length} refused (Http ${status}), dropped`);
             const reported = _.reject(refused, ['code', UNREPORTED_REFUSAL]).length;
@@ -171,16 +198,19 @@ class AbhaService extends BaseService {
         if (keptCount > 0) General.logWarn('AbhaService', `ABHA audit records not recorded: ${keptCount} kept to send again`);
     }
 
+    // Never rejects; false when the record could not be kept.
     _keep(event) {
-        return this._changeKept((events) => [..._.reject(events, ['uuid', event.uuid]), event])
-            .then((kept) => { if (!kept) AbhaService.report(LOST, 'ABHA audit records not kept on the phone: 1'); });
+        return this._changeKept((events) => [..._.reject(events, ['uuid', event.uuid]), event]);
     }
 
     // Never rejects; false when the change was not made. A record that could not be written is still sent; it is only
-    // not kept for a resend.
-    _changeKept(change) {
+    // not kept for a resend. A change begun before a clear is dropped, so it cannot bring back what the clear removed;
+    // that is on purpose, not a failure.
+    _changeKept(change, clears = clearCount) {
         const changed = this.storage.then(async () => {
+            if (clearCount !== clears) return;
             const events = await AbhaService._readKept();
+            if (clearCount !== clears) return;
             await AbhaService._writeKept(change(events));
         });
         this.storage = changed.catch(() => {});
@@ -202,8 +232,14 @@ class AbhaService extends BaseService {
 
     // Records in AsyncStorage move to the keychain before their key is removed, so a failure between the two loses none.
     // Contents that cannot be read are lost: reported, and removed at once, so the loss is reported once.
+    // An entry the keystore can no longer decrypt is as unreadable, and is reset so records can be kept again.
     static async _readKept() {
-        let kept = AbhaService._parsed(_.get(await Keychain.getGenericPassword(KEYCHAIN_ENTRY), 'password'));
+        let kept;
+        try {
+            kept = AbhaService._parsed(_.get(await Keychain.getGenericPassword(KEYCHAIN_ENTRY), 'password'));
+        } catch (e) {
+            kept = null;
+        }
         if (_.isNil(kept)) {
             AbhaService._sayUnreadable();
             await Keychain.resetGenericPassword(KEYCHAIN_ENTRY);

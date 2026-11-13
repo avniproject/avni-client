@@ -137,6 +137,19 @@ describe("AbhaCardViewTest", () => {
         expect(view.lines().join("|")).not.toContain("abhaCardDownloaded");
     });
 
+    it("lets Download be used again after the picker is closed and after a failure", async () => {
+        const view = await show();
+        mockSaveDocuments.mockRejectedValueOnce(pickerError("OPERATION_CANCELED"));
+        await view.press("abhaCardDownload");
+        mockSaveDocuments.mockRejectedValueOnce(pickerError("UNABLE_TO_OPEN_FILE_TYPE"));
+        await view.press("abhaCardDownload");
+
+        await view.press("abhaCardDownload");
+
+        expect(mockSaveDocuments).toHaveBeenCalledTimes(3);
+        expect(view.lines()).toContain(`abhaCardDownloaded ${JSON.stringify({fileName: "my-card.png"})}`);
+    });
+
     it("opens the picker once however often Download is tapped while it is open", async () => {
         let close;
         mockSaveDocuments.mockImplementationOnce(() => new Promise((resolve) => { close = resolve; }));
