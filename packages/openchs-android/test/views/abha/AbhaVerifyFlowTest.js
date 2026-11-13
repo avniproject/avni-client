@@ -356,6 +356,7 @@ describe("AbhaVerifyFlow", () => {
             loginInit.answer({txn_id: "late-txn", hint: "late"});
             await resending;
 
+            expect(loginInit.call).toHaveBeenCalledTimes(1);
             expect(flow.state).toEqual(expect.objectContaining({step: STEPS.IDENTIFIER, resendsUsed: 0, hint: null, busy: false}));
             expect(flow.txn).toBeNull();
         });

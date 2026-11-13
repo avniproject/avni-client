@@ -32,6 +32,9 @@ const SEND_BATCH = 20;
 const LOST = 'AbhaRecordLost';
 const REFUSED = 'AbhaRecordRefused';
 const UNREADABLE_KEPT = 'Unsent ABHA audit records unreadable: lost';
+const NOT_READ = 'Unsent ABHA audit records could not be read';
+// The keychain's code for an entry its key can no longer decrypt; any other read failure may pass.
+const KEYSTORE_CANNOT_DECRYPT = 'E_CRYPTO_FAILED';
 // The card files getCardFile writes into the cache folder.
 const CARD_FILE_NAME = /^abha-card-.*\.png$/;
 // True once a clear has emptied the kept records in this app run, until ABHA is seen on again.
@@ -49,6 +52,8 @@ class AbhaService extends BaseService {
         this.sending = new Map();
         // Every change to the kept records reads and writes the whole list, so changes run one after another.
         this.storage = Promise.resolve();
+        // A read that fails other than by decryption is told of once in the app run.
+        this.readFailureReported = false;
     }
 
     // Android can stop the app while a card screen is open, as with its Save-as picker, leaving that screen's file.
@@ -97,16 +102,17 @@ class AbhaService extends BaseService {
     }
 
     // Keeps the record on the phone without sending it, for an ABHA action whose outcome is not settled yet. Never
-    // rejects; a later recordEvent or resendUnsentEvents sends it.
-    async keepEvent(event) {
-        if (!(await this._keep(event))) AbhaService.report(LOST, 'ABHA audit records not kept on the phone: 1');
+    // rejects; false when it was not kept. A later recordEvent sends it, and reports it lost if it was neither kept
+    // then nor taken by the server.
+    keepEvent(event) {
+        return this._keep(event);
     }
 
     // Sends every kept record, waiting for any already on its way: after a registration with ABHA is saved, and with
     // each sync.
     async resendUnsentEvents() {
         const clears = clearCount;
-        await this._sendAll(await this._kept(), clears);
+        await this._sendAll(await this._kept(clears), clears);
     }
 
     // Never rejects. Clears the AsyncStorage key too, in case a read has not moved its records yet.
@@ -209,9 +215,9 @@ class AbhaService extends BaseService {
     _changeKept(change, clears = clearCount) {
         const changed = this.storage.then(async () => {
             if (clearCount !== clears) return;
-            const events = await AbhaService._readKept();
+            const events = await this._readKept(clears);
             if (clearCount !== clears) return;
-            await AbhaService._writeKept(change(events));
+            await AbhaService._writeKept(change(events), clears);
         });
         this.storage = changed.catch(() => {});
         return changed.then(() => true, () => {
@@ -221,8 +227,8 @@ class AbhaService extends BaseService {
     }
 
     // In line with the changes, since a read can move records out of AsyncStorage and so write.
-    _kept() {
-        const read = this.storage.then(() => AbhaService._readKept());
+    _kept(clears = clearCount) {
+        const read = this.storage.then(() => this._readKept(clears));
         this.storage = read.catch(() => {});
         return read.catch(() => {
             General.logWarn('AbhaService', 'Unsent ABHA audit records could not be read');
@@ -232,12 +238,17 @@ class AbhaService extends BaseService {
 
     // Records in AsyncStorage move to the keychain before their key is removed, so a failure between the two loses none.
     // Contents that cannot be read are lost: reported, and removed at once, so the loss is reported once.
-    // An entry the keystore can no longer decrypt is as unreadable, and is reset so records can be kept again.
-    static async _readKept() {
+    // An entry the keystore can no longer decrypt is as unreadable, and is reset so records can be kept again. Any other
+    // read failure may pass, so the entry stays and the read fails.
+    async _readKept(clears) {
         let kept;
         try {
             kept = AbhaService._parsed(_.get(await Keychain.getGenericPassword(KEYCHAIN_ENTRY), 'password'));
-        } catch (e) {
+        } catch (error) {
+            if (_.get(error, 'code') !== KEYSTORE_CANNOT_DECRYPT) {
+                this._sayNotReadOnce();
+                throw error;
+            }
             kept = null;
         }
         if (_.isNil(kept)) {
@@ -253,9 +264,15 @@ class AbhaService extends BaseService {
             moved = [];
         }
         const events = [..._.reject(moved, (event) => _.some(kept, ['uuid', _.get(event, 'uuid')])), ...kept];
-        const written = await AbhaService._writeKept(events);
+        const written = await AbhaService._writeKept(events, clears);
         await AsyncStorage.removeItem(UNSENT_EVENTS_KEY).catch(() => {});
         return written;
+    }
+
+    _sayNotReadOnce() {
+        if (this.readFailureReported) return;
+        this.readFailureReported = true;
+        AbhaService.report(LOST, NOT_READ);
     }
 
     // The records kept, or null when the contents cannot be read.
@@ -274,11 +291,16 @@ class AbhaService extends BaseService {
     }
 
     // The newest MAX_UNSENT_EVENTS, oldest first; the warning and the report give only how many went. None left removes
-    // the entry, so it exists only while records are unsent.
-    static async _writeKept(events) {
+    // the entry, so it exists only while records are unsent. The keychain can finish a reset issued after a write before
+    // storing that write, so a clear during the write is followed by another reset, in line with the changes.
+    static async _writeKept(events, clears) {
         const kept = _.takeRight(events, MAX_UNSENT_EVENTS);
         if (_.isEmpty(kept)) await Keychain.resetGenericPassword(KEYCHAIN_ENTRY);
         else await Keychain.setGenericPassword(KEYCHAIN_USERNAME, JSON.stringify(kept), KEYCHAIN_ENTRY);
+        if (clearCount !== clears) {
+            await Keychain.resetGenericPassword(KEYCHAIN_ENTRY);
+            return [];
+        }
         // Only once written: a failed write drops nothing.
         if (kept.length < events.length) {
             const dropped = `ABHA audit records over the limit of ${MAX_UNSENT_EVENTS}: ${events.length - kept.length} oldest dropped`;
