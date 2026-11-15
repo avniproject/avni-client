@@ -324,6 +324,7 @@ class LandingView extends AbstractComponent {
                 renderSync={true}
                 customDashboardType={CustomDashboardType.Primary}
                 routePath={LandingView.path()}
+                bottomInset={LandingView.layoutConstants.bottomBarHeight}
                 onSearch={() => this.dispatchAction(Actions.ON_SEARCH_CLICK)}
                 showSearch={true}
             />
@@ -440,6 +441,7 @@ class LandingView extends AbstractComponent {
                         renderSync={true}
                         customDashboardType={CustomDashboardType.Secondary}
                         routePath={LandingView.path()}
+                        bottomInset={LandingView.layoutConstants.bottomBarHeight}
                         onSearch={() => this.dispatchAction(Actions.ON_SEARCH_CLICK)}
                     />;
                 }.bind(this)())}

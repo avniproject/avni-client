@@ -213,6 +213,19 @@ describe('clearData wipes both backends (#2083)', () => {
         expect(await LastSyncCompleted.didComplete()).toBe(false);
     });
 
+    // Every organisation's Default Dashboard shares a uuid, so a page kept from the previous user would show for the next.
+    it("drops a Custom Design Card's kept pages and the marks of a page that was still running", async () => {
+        const {lastFullPages} = require('../../src/service/CustomCardConfigService');
+        const LocalCacheService = require('../../src/service/LocalCacheService').default;
+        lastFullPages.set('d1', {html: '<p/>', filterKey: '{}', calculatedAt: new Date()});
+        await LocalCacheService.markFullPageRunning('d1');
+
+        await buildSyncService().clearData();
+
+        expect(lastFullPages.size).toBe(0);
+        expect(await LocalCacheService.isFullPageRunning('d1')).toBe(false);
+    });
+
     // A wipe through a handle a failed reopen left closed clears nothing, and the reopen at
     // the end would then hand the unwiped database to the next user.
     it('reopens both databases before the first wipe', async () => {

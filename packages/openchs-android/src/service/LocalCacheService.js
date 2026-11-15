@@ -63,6 +63,32 @@ class LocalCacheService {
         return await LocalCacheService._storeData(CacheKeys.REGISTER_BUTTON_GUIDE_SHOWN, 'true');
     }
 
+    // Set while a full page's rule runs. Still set on the next start means the app was closed during the run.
+    static async isFullPageRunning(dashboardUUID) {
+        return (await LocalCacheService._getData(fullPageRunningKey(dashboardUUID))) === 'true';
+    }
+
+    static async markFullPageRunning(dashboardUUID) {
+        return LocalCacheService._storeData(fullPageRunningKey(dashboardUUID), 'true');
+    }
+
+    static async clearFullPageRunning(dashboardUUID) {
+        try {
+            await AsyncStorage.removeItem(fullPageRunningKey(dashboardUUID));
+        } catch (error) {
+            General.logDebug('LocalCacheService', error);
+        }
+    }
+
+    static async clearAllFullPageRunning() {
+        try {
+            const keys = await AsyncStorage.getAllKeys();
+            await AsyncStorage.multiRemove(_.filter(keys, (key) => _.startsWith(key, FULL_PAGE_RUNNING_PREFIX)));
+        } catch (error) {
+            General.logDebug('LocalCacheService', error);
+        }
+    }
+
     static async clearCache() {
         try {
             const keys = Object.values(CacheKeys);
@@ -82,6 +108,9 @@ class LocalCacheService {
         return cachedSubjectType || fallbackSubjectType || SubjectType.create("");
     }
 }
+
+const FULL_PAGE_RUNNING_PREFIX = 'dashboard#fullPageRunning#';
+const fullPageRunningKey = (dashboardUUID) => `${FULL_PAGE_RUNNING_PREFIX}${dashboardUUID}`;
 
 const CacheKeys = {
     SELECTED_SUBJECT_TYPE: `dashboard#selectedSubjectType`,

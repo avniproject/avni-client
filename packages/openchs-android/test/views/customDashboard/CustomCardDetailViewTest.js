@@ -26,6 +26,7 @@ import {buildCustomCardPageScript, PAGE_COMMAND_DEFINITIONS} from "../../../src/
 import CustomCardConfigService from "../../../src/service/CustomCardConfigService";
 import RuleEvaluationService from "../../../src/service/RuleEvaluationService";
 import CustomCardCommandService from "../../../src/service/customDashboard/CustomCardCommandService";
+import EntityQueueService from "../../../src/service/EntityQueueService";
 import MessageService from "../../../src/service/MessageService";
 import ServiceContext from "../../../src/framework/context/ServiceContext";
 import ErrorUtil from "../../../src/framework/errorHandling/ErrorUtil";
@@ -45,12 +46,22 @@ const flush = async () => {
 const mount = ({executeCustomCardDataRule = jest.fn(() => ({data: {n: 1}})), props = {}} = {}) => {
     const readHtmlTemplate = jest.fn(() => Promise.resolve("<p>${data.n}</p>"));
     const dispatch = jest.fn(() => true);
+    // The rows the save queue holds, each with the time it was saved.
+    const queue = [];
     const services = new Map([
-        [CustomCardConfigService, {readHtmlTemplate, resolveTranslations: () => ({})}],
         [RuleEvaluationService, {executeCustomCardDataRule}],
         [CustomCardCommandService, {dispatch}],
         [MessageService, {getI18n: () => i18n}],
+        [EntityQueueService, {findAll: () => ({filtered: (query, time) => queue.filter((row) => row.savedAt > time)})}],
     ]);
+    // The real rule and fill, over a template read that does not cache.
+    services.set(CustomCardConfigService, {
+        readHtmlTemplate,
+        loadTemplate: (config) => readHtmlTemplate(config),
+        resolveTranslations: () => ({}),
+        renderPage: CustomCardConfigService.prototype.renderPage,
+        getService: (Class) => services.get(Class),
+    });
     // The route in front, as the Router's focusedRoute gives it: the card page, unless a test says otherwise.
     let focused = {path: "/customCardDetailView"};
     const context = {
@@ -75,7 +86,9 @@ const mount = ({executeCustomCardDataRule = jest.fn(() => ({data: {n: 1}})), pro
     const setFocusedRoute = (route) => {
         focused = route;
     };
-    return {tr, instance, readHtmlTemplate, executeCustomCardDataRule, dispatch, setFocusedRoute};
+    // A save on the screen a command opened, as the form's save adds a queue row.
+    const save = (entityUUID = "e1") => queue.push({entity: "Encounter", entityUUID, savedAt: new Date(Date.now() + 1000 * (queue.length + 1))});
+    return {tr, instance, readHtmlTemplate, executeCustomCardDataRule, dispatch, setFocusedRoute, save};
 };
 
 const message = (data, url = "about:blank") => ({nativeEvent: {data, url}});
@@ -89,6 +102,9 @@ const runFrames = () => {
     const due = frames.splice(0);
     due.forEach((callback) => callback());
 };
+
+// The app's script, as the page the WebView is given carries it first.
+const bridgeScript = () => /<script>([\s\S]*?)<\/script>/.exec(global.__webViewProps.source.html)[1];
 
 describe("CustomCardDetailView", () => {
     beforeEach(() => {
@@ -104,7 +120,7 @@ describe("CustomCardDetailView", () => {
         const {instance} = mount();
         await flush();
         expect(instance._pageToken).toMatch(UUID_SHAPE);
-        expect(global.__webViewProps.injectedJavaScriptBeforeContentLoaded).toBe(buildCustomCardPageScript(PAGE_COMMAND_DEFINITIONS, instance._pageToken));
+        expect(bridgeScript()).toBe(buildCustomCardPageScript(PAGE_COMMAND_DEFINITIONS, instance._pageToken));
         expect(typeof global.__webViewProps.onMessage).toBe("function");
     });
 
@@ -130,9 +146,10 @@ describe("CustomCardDetailView", () => {
         const listeners = [];
         const posted = [];
         const window = {ReactNativeWebView: {postMessage: (m) => posted.push(m)}};
-        new Function("window", "document", "console", global.__webViewProps.injectedJavaScriptBeforeContentLoaded)(
+        new Function("window", "document", "console", bridgeScript())(
             window, {addEventListener: (type, fn) => listeners.push({type, fn})}, {warn: () => {}});
-        listeners.filter((l) => l.type === "touchstart").forEach((l) => l.fn({type: "touchstart"}));
+        // A tap: the page's click handler then calls the command.
+        ["touchstart", "touchend", "click"].forEach((type) => listeners.filter((l) => l.type === type).forEach((l) => l.fn({type, touches: [{clientX: 5, clientY: 5}], changedTouches: [{clientX: 5, clientY: 5}], clientX: 5, clientY: 5})));
         window.avni.runCardAction({locationUUID: "abc"});
         // The page's own script, or a frame inside it, posting to the bridge itself.
         window.ReactNativeWebView.postMessage(JSON.stringify({avniCommand: "runCardAction", args: {locationUUID: "abc"}}));
@@ -145,10 +162,10 @@ describe("CustomCardDetailView", () => {
     it("two card pages get different tokens, and neither takes the other's commands", async () => {
         const a = mount();
         await flush();
-        const scriptA = global.__webViewProps.injectedJavaScriptBeforeContentLoaded;
+        const scriptA = bridgeScript();
         const b = mount();
         await flush();
-        const scriptB = global.__webViewProps.injectedJavaScriptBeforeContentLoaded;
+        const scriptB = bridgeScript();
         expect(a.instance._pageToken).toMatch(UUID_SHAPE);
         expect(b.instance._pageToken).toMatch(UUID_SHAPE);
         expect(a.instance._pageToken).not.toBe(b.instance._pageToken);
@@ -161,16 +178,18 @@ describe("CustomCardDetailView", () => {
 
     // A refresh with the same html does not reload the page, which keeps the token its script was given.
     it("keeps its token and its script across a refresh", async () => {
-        const {dispatch, instance} = mount();
+        const {dispatch, instance, save, executeCustomCardDataRule} = mount();
         await flush();
-        const script = global.__webViewProps.injectedJavaScriptBeforeContentLoaded;
+        const script = bridgeScript();
         const token = instance._pageToken;
         send(message(command()));
         pageOf(dispatch).navigate(() => {});
+        save();
         instance.didFocus();
         await flush();
+        expect(executeCustomCardDataRule).toHaveBeenCalledTimes(2);
         expect(instance._pageToken).toBe(token);
-        expect(global.__webViewProps.injectedJavaScriptBeforeContentLoaded).toBe(script);
+        expect(bridgeScript()).toBe(script);
         send(message(command("ping", {a: 1}, token)));
         expect(dispatch).toHaveBeenCalledTimes(2);
     });
@@ -331,17 +350,57 @@ describe("CustomCardDetailView", () => {
         expect(onOpenDashboard).toHaveBeenCalledTimes(1);
     });
 
-    it("runs the rule again once after a command navigated", async () => {
+    it("runs the rule again once after a command whose screen saved something", async () => {
+        const {dispatch, instance, executeCustomCardDataRule, save} = mount();
+        await flush();
+        send(message(command()));
+        pageOf(dispatch).navigate(() => {});
+        save();
+        instance.didFocus();
+        await flush();
+        expect(executeCustomCardDataRule).toHaveBeenCalledTimes(2);
+        instance.didFocus();
+        await flush();
+        expect(executeCustomCardDataRule).toHaveBeenCalledTimes(2);
+    });
+
+    // Opening a record to read, or a form left without saving, cannot change what the page shows.
+    it("does not run the rule again after a command whose screen saved nothing", async () => {
         const {dispatch, instance, executeCustomCardDataRule} = mount();
         await flush();
         send(message(command()));
         pageOf(dispatch).navigate(() => {});
         instance.didFocus();
         await flush();
-        expect(executeCustomCardDataRule).toHaveBeenCalledTimes(2);
+        expect(executeCustomCardDataRule).toHaveBeenCalledTimes(1);
+        expect(instance._commandNavigated).toBe(false);
+    });
+
+    // Offline, the second save of a record still queued adds its own row, while the queue's count stays the same.
+    it("runs the rule again after each of two saves of the same record, each after its own command", async () => {
+        const {dispatch, instance, executeCustomCardDataRule, save} = mount();
+        await flush();
+        for (const expected of [2, 3]) {
+            send(message(command()));
+            pageOf(dispatch).navigate(() => {});
+            save("e1");
+            instance.didFocus();
+            await flush();
+            expect(executeCustomCardDataRule).toHaveBeenCalledTimes(expected);
+        }
+    });
+
+    it("a row saved before the command does not count", async () => {
+        const {dispatch, instance, executeCustomCardDataRule, save} = mount();
+        await flush();
+        save();
+        send(message(command()));
+        pageOf(dispatch).navigate(() => {});
+        // The command came after the row was saved, as a row from an earlier screen is.
+        instance._commandOpenedAt = new Date(Date.now() + 5000);
         instance.didFocus();
         await flush();
-        expect(executeCustomCardDataRule).toHaveBeenCalledTimes(2);
+        expect(executeCustomCardDataRule).toHaveBeenCalledTimes(1);
     });
 
     it("drops a second command while the first one's screen is opening", async () => {
@@ -422,10 +481,11 @@ describe("CustomCardDetailView", () => {
     });
 
     it("defers the reload past the back slide", async () => {
-        const {dispatch, instance, executeCustomCardDataRule} = mount();
+        const {dispatch, instance, executeCustomCardDataRule, save} = mount();
         await flush();
         send(message(command()));
         pageOf(dispatch).navigate(() => {});
+        save();
         frames = [];
         instance.didFocus();
         await flush();
@@ -442,10 +502,12 @@ describe("CustomCardDetailView", () => {
         const executeCustomCardDataRule = jest.fn()
             .mockImplementationOnce(() => ({hasErrorMsg: true, errorMsg: "rule failed"}))
             .mockImplementation(() => ({data: {n: 1}}));
-        const {instance, tr} = mount({executeCustomCardDataRule});
+        const {instance, tr, save} = mount({executeCustomCardDataRule});
         await flush();
         expect(JSON.stringify(tr.toJSON())).toContain("rule failed");
         instance._commandNavigated = true;
+        instance._commandOpenedAt = new Date();
+        save();
         instance.didFocus();
         await flush();
         expect(JSON.stringify(tr.toJSON())).not.toContain("rule failed");
@@ -464,11 +526,13 @@ describe("CustomCardDetailView", () => {
             const executeCustomCardDataRule = jest.fn()
                 .mockImplementationOnce(() => ({data: {n: 1}}))
                 .mockImplementation(failure);
-            const {instance, tr} = mount({executeCustomCardDataRule});
+            const {instance, tr, save} = mount({executeCustomCardDataRule});
             await flush();
             expect(instance.state.html).toBe("<p>1</p>");
             expect(tr.root.findAllByType(WebView)).toHaveLength(1);
             instance._commandNavigated = true;
+            instance._commandOpenedAt = new Date();
+            save();
             instance.didFocus();
             await flush();
             expect(executeCustomCardDataRule).toHaveBeenCalledTimes(2);
@@ -493,10 +557,11 @@ describe("CustomCardDetailView", () => {
     });
 
     it("does not set state after unmount while a reload runs", async () => {
-        const {dispatch, instance, tr, readHtmlTemplate} = mount();
+        const {dispatch, instance, tr, readHtmlTemplate, save} = mount();
         await flush();
         send(message(command()));
         pageOf(dispatch).navigate(() => {});
+        save();
         let release;
         readHtmlTemplate.mockImplementation(() => new Promise((resolve) => {
             release = resolve;
