@@ -475,10 +475,14 @@ class CustomDashboardActions {
         const pendingSingleResults = [];
         const pendingNestedResults = [];
 
+        // A deleted section keeps its card links, so the page card can appear more than once; the page is built once.
+        let fullPageBuilt = false;
         try {
             reportCardSectionMappings.forEach(rcm => {
                 const start = new Date();
                 if (pageCard && rcm.card.uuid === pageCard.uuid) {
+                    if (fullPageBuilt) return;
+                    fullPageBuilt = true;
                     fullPageCalculatedAt = buildFullPage(newState, pageCard, ruleInputArray, userSettings.autoRefreshEnabled, I18n, context, action);
                     General.logDebug('CustomDashboardActions', `Full page ${rcm.card.name} took ${new Date() - start} ms`);
                     return;

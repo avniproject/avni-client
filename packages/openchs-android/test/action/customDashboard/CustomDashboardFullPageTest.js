@@ -134,6 +134,14 @@ describe("refreshCount on a full page", () => {
         expect(state.resultUpdatedAt).toEqual(lastFullPages.get(D1).calculatedAt);
     });
 
+    it("runs the rule once when a deleted section still links the same card", () => {
+        // App Designer voids a deleted section and keeps its card links, and the phone reads those links too.
+        const h = harness();
+        h.run(Actions.REFRESH_COUNT, stateWith([mapping(cardFields("pc"), section("s0", "Tile", {voided: true})), ...validMappings()]));
+        expect(h.renderPage).toHaveBeenCalledTimes(1);
+        expect(h.getReportCardCount).not.toHaveBeenCalled();
+    });
+
     it("does not change the earlier state's page object", () => {
         const h = harness();
         const before = stateWith(validMappings(), {fullPage: {[D1]: {html: "<p>0</p>", updating: true}}});

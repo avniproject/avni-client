@@ -134,8 +134,14 @@ class CustomCardPage extends AbstractComponent {
         } catch (e) {
             return;
         }
-        if (!_.isPlainObject(message) || !_.isString(message.avniCommand)) return;
+        if (!_.isPlainObject(message)) return;
         const {logTag} = this.props;
+        // The page's script dropped a command that did not come from the user; this is where an implementer sees why.
+        if (_.isString(message.avniDropped) && message.token === this._pageToken) {
+            General.logWarn(logTag, `The page's ${_.truncate(message.avniDropped, {length: 40})} was dropped: ${_.truncate(String(message.reason), {length: 80})}`);
+            return;
+        }
+        if (!_.isString(message.avniCommand)) return;
         // A frame inside the page reads as the page itself, and the page can post to the bridge without the touch check.
         // Neither has the token.
         if (message.token !== this._pageToken) {

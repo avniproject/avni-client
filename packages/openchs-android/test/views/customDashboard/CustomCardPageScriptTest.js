@@ -13,10 +13,13 @@ const runPage = (definitions = [PING], token = TOKEN, screenReader = false) => {
     const listeners = [];
     const document = {addEventListener: (type, fn, capture) => listeners.push({type, fn, capture})};
     const posted = [];
-    const window = {ReactNativeWebView: {postMessage: (m) => posted.push(m)}};
+    // The reports of dropped commands, kept apart so each case can still check what was posted.
+    const reports = [];
+    const window = {ReactNativeWebView: {postMessage: (m) => (m.includes('"avniDropped"') ? reports : posted).push(m)}};
     const console = {warn: jest.fn()};
     new Function("window", "document", "console", buildCustomCardPageScript(definitions, token, screenReader))(window, document, console);
-    const fire = (type, event = {}) => listeners.filter((l) => l.type === type).forEach((l) => l.fn({type, ...event}));
+    // The user's own events, as the browser marks them; a test passes isTrusted: false for one the page made.
+    const fire = (type, event = {}) => listeners.filter((l) => l.type === type).forEach((l) => l.fn({type, isTrusted: true, ...event}));
     const at = (x, y) => ({touches: [{clientX: x, clientY: y}], changedTouches: [{clientX: x, clientY: y}], clientX: x, clientY: y});
     // A finger down and up in one place, then the click the WebView makes of it.
     const tap = (x = 100, y = 100) => {
@@ -24,7 +27,7 @@ const runPage = (definitions = [PING], token = TOKEN, screenReader = false) => {
         fire("touchend", at(x, y));
         fire("click", at(x, y));
     };
-    return {window, document, console, listeners, posted, fire, at, tap};
+    return {window, document, console, listeners, posted, reports, fire, at, tap};
 };
 
 describe("CustomCardPageScript", () => {
@@ -146,7 +149,7 @@ describe("CustomCardPageScript", () => {
     it("the page's runCardAction posts its args after a touch", () => {
         const listeners = [];
         const posted = [];
-        const window = {ReactNativeWebView: {postMessage: (m) => posted.push(m)}};
+        const window = {ReactNativeWebView: {postMessage: (m) => m.includes('"avniDropped"') || posted.push(m)}};
         const console = {warn: jest.fn()};
         new Function("window", "document", "console", productionScript())(
             window, {addEventListener: (type, fn) => listeners.push({type, fn})}, console);
@@ -162,7 +165,7 @@ describe("CustomCardPageScript", () => {
     it("watches the gesture with capturing listeners on the document", () => {
         const {listeners} = runPage();
         expect(listeners.every((l) => l.capture === true)).toBe(true);
-        expect(listeners.map((l) => l.type).sort()).toEqual(["click", "pointerdown", "pointermove", "pointerup", "scroll", "touchend", "touchmove", "touchstart"]);
+        expect(listeners.map((l) => l.type).sort()).toEqual(["change", "click", "pointerdown", "pointermove", "pointerup", "scroll", "touchend", "touchmove", "touchstart"]);
     });
 
     it("posts nothing before the user touches the page, and warns", () => {
@@ -269,13 +272,56 @@ describe("CustomCardPageScript", () => {
             expect(posted).toEqual([]);
         });
 
-        it("a command after the tap's handlers have run, as from a timer, is dropped", () => {
+        it("a command up to 1.5 s after a tap, as after an animation or a wait, posts; later is dropped", () => {
             const {window, posted, tap, console} = runPage();
             tap();
-            jest.runAllTimers();
+            jest.advanceTimersByTime(1000);
+            window.avni.ping({a: 1});
+            expect(posted).toEqual([PINGED]);
+            jest.advanceTimersByTime(600);
+            window.avni.ping({a: 1});
+            expect(posted).toEqual([PINGED]);
+            expect(console.warn).toHaveBeenCalledWith("avni: ping dropped, it did not run during or just after a tap");
+        });
+
+        it("a pick in a dropdown posts, from its change and for 1.5 s after", () => {
+            const {window, posted, tap, fire} = runPage();
+            tap(); // opens the picker
+            jest.advanceTimersByTime(5000); // the user reads the options
+            fire("change");
+            window.avni.ping({a: 1});
+            jest.advanceTimersByTime(500);
+            window.avni.ping({a: 1});
+            expect(posted).toEqual([PINGED, PINGED]);
+        });
+
+        it("a drag after a tap ends the tap's window", () => {
+            const {window, posted, tap, fire, at} = runPage();
+            tap();
+            fire("touchstart", at(100, 100));
+            fire("touchmove", at(100, 160));
+            fire("touchend", at(100, 160));
+            jest.advanceTimersByTime(100);
             window.avni.ping({a: 1});
             expect(posted).toEqual([]);
-            expect(console.warn).toHaveBeenCalledWith("avni: ping dropped, it did not run during a tap");
+        });
+
+        it("a touch or a change the page makes itself opens nothing", () => {
+            const {window, posted, fire, at} = runPage();
+            fire("touchstart", {...at(100, 100), isTrusted: false});
+            fire("touchend", {...at(100, 100), isTrusted: false});
+            fire("click", {...at(100, 100), isTrusted: false});
+            window.avni.ping({a: 1});
+            fire("change", {isTrusted: false});
+            window.avni.ping({a: 1});
+            expect(posted).toEqual([]);
+        });
+
+        it("a command called on page load is dropped and reported to the app with its token", () => {
+            const {window, posted, reports} = runPage();
+            window.avni.ping({a: 1});
+            expect(posted).toEqual([]);
+            expect(reports.map((r) => JSON.parse(r))).toEqual([{avniDropped: "ping", reason: "the page has not been touched yet", token: TOKEN}]);
         });
     });
 

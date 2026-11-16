@@ -129,6 +129,18 @@ describe("CustomCardPage", () => {
         expect(logDebug).toHaveBeenCalledWith("Host", "A command is dropped: the page is not the screen in front");
     });
 
+    it("logs a command the page's script dropped, under the host's tag, and runs nothing; another token is ignored", () => {
+        const logWarn = jest.spyOn(General, "logWarn").mockImplementation(() => {});
+        const {instance, dispatch} = mount();
+        const report = (token) => ({nativeEvent: {url: "about:blank", data: JSON.stringify({avniDropped: "editVisit", reason: "the page has not been touched yet", token})}});
+        instance.onMessage(report(instance._pageToken));
+        instance.onMessage(report("not-the-token"));
+        expect(dispatch).not.toHaveBeenCalled();
+        expect(logWarn).toHaveBeenCalledTimes(1);
+        expect(logWarn).toHaveBeenCalledWith("Host", "The page's editVisit was dropped: the page has not been touched yet");
+        logWarn.mockRestore();
+    });
+
     it("keeps its token when the page changes", () => {
         const {instance, update} = mount();
         const token = instance._pageToken;

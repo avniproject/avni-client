@@ -26,7 +26,8 @@ const runCardPage = () => {
     const listeners = [];
     const document = {addEventListener: (type, fn, capture) => listeners.push({type, fn, capture})};
     const posted = [];
-    const window = {ReactNativeWebView: {postMessage: (m) => posted.push(m)}};
+    // Commands only; the script's reports of dropped commands are checked in CustomCardPageScriptTest.
+    const window = {ReactNativeWebView: {postMessage: (m) => m.includes('"avniDropped"') || posted.push(m)}};
     const console = {warn: jest.fn()};
     new Function("window", "document", "console", buildCustomCardPageScript(PAGE_COMMAND_DEFINITIONS, PAGE_TOKEN))(window, document, console);
     const point = {touches: [{clientX: 5, clientY: 5}], changedTouches: [{clientX: 5, clientY: 5}], clientX: 5, clientY: 5};
