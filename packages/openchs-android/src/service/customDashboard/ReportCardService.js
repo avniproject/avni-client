@@ -61,13 +61,14 @@ function isQueryError(result) {
     return Array.isArray(result) && result.length > 0 && result.every(r => r && r.hasErrorMsg === true);
 }
 
+// Voided subjects are left out, as the standard approval cards leave them out.
 export function toApprovalListSubjects(result) {
     if (_.isNil(result) || !(Array.isArray(result) || _.isFunction(result[Symbol.iterator]))) return [];
     const seen = new Set();
     const subjects = [];
     for (const row of result) {
         const subject = toSubject(row);
-        if (_.isNil(subject) || _.isNil(subject.uuid) || seen.has(subject.uuid)) continue;
+        if (_.isNil(subject) || _.isNil(subject.uuid) || subject.voided || seen.has(subject.uuid)) continue;
         seen.add(subject.uuid);
         subjects.push(subject);
     }

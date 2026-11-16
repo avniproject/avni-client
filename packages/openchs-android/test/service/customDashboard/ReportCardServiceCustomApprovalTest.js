@@ -35,6 +35,14 @@ describe("toApprovalListSubjects", () => {
         assert.deepEqual(uuids(toApprovalListSubjects(rows)), ["s1"]);
     });
 
+    it("leaves out voided subjects, whether a row is the subject or carries it", () => {
+        const eva = subject("eva");
+        eva.voided = true;
+        const rows = [eva, {individual: eva, visitInfo: {}}, subject("s1"), {uuid: "eva", voided: true, objectSchema: () => ({name: "Individual"})}];
+
+        assert.deepEqual(uuids(toApprovalListSubjects(rows)), ["s1"]);
+    });
+
     it("wraps a bare database object of a subject", () => {
         const bare = {uuid: "s9", objectSchema: () => ({name: "Individual"})};
         const notASubject = {uuid: "e1", objectSchema: () => ({name: "Encounter"})};
@@ -149,6 +157,13 @@ describe("ReportCardService.getReportCardCount for an Approve or Reject card", (
         assert.equal(count.primaryValue, "2");
         assert.isTrue(count.clickable);
         assert.equal(rules.executeDashboardCardRule.mock.calls.length, 1);
+    });
+
+    it("leaves voided subjects out of the count, as the list leaves them out", () => {
+        const eva = subject("eva");
+        eva.voided = true;
+
+        assert.equal(countFor(pending(), [eva, visit("s1"), {individual: eva}]).count.primaryValue, "1");
     });
 
     it("counts nothing for a query whose rows are not subjects", () => {
