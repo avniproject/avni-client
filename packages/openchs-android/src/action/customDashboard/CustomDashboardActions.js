@@ -2,7 +2,7 @@ import _ from "lodash";
 import CustomDashboardService, {CustomDashboardType, isDashboardAvailableToUser} from "../../service/customDashboard/CustomDashboardService";
 import DashboardSectionCardMappingService from "../../service/customDashboard/DashboardSectionCardMappingService";
 import EntityService from "../../service/EntityService";
-import {ReportCard, Encounter, ProgramEncounter, ReportCardResult, Individual} from "openchs-models";
+import {DashboardSection, ReportCard, Encounter, ProgramEncounter, ReportCardResult, Individual} from "openchs-models";
 import ReportCardService from "../../service/customDashboard/ReportCardService";
 import General from "../../utility/General";
 import DashboardFilterService from "../../service/reports/DashboardFilterService";
@@ -10,6 +10,8 @@ import MessageService from "../../service/MessageService";
 import CustomDashboardCacheService from "../../service/CustomDashboardCacheService";
 import UserInfoService from "../../service/UserInfoService";
 import Colors from "../../views/primitives/Colors";
+import CustomCardConfigService, {lastFullPages} from "../../service/CustomCardConfigService";
+import LocalCacheService from "../../service/LocalCacheService";
 
 export function findScheduledEncounters(enrolmentOrIndividual, encounterType) {
     return _.filter(enrolmentOrIndividual.encounters, enc =>
@@ -130,10 +132,104 @@ export function dashboardOwnerKey(customDashboardType, dashboardUUID) {
 // Opened dashboards all share one path, so a screen that shows one dashboard names it, and a route that names
 // another dashboard is not its own. Otherwise two opened dashboards on the stack reload each other for ever.
 export function sceneFocusNeedsReload(focusedRoute, ownRoutePath, currentOwnerKey, ownOwnerKey, ownDashboardUUID) {
+    return isOwnRoute(focusedRoute, ownRoutePath, ownDashboardUUID) && currentOwnerKey !== ownOwnerKey;
+}
+
+export function isOwnRoute(focusedRoute, ownRoutePath, ownDashboardUUID) {
     if (_.isNil(ownRoutePath) || _.get(focusedRoute, 'path') !== ownRoutePath) return false;
     const focusedDashboardUUID = _.get(focusedRoute, 'queryParams.dashboardUUID');
-    if (!_.isUndefined(ownDashboardUUID) && !_.isUndefined(focusedDashboardUUID) && focusedDashboardUUID !== ownDashboardUUID) return false;
-    return currentOwnerKey !== ownOwnerKey;
+    return _.isUndefined(ownDashboardUUID) || _.isUndefined(focusedDashboardUUID) || focusedDashboardUUID === ownDashboardUUID;
+}
+
+// The literal too, so the app does not wait on a models release that names it.
+export const FULL_PAGE_VIEW_TYPE = DashboardSection.viewTypeName.FullPage || 'FullPage';
+
+// The card a Full page dashboard shows as its page: its one section is Full page and holds one Custom Design Card.
+// Anything else shows its cards as a list. Matched by uuid by its callers, as a mapping's card is a new object on each read.
+export function fullPageCard(state) {
+    const fullPage = FULL_PAGE_VIEW_TYPE;
+    if (_.isNil(state.activeDashboardUUID)) return null;
+    const sections = _.values(_.groupBy(_.filter(state.reportCardSectionMappings, (rcm) =>
+        _.get(rcm, 'dashboardSection.dashboard.uuid') === state.activeDashboardUUID && !_.get(rcm, 'dashboardSection.voided')),
+        (rcm) => rcm.dashboardSection.uuid));
+    if (sections.length !== 1 || sections[0].length !== 1 || sections[0][0].dashboardSection.viewType !== fullPage) return null;
+    const card = sections[0][0].card;
+    return card && card.isFullyCustom() ? card : null;
+}
+
+// Records stand in by their uuid: a location's own JSON refers back to itself through its mappings, and reading it
+// can query the database.
+function filterKeyOf(selectedFilterValues) {
+    const ancestors = new Set();
+    const keyOf = (value) => {
+        if (_.isNil(value) || typeof value !== 'object') return value;
+        if (value instanceof Date) return value.getTime();
+        if (_.isString(value.uuid)) return value.uuid;
+        if (ancestors.has(value)) return null;
+        ancestors.add(value);
+        const key = _.isArray(value) ? value.map(keyOf) : _.mapValues(_.omitBy({...value}, _.isFunction), keyOf);
+        ancestors.delete(value);
+        return key;
+    };
+    return JSON.stringify(keyOf(selectedFilterValues));
+}
+
+// The page last calculated for the active dashboard, when it may be shown again without running the rule.
+function reusableFullPage(state, autoRefreshEnabled) {
+    if (autoRefreshEnabled || state.fullPageForced) return null;
+    const last = lastFullPages.get(state.activeDashboardUUID);
+    const filterKey = filterKeyOf(state.customDashboardFilters);
+    // A stale page was built from a page file a sync has since changed.
+    return last && !last.stale && !_.isNil(filterKey) && last.filterKey === filterKey ? last : null;
+}
+
+function withFullPageEntry(state, uuid, entry) {
+    return {...state, fullPage: {...state.fullPage, [uuid]: entry}};
+}
+
+// Shows the last page with an Updating mark, or a loading mark, until refreshCount builds the page. The page file is
+// read now, so the first open does not wait for a second refresh.
+function markFullPageUpdating(state, context) {
+    const pageCard = fullPageCard(state);
+    if (!pageCard) return state;
+    const uuid = state.activeDashboardUUID;
+    context.get(CustomCardConfigService).loadTemplate(pageCard.customCardConfig).catch(_.noop);
+    const reusable = reusableFullPage(state, context.get(UserInfoService).getUserSettingsObject().autoRefreshEnabled);
+    const current = _.get(state.fullPage, uuid);
+    const seed = reusable || (current && current.html ? current : lastFullPages.get(uuid));
+    return withFullPageEntry(state, uuid, {html: _.get(seed, 'html', null), error: null, held: false, updating: !reusable});
+}
+
+// Builds the page into newState, or shows it again. Returns the time the page on screen was calculated.
+function buildFullPage(newState, pageCard, ruleInputArray, autoRefreshEnabled, I18n, context, action) {
+    const uuid = newState.activeDashboardUUID;
+    const show = (entry) => {
+        Object.assign(newState, withFullPageEntry(newState, uuid, {html: null, error: null, held: false, updating: false, ...entry}));
+        newState.fullPageForced = false;
+    };
+    const reusable = reusableFullPage(newState, autoRefreshEnabled);
+    if (reusable) {
+        show({html: reusable.html});
+        return reusable.calculatedAt;
+    }
+    const service = context.get(CustomCardConfigService);
+    const config = pageCard.customCardConfig;
+    const cached = service.getCachedTemplate(config);
+    if (cached && !_.isNil(cached.template)) {
+        const {html, error} = service.renderPage(config, ruleInputArray, cached.template);
+        const calculatedAt = new Date();
+        show({html: _.defaultTo(html, null), error: _.defaultTo(error, null)});
+        if (_.isNil(html)) lastFullPages.delete(uuid);
+        else lastFullPages.set(uuid, {html, filterKey: filterKeyOf(newState.customDashboardFilters), calculatedAt, configUUID: config.uuid});
+        return calculatedAt;
+    }
+    if (cached && cached.error) {
+        show({error: I18n.t('customCardPageNotDownloaded')});
+        return new Date();
+    }
+    // The page stays as it is, and the forced flag stays for the refresh that follows the read.
+    service.loadTemplate(config).catch(_.noop).then(() => _.invoke(action, 'refreshAgain', uuid));
+    return _.get(lastFullPages.get(uuid), 'calculatedAt', null);
 }
 
 // Whether a dashboard screen shows the shared dashboard state: when it is the screen's own, or nobody's yet.
@@ -172,7 +268,10 @@ class CustomDashboardActions {
             hasFiltersSet: false,
             activeDashboardUUID: null,
             customDashboardFilters: [],
-            ownerKey: null
+            ownerKey: null,
+            // Per dashboard uuid, so a screen underneath keeps its own page while another screen holds this state.
+            fullPage: {},
+            fullPageForced: false
         };
     }
 
@@ -182,6 +281,7 @@ class CustomDashboardActions {
         General.logDebug('CustomDashboardActions', `onLoad started - customDashboardType: ${action.customDashboardType}, currentActiveDashboard: ${state.activeDashboardUUID}`);
         let newState = {...state};
         newState.ownerKey = dashboardOwnerKey(action.customDashboardType, action.dashboardUUID);
+        newState.fullPageForced = !!action.forceFullPage;
         const dashboardService = context.get(CustomDashboardService);
         const dashboards = loadDashboards(dashboardService, action);
         newState.dashboards = dashboards;
@@ -198,7 +298,7 @@ class CustomDashboardActions {
 
         const result = loadCurrentDashboardInfo(context, newState);
         General.logDebug('CustomDashboardActions', `onLoad completed - activeDashboard: ${result.activeDashboardUUID}, took ${new Date() - startTime} ms`);
-        return result;
+        return markFullPageUpdating(result, context);
     }
 
     // loads dashboard without the data for cards
@@ -211,9 +311,11 @@ class CustomDashboardActions {
             newState.cardToCountResultMap = {};
         }
         newState.activeDashboardUUID = action.dashboardUUID;
+        // A refresh forced on the tab left behind is not one for this tab.
+        newState.fullPageForced = false;
         const result = loadCurrentDashboardInfo(context, newState);
         General.logDebug('CustomDashboardActions', `onDashboardChange completed - activeDashboard: ${result.activeDashboardUUID}, took ${new Date() - startTime} ms`);
-        return result;
+        return markFullPageUpdating(result, context);
     }
 
     // This action is responsible for loading data for multiple views. If any of the views have to be updated then this mega action has to be invoked and duplicating the callback implementation on the action. We have to break this action into smaller actions for each view. Starting with task here, which is why it invokes a different callback and the service doesn't handle task.
@@ -323,11 +425,11 @@ class CustomDashboardActions {
     }
 
     static setFilterApplied(state, action, context) {
-        return filterUpdated(context, state);
+        return {...filterUpdated(context, state), fullPageForced: true};
     }
 
     static setFilterCleared(state, action, context) {
-        return filterUpdated(context, state);
+        return {...filterUpdated(context, state), fullPageForced: true};
     }
 
     // loads the dashboard report cards data
@@ -352,7 +454,8 @@ class CustomDashboardActions {
 
         const I18n = context.get(MessageService).getI18n();
         const reportCardSectionMappings = state.reportCardSectionMappings;
-
+        const pageCard = fullPageCard(state);
+        let fullPageCalculatedAt = null;
 
         const previousResultsCount = Object.keys(newState.cardToCountResultMap || {}).length;
         newState.cardToCountResultMap = {};
@@ -372,60 +475,72 @@ class CustomDashboardActions {
         const pendingSingleResults = [];
         const pendingNestedResults = [];
 
-        reportCardSectionMappings.forEach(rcm => {
-            const start = new Date();
-            const {dashboardCache} = customDashboardCacheService.getDashboardCache(state.activeDashboardUUID);
-            if (rcm.card.isFullyCustom()) {
-                newState.cardToCountResultMap[rcm.card.getCardId()] =
-                    reportCardService.getReportCardCount(rcm.card, ruleInputArray);
-            } else if (rcm.card.nested) {
-                let reportCardResults = dashboardCache.getNestedReportCardResults(rcm.card);
-                let hasError = reportCardResults && reportCardResults.length !== rcm.card.countOfCards;
-
-                if (userSettings.autoRefreshEnabled || _.isEmpty(reportCardResults)) {
-                    reportCardResults = reportCardService.getReportCardCount(rcm.card, ruleInputArray);
-                    if (!hasError)
-                        pendingNestedResults.push({card: rcm.card, results: reportCardResults});
+        // A deleted section keeps its card links, so the page card can appear more than once; the page is built once.
+        let fullPageBuilt = false;
+        try {
+            reportCardSectionMappings.forEach(rcm => {
+                const start = new Date();
+                if (pageCard && rcm.card.uuid === pageCard.uuid) {
+                    if (fullPageBuilt) return;
+                    fullPageBuilt = true;
+                    fullPageCalculatedAt = buildFullPage(newState, pageCard, ruleInputArray, userSettings.autoRefreshEnabled, I18n, context, action);
+                    General.logDebug('CustomDashboardActions', `Full page ${rcm.card.name} took ${new Date() - start} ms`);
+                    return;
                 }
+                const {dashboardCache} = customDashboardCacheService.getDashboardCache(state.activeDashboardUUID);
+                if (rcm.card.isFullyCustom()) {
+                    newState.cardToCountResultMap[rcm.card.getCardId()] =
+                        reportCardService.getReportCardCount(rcm.card, ruleInputArray);
+                } else if (rcm.card.nested) {
+                    let reportCardResults = dashboardCache.getNestedReportCardResults(rcm.card);
+                    let hasError = reportCardResults && reportCardResults.length !== rcm.card.countOfCards;
 
-                if (reportCardResults && reportCardResults.length === rcm.card.countOfCards) {
-                    _.forEach(reportCardResults, (reportCardResult, index) => {
-                        makeOpenDashboardResultTappable(rcm.card, reportCardResult);
-                        newState.cardToCountResultMap[rcm.card.getCardId(index)] = reportCardResult;
-                    });
-                } else if (hasError) {
-                    rcm.card.createNestedErrorResults(I18n.t("Error"), I18n.t("nestedReportCardsCountMismatch")).forEach((result, index) => {
-                        newState.cardToCountResultMap[rcm.card.getCardId(index)] = result;
-                    });
-                }
-            } else {
-                let reportCardResult = dashboardCache.getReportCardResult(rcm.card);
-
-                if (userSettings.autoRefreshEnabled || _.isNil(reportCardResult)) {
-                    reportCardResult = reportCardService.getReportCardCount(rcm.card, ruleInputArray);
-                    if (rcm.card.isActionDoVisit()) {
-                        const {result} = reportCardService.getReportCardResult(rcm.card, ruleInputArray);
-                        reportCardResult = getDoVisitFilteredCount(rcm.card, result, reportCardResult);
+                    if (userSettings.autoRefreshEnabled || _.isEmpty(reportCardResults)) {
+                        reportCardResults = reportCardService.getReportCardCount(rcm.card, ruleInputArray);
+                        if (!hasError)
+                            pendingNestedResults.push({card: rcm.card, results: reportCardResults});
                     }
-                    customDashboardCacheService.updateReportCardResult(state.activeDashboardUUID, rcm.card, reportCardResult);
-                    pendingSingleResults.push({card: rcm.card, result: reportCardResult});
-                }
-                makeOpenDashboardResultTappable(rcm.card, reportCardResult);
-                newState.cardToCountResultMap[rcm.card.getCardId()] = reportCardResult;
-            }
-            General.logDebug('CustomDashboardActions', `${rcm.card.name} took ${new Date() - start} ms`);
-        });
 
-        // Disable query cache — release hydrated entities
-        if (db && db.isSqlite && db.endQueryCache) {
-            db.endQueryCache();
+                    if (reportCardResults && reportCardResults.length === rcm.card.countOfCards) {
+                        _.forEach(reportCardResults, (reportCardResult, index) => {
+                            makeOpenDashboardResultTappable(rcm.card, reportCardResult);
+                            newState.cardToCountResultMap[rcm.card.getCardId(index)] = reportCardResult;
+                        });
+                    } else if (hasError) {
+                        rcm.card.createNestedErrorResults(I18n.t("Error"), I18n.t("nestedReportCardsCountMismatch")).forEach((result, index) => {
+                            newState.cardToCountResultMap[rcm.card.getCardId(index)] = result;
+                        });
+                    }
+                } else {
+                    let reportCardResult = dashboardCache.getReportCardResult(rcm.card);
+
+                    if (userSettings.autoRefreshEnabled || _.isNil(reportCardResult)) {
+                        reportCardResult = reportCardService.getReportCardCount(rcm.card, ruleInputArray);
+                        if (rcm.card.isActionDoVisit()) {
+                            const {result} = reportCardService.getReportCardResult(rcm.card, ruleInputArray);
+                            reportCardResult = getDoVisitFilteredCount(rcm.card, result, reportCardResult);
+                        }
+                        customDashboardCacheService.updateReportCardResult(state.activeDashboardUUID, rcm.card, reportCardResult);
+                        pendingSingleResults.push({card: rcm.card, result: reportCardResult});
+                    }
+                    makeOpenDashboardResultTappable(rcm.card, reportCardResult);
+                    newState.cardToCountResultMap[rcm.card.getCardId()] = reportCardResult;
+                }
+                General.logDebug('CustomDashboardActions', `${rcm.card.name} took ${new Date() - start} ms`);
+            });
+        } finally {
+            // Disable query cache — release hydrated entities
+            if (db && db.isSqlite && db.endQueryCache) {
+                db.endQueryCache();
+            }
         }
 
         // Phase 2: Batch-write all cache updates in a single transaction
         customDashboardCacheService.batchUpdateResults(state.activeDashboardUUID, pendingSingleResults, pendingNestedResults);
 
         const {dashboardCache} = customDashboardCacheService.getDashboardCache(state.activeDashboardUUID);
-        newState.resultUpdatedAt = dashboardCache.updatedAt;
+        // The time the page on screen was calculated, so the refresh row never shows the time of a reuse.
+        newState.resultUpdatedAt = pageCard ? fullPageCalculatedAt : dashboardCache.updatedAt;
         newState.hasFiltersSet = dashboardCache.filterApplied;
         
         General.logDebug('CustomDashboardActions', `refreshCount completed - processed ${reportCardSectionMappings.length} cards, took ${new Date() - refreshStartTime} ms`);
@@ -454,7 +569,18 @@ class CustomDashboardActions {
         General.logDebug('CustomDashboardActions', `Force refresh triggered for dashboard: ${state.activeDashboardUUID}`);
         const customDashboardCacheService = context.get(CustomDashboardCacheService);
         customDashboardCacheService.clearResults(state.activeDashboardUUID);
-        return state;
+        return {...state, fullPageForced: true};
+    }
+
+    static fullPageHeld(state, action) {
+        if (action.dashboardUUID !== state.activeDashboardUUID) return state;
+        return withFullPageEntry(state, action.dashboardUUID, {..._.get(state.fullPage, action.dashboardUUID), held: true, updating: false});
+    }
+
+    static fullPageFailed(state, action) {
+        const entry = _.get(state.fullPage, state.activeDashboardUUID);
+        if (!_.get(entry, 'updating')) return state;
+        return withFullPageEntry(state, state.activeDashboardUUID, {...entry, html: null, error: action.error, updating: false});
     }
 
     static clearCounts(state, action, context) {
@@ -471,12 +597,14 @@ class CustomDashboardActions {
         const previousResultsCount = Object.keys(newState.cardToCountResultMap || {}).length;
         newState.cardToCountResultMap = {};
         General.logDebug('CustomDashboardActions', `clearCounts - Cleared ${previousResultsCount} results from cardToCountResultMap`);
-        return newState;
+        return markFullPageUpdating(newState, context);
     }
 }
 
 // Debounce refresh calls to prevent duplicates
 let refreshTimeout = null;
+// Set while a full page's run waits on storage, so a refresh scheduled meanwhile neither runs alongside it nor reads its mark.
+let fullPageRunInProgress = null;
 function scheduleRefresh(dispatcher) {
     const wasAlreadyScheduled = refreshTimeout !== null;
     if (refreshTimeout) {
@@ -484,17 +612,55 @@ function scheduleRefresh(dispatcher) {
         clearTimeout(refreshTimeout);
     }
     General.logDebug('CustomDashboardActions', `scheduleRefresh - Scheduling refresh in 500ms${wasAlreadyScheduled ? ' (was already scheduled)' : ''}`);
-    refreshTimeout = setTimeout(() => {
+    const handle = setTimeout(async () => {
+        while (fullPageRunInProgress) await fullPageRunInProgress;
+        const runMark = fullPageRunDue(dispatcher);
+        let held = false;
+        let endRun = null;
+        if (runMark) fullPageRunInProgress = new Promise((resolve) => endRun = resolve);
         try {
             General.logDebug('CustomDashboardActions', 'scheduleRefresh - Executing scheduled refresh');
-            dispatcher.dispatchAction(CustomDashboardActionNames.REFRESH_COUNT);
+            if (runMark) {
+                // Still set: the app was closed while this page's rule ran, so it waits for the user to ask for it.
+                if (await LocalCacheService.isFullPageRunning(runMark)) {
+                    held = true;
+                    dispatcher.dispatchAction(CustomDashboardActionNames.FULL_PAGE_HELD, {dashboardUUID: runMark});
+                    return;
+                }
+                // Awaited: the rule blocks the JS thread, and a write not yet flushed would be lost with the app.
+                await LocalCacheService.markFullPageRunning(runMark);
+            }
+            dispatcher.dispatchAction(CustomDashboardActionNames.REFRESH_COUNT, {
+                refreshAgain: (dashboardUUID) => {
+                    if (_.get(_.invoke(dispatcher, 'sharedDashboardState'), 'activeDashboardUUID') === dashboardUUID) scheduleRefresh(dispatcher);
+                }
+            });
         } catch (error) {
             General.logError('CustomDashboardActions', `Refresh count failed: ${error.message}`);
+            try {
+                dispatcher.dispatchAction(CustomDashboardActionNames.FULL_PAGE_FAILED, {error: error.message || String(error)});
+            } catch (e) {
+                General.logError('CustomDashboardActions', `Ending the full page's Updating mark failed: ${e.message}`);
+            }
         } finally {
-            refreshTimeout = null;
+            if (runMark && !held) await LocalCacheService.clearFullPageRunning(runMark);
+            if (endRun) {
+                fullPageRunInProgress = null;
+                endRun();
+            }
+            if (refreshTimeout === handle) refreshTimeout = null;
             General.logDebug('CustomDashboardActions', 'scheduleRefresh - Refresh completed, timeout cleared');
         }
     }, 500);
+    refreshTimeout = handle;
+}
+
+// The dashboard whose full-page rule this refresh will run, if any. A page shown again without a run needs no mark.
+function fullPageRunDue(dispatcher) {
+    const state = _.invoke(dispatcher, 'sharedDashboardState');
+    if (_.isNil(state) || !fullPageCard(state)) return null;
+    const autoRefreshEnabled = dispatcher.getService(UserInfoService).getUserSettingsObject().autoRefreshEnabled;
+    return reusableFullPage(state, autoRefreshEnabled) ? null : state.activeDashboardUUID;
 }
 
 // These are not reducers, just a code reuse mechanism
@@ -524,7 +690,9 @@ const CustomDashboardActionNames = {
     FILTER_CLEARED: `${ActionPrefix}.FILTER_CLEARED`,
     DISABLE_AUTO_REFRESH_VALUE_UPDATED: `${ActionPrefix}.DISABLE_AUTO_REFRESH_VALUE_UPDATED`,
     FORCE_REFRESH: `${ActionPrefix}.FORCE_REFRESH`,
-    CLEAR_COUNTS: `${ActionPrefix}.CLEAR_COUNTS`
+    CLEAR_COUNTS: `${ActionPrefix}.CLEAR_COUNTS`,
+    FULL_PAGE_HELD: `${ActionPrefix}.FULL_PAGE_HELD`,
+    FULL_PAGE_FAILED: `${ActionPrefix}.FULL_PAGE_FAILED`
 };
 
 const CustomDashboardActionMap = new Map([
@@ -537,7 +705,9 @@ const CustomDashboardActionMap = new Map([
     [CustomDashboardActionNames.FILTER_CLEARED, CustomDashboardActions.setFilterCleared],
     [CustomDashboardActionNames.DISABLE_AUTO_REFRESH_VALUE_UPDATED, CustomDashboardActions.disableAutoRefreshValueUpdated],
     [CustomDashboardActionNames.FORCE_REFRESH, CustomDashboardActions.forceRefresh],
-    [CustomDashboardActionNames.CLEAR_COUNTS, CustomDashboardActions.clearCounts]
+    [CustomDashboardActionNames.CLEAR_COUNTS, CustomDashboardActions.clearCounts],
+    [CustomDashboardActionNames.FULL_PAGE_HELD, CustomDashboardActions.fullPageHeld],
+    [CustomDashboardActionNames.FULL_PAGE_FAILED, CustomDashboardActions.fullPageFailed]
 ]);
 
 export {CustomDashboardActionNames, CustomDashboardActionMap, CustomDashboardActions}

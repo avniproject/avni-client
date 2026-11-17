@@ -6,6 +6,8 @@ import Reducers from "../../reducer";
 import {
     CustomDashboardActionNames as Actions,
     dashboardOwnerKey,
+    fullPageCard,
+    isOwnRoute,
     ownsStoreState,
     performCustomDashboardActionAndClearRefresh,
     performCustomDashboardActionAndRefresh,
@@ -55,6 +57,9 @@ import DashboardFilterService from '../../service/reports/DashboardFilterService
 import PrivilegeService from "../../service/PrivilegeService";
 import DatePicker from '../primitives/DatePicker';
 import moment from 'moment';
+import CustomCardPage, {cardPageHandle, savedSince} from "./CustomCardPage";
+import {subscribeTemplateChange} from "../../service/CustomCardConfigService";
+import LocalCacheService from "../../service/LocalCacheService";
 
 const viewNameMap = {
     'ApprovalListingView': ApprovalListingView,
@@ -208,11 +213,24 @@ class CustomDashboardView extends AbstractComponent {
 
     onViewDidMount() {
         this.unsubscribeSceneFocus = _.invoke(this.context, 'subscribeSceneDidFocus', (route) => this.onSceneFocus(route));
+        this.unsubscribeTemplateChange = subscribeTemplateChange((configUUID) => this.onTemplateChange(configUUID));
     }
 
     componentWillUnmount() {
         if (_.isFunction(this.unsubscribeSceneFocus)) this.unsubscribeSceneFocus();
+        if (_.isFunction(this.unsubscribeTemplateChange)) this.unsubscribeTemplateChange();
         super.componentWillUnmount();
+    }
+
+    // A sync brought a changed page file for the full page this screen shows; the service has marked its page stale.
+    // During the sync, the reload after the sync's reset recalculates it once, on all the synced data.
+    // shortcut: a sync that fails after the download leaves the old page until the next recalculation; accepted.
+    onTemplateChange(configUUID) {
+        if (!this.ownsSharedDashboardState()) return;
+        if (_.get(fullPageCard(this.sharedDashboardState()), 'customCardConfig.uuid') !== configUUID) return;
+        const sync = this.context.getStore().getState()[Reducers.reducerKeys.syncComponentAction];
+        if (_.get(sync, 'syncing') || _.get(sync, 'backgroundSyncInProgress')) return;
+        performCustomDashboardActionAndClearRefresh(this, Actions.FORCE_REFRESH);
     }
 
     // Every dashboard screen shares one piece of dashboard state, and a dashboard opened from a tile takes it over.
@@ -246,23 +264,35 @@ class CustomDashboardView extends AbstractComponent {
     // When the user comes back to this screen after an opened dashboard took the state over, the screen loads its own
     // dashboard again. It waits two frames, as a screen's first load does, so the back slide's last frame is painted
     // before the load blocks the JS thread (AbstractComponent, #2054).
+    // Also the return from a screen a full page's command opened: the page is recalculated only if something was saved
+    // there. These marks live on the screen, not in the shared state; a remount of Home loses them and reloads anyway.
     onSceneFocus(route) {
+        const ownRoute = isOwnRoute(route, this.ownRoutePath(), this.props.dashboardUUID);
+        if (ownRoute) this._commandNavigated = false;
         const needsReload = () => sceneFocusNeedsReload(route, this.ownRoutePath(), this.sharedDashboardState().ownerKey, this.ownOwnerKey(), this.props.dashboardUUID);
-        if (!needsReload()) return;
+        const commandReturn = ownRoute && !_.isNil(this._commandOpenedAt);
+        if (!needsReload() && !commandReturn) return;
         requestAnimationFrame(() => requestAnimationFrame(() => {
-            // Checked again with the router's live focus, as the in-front path does: a second back press starts the next
-            // pop within these frames, and the screen would then reload while it slides away.
-            if (this._isUnmounted || !needsReload() || !this.inFrontWithoutItsState()) return;
-            this.reloadOwnDashboard();
+            if (this._isUnmounted) return;
+            const saved = savedSince(this.context, this._commandOpenedAt);
+            this._commandOpenedAt = null;
+            if (needsReload()) {
+                // Checked again with the router's live focus, as the in-front path does: a second back press starts the
+                // next pop within these frames, and the screen would then reload while it slides away.
+                if (this.inFrontWithoutItsState()) this.reloadOwnDashboard({forceFullPage: saved});
+            } else if (saved && this.fullPageInFront()) {
+                performCustomDashboardActionAndClearRefresh(this, Actions.FORCE_REFRESH);
+            }
         }));
     }
 
     // Loads this screen's dashboard on the tab the user left, then points the filter screen's state back at it, as a
     // tab change does: the applied-filters bar points it only when it mounts, and the opened dashboard's bar pointed it
     // at the opened dashboard. With no dashboard left to show, the screen shows no filters and there is nothing to point at.
-    reloadOwnDashboard() {
+    // With forceFullPage, a full page is recalculated even with auto-refresh off, as something was saved meanwhile.
+    reloadOwnDashboard({forceFullPage = false} = {}) {
         const {customDashboardType, dashboardUUID} = this.props;
-        performCustomDashboardActionAndClearRefresh(this, Actions.ON_LOAD, {customDashboardType, dashboardUUID, activeDashboardUUID: this.dashboardToRestore});
+        performCustomDashboardActionAndClearRefresh(this, Actions.ON_LOAD, {customDashboardType, dashboardUUID, activeDashboardUUID: this.dashboardToRestore, ...(forceFullPage ? {forceFullPage} : {})});
         const {activeDashboardUUID} = this.sharedDashboardState();
         if (!_.isNil(activeDashboardUUID)) {
             this.dispatchAction(FilterActionNames.ON_LOAD, {dashboardUUID: activeDashboardUUID});
@@ -526,6 +556,53 @@ class CustomDashboardView extends AbstractComponent {
             }).to(FiltersViewV2, true);
     }
 
+    // The router has no route in front during a slide, so nothing is pushed onto a stack in motion.
+    fullPageInFront() {
+        return isOwnRoute(_.invoke(this.context, 'focusedRoute'), this.ownRoutePath(), this.props.dashboardUUID) && this.ownsSharedDashboardState();
+    }
+
+    fullPageDropReason() {
+        if (this._commandNavigated) return 'an earlier command has opened a screen';
+        return this.fullPageInFront() ? null : 'the full page is not the screen in front';
+    }
+
+    fullPageHandle(pageCard) {
+        // Taken now, from this screen's own state, as a later read of the store may hold an opened dashboard.
+        const sourceDashboardUUID = this.state.activeDashboardUUID;
+        return cardPageHandle(this, {
+            reportCard: pageCard,
+            sourceDashboardUUID,
+            isInFront: () => this.fullPageInFront(),
+            logTag: 'CustomDashboardView',
+            onOpenDashboard: (view, target) => {
+                this.dashboardToRestore = sourceDashboardUUID;
+                openDashboardFrom(view, target);
+            },
+        });
+    }
+
+    onLoadPage() {
+        if (!this.ownsSharedDashboardState()) return;
+        return LocalCacheService.clearFullPageRunning(this.state.activeDashboardUUID)
+            .then(() => performCustomDashboardActionAndClearRefresh(this, Actions.FORCE_REFRESH));
+    }
+
+    renderFullPage() {
+        const entry = _.get(this.state.fullPage, this.state.activeDashboardUUID) || {};
+        const pageCard = fullPageCard(this.state);
+        return <CustomCardPage html={entry.html}
+                               pageKey={this.state.activeDashboardUUID}
+                               error={entry.error}
+                               updating={entry.updating}
+                               held={entry.held}
+                               onLoadPage={() => this.onLoadPage()}
+                               padded={false}
+                               bottomInset={this.props.bottomInset}
+                               logTag="CustomDashboardView"
+                               dropReason={() => this.fullPageDropReason()}
+                               page={() => this.fullPageHandle(pageCard)}/>;
+    }
+
     onRefreshPressed() {
         // The refresh would clear the counts of the dashboard the state holds, which until the reload is the opened one.
         if (!this.ownsSharedDashboardState()) return;
@@ -562,10 +639,48 @@ class CustomDashboardView extends AbstractComponent {
             ? this.I18n.t('welcomeMessage', {userName: this.context.getService(UserInfoService).getUserInfo().getDisplayUsername()?.split(' ')[0]})
             : this.I18n.t(this.props.title || ownName || 'dashboards');
 
+        const isFullPage = hasDashboards && !_.isNil(fullPageCard(this.state));
+        const top = <>
+            <Line/>
+            {!isSingleDashboard && (_.isNil(customDashboardType) || customDashboardType === CustomDashboardType.None) &&
+                <SafeAreaView style={{height: 50}}>
+                    <ScrollView horizontal style={{backgroundColor: Colors.cardBackgroundColor}}>
+                        {this.renderDashboards()}
+                        {this.renderZeroResultsMessageIfNeeded()}
+                    </ScrollView>
+                </SafeAreaView>}
+            {isSingleDashboard && !hasDashboards && this.renderZeroResultsMessageIfNeeded()}
+            {hasDashboards && <>
+                {/* Outside a scroll view, flex would split the screen with the page. */}
+                <View style={{display: "flex", flexDirection: "row", ...(isFullPage ? {} : {flex: 1}), justifyContent: "space-between"}}>
+                    <View style={{flex: 0.65}}>
+                        {settings.autoRefreshDisabled && !_.isNil(this.state.resultUpdatedAt) &&
+                            <RefreshSection I18n={this.I18n}
+                                            onRefreshPressed={() => this.onRefreshPressed()}
+                                            lastUpdatedOn={this.state.resultUpdatedAt}/>}
+                    </View>
+                </View>
+                <CustomActivityIndicator loading={loading}/>
+                <View>
+                    {this.state.filtersPresent &&
+                        <FilterSection dispatcher={this} asOnDateValue={asOnDateFilterValue}
+                                       asOnDateFilter={asOnDateFilter} I18n={this.I18n}
+                                       onFilterPressed={() => this.onFilterPressed()}/>}
+                </View>
+                <AppliedFiltersV2 dashboardUUID={this.state.activeDashboardUUID}
+                                  postClearAction={() => this.onClearFilters()}
+                                  canClearFilter={() => this.ownsSharedDashboardState()}
+                                  dashboard={dashboard}
+                                  hasFiltersSet={hasFiltersSet}
+                                  selectedFilterValues={this.state.customDashboardFilters}
+                                  filterConfigs={filterConfigs}
+                                  filterUUIDsToIgnore={[]}
+                />
+            </>}
+        </>;
+
         return (
-            <CHSContainer style={{
-                marginBottom: Styles.ContentDistanceFromEdge
-            }}>
+            <CHSContainer style={isFullPage ? {} : {marginBottom: Styles.ContentDistanceFromEdge}}>
                 <AppHeader title={title}
                            hideBackButton={hideBackButton}
                            startSync={startSync}
@@ -575,44 +690,9 @@ class CustomDashboardView extends AbstractComponent {
                            renderSearch={showSearch}
                            onSearch={onSearch}
                 />
-                <ScrollView>
-                    <Line/>
-                    {!isSingleDashboard && (_.isNil(customDashboardType) || customDashboardType === CustomDashboardType.None) &&
-                        <SafeAreaView style={{height: 50}}>
-                            <ScrollView horizontal style={{backgroundColor: Colors.cardBackgroundColor}}>
-                                {this.renderDashboards()}
-                                {this.renderZeroResultsMessageIfNeeded()}
-                            </ScrollView>
-                        </SafeAreaView>}
-                    {isSingleDashboard && !hasDashboards && this.renderZeroResultsMessageIfNeeded()}
-                    {hasDashboards && <>
-                        <View style={{display: "flex", flexDirection: "row", flex: 1, justifyContent: "space-between"}}>
-                            <View style={{flex: 0.65}}>
-                                {settings.autoRefreshDisabled && !_.isNil(this.state.resultUpdatedAt) &&
-                                    <RefreshSection I18n={this.I18n}
-                                                    onRefreshPressed={() => this.onRefreshPressed()}
-                                                    lastUpdatedOn={this.state.resultUpdatedAt}/>}
-                            </View>
-                        </View>
-                        <CustomActivityIndicator loading={loading}/>
-                        <View>
-                            {this.state.filtersPresent &&
-                                <FilterSection dispatcher={this} asOnDateValue={asOnDateFilterValue}
-                                               asOnDateFilter={asOnDateFilter} I18n={this.I18n}
-                                               onFilterPressed={() => this.onFilterPressed()}/>}
-                        </View>
-                        <AppliedFiltersV2 dashboardUUID={this.state.activeDashboardUUID}
-                                          postClearAction={() => this.onClearFilters()}
-                                          canClearFilter={() => this.ownsSharedDashboardState()}
-                                          dashboard={dashboard}
-                                          hasFiltersSet={hasFiltersSet}
-                                          selectedFilterValues={this.state.customDashboardFilters}
-                                          filterConfigs={filterConfigs}
-                                          filterUUIDsToIgnore={[]}
-                        />
-                        {this.renderCards()}
-                    </>}
-                </ScrollView>
+                {isFullPage
+                    ? <>{top}{this.renderFullPage()}</>
+                    : <ScrollView>{top}{hasDashboards && this.renderCards()}</ScrollView>}
             </CHSContainer>
         );
     }

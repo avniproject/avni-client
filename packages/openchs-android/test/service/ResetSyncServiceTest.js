@@ -229,6 +229,29 @@ describe('ResetSyncService — a catchment reset must not re-arm itself (#2115)'
         });
     });
 
+    describe("a Custom Design Card's pages", () => {
+        const {lastFullPages} = require('../../src/service/CustomCardConfigService');
+
+        it('a reset drops the pages kept from before it, as they can name records no longer in the catchment', () => {
+            const {service} = buildService({resetSyncs: [makeResetSync('reset-1')], checkpoints: catchmentCheckpoints()});
+            lastFullPages.set('d1', {html: '<p/>', filterKey: '{}', calculatedAt: new Date()});
+
+            service.resetSync();
+
+            expect(lastFullPages.size).toBe(0);
+        });
+
+        it('no reset keeps them', () => {
+            const {service} = buildService({resetSyncs: [], checkpoints: catchmentCheckpoints()});
+            lastFullPages.set('d1', {html: '<p/>', filterKey: '{}', calculatedAt: new Date()});
+
+            service.resetSync();
+
+            expect(lastFullPages.size).toBe(1);
+            lastFullPages.clear();
+        });
+    });
+
     describe('a device that has never synced', () => {
         it('marks resets migrated and skips the wipe', () => {
             const {service, state} = buildService({

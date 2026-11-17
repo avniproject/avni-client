@@ -891,6 +891,9 @@ class SyncService extends BaseService {
         // Kept outside both databases too, so the wipe alone leaves it standing and the next
         // user could publish a never-synced database as the catchment dump (#2141).
         await LastSyncCompleted.clear();
+        // Outside both databases too. Every organisation's Default Dashboard shares a uuid.
+        require('./CustomCardConfigService').clearCaches();
+        await require('./LocalCacheService').default.clearAllFullPageRunning();
         // Clinic sharing keeps its own files: a hub cursor, parked records and holds from the previous data.
         await this.getService('clinicSpokeService').clearState();
         await this.getService('clinicHubService').clearLedger();

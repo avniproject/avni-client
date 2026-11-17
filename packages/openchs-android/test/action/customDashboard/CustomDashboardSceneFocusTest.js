@@ -6,7 +6,7 @@ import {assert} from "chai";
 
 jest.mock("../../../src/framework/bean/Service", () => () => (target) => target);
 
-import {ownsStoreState, sceneFocusNeedsReload} from "../../../src/action/customDashboard/CustomDashboardActions";
+import {isOwnRoute, ownsStoreState, sceneFocusNeedsReload} from "../../../src/action/customDashboard/CustomDashboardActions";
 
 describe("sceneFocusNeedsReload", () => {
     it("reloads when its own route comes back and another screen owns the state", () => {
@@ -42,5 +42,20 @@ describe("ownsStoreState", () => {
         assert.isTrue(ownsStoreState(undefined, "Primary|"));
         assert.isTrue(ownsStoreState("Primary|", "Primary|"));
         assert.isFalse(ownsStoreState("None|t1", "Primary|"));
+    });
+});
+
+describe("isOwnRoute", () => {
+    it("is the screen's own route, whoever owns the state", () => {
+        assert.isTrue(isOwnRoute({path: "/landingView"}, "/landingView"));
+        assert.isTrue(isOwnRoute({path: "/openedDashboardView", queryParams: {dashboardUUID: "t1"}}, "/openedDashboardView", "t1"));
+        assert.isTrue(isOwnRoute({path: "/openedDashboardView"}, "/openedDashboardView", "t1"));
+    });
+
+    it("is not another route, an opened dashboard naming another dashboard, an unknown route, or no focus", () => {
+        assert.isFalse(isOwnRoute({path: "/customCardDetailView"}, "/landingView"));
+        assert.isFalse(isOwnRoute({path: "/openedDashboardView", queryParams: {dashboardUUID: "t2"}}, "/openedDashboardView", "t1"));
+        assert.isFalse(isOwnRoute({path: "/landingView"}, undefined));
+        assert.isFalse(isOwnRoute(null, "/landingView"));
     });
 });

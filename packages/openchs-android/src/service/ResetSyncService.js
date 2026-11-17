@@ -46,6 +46,8 @@ class ResetSyncService extends BaseService {
 
     resetSync() {
         if (!this.isResetSyncRequired()) return;
+        // A kept page can name records the reset takes out of the catchment.
+        require('./CustomCardConfigService').clearCaches();
         const repositoryFactory = this.context.getRepositoryFactory();
         // Off before the transaction opens: SQLite ignores the pragma inside one
         const isSqlite = repositoryFactory.setForeignKeysEnabled(false);

@@ -26,10 +26,12 @@ const runCardPage = () => {
     const listeners = [];
     const document = {addEventListener: (type, fn, capture) => listeners.push({type, fn, capture})};
     const posted = [];
-    const window = {ReactNativeWebView: {postMessage: (m) => posted.push(m)}};
+    // Commands only; the script's reports of dropped commands are checked in CustomCardPageScriptTest.
+    const window = {ReactNativeWebView: {postMessage: (m) => m.includes('"avniDropped"') || posted.push(m)}};
     const console = {warn: jest.fn()};
     new Function("window", "document", "console", buildCustomCardPageScript(PAGE_COMMAND_DEFINITIONS, PAGE_TOKEN))(window, document, console);
-    const fire = (type) => listeners.filter((l) => l.type === type).forEach((l) => l.fn({type}));
+    const point = {touches: [{clientX: 5, clientY: 5}], changedTouches: [{clientX: 5, clientY: 5}], clientX: 5, clientY: 5};
+    const fire = (type) => listeners.filter((l) => l.type === type).forEach((l) => l.fn({type, ...point}));
     return {window, posted, console, fire};
 };
 
@@ -89,13 +91,14 @@ describe("record commands on the card page", () => {
         const {window, posted, console} = runCardPage();
         window.avni.editVisit('v1');
         expect(posted).toEqual([]);
-        expect(console.warn).toHaveBeenCalledWith("avni: editVisit ignored, the page has not been touched yet");
+        expect(console.warn).toHaveBeenCalledWith("avni: editVisit dropped, the page has not been touched yet");
     });
 
-    it.each(["touchstart", "click"])("the page's editVisit posts exactly its command after a %s", (type) => {
+    it.each(["touchend", "pointerup", "click"])("the page's editVisit posts exactly its command from a tap's %s", (type) => {
         const {window, posted, fire} = runCardPage();
         window.avni.editVisit('v1');
         expect(posted).toEqual([]);
+        fire("touchstart");
         fire(type);
         window.avni.editVisit('v1');
         expect(posted).toEqual([`{"avniCommand":"editVisit","args":{"visitUUID":"v1"},"token":"${PAGE_TOKEN}"}`]);

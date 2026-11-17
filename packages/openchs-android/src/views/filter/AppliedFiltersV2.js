@@ -144,7 +144,8 @@ export default class AppliedFiltersV2 extends AbstractComponent {
             }}>
                 <SafeAreaView>
                     <View>
-                        <TouchableOpacity style={{flex: 1, alignSelf: 'flex-end'}} onPress={() => this.onClearFilter(this.props.postClearAction)}>
+                        {/* No flex: above a full page, outside a scroll view, it would get no height and no taps. */}
+                        <TouchableOpacity style={{alignSelf: 'flex-end'}} onPress={() => this.onClearFilter(this.props.postClearAction)}>
                             <View>
                                 <AvniIcon name={'filter-remove-outline'}
                                           style={AppliedFiltersV2.styles.filterIcon}
