@@ -29,6 +29,7 @@ import OrganisationConfigService from './OrganisationConfigService';
 import RealmQueryService from "./query/RealmQueryService";
 import {DashboardReportFilter} from "../model/DashboardReportFilter";
 import CustomFilterService from "./CustomFilterService";
+import ConceptService from "./ConceptService";
 import UpdateMode from "../repository/UpdateMode";
 
 function uniqSubjectWithVisitName(individualsWithVisits, individualWithVisit) {
@@ -936,8 +937,15 @@ class IndividualService extends BaseService {
 
     findAllWithMobileNumber(mobileNumber, subjectTypeUUID = null) {
         const toMatchMobileNumber = _.toString(mobileNumber).slice(-10);
+        if (_.isEmpty(toMatchMobileNumber)) return [];
+        // Match on contact-question uuids: SQLite cannot query past an answer's concept uuid.
+        const contactConceptUUIDs = this.getService(ConceptService).getAll()
+            .filtered(`keyValues.key = "${KeyValue.PrimaryContactKey}" or keyValues.key = "${KeyValue.ContactNumberKey}"`)
+            .map(concept => concept.uuid);
+        if (_.isEmpty(contactConceptUUIDs)) return [];
         const allSubjects = subjectTypeUUID ? this.getAllBySubjectTypeUUID(subjectTypeUUID) : this.getAllNonVoided();
-        const probableSubjects = allSubjects.filtered(`(observations.concept.keyValues.key = "${KeyValue.PrimaryContactKey}" or observations.concept.keyValues.key = "${KeyValue.ContactNumberKey}") and (observations.valueJSON CONTAINS "${toMatchMobileNumber}")`);
+        const contactConceptClause = contactConceptUUIDs.map(uuid => `observations.concept.uuid = "${uuid}"`).join(" or ");
+        const probableSubjects = allSubjects.filtered(`observations.valueJSON CONTAINS $0 and (${contactConceptClause})`, toMatchMobileNumber);
         return probableSubjects.filter((subject) => {
             return _.toString(subject.getMobileNumber()).slice(-10) === toMatchMobileNumber;
         });
