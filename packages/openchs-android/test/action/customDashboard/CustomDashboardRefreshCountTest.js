@@ -1,7 +1,8 @@
 // Verifies which card numbers CustomDashboardActions.refreshCount makes tappable. A card with the Open dashboard action
 // opens its dashboard whatever its query returns, so its number is tappable even when the query gives a value with no
 // line list, unless the result is an error. Single and nested cards alike. Every other card keeps the tappable flag its
-// result came with, and a cached result stays tappable as it is today.
+// result came with, and a cached result stays tappable as it is today. A query that fails is run through the real rule
+// service, because the tile it builds for a failure arrives already marked tappable.
 
 import {assert} from "chai";
 import {CustomDashboardCache, NestedReportCardResult, ReportCard, ReportCardResult} from "openchs-models";
@@ -15,6 +16,7 @@ import UserInfoService from "../../../src/service/UserInfoService";
 import ReportCardService from "../../../src/service/customDashboard/ReportCardService";
 import MessageService from "../../../src/service/MessageService";
 import DashboardFilterService from "../../../src/service/reports/DashboardFilterService";
+import RuleEvaluationService from "../../../src/service/RuleEvaluationService";
 
 const DASHBOARD = "dashboard-1";
 
@@ -33,6 +35,19 @@ const openDashboardCard = (uuid, options = {}) => card(uuid, {...options, action
 // What a query gives: a value with no line list, or an error.
 const valueOnly = (primaryValue = "12") => ({primaryValue, secondaryValue: null});
 const anError = () => ({primaryValue: "Error", secondaryValue: "The query failed", hasErrorMsg: true});
+
+// The tile the phone builds when a card's query throws: the real RuleEvaluationService.getDashboardCardResult, with only
+// translation, failure logging and the rule run itself stubbed. Translation gives the key back.
+function failedQueryTile(reportCard) {
+    const rules = Object.create(RuleEvaluationService.prototype);
+    rules.I18n = {t: (key) => key};
+    rules.saveFailedRules = () => {};
+    rules.getCommonParams = () => ({});
+    rules.runEvalRule = () => {
+        throw new Error("The query failed");
+    };
+    return rules.getDashboardCardResult(reportCard, []);
+}
 
 // A result saved in the dashboard's cache, as a refresh with auto refresh on leaves it.
 function cachedResult(reportCard, primaryValue = "7") {
@@ -107,6 +122,31 @@ describe("CustomDashboardActions.refreshCount, which numbers can be tapped", () 
             assert.isFalse(result.clickable);
         });
 
+        it("with Open dashboard is not tappable when its query fails, as the phone builds the failed tile", () => {
+            const reportCard = openDashboardCard("open");
+            const fresh = {open: failedQueryTile(reportCard)};
+            assert.isTrue(fresh.open.hasErrorMsg, "the failed tile is an error");
+            assert.isTrue(fresh.open.clickable, "the failed tile arrives marked tappable");
+
+            const result = refresh([reportCard], {fresh})[reportCard.getCardId()];
+
+            assert.strictEqual(result, fresh.open);
+            assert.equal(result.primaryValue, "Error");
+            assert.equal(result.secondaryValue, "queryExecutionError");
+            assert.isTrue(result.hasErrorMsg);
+            assert.isFalse(result.clickable);
+        });
+
+        it("without an action, a tile whose query fails keeps the flag it came with", () => {
+            const reportCard = card("plain");
+            const fresh = {plain: failedQueryTile(reportCard)};
+
+            const result = refresh([reportCard], {fresh})[reportCard.getCardId()];
+
+            assert.isTrue(result.hasErrorMsg);
+            assert.isTrue(result.clickable, "other cards are outside this card's scope");
+        });
+
         it("without an action, a Custom Data Card whose query gives a value is still not tappable", () => {
             [null, ReportCard.actionTypes.ViewSubjectProfile].forEach((action) => {
                 const reportCard = card("plain", {action});
@@ -149,6 +189,18 @@ describe("CustomDashboardActions.refreshCount, which numbers can be tapped", () 
 
             assert.isFalse(map[reportCard.getCardId(0)].clickable, "the sub-card with an error");
             assert.isTrue(map[reportCard.getCardId(1)].clickable, "the sub-card with a value");
+        });
+
+        it("with Open dashboard makes no sub-card tappable when its query fails, as the phone builds the failed tiles", () => {
+            const reportCard = openDashboardCard("open", {nested: true, countOfCards: 2});
+            const fresh = {open: failedQueryTile(reportCard)};
+
+            const map = refresh([reportCard], {fresh});
+
+            [0, 1].forEach((index) => {
+                assert.isTrue(map[reportCard.getCardId(index)].hasErrorMsg, `sub-card ${index} is an error tile`);
+                assert.isFalse(map[reportCard.getCardId(index)].clickable, `sub-card ${index}`);
+            });
         });
 
         it("without Open dashboard keeps each sub-card's flag as its query gave it", () => {

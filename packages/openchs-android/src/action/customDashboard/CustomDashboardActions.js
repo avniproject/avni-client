@@ -66,10 +66,11 @@ function getDoVisitFilteredCount(reportCard, result, countResult) {
 }
 
 // A card with the Open dashboard action opens its dashboard whatever its query returns, so its number is tappable
-// unless the result is an error. `clickable` is transient, outside the ReportCardResult and NestedReportCardResult
+// unless the result is an error. An error is made untappable here, because the tile built for a query that failed
+// arrives marked tappable. `clickable` is transient, outside the ReportCardResult and NestedReportCardResult
 // schemas, so setting it on a result that is later saved to the cache stores nothing.
 function makeOpenDashboardResultTappable(reportCard, result) {
-    if (reportCard.isActionOpenDashboard() && !_.isNil(result) && !result.hasErrorMsg) result.clickable = true;
+    if (reportCard.isActionOpenDashboard() && !_.isNil(result)) result.clickable = !result.hasErrorMsg;
 }
 
 function getReportsCards(dashboardUUID, context) {
