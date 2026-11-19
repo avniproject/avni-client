@@ -25,7 +25,13 @@ function getDashboardCache(service, dashboardUUID) {
 }
 
 function getDashboardFiltersHash(dashboard) {
-    const str = JSON.stringify(dashboard.filters.filter(x => !x.voided).map((x) => x.filterConfig));
+    const filterConfigs = dashboard.filters.filter(x => !x.voided).map((x) => x.filterConfig);
+    let str = JSON.stringify(filterConfigs);
+    // An older build stored the filter settings, preset keys included, under a hash without this marker. Adding it resets each
+    // dashboard with a preset once, so choices and card counts saved before the upgrade are not carried over.
+    if (filterConfigs.some((config) => _.includes(config, "presetSubjectTypeUUID"))) {
+        str += "|subject-type-preset";
+    }
     return new Hashes.MD5().hex(str);
 }
 
@@ -122,7 +128,9 @@ class CustomDashboardCacheService extends BaseService {
             General.logDebug("CustomDashboardCacheService", "Setting filter value", dashboardFilterConfig.toDisplayText());
 
             if (inputDataType === DashboardFilterConfig.dataTypes.formMetaData) {
-                if(!selectedFilterValue.isEmpty()) {
+                // A value that is just the preset is the filter's default, so it is not saved, as an empty one is not.
+                const isPreset = selectedFilterValue.isPreset(dashboardFilterConfig.presetSubjectType, dashboardFilterConfig.presetProgram);
+                if(!selectedFilterValue.isEmpty() && !isPreset) {
                     serialisedSelectedValues[filterUuid] = {
                         subjectTypes: selectedFilterValue.subjectTypes.map(x => x.uuid),
                         programs: selectedFilterValue.programs.map(x => x.uuid),

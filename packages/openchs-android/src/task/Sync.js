@@ -44,6 +44,11 @@ class Sync extends BaseTask {
                 return false;
             }
 
+            if (await globalContext.beanRegistry.getService("clinicSpokeService").isInCamp()) {
+                General.logInfo("Sync", "Skipping auto-sync since this phone is in a clinic sharing camp");
+                return false;
+            }
+
             if (!this.wasLastCompletedSyncDoneMoreThanHalfAnHourAgo(globalContext)) {
                 General.logInfo("Sync", 'Skipping auto-sync since we had recently synced within the last half an hour');
                 return false;

@@ -21,7 +21,7 @@ class AvniError {
                 userMessage: "Update the app to continue fast sync or click on 'perform slow sync'/तेज़ सिंक जारी रखने के लिए ऐप को अपडेट करें, या 'धीमा सिंक करें' पर क्लिक करें।"
             },
             {
-                regex: /No space left on device/i,
+                regex: /No space left on device|database or disk is full/i,
                 userMessage: "No space left on your device. Clear some storage to proceed further."
             }
         ];

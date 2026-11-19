@@ -202,6 +202,12 @@ class MyDashboardActions {
         };
     }
 
+    // Counts only: a list the user has open stays as it is while records arrive from another phone.
+    static onRecount(state, action, context) {
+        const {visits} = MyDashboardActions.onLoad(state, action, context);
+        return {...state, visits};
+    }
+
     static commonIndividuals = (otherFilteredIndividuals, customFilteredIndividualsUUIDs, isTotal = false) => {
         const getIndividualUUID = (indInfo) => isTotal ? indInfo.uuid : indInfo.individual.uuid;
         return ((_.isNil(customFilteredIndividualsUUIDs) || _.isEmpty(otherFilteredIndividuals)) ?
@@ -585,6 +591,7 @@ const MyDashboardPrefix = "MyD";
 
 const MyDashboardActionNames = {
     ON_LOAD: `${MyDashboardPrefix}.ON_LOAD`,
+    ON_RECOUNT: `${MyDashboardPrefix}.ON_RECOUNT`,
     ON_LIST_LOAD: `${MyDashboardPrefix}.ON_LIST_LOAD`,
     RESET_LIST: `${MyDashboardPrefix}.RESET_LIST`,
     ON_DATE: `${MyDashboardPrefix}.ON_DATE`,
@@ -595,6 +602,7 @@ const MyDashboardActionNames = {
 const MyDashboardActionsMap = new Map([
     [MyDashboardActionNames.ON_DATE, MyDashboardActions.onDate],
     [MyDashboardActionNames.ON_LOAD, MyDashboardActions.onLoad],
+    [MyDashboardActionNames.ON_RECOUNT, MyDashboardActions.onRecount],
     [MyDashboardActionNames.ON_LIST_LOAD, MyDashboardActions.onListLoad],
     [MyDashboardActionNames.RESET_LIST, MyDashboardActions.resetList],
     [MyDashboardActionNames.APPLY_FILTERS, MyDashboardActions.assignFilters],

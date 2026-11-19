@@ -1,4 +1,4 @@
-import {ClinicHubJoin, JOIN_TIMEOUT_MS, JoinError} from "../../../src/framework/clinicsharing/ClinicHubJoin";
+import {ClinicHubJoin, HOTSPOT_START_TIMEOUT_MS, JOIN_TIMEOUT_MS, JoinError} from "../../../src/framework/clinicsharing/ClinicHubJoin";
 import {encodeJoinPayload, JoinPayloadError} from "../../../src/framework/clinicsharing/ClinicJoinPayload";
 
 const KEY = "q83vEjRWeJ-rze8SNFZ4kKvN7xI0VniQq83vEjRWeJA";
@@ -6,7 +6,7 @@ const HUB = {hubId: "5f0c6a8e-1d2b-4c3a-9e8f-7a6b5c4d3e2f", epoch: "e1b2c3d4-000
 const NETWORK = {ssid: "AndroidShare_4821", passphrase: "x7k2m9q4w1e8"};
 const QR = encodeJoinPayload({...NETWORK, ...HUB});
 
-const setUp = ({level = 34, clock = {t: 0}} = {}) => {
+const setUp = ({level = 34} = {}) => {
     const lost = [];
     const wifi = {
         canStartHub: jest.fn(() => level >= 29),
@@ -14,33 +14,27 @@ const setUp = ({level = 34, clock = {t: 0}} = {}) => {
         apiLevel: jest.fn(() => level),
         startHotspot: jest.fn(() => Promise.resolve(NETWORK)),
         stopHotspot: jest.fn(() => Promise.resolve(true)),
-        joinNetwork: jest.fn(() => Promise.resolve({ssid: NETWORK.ssid, interfaceName: "wlan0"})),
+        joinNetwork: jest.fn(() => Promise.resolve({ssid: NETWORK.ssid, gateway: "192.168.49.1"})),
         currentSsid: jest.fn(() => Promise.resolve(NETWORK.ssid)),
         wifiConnected: jest.fn(() => Promise.resolve(true)),
+        wifiEnabled: jest.fn(() => Promise.resolve(true)),
+        wifiGateway: jest.fn(() => Promise.resolve("192.168.43.1")),
         leaveNetwork: jest.fn(() => Promise.resolve(true)),
         onNetworkLost: jest.fn((listener) => { lost.push(listener); return () => lost.splice(lost.indexOf(listener), 1); }),
     };
-    const discovery = {
-        publishHub: jest.fn(() => Promise.resolve("Avni hub 5f0c6a8e")),
-        unpublishHub: jest.fn(() => Promise.resolve()),
-        findHub: jest.fn(() => Promise.resolve({host: "192.168.49.1", port: 7373})),
-    };
     const netInfoListeners = [];
     const netInfo = {addEventListener: jest.fn((listener) => { netInfoListeners.push(listener); return () => {}; })};
-    const join = new ClinicHubJoin({wifi, discovery, netInfo, now: () => clock.t});
-    return {join, wifi, discovery, lost, netInfoListeners, clock};
+    const join = new ClinicHubJoin({wifi, netInfo});
+    return {join, wifi, lost, netInfoListeners};
 };
 
 // Lets every promise chain started by a listener run to its end.
 const flush = () => new Promise((resolve) => setImmediate(resolve));
-const hubNotFound = () => Promise.reject(Object.assign(new Error("none"), {code: "HUB_NOT_FOUND"}));
 
 describe("ClinicHubJoin on the hub", () => {
-    it("raises the hotspot, announces the hub, and hands back what the QR code shows", async () => {
-        const {join, discovery} = setUp();
-        const started = await join.startHubNetwork({...HUB, port: 7373});
-        expect(started).toEqual({...NETWORK, qrValue: QR});
-        expect(discovery.publishHub).toHaveBeenCalledWith({hubId: HUB.hubId, port: 7373});
+    it("raises the hotspot and hands back what the QR code shows, without waiting on anything else", async () => {
+        const {join} = setUp();
+        await expect(join.startHubNetwork(HUB)).resolves.toEqual({...NETWORK, qrValue: QR});
     });
 
     it("refuses below Android 10 without touching Wi-Fi", async () => {
@@ -49,42 +43,64 @@ describe("ClinicHubJoin on the hub", () => {
         expect(wifi.startHotspot).not.toHaveBeenCalled();
     });
 
-    it("stops the hotspot again when the hub cannot be announced", async () => {
-        const {join, wifi, discovery} = setUp();
-        discovery.publishHub.mockReturnValue(Promise.reject(new Error("NSD failed")));
-        await expect(join.startHubNetwork(HUB)).rejects.toThrow("NSD failed");
-        expect(wifi.stopHotspot).toHaveBeenCalled();
+    it.each([
+        ["E_HOTSPOT", JoinError.hotspotFailed],
+        ["E_LOCATION_OFF", JoinError.locationOff],
+        ["E_PERMISSION", JoinError.hotspotNotAllowed],
+    ])("says why the hotspot did not start when Android refuses with %s", async (nativeCode, joinCode) => {
+        const {join, wifi} = setUp();
+        wifi.startHotspot.mockReturnValue(Promise.reject(Object.assign(new Error("The hotspot could not start: generic"), {code: nativeCode})));
+        await expect(join.startHubNetwork(HUB)).rejects.toMatchObject({code: joinCode});
     });
 
-    it("on stop, withdraws the announcement and the hotspot", async () => {
-        const {join, wifi, discovery} = setUp();
+    it("passes on a hotspot failure it has no words for", async () => {
+        const {join, wifi} = setUp();
+        wifi.startHotspot.mockReturnValue(Promise.reject(Object.assign(new Error("The hub was stopped before its hotspot started"), {code: "E_CANCELLED"})));
+        await expect(join.startHubNetwork(HUB)).rejects.toMatchObject({code: "E_CANCELLED"});
+    });
+
+    it("gives up when Android never answers the hotspot start, stops the hotspot, and says the hub's Wi-Fi could not start", async () => {
+        jest.useFakeTimers();
+        try {
+            const {join, wifi} = setUp();
+            wifi.startHotspot.mockReturnValue(new Promise(() => {}));
+            const start = join.startHubNetwork(HUB);
+            const outcome = expect(start).rejects.toMatchObject({code: JoinError.hotspotFailed});
+            jest.advanceTimersByTime(HOTSPOT_START_TIMEOUT_MS);
+            await outcome;
+            expect(wifi.stopHotspot).toHaveBeenCalled();
+        } finally {
+            jest.useRealTimers();
+        }
+    });
+
+    it("on stop, stops the hotspot", async () => {
+        const {join, wifi} = setUp();
         await join.startHubNetwork(HUB);
         await join.stopHubNetwork();
-        expect(discovery.unpublishHub).toHaveBeenCalledWith("Avni hub 5f0c6a8e");
         expect(wifi.stopHotspot).toHaveBeenCalled();
     });
 });
 
 describe("ClinicHubJoin on a phone", () => {
-    it("on Android 10 or later, joins the hotspot from the code and finds the hub on it", async () => {
-        const {join, wifi, discovery} = setUp({level: 34});
+    it("on Android 10 or later, joins the hotspot from the code and connects to its gateway, which is the hub", async () => {
+        const {join, wifi} = setUp({level: 34});
         await expect(join.joinHub(QR)).resolves.toEqual({host: "192.168.49.1", port: 7373, ...HUB, ssid: NETWORK.ssid});
         expect(wifi.joinNetwork).toHaveBeenCalledWith(NETWORK.ssid, NETWORK.passphrase, JOIN_TIMEOUT_MS);
-        expect(discovery.findHub).toHaveBeenCalledWith(HUB.hubId, {timeoutMs: JOIN_TIMEOUT_MS, networkInterface: "wlan0"});
     });
 
-    it("keeps the whole join inside 30 seconds: a slow join leaves less time to find the hub", async () => {
-        const clock = {t: 0};
-        const {join, wifi, discovery} = setUp({level: 34, clock});
-        wifi.joinNetwork.mockImplementation(() => { clock.t = 22000; return Promise.resolve({ssid: NETWORK.ssid, interfaceName: "wlan0"}); });
-        await join.joinHub(QR);
-        expect(discovery.findHub).toHaveBeenCalledWith(HUB.hubId, {timeoutMs: 8000, networkInterface: "wlan0"});
+    it.each([[34], [28]])("on API %i, says Wi-Fi is off instead of trying to join, as Android would refuse without saying why", async (level) => {
+        const {join, wifi} = setUp({level});
+        wifi.wifiEnabled.mockReturnValue(Promise.resolve(false));
+        await expect(join.joinHub(QR)).rejects.toMatchObject({code: JoinError.wifiOff});
+        expect(wifi.joinNetwork).not.toHaveBeenCalled();
+        expect(wifi.currentSsid).not.toHaveBeenCalled();
     });
 
-    it("does not pass the interface below Android 13, where the scan cannot choose one", async () => {
-        const {join, discovery} = setUp({level: 31});
-        await join.joinHub(QR);
-        expect(discovery.findHub).toHaveBeenCalledWith(HUB.hubId, {timeoutMs: JOIN_TIMEOUT_MS, networkInterface: undefined});
+    it("still tries to join when Android does not answer whether Wi-Fi is on", async () => {
+        const {join, wifi} = setUp();
+        wifi.wifiEnabled.mockReturnValue(Promise.reject(new Error("no answer")));
+        await expect(join.joinHub(QR)).resolves.toMatchObject({host: "192.168.49.1"});
     });
 
     it("says why a code is no good", async () => {
@@ -99,17 +115,24 @@ describe("ClinicHubJoin on a phone", () => {
         await expect(join.joinHub(QR)).rejects.toMatchObject({code: JoinError.joinFailed});
     });
 
-    it("says when the hub did not answer", async () => {
-        const {join, discovery} = setUp();
-        discovery.findHub.mockReturnValue(Promise.reject(Object.assign(new Error("none"), {code: "HUB_NOT_FOUND"})));
+    it("says the hub was not found when Android gives no gateway, and leaves the hub's network so the phone gets its usual Wi-Fi back", async () => {
+        const {join, wifi} = setUp({level: 34});
+        wifi.joinNetwork.mockReturnValue(Promise.resolve({ssid: NETWORK.ssid, gateway: null}));
         await expect(join.joinHub(QR)).rejects.toMatchObject({code: JoinError.hubNotFound});
+        expect(wifi.leaveNetwork).toHaveBeenCalled();
     });
 
-    it("below Android 10, checks the phone is already on the hub's network, then finds the hub", async () => {
-        const {join, wifi, discovery} = setUp({level: 28});
-        await expect(join.joinHub(QR)).resolves.toMatchObject({host: "192.168.49.1"});
+    it("below Android 10, checks the phone is already on the hub's network, then connects to that network's gateway", async () => {
+        const {join, wifi} = setUp({level: 28});
+        await expect(join.joinHub(QR)).resolves.toEqual({host: "192.168.43.1", port: 7373, ...HUB, ssid: NETWORK.ssid});
         expect(wifi.joinNetwork).not.toHaveBeenCalled();
-        expect(discovery.findHub).toHaveBeenCalledWith(HUB.hubId, {timeoutMs: JOIN_TIMEOUT_MS, networkInterface: undefined});
+    });
+
+    it("below Android 10, never asks for the gateway of the wrong network", async () => {
+        const {join, wifi} = setUp({level: 28});
+        wifi.currentSsid.mockReturnValue(Promise.resolve("OfficeWifi"));
+        await expect(join.joinHub(QR)).rejects.toMatchObject({code: JoinError.wrongNetwork});
+        expect(wifi.wifiGateway).not.toHaveBeenCalled();
     });
 
     it("below Android 10, says the phone is on the wrong network, naming both", async () => {
@@ -145,16 +168,15 @@ describe("ClinicHubJoin on a phone", () => {
         await expect(join.joinHub(QR)).resolves.toMatchObject({host: "192.168.49.1"});
     });
 
-    it("leaves the hub's network again when the hub does not answer, so the phone gets its usual Wi-Fi back", async () => {
-        const {join, wifi, discovery} = setUp({level: 34});
-        discovery.findHub.mockReturnValue(hubNotFound());
+    it("below Android 10, says the hub was not found when Android refuses to give the gateway", async () => {
+        const {join, wifi} = setUp({level: 28});
+        wifi.wifiGateway.mockReturnValue(Promise.reject(Object.assign(new Error("denied"), {code: "E_PERMISSION"})));
         await expect(join.joinHub(QR)).rejects.toMatchObject({code: JoinError.hubNotFound});
-        expect(wifi.leaveNetwork).toHaveBeenCalled();
     });
 
-    it("below Android 10, never leaves a network the person joined by hand", async () => {
-        const {join, wifi, discovery} = setUp({level: 28});
-        discovery.findHub.mockReturnValue(hubNotFound());
+    it("below Android 10, says the hub was not found when Android gives no gateway, and never leaves a network the person joined by hand", async () => {
+        const {join, wifi} = setUp({level: 28});
+        wifi.wifiGateway.mockReturnValue(Promise.resolve(null));
         await expect(join.joinHub(QR)).rejects.toMatchObject({code: JoinError.hubNotFound});
         expect(wifi.leaveNetwork).not.toHaveBeenCalled();
     });

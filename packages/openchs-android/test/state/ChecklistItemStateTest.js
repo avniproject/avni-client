@@ -1,17 +1,18 @@
 import ChecklistItemState from "../../src/state/ChecklistItemState";
 import Wizard from "../../src/state/Wizard";
-import {ChecklistItem} from "avni-models";
+import {AbstractEncounter, ChecklistItem} from "avni-models";
 import {assert} from "chai";
 
 // ChecklistItem.validate() in openchs-models returns null, unlike other entities which
 // return a ValidationResult array. The state must normalize it, or the Next-merge spread crashes.
-function createState() {
+function createState(wizard = new Wizard(1)) {
     const formElementGroup = {
         formElementIds: [],
         validate: () => [],
     };
     const checklistItem = ChecklistItem.create({checklist: {}, detail: {}});
-    return new ChecklistItemState(formElementGroup, new Wizard(1), true, checklistItem, []);
+    checklistItem.completionDate = new Date();
+    return new ChecklistItemState(formElementGroup, wizard, true, checklistItem, []);
 }
 
 const contextStub = {
@@ -19,9 +20,24 @@ const contextStub = {
 };
 
 describe("ChecklistItemState", () => {
-    it("validateEntity returns an empty array when the model validate returns null", () => {
+    it("validateEntity passes the completion date when the model validate returns null", () => {
         const state = createState();
-        assert.deepEqual(state.validateEntity(), []);
+        assert.deepEqual(state.validateEntity().map(({success, formIdentifier}) => ({success, formIdentifier})),
+            [{success: true, formIdentifier: AbstractEncounter.fieldKeys.COMPLETION_DATE}]);
+    });
+
+    it("blocks next when the completion date is cleared", () => {
+        const state = createState();
+        state.checklistItem.completionDate = null;
+        state._handleNextInternal1(contextStub);
+        assert.isTrue(state.anyFailedResultForCurrentFEG());
+    });
+
+    it("blocks next on the first visible page when the first group is hidden", () => {
+        const state = createState(new Wizard(3, 2, 2));
+        state.checklistItem.completionDate = null;
+        state._handleNextInternal1(contextStub);
+        assert.isTrue(state.anyFailedResultForCurrentFEG());
     });
 
     it("merges validation results on next without crashing", () => {

@@ -1,5 +1,5 @@
 import _ from "lodash";
-import CustomDashboardService from "../../service/customDashboard/CustomDashboardService";
+import CustomDashboardService, {CustomDashboardType, isDashboardAvailableToUser} from "../../service/customDashboard/CustomDashboardService";
 import DashboardSectionCardMappingService from "../../service/customDashboard/DashboardSectionCardMappingService";
 import EntityService from "../../service/EntityService";
 import {ReportCard, Encounter, ProgramEncounter, ReportCardResult, Individual} from "openchs-models";
@@ -11,7 +11,7 @@ import CustomDashboardCacheService from "../../service/CustomDashboardCacheServi
 import UserInfoService from "../../service/UserInfoService";
 import Colors from "../../views/primitives/Colors";
 
-function findScheduledEncounters(enrolmentOrIndividual, encounterType) {
+export function findScheduledEncounters(enrolmentOrIndividual, encounterType) {
     return _.filter(enrolmentOrIndividual.encounters, enc =>
         !enc.voided && enc.encounterType.uuid === encounterType.uuid &&
         !_.isNil(enc.earliestVisitDateTime) && _.isNil(enc.encounterDateTime) && _.isNil(enc.cancelDateTime));
@@ -65,6 +65,13 @@ function getDoVisitFilteredCount(reportCard, result, countResult) {
     return filteredCount;
 }
 
+// A card with the Open dashboard action opens its dashboard whatever its query returns, so its number is tappable
+// unless the result is an error. `clickable` is transient, outside the ReportCardResult and NestedReportCardResult
+// schemas, so setting it on a result that is later saved to the cache stores nothing.
+function makeOpenDashboardResultTappable(reportCard, result) {
+    if (reportCard.isActionOpenDashboard() && !_.isNil(result) && !result.hasErrorMsg) result.clickable = true;
+}
+
 function getReportsCards(dashboardUUID, context) {
     return context.get(DashboardSectionCardMappingService).getAllCardsForDashboard(dashboardUUID);
 }
@@ -93,8 +100,10 @@ function loadCurrentDashboardInfo(context, state) {
     return state;
 }
 
-function getViewName(standardReportCardType) {
+function getViewName(standardReportCardType, opensApprovalList) {
     switch (true) {
+        case opensApprovalList :
+            return 'ApprovalListingView';
         case _.isNil(standardReportCardType) :
             return 'IndividualSearchResultPaginatedView';
         case standardReportCardType.isApprovalType() :
@@ -110,6 +119,48 @@ function getViewName(standardReportCardType) {
     }
 }
 
+// Names the screen that the shared dashboard state belongs to: the kind of dashboard it was asked for
+// and, when it was asked for one dashboard on its own, which one. A missing type counts as None.
+export function dashboardOwnerKey(customDashboardType, dashboardUUID) {
+    return `${_.defaultTo(customDashboardType, CustomDashboardType.None)}|${_.defaultTo(dashboardUUID, '')}`;
+}
+
+// Whether a dashboard screen loads its own dashboard again when a route comes into focus: only when the route is its
+// own and another screen has taken the shared dashboard state. A screen that does not know its own route never does.
+// Opened dashboards all share one path, so a screen that shows one dashboard names it, and a route that names
+// another dashboard is not its own. Otherwise two opened dashboards on the stack reload each other for ever.
+export function sceneFocusNeedsReload(focusedRoute, ownRoutePath, currentOwnerKey, ownOwnerKey, ownDashboardUUID) {
+    if (_.isNil(ownRoutePath) || _.get(focusedRoute, 'path') !== ownRoutePath) return false;
+    const focusedDashboardUUID = _.get(focusedRoute, 'queryParams.dashboardUUID');
+    if (!_.isUndefined(ownDashboardUUID) && !_.isUndefined(focusedDashboardUUID) && focusedDashboardUUID !== ownDashboardUUID) return false;
+    return currentOwnerKey !== ownOwnerKey;
+}
+
+// Whether a dashboard screen shows the shared dashboard state: when it is the screen's own, or nobody's yet.
+export function ownsStoreState(storeOwnerKey, ownOwnerKey) {
+    return _.isNil(storeOwnerKey) || storeOwnerKey === ownOwnerKey;
+}
+
+// One chosen dashboard on its own when the screen names one, otherwise the dashboards of its type.
+// A chosen dashboard that is missing or voided loads nothing, and never falls back to the type's list.
+function loadDashboards(dashboardService, action) {
+    if (_.isEmpty(action.dashboardUUID)) {
+        return dashboardService.getDashboards(action.customDashboardType);
+    }
+    const dashboard = dashboardService.findByUUID(action.dashboardUUID);
+    if (_.isNil(dashboard) || dashboard.voided) {
+        General.logDebug('CustomDashboardActions', `onLoad - requested dashboard ${action.dashboardUUID} is ${_.isNil(dashboard) ? 'missing' : 'voided'}, loading nothing`);
+        return [];
+    }
+    return [dashboard];
+}
+
+// The tab to restore when it is in the loaded list, otherwise the first dashboard.
+function chooseActiveDashboardUUID(dashboards, restoreUUID) {
+    const restored = _.isNil(restoreUUID) ? null : _.find(dashboards, dashboard => _.get(dashboard, 'uuid') === restoreUUID);
+    return _.get(restored || _.head(dashboards), 'uuid');
+}
+
 class CustomDashboardActions {
     static getInitialState(context) {
         return {
@@ -120,7 +171,8 @@ class CustomDashboardActions {
             filtersPresent: false,
             hasFiltersSet: false,
             activeDashboardUUID: null,
-            customDashboardFilters: []
+            customDashboardFilters: [],
+            ownerKey: null
         };
     }
 
@@ -129,10 +181,11 @@ class CustomDashboardActions {
         const startTime = new Date();
         General.logDebug('CustomDashboardActions', `onLoad started - customDashboardType: ${action.customDashboardType}, currentActiveDashboard: ${state.activeDashboardUUID}`);
         let newState = {...state};
+        newState.ownerKey = dashboardOwnerKey(action.customDashboardType, action.dashboardUUID);
         const dashboardService = context.get(CustomDashboardService);
-        const dashboards = dashboardService.getDashboards(action.customDashboardType);
+        const dashboards = loadDashboards(dashboardService, action);
         newState.dashboards = dashboards;
-        newState.activeDashboardUUID = _.get(_.head(dashboards), 'uuid');
+        newState.activeDashboardUUID = chooseActiveDashboardUUID(dashboards, action.activeDashboardUUID);
         if (state.dashboardUUID !== newState.activeDashboardUUID) {
             General.logDebug('CustomDashboardActions', `onLoad - Clearing cardToCountResultMap due to dashboard change: ${state.dashboardUUID} -> ${newState.activeDashboardUUID}`);
             newState.cardToCountResultMap = {};
@@ -181,6 +234,20 @@ class CustomDashboardActions {
             const countResult = state.cardToCountResultMap[itemKey];
             const displayName = (countResult && countResult.cardName) || reportCard.name;
             setTimeout(() => action.onFullyCustomCardPress(reportCard, ruleInputArray, displayName), 0);
+        } else if (reportCard.isActionOpenDashboard()) {
+            // Opens another dashboard, so no card result is computed and nothing here reaches the subject dashboard.
+            const targetDashboardUUID = reportCard.actionDetailDashboardUUID;
+            const customDashboardService = context.get(CustomDashboardService);
+            // A card with no target counts as not visible. A nil is checked on its own, so it can never match a dashboard.
+            const targetVisible = isDashboardAvailableToUser(customDashboardService, targetDashboardUUID);
+            if (targetVisible) {
+                General.logDebug('CustomDashboardActions', `onCardPress - Open dashboard card "${reportCard.name}": opening ${targetDashboardUUID} from ${state.activeDashboardUUID}`);
+                customDashboardService.carryFiltersOver(state.activeDashboardUUID, targetDashboardUUID);
+                setTimeout(() => action.onOpenDashboard(targetDashboardUUID), 0);
+            } else {
+                General.logDebug('CustomDashboardActions', `onCardPress - Open dashboard card "${reportCard.name}": target ${targetDashboardUUID} is not available to this user`);
+                setTimeout(() => action.onDashboardNotAvailable(), 0);
+            }
         } else if (reportCard.isStandardTaskType()) {
             General.logDebug('CustomDashboardActions', `onCardPress - Navigating to task lists for ${reportCard.name}, took ${new Date() - cardPressStartTime} ms`);
             action.goToTaskLists(reportCard.standardReportCardType.getTaskTypeType(), ruleInputArray);
@@ -190,7 +257,10 @@ class CustomDashboardActions {
             General.logDebug('CustomDashboardActions', `onCardPress - getReportCardResult for ${reportCard.name} took ${new Date() - resultStartTime} ms`);
 
             const standardReportCardType = reportCard.standardReportCardType;
-            const viewName = getViewName(standardReportCardType);
+            // An Approve or Reject card with no state falls back to the ordinary list.
+            const approvalStatus = reportCard.getApprovalStatusForCard();
+            const opensApprovalList = standardReportCardType ? standardReportCardType.isApprovalType() : !_.isNil(approvalStatus);
+            const viewName = getViewName(standardReportCardType, opensApprovalList);
             const countResult = state.cardToCountResultMap[itemKey];
             const displayName = (countResult && countResult.cardName) || reportCard.name;
             const isArrayLike = isArrayLikeResult(result);
@@ -224,11 +294,11 @@ class CustomDashboardActions {
                     } else {
                         General.logDebug('CustomDashboardActions', `onCardPress - DoVisit zero results: navigating to IndividualListView`);
                         setTimeout(() => action.onCustomRecordCardResults(result, status, viewName,
-                            standardReportCardType && standardReportCardType.getApprovalStatusForType(), ruleInputArray, reportCard, displayName), 0);
+                            approvalStatus, ruleInputArray, reportCard, displayName), 0);
                     }
                 }
             } else if (result && (isArrayLike || isChecklistCard)) {
-                const isApprovalCard = standardReportCardType && standardReportCardType.isApprovalType();
+                const isApprovalCard = opensApprovalList;
                 // Deep-link only to something that really is a subject. Rows here can be Comments,
                 // approval entities or org-authored query output that merely carry a uuid, and
                 // SubjectDashboardView crashes on a non-subject uuid. Anything else opens the list.
@@ -241,7 +311,7 @@ class CustomDashboardActions {
                 } else {
                     General.logDebug('CustomDashboardActions', `onCardPress - Setting timeout for navigation to ${viewName}`);
                     setTimeout(() => action.onCustomRecordCardResults(result, status, viewName,
-                        standardReportCardType && standardReportCardType.getApprovalStatusForType(), ruleInputArray, reportCard, displayName), 0);
+                        approvalStatus, ruleInputArray, reportCard, displayName), 0);
                 }
             } else {
                 General.logDebug('CustomDashboardActions', `onCardPress - result not array-like, dismissing loader`);
@@ -320,6 +390,7 @@ class CustomDashboardActions {
 
                 if (reportCardResults && reportCardResults.length === rcm.card.countOfCards) {
                     _.forEach(reportCardResults, (reportCardResult, index) => {
+                        makeOpenDashboardResultTappable(rcm.card, reportCardResult);
                         newState.cardToCountResultMap[rcm.card.getCardId(index)] = reportCardResult;
                     });
                 } else if (hasError) {
@@ -339,6 +410,7 @@ class CustomDashboardActions {
                     customDashboardCacheService.updateReportCardResult(state.activeDashboardUUID, rcm.card, reportCardResult);
                     pendingSingleResults.push({card: rcm.card, result: reportCardResult});
                 }
+                makeOpenDashboardResultTappable(rcm.card, reportCardResult);
                 newState.cardToCountResultMap[rcm.card.getCardId()] = reportCardResult;
             }
             General.logDebug('CustomDashboardActions', `${rcm.card.name} took ${new Date() - start} ms`);

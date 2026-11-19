@@ -27,3 +27,26 @@ describe('SyncActions content-download warning latch', () => {
         expect(state.contentDownloadWarning).toBe(false);
     });
 });
+
+describe('SyncActions reset-waiting latch', () => {
+    it('starts false', () => {
+        expect(SyncActions.getInitialState().resetWaitingWarning).toBe(false);
+    });
+
+    it('latches true when the sync says a reset is waiting for uploads, and stays latched to the end of the sync', () => {
+        let state = SyncActions.onMessageCallback(SyncActions.getInitialState(), {message: 'resetWaitingOnUploads'});
+        state = SyncActions.onMessageCallback(state, {message: 'downloadForms'});
+        expect(state.resetWaitingWarning).toBe(true);
+    });
+
+    it('does not latch for other messages', () => {
+        const state = SyncActions.onMessageCallback(SyncActions.getInitialState(), {message: 'contentNotDownloaded'});
+        expect(state.resetWaitingWarning).toBe(false);
+    });
+
+    it('resets at the start of the next sync (preSync)', () => {
+        let state = SyncActions.onMessageCallback(SyncActions.getInitialState(), {message: 'resetWaitingOnUploads'});
+        state = SyncActions.preSync(state);
+        expect(state.resetWaitingWarning).toBe(false);
+    });
+});

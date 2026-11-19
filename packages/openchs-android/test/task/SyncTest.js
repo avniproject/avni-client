@@ -2,7 +2,7 @@ import {expect} from "chai";
 
 const MOCK_LOCK_ID = 'test-lock-id';
 
-const createSyncModule = ({syncImpl, connectionInfoImpl, migrationPending = false, migrationServiceAvailable = true} = {}) => {
+const createSyncModule = ({syncImpl, connectionInfoImpl, migrationPending = false, migrationServiceAvailable = true, inCamp = false} = {}) => {
     jest.resetModules();
 
     const mockDispatch = jest.fn();
@@ -24,6 +24,7 @@ const createSyncModule = ({syncImpl, connectionInfoImpl, migrationPending = fals
     const mockSqliteMigrationService = {
         isMigrationPending: jest.fn().mockResolvedValue(migrationPending)
     };
+    const mockClinicSpokeService = {isInCamp: jest.fn().mockResolvedValue(inCamp)};
 
     jest.doMock('../../src/GlobalContext', () => ({
         __esModule: true,
@@ -34,6 +35,7 @@ const createSyncModule = ({syncImpl, connectionInfoImpl, migrationPending = fals
                     getService: jest.fn().mockImplementation((service) => {
                         if (service === 'sqliteMigrationService') return migrationServiceAvailable ? mockSqliteMigrationService : undefined;
                         if (service === 'syncService') return mockSyncService;
+                        if (service === 'clinicSpokeService') return mockClinicSpokeService;
                         if (service === 'syncTelemetryService') return mockSyncTelemetryService;
                         if (typeof service === 'function' && service.name === 'SettingsService') return mockSettingsService;
                         if (typeof service === 'function' && service.name === 'UserInfoService') return mockUserInfoService;
@@ -206,6 +208,17 @@ describe('SyncTest', () => {
 
             expect(mockSyncService.acquireLock.mock.calls.length).to.equal(1);
             expect(mockSyncService.sync.mock.calls.length).to.equal(1);
+        });
+
+        it('skips silently while the phone is in a clinic sharing camp — no lock, no sync', async () => {
+            const {Sync, mockSyncService, ErrorHandler} = createSyncModule({inCamp: true});
+
+            const result = await Sync.execute();
+
+            expect(result).to.equal(false);
+            expect(mockSyncService.acquireLock.mock.calls.length).to.equal(0);
+            expect(mockSyncService.sync.mock.calls.length).to.equal(0);
+            expect(ErrorHandler.postScheduledJobError.mock.calls.length).to.equal(0);
         });
 
         it('syncs as usual when the migration service is not registered', async () => {

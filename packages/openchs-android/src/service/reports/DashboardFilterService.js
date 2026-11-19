@@ -14,6 +14,7 @@ import {
 import {DashboardReportFilter} from "../../model/DashboardReportFilter";
 import _ from "lodash";
 import AddressLevelService from "../AddressLevelService";
+import FormMappingService from "../FormMappingService";
 import General from "../../utility/General";
 import {JSONStringify} from "../../utility/JsonStringify";
 import AddressFilterValue from "../../model/AddressFilterValue";
@@ -41,13 +42,36 @@ class DashboardFilterService extends BaseService {
         return filterConfigs;
     }
 
+    findLivePreset(uuid, schemaName) {
+        if (_.isEmpty(uuid)) return null;
+        const entity = this.findByUUID(uuid, schemaName);
+        return entity && entity.voided !== true ? entity : null;
+    }
+
+    // A program counts only while the preset subject type enrols into it, as the filter's program step lists the subject type's programs
+    // (ProgramService.getAllowedViewPrograms through FormMappingService.findProgramsForSubjectTypes). The user's rights are not asked:
+    // a preset stays in force for a user who may not view the program. The preset is read on every render, so this is one query
+    // for the one enrolment mapping, not a read of every form mapping.
+    presetProgramOf(presetSubjectType, presetProgramUUID) {
+        if (!presetSubjectType) return null;
+        const program = this.findLivePreset(presetProgramUUID, Program.schema.name);
+        if (!program) return null;
+        return this.getService(FormMappingService).isEnrolmentMapped(program, presetSubjectType) ? program : null;
+    }
+
     getDashboardFilterConfig(dashboardFilter) {
         const obj = JSON.parse(dashboardFilter.filterConfig);
         const filterConfig = new DashboardFilterConfig();
         filterConfig.widget = obj.widget;
         filterConfig.type = obj.type;
         filterConfig.subjectType = obj.subjectTypeUUID ? this.findByUUID(obj.subjectTypeUUID, SubjectType.schema.name) : null;
-        if (obj.type === CustomFilter.type.GroupSubject) {
+        filterConfig.presetSubjectType = null;
+        filterConfig.presetProgram = null;
+        if (obj.type === CustomFilter.type.SubjectType) {
+            // A preset that is missing or deleted on the phone is no preset; a program only counts with its subject type, and only while the subject type enrols into it.
+            filterConfig.presetSubjectType = this.findLivePreset(obj.presetSubjectTypeUUID, SubjectType.schema.name);
+            filterConfig.presetProgram = this.presetProgramOf(filterConfig.presetSubjectType, obj.presetProgramUUID);
+        } else if (obj.type === CustomFilter.type.GroupSubject) {
             filterConfig.groupSubjectTypeFilter = new GroupSubjectTypeFilter();
             filterConfig.groupSubjectTypeFilter.subjectType = obj.groupSubjectTypeFilter?.subjectTypeUUID ? 
                 this.findByUUID(obj.groupSubjectTypeFilter.subjectTypeUUID, SubjectType.schema.name) : null;

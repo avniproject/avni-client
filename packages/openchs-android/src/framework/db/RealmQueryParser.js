@@ -367,6 +367,10 @@ class Parser {
             // field IN {value1, value2, ...}  — Realm IN syntax
             if (opToken?.type === TOKEN_TYPES.IN) {
                 this.consume(); // consume IN
+                // field IN $N — the argument is an array of values
+                if (this.peek()?.type === TOKEN_TYPES.PARAMETER) {
+                    return {type: "IN", field, param: this.consume()};
+                }
                 this.consume(TOKEN_TYPES.LBRACE);
                 const values = [];
                 while (this.peek()?.type !== TOKEN_TYPES.RBRACE) {
@@ -487,8 +491,16 @@ class SqlGenerator {
             // Embedded list/object (Observation, Point, etc.) stored as JSON column on parent table.
             // e.g., "observations.valueJSON" → search within the parent's "observations" JSON text column.
             // Remaining path parts (e.g., "valueJSON") are ignored since the JSON is searched as text.
+            // A comparison needs them to test each list element, as Realm does (see visitComparison).
             if (targetSchema && EMBEDDED_SCHEMA_NAMES.has(targetSchema)) {
-                return {column: `${currentAlias}."${camelToSnake(propName)}"`, needsJoin: false};
+                const column = `${currentAlias}."${camelToSnake(propName)}"`;
+                if (propSchema.type !== "list") return {column, needsJoin: false};
+                const elementPath = parts.slice(i + 1);
+                if (elementPath[0].startsWith("@")) {
+                    return {column: this._embeddedListSize(fieldPath, column, elementPath), needsJoin: false};
+                }
+                this._assertStoredInElement(fieldPath, targetSchema, elementPath);
+                return {column, needsJoin: false, embeddedList: {column, jsonPath: `$.${elementPath.join(".")}`}};
             }
 
             // A path ending "<link>.uuid" looks like it could skip the JOIN and read the
@@ -549,6 +561,38 @@ class SqlGenerator {
         return camelToSnake(propName);
     }
 
+    _embeddedListSize(fieldPath, column, elementPath) {
+        if (elementPath.length !== 1 || !["@count", "@size"].includes(elementPath[0])) {
+            throw new UnsupportedRealmQueryError(fieldPath, "aggregate on an embedded list");
+        }
+        return `COALESCE(json_array_length(${column}), 0)`;
+    }
+
+    // An embedded element keeps its own fields, nested embedded objects, and only the uuid of a linked
+    // object, so a path past a link's uuid (e.g. concept.keyValues.key) can't match in SQL.
+    _assertStoredInElement(fieldPath, elementSchemaName, elementPath) {
+        let schemaName = elementSchemaName;
+        for (let j = 0; j < elementPath.length; j++) {
+            const properties = this.schemaMap.get(schemaName)?.properties;
+            if (_.isEmpty(properties)) return;
+            const propSchema = properties[elementPath[j]];
+            const rawType = normalizeRealmType(typeof propSchema === "object" ? propSchema.type : propSchema);
+            const type = typeof rawType === "string" && rawType.endsWith("[]") ? "list" : rawType;
+            const isLast = j === elementPath.length - 1;
+            if (propSchema === undefined || type === "list" || (type !== "object" && !isLast)) {
+                throw new UnsupportedRealmQueryError(fieldPath, "path not stored in an embedded list element");
+            }
+            if (type !== "object") return;
+            if (EMBEDDED_SCHEMA_NAMES.has(propSchema.objectType)) {
+                if (isLast) throw new UnsupportedRealmQueryError(fieldPath, "comparison with a whole embedded object");
+                schemaName = propSchema.objectType;
+                continue;
+            }
+            if (j + 2 === elementPath.length && elementPath[j + 1] === "uuid") return;
+            throw new UnsupportedRealmQueryError(fieldPath, "path past a linked object's uuid in an embedded list element");
+        }
+    }
+
     _findChildFkColumn(parentSchemaName, childSchemaName) {
         return childFkColumn(parentSchemaName, childSchemaName, this.schemaMap);
     }
@@ -581,8 +625,9 @@ class SqlGenerator {
     }
 
     visitComparison(node) {
-        const {column} = this.resolveField(node.field);
+        const {column, embeddedList} = this.resolveField(node.field);
         const op = node.op === "<>" ? "!=" : node.op;
+        if (embeddedList) return this._visitEmbeddedListComparison(embeddedList, op, node.value);
 
         if (node.value.type === TOKEN_TYPES.NULL) {
             return op === "=" ? `${column} IS NULL` : `${column} IS NOT NULL`;
@@ -590,6 +635,15 @@ class SqlGenerator {
 
         const valuePlaceholder = this.resolveValue(node.value);
         return `${column} ${op} ${valuePlaceholder}`;
+    }
+
+    // Realm matches a list path when any element matches; comparing the whole JSON column matches nothing.
+    _visitEmbeddedListComparison({column, jsonPath}, op, valueToken) {
+        const element = `json_extract(jobs.value, '${jsonPath}')`;
+        const condition = valueToken.type === TOKEN_TYPES.NULL
+            ? `${element} ${op === "=" ? "IS NULL" : "IS NOT NULL"}`
+            : `${element} ${op} ${this.resolveValue(valueToken)}`;
+        return `EXISTS (SELECT 1 FROM json_each(${column}) AS jobs WHERE ${condition})`;
     }
 
     visitStringOp(node) {
@@ -647,11 +701,27 @@ class SqlGenerator {
 
     visitIn(node) {
         const {column} = this.resolveField(node.field);
+        if (node.param) return this._visitInArrayParam(column, node.param.value);
         if (node.values.length === 0) {
             return "1=0"; // empty IN → always false
         }
         const placeholders = node.values.map(v => this.resolveValue(v)).join(", ");
         return `${column} IN (${placeholders})`;
+    }
+
+    // One JSON parameter instead of one per value: a catchment-wide list can exceed SQLite's bound-parameter limit.
+    _visitInArrayParam(column, idx) {
+        const values = this.args[idx];
+        if (!Array.isArray(values)) {
+            throw new Error(`IN $${idx} expects an array argument`);
+        }
+        // SQL IN never matches NULL; Realm does when the array holds one.
+        const present = values.filter(v => !_.isNil(v));
+        const matchesNull = present.length < values.length;
+        if (present.length === 0) return matchesNull ? `${column} IS NULL` : "1=0";
+        this.params.push(JSON.stringify(present.map(toBindValue)));
+        const inList = `${column} IN (SELECT value FROM json_each(?))`;
+        return matchesNull ? `(${inList} OR ${column} IS NULL)` : inList;
     }
 
 }
@@ -1777,5 +1847,5 @@ class RealmQueryParser {
     }
 }
 
-export {RealmQueryParser, UnsupportedRealmQueryError, camelToSnake, schemaNameToTableName, normalizeRealmType};
+export {RealmQueryParser, UnsupportedRealmQueryError, camelToSnake, schemaNameToTableName, normalizeRealmType, toBindValue};
 export default RealmQueryParser;

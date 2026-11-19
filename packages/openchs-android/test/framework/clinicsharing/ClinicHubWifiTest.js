@@ -3,10 +3,12 @@ import {DeviceEventEmitter, NativeModules} from "react-native";
 const native = {
     startHotspot: jest.fn(() => Promise.resolve({ssid: "AndroidShare_4821", passphrase: "x7k2m9q4w1e8"})),
     stopHotspot: jest.fn(() => Promise.resolve(true)),
-    joinNetwork: jest.fn(() => Promise.resolve({ssid: "AndroidShare_4821", interfaceName: "wlan0"})),
+    joinNetwork: jest.fn(() => Promise.resolve({ssid: "AndroidShare_4821", gateway: "192.168.49.1"})),
     leaveNetwork: jest.fn(() => Promise.resolve(true)),
     currentSsid: jest.fn(() => Promise.resolve("AndroidShare_4821")),
     wifiConnected: jest.fn(() => Promise.resolve(true)),
+    wifiGateway: jest.fn(() => Promise.resolve("192.168.43.1")),
+    wifiEnabled: jest.fn(() => Promise.resolve(true)),
     addListener: jest.fn(),
     removeListeners: jest.fn(),
 };
@@ -29,6 +31,8 @@ describe("ClinicHubWifi", () => {
         expect(native.joinNetwork).toHaveBeenCalledWith("AndroidShare_4821", "x7k2m9q4w1e8", 30000);
         await expect(ClinicHubWifi.currentSsid()).resolves.toBe("AndroidShare_4821");
         await expect(ClinicHubWifi.wifiConnected()).resolves.toBe(true);
+        await expect(ClinicHubWifi.wifiGateway()).resolves.toBe("192.168.43.1");
+        await expect(ClinicHubWifi.wifiEnabled()).resolves.toBe(true);
     });
 
     it("tells a listener when the joined network goes, until it unsubscribes", () => {

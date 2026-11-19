@@ -11,7 +11,12 @@ class GlificService extends BaseService {
 
     init() {
         this.settingsService = this.getService(SettingsService);
-        this.serverUrl = this.settingsService.getSettings().serverURL;
+    }
+
+    // Read when a call is made, not in init(): init() runs at launch on Realm, which may hold
+    // no Settings row, and nothing reruns it when the runtime moves to SQLite (#2196).
+    get serverUrl() {
+        return this.settingsService.getSettings().serverURL;
     }
 
     getAllMessagesForSubject(individualUUID) {

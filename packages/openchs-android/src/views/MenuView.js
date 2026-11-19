@@ -118,7 +118,15 @@ class MenuView extends AbstractComponent {
             })
     };
 
-    logout() {
+    // A camp keeps records only the hub and its phones hold until they leave it and sync with the server.
+    async blockedByCamp() {
+        if (!(await this.getService('clinicSpokeService').isInCamp())) return false;
+        Alert.alert(this.I18n.t('clinicSharing'), this.I18n.t('clinicCampBlocksLogout'));
+        return true;
+    }
+
+    async logout() {
+        if (await this.blockedByCamp()) return;
         Alert.alert(
             this.I18n.t("logoutConfirmationTitle"),
             this.I18n.t("logoutConfirmationMessage"),
@@ -141,7 +149,8 @@ class MenuView extends AbstractComponent {
             .then(() => CHSNavigator.navigateToLoginView(this, false));
     }
 
-    onDelete() {
+    async onDelete() {
+        if (await this.blockedByCamp()) return;
         Alert.alert(
             this.I18n.t('deleteSchemaNoticeTitle'),
             this.I18n.t('deleteSchemaConfirmationMessage'),
@@ -164,8 +173,15 @@ class MenuView extends AbstractComponent {
         return catchmentUploadBlockers({
             lastSyncCompleted: await LastSyncCompleted.didComplete(),
             hasUnsyncedTxData: this.getService(EntitySyncStatusService).getTotalEntitiesPending() !== 0,
-            hasPendingReset: !_.isEmpty(pendingResets)
+            hasPendingReset: !_.isEmpty(pendingResets),
+            hasRecordsFromOtherPhones: await this.hasRecordsFromOtherPhones()
         });
+    }
+
+    // Unread is not a pass: an error leaves the answer unknown, and the guard then blocks.
+    async hasRecordsFromOtherPhones() {
+        if (!this.getService(SyncService)._clinicSharingEnabled()) return false;
+        return this.getService('clinicHoldBackService').hasRecordsFromOtherPhones().catch(() => undefined);
     }
 
     async uploadCatchmentDatabase() {

@@ -6,6 +6,7 @@ import {BaseEntity, WorkItem} from 'avni-models';
 import CHSNavigator from "../../utility/CHSNavigator";
 import _ from "lodash";
 import AbhaService from "../../service/AbhaService";
+import {returnsToSource} from "../../utility/ReturnToSource";
 
 class Mixin {
     static getNextProps(view, popVerificationVew) {
@@ -16,6 +17,7 @@ class Mixin {
                     // ABDM M1: the patient is saved, so any ABHA audit record still on the phone goes again. Not awaited.
                     if (_.get(state, 'abha.enabledForUser')) view.getService(AbhaService).resendUnsentEvents();
                     const workLists = state.workListState.workLists;
+                    if (returnsToSource(workLists)) return CHSNavigator.navigateBackToSource(source);
                     const workItem = workLists.getCurrentWorkItem();
                     if (_.includes([WorkItem.type.ADD_MEMBER, WorkItem.type.HOUSEHOLD], workItem.type)) {
                         CHSNavigator.onSaveGoToProgramEnrolmentDashboardView(source, workItem.parameters.member.groupSubject.uuid, "newMemberAddedMsg")

@@ -2,11 +2,9 @@
 
 ## Overview
 
-Rules receive `params.db` which provides the same API whether the backend is Realm or SQLite. **No rule code changes are required.** The SQLite backend (`SqliteProxy`) implements Realm's full query contract.
+Rules receive `params.db` which provides the same API whether the backend is Realm or SQLite. Most rules run unchanged. A few query shapes do not: they show Error on SQLite, or give a different number. They are listed under [Not supported — rewrite the rule](#not-supported--rewrite-the-rule), and every live card that used one in Oct 2026 is listed in #2210.
 
 ## Supported Query Patterns
-
-All patterns used by existing rules work on both backends:
 
 ### Direct SQL Translation (Fast)
 
@@ -20,6 +18,7 @@ All patterns used by existing rules work on both backends:
 | Dot-notation (FK) | `.filtered('subjectType.name = $0', name)` | Generates SQL JOINs |
 | Deep dot paths | `.filtered('programEnrolment.individual.voided = false')` | Multi-level JOINs |
 | IN clause | `.filtered('uuid IN {"a", "b", "c"}')` | Translated to SQL IN |
+| IN with an array parameter | `.filtered('uuid IN $0', uuids)` | The array is bound as one JSON parameter, so any list size works. An empty array matches nothing |
 | Chained .filtered() | `.filtered(q1).filtered(q2)` | Combined with AND |
 | .sorted() | `.sorted('name')`, `.sorted('registrationDate', true)` | SQL ORDER BY |
 | .length | `db.objects('AddressLevel').length` | Row count |
@@ -27,20 +26,32 @@ All patterns used by existing rules work on both backends:
 
 ### JS Fallback (Functional, Slower)
 
-These patterns are recognised by the parser and routed to a JavaScript post-filter that runs after SQL hydration. They work correctly but are slower because the full result set is hydrated first.
+These patterns are recognised by the parser. When it cannot translate them to SQL, they are routed to a JavaScript post-filter that runs after SQL hydration. They work correctly but are slower because the full result set is hydrated first.
 
 | Pattern | Example | Performance Note |
 |---|---|---|
-| SUBQUERY | `.filtered('SUBQUERY(enrolments, $enrolment, ...).@count > 0')` | Hydrates all matching rows, filters in JS |
+| SUBQUERY | `.filtered('SUBQUERY(enrolments, $enrolment, ...).@count > 0')` | Most shapes translate to SQL `IN` / `EXISTS` / `json_each`; the rest hydrate all matching rows and filter in JS |
 | Nested SUBQUERY | `SUBQUERY($enrolment.encounters, $encounter, ...).@count > 0` | Same — works at any nesting depth |
 | TRUEPREDICATE DISTINCT | `.filtered('TRUEPREDICATE DISTINCT(field)')` | Post-hydration deduplication |
 | @count / @size | `.filtered('listProp.@count > 0')` | Collection size check in JS. Any comparison operator works (`=`, `==`, `!=`, `<>`, `<`, `>`, `<=`, `>=`). |
 | ANY | `.filtered('ANY listProp.field = value')` | Quantifier over list |
 | `limit(N)` | `.filtered('voided = false limit(50)')` | Inline result slicing applied after the other fallback filters |
 
-**Not supported — `@links.@count`.** The inverse-relationship count operator (`.filtered('@links.@count > 0')`) has no SQLite implementation. `JsFallbackFilterEvaluator` detects the pattern, logs a warning, and returns an empty result set. The only existing call site is `MetricsService.getDanglingCount`, which is dead code. If you need this in a rule, restructure the query as a forward-relationship `SUBQUERY(...).@count > 0` on the parent side, or use the SQL fast path described in [`RuleSqlMigrationGuide.md`](./RuleSqlMigrationGuide.md).
-
 When a rule's JS-fallback path is hot enough to matter, prefer the `params.db.exec*` SQL fast path documented in [`RuleSqlMigrationGuide.md`](./RuleSqlMigrationGuide.md) — the count + line-list pattern collapses minutes of hydration into milliseconds for count-only cards.
+
+### Not supported — rewrite the rule
+
+The JS fallback refuses a query it cannot evaluate (`UnsupportedRealmQueryError`), so the card shows Error rather than a wrong number. These shapes are rare in live rules, so they are rewritten rather than added to the platform.
+
+| Shape | Example | On SQLite | Rewrite |
+|---|---|---|---|
+| Aggregate | `encounters.@max.encounterDateTime`, `@min`, `@sum`, `@avg` | Error | Narrow the query without it, then pick the value in JS |
+| `ALL` / `NONE` | `ALL enrolments.voided == false` | Error | `SUBQUERY(… AND NOT <cond>).@count == 0` |
+| `@links` | `@links.@count > 0` | Error | A forward `SUBQUERY(...).@count > 0` on the parent side |
+| Count against count | `SUBQUERY(…).@count == SUBQUERY(…).@count` | Error | Ask the question as a single count, e.g. "every PNC lacks Hb" is `SUBQUERY(… AND SUBQUERY($e.observations, …).@count > 0).@count == 0` |
+| No space beside a bracket | `…))OR (…` | Error | Add the space |
+| Realm date literal | `registrationDate >= 2026-09-01@00:00:00` | Wrong number: bound as `2026` | Pass a `Date` as `$0` |
+| First item of a list | `ind.enrolments[0]` | Different subjects | Realm keeps the order the phone first received records; SQLite returns table order. Pick the item by date or program |
 
 ### JS Post-Filter on Results (Common in Rules)
 
@@ -65,7 +76,7 @@ db.objects('Individual').filtered(
 )
 ```
 
-Work via JS fallback — the SUBQUERY hydrates entities, then checks observation values in JS.
+Translate to SQL with `json_each` over the observations column. Shapes the translator cannot handle fall back to JS.
 
 For simple observation column searches outside SUBQUERY:
 
@@ -108,7 +119,9 @@ On mobile device, multiply by 3-5x.
 2. **Avoid `db.objects('Individual')` without a filter** — scans entire table
 3. **Return counts when possible** — `results.length` is cheaper than iterating results
 4. **Prefer parameterised queries** — `.filtered('uuid = $0', uuid)` over `.filtered('uuid = "' + uuid + '"')`
-5. **IN clause is efficient** — use `field IN {"a", "b"}` instead of chained OR for multiple values
+5. **IN clause is efficient** — use `field IN {"a", "b"}`, or `field IN $0` with an array, instead of chained OR for multiple values
+
+**Table statistics.** The app runs `PRAGMA optimize` when the database opens and after each sync. Without statistics, SQLite searched child tables by `voided` inside a correlated subquery such as `SUBQUERY(…).@count == 0`, and a card could take minutes on a large catchment.
 
 ## Monitoring
 

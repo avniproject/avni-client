@@ -6,6 +6,18 @@ import React from "react";
 import Colors from "../primitives/Colors";
 import PropTypes from "prop-types";
 import Separator from "../primitives/Separator";
+import _ from "lodash";
+import {ApprovalStatus} from "openchs-models";
+
+const noRecordMessageKeys = {
+    [ApprovalStatus.statuses.Pending]: 'noRecordPendingApproval',
+    [ApprovalStatus.statuses.Approved]: 'noRecordApproved',
+    [ApprovalStatus.statuses.Rejected]: 'noRecordRejected',
+};
+
+export function noRecordMessageKey(approvalStatus_status) {
+    return noRecordMessageKeys[approvalStatus_status] || 'noRecordPendingApproval';
+}
 
 class SubjectApprovalView extends AbstractComponent {
     static propTypes = {
@@ -17,6 +29,7 @@ class SubjectApprovalView extends AbstractComponent {
     render() {
         const {subject, approvalStatus_status} = this.props;
         const nameToDisplay = subject.nameString;
+        const entities = subject.getMemberEntitiesWithLatestStatus(approvalStatus_status);
 
         return <View style={styles.cardContainer} key={subject.uuid}>
             <View style={{flexDirection: 'row'}}>
@@ -24,7 +37,9 @@ class SubjectApprovalView extends AbstractComponent {
                     <Text style={Styles.textStyle}>{nameToDisplay}</Text>
                 </View>
             </View>
-            {subject.getMemberEntitiesWithLatestStatus(approvalStatus_status).map((x) => {
+            {_.isEmpty(entities) &&
+                <Text style={styles.noRecordTextStyle}>{this.I18n.t(noRecordMessageKey(approvalStatus_status))}</Text>}
+            {entities.map((x) => {
                 return <>
                     <ApprovalDetailsCard key={x.uuid} approvableEntity={x} onApprovalSelection={() => this.props.onApprovalSelection(x)}/>
                     <Separator backgroundColor={Colors.InputBorderNormal}/>
@@ -48,6 +63,14 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         marginTop: 10,
         flex: 1
+    },
+    noRecordTextStyle: {
+        fontSize: Styles.smallerTextSize,
+        fontStyle: 'italic',
+        color: Colors.DetailsTextColor,
+        marginLeft: 10,
+        marginTop: 6,
+        marginBottom: 10,
     },
     auditTextStyle: {
         fontSize: Styles.smallerTextSize,

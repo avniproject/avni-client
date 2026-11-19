@@ -75,13 +75,14 @@ class ClinicParkedRecordService extends BaseService {
             else if (this._missingParents(entityName, resource).length > 0) parked.push(resource);
             else ready.push(resource);
         });
-        await db.executeBatch([
+        const commands = [
             ...this._parkCommands(entityName, parked, origin),
             ...dropped.flatMap((uuid) => [
                 ['insert into not_viewable (uuid) values (?) on conflict(uuid) do nothing', [uuid]],
                 ['delete from parked_records where uuid = ?', [uuid]],
             ]),
-        ]);
+        ];
+        if (commands.length > 0) await db.executeBatch(commands);
         return {ready, parked: parked.length, dropped: dropped.length};
     }
 
@@ -148,6 +149,17 @@ class ClinicParkedRecordService extends BaseService {
             await this._state().executeBatch(orphans.map((row) => ['update parked_records set reported = 1 where uuid = ?', [row.uuid]]));
         }
         return {applied, reported: orphans.length};
+    }
+
+    // A server sync runs only outside a camp, when the server is the source of truth: a waiting record is a teammate's,
+    // which their own phone uploads, so it is dropped rather than saved over a newer server copy.
+    async afterServerSync() {
+        const rows = this._parkedRows();
+        if (rows.length === 0) return {dropped: 0, reported: 0};
+        const orphans = rows.filter((row) => !row.reported && this._missingParents(row.entity_name, JSON.parse(row.resource)).length > 0);
+        this._report(orphans);
+        await this._state().executeBatch([['delete from parked_records', []]]);
+        return {dropped: rows.length, reported: orphans.length};
     }
 }
 

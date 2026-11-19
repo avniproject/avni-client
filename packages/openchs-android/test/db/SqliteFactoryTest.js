@@ -5,6 +5,19 @@ jest.mock("base-64", () => ({encode: jest.fn(), decode: jest.fn()}));
 import SqliteFactory from "../../src/framework/db/SqliteFactory";
 
 describe("SqliteFactory", () => {
+    describe("createSqliteProxy", () => {
+        afterEach(() => jest.restoreAllMocks());
+
+        it("gathers table statistics when the database is opened", async () => {
+            const db = {executeSync: jest.fn(() => ({rows: []}))};
+            jest.spyOn(SqliteFactory, "createSqliteDb").mockResolvedValue(db);
+
+            await SqliteFactory.createSqliteProxy();
+
+            expect(db.executeSync).toHaveBeenCalledWith("PRAGMA optimize=0x10002");
+        });
+    });
+
     describe("_seedSettings", () => {
         it("inserts Settings row when table is empty", () => {
             const db = {

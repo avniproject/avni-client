@@ -95,11 +95,17 @@ class CustomFilterService extends BaseService {
         return _.isEmpty(filterWithError);
     }
 
+    // Missing question: Realm returns an empty Concept, SQLite null; either way there is nothing to search.
+    conceptDataTypeOf(filter) {
+        return _.get(this.getService(ConceptService).getConceptByUUID(filter.conceptUUID), "datatype");
+    }
+
     getNonCodedConceptFilters(filterName, subjectTypeUUID) {
-        const conceptService = this.getService(ConceptService);
         return this.getFiltersByType(filterName, CustomFilter.type.Concept)
-            .filter(filter => conceptService.getConceptByUUID(filter.conceptUUID).datatype !== Concept.dataType.Coded
-                && filter.subjectTypeUUID === subjectTypeUUID);
+            .filter(filter => {
+                const datatype = this.conceptDataTypeOf(filter);
+                return !_.isNil(datatype) && datatype !== Concept.dataType.Coded && filter.subjectTypeUUID === subjectTypeUUID;
+            });
     }
 
     getTopLevelFilters(filterName, subjectTypeUUID) {
@@ -114,9 +120,8 @@ class CustomFilterService extends BaseService {
     }
 
     getBottomLevelFilters(filterName, subjectTypeUUID) {
-        const conceptService = this.getService(ConceptService);
         return this.getCodedOrGroupSubjectFilters(filterName)
-            .filter(filter => (filter.type === CustomFilter.type.GroupSubject || conceptService.getConceptByUUID(filter.conceptUUID).datatype === Concept.dataType.Coded)
+            .filter(filter => (filter.type === CustomFilter.type.GroupSubject || this.conceptDataTypeOf(filter) === Concept.dataType.Coded)
                 && filter.subjectTypeUUID === subjectTypeUUID);
     }
 

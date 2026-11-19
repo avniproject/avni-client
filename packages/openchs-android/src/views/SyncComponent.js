@@ -191,7 +191,24 @@ class SyncComponent extends AbstractComponent {
      * We could only cancel by id, but we do not want to store job id in db.
      * @returns {Promise<void>}
      */
+    // In a camp the phone shares only through its hub, so the button syncs with the hub instead of the server.
+    async syncInCamp(spoke) {
+        if (spoke.joined) {
+            ToastAndroid.show(this.I18n.t('clinicCampSyncingWithHub'), ToastAndroid.SHORT);
+            const result = await spoke.syncNow();
+            ToastAndroid.show(this.I18n.t(result && !result.error ? 'clinicCampSyncedWithHub' : 'clinicCampHubSyncFailed'), ToastAndroid.SHORT);
+            return;
+        }
+        const isHub = await this.context.getService('clinicHubService').campActive();
+        Alert.alert(this.I18n.t('clinicSharing'), this.I18n.t(isHub ? 'clinicCampHubSyncInfo' : 'clinicCampNotJoined'));
+    }
+
     async startSync() {
+        const spoke = this.context.getService('clinicSpokeService');
+        if (await spoke.isInCamp()) {
+            await this.syncInCamp(spoke);
+            return;
+        }
         const syncService = this.context.getService(SyncService);
         if (this.state.isConnected) {
             const lockId = syncService.acquireLock();
@@ -258,6 +275,7 @@ class SyncComponent extends AbstractComponent {
             notifyUserOnCompletion={true}
             showOkButton={!!this.state.showOkButton}
             contentDownloadWarning={this.state.contentDownloadWarning}
+            resetWaitingWarning={this.state.resetWaitingWarning}
         />;
     }
 

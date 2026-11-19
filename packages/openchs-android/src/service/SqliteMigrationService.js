@@ -6,6 +6,7 @@ import General from "../utility/General";
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 import SessionUsername from "./SessionUsername";
 import {BACKENDS} from "../framework/BackendTypes";
+import {reloadCachedServices} from "./CachedServices";
 
 // Note: Other services are looked up via this.getService(name) (string-based) to avoid
 // circular import chains during module load. EntityMetaData and GlobalContext are required
@@ -234,6 +235,11 @@ class SqliteMigrationService extends BaseService {
                 await globalContext.openRealmIfMissing();
             }
             globalContext.switchBackend(state.activeBackend);
+            // Launch ran every init() on Realm; without this the labels and shared rules stay
+            // Realm's until the next full sync (#2196). Only after a switch that happened: a
+            // failed open throws above, and an unchanged backend needs nothing. A failed reload
+            // is logged inside and does not undo the switch.
+            reloadCachedServices(name => this.getService(name));
         }
     }
 

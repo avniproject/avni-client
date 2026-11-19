@@ -10602,10 +10602,10 @@ open@^7.4.2:
     grunt "^1.0.3"
     webpack "^4.13.0"
 
-openchs-models@1.33.86:
-  version "1.33.86"
-  resolved "https://registry.npmjs.org/openchs-models/-/openchs-models-1.33.86.tgz"
-  integrity sha512-m2Hw5kxT5wLaOLlZhOWF9gxIJJBvDzf+77y0iRb3PPeKdWiwvE2w+9c9cAPm+DdURhbmDwphc1JZHo/AmDOC0Q==
+openchs-models@1.33.90:
+  version "1.33.90"
+  resolved "https://registry.npmjs.org/openchs-models/-/openchs-models-1.33.90.tgz"
+  integrity sha512-ZvSnFXhDBz/5KkP1soiY2lhAs4idO26umOYktKcZGP0US07eS9D/b0h2vqCKYOhzNiJn9cS4L5+kFrdLdcp75A==
   dependencies:
     uuid "^9.0.1"
 
@@ -11714,13 +11714,6 @@ react-native-windows@^0.75.0:
     whatwg-fetch "^3.0.0"
     ws "^6.2.2"
     yargs "^17.6.2"
-
-react-native-zeroconf@0.17.4:
-  version "0.17.4"
-  resolved "https://registry.npmjs.org/react-native-zeroconf/-/react-native-zeroconf-0.17.4.tgz"
-  integrity sha512-Xg9Sg8X66T7aUWRYI4BnGQ+ihs7Dn/aFT16j5R7mi19plnYf9yowXlwK4dGcbyILkJfxSxXa4zsZPjHXO1VLcg==
-  dependencies:
-    events "^3.0.0"
 
 react-native-zip-archive@6.0.8:
   version "6.0.8"

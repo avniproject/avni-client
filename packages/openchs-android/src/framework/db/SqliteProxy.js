@@ -17,6 +17,8 @@ import {schemaNameToTableName, camelToSnake, encryptionKeyToHex} from "./SqliteU
 import {EMBEDDED_SCHEMA_NAMES} from "./SchemaGenerator";
 import General from "../../utility/General";
 
+const SHORT_TRANSACTION_ROWS = 200;
+
 class SqliteProxy {
     /**
      * @param {Object} db - op-sqlite database instance
@@ -231,6 +233,20 @@ class SqliteProxy {
         const sql = `SELECT COUNT(*) AS cnt FROM ${tableMeta.tableName}${where}`;
         const rows = this._executeQuery(sql, params);
         return (rows && rows.length > 0) ? Number(rows[0].cnt) || 0 : 0;
+    }
+
+    // Embedded objects are JSON on their parent rows: a list column holds an array, a single one an object.
+    execCountEmbedded(embeddedSchemaName) {
+        const terms = [];
+        this.tableMetaMap.forEach(tableMeta => {
+            _.forEach(tableMeta.embeddedProperties, (type, propName) => {
+                if (type !== embeddedSchemaName) return;
+                const col = camelToSnake(propName);
+                terms.push(`SELECT COALESCE(SUM(CASE WHEN json_valid(${col}) THEN CASE json_type(${col}) WHEN 'array' THEN json_array_length(${col}) WHEN 'object' THEN 1 ELSE 0 END ELSE 0 END), 0) AS cnt FROM ${tableMeta.tableName}`);
+            });
+        });
+        if (terms.length === 0) return 0;
+        return this.execCount(`SELECT SUM(cnt) AS total FROM (${terms.join(" UNION ALL ")})`);
     }
 
     /**
@@ -556,6 +572,17 @@ class SqliteProxy {
         return new entityClass(this.hydrator.createLazyGroup(type, rows).buildAt(0));
     }
 
+    // A batch's transaction stays open across op-sqlite's await, and any write() in that time rolls it back; work
+    // that runs while the user keeps saving writes its batches in short synchronous transactions instead.
+    async inShortTransactions(work) {
+        this._shortTransactions = (this._shortTransactions || 0) + 1;
+        try {
+            return await work();
+        } finally {
+            this._shortTransactions -= 1;
+        }
+    }
+
     write(callback) {
         if (this._inTransaction) {
             // Already in a transaction — just run the callback
@@ -627,6 +654,15 @@ class SqliteProxy {
     close() {
         if (this.db.close) {
             this.db.close();
+        }
+    }
+
+    // Without statistics the planner searches child tables by `voided`, which nearly every row matches.
+    optimize() {
+        try {
+            this.db.executeSync("PRAGMA optimize=0x10002");
+        } catch (e) {
+            General.logWarn("SqliteProxy", `PRAGMA optimize failed: ${e.message}`);
         }
     }
 
@@ -717,7 +753,14 @@ class SqliteProxy {
         });
 
         const start = Date.now();
-        await this.db.executeBatch(commands);
+        if (this._shortTransactions > 0) {
+            for (const chunk of _.chunk(commands, SHORT_TRANSACTION_ROWS)) {
+                this.write(() => chunk.forEach(([sql, params]) => this._executeRaw(sql, params)));
+                await new Promise((resolve) => setTimeout(resolve, 0));
+            }
+        } else {
+            await this.db.executeBatch(commands);
+        }
         const elapsed = Date.now() - start;
 
         if (elapsed > this.slowQueryThreshold) {

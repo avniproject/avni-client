@@ -10,6 +10,12 @@ describe('AvniError', () => {
         expect(avniError.getDisplayMessage()).to.equal("No space left on your device. Clear some storage to proceed further.");
     });
 
+    it('asks the user to clear storage when SQLite finds the disk full', () => {
+        const sqliteFull = "[op-sqlite] SQLite code: 13 execution error: database or disk is full";
+        const avniError = AvniError.createFromUserMessageAndStackTrace(sqliteFull, stack);
+        expect(avniError.getDisplayMessage()).to.equal("No space left on your device. Clear some storage to proceed further.");
+    });
+
     it('keeps the original error for reporting', () => {
         const avniError = AvniError.createFromUserMessageAndStackTrace(outOfSpace, stack);
         expect(avniError.reportingText).to.equal(`${outOfSpace}\n${stack}`);
