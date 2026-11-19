@@ -75,7 +75,25 @@ class AbhaRegistrationFlow {
         }
     }
 
+    // A camp check that cannot be read counts as not in a camp: the duplicate check with the server still runs.
+    async inCamp() {
+        try {
+            const clinicSpokeService = this.view.getService('clinicSpokeService');
+            return !!clinicSpokeService && await clinicSpokeService.isInCamp();
+        } catch (error) {
+            return false;
+        }
+    }
+
     async openAbhaScreens(route) {
+        // A phone in a camp never syncs, so neither the server nor this phone's queue knows the ABHAs other camp phones gave.
+        if (await this.inCamp()) {
+            Alert.alert(this.I18n.t('abhaTitle'), this.I18n.t('abhaNotInCamp'), [
+                {text: this.I18n.t('cancel'), style: 'cancel'},
+                {text: this.I18n.t('abhaOptionWithout'), onPress: () => this.chooseWithout()},
+            ]);
+            return;
+        }
         const {isConnected} = await getConnectionInfo();
         if (!isConnected) {
             Alert.alert(this.I18n.t('abhaTitle'), this.I18n.t('abhaNeedsInternet'), [

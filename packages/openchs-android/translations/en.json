@@ -483,6 +483,7 @@
     "abhaTitle": "ABHA",
     "abhaFindOrCreate": "Find or create ABHA",
     "abhaNeedsInternet": "ABHA needs an internet connection",
+    "abhaNotInCamp": "ABHA cannot be created or linked during a camp. Register without ABHA now, and add the ABHA after the camp ends.",
     "abhaError": "ABHA could not be completed",
     "abhaNoProfile": "ABHA returned no patient details",
     "abhaNotConfigured": "ABHA is not set up for your organisation yet. Ask your admin.",

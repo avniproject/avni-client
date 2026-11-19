@@ -54,7 +54,7 @@ const withAbhaAddress = (individual, abhaAddress) => {
 };
 
 function viewWith({editing = false, formHasConcepts = true, individual = person(), translations = {}, consent = null, replace = true,
-                      session = Promise.resolve(SESSION), holders = Promise.resolve([]), onPhone = {}, unsynced = [], duplicate = true} = {}) {
+                      session = Promise.resolve(SESSION), holders = Promise.resolve([]), onPhone = {}, unsynced = [], duplicate = true, inCamp = false} = {}) {
     const abhaService = {
         // A rejection is passed as a function, so it is made only when asked for and never left unhandled.
         getSession: jest.fn(() => (typeof session === "function" ? session() : session)),
@@ -65,7 +65,8 @@ function viewWith({editing = false, formHasConcepts = true, individual = person(
     };
     const individualService = {findByUUID: jest.fn((uuid) => onPhone[uuid]), findAll: jest.fn(() => ({filtered: jest.fn(() => [])}))};
     const entityQueueService = {getQueuedEntityUUIDs: jest.fn(() => unsynced)};
-    const services = new Map([[AbhaService, abhaService], [IndividualService, individualService], [EntityQueueService, entityQueueService]]);
+    const services = new Map([[AbhaService, abhaService], [IndividualService, individualService], [EntityQueueService, entityQueueService],
+        ['clinicSpokeService', {isInCamp: jest.fn(async () => inCamp)}]]);
     return {
         state: {abha: {enabledForUser: true, formHasConcepts, linked: false, choice: null}, individual},
         props: {params: {editing}},
@@ -202,6 +203,29 @@ describe("AbhaRegistrationFlowTest", () => {
             expect(dispatched(view, Actions.ON_ABHA_CHOICE)).toEqual([[Actions.ON_ABHA_CHOICE, {choice: "without"}]]);
             expect(view.abhaService.getSession).not.toHaveBeenCalled();
             expect(CHSNavigator.navigateToAbhaView).not.toHaveBeenCalled();
+        });
+
+        it("in a camp, says ABHA waits until the camp ends, offers Register Without ABHA and asks Eka nothing", async () => {
+            const view = viewWith({inCamp: true});
+
+            await new AbhaRegistrationFlow(view).open({route: "create"});
+
+            const [, message, buttons] = Alert.alert.mock.calls[0];
+            expect(message).toBe("abhaNotInCamp");
+            buttons.find((button) => button.text === "abhaOptionWithout").onPress();
+            expect(dispatched(view, Actions.ON_ABHA_CHOICE)).toEqual([[Actions.ON_ABHA_CHOICE, {choice: "without"}]]);
+            expect(view.abhaService.getSession).not.toHaveBeenCalled();
+            expect(CHSNavigator.navigateToAbhaView).not.toHaveBeenCalled();
+            expect(CHSNavigator.navigateToAbhaVerifyView).not.toHaveBeenCalled();
+        });
+
+        it("when the camp check itself fails, carries on as outside a camp", async () => {
+            const view = viewWith();
+            view.getService = ((inner) => (type) => (type === 'clinicSpokeService' ? {isInCamp: async () => { throw new Error("unreadable"); }} : inner(type)))(view.getService);
+
+            await new AbhaRegistrationFlow(view).open({route: "create"});
+
+            expect(view.abhaService.getSession).toHaveBeenCalled();
         });
 
         it("with a form lacking either ABHA question, says so and opens nothing", async () => {
