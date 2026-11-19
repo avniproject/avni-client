@@ -2,9 +2,10 @@
 // When the user can see the target, the filters carry over from the dashboard the tile sits on and the screen is
 // asked to open the target. When they cannot, or the card has no target, the screen is asked to say the dashboard
 // is not available. No card result is computed, nothing opens the subject dashboard, and a Custom Design Card
-// with this action still opens its own page.
+// with this action still opens its own page. A tile whose count failed opens nothing.
 
 import {assert} from "chai";
+import {NestedReportCardResult, ReportCardResult} from "openchs-models";
 
 jest.mock("../../../src/framework/bean/Service", () => () => (target) => target);
 
@@ -69,6 +70,19 @@ function tap(reportCard, visibleDashboards) {
     CustomDashboardActions.onCardPress(cardPressState, action, built.context);
     return {action, ...built};
 }
+
+// Taps the tile `itemKey` on dashboard "d1", whose count on screen is `tileResult`.
+function tapTile(reportCard, visibleDashboards, {itemKey, tileResult}) {
+    const action = {...makeOpenDashboardAction(), reportCardUUID: itemKey};
+    const built = buildOpenDashboardContext(reportCard, visibleDashboards);
+    const state = {...cardPressState, cardToCountResultMap: {[itemKey]: tileResult}};
+    CustomDashboardActions.onCardPress(state, action, built.context);
+    return {action, ...built};
+}
+
+// The tiles the phone shows when a card's query fails: a single card's, and one sub-card of a nested card's.
+const failedTile = () => ReportCardResult.create("Error", "queryExecutionError", false, true);
+const failedSubCardTile = (itemKey) => NestedReportCardResult.create("Error", "queryExecutionError: boom", false, true, itemKey);
 
 // This path computes no card result, so it opens no list, and it never routes anything to the subject dashboard.
 function assertNoCardResultAndNoSubject({action, getReportCardResult}) {
@@ -190,5 +204,55 @@ describe("CustomDashboardActions.onCardPress Open dashboard", () => {
         assert.equal(action.onDashboardNotAvailable.mock.calls.length, 0);
         assert.equal(carryFiltersOver.mock.calls.length, 0);
         assertNoCardResultAndNoSubject(tapped);
+    });
+
+    describe("a tile whose count failed", () => {
+        // The target is visible in every test here, so a tap that ignored the failure would open it.
+        const assertOpensNothing = (tapped) => {
+            assert.equal(tapped.carryFiltersOver.mock.calls.length, 0, "calls to carryFiltersOver");
+            assert.equal(tapped.getDashboards.mock.calls.length, 0, "calls to getDashboards");
+            assert.equal(tapped.action.onOpenDashboard.mock.calls.length, 0, "calls to onOpenDashboard");
+            assert.equal(tapped.action.onDashboardNotAvailable.mock.calls.length, 0, "calls to onDashboardNotAvailable");
+            assert.equal(tapped.action.onDismissLoading.mock.calls.length, 1, "the loading dialog is dismissed");
+            assertNoCardResultAndNoSubject(tapped);
+        };
+
+        it("opens nothing and dismisses the loading dialog", () => {
+            const tapped = tapTile(makeOpenDashboardCard("t1"), [{uuid: "t1"}], {itemKey: "rc1#0", tileResult: failedTile()});
+
+            jest.runAllTimers();
+
+            assertOpensNothing(tapped);
+        });
+
+        it("opens nothing for a failed sub-card of a nested card", () => {
+            const tapped = tapTile(makeOpenDashboardCard("t1"), [{uuid: "t1"}], {itemKey: "rc1#1", tileResult: failedSubCardTile("rc1#1")});
+
+            jest.runAllTimers();
+
+            assertOpensNothing(tapped);
+        });
+
+        it("still opens the target when the tile has a count", () => {
+            const tileResult = ReportCardResult.create("12", null, true);
+            const tapped = tapTile(makeOpenDashboardCard("t1"), [{uuid: "t1"}], {itemKey: "rc1#0", tileResult});
+
+            jest.runAllTimers();
+
+            assert.deepEqual(tapped.carryFiltersOver.mock.calls, [["d1", "t1"]]);
+            assert.deepEqual(tapped.action.onOpenDashboard.mock.calls, [["t1"]]);
+            assert.equal(tapped.action.onDismissLoading.mock.calls.length, 0);
+        });
+
+        it("still opens a Custom Design Card's own page when its data rule failed", () => {
+            const reportCard = makeOpenDashboardCard("t1", {isFullyCustom: () => true});
+            const tapped = tapTile(reportCard, [{uuid: "t1"}], {itemKey: "rc1#0", tileResult: failedTile()});
+
+            jest.runAllTimers();
+
+            assert.equal(tapped.action.onFullyCustomCardPress.mock.calls.length, 1);
+            assert.equal(tapped.action.onOpenDashboard.mock.calls.length, 0);
+            assert.equal(tapped.carryFiltersOver.mock.calls.length, 0);
+        });
     });
 });

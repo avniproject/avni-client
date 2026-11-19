@@ -235,6 +235,10 @@ class CustomDashboardActions {
             const countResult = state.cardToCountResultMap[itemKey];
             const displayName = (countResult && countResult.cardName) || reportCard.name;
             setTimeout(() => action.onFullyCustomCardPress(reportCard, ruleInputArray, displayName), 0);
+        } else if (reportCard.isActionOpenDashboard() && _.get(state.cardToCountResultMap, [itemKey, "hasErrorMsg"]) === true) {
+            // A tile whose count failed opens nothing, even if a tap reaches here.
+            General.logDebug('CustomDashboardActions', `onCardPress - Open dashboard card "${reportCard.name}": its count failed, so nothing opens`);
+            setTimeout(() => action.onDismissLoading(), 0);
         } else if (reportCard.isActionOpenDashboard()) {
             // Opens another dashboard, so no card result is computed and nothing here reaches the subject dashboard.
             const targetDashboardUUID = reportCard.actionDetailDashboardUUID;
