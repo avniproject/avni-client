@@ -9,6 +9,15 @@ import FormMetaDataSelection from "../model/FormMetaDataSelection";
 import AddressFilterValue from "../model/AddressFilterValue";
 import Hashes from 'jshashes';
 
+// Removes each saved count `matches` picks out. Every read of a cache's result list gives a new proxy over the stored
+// list, and lodash's remove changes only the proxy's own array, so the removal goes through the proxy's splice, which
+// reaches the stored list. Walking from the end keeps the places of the entries not yet looked at.
+function removeSavedResults(list, matches) {
+    for (let i = list.length - 1; i >= 0; i--) {
+        if (matches(list[i])) list.splice(i, 1);
+    }
+}
+
 function getDashboardCache(service, dashboardUUID) {
     let cache = service.findByFiltered("dashboard.uuid", dashboardUUID, CustomDashboardCache.schema.name);
     const dashboard = service.findByUUID(dashboardUUID, Dashboard.schema.name);
@@ -197,7 +206,7 @@ class CustomDashboardCacheService extends BaseService {
             let dashboardCache = this.findByFiltered("dashboard.uuid", dashboardUUID, CustomDashboardCache.schema.name);
 
             for (const {card, result} of singleCardResults) {
-                _.remove(dashboardCache.reportCardResults, (x) => x.reportCard === card.uuid && x.dashboard === dashboardCache.dashboard.uuid);
+                removeSavedResults(dashboardCache.reportCardResults, (x) => x.reportCard === card.uuid && x.dashboard === dashboardCache.dashboard.uuid);
                 result.dashboard = dashboardUUID;
                 result.reportCard = card.uuid;
                 dashboardCache.reportCardResults.push(result);
@@ -205,7 +214,7 @@ class CustomDashboardCacheService extends BaseService {
 
             for (const {card, results} of nestedCardResults) {
                 results.forEach((nestedResult, index) => {
-                    _.remove(dashboardCache.nestedReportCardResults, (x) => x.reportCard === card.getCardId(index) && x.dashboard === dashboardCache.dashboard.uuid);
+                    removeSavedResults(dashboardCache.nestedReportCardResults, (x) => x.reportCard === card.getCardId(index) && x.dashboard === dashboardCache.dashboard.uuid);
                     nestedResult.dashboard = dashboardUUID;
                     nestedResult.reportCard = card.getCardId(index);
                     dashboardCache.nestedReportCardResults.push(nestedResult);
@@ -221,10 +230,7 @@ class CustomDashboardCacheService extends BaseService {
         this.transactionManager.write(() => {
             let dashboardCache = this.findByFiltered("dashboard.uuid", dashboardUUID, CustomDashboardCache.schema.name);
             results.forEach((nestedReportCardResult, index) => {
-                const matching = _.filter(dashboardCache.nestedReportCardResults, (x) => x.reportCard === reportCard.getCardId(index) && x.dashboard === dashboardCache.dashboard.uuid);
-                matching.forEach((x) => {
-                    dashboardCache.nestedReportCardResults.pop(x);
-                });
+                removeSavedResults(dashboardCache.nestedReportCardResults, (x) => x.reportCard === reportCard.getCardId(index) && x.dashboard === dashboardCache.dashboard.uuid);
                 nestedReportCardResult.dashboard = dashboardUUID;
                 nestedReportCardResult.reportCard = reportCard.getCardId(index);
                 dashboardCache.nestedReportCardResults.push(nestedReportCardResult);
@@ -237,10 +243,7 @@ class CustomDashboardCacheService extends BaseService {
     updateReportCardResult(dashboardUUID, reportCard, reportCardResult) {
         this.transactionManager.write(() => {
             let dashboardCache = this.findByFiltered("dashboard.uuid", dashboardUUID, CustomDashboardCache.schema.name);
-            const matching = _.filter(dashboardCache.reportCardResults, (x) => x.reportCard === reportCard.uuid && x.dashboard === dashboardCache.dashboard.uuid);
-            matching.forEach((x) => {
-                dashboardCache.reportCardResults.pop(x);
-            });
+            removeSavedResults(dashboardCache.reportCardResults, (x) => x.reportCard === reportCard.uuid && x.dashboard === dashboardCache.dashboard.uuid);
             reportCardResult.dashboard = dashboardUUID;
             reportCardResult.reportCard = reportCard.uuid;
             dashboardCache.reportCardResults.push(reportCardResult);
