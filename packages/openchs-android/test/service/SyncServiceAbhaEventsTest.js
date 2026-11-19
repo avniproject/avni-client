@@ -35,6 +35,7 @@ const LOCK = 'lock-abha';
 function buildSyncService({abhaOn = true, resend = async () => {}} = {}) {
     const svc = Object.create(SyncService.prototype);
     svc.syncLock = LOCK;
+    svc.db = {isSqlite: false};
     svc.mediaQueueService = {isMediaUploadRequired: () => false};
     svc.entityQueueService = {getPresentEntities: () => []};
     svc.metricsService = {getAppInfo: async () => ({})};
