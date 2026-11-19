@@ -62,7 +62,7 @@ function phone(singleCounts) {
         const row = proxy.objects("CustomDashboardCache").filtered("uuid = $0", "cache-1")[0];
         return Array.from(new CustomDashboardCache(row).reportCardResults, (x) => [x.reportCard, x.primaryValue]);
     };
-    return {service, savedCounts};
+    return {service, savedCounts, proxy};
 }
 
 describe("CustomDashboardCacheService on SQLite, saving a card's count", () => {
@@ -86,6 +86,29 @@ describe("CustomDashboardCacheService on SQLite, saving a card's count", () => {
         service.updateReportCardResult(DASHBOARD, A, count("8"));
 
         assert.sameDeepMembers(savedCounts(), [[A.uuid, "8"], [B.uuid, "5"]]);
+    });
+
+    it("a card saved twice by an earlier build ends with one count", () => {
+        const {service, savedCounts} = phone([savedCount("r-1", A.uuid, "7"), savedCount("r-3", A.uuid, "6"), savedCount("r-2", B.uuid, "5")]);
+
+        service.batchUpdateResults(DASHBOARD, [{card: A, result: count("8")}], []);
+
+        assert.sameDeepMembers(savedCounts(), [[A.uuid, "8"], [B.uuid, "5"]]);
+    });
+
+    it("in a refresh's own order, each card saved on its own with the query cache on, then the batch with a dropped card, ends with one count per card", () => {
+        const C = card("card-c");
+        const {service, savedCounts, proxy} = phone([savedCount("r-1", A.uuid, "7"), savedCount("r-2", B.uuid, "5"), savedCount("r-3", C.uuid, "2")]);
+        const a = count("8");
+        const b = count("6");
+
+        proxy.beginQueryCache();
+        service.updateReportCardResult(DASHBOARD, A, a);
+        service.updateReportCardResult(DASHBOARD, B, b);
+        proxy.endQueryCache();
+        service.batchUpdateResults(DASHBOARD, [{card: A, result: a}, {card: B, result: b}, {card: C, result: null}], []);
+
+        assert.sameDeepMembers(savedCounts(), [[A.uuid, "8"], [B.uuid, "6"]]);
     });
 
     it("batchUpdateResults given no result for a card drops its saved count and saves none", () => {

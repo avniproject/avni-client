@@ -81,8 +81,9 @@ function isSavedOpenDashboardFailure(reportCard, savedResult, I18n) {
         && savedResult.primaryValue === I18n.t("Error") && savedResult.secondaryValue === I18n.t("queryExecutionError");
 }
 
-// A failed Open dashboard count is not saved: read back from the cache it would show as tappable.
-const isFailedOpenDashboardCount = (reportCard, result) => reportCard.isActionOpenDashboard() && _.get(result, "hasErrorMsg") === true;
+// A failed Open dashboard count is not saved: read back from the cache it would show as tappable. Any error flag counts,
+// as it does for the arrow.
+const isFailedOpenDashboardCount = (reportCard, result) => reportCard.isActionOpenDashboard() && !!_.get(result, "hasErrorMsg");
 
 function getReportsCards(dashboardUUID, context) {
     return context.get(DashboardSectionCardMappingService).getAllCardsForDashboard(dashboardUUID);
@@ -246,7 +247,7 @@ class CustomDashboardActions {
             const countResult = state.cardToCountResultMap[itemKey];
             const displayName = (countResult && countResult.cardName) || reportCard.name;
             setTimeout(() => action.onFullyCustomCardPress(reportCard, ruleInputArray, displayName), 0);
-        } else if (reportCard.isActionOpenDashboard() && _.get(state.cardToCountResultMap, [itemKey, "hasErrorMsg"]) === true) {
+        } else if (reportCard.isActionOpenDashboard() && !!_.get(state.cardToCountResultMap, [itemKey, "hasErrorMsg"])) {
             // A tile whose count failed opens nothing, even if a tap reaches here.
             General.logDebug('CustomDashboardActions', `onCardPress - Open dashboard card "${reportCard.name}": its count failed, so nothing opens`);
             setTimeout(() => action.onDismissLoading(), 0);
@@ -414,9 +415,13 @@ class CustomDashboardActions {
                         newState.cardToCountResultMap[rcm.card.getCardId(index)] = result;
                     });
                 }
+            } else if (_.has(newState.cardToCountResultMap, rcm.card.getCardId())) {
+                // The same card in another section, already counted or read in this refresh. Its saved copy is not
+                // read again: once this refresh has saved the card, that copy is the one the batch save below
+                // replaces, and on the older database a tile holding a replaced copy fails to draw.
             } else {
-                let reportCardResult = dashboardCache.getReportCardResult(rcm.card);
-                if (isSavedOpenDashboardFailure(rcm.card, reportCardResult, I18n)) reportCardResult = null;
+                const savedResult = dashboardCache.getReportCardResult(rcm.card);
+                let reportCardResult = isSavedOpenDashboardFailure(rcm.card, savedResult, I18n) ? null : savedResult;
 
                 if (userSettings.autoRefreshEnabled || _.isNil(reportCardResult)) {
                     reportCardResult = reportCardService.getReportCardCount(rcm.card, ruleInputArray);
@@ -425,7 +430,8 @@ class CustomDashboardActions {
                         reportCardResult = getDoVisitFilteredCount(rcm.card, result, reportCardResult);
                     }
                     if (isFailedOpenDashboardCount(rcm.card, reportCardResult)) {
-                        pendingSingleResults.push({card: rcm.card, result: null});
+                        // Only a count that is saved needs dropping; with none, nothing is written.
+                        if (!_.isNil(savedResult)) pendingSingleResults.push({card: rcm.card, result: null});
                     } else {
                         customDashboardCacheService.updateReportCardResult(state.activeDashboardUUID, rcm.card, reportCardResult);
                         pendingSingleResults.push({card: rcm.card, result: reportCardResult});

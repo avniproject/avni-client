@@ -42,12 +42,13 @@ const count = (primaryValue) => ReportCardResult.create(primaryValue, null, true
 const subCount = (primaryValue) => NestedReportCardResult.create(primaryValue, null, true, false, null);
 
 // The service over one dashboard's cache. Writes run at once; the save is recorded.
-function serviceOver({single = [], nested = []} = {}) {
+function serviceOver({single = [], nested = [], updatedAt = null} = {}) {
     const cache = new CustomDashboardCache({
         uuid: "cache-1",
         dashboard: {uuid: DASHBOARD},
         reportCardResults: single,
         nestedReportCardResults: nested,
+        updatedAt,
     });
     const service = Object.create(CustomDashboardCacheService.prototype);
     const persistMutations = jest.fn();
@@ -101,6 +102,21 @@ describe("CustomDashboardCacheService, saving a card's count", () => {
             assert.deepEqual(entriesFor(rows, "B"), [["B", "5", DASHBOARD]]);
             assert.isUndefined(cache.getReportCardResult(A));
             assert.equal(persistMutations.mock.calls.length, 1);
+        });
+
+        it("a dropped count alone leaves the time the counts were last saved; a saved one moves it", () => {
+            const old = new Date("2026-11-01T10:00:00.000Z");
+            const dropped = serviceOver({single: [stored("A", "7"), stored("B", "5")], updatedAt: old});
+
+            dropped.service.batchUpdateResults(DASHBOARD, [{card: A, result: null}], []);
+
+            assert.deepEqual(entriesFor(holdsSingle(dropped.cache), "A"), []);
+            assert.equal(dropped.persistMutations.mock.calls.length, 1, "the drop is written");
+            assert.equal(dropped.cache.updatedAt.getTime(), old.getTime());
+
+            const saved = serviceOver({single: [stored("A", "7"), stored("B", "5")], updatedAt: old});
+            saved.service.batchUpdateResults(DASHBOARD, [{card: A, result: null}, {card: B, result: count("6")}], []);
+            assert.isAbove(saved.cache.updatedAt.getTime(), old.getTime());
         });
 
         it("a card saved more than once by earlier builds ends with one count, the new one", () => {

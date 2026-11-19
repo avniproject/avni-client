@@ -204,6 +204,7 @@ class CustomDashboardCacheService extends BaseService {
 
         this.transactionManager.write(() => {
             let dashboardCache = this.findByFiltered("dashboard.uuid", dashboardUUID, CustomDashboardCache.schema.name);
+            let savedACount = false;
 
             for (const {card, result} of singleCardResults) {
                 removeSavedResults(dashboardCache.reportCardResults, (x) => x.reportCard === card.uuid && x.dashboard === dashboardCache.dashboard.uuid);
@@ -212,6 +213,7 @@ class CustomDashboardCacheService extends BaseService {
                 result.dashboard = dashboardUUID;
                 result.reportCard = card.uuid;
                 dashboardCache.reportCardResults.push(result);
+                savedACount = true;
             }
 
             for (const {card, results} of nestedCardResults) {
@@ -220,10 +222,12 @@ class CustomDashboardCacheService extends BaseService {
                     nestedResult.dashboard = dashboardUUID;
                     nestedResult.reportCard = card.getCardId(index);
                     dashboardCache.nestedReportCardResults.push(nestedResult);
+                    savedACount = true;
                 });
             }
 
-            dashboardCache.updatedAt = new Date();
+            // The time shown as last refreshed is when counts were last saved. Dropping a count does not refresh the others.
+            if (savedACount) dashboardCache.updatedAt = new Date();
             this.repository.persistMutations(dashboardCache);
         });
     }

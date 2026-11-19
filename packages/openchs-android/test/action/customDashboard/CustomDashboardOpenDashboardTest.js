@@ -233,6 +233,15 @@ describe("CustomDashboardActions.onCardPress Open dashboard", () => {
             assertOpensNothing(tapped);
         });
 
+        it("opens nothing for a tile whose count carries an error flag other than true", () => {
+            const tileResult = ReportCardResult.create("Error", "Its own error", false, "yes");
+            const tapped = tapTile(makeOpenDashboardCard("t1"), [{uuid: "t1"}], {itemKey: "rc1#0", tileResult});
+
+            jest.runAllTimers();
+
+            assertOpensNothing(tapped);
+        });
+
         it("still opens the target when the tile has a count", () => {
             const tileResult = ReportCardResult.create("12", null, true);
             const tapped = tapTile(makeOpenDashboardCard("t1"), [{uuid: "t1"}], {itemKey: "rc1#0", tileResult});
