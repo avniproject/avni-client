@@ -5,6 +5,7 @@
 // service, because the tile it builds for a failure arrives already marked tappable.
 
 import {assert} from "chai";
+import _ from "lodash";
 import {CustomDashboardCache, NestedReportCardResult, ReportCard, ReportCardResult} from "openchs-models";
 
 jest.mock("../../../src/framework/bean/Service", () => () => (target) => target);
@@ -74,18 +75,48 @@ function dashboardCacheHolding(singleResults, nestedResults) {
     };
 }
 
-// Runs refreshCount over `cards`. `fresh` gives each card's freshly computed result by card uuid.
-function refresh(cards, {fresh = {}, cached = [], cachedNested = [], autoRefreshEnabled = true} = {}) {
-    const dashboardCache = dashboardCacheHolding(cached, cachedNested);
+// A failed count saved by an earlier build, as the cache hands it back: its two lines, with the error flag lost.
+function savedFailure(reportCard) {
+    const result = ReportCardResult.create("Error", "queryExecutionError", false, true);
+    result.reportCard = reportCard.uuid;
+    result.dashboard = DASHBOARD;
+    return result;
+}
+
+// A cache service that records what refreshCount saves, and saves nothing.
+function recordingCacheService(dashboardCache) {
+    const updates = [];
+    const batches = [];
+    return {
+        getDashboardCache: () => ({dashboardCache}),
+        updateReportCardResult: (dashboardUUID, reportCard, result) => updates.push({card: reportCard.uuid, result}),
+        batchUpdateResults: (dashboardUUID, single, nested) => batches.push({single, nested}),
+        updates,
+        batches,
+    };
+}
+
+// The real cache service over one real CustomDashboardCache, so what one refresh saves is what the next one reads.
+function realCacheServiceOver(cache) {
+    const service = Object.create(CustomDashboardCacheService.prototype);
+    // Getters on BaseService, so they are defined on the instance rather than assigned.
+    Object.defineProperty(service, "transactionManager", {value: {write: (fn) => fn()}});
+    Object.defineProperty(service, "repository", {value: {persistMutations: () => {}}});
+    service.findByFiltered = () => cache;
+    service.getDashboardCache = () => ({dashboardCache: cache});
+    return service;
+}
+
+// Runs refreshCount over `cards`. `fresh` gives each card's freshly computed result by card uuid. Returns the tiles
+// shown, the cache service, and the cards counted.
+function runRefresh(cards, {fresh = {}, cached = [], cachedNested = [], autoRefreshEnabled = true, cacheService} = {}) {
+    const service = cacheService || recordingCacheService(dashboardCacheHolding(cached, cachedNested));
+    const getReportCardCount = jest.fn((reportCard) => fresh[reportCard.uuid]);
     const services = new Map([
         [CustomDashboardService, {getDashboardData: () => ({selectedFilterValues: {}})}],
-        [CustomDashboardCacheService, {
-            getDashboardCache: () => ({dashboardCache}),
-            updateReportCardResult: () => {},
-            batchUpdateResults: () => {},
-        }],
+        [CustomDashboardCacheService, service],
         [UserInfoService, {getUserSettingsObject: () => ({autoRefreshEnabled})}],
-        [ReportCardService, {db: null, getReportCardCount: (reportCard) => fresh[reportCard.uuid]}],
+        [ReportCardService, {db: null, getReportCardCount}],
         [MessageService, {getI18n: () => ({t: (key) => key})}],
         [DashboardFilterService, {toRuleInputObjects: () => []}],
     ]);
@@ -95,8 +126,11 @@ function refresh(cards, {fresh = {}, cached = [], cachedNested = [], autoRefresh
         activeDashboardUUID: DASHBOARD,
         reportCardSectionMappings: cards.map((reportCard) => ({card: reportCard})),
     };
-    return CustomDashboardActions.refreshCount(state, {}, {get: (Class) => services.get(Class)}).cardToCountResultMap;
+    const map = CustomDashboardActions.refreshCount(state, {}, {get: (Class) => services.get(Class)}).cardToCountResultMap;
+    return {map, cacheService: service, counted: getReportCardCount.mock.calls.map(([reportCard]) => reportCard.uuid)};
 }
+
+const refresh = (cards, options) => runRefresh(cards, options).map;
 
 describe("CustomDashboardActions.refreshCount, which numbers can be tapped", () => {
     describe("a single card", () => {
@@ -227,5 +261,109 @@ describe("CustomDashboardActions.refreshCount, which numbers can be tapped", () 
                 assert.isFalse(map[reportCard.getCardId(index)].clickable, `sub-card ${index}`);
             });
         });
+    });
+});
+
+// With auto refresh off the dashboard shows saved counts, and the cache hands every saved count back as tappable and
+// not an error. So a failed Open dashboard count is never saved, and one saved by an earlier build is counted again.
+describe("CustomDashboardActions.refreshCount, which counts are saved", () => {
+    const savedFor = (cacheService, cardUUID) => ({
+        updates: cacheService.updates.filter((x) => x.card === cardUUID),
+        batched: _.flatMap(cacheService.batches, (b) => b.single).filter((x) => x.card.uuid === cardUUID),
+    });
+
+    it("with Open dashboard and auto refresh on, a failed count is not saved", () => {
+        const reportCard = openDashboardCard("open");
+
+        const {cacheService} = runRefresh([reportCard], {fresh: {open: failedQueryTile(reportCard)}});
+
+        const {updates, batched} = savedFor(cacheService, "open");
+        assert.lengthOf(updates, 0, "no save on its own");
+        assert.lengthOf(batched, 1);
+        assert.isNull(batched[0].result, "the batch is told to drop the card's saved count");
+    });
+
+    it("without an action, a failed count is still saved", () => {
+        const reportCard = card("plain");
+        const fresh = {plain: failedQueryTile(reportCard)};
+
+        const {cacheService} = runRefresh([reportCard], {fresh});
+
+        const {updates, batched} = savedFor(cacheService, "plain");
+        assert.strictEqual(updates[0].result, fresh.plain);
+        assert.strictEqual(batched[0].result, fresh.plain);
+    });
+
+    it("with Open dashboard, a count is saved as today", () => {
+        const reportCard = openDashboardCard("open");
+        const fresh = {open: ReportCardResult.fromQueryResult(valueOnly())};
+
+        const {cacheService} = runRefresh([reportCard], {fresh});
+
+        const {updates, batched} = savedFor(cacheService, "open");
+        assert.strictEqual(updates[0].result, fresh.open);
+        assert.strictEqual(batched[0].result, fresh.open);
+    });
+
+    it("with Open dashboard and auto refresh off, a failure saved by an earlier build is counted again, and still has no arrow", () => {
+        const reportCard = openDashboardCard("open");
+        const fresh = {open: failedQueryTile(reportCard)};
+
+        const {map, counted} = runRefresh([reportCard], {fresh, cached: [savedFailure(reportCard)], autoRefreshEnabled: false});
+
+        assert.deepEqual(counted, ["open"]);
+        const tile = map[reportCard.getCardId()];
+        assert.strictEqual(tile, fresh.open);
+        assert.isFalse(tile.clickable);
+    });
+
+    it("with Open dashboard and auto refresh off, a failure saved by an earlier build gives way to the count the query now gives", () => {
+        const reportCard = openDashboardCard("open");
+        const fresh = {open: ReportCardResult.fromQueryResult(valueOnly("12"))};
+
+        const {map, counted} = runRefresh([reportCard], {fresh, cached: [savedFailure(reportCard)], autoRefreshEnabled: false});
+
+        assert.deepEqual(counted, ["open"]);
+        assert.equal(map[reportCard.getCardId()].primaryValue, "12");
+        assert.isTrue(map[reportCard.getCardId()].clickable);
+    });
+
+    it("without an action and auto refresh off, a saved failure is shown as saved", () => {
+        const reportCard = card("plain");
+
+        const {map, counted} = runRefresh([reportCard], {cached: [savedFailure(reportCard)], autoRefreshEnabled: false});
+
+        assert.deepEqual(counted, [], "other cards are outside this card's scope");
+        assert.equal(map[reportCard.getCardId()].primaryValue, "Error");
+    });
+
+    it("with Open dashboard, a failed count is counted again on the next load with auto refresh off, and has no arrow", () => {
+        const reportCard = openDashboardCard("open");
+        const good = ReportCardResult.create("7", null, true);
+        good.reportCard = "open";
+        good.dashboard = DASHBOARD;
+        const cache = new CustomDashboardCache({uuid: "cache-1", dashboard: {uuid: DASHBOARD}, reportCardResults: [good.that], nestedReportCardResults: []});
+        const cacheService = realCacheServiceOver(cache);
+
+        const first = runRefresh([reportCard], {fresh: {open: failedQueryTile(reportCard)}, cacheService});
+        assert.isFalse(first.map[reportCard.getCardId()].clickable, "the failure on screen has no arrow");
+        assert.isUndefined(cache.getReportCardResult(reportCard), "the good count saved before is gone, and no failure is saved");
+
+        const second = runRefresh([reportCard], {fresh: {open: failedQueryTile(reportCard)}, cacheService, autoRefreshEnabled: false});
+        assert.deepEqual(second.counted, ["open"], "counted again, not read from the saved counts");
+        const tile = second.map[reportCard.getCardId()];
+        assert.isTrue(tile.hasErrorMsg);
+        assert.isFalse(tile.clickable);
+        assert.isUndefined(cache.getReportCardResult(reportCard));
+    });
+
+    it("with Open dashboard and nested and auto refresh off, a failed card is counted fresh, has no arrow and is not saved", () => {
+        const reportCard = openDashboardCard("open", {nested: true, countOfCards: 2});
+
+        const {map, counted, cacheService} = runRefresh([reportCard], {fresh: {open: failedQueryTile(reportCard)}, autoRefreshEnabled: false});
+
+        assert.deepEqual(counted, ["open"]);
+        [0, 1].forEach((index) => assert.isFalse(map[reportCard.getCardId(index)].clickable, `sub-card ${index}`));
+        assert.lengthOf(_.flatMap(cacheService.batches, (b) => b.nested), 0);
     });
 });

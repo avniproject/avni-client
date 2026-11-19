@@ -73,6 +73,17 @@ function makeOpenDashboardResultTappable(reportCard, result) {
     if (reportCard.isActionOpenDashboard() && !_.isNil(result)) result.clickable = !result.hasErrorMsg;
 }
 
+// A saved count comes back from the cache tappable and not an error, so a failed Open dashboard count saved by an
+// earlier build would open the dashboard. It is known by the two lines a failed query's tile carries
+// (RuleEvaluationService.executeDashboardCardRule), in the language they were saved in.
+function isSavedOpenDashboardFailure(reportCard, savedResult, I18n) {
+    return reportCard.isActionOpenDashboard() && !_.isNil(savedResult)
+        && savedResult.primaryValue === I18n.t("Error") && savedResult.secondaryValue === I18n.t("queryExecutionError");
+}
+
+// A failed Open dashboard count is not saved: read back from the cache it would show as tappable.
+const isFailedOpenDashboardCount = (reportCard, result) => reportCard.isActionOpenDashboard() && _.get(result, "hasErrorMsg") === true;
+
 function getReportsCards(dashboardUUID, context) {
     return context.get(DashboardSectionCardMappingService).getAllCardsForDashboard(dashboardUUID);
 }
@@ -405,6 +416,7 @@ class CustomDashboardActions {
                 }
             } else {
                 let reportCardResult = dashboardCache.getReportCardResult(rcm.card);
+                if (isSavedOpenDashboardFailure(rcm.card, reportCardResult, I18n)) reportCardResult = null;
 
                 if (userSettings.autoRefreshEnabled || _.isNil(reportCardResult)) {
                     reportCardResult = reportCardService.getReportCardCount(rcm.card, ruleInputArray);
@@ -412,8 +424,12 @@ class CustomDashboardActions {
                         const {result} = reportCardService.getReportCardResult(rcm.card, ruleInputArray);
                         reportCardResult = getDoVisitFilteredCount(rcm.card, result, reportCardResult);
                     }
-                    customDashboardCacheService.updateReportCardResult(state.activeDashboardUUID, rcm.card, reportCardResult);
-                    pendingSingleResults.push({card: rcm.card, result: reportCardResult});
+                    if (isFailedOpenDashboardCount(rcm.card, reportCardResult)) {
+                        pendingSingleResults.push({card: rcm.card, result: null});
+                    } else {
+                        customDashboardCacheService.updateReportCardResult(state.activeDashboardUUID, rcm.card, reportCardResult);
+                        pendingSingleResults.push({card: rcm.card, result: reportCardResult});
+                    }
                 }
                 makeOpenDashboardResultTappable(rcm.card, reportCardResult);
                 newState.cardToCountResultMap[rcm.card.getCardId()] = reportCardResult;

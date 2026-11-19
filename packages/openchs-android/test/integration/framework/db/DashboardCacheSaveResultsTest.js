@@ -87,4 +87,12 @@ describe("CustomDashboardCacheService on SQLite, saving a card's count", () => {
 
         assert.sameDeepMembers(savedCounts(), [[A.uuid, "8"], [B.uuid, "5"]]);
     });
+
+    it("batchUpdateResults given no result for a card drops its saved count and saves none", () => {
+        const {service, savedCounts} = phone([savedCount("r-1", A.uuid, "7"), savedCount("r-2", B.uuid, "5")]);
+
+        service.batchUpdateResults(DASHBOARD, [{card: A, result: null}], []);
+
+        assert.deepEqual(savedCounts(), [[B.uuid, "5"]]);
+    });
 });

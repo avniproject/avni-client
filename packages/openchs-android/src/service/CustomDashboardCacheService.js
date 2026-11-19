@@ -196,7 +196,7 @@ class CustomDashboardCacheService extends BaseService {
     /**
      * Batch-write all card results in a single transaction.
      * @param {string} dashboardUUID
-     * @param {Array<{card, result}>} singleCardResults — [{card: ReportCard, result: reportCardResult}]
+     * @param {Array<{card, result}>} singleCardResults — [{card: ReportCard, result: reportCardResult}]; a null result drops the card's saved count and saves none
      * @param {Array<{card, results}>} nestedCardResults — [{card: ReportCard, results: [reportCardResult, ...]}]
      */
     batchUpdateResults(dashboardUUID, singleCardResults, nestedCardResults) {
@@ -207,6 +207,8 @@ class CustomDashboardCacheService extends BaseService {
 
             for (const {card, result} of singleCardResults) {
                 removeSavedResults(dashboardCache.reportCardResults, (x) => x.reportCard === card.uuid && x.dashboard === dashboardCache.dashboard.uuid);
+                // No result means the card's count must not be kept, so the next load counts it again.
+                if (_.isNil(result)) continue;
                 result.dashboard = dashboardUUID;
                 result.reportCard = card.uuid;
                 dashboardCache.reportCardResults.push(result);

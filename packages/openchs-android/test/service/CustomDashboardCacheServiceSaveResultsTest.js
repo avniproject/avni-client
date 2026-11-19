@@ -91,6 +91,18 @@ describe("CustomDashboardCacheService, saving a card's count", () => {
             assert.equal(cache.getReportCardResult(A).primaryValue, "8");
         });
 
+        it("batchUpdateResults given no result for a card drops its saved count and saves none", () => {
+            const {service, cache, persistMutations} = serviceOver({single: [stored("A", "7"), stored("B", "5"), stored("A", "6")]});
+
+            service.batchUpdateResults(DASHBOARD, [{card: A, result: null}], []);
+
+            const rows = holdsSingle(cache);
+            assert.deepEqual(entriesFor(rows, "A"), []);
+            assert.deepEqual(entriesFor(rows, "B"), [["B", "5", DASHBOARD]]);
+            assert.isUndefined(cache.getReportCardResult(A));
+            assert.equal(persistMutations.mock.calls.length, 1);
+        });
+
         it("a card saved more than once by earlier builds ends with one count, the new one", () => {
             const {service, cache} = serviceOver({single: [stored("A", "7"), stored("A", "6"), stored("B", "5")]});
 
