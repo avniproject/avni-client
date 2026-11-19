@@ -10,6 +10,7 @@ import {open} from "@op-engineering/op-sqlite";
 
 const PHONE = "c-phone";
 const NOTES = "c-notes";
+const HIGH_RISK_CONDITION = "c-high-risk-condition";
 const answer = (concept, value) => ({concept: {uuid: concept}, valueJSON: JSON.stringify({answer: value})});
 
 describe("a query on a path into an embedded list, on SQLite", () => {
@@ -37,6 +38,15 @@ describe("a query on a path into an embedded list, on SQLite", () => {
             person("asha", [answer(PHONE, "9876543210")], [answer(NOTES, "fever")]);
             person("bina", [answer(NOTES, "9876543210")], []);
             person("chitra", [], null);
+
+            create("Program", {uuid: "pr", name: "Pregnancy", voided: false, active: true, colour: "#000"});
+            create("Concept", {uuid: HIGH_RISK_CONDITION, name: "High risk condition", datatype: "Coded", voided: false, keyValues: []});
+            const pregnant = (uuid, enrolmentObservations) => {
+                person(uuid, [answer(NOTES, "registered")], null);
+                create("ProgramEnrolment", {uuid: `enrolment-${uuid}`, enrolmentDateTime: new Date(2026, 0, 2), voided: false, individual: {uuid}, program: {uuid: "pr"}, observations: enrolmentObservations});
+            };
+            pregnant("dina", [answer(NOTES, "first visit"), answer(HIGH_RISK_CONDITION, ["anaemia"])]);
+            pregnant("esha", [answer(NOTES, "first visit")]);
         });
     });
 
@@ -57,4 +67,21 @@ describe("a query on a path into an embedded list, on SQLite", () => {
     it("still finds by a question's uuid in SQL", () => {
         assert.deepEqual(names(`observations.concept.uuid == "${PHONE}"`), ["asha"]);
     });
-});
+
+    it("matches a question's name inside a SUBQUERY on answers, though an answer stores only the question's uuid", () => {
+        assert.deepEqual(names("SUBQUERY(observations, $obs, $obs.concept.name = 'Phone').@count > 0"), ["asha"]);
+        assert.deepEqual(names("SUBQUERY(observations, $obs, $obs.concept.name == 'Notes' AND $obs.valueJSON CONTAINS '9876543210').@count > 0"), ["bina"]);
+        assert.deepEqual(names("SUBQUERY(observations, $obs, $obs.concept.name CONTAINS 'hon').@count > 0"), ["asha"]);
+        assert.deepEqual(names("SUBQUERY(observations, $obs, $obs.concept.name != 'Notes').@count > 0"), ["asha"]);
+    });
+
+    it("matches a question's name in an enrolment's answers, as report card 2745 (org 272) does", () => {
+        const query = `voided = false AND SUBQUERY(enrolments, $enrolment,
+            $enrolment.program.name = 'Pregnancy' AND $enrolment.programExitDateTime = null AND $enrolment.voided = false AND
+            SUBQUERY($enrolment.observations, $obs,
+                ($obs.concept.uuid = 'c-other' AND $obs.valueJSON CONTAINS 'yes')
+                OR ($obs.concept.name = 'High risk condition' AND $obs.valueJSON != '[]')
+            ).@count > 0
+        ).@count > 0`;
+        assert.deepEqual(names(query), ["dina"]);
+    });});

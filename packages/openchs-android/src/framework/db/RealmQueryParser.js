@@ -1426,7 +1426,7 @@ class RealmQueryParser {
      * Supported condition patterns within the SUBQUERY:
      *   $obs.concept.uuid = "uuid"       → json_extract(jobs.value, '$.concept.uuid') = ?
      *   $obs.valueJSON contains "text"    → jobs.value LIKE '%text%'
-     *   $obs.concept.name = "name"        → json_extract(jobs.value, '$.concept.name') = ?
+     *   $obs.concept.name = "name"        → json_extract(jobs.value, '$.concept.uuid') IN (SELECT "uuid" FROM concept WHERE "name" = ?)
      *   Combined with AND/OR
      *
      * @returns {{ where: string, params: Array }} | null
@@ -1564,7 +1564,7 @@ class RealmQueryParser {
      *
      * Patterns:
      *   concept.uuid = "uuid"          → json_extract(jobs.value, '$.concept.uuid') = ?
-     *   concept.name = "name"          → json_extract(jobs.value, '$.concept.name') = ?
+     *   concept.name = "name"          → json_extract(jobs.value, '$.concept.uuid') IN (SELECT "uuid" FROM concept WHERE "name" = ?)
      *   valueJSON contains "text"      → jobs.value LIKE ?
      *   valueJSON CONTAINS[c] "text"   → jobs.value LIKE ?
      */
@@ -1578,6 +1578,9 @@ class RealmQueryParser {
             const jsonPath = '$.' + fieldPath;
             const sqlOp = (op === '==' || op === '=') ? '=' : (op === '!=' || op === '<>') ? '!=' : op;
             params.push(value);
+            if (fieldPath === 'concept.name') {
+                return this._observationConceptNameCondition(sqlOp === '=' ? 'IN' : 'NOT IN', '"name" = ?');
+            }
             return `json_extract(jobs.value, '${jsonPath}') ${sqlOp} ?`;
         }
 
@@ -1585,6 +1588,10 @@ class RealmQueryParser {
         const containsMatch = trimmed.match(/^([\w.]+)\s+contains(?:\[c\])?\s+(['"])(.*?)\2$/i);
         if (containsMatch) {
             const [, fieldPath, , value] = containsMatch;
+            if (fieldPath === 'concept.name') {
+                params.push(`%${value}%`);
+                return this._observationConceptNameCondition('IN', '"name" LIKE ?');
+            }
             if (fieldPath.toLowerCase() === 'valuejson') {
                 // valueJSON contains "text" → search in the raw JSON value
                 params.push(`%${value}%`);
@@ -1608,6 +1615,11 @@ class RealmQueryParser {
 
         // Unrecognized pattern — bail out
         return null;
+    }
+
+    // A stored answer keeps only its question's uuid, so the question's name is read from the concept table.
+    static _observationConceptNameCondition(membership, conceptWhere) {
+        return `json_extract(jobs.value, '$.concept.uuid') ${membership} (SELECT "uuid" FROM ${schemaNameToTableName("Concept")} WHERE ${conceptWhere})`;
     }
 
     /**
