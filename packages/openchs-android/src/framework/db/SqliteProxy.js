@@ -235,6 +235,20 @@ class SqliteProxy {
         return (rows && rows.length > 0) ? Number(rows[0].cnt) || 0 : 0;
     }
 
+    // Embedded objects are JSON on their parent rows: a list column holds an array, a single one an object.
+    execCountEmbedded(embeddedSchemaName) {
+        const terms = [];
+        this.tableMetaMap.forEach(tableMeta => {
+            _.forEach(tableMeta.embeddedProperties, (type, propName) => {
+                if (type !== embeddedSchemaName) return;
+                const col = camelToSnake(propName);
+                terms.push(`SELECT COALESCE(SUM(CASE WHEN json_valid(${col}) THEN CASE json_type(${col}) WHEN 'array' THEN json_array_length(${col}) WHEN 'object' THEN 1 ELSE 0 END ELSE 0 END), 0) AS cnt FROM ${tableMeta.tableName}`);
+            });
+        });
+        if (terms.length === 0) return 0;
+        return this.execCount(`SELECT SUM(cnt) AS total FROM (${terms.join(" UNION ALL ")})`);
+    }
+
     /**
      * Look up an observation value from a JSON observations column.
      * Uses json_each() to search by concept UUID or name without hydration.

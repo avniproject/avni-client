@@ -171,4 +171,11 @@ export default class FileSystem {
     static async getRealmDBSize() {
         return await fs.stat(`${fs.DocumentDirectoryPath}/default.realm`).then(fileInfo => fileInfo.size);
     }
+
+    // New writes sit in the write-ahead log until a checkpoint, so the main file alone lags behind.
+    static async getSqliteDBSize(dbPath) {
+        const walPath = `${dbPath}-wal`;
+        const walSize = await fs.exists(walPath) ? (await fs.stat(walPath)).size : 0;
+        return (await fs.stat(dbPath)).size + walSize;
+    }
 }
