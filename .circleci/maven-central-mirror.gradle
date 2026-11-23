@@ -1,0 +1,30 @@
+// CI-only init script: Maven Central answers CircleCI with 429, so use Google's mirror of it.
+
+def mirror = 'https://maven-central.storage-download.googleapis.com/maven2/'
+def centralHosts = ['repo.maven.apache.org', 'repo1.maven.org']
+
+def useMirror = { RepositoryHandler repos ->
+    repos.all { repo ->
+        if (repo instanceof MavenArtifactRepository && centralHosts.contains(repo.url?.host)) {
+            repo.url = mirror
+        }
+    }
+}
+
+beforeSettings { settings ->
+    // The plugin portal redirects to repo.maven.apache.org, so the mirror goes first; declaring it drops the default portal.
+    settings.pluginManagement.repositories {
+        maven {
+            name = 'MavenCentralMirror'
+            url = mirror
+        }
+        gradlePluginPortal()
+    }
+    useMirror(settings.pluginManagement.repositories)
+    useMirror(settings.dependencyResolutionManagement.repositories)
+}
+
+allprojects {
+    useMirror(buildscript.repositories)
+    useMirror(repositories)
+}
