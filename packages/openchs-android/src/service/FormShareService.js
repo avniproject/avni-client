@@ -1,4 +1,5 @@
 import BaseService from "./BaseService";
+import {fullAddressOf} from "../utility/SubjectAddress";
 import Service from "../framework/bean/Service";
 import _ from "lodash";
 import moment from "moment";
@@ -180,7 +181,7 @@ class FormShareService extends BaseService {
     _subjectHeaderText(individual) {
         if (!individual) return "";
         const name = individual.getTranslatedNameString ? individual.getTranslatedNameString(this.I18n) : individual.nameString;
-        const fullAddress = individual.fullAddress ? individual.fullAddress(this.I18n) : "";
+        const fullAddress = fullAddressOf(individual, this.I18n);
         const parts = [name];
         if (individual.subjectType && individual.subjectType.isPerson && individual.subjectType.isPerson()) {
             const genderName = _.get(individual, "gender.name");

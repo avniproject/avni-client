@@ -1,4 +1,5 @@
 import BaseService from "./BaseService";
+import {fullAddressOf} from "../utility/SubjectAddress";
 import Service from "../framework/bean/Service";
 import moment from "moment";
 import _ from "lodash";
@@ -180,7 +181,7 @@ class FormPDFService extends BaseService {
 
     _buildSubjectHeaderHtml(individual) {
         const name = escapeHtml(individual.getTranslatedNameString ? individual.getTranslatedNameString(this.I18n) : individual.nameString);
-        const fullAddress = individual.fullAddress ? escapeHtml(individual.fullAddress(this.I18n)) : "";
+        const fullAddress = escapeHtml(fullAddressOf(individual, this.I18n));
         let detailsLine = fullAddress;
         if (individual.subjectType && individual.subjectType.isPerson && individual.subjectType.isPerson()) {
             const genderName = individual.gender?.name;

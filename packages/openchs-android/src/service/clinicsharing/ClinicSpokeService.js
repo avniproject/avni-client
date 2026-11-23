@@ -12,6 +12,7 @@ import UserInfoService from "../UserInfoService";
 import {MyDashboardActionNames} from '../../action/mydashboard/MyDashboardActions';
 import {connectToHub, MessageType} from "../../framework/clinicsharing/ClinicTransport";
 import {CLINIC_SYNC_INTERVAL_SECONDS, LEAVE_SYNC_TIMEOUT_MS, SHAREABLE_ENTITIES} from "../../framework/clinicsharing/ClinicSharingConstants";
+import {isSubjectWithoutAddressHere} from "../../utility/SubjectAddress";
 
 const SERVICE_ROLE = 'phone';
 const LEAVE_REQUESTED_EVENT = 'ClinicPhoneLeaveRequested';
@@ -220,6 +221,8 @@ class ClinicSpokeService extends BaseService {
                 resources: _.sortBy(items, (item) => item.savedAt.getTime())
                     .map((item) => this.findByKey('uuid', item.entityUUID, entityName))
                     .filter((entity) => !_.isNil(entity))
+                    // Such a patient came from the hub, which already has it.
+                    .filter((entity) => !isSubjectWithoutAddressHere(entityName, entity))
                     .map((entity) => this.getService(ClinicRecordService).toSharedResource(entityName, entity)),
             }))
             .filter((batch) => batch.resources.length > 0);

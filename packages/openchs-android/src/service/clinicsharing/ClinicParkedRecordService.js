@@ -1,6 +1,6 @@
 import Service from "../../framework/bean/Service";
 import BaseService from "../BaseService";
-import {EntityQueue} from 'openchs-models';
+import {EntityQueue, Individual} from 'openchs-models';
 import _ from "lodash";
 import General from "../../utility/General";
 import ErrorUtil from "../../framework/errorHandling/ErrorUtil";
@@ -8,6 +8,8 @@ import ClinicRecordService, {parentsFirstIndex} from "./ClinicRecordService";
 
 // Keys are the shared (toResource) format; a /UUID$/ match would also catch reference data.
 const PARENTS = {
+    // The models require a subject's address, so a patient from a village this phone lacks cannot be worked on here.
+    Individual: [['addressLevelUUID', 'AddressLevel']],
     Encounter: [['individualUUID', 'Individual']],
     ProgramEnrolment: [['individualUUID', 'Individual']],
     ProgramEncounter: [['programEnrolmentUUID', 'ProgramEnrolment']],
@@ -55,7 +57,7 @@ class ClinicParkedRecordService extends BaseService {
         const parents = entityName === 'EntityApprovalStatus'
             ? [{uuid: resource.entityUuid, schema: APPROVED_SCHEMA[resource.entityType]}]
             : (PARENTS[entityName] || []).map(([key, schema]) => ({uuid: resource[key], schema}));
-        return parents.filter(({uuid, schema}) => _.isString(uuid) && !_.isNil(schema));
+        return parents.filter(({uuid, schema}) => _.isString(uuid) && !_.isNil(schema) && uuid !== Individual.getAddressLevelDummyUUID());
     }
 
     _missingParents(entityName, resource) {
@@ -112,8 +114,27 @@ class ClinicParkedRecordService extends BaseService {
         return rowsOf(this._state().executeSync('select uuid, entity_name, resource, origin, parked_at, reported from parked_records'));
     }
 
+    // A patient from a village this phone lacks, and anything under it, waits for the server sync that brings the village: expected in a camp, not an orphan.
+    _waitingOnAddress(rows) {
+        const missingByUuid = new Map(rows.map((row) => [row.uuid, this._missingParents(row.entity_name, JSON.parse(row.resource))]));
+        const waiting = new Set();
+        let grew = true;
+        while (grew) {
+            grew = false;
+            rows.filter((row) => !waiting.has(row.uuid)).forEach((row) => {
+                if (missingByUuid.get(row.uuid).some(({schema, uuid}) => schema === 'AddressLevel' || waiting.has(uuid))) {
+                    waiting.add(row.uuid);
+                    grew = true;
+                }
+            });
+        }
+        return waiting;
+    }
+
     async _retry(log) {
-        const rows = this._parkedRows();
+        const parkedRows = this._parkedRows();
+        const waitingOnAddress = this._waitingOnAddress(parkedRows);
+        const rows = parkedRows.filter((row) => !waitingOnAddress.has(row.uuid));
         let appliedCount = 0;
         for (const [origin, originRows] of _.toPairs(_.groupBy(rows, (row) => row.origin || ''))) {
             const batches = _.sortBy(_.toPairs(_.groupBy(originRows, 'entity_name')), ([entityName]) => parentsFirstIndex(entityName))
@@ -143,7 +164,9 @@ class ClinicParkedRecordService extends BaseService {
     // Only records parked before this sync began are reported; one a sync ahead of its parent gets the next sync to catch up.
     async afterSync(syncStartedAt, log = _.noop) {
         const applied = await this._retry(log);
-        const orphans = this._parkedRows().filter((row) => row.parked_at < syncStartedAt && !row.reported);
+        const rows = this._parkedRows();
+        const waitingOnAddress = this._waitingOnAddress(rows);
+        const orphans = rows.filter((row) => row.parked_at < syncStartedAt && !row.reported && !waitingOnAddress.has(row.uuid));
         if (orphans.length > 0) {
             this._report(orphans);
             await this._state().executeBatch(orphans.map((row) => ['update parked_records set reported = 1 where uuid = ?', [row.uuid]]));
@@ -156,7 +179,8 @@ class ClinicParkedRecordService extends BaseService {
     async afterServerSync() {
         const rows = this._parkedRows();
         if (rows.length === 0) return {dropped: 0, reported: 0};
-        const orphans = rows.filter((row) => !row.reported && this._missingParents(row.entity_name, JSON.parse(row.resource)).length > 0);
+        const waitingOnAddress = this._waitingOnAddress(rows);
+        const orphans = rows.filter((row) => !row.reported && !waitingOnAddress.has(row.uuid) && this._missingParents(row.entity_name, JSON.parse(row.resource)).length > 0);
         this._report(orphans);
         await this._state().executeBatch([['delete from parked_records', []]]);
         return {dropped: rows.length, reported: orphans.length};

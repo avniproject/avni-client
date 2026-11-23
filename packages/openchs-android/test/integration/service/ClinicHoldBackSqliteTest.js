@@ -16,7 +16,7 @@ jest.mock('react-native-keychain', () => ({
     getGenericPassword: jest.fn(async () => false), setGenericPassword: jest.fn(async () => {}), resetGenericPassword: jest.fn(async () => {}),
 }));
 
-import {Encounter, EntityMappingConfig, EntityMetaData} from "openchs-models";
+import {Encounter, EntityMappingConfig, EntityMetaData, Individual} from "openchs-models";
 import SchemaGenerator from "../../../src/framework/db/SchemaGenerator";
 import SqliteProxy from "../../../src/framework/db/SqliteProxy";
 import RepositoryFactory from "../../../src/repository/RepositoryFactory";
@@ -673,5 +673,120 @@ describe("Records that arrive before their parent", () => {
 
         expect(parked()).toEqual([]);
         expect(mine.rawDb.executeSync("SELECT program_enrolment_uuid AS parent FROM program_encounter WHERE uuid = 'pe-1'").rows[0].parent).toBe("enl-1");
+    });
+});
+
+const patientInVillageElsewhere = (uuid) => {
+    const other = phone();
+    other.create("AddressLevel", {uuid: "village-elsewhere", title: "Elsewhere", level: 1, voided: false, type: "Village"});
+    other.create("Individual", {...patient(uuid), lowestAddressLevel: {uuid: "village-elsewhere"}});
+    const resource = JSON.parse(JSON.stringify(other.recordService.toSharedResource("Individual", other.read("Individual", uuid))));
+    other.rawDb.close();
+    return resource;
+};
+
+describe("A received patient whose village is not on this phone", () => {
+    let mine, reports;
+    const log = () => {};
+    const parked = () => mine.services.get(ClinicSpokeService).stateDb.executeSync("SELECT uuid FROM parked_records ORDER BY uuid").rows.map((r) => r.uuid);
+
+    beforeEach(async () => {
+        mine = phone();
+        reports = jest.spyOn(ErrorUtil, 'notifyBugsnag').mockImplementation(async () => {});
+        await mine.recordService.applyBatches([{entityName: 'Individual', resources: [patientInVillageElsewhere("p-2")]}], log);
+    });
+    afterEach(async () => {
+        reports.mockRestore();
+        await mine.close();
+    });
+
+    it("waits instead of being saved, and a visit on it from another phone waits with it", async () => {
+        await mine.recordService.applyBatches([{entityName: 'Encounter', resources: [fromAnotherPhone('Encounter', 'Encounter', visit("v-3", "p-2"))]}], log);
+        expect(mine.read("Individual", "p-2") ?? null).toBeNull();
+        expect(parked()).toEqual(["p-2", "v-3"]);
+    });
+
+    it("does not hold a user subject, whose placeholder address is on no phone", async () => {
+        const other = phone();
+        other.create("SubjectType", {uuid: "st-user", name: "User", type: "User", voided: false});
+        other.create("Individual", {...patient("u-1"), subjectType: {uuid: "st-user"}, lowestAddressLevel: {uuid: Individual.getAddressLevelDummyUUID()}});
+        const resource = JSON.parse(JSON.stringify(other.recordService.toSharedResource("Individual", other.read("Individual", "u-1"))));
+        other.rawDb.close();
+        mine.create("SubjectType", {uuid: "st-user", name: "User", type: "User", voided: false});
+
+        await mine.recordService.applyBatches([{entityName: 'Individual', resources: [resource]}], log);
+
+        expect(parked()).toEqual(["p-2"]);
+        expect(mine.read("Individual", "u-1")).toBeDefined();
+    });
+
+    it("and the visit waiting with it, is not reported as an orphan or retried on later hub syncs", async () => {
+        await mine.recordService.applyBatches([{entityName: 'Encounter', resources: [fromAnotherPhone('Encounter', 'Encounter', visit("v-3", "p-2"))]}], log);
+        const applyBatches = jest.spyOn(mine.recordService, 'applyBatches');
+
+        await mine.services.get('clinicParkedRecordService').afterSync(Date.now() + 1000, log);
+
+        expect(reports).not.toHaveBeenCalled();
+        expect(applyBatches).not.toHaveBeenCalled();
+        expect(parked()).toEqual(["p-2", "v-3"]);
+    });
+
+    it("is dropped without a report after a server sync, which brings the patient with its village", async () => {
+        await mine.services.get('clinicParkedRecordService').afterServerSync();
+        expect(reports).not.toHaveBeenCalled();
+        expect(parked()).toEqual([]);
+    });
+
+});
+
+describe("A patient a phone saved with no village before received patients waited for their village", () => {
+    let mine;
+    const log = () => {};
+
+    beforeEach(async () => {
+        mine = phone();
+        const parkedRecords = mine.services.get('clinicParkedRecordService');
+        const withParentsPresent = parkedRecords.withParentsPresent;
+        parkedRecords.withParentsPresent = async (entityName, resources) => ({ready: resources, parked: 0, dropped: 0});
+        await mine.recordService.applyBatches([{entityName: 'Individual', resources: [patientInVillageElsewhere("p-2")]}], log);
+        parkedRecords.withParentsPresent = withParentsPresent;
+    });
+    afterEach(async () => { await mine.close(); });
+
+    // Saving the subject's location queues the patient (IndividualService.updateSubjectLocation).
+    const recordVisitOnIt = () => {
+        mine.saveLocally("Encounter", visit("v-2", "p-2"));
+        mine.create("EntityQueue", {entity: "Individual", entityUUID: "p-2", savedAt: new Date()});
+    };
+
+    it("has no village", () => {
+        expect(mine.read("Individual", "p-2").lowestAddressLevel).toBeFalsy();
+    });
+
+    it("does not stop this phone's own records uploading once a visit is recorded on it, and stays queued", async () => {
+        recordVisitOnIt();
+        mine.saveLocally("Individual", patient("own-1", "Kamla"));
+
+        await mine.push();
+
+        expect(mine.postedUuids()).toEqual(["own-1"]);
+        expect(mine.queued()).toEqual(["p-2", "v-2"]);
+    });
+
+    it("does not stop the held-uploads count from loading, which shows the visit waiting on it", async () => {
+        recordVisitOnIt();
+        expect((await mine.holdBack.getHeldUploads()).items).toEqual([{entityType: "Encounter", uuid: "v-2", waitingOn: "p-2"}]);
+    });
+
+    it("is not sent back to the hub when a joined phone records a visit on it, while the visit is", () => {
+        recordVisitOnIt();
+        const {batches} = mine.services.get(ClinicSpokeService).collectOutbox(new Map());
+        expect(batches.map(({entityName, resources}) => [entityName, resources.map((r) => r.uuid)])).toEqual([["Encounter", ["v-2"]]]);
+    });
+
+    it("is skipped from the upload only while clinic sharing is on", async () => {
+        recordVisitOnIt();
+        mine.services.set(OrganisationConfigService, {getSettings: () => ({})});
+        await expect((async () => mine.push())()).rejects.toThrow(/uuid/);
     });
 });

@@ -59,7 +59,7 @@ function device() {
         },
         stub(service) {
             service.findAll = () => queue;
-            service.findByKey = (key, uuid) => records[uuid] && {toResource: {uuid, version: records[uuid].version}};
+            service.findByKey = (key, uuid) => records[uuid] && {lowestAddressLevel: {uuid: 'village'}, toResource: {uuid, version: records[uuid].version}};
             const clinic = {clinicMediaService: {pushToHub: async () => 0, discardStrayParts: async () => {}, discardFetchedCopies: async () => {}, discardHubCopies: async () => {}}, clinicParkedRecordService: parkedRecords,
                 clinicSpokeService: {camp: async () => null, leaveCamp: async () => {}}, clinicHubService: {campActive: async () => false}};
             const userInfo = {getUserSettings: () => ({disableAutoRefresh: false})};

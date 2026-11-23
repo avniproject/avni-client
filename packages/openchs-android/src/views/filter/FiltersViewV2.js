@@ -1,4 +1,5 @@
 import React from "react";
+import {subjectLabelWithAddress} from "../../utility/SubjectAddress";
 import {Dimensions, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Distances from '../primitives/Distances'
@@ -59,7 +60,7 @@ class GroupSubjectFilter extends AbstractComponent {
         if (groupSubjects.length === 0) return null;
 
         const namedSelectableEntities = NamedSelectableEntities.create(groupSubjects);
-        const labelValuePairs = groupSubjects.map((x) => new RadioLabelValue(`${x.nameString} (${x.lowestAddressLevel.translatedFieldValue})`, x.uuid));
+        const labelValuePairs = groupSubjects.map((x) => new RadioLabelValue(subjectLabelWithAddress(x), x.uuid));
         const currentLocale = this.getService(UserInfoService).getUserSettings().locale;
 
         return <FilterContainer>

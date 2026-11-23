@@ -1,6 +1,9 @@
 import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
 import {EntityQueue, MediaQueue, EntityMetaData, RuleFailureTelemetry, SyncTelemetry} from 'openchs-models';
+import General from "../utility/General";
+import OrganisationConfigService from "./OrganisationConfigService";
+import {isSubjectWithoutAddressHere} from "../utility/SubjectAddress";
 import _ from "lodash";
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 
@@ -23,11 +26,17 @@ class EntityQueueService extends BaseService {
             .slice(), 'entityUUID');
 
         const getEntity = ({entityUUID, entity}) => this.findByKey("uuid", entityUUID, entity);
+        const inCamp = this.db.isSqlite === true && _.get(this.getService(OrganisationConfigService).getSettings(), 'enableClinicSharing') === true;
         const getEntityResource = (item) => {
             const entity = getEntity(item);
             if (_.isNil(entity)) {
                 ErrorUtil.notifyBugsnag(new Error(`Entity in EntityQueue can\'t be found. Details: ${JSON.stringify(item)}`), "EntityQueueService");
                 this.transactionManager.write(() => this.repository.deleteInTransaction(item));
+                return undefined;
+            }
+            // Left queued: in a camp only a patient received from another phone has no address here, and the phone that registered it uploads it.
+            if (inCamp && isSubjectWithoutAddressHere(entityMetaData.entityName, entity)) {
+                General.logWarn("EntityQueueService", `Not uploading Individual ${entity.uuid}: its address is not on this phone`);
                 return undefined;
             }
             return entity.toResource;

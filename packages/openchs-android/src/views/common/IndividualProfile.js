@@ -30,6 +30,7 @@ import AvniIcon from "../common/AvniIcon";
 import GlificScheduledAndSentMsgsView from '../glific/GlificScheduledAndSentMsgsView';
 import deferPastInteractions from "../../utility/deferPastInteractions";
 import Perf from "../../utility/perf";
+import {profileHeadingSuffix, programProfileHeadingText} from "./IndividualProfileHeading";
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
@@ -178,10 +179,7 @@ class IndividualProfile extends AbstractComponent {
 
 
     programProfileHeading() {
-        const fullAddress = this.props.individual.fullAddress(this.I18n);
-        const individualInfo = this.props.individual.subjectType.isPerson() ?
-            `${this.I18n.t(this.props.individual.gender.name)}, ${this.props.individual.getAgeAndDateOfBirthDisplay(this.I18n)}, ${fullAddress}` :
-            fullAddress;
+        const individualInfo = programProfileHeadingText(this.props.individual, this.I18n);
 
         return (
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
@@ -454,13 +452,7 @@ class IndividualProfile extends AbstractComponent {
 
     render() {
         General.logDebug('IndividualProfile', 'render');
-        let isPerson = this.props.individual.subjectType.isPerson();
-        let headingSuffixesList = [this.props.individual.fullAddress(this.I18n)]
-        if (isPerson) {
-            headingSuffixesList.unshift(this.props.individual.userProfileSubtext2(this.I18n)); //localized Age
-            headingSuffixesList.unshift(this.props.individual.userProfileSubtext1(this.I18n)); //localized Gender
-        }
-        let headingSuffix = _.join(headingSuffixesList, ", ")
+        let headingSuffix = profileHeadingSuffix(this.props.individual, this.I18n);
         return <View style={{backgroundColor: Styles.whiteColor}}>
             {(this.props.viewContext !== IndividualProfile.viewContext.Wizard) ?
                 (
