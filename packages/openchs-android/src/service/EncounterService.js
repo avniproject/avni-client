@@ -53,6 +53,8 @@ class EncounterService extends BaseService {
         // Checks whether unsaved encounter is filled but saved encounter is not filled
         const isGettingFilled = encounter.isFilled() && EncounterServiceUtil.isNotFilled(this.repository, encounter)
         encounter.updateAudit(this.getUserInfo(), this.isNew(encounter), isGettingFilled);
+        // The form's copy of the person would replace the stored person's lists when nested in this save.
+        encounter.individual = this.findByUUID(encounter.individual.uuid, Individual.schema.name) || encounter.individual;
         encounter = this.repository.create(encounter, UpdateMode.Modified);
         const individual = this.findByUUID(encounter.individual.uuid, Individual.schema.name);
         individual.addEncounter(encounter);

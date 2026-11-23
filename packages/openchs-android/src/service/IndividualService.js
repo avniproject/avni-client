@@ -31,6 +31,7 @@ import {DashboardReportFilter} from "../model/DashboardReportFilter";
 import CustomFilterService from "./CustomFilterService";
 import ConceptService from "./ConceptService";
 import UpdateMode from "../repository/UpdateMode";
+import {INDIVIDUAL_CHILD_LISTS, keepStoredChildren} from "./StoredChildren";
 
 function uniqSubjectWithVisitName(individualsWithVisits, individualWithVisit) {
     const permissionAllowed = individualWithVisit.visitInfo.allow;
@@ -406,6 +407,7 @@ class IndividualService extends BaseService {
             if (!skipCreatingPendingStatus && isApprovalEnabled)
                 this.entityApprovalStatusService.createPendingStatus(individual, Individual.schema.name, individual.subjectType.uuid);
             individual.updateAudit(this.getUserInfo(), isNew);
+            if (!isNew) keepStoredChildren(individual, this.findByUUID(individual.uuid, Individual.schema.name), INDIVIDUAL_CHILD_LISTS);
             const saved = this.repository.create(individual, UpdateMode.Modified);
             this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(individual, Individual.schema.name));
             this.getService(MediaQueueService).addMediaToQueue(individual, Individual.schema.name);
