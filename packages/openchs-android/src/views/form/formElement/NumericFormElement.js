@@ -23,7 +23,10 @@ class NumericFormElement extends AbstractFormElement {
         labelStyle: PropTypes.object,
         inputStyle: PropTypes.object,
         allowedValues: PropTypes.array,
-        isTableView: PropTypes.bool
+        isTableView: PropTypes.bool,
+        // Value set by the app (e.g. read from a Bluetooth device): shown, never typed.
+        readOnly: PropTypes.bool,
+        emptyText: PropTypes.string
     };
 
     constructor(props, context) {
@@ -97,12 +100,12 @@ class NumericFormElement extends AbstractFormElement {
                     <FormElementLabelWithDocumentation element={this.props.element} moreTextForLabel={<Text style={Styles.formLabel}>{unitText}{rangeText}</Text>} isTableView={this.props.isTableView}/>
                 </View>
                 <View style={inputStyle}>
-                    {this.props.element.editable === false ?
+                    {(this.props.readOnly || this.props.element.editable === false) ?
                         <Text style={[{
                             flex: 1,
                             marginVertical: 0,
                             paddingVertical: 5
-                        }, Styles.formBodyText, {color: this.color()}]}>{_.isNil(this.props.value.getValue()) ? this.I18n.t('Not Known Yet') : _.toString(this.props.value.getValue())}</Text> :
+                        }, Styles.formBodyText, {color: _.isNil(this.props.value.getValue()) && this.props.emptyText ? Colors.SecondaryText : this.color()}]}>{_.isNil(this.props.value.getValue()) ? (this.props.emptyText || this.I18n.t('Not Known Yet')) : _.toString(this.props.value.getValue())}</Text> :
                         <View>
                             <TextInput style={[{
                                 flex: 1,

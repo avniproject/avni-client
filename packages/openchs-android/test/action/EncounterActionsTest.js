@@ -4,6 +4,7 @@ import ObservationsHolderActions from "../../src/action/common/ObservationsHolde
 import {
     Concept,
     ConceptAnswer,
+    DraftEncounter,
     Encounter,
     EncounterType,
     FormElement,
@@ -14,6 +15,7 @@ import {
     WorkList,
     WorkLists
 } from 'avni-models';
+import _ from "lodash";
 import EntityFactory from "../EntityFactory";
 import Wizard from "../../src/state/Wizard";
 import EncounterActionState from "../../src/state/EncounterActionState";
@@ -368,6 +370,95 @@ describe('EncounterActionsTest', () => {
         }
     });
 
+    it('immutable repeat visit opens the summary once, not in a loop (issue #2184)', async () => {
+        const {state, formElement} = createIntialState(Concept.dataType.Numeric, true, false);
+        const filled = ObservationsHolderActions.onPrimitiveObsUpdateValue(state, {value: '10', formElement: formElement}, testContext);
+        filled.allElementsFilledForImmutableEncounter = true;
+
+        // Stands in for IndividualEncounterView: after every state change, componentDidUpdate dispatches
+        // SUMMARY_PAGE while the encounter is immutable and fully filled and no completion is running.
+        // Capped so a regression fails the test instead of hanging it.
+        const MAX_COMPLETIONS = 5;
+        let completedCount = 0;
+        let current;
+        const action = {
+            completed: () => { completedCount++; },
+            settleCompletion: (settled) => onStateChange(EncounterActions.onUseThisState(current, {state: settled}, testContext)),
+            movedNext: () => {}
+        };
+        const onStateChange = (newState) => {
+            current = newState;
+            if (completedCount < MAX_COMPLETIONS && newState.allElementsFilledForImmutableEncounter && !newState.wizardCompletionInProgress) {
+                onStateChange(EncounterActions.onSummaryPage(newState, action, testContext));
+            }
+        };
+
+        onStateChange(filled);
+        for (let i = 0; i < 200 && completedCount < MAX_COMPLETIONS; i++) {
+            await new Promise(resolve => setImmediate(resolve));
+        }
+
+        expect(completedCount).is.equal(1);
+        expect(current.wizardCompletionInProgress).is.equal(false);
+    });
+
+    it('Back from the summary of an immutable repeat visit goes back one page at a time (issue #2184)', async () => {
+        const form = EntityFactory.createForm('ZeeForm');
+        const page1 = EntityFactory.createFormElementGroup('Vitals', 1, form);
+        page1.addFormElement(createFormElement(Concept.dataType.Numeric, true, 'bfc28bad-5fac-4760-921d-eec83f52c3da'));
+        const page2 = EntityFactory.createFormElementGroup('Notes', 2, form);
+        const page2Element = createFormElement(Concept.dataType.Numeric, true, 'd1ab1bfd-aa13-4e86-ac67-9b46387ee446');
+        page2Element.uuid = '0f7c0e47-0f7e-4c6a-9d07-5b1d1c0f1e2a';
+        page2.addFormElement(page2Element);
+
+        const encounterType = EncounterType.create('ZeeType');
+        encounterType.immutable = true;
+        const individual = Individual.createEmptyInstance();
+        const previous = Encounter.create();
+        previous.encounterType = encounterType;
+        previous.encounterDateTime = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        previous.individual = individual;
+        [page1, page2].forEach((page) => previous.observations.push(Observation.create(page.getFormElements()[0].concept, new PrimitiveValue(10, Concept.dataType.Numeric))));
+        individual.encounters = [previous];
+        const encounter = Encounter.create();
+        encounter.encounterType = encounterType;
+        encounter.encounterDateTime = new Date();
+        encounter.individual = individual;
+
+        testContext = new TestContext({form});
+        const loaded = EncounterActions.onEncounterLandingViewLoad(EncounterActions.getInitialState(), {encounter}, testContext);
+        expect(loaded.allElementsFilledForImmutableEncounter).is.equal(true);
+        loaded.getNextScheduledVisits = () => ({});
+
+        // Stands in for IndividualEncounterView, as in the test above.
+        let completedCount = 0;
+        let current;
+        const action = {
+            completed: () => { completedCount++; },
+            settleCompletion: (settled) => onStateChange(EncounterActions.onUseThisState(current, {state: settled}, testContext)),
+            movedNext: () => {}
+        };
+        const onStateChange = (newState) => {
+            current = newState;
+            if (completedCount < 5 && newState.allElementsFilledForImmutableEncounter && !newState.wizardCompletionInProgress) {
+                onStateChange(EncounterActions.onSummaryPage(newState, action, testContext));
+            }
+        };
+        onStateChange(loaded);
+        for (let i = 0; i < 200 && (completedCount === 0 || current.wizardCompletionInProgress); i++) {
+            await new Promise(resolve => setImmediate(resolve));
+        }
+        expect(completedCount).is.equal(1);
+
+        // Phone Back closes the summary and returns to the form in this state.
+        expect(current.wizard.currentPage).is.equal(2);
+        expect(current.formElementGroup.name).is.equal('Notes');
+
+        const back = EncounterActions.onPrevious(current, {}, testContext);
+        expect(back.formElementGroup.name).is.equal('Vitals');
+        expect(back.wizard.isFirstPage()).is.equal(true);
+    });
+
     it('next on second view should give validation error', () => {
         const {state, formElement, formElement2} = createIntialState(Concept.dataType.Numeric, true, true);
 
@@ -382,5 +473,73 @@ describe('EncounterActionsTest', () => {
         newState = EncounterActions.onNext(newState, action, testContext);
         action.assert();
         verifyFormElementAndObservations(newState, 1, 1);
+    });
+
+    describe('draft lookup when a visit opens (issue #2016)', () => {
+        const conceptUUID = 'bfc28bad-5fac-4760-921d-eec83f52c3da';
+        const photosForm = () => {
+            const form = EntityFactory.createForm('ZeeForm');
+            const page = EntityFactory.createFormElementGroup('Photos', 1, form);
+            page.addFormElement(createFormElement(Concept.dataType.Numeric, false, conceptUUID));
+            return form;
+        };
+        const answerOf = (encounter) => encounter.observations.length === 0 ? undefined : encounter.observations[0].getValue();
+        const visit = (form, individual, encounterType, {answer, earliestVisitDateTime} = {}) => {
+            const encounter = Encounter.create();
+            encounter.individual = individual;
+            encounter.encounterType = encounterType;
+            encounter.encounterDateTime = new Date();
+            encounter.earliestVisitDateTime = earliestVisitDateTime;
+            if (!_.isNil(answer)) {
+                const concept = form.getFormElementGroups()[0].getFormElements()[0].concept;
+                encounter.observations.push(Observation.create(concept, new PrimitiveValue(answer, Concept.dataType.Numeric)));
+            }
+            return encounter;
+        };
+        const open = (form, encounter, serviceData, editing) =>
+            EncounterActions.onEncounterLandingViewLoad(EncounterActions.getInitialState(), {encounter, editing}, new TestContext({form, draftEnabled: true, ...serviceData}));
+
+        it("opens a saved visit with its own answers when another visit's unsaved draft is in the slot", () => {
+            const form = photosForm();
+            const individual = Individual.createEmptyInstance();
+            const encounterType = EncounterType.create('Oral Screening');
+            const saved = visit(form, individual, encounterType, {answer: 16});
+            const leftBehind = DraftEncounter.create(visit(form, individual, encounterType, {answer: 3}));
+
+            const state = open(form, saved, {draftEncounter: leftBehind, [saved.uuid]: saved}, true);
+
+            expect(state.encounter.uuid).is.equal(saved.uuid);
+            expect(answerOf(state.encounter)).is.equal(16);
+            expect(state.isDraft).is.equal(false);
+        });
+
+        it('a new visit still resumes the draft left behind', () => {
+            const form = photosForm();
+            const individual = Individual.createEmptyInstance();
+            const encounterType = EncounterType.create('Oral Screening');
+            const leftBehindVisit = visit(form, individual, encounterType, {answer: 3});
+            const leftBehind = DraftEncounter.create(leftBehindVisit);
+
+            const state = open(form, visit(form, individual, encounterType), {draftEncounter: leftBehind}, false);
+
+            expect(state.encounter.uuid).is.equal(leftBehindVisit.uuid);
+            expect(answerOf(state.encounter)).is.equal(3);
+        });
+
+        it('a planned visit still resumes its own draft', () => {
+            const form = photosForm();
+            const individual = Individual.createEmptyInstance();
+            const encounterType = EncounterType.create('Oral Screening');
+            const earliestVisitDateTime = new Date(2026, 9, 20);
+            const planned = visit(form, individual, encounterType, {earliestVisitDateTime});
+            const ownDraft = DraftEncounter.create(visit(form, individual, encounterType, {answer: 5, earliestVisitDateTime}));
+            ownDraft.uuid = planned.uuid;
+
+            const state = open(form, planned, {draftEncounter: ownDraft, [planned.uuid]: planned}, false);
+
+            expect(state.encounter.uuid).is.equal(planned.uuid);
+            expect(answerOf(state.encounter)).is.equal(5);
+            expect(state.isDraft).is.equal(true);
+        });
     });
 });

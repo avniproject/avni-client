@@ -27,6 +27,28 @@ object PixelOps {
         return LetterboxGeometry(newW, newH, (targetW - newW) / 2, (targetH - newH) / 2)
     }
 
+    /**
+     * Raw ARGB_8888 bitmap memory (as written by `Bitmap.copyPixelsToBuffer`: bytes R, G, B, A per
+     * pixel, rows [rowBytes] apart) → packed ARGB ints. Unlike `Bitmap.getPixels`, this performs no
+     * colour-space conversion, so a Display P3 photo yields the values stored in the file — what
+     * cv2.imread returns. Opaque images only (JPEG); alpha is passed through unchanged.
+     */
+    fun argbFromRgba8888(bytes: ByteArray, width: Int, height: Int, rowBytes: Int): IntArray {
+        require(rowBytes >= width * 4 && bytes.size >= rowBytes * (height - 1) + width * 4) { "buffer too small" }
+        val out = IntArray(width * height)
+        for (y in 0 until height) {
+            var o = y * rowBytes
+            val base = y * width
+            for (x in 0 until width) {
+                val r = bytes[o].toInt() and 0xFF; val g = bytes[o + 1].toInt() and 0xFF
+                val b = bytes[o + 2].toInt() and 0xFF; val a = bytes[o + 3].toInt() and 0xFF
+                out[base + x] = (a shl 24) or (r shl 16) or (g shl 8) or b
+                o += 4
+            }
+        }
+        return out
+    }
+
     /** Paste [img] onto a (w, h) canvas filled with opaque [padRgb] (0 = black), top-left at (x0, y0). */
     fun pasteOnCanvas(img: ArgbImage, w: Int, h: Int, x0: Int, y0: Int, padRgb: Int = 0): ArgbImage {
         val out = IntArray(w * h) { (0xFF shl 24) or (padRgb and 0xFFFFFF) }

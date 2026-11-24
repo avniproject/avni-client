@@ -3,7 +3,7 @@ import Colors from "./primitives/Colors";
 import {SyncActionNames as SyncActions} from "../action/SyncActions";
 import General from "../utility/General";
 import {SyncTelemetryActionNames as SyncTelemetryActions} from "../action/SyncTelemetryActions";
-import AuthenticationError from "../service/AuthenticationError";
+import AuthenticationError, {HTTP_403, NETWORK_ERROR, requiresReLogin, UNREADABLE_AUTH_RESPONSE} from "../service/AuthenticationError";
 import CHSNavigator from "../utility/CHSNavigator";
 import ServerError, {getAvniError} from "../service/ServerError";
 import {Text, ToastAndroid, TouchableNativeFeedback, View} from "react-native";
@@ -18,11 +18,14 @@ import ProgressBarView from "./ProgressBarView";
 import Reducers from "../reducer";
 import AsyncAlert from "./common/AsyncAlert";
 import AvniError from "../framework/errorHandling/AvniError";
+import MediaUploadError from "../framework/errorHandling/MediaUploadError";
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 import {IgnorableSyncError} from "openchs-models";
 import IssueUploadUtil from "../utility/IssueUploadUtil";
 import {getConnectionInfo} from "../utility/ConnectionInfo";
 import CustomConfirmDialog from "./common/CustomConfirmDialog";
+import {logForcedLoginPrompt} from "../utility/ForcedLoginPrompt";
+import {syncFailureReason} from "../framework/errorHandling/SyncFailureReason";
 
 class SyncComponent extends AbstractComponent {
     unsubscribe;
@@ -58,35 +61,54 @@ class SyncComponent extends AbstractComponent {
         General.logInfo(this.viewName(), 'Sync completed dispatching reset');
     }
 
-    _onError(error, ignoreBugsnag) {
+    _onError(error, ignoreBugsnag, syncStarted = true) {
         General.logError(`${this.viewName()}-Sync`, error);
         const isIgnorableSyncError = error instanceof IgnorableSyncError;
-        !isIgnorableSyncError && this.dispatchAction(SyncTelemetryActions.SYNC_FAILED);
+        const syncService = this.context.getService(SyncService);
+        syncStarted && !isIgnorableSyncError &&
+            this.dispatchAction(SyncTelemetryActions.SYNC_FAILED, syncService.syncFailedTelemetry());
         const isServerError = error instanceof ServerError;
         const isAvniError = error instanceof AvniError;
+        const isMediaUploadError = error instanceof MediaUploadError;
 
         //Do not notify bugsnag if it's a server error since it would have been notified on server bugsnag already.
-        if (!ignoreBugsnag && !isServerError && !isIgnorableSyncError && !isAvniError) {
+        //MediaQueueService already notified with the original underlying error.
+        if (!ignoreBugsnag && !isServerError && !isIgnorableSyncError && !isAvniError && !isMediaUploadError) {
             ErrorUtil.notifyBugsnag(error, "SyncComponent");
         }
 
-        this.dispatchAction(SyncActions.ON_ERROR);
+        // Offline, no sync ran, so the timer still holds the previous sync's phases - send none.
+        this.dispatchAction(SyncActions.ON_ERROR, {
+            errorCode: syncFailureReason(error),
+            phaseParams: syncStarted ? syncService.syncFailureParams() : {}
+        });
         if (isIgnorableSyncError) return;
 
         // First check if it's an AvniError - this should be handled first to ensure user-friendly messages
         if (isAvniError) {
             General.logDebug(this.viewName(), "Handling AvniError with user message: " + error.userMessage);
             this.ErrorAlert(error);
-        } else if (error instanceof AuthenticationError && error.authErrCode !== 'NetworkingError') {
+        } else if (error instanceof AuthenticationError && requiresReLogin(error)) {
             General.logError(this.viewName(), "Could not authenticate");
             General.logError(this.viewName(), error);
             General.logError(this.viewName(), "Redirecting to login view");
+            logForcedLoginPrompt(this.context, {errorCode: error.authErrCode});
             CHSNavigator.navigateToLoginView(this, true, (source) => CHSNavigator.navigateToLandingView(source, true, {
                 tabIndex: 1,
                 menuProps: {startSync: true}
             }));
+        } else if (error instanceof AuthenticationError && _.includes([NETWORK_ERROR, UNREADABLE_AUTH_RESPONSE], error.authErrCode)) {
+            // Above the isConnected branch: NetInfo still reports connected when the refresh cannot reach Cognito.
+            this.ErrorAlert(AvniError.create(this.I18n.t('internetConnectionError')));
+        } else if (error instanceof AuthenticationError && error.authErrCode === HTTP_403) {
+            this.ErrorAlert(AvniError.create(this.I18n.t('serverRefusedRequest')));
         } else if (!this.state.isConnected) {
             this.ErrorAlert(AvniError.create(this.I18n.t('internetConnectionError')));
+        } else if (isMediaUploadError) {
+            // Below the isConnected branch on purpose: a genuinely offline device keeps the
+            // more accurate "No internet connection". Above the generic fallback, which is
+            // what used to print the raw "syncTimeoutError" key. #2097
+            this.ErrorAlert(AvniError.create(this.I18n.t('mediaUploadBlockedSync')));
         } else if (isServerError) {
             getAvniError(error, this.I18n).then((avniError) => this.ErrorAlert(avniError));
         } else if (error instanceof SyncError) {
@@ -182,8 +204,10 @@ class SyncComponent extends AbstractComponent {
                 ToastAndroid.show(this.I18n.t('backgroundSyncInProgress'), ToastAndroid.SHORT);
                 return;
             }
+            let syncSucceeded = false;
+            // Before anything that can throw, so an early failure can't report the previous sync's numbers.
+            syncService.resetSyncMeasurements();
             try {
-                const onError = this._onError.bind(this);
                 this._preSync();
                 //sending connection info like this because this returns promise and not possible in the action
                 const connectionInfo = await getConnectionInfo();
@@ -196,13 +220,23 @@ class SyncComponent extends AbstractComponent {
                   this.state.startTime,
                   SyncService.syncSources.SYNC_BUTTON,
                   () => AsyncAlert('resetSyncTitle', 'resetSyncDetails', this.I18n)
-                ).catch(onError);
+                );
+                syncSucceeded = true;
+            } catch (e) {
+                this._onError(e);
             } finally {
                 syncService.releaseLock(lockId);
             }
+            // The OK button is surfaced explicitly, once the whole sync has resolved —
+            // independent of the progress bar reaching 100%.
+            if (syncSucceeded) {
+                this.dispatchAction(SyncActions.SET_SHOW_OK_BUTTON, {show: true});
+            }
         } else {
             const ignoreBugsnag = true;
-            this._onError(new Error('internetConnectionError'), ignoreBugsnag);
+            // No sync starts while offline, so there is no telemetry row to mark failed. #2097
+            const syncStarted = false;
+            this._onError(new Error('internetConnectionError'), ignoreBugsnag, syncStarted);
         }
     }
 
@@ -215,9 +249,11 @@ class SyncComponent extends AbstractComponent {
                 syncing={this.state.uploading}
                 onPress={_.noop}
                 notifyUserOnCompletion={false}
+                showOkButton={false}
             />;
         }
-        // Show sync progress bar during normal sync
+        // Show sync progress bar during normal sync. The OK button is surfaced
+        // explicitly via SET_SHOW_OK_BUTTON, decoupled from progress reaching 100%.
         return <ProgressBarView
             progress={this.state.progress}
             currentPageNumber={this.state.numberOfPagesProcessedForCurrentEntity}
@@ -226,6 +262,7 @@ class SyncComponent extends AbstractComponent {
             syncing={this.state.syncing}
             onPress={this._postSync.bind(this)}
             notifyUserOnCompletion={true}
+            showOkButton={!!this.state.showOkButton}
             contentDownloadWarning={this.state.contentDownloadWarning}
         />;
     }

@@ -1,10 +1,12 @@
 package com.openchsclient.preprocessing
 
 import android.graphics.Bitmap
+import android.os.Build
 import android.util.Log
 import com.openchsclient.BuildConfig
 import org.json.JSONArray
 import org.json.JSONObject
+import java.nio.ByteBuffer
 
 /**
  * Named registry of image preprocessors.
@@ -48,8 +50,23 @@ private fun JSONObject.optIntPair(key: String, defW: Int, defH: Int): Pair<Int, 
     return w to h
 }
 
-/** Bitmap → [ArgbImage] (packed ARGB_8888, row-major). */
-private fun Bitmap.toArgbImage(): ArgbImage {
+/**
+ * Bitmap → [ArgbImage] (packed ARGB_8888, row-major).
+ *
+ * `ignoreColorProfile = false` (default, previous behaviour): `Bitmap.getPixels`, which converts a
+ * non-sRGB bitmap (e.g. a Display P3 photo) to sRGB. `true`: for a non-sRGB ARGB_8888 bitmap, copy
+ * the raw pixel memory instead, so the values are exactly those stored in the file — matching
+ * cv2.imread, which ignores embedded ICC profiles. sRGB bitmaps are identical either way.
+ */
+private fun Bitmap.toArgbImage(ignoreColorProfile: Boolean = false): ArgbImage {
+    if (ignoreColorProfile && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && config == Bitmap.Config.ARGB_8888) {
+        val cs = colorSpace
+        if (cs != null && !cs.isSrgb) {
+            val buf = ByteBuffer.allocate(rowBytes * height)
+            copyPixelsToBuffer(buf)
+            return ArgbImage(width, height, PixelOps.argbFromRgba8888(buf.array(), width, height, rowBytes))
+        }
+    }
     val px = IntArray(width * height)
     getPixels(px, 0, width, 0, 0, width, height)
     return ArgbImage(width, height, px)
@@ -60,12 +77,12 @@ private fun Bitmap.toArgbImage(): ArgbImage {
  * `"cubic"` runs [PixelOps.resizeCubicCv], a bit-exact port of cv2.INTER_CUBIC (Android's
  * Bitmap API has no native bicubic).
  */
-private fun resize(src: Bitmap, w: Int, h: Int, interpolation: String): ArgbImage {
-    if (src.width == w && src.height == h) return src.toArgbImage()
+private fun resize(src: Bitmap, w: Int, h: Int, interpolation: String, ignoreColorProfile: Boolean = false): ArgbImage {
+    if (src.width == w && src.height == h) return src.toArgbImage(ignoreColorProfile)
     return when (interpolation) {
-        "cubic"   -> PixelOps.resizeCubicCv(src.toArgbImage(), w, h)
-        "nearest" -> Bitmap.createScaledBitmap(src, w, h, false).let { s -> s.toArgbImage().also { if (s !== src) s.recycle() } }
-        else      -> Bitmap.createScaledBitmap(src, w, h, true).let { s -> s.toArgbImage().also { if (s !== src) s.recycle() } }
+        "cubic"   -> PixelOps.resizeCubicCv(src.toArgbImage(ignoreColorProfile), w, h)
+        "nearest" -> Bitmap.createScaledBitmap(src, w, h, false).let { s -> s.toArgbImage(ignoreColorProfile).also { if (s !== src) s.recycle() } }
+        else      -> Bitmap.createScaledBitmap(src, w, h, true).let { s -> s.toArgbImage(ignoreColorProfile).also { if (s !== src) s.recycle() } }
     }
 }
 
@@ -75,12 +92,13 @@ private fun resize(src: Bitmap, w: Int, h: Int, interpolation: String): ArgbImag
  *   • `"letterbox"` (QC notebook, Oct 2026) — aspect-preserving resize so the image fits inside
  *     (w, h), centred on a canvas filled with `pad_value` (default 0 = black).
  */
-private fun resizeToCanvas(src: Bitmap, w: Int, h: Int, interpolation: String, mode: String, padValue: Int): ArgbImage =
+private fun resizeToCanvas(src: Bitmap, w: Int, h: Int, interpolation: String, mode: String, padValue: Int,
+                           ignoreColorProfile: Boolean = false): ArgbImage =
     when (mode) {
-        "stretch"   -> resize(src, w, h, interpolation)
+        "stretch"   -> resize(src, w, h, interpolation, ignoreColorProfile)
         "letterbox" -> {
             val g = PixelOps.letterboxGeometry(src.width, src.height, w, h)
-            val fitted = resize(src, g.newW, g.newH, interpolation)
+            val fitted = resize(src, g.newW, g.newH, interpolation, ignoreColorProfile)
             val pad = padValue.coerceIn(0, 255)
             PixelOps.pasteOnCanvas(fitted, w, h, g.offsetX, g.offsetY, (pad shl 16) or (pad shl 8) or pad)
         }
@@ -142,6 +160,8 @@ object ImagenetRgbChwPreprocessor : ImagePreprocessor {
  *     "resize_mode": "letterbox",    // "stretch" (legacy default) | "letterbox" (QC: aspect-preserving,
  *                                    //   centred on a pad_value canvas; gray-world mean includes the padding)
  *     "pad_value": 0,                // letterbox canvas fill (0 = black, as the notebook)
+ *     "ignore_color_profile": true,  // read stored pixel values of non-sRGB (e.g. Display P3) photos without
+ *                                    //   Android's sRGB conversion — as cv2.imread does (default false = legacy)
  *     "interpolation": "cubic",      // cv2.INTER_CUBIC (bit-exact port); "bilinear"/"nearest" also supported
  *     "channel_order": "BGR",        // blue → channel 0, green → 1, red → 2
  *     "layout": "CHW",
@@ -168,6 +188,7 @@ object MeanTargetBgrRoundedPreprocessor : ImagePreprocessor {
         val interpolation = params.optString("interpolation", "bilinear")
         val resizeMode = params.optString("resize_mode", "stretch")
         val padValue = params.optInt("pad_value", 0)
+        val ignoreColorProfile = params.optBoolean("ignore_color_profile", false)
         val rounding = params.optString("rounding", "legacy")
         require(rounding == "legacy" || rounding == "numpy") { "Unsupported rounding='$rounding' (use legacy or numpy)" }
         val p = MeanTargetMath.Params(
@@ -181,7 +202,7 @@ object MeanTargetBgrRoundedPreprocessor : ImagePreprocessor {
             layout = params.optString("layout", "CHW")
         )
 
-        val canvas = resizeToCanvas(bitmap, w, h, interpolation, resizeMode, padValue)
+        val canvas = resizeToCanvas(bitmap, w, h, interpolation, resizeMode, padValue, ignoreColorProfile)
         var stats: MeanTargetMath.Stats? = null
         val data = MeanTargetMath.toTensor(canvas, p) { stats = it }
 
@@ -191,6 +212,7 @@ object MeanTargetBgrRoundedPreprocessor : ImagePreprocessor {
             val plane = h * w
             val s = stats!!
             Log.d("Preproc", "MeanTargetBgrRounded: w=$w h=$h resize=$resizeMode interp=$interpolation " +
+                "ignoreColorProfile=$ignoreColorProfile colorSpace=${if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) bitmap.colorSpace?.name else "n/a"} " +
                 "order=${p.channelOrder} layout=${p.layout} scale=${p.scale} meanTarget=${p.meanTarget} " +
                 "round=${p.roundDecimals} rounding=$rounding uint8Cast=${p.uint8Cast} uint8Round=${p.uint8Round}")
             Log.d("Preproc", "  rawPixelMean: R=%.4f G=%.4f B=%.4f".format(s.meanR, s.meanG, s.meanB))

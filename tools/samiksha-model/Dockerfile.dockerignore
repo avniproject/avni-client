@@ -1,0 +1,12 @@
+# The build context is the repository root; only what the build reads goes in.
+*
+!packages/openchs-android/android/app/src/main/java/com/openchsclient
+!tools/edge-model/encrypt-model.js
+!tools/edge-model/tanuh-ensemble-override.json
+!tools/samiksha-model
+tools/samiksha-model/.venv
+tools/samiksha-model/.gradle
+tools/samiksha-model/.kotlin
+tools/samiksha-model/build
+tools/samiksha-model/**/__pycache__
+**/*.onnx

@@ -5,9 +5,24 @@
   when building the tanuh variant — CameraCaptureActivity is never registered, and never present,
   in any other partner flavor's merged manifest.
 -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools">
 
     <application>
+        <!-- The whole tanuh app is portrait-only. Several screens read Dimensions.get('window') once at
+             render time (CardTileView, LandingView, ...) and so cannot cope with a rotation; a phone held
+             sideways used to leave them with landscape widths after turning back. Merged into the main
+             manifest's MainActivity (the only activity React Native screens run in). -->
+        <activity
+            android:name=".MainActivity"
+            android:screenOrientation="portrait"
+            tools:node="merge">
+            <!-- Android 16 ignores screenOrientation on large screens without this (temporary, gone on API 37+) -->
+            <property
+                android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+                android:value="true" />
+        </activity>
+
         <activity
             android:name="com.openchsclient.camera.CameraCaptureActivity"
             android:theme="@style/AppTheme"

@@ -97,7 +97,7 @@ class FiltersViewV2 extends AbstractComponent {
             position: 'absolute',
             left: 16,
             right: 16,
-            bottom: 20 + Distances.EdgeToEdgeNavigationBarInset,
+            bottom: 20,
             height: 52,
             alignItems: 'center',
             justifyContent: 'center',

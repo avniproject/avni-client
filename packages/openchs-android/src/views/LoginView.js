@@ -372,7 +372,7 @@ class LoginView extends AbstractComponent {
     }
 
     clearDataAndLogin() {
-        this.getService(AuthService).getAuthProviderService().logout()
+        this.getService(AuthService).logout()
             .then(() => this.getService(SyncService).clearData())
             .then(() => LocalCacheService.clearCache())
             .then(() => this.getService(AuthService).fetchAuthSettingsFromServer())

@@ -4,8 +4,7 @@ import React, {useState, useRef, useEffect} from 'react';
 import RNRestart from "react-native-restart";
 import {JSONStringify} from "../../utility/JsonStringify";
 import _ from "lodash";
-import BackupRestoreRealmService from "../../service/BackupRestoreRealmService";
-import MediaQueueService from "../../service/MediaQueueService";
+import AppInfoUploadService from "../../service/AppInfoUploadService";
 import General from "../../utility/General";
 import GlobalContext from "../../GlobalContext";
 import ProgressBarView from "../../views/ProgressBarView";
@@ -45,9 +44,9 @@ export function ErrorDisplay({avniError, context, username = null}) {
                         
         if (serviceContext) {
             setIsUploading(true);
-            const backupRestoreService = serviceContext.getService(BackupRestoreRealmService);
+            const appInfoUploadService = serviceContext.getService(AppInfoUploadService);
             // Pass username to avoid realm access during login flow when realm may be corrupted
-            backupRestoreService.backup(MediaQueueService.DumpType.Adhoc, (percentDone, message, backupError) => {
+            appInfoUploadService.upload((percentDone, message) => {
                 General.logDebug("ErrorDisplay", `${percentDone}% - ${message}`);
                 setUploadProgress(percentDone);
                 setUploadMessage(message);
@@ -59,8 +58,7 @@ export function ErrorDisplay({avniError, context, username = null}) {
                         CustomConfirmDialog.showAlert({title, message: "", okLabel: 'OK', onOk: () => RNRestart.Restart()});
                     } else {
                         const title = i18n ? i18n.t('uploadFailed') : 'Upload Failed';
-                        const body = backupError ? backupError.getDisplayMessage() : "";
-                        CustomConfirmDialog.showAlert({title, message: body, okLabel: 'OK', onOk: () => RNRestart.Restart()});
+                        CustomConfirmDialog.showAlert({title, message: "", okLabel: 'OK', onOk: () => RNRestart.Restart()});
                     }
                 }
             }, username);

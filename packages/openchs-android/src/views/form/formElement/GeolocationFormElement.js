@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../../framework/view/AbstractComponent";
 import Styles from "../../primitives/Styles";
-import {PermissionsAndroid, Platform, View} from "react-native";
+import {InteractionManager, PermissionsAndroid, Platform, View} from "react-native";
 import Geolocation from "react-native-geolocation-service";
 import Colors from "../../primitives/Colors";
 import ValidationErrorMessage from "../ValidationErrorMessage";
@@ -32,7 +32,12 @@ class GeolocationFormElement extends AbstractComponent {
 
     componentDidMount() {
         if (!this.props.editing && this.trackLocation) {
-            this.getPosition();
+            // Defer past the slide so a fast (cached) fix can't re-render the form mid-animation. No-op
+            // on deferred-load screens (mounts after the slide); still needed on forms that load on mount.
+            InteractionManager.runAfterInteractions(() => {
+                if (this._isUnmounted) return;
+                this.getPosition();
+            });
         }
     }
 

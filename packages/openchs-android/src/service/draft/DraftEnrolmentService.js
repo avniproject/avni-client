@@ -2,6 +2,7 @@ import BaseService from '../BaseService';
 import Service from '../../framework/bean/Service';
 import {DraftEnrolment} from 'avni-models';
 import {Individual, ObservationsHolder, Program, ProgramEnrolment} from 'openchs-models';
+import UpdateMode from "../../repository/UpdateMode";
 import _ from 'lodash';
 
 @Service("draftEnrolmentService")
@@ -48,8 +49,6 @@ class DraftEnrolmentService extends BaseService {
      * @returns {DraftEnrolment}
      */
     saveDraft(enrolment) {
-        const db = this.db;
-        
         // Find existing draft for same individual + program to update it
         const existingDraft = this.findByIndividualAndProgram(enrolment.individual, enrolment.program);
 
@@ -73,8 +72,8 @@ class DraftEnrolmentService extends BaseService {
         ObservationsHolder.convertObsForSave(draftEnrolment.observations);
         ObservationsHolder.convertObsForSave(draftEnrolment.programExitObservations);
 
-        return this.db.write(() => {
-            return db.create(DraftEnrolment.schema.name, draftEnrolment, Realm.UpdateMode.Modified);
+        return this.transactionManager.write(() => {
+            return this.repository.create(draftEnrolment, UpdateMode.Modified);
         });
     }
 
@@ -83,17 +82,16 @@ class DraftEnrolmentService extends BaseService {
      * @param {string} enrolmentUUID
      */
     deleteDraftByUUID(enrolmentUUID) {
-        const db = this.db;
         const draft = this.findByUUID(enrolmentUUID);
         if (draft) {
-            db.write(() => {
-                db.delete(draft.observations);
-                db.delete(draft.programExitObservations);
+            this.transactionManager.write(() => {
+                this.repository.deleteInTransaction(draft.observations);
+                this.repository.deleteInTransaction(draft.programExitObservations);
 
                 this.safeDelete(draft.enrolmentLocation);
                 this.safeDelete(draft.exitLocation);
 
-                db.delete(draft);
+                this.repository.deleteInTransaction(draft);
             });
         }
     }

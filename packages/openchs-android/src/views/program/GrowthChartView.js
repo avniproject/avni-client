@@ -11,6 +11,8 @@ import moment from 'moment';
 import _ from 'lodash';
 import Styles from '../primitives/Styles';
 import CHSContainer from "../common/CHSContainer";
+import {SafeAreaInsetsContext} from "react-native-safe-area-context";
+import {edgeToEdgeStatusBarInset} from "../primitives/Distances";
 import IndividualService from '../../service/IndividualService';
 
 @Path('/GrowthChartView')
@@ -357,7 +359,13 @@ class GrowthChartView extends AbstractComponent {
         const wfhStyle = this.getGraphStyle(this.states.weightForHeight);
         return (
             <CHSContainer>
-                <View style={{ flex: 1, paddingHorizontal: 8, flexDirection: 'column' }}>
+                {/* This screen has no AppHeader, so nothing else clears the status bar for it. Under
+                    forced edge-to-edge the graph buttons would sit inside it and the status bar would
+                    take their touches. Consumer sits inside CHSContainer, which is what provides the
+                    insets. */}
+                <SafeAreaInsetsContext.Consumer>
+                    {(insets) => (
+                <View style={{ flex: 1, paddingHorizontal: 8, paddingTop: edgeToEdgeStatusBarInset(insets), flexDirection: 'column' }}>
                     <View
                         style={{
                             flexDirection: 'row',
@@ -420,6 +428,8 @@ class GrowthChartView extends AbstractComponent {
                         </View>
                     </View>
                 </View>
+                    )}
+                </SafeAreaInsetsContext.Consumer>
             </CHSContainer>
         );
     }

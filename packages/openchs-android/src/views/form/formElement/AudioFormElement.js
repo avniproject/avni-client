@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractFormElement from "./AbstractFormElement";
-import {PermissionsAndroid, StyleSheet, Text, TouchableNativeFeedback, TouchableOpacity, View} from "react-native";
+import {StyleSheet, Text, TouchableNativeFeedback, TouchableOpacity, View} from "react-native";
 import ValidationErrorMessage from "../ValidationErrorMessage";
 import ExpandableMedia from "../../common/ExpandableMedia";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -18,7 +18,7 @@ import AudioRecorderPlayer, {
 import {ValidationResult} from "openchs-models";
 import {AlertMessage} from "../../common/AlertMessage";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
-import DeviceInfo from "react-native-device-info";
+import DevicePermissions from "../../../utility/DevicePermissions";
 import _ from "lodash";
 
 class AudioFormElement extends AbstractFormElement {
@@ -42,25 +42,6 @@ class AudioFormElement extends AbstractFormElement {
 
     get mediaUri() {
         return _.get(this, 'props.value.answer');
-    }
-
-    async isPermissionGranted() {
-        const apiLevel = await DeviceInfo.getApiLevel();
-
-        const permissionRequest = await PermissionsAndroid.requestMultiple(
-            apiLevel >= General.STORAGE_PERMISSIONS_DEPRECATED_API_LEVEL ?
-                [
-                    PermissionsAndroid.PERMISSIONS.RECORD_AUDIO
-                ]
-                :
-                [
-                    PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-                    PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-                    PermissionsAndroid.PERMISSIONS.RECORD_AUDIO
-                ]
-        );
-
-        return _.every(permissionRequest, permission => permission === PermissionsAndroid.RESULTS.GRANTED);
     }
 
     updateValue(value, validationResult = null) {
@@ -98,7 +79,7 @@ class AudioFormElement extends AbstractFormElement {
         const options = {type: types.audio, allowMultiSelection: formElement.isMultiSelect()};
         const fileName = `${General.randomUUID()}.mp3`;
         const directory = FileSystem.getAudioDir();
-        if (await this.isPermissionGranted()) {
+        if (await DevicePermissions.request()) {
             pick(options)
                 .then((response) => {
                     response.map(responseItem => {
@@ -124,7 +105,7 @@ class AudioFormElement extends AbstractFormElement {
         const directory = FileSystem.getAudioDir();
         const fileName = `${General.randomUUID()}.mp3`;
         const path = `${directory}/${fileName}`;
-        if (await this.isPermissionGranted()) {
+        if (await DevicePermissions.request({microphone: true})) {
             const audioSet = {
                 AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
                 AudioSourceAndroid: AudioSourceAndroidType.MIC,

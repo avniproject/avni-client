@@ -35,10 +35,16 @@ import StaticMenuItem from "./menu/StaticMenuItem";
 import AvniIcon from "./common/AvniIcon";
 import EntityService from "../service/EntityService";
 import EnvironmentConfig from "../framework/EnvironmentConfig";
+import GlobalContext from "../GlobalContext";
+import SqliteFactory from "../framework/db/SqliteFactory";
 import { getAvniError } from "../service/ServerError";
 import { AlertMessage } from "./common/AlertMessage";
 import MessageService from "../service/MessageService";
 import CustomConfirmDialog from "./common/CustomConfirmDialog";
+import LastSyncCompleted from "../service/LastSyncCompleted";
+import ResetSyncService from "../service/ResetSyncService";
+import EntitySyncStatusService from "../service/EntitySyncStatusService";
+import {catchmentUploadBlockers} from "../utility/CatchmentUploadGuard";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -111,7 +117,7 @@ class MenuView extends AbstractComponent {
 
     _logout = () => {
         const authService = this.context.getService(AuthService);
-        authService.getAuthProviderService().logout()
+        authService.logout()
             .then(() => authService.fetchAuthSettingsFromServer())
             .catch((error) => {
                 const i18n = this.getService(MessageService).getI18n();
@@ -139,7 +145,7 @@ class MenuView extends AbstractComponent {
     }
 
     deleteData() {
-        this.getService(AuthService).getAuthProviderService().logout()
+        this.getService(AuthService).logout()
             .then(() => this.getService(SyncService).clearData())
             .then(() => this.getService(SyncService).reset(true))
             .then(() => CHSNavigator.navigateToLoginView(this, false));
@@ -156,16 +162,31 @@ class MenuView extends AbstractComponent {
         });
     };
 
-    uploadCatchmentDatabase() {
-        if (!this.state.oneSyncCompleted || this.state.unsyncedTxData) {
-            CustomConfirmDialog.showAlert({
-                title: this.I18n.t('uploadCatchmentDatabaseErrorTitle'),
-                message: this.getCatchmentUploadErrorMessage(),
-                okLabel: this.I18n.t('ok')
-            });
-        } else {
+    // Read at the tap, not at menu load: a sync can start while this screen sits open, and a
+    // guard answering from state captured earlier would wave through the case it exists to stop.
+    async getCatchmentUploadBlockers() {
+        // getNotMigratedResetSyncs, not isResetSyncRequired — the latter marks resets migrated
+        // as a side effect, which a guard must not do on a menu tap.
+        const pendingResets = this.getService(ResetSyncService).getNotMigratedResetSyncs();
+        return catchmentUploadBlockers({
+            lastSyncCompleted: await LastSyncCompleted.didComplete(),
+            hasUnsyncedTxData: this.getService(EntitySyncStatusService).getTotalEntitiesPending() !== 0,
+            hasPendingReset: !_.isEmpty(pendingResets)
+        });
+    }
+
+    async uploadCatchmentDatabase() {
+        const blockers = await this.getCatchmentUploadBlockers();
+        if (_.isEmpty(blockers)) {
             this.startUploadDatabase('uploadCatchmentDatabase', 'uploadCatchmentDatabaseConfirmationMessage', MediaQueueService.DumpType.Catchment);
+            return;
         }
+        const reasons = blockers.map(key => this.I18n.t(key)).join(' ');
+        CustomConfirmDialog.showAlert({
+            title: this.I18n.t('uploadCatchmentDatabaseErrorTitle'),
+            message: `${reasons} ${this.I18n.t('uploadCatchmentDatabaseActionRecommended')}`,
+            okLabel: this.I18n.t('ok')
+        });
     };
 
     uploadAppInfo() {
@@ -206,12 +227,6 @@ class MenuView extends AbstractComponent {
             title: this.I18n.t('uploadFailed'),
             message: avniError ? avniError.getDisplayMessage() : ""
         });
-    }
-
-    getCatchmentUploadErrorMessage() {
-        let unSyncedDataMessage = this.state.unsyncedTxData ? `${this.I18n.t('uploadCatchmentDatabaseLocalUnsavedData')}` : "";
-        let noSyncCompletedMessage = this.state.oneSyncCompleted ? "" : `${this.I18n.t('uploadCatchmentDatabaseLocalOneSyncNeeded')}`;
-        return `${unSyncedDataMessage} ${noSyncCompletedMessage} ${this.I18n.t('uploadCatchmentDatabaseActionRecommended')}`;
     }
 
     createAnonymizedDatabase() {
@@ -293,6 +308,25 @@ class MenuView extends AbstractComponent {
                 {this.I18n.t('medicalDisclaimerBody')}
             </Text>
         );
+    }
+
+    // Backend / schema rows (Realm vs SQLite), ported from upstream's info block.
+    renderBackendInfoRows() {
+        const globalContext = GlobalContext.getInstance();
+        const activeBackend = globalContext.getActiveBackend() || 'realm';
+        const isSqlite = activeBackend === 'sqlite';
+        const migration = isSqlite && globalContext.sqliteDb ? globalContext.sqliteDb.getCurrentMigration() : null;
+        const dbSchemaValue = isSqlite
+            ? (migration ? migration.idx : 'unknown')
+            : this.getService(EntityService).getActualSchemaVersion();
+        const codeSchemaValue = isSqlite
+            ? SqliteFactory.getCodeSchemaVersion()
+            : EntityMappingConfig.getInstance().getSchemaVersion();
+        return <>
+            {this.renderInfoRow('Backend', activeBackend)}
+            {this.renderInfoRow('Database Schema', dbSchemaValue)}
+            {!EnvironmentConfig.isProd() && this.renderInfoRow('Code Schema Version', codeSchemaValue)}
+        </>;
     }
 
     renderInfoRow(label, value, isFirst = false) {
@@ -410,8 +444,7 @@ class MenuView extends AbstractComponent {
                         ListFooterComponent={() => (
                             <View style={styles.infoContainer}>
                                 {this.renderInfoRow('Server', this.state.serverURL, true)}
-                                {this.renderInfoRow('Database Schema', this.getService(EntityService).getActualSchemaVersion())}
-                                {!EnvironmentConfig.isProd() && this.renderInfoRow('Code Schema Version', EntityMappingConfig.getInstance().getSchemaVersion())}
+                                {this.renderBackendInfoRows()}
                                 {this.renderInfoRow('Build Version', `${DeviceInfo.getVersion()}-${Config.COMMIT_ID}`)}
                             </View>
                         )}

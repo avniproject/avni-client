@@ -1,0 +1,476 @@
+import {SqliteResultsProxy} from "../../../src/framework/db/SqliteResultsProxy";
+
+// ──── Mock entity class ────
+
+class MockEntity {
+    constructor(obj) {
+        Object.assign(this, obj);
+    }
+}
+
+// ──── Mock hydrator ────
+
+function createMockHydrator(transform) {
+    const hydrate = jest.fn((schemaName, row, opts) => transform ? transform(row) : {...row});
+    return {
+        beginHydrationSession: jest.fn(),
+        endHydrationSession: jest.fn(),
+        hydrate,
+        createLazyGroup: jest.fn((schemaName, rows) => {
+            const built = [];
+            return {
+                size: rows.length,
+                buildAt(index) {
+                    if (index < 0 || index >= rows.length) return null;
+                    if (!(index in built)) built[index] = hydrate(schemaName, rows[index], {});
+                    return built[index];
+                },
+                buildAll() {
+                    return rows.map((row, index) => this.buildAt(index));
+                },
+            };
+        }),
+    };
+}
+
+// ──── Tests ────
+
+describe("SqliteResultsProxy fallback filter integration", () => {
+
+    beforeEach(() => {
+        jest.spyOn(console, "warn").mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+        console.warn.mockRestore();
+    });
+
+    // ──── TRUEPREDICATE sort/Distinct → SQL window (not JS fallback) ────
+
+    describe("TRUEPREDICATE sort/Distinct → SQL window (not JS fallback)", () => {
+        it("TRUEPREDICATE DISTINCT builds a ROW_NUMBER window (no JS fallback)", () => {
+            const rows = [{uuid: "1", entity_name: "Individual"}];
+            const executeQuery = jest.fn(() => rows);
+            const hydrator = createMockHydrator(row => ({uuid: row.uuid, entityName: row.entity_name}));
+            const proxy = SqliteResultsProxy.create({
+                schemaName: "EntitySyncStatus", tableName: "entity_sync_status",
+                entityClass: MockEntity, executeQuery, hydrator,
+            });
+            proxy.filtered("TRUEPREDICATE DISTINCT(entityName)").getLength();
+            const sql = executeQuery.mock.calls[0][0];
+            expect(sql).toContain('ROW_NUMBER() OVER (PARTITION BY t0."entity_name"');
+            expect(sql).toContain("WHERE __rn = 1");
+        });
+    });
+
+    // ──── Fully unsupported → JS fallback ────
+
+    describe("fully unsupported query → entire filter goes to JS fallback", () => {
+        it("@links.@count fails loud through the proxy (#1981)", () => {
+            const rows = [{uuid: "1"}, {uuid: "2"}, {uuid: "3"}];
+            const executeQuery = jest.fn(() => rows);
+            const hydrator = createMockHydrator();
+
+            const proxy = SqliteResultsProxy.create({
+                schemaName: "Individual",
+                tableName: "individual",
+                entityClass: MockEntity,
+                executeQuery,
+                hydrator,
+            });
+
+            const filtered = proxy.filtered("@links.@count == 0");
+            expect(() => filtered.length).toThrow(/@links .*not evaluable for Individual/);
+        });
+
+        it("SUBQUERY filters by list property after hydration", () => {
+            const rows = [{uuid: "1"}, {uuid: "2"}, {uuid: "3"}];
+            const executeQuery = jest.fn(() => rows);
+            const hydrator = createMockHydrator(row => ({
+                uuid: row.uuid,
+                observations: row.uuid === "2"
+                    ? [{concept: {uuid: "c1"}, valueJSON: '{"value":"test"}'}]
+                    : [],
+            }));
+
+            const proxy = SqliteResultsProxy.create({
+                schemaName: "Individual",
+                tableName: "individual",
+                entityClass: MockEntity,
+                executeQuery,
+                hydrator,
+            });
+
+            const filtered = proxy.filtered(
+                'SUBQUERY(observations, $observation, $observation.concept.uuid = "c1").@count > 0'
+            );
+            expect(filtered.length).toBe(1);
+            expect(filtered[0].uuid).toBe("2");
+        });
+
+        it("listProp.@count filters by list length after hydration", () => {
+            const rows = [{uuid: "1"}, {uuid: "2"}, {uuid: "3"}];
+            const executeQuery = jest.fn(() => rows);
+            const hydrator = createMockHydrator(row => ({
+                uuid: row.uuid,
+                locationMappings: row.uuid === "2" ? [{id: 1}] : [],
+            }));
+
+            const proxy = SqliteResultsProxy.create({
+                schemaName: "AddressLevel",
+                tableName: "address_level",
+                entityClass: MockEntity,
+                executeQuery,
+                hydrator,
+            });
+
+            const filtered = proxy.filtered("locationMappings.@count == 0");
+            expect(filtered.length).toBe(2);
+            expect(filtered.map(e => e.uuid)).toEqual(["1", "3"]);
+        });
+
+        it("listProp.@size filters by list length (same as @count)", () => {
+            const rows = [{uuid: "1"}, {uuid: "2"}, {uuid: "3"}];
+            const executeQuery = jest.fn(() => rows);
+            const hydrator = createMockHydrator(row => ({
+                uuid: row.uuid,
+                media: row.uuid === "2" ? [{url: "http://a.com/1.jpg"}] : [],
+            }));
+
+            const proxy = SqliteResultsProxy.create({
+                schemaName: "Concept",
+                tableName: "concept",
+                entityClass: MockEntity,
+                executeQuery,
+                hydrator,
+            });
+
+            const filtered = proxy.filtered("media.@size > 0");
+            expect(filtered.length).toBe(1);
+            expect(filtered[0].uuid).toBe("2");
+        });
+
+        it("ANY quantifier filters by list element property", () => {
+            const rows = [{uuid: "1"}, {uuid: "2"}, {uuid: "3"}];
+            const executeQuery = jest.fn(() => rows);
+            const hydrator = createMockHydrator(row => ({
+                uuid: row.uuid,
+                media: row.uuid === "1"
+                    ? [{url: "http://example.com/photo.jpg"}]
+                    : row.uuid === "2"
+                        ? [{url: "http://example.com/doc.pdf"}]
+                        : [],
+            }));
+
+            const proxy = SqliteResultsProxy.create({
+                schemaName: "PruneMedia",
+                tableName: "prune_media",
+                entityClass: MockEntity,
+                executeQuery,
+                hydrator,
+            });
+
+            const filtered = proxy.filtered("ANY media.url CONTAINS[c] $0", "photo");
+            expect(filtered.length).toBe(1);
+            expect(filtered[0].uuid).toBe("1");
+        });
+    });
+
+    // ──── Partial parse → SQL + JS fallback ────
+
+    describe("partial parse → SQL + JS fallback", () => {
+        it("splits 'voided = false AND locationMappings.@count == 0' into SQL + JS", () => {
+            // SQL handles voided=false, JS handles @count
+            const rows = [
+                {uuid: "1", voided: 0},
+                {uuid: "2", voided: 0},
+            ];
+            const executeQuery = jest.fn(() => rows);
+            const hydrator = createMockHydrator(row => ({
+                uuid: row.uuid,
+                voided: row.voided === 1,
+                locationMappings: row.uuid === "1" ? [] : [{id: 1}],
+            }));
+
+            const proxy = SqliteResultsProxy.create({
+                schemaName: "AddressLevel",
+                tableName: "address_level",
+                entityClass: MockEntity,
+                executeQuery,
+                hydrator,
+            });
+
+            const filtered = proxy.filtered("voided = false AND locationMappings.@count == 0");
+            expect(filtered.length).toBe(1);
+            expect(filtered[0].uuid).toBe("1");
+
+            // Verify SQL was generated for the supported part
+            const sqlCall = executeQuery.mock.calls[0];
+            expect(sqlCall[0]).toContain("voided");
+            // The @count part should NOT be in the SQL
+            expect(sqlCall[0]).not.toContain("@count");
+        });
+
+        it("captures skippedClauses with reason 'partial_parse_skip'", () => {
+            const executeQuery = jest.fn(() => [{uuid: "1", voided: 0}]);
+            const hydrator = createMockHydrator(row => ({
+                uuid: row.uuid,
+                locationMappings: [],
+            }));
+
+            const proxy = SqliteResultsProxy.create({
+                schemaName: "AddressLevel",
+                tableName: "address_level",
+                entityClass: MockEntity,
+                executeQuery,
+                hydrator,
+            });
+
+            // Access the underlying proxy target to inspect jsFallbackFilters
+            const filtered = proxy.filtered("voided = false AND locationMappings.@count == 0");
+
+            // Trigger execution to verify the filter is applied
+            expect(filtered.length).toBe(1);
+        });
+
+        it("pushes 'hasMigrated = false limit(1)' entirely into SQL with LIMIT", () => {
+            // limit(N) is now stripped pre-parse and pushed into SQL LIMIT clause
+            // since hasMigrated = false is fully SQL-translatable with no JS fallback
+            const rows = [{uuid: "1", has_migrated: 0}];
+            const executeQuery = jest.fn(() => rows);
+            const hydrator = createMockHydrator(row => ({
+                uuid: row.uuid,
+                hasMigrated: row.has_migrated === 1,
+            }));
+
+            const proxy = SqliteResultsProxy.create({
+                schemaName: "SubjectMigration",
+                tableName: "subject_migration",
+                entityClass: MockEntity,
+                executeQuery,
+                hydrator,
+            });
+
+            const filtered = proxy.filtered("hasMigrated = false limit(1)");
+            expect(filtered.length).toBe(1);
+            expect(filtered[0].uuid).toBe("1");
+
+            // Verify SQL contains both WHERE and LIMIT
+            const sqlCall = executeQuery.mock.calls[0];
+            expect(sqlCall[0]).toContain("has_migrated");
+            expect(sqlCall[0]).toContain("LIMIT 1");
+        });
+
+        it("handles mixed SQL + SUBQUERY fallback", () => {
+            const rows = [{uuid: "1", name: "x"}, {uuid: "2", name: "x"}];
+            const executeQuery = jest.fn(() => rows);
+            const hydrator = createMockHydrator(row => ({
+                uuid: row.uuid,
+                name: row.name,
+                observations: row.uuid === "1"
+                    ? [{concept: {uuid: "c1"}, valueJSON: ""}]
+                    : [],
+            }));
+
+            const proxy = SqliteResultsProxy.create({
+                schemaName: "Individual",
+                tableName: "individual",
+                entityClass: MockEntity,
+                executeQuery,
+                hydrator,
+            });
+
+            const filtered = proxy.filtered(
+                'name = "x" AND SUBQUERY(observations, $obs, $obs.concept.uuid = "c1").@count > 0'
+            );
+            expect(filtered.length).toBe(1);
+            expect(filtered[0].uuid).toBe("1");
+        });
+
+        it("applies limit after JS fallback when both are present", () => {
+            // SUBQUERY goes to JS fallback, limit should apply AFTER JS filtering
+            const rows = [
+                {uuid: "1"}, {uuid: "2"}, {uuid: "3"}, {uuid: "4"}, {uuid: "5"},
+            ];
+            const executeQuery = jest.fn(() => rows);
+            const hydrator = createMockHydrator(row => ({
+                uuid: row.uuid,
+                observations: ["1", "2", "3"].includes(row.uuid)
+                    ? [{concept: {uuid: "c1"}, valueJSON: ""}]
+                    : [],
+            }));
+
+            const proxy = SqliteResultsProxy.create({
+                schemaName: "Individual",
+                tableName: "individual",
+                entityClass: MockEntity,
+                executeQuery,
+                hydrator,
+            });
+
+            // SUBQUERY matches uuid 1,2,3. limit(2) should return only first 2.
+            const filtered = proxy.filtered(
+                'SUBQUERY(observations, $obs, $obs.concept.uuid = "c1").@count > 0 limit(2)'
+            );
+            expect(filtered.length).toBe(2);
+            expect(filtered[0].uuid).toBe("1");
+            expect(filtered[1].uuid).toBe("2");
+
+            // SQL should NOT have LIMIT (because JS fallback is present)
+            const sqlCall = executeQuery.mock.calls[0];
+            expect(sqlCall[0]).not.toMatch(/LIMIT/i);
+        });
+    });
+
+    // ──── Chained .filtered() calls ────
+
+    describe("chained .filtered() calls with mixed SQL and fallback", () => {
+        it("SQL then DISTINCT: WHERE is inside the window, distinct applied over it", () => {
+            const rows = [{uuid: "1", voided: 0, type_uuid: "t1"}];
+            const executeQuery = jest.fn(() => rows);
+            const hydrator = createMockHydrator(row => ({uuid: row.uuid, voided: row.voided === 1, typeUuid: row.type_uuid}));
+            const proxy = SqliteResultsProxy.create({
+                schemaName: "AddressLevel", tableName: "address_level",
+                entityClass: MockEntity, executeQuery, hydrator,
+            });
+            proxy.filtered("voided = false").filtered("TRUEPREDICATE DISTINCT(typeUuid)").getLength();
+            const sql = executeQuery.mock.calls[0][0];
+            expect(sql).toMatch(/PARTITION BY t0\."type_uuid"/);
+            expect(sql).toMatch(/WHERE t0\."voided" = \?\)\s*WHERE __rn = 1/);
+        });
+
+        it("SQL then SUBQUERY: .filtered('uuid = $0').filtered('SUBQUERY(...).@count > 0')", () => {
+            const rows = [{uuid: "1"}];
+            const executeQuery = jest.fn(() => rows);
+            const hydrator = createMockHydrator(row => ({
+                uuid: row.uuid,
+                encounters: [
+                    {voided: false, encounterType: {uuid: "et1"}},
+                ],
+            }));
+
+            const proxy = SqliteResultsProxy.create({
+                schemaName: "Individual",
+                tableName: "individual",
+                entityClass: MockEntity,
+                executeQuery,
+                hydrator,
+            });
+
+            const filtered = proxy
+                .filtered("uuid = $0", "1")
+                .filtered('SUBQUERY(encounters, $encounter, $encounter.voided = false and $encounter.encounterType.uuid = "et1").@count > 0');
+
+            expect(filtered.length).toBe(1);
+            expect(filtered[0].uuid).toBe("1");
+        });
+    });
+
+    // ──── Collection API after fallback ────
+
+    describe("collection API correctness after fallback filtering", () => {
+        function createDistinctProxy() {
+            const rows = [
+                {uuid: "1", entity_name: "Individual"},
+                {uuid: "2", entity_name: "Encounter"},
+            ];
+            const executeQuery = jest.fn(() => rows);
+            const hydrator = createMockHydrator(row => ({
+                uuid: row.uuid,
+                entityName: row.entity_name,
+            }));
+
+            return SqliteResultsProxy.create({
+                schemaName: "EntitySyncStatus",
+                tableName: "entity_sync_status",
+                entityClass: MockEntity,
+                executeQuery,
+                hydrator,
+            }).filtered("TRUEPREDICATE DISTINCT(entityName)");
+        }
+
+        it("length reflects post-fallback count", () => {
+            const proxy = createDistinctProxy();
+            expect(proxy.length).toBe(2);
+        });
+
+        it("[0] index access returns correct entity wrapped in entityClass", () => {
+            const proxy = createDistinctProxy();
+            const first = proxy[0];
+            expect(first).toBeInstanceOf(MockEntity);
+            expect(first.entityName).toBe("Individual");
+        });
+
+        it("map() iterates only fallback-surviving entities", () => {
+            const proxy = createDistinctProxy();
+            const names = proxy.map(e => e.entityName);
+            expect(names).toEqual(["Individual", "Encounter"]);
+        });
+
+        it("isEmpty() returns true when fallback eliminates all", () => {
+            const rows = [{uuid: "1"}, {uuid: "2"}];
+            const executeQuery = jest.fn(() => rows);
+            const hydrator = createMockHydrator(row => ({uuid: row.uuid, media: []}));
+
+            const proxy = SqliteResultsProxy.create({
+                schemaName: "Individual",
+                tableName: "individual",
+                entityClass: MockEntity,
+                executeQuery,
+                hydrator,
+            }).filtered('ANY media.url CONTAINS[c] "nonexistent"');
+
+            expect(proxy.isEmpty()).toBe(true);
+        });
+    });
+
+    // ──── Multi-branch OR (the approval-dashboard shape) through proxy → evaluator ────
+
+    describe("compound OR clause routed entirely to the JS fallback", () => {
+        // Mirrors EntityApprovalStatusService.getAllSubjects: outer predicate OR'd with
+        // SUBQUERYs over three different lists, plus a trailing SORT.
+        const query = "(latestEntityApprovalStatus.approvalStatus.status = $0 and voided = false)"
+            + " or (voided = false and subquery(enrolments, $enrolment, $enrolment.latestEntityApprovalStatus.approvalStatus.status = $1 and $enrolment.voided = false).@count > 0)"
+            + " or (voided = false and subquery(encounters, $encounter, $encounter.latestEntityApprovalStatus.approvalStatus.status = $2 and $encounter.voided = false).@count > 0)"
+            + " or (voided = false and subquery(enrolments.encounters, $pe, $pe.latestEntityApprovalStatus.approvalStatus.status = $3 and $pe.voided = false).@count > 0)"
+            + " SORT(firstName ASC)";
+
+        const pending = {approvalStatus: {status: "Pending"}};
+        const approved = {approvalStatus: {status: "Approved"}};
+        const hydrated = {
+            bySubject: {uuid: "bySubject", firstName: "D", voided: false, latestEntityApprovalStatus: pending, enrolments: [], encounters: []},
+            byEnrolment: {uuid: "byEnrolment", firstName: "C", voided: false, latestEntityApprovalStatus: approved,
+                enrolments: [{voided: false, latestEntityApprovalStatus: pending, encounters: []}], encounters: []},
+            byEncounter: {uuid: "byEncounter", firstName: "B", voided: false, latestEntityApprovalStatus: approved,
+                enrolments: [], encounters: [{voided: false, latestEntityApprovalStatus: pending}]},
+            byProgramEncounter: {uuid: "byProgramEncounter", firstName: "A", voided: false, latestEntityApprovalStatus: approved,
+                enrolments: [{voided: false, latestEntityApprovalStatus: approved,
+                    encounters: [{voided: false, latestEntityApprovalStatus: pending}]}], encounters: []},
+            none: {uuid: "none", firstName: "E", voided: false, latestEntityApprovalStatus: approved, enrolments: [], encounters: []},
+        };
+
+        function approvalProxy() {
+            const rows = Object.keys(hydrated).map(uuid => ({uuid}));
+            return SqliteResultsProxy.create({
+                schemaName: "Individual",
+                tableName: "individual",
+                entityClass: MockEntity,
+                executeQuery: jest.fn(() => rows),
+                hydrator: createMockHydrator(row => hydrated[row.uuid]),
+            }).filtered(query, "Pending", "Pending", "Pending", "Pending");
+        }
+
+        it("matches subjects via every OR branch, not only the first SUBQUERY", () => {
+            const uuids = approvalProxy().map(e => e.uuid);
+            expect(uuids.sort()).toEqual(["byEncounter", "byEnrolment", "byProgramEncounter", "bySubject"]);
+        });
+
+        it("excludes a subject that satisfies no branch", () => {
+            expect(approvalProxy().map(e => e.uuid)).not.toContain("none");
+        });
+
+        it("applies the trailing SORT to the result", () => {
+            expect(approvalProxy().map(e => e.firstName)).toEqual(["A", "B", "C", "D"]);
+        });
+    });
+});

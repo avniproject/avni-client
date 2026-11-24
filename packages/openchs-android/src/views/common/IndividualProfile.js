@@ -3,7 +3,7 @@ import {TouchableNativeFeedback, TouchableOpacity, View, Linking} from "react-na
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Text} from "native-base";
-import {Actions} from "../../action/individual/IndividualProfileActions";
+import {Actions, IndividualProfileActions} from "../../action/individual/IndividualProfileActions";
 import Reducers from "../../reducer";
 import Colors from "../primitives/Colors";
 import Distances from "../primitives/Distances";
@@ -28,6 +28,8 @@ import CustomActivityIndicator from "../CustomActivityIndicator";
 import AvniIcon from "../common/AvniIcon";
 import GlificScheduledAndSentMsgsView from '../glific/GlificScheduledAndSentMsgsView';
 import CustomConfirmDialog from "./CustomConfirmDialog";
+import deferPastInteractions from "../../utility/deferPastInteractions";
+import Perf from "../../utility/perf";
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
@@ -132,9 +134,9 @@ class IndividualProfile extends AbstractComponent {
                             subjectLocation: subjectLocation
                         });
                         
-                        CustomConfirmDialog.showAlert({title: 'Success', message: this.I18n.t('subjectLocationSaved')});
+                        CustomConfirmDialog.showAlert({title: this.I18n.t('success'), message: this.I18n.t('subjectLocationSaved')});
                     } catch (error) {
-                        CustomConfirmDialog.showAlert({title: 'Error', message: this.I18n.t('locationSaveError')});
+                        CustomConfirmDialog.showAlert({title: this.I18n.t('Error'), message: this.I18n.t('locationSaveError')});
                     }
                 },
                 false,
@@ -160,7 +162,18 @@ class IndividualProfile extends AbstractComponent {
                 })
             ])));
         };
-        setTimeout(() => this.dispatchAction(Actions.INDIVIDUAL_SELECTED, {individual, programEnrolmentCallback}), 300);
+        // A fixed 300ms timer used to fire into the tail of the navigation slide; wait for it to finish.
+        // Still on the pre-#2054 trigger: deferPastInteractions settles when InteractionManager judges
+        // interactions done, which is BEFORE the slide's final commit - the root cause #2054 replaced
+        // with runAfterSceneTransition everywhere else. Comparing this sinceArmedMs against
+        // sceneTrigger.fired's on the same transition is the evidence for that. (avni-client#2089)
+        const _tArmed = Date.now();
+        deferPastInteractions(() => {
+            if (this._isUnmounted) return;
+            Perf.mark("legacyDefer.fired", () => ({view: "IndividualProfile", sinceArmedMs: Date.now() - _tArmed}));
+            Perf.time("IndividualProfile.individualSelected",
+                () => this.dispatchAction(Actions.INDIVIDUAL_SELECTED, {individual, programEnrolmentCallback}));
+        });
     }
 
 
@@ -352,8 +365,14 @@ class IndividualProfile extends AbstractComponent {
         );
     }
     
+    // state holds the re-read subject after a location save; prop is stale under SQLite.
+    displayedIndividual() {
+        return IndividualProfileActions.displayedIndividual(this.state, this.props.individual);
+    }
+
     navigateToLocation() {
-        const subjectLocation = this.props.individual.subjectLocation;
+        const subjectLocation = this.displayedIndividual().subjectLocation;
+        if (_.isNil(subjectLocation)) return;
         const lat = subjectLocation.latitude;
         const lng = subjectLocation.longitude;
         const url = `geo:${lat},${lng}?q=${lat},${lng}(${this.props.individual.nameString})`;
@@ -363,7 +382,7 @@ class IndividualProfile extends AbstractComponent {
                     return Linking.openURL(url);
             })
             .catch(err => {
-                CustomConfirmDialog.showAlert({title: 'Error', message: `Unable to open map application`});
+                CustomConfirmDialog.showAlert({title: this.I18n.t('Error'), message: this.I18n.t('unableToOpenMapApplication')});
             });
 
     }
@@ -378,6 +397,15 @@ class IndividualProfile extends AbstractComponent {
 
     renderBasedOnProgramActions() {
         return _.size(this.state.programActions) === 1 ? this.renderNameDirectly(_.head(this.state.programActions)) : this.renderTitle();
+    }
+
+    // Subject keyed by uuid — Realm objects mutate in place, so same-subject updates come via state.
+    shouldComponentUpdate(nextProps, nextState) {
+        return nextProps.individual.uuid !== this.props.individual.uuid
+            || nextProps.displayOnly !== this.props.displayOnly
+            || nextProps.programsAvailable !== this.props.programsAvailable
+            || nextProps.hideEnrol !== this.props.hideEnrol
+            || !General.objectsShallowEquals(nextState, this.state);
     }
 
     render() {

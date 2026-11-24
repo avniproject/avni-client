@@ -29,7 +29,7 @@ import UserInfoService from './UserInfoService';
 import moment from "moment";
 import FileLoggerService from '../utility/FileLoggerService';
 import AvniError from "../framework/errorHandling/AvniError";
-import ErrorUtil from "../framework/errorHandling/ErrorUtil";
+import toAvniError from "../framework/errorHandling/toAvniError";
 
 const REALM_FILE_NAME = "default.realm";
 const REALM_FILE_FULL_PATH = `${fs.DocumentDirectoryPath}/${REALM_FILE_NAME}`;
@@ -154,12 +154,7 @@ export default class BackupRestoreRealmService extends BaseService {
     }
 
     _toAvniError(error) {
-        try {
-            return ErrorUtil.getAvniErrorSync(error);
-        } catch (e) {
-            const message = _.get(error, "message", String(error));
-            return AvniError.create(message, message);
-        }
+        return toAvniError(error);
     }
 
     _getUsernameForBackup(providedUsername = null) {
@@ -358,25 +353,23 @@ export default class BackupRestoreRealmService extends BaseService {
     }
 
     _deleteAndResetSync(schemaName) {
-        const db = this.db;
-        const syncStatuses = db.objects(EntitySyncStatus.schema.name)
+        const syncStatuses = this.getRepository(EntitySyncStatus.schema.name).findAll()
             .filtered(`entityName = '${schemaName}'`)
             .map(_.identity);
-        this.db.write(() => {
-            db.delete(db.objects(schemaName));
+        this.transactionManager.write(() => {
+            this.getRepository(schemaName).deleteInTransaction(this.getRepository(schemaName).findAll());
             syncStatuses.forEach(({uuid, entityName, entityTypeUuid}) => {
                 const updatedEntity = EntitySyncStatus.create(entityName, EntitySyncStatus.REALLY_OLD_DATE, uuid, entityTypeUuid);
-                db.create(EntitySyncStatus.schema.name, updatedEntity, true);
+                this.getRepository(EntitySyncStatus.schema.name).create(updatedEntity, true);
             })
         });
     }
 
     _deleteIndividualAndDependentForDirectlyAssignableSubjectTypes() {
-        const db = this.db;
         const allDirectlyAssignableSubjectTypes = this.getService(SubjectTypeService).getAllDirectlyAssignable();
         _.forEach(allDirectlyAssignableSubjectTypes, subjectType => {
             this.deleteTxDataForSubjectType(subjectType);
-            this.resetSyncForSubjectType(subjectType, db);
+            this.resetSyncForSubjectType(subjectType);
         });
     }
 
@@ -388,22 +381,22 @@ export default class BackupRestoreRealmService extends BaseService {
         this.getService(UserInfoService).saveOrUpdate(prevUserInfo);
     }
 
-    resetSyncForSubjectType(subjectType, db) {
+    resetSyncForSubjectType(subjectType) {
         const formMappingsForSubjectType = this.getService(FormMappingService).getFormMappingsForSubjectType(subjectType).map(_.identity);
         _.forEach(formMappingsForSubjectType, (formMapping) => {
             const {entityName, entityTypeUuid} = formMapping.getEntityNameAndEntityTypeUUID();
-            this.resetSync(entityName, entityTypeUuid, db);
+            this.resetSync(entityName, entityTypeUuid);
         })
     }
 
-    resetSync(entityName, entityTypeUUID, db) {
-        this.db.write(() => {
-            db.objects(EntitySyncStatus.schema.name)
+    resetSync(entityName, entityTypeUUID) {
+        this.transactionManager.write(() => {
+            this.getRepository(EntitySyncStatus.schema.name).findAll()
                 .filtered(`entityName = $0 and entityTypeUuid = $1`, entityName, entityTypeUUID)
                 .map(u => _.assign({}, u))
                 .forEach(({uuid, entityName, entityTypeUuid}) => {
                     const updatedEntity = EntitySyncStatus.create(entityName, EntitySyncStatus.REALLY_OLD_DATE, uuid, entityTypeUuid);
-                    db.create(EntitySyncStatus.schema.name, updatedEntity, true);
+                    this.getRepository(EntitySyncStatus.schema.name).create(updatedEntity, true);
                 })
         });
     }

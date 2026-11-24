@@ -21,7 +21,12 @@ class IndividualDetails extends AbstractComponent {
     };
 
     shouldComponentUpdate(nextProps) {
+        const visits = this.props.individualWithMetadata.visitInfo.visitName;
+        const nextVisits = nextProps.individualWithMetadata.visitInfo.visitName;
+        // Total-card rows rebuild an empty visit list on every draw, so two empty lists count as unchanged.
+        const visitsChanged = visits !== nextVisits && !(_.isEmpty(visits) && _.isEmpty(nextVisits));
         return nextProps.individualWithMetadata.individual.uuid !== this.props.individualWithMetadata.individual.uuid
+            || visitsChanged
             || nextProps.header !== this.props.header
             || nextProps.cardType !== this.props.cardType;
     }

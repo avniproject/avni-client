@@ -52,8 +52,8 @@ class ChecklistView extends AbstractComponent {
         if (this.state.promptForSave) {
             // "no" proceeds with exiting (goBack), "yes" is a no-op that leaves the user on the screen - preserving that existing (inverted) behavior, only the rendering changed
             CustomConfirmDialog.show({
-                title: "Unsaved Changes",
-                message: "Do you want to save before exiting? ",
+                title: this.I18n.t('unsavedChanges'),
+                message: this.I18n.t('saveBeforeExitingMsg'),
                 yesLabel: this.I18n.t('no'),
                 noLabel: this.I18n.t('yes'),
                 onYes: () => {

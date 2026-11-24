@@ -19,7 +19,8 @@ class CollapsibleEncounter extends AbstractComponent {
         style: PropTypes.object,
         isEditAllowed: PropTypes.func.isRequired,
         formElementGroupEditAction: PropTypes.string,
-        formType: PropTypes.string
+        formType: PropTypes.string,
+        cancelFormType: PropTypes.string
     };
 
     constructor(props, context) {

@@ -64,9 +64,14 @@ const OVERRIDE = {
 // Mirrors DownloadableContent: payload is a JSON string, getPayload() parses it.
 const row = (overrides = {}) => {
     const base = {
-        category: 'edgeModel', sha256: 'sha-a', contentKey: 'models/sha-a.bin', needsKey: true, voided: false,
+        category: 'edgeModel', sha256: 'sha-a', needsKey: true, voided: false,
         payload: JSON.stringify(OVERRIDE), ...overrides,
     };
+    // The blob path is resolved from contentKey, so keep the fixture's key and sha consistent the
+    // way the admin screen does when it authors a row.
+    if (!('contentKey' in overrides)) {
+        base.contentKey = `models/${base.sha256}.bin`;
+    }
     return {
         ...base,
         getPayload() {
@@ -470,6 +475,40 @@ describe('EdgeModelService', () => {
                     questionGroupIndex: null, messageKey: 'aiModelUnavailable',
                 });
             });
+
+            it('via scheduleImageInference: one fold whose key has not arrived flags model-unavailable (#2015)', async () => {
+                mockFsState.existing.add(blobPath('fold2'));  // fold2 blob present, key absent
+                service.dispatchAction = jest.fn();
+
+                const entity = {uuid: 'e1', getObservationValue: jest.fn(() => undefined)};
+                service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
+                await new Promise(res => setImmediate(res));
+                flushInference();
+
+                expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                    conceptName: 'AI Suspicion Result', questionGroupConceptName: null,
+                    questionGroupIndex: null, messageKey: 'aiModelUnavailable',
+                });
+            });
+
+            it('via scheduleImageInference: a key-missing fold beside a genuine fold failure still says inference failed (#2015)', async () => {
+                mockFsState.existing.add(blobPath('fold2'));  // fold2 blob present, key absent
+                NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation((sha) => sha === 'fold3'
+                    ? Promise.reject(new Error('inference error'))
+                    : Promise.resolve({label: 'Negative', confidence: 0.8, logit: -1}));
+                service.dispatchAction = jest.fn();
+
+                const entity = {uuid: 'e1', getObservationValue: jest.fn(() => undefined)};
+                service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
+                await new Promise(res => setImmediate(res));
+                flushInference();
+
+                // Syncing alone would not fix fold3, so this must not tell the worker to sync.
+                expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                    conceptName: 'AI Suspicion Result', questionGroupConceptName: null,
+                    questionGroupIndex: null, messageKey: 'aiInferenceFailed',
+                });
+            });
         });
     });
 
@@ -499,6 +538,39 @@ describe('EdgeModelService', () => {
         it('via scheduleImageInference: missing cache yields no native load, no throw, and flags model-unavailable (verdict absent)', async () => {
             const r = row();
             rows = [r];  // nothing cached
+            service.dispatchAction = jest.fn();
+
+            const entity = {uuid: 'e1', getObservationValue: jest.fn(() => undefined)};
+            service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
+            await new Promise(res => setImmediate(res));
+            flushInference();
+
+            expect(NativeModules.EdgeModelModule.loadEncryptedModelFromFile).not.toHaveBeenCalled();
+            expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                conceptName: 'AI Suspicion Result', questionGroupConceptName: null,
+                questionGroupIndex: null, messageKey: 'aiModelUnavailable',
+            });
+        });
+
+        it('via scheduleImageInference: no edgeModel row synced flags model-unavailable, not inference-failed (#2015)', async () => {
+            rows = [];
+            service.dispatchAction = jest.fn();
+
+            const entity = {uuid: 'e1', getObservationValue: jest.fn(() => undefined)};
+            service.scheduleImageInference('/tmp/x.jpg', entity, 'AI Suspicion Result');
+            await new Promise(res => setImmediate(res));
+            flushInference();
+
+            expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                conceptName: 'AI Suspicion Result', questionGroupConceptName: null,
+                questionGroupIndex: null, messageKey: 'aiModelUnavailable',
+            });
+        });
+
+        it('via scheduleImageInference: a key not cached yet flags model-unavailable, not inference-failed (#2015)', async () => {
+            const r = row();
+            rows = [r];
+            mockFsState.existing.add(blobPath(r.sha256));  // blob present, key absent
             service.dispatchAction = jest.fn();
 
             const entity = {uuid: 'e1', getObservationValue: jest.fn(() => undefined)};
@@ -655,6 +727,22 @@ describe('EdgeModelService', () => {
             cacheRow(r);
             NativeModules.EdgeModelModule.runInferenceOnImage.mockResolvedValue({label: 'Positive', confidence: 0.91});
             service.dispatchAction = jest.fn();
+        });
+
+        it("Tanuh's legacy 7-arg ensemble call on a phone with no model flags model-unavailable on that row (#2015)", async () => {
+            rows = [];
+
+            service.scheduleImageInferenceIntoGroup(
+                ['mvit2_fold1_6', 'mvit2_fold1_8', 'mvit2_fold2_8'],
+                '/tmp/x.jpg', fakeRqgEntity('e1', [{}, {}, {}]), 'Image-wise AI Assessment', 'AI Verdict', 2,
+                {'Positive': 'Suspicious', 'Negative': 'Non-Suspicious'});
+            await new Promise(res => setImmediate(res));
+            flushInference();
+
+            expect(service.dispatchAction).toHaveBeenCalledWith('EDGE_MODEL.INFERENCE_UNAVAILABLE', {
+                conceptName: 'AI Verdict', questionGroupConceptName: 'Image-wise AI Assessment',
+                questionGroupIndex: 2, messageKey: 'aiModelUnavailable',
+            });
         });
 
         it('queues a batched result with the question group coordinates on resolve', async () => {
@@ -816,6 +904,216 @@ describe('EdgeModelService', () => {
             const [, payload] = service.dispatchAction.mock.calls[0];
             expect(payload.results).toHaveLength(3);
             expect(payload.results.map(r => r.questionGroupIndex).sort()).toEqual([0, 1, 2]);
+        });
+    });
+
+    // avniproject/avni-client#2000. `_scheduled` dedups by image, so a photo replaced mid-inference
+    // leaves two legitimate dispatches in flight for one row. Whichever resolves LAST used to write,
+    // which put the discarded photo's verdict on the photo now in the row.
+    describe('supersede-safe dispatch (#2000)', () => {
+        const rqgEntity = (uuid) => ({
+            uuid,
+            findObservation: jest.fn(() => ({
+                getValueWrapper: () => ({size: () => 1, getGroupObservationAtIndex: () => null}),
+            })),
+        });
+        // Resolves only when the test says so, so the two can be settled out of order.
+        const deferInference = () => {
+            const gate = {};
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation(
+                (sha, imagePath) => new Promise(resolve => { gate[imagePath] = resolve; }));
+            return {
+                settle: async (imagePath, label) => {
+                    gate[imagePath]({label, confidence: 0.9});
+                    for (let i = 0; i < 5; i++) await new Promise(res => setImmediate(res));
+                },
+            };
+        };
+        const verdicts = () => service.dispatchAction.mock.calls
+            .filter(([action]) => action === 'EDGE_MODEL.INFERENCE_RESULTS_BATCH')
+            .flatMap(([, payload]) => payload.results);
+
+        beforeEach(() => {
+            const r = row();
+            rows = [r];
+            cacheRow(r);
+            service.dispatchAction = jest.fn();
+        });
+
+        it('never writes image A\'s verdict once image B has been dispatched for the same row', async () => {
+            const gate = deferInference();
+            const entity = rqgEntity('e1');
+            service.scheduleImageInferenceIntoGroup('/tmp/A.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
+            service.scheduleImageInferenceIntoGroup('/tmp/B.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
+
+            // Out of order on purpose: the FIRST inference resolves AFTER the second.
+            await gate.settle('/tmp/B.jpg', 'Negative');
+            await gate.settle('/tmp/A.jpg', 'Positive');
+            flushInference();
+
+            expect(verdicts().map(v => v.value)).toEqual(['Negative']);
+        });
+
+        it('binds the row to the image that actually produced the surviving verdict', async () => {
+            const gate = deferInference();
+            const entity = rqgEntity('e1');
+            service.scheduleImageInferenceIntoGroup('/tmp/A.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
+            service.scheduleImageInferenceIntoGroup('/tmp/B.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
+            await gate.settle('/tmp/B.jpg', 'Negative');
+            await gate.settle('/tmp/A.jpg', 'Positive');
+
+            expect(service._lastInferredImageByTarget.get('e1|Lesion Group|0|AI Verdict')).toBe('/tmp/B.jpg');
+        });
+
+        it('does not raise a blocking error when the SUPERSEDED image is the one that fails', async () => {
+            const gate = {};
+            NativeModules.EdgeModelModule.runInferenceOnImage.mockImplementation(
+                (sha, imagePath) => new Promise((resolve, reject) => { gate[imagePath] = {resolve, reject}; }));
+            const entity = rqgEntity('e1');
+            service.scheduleImageInferenceIntoGroup('/tmp/A.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
+            service.scheduleImageInferenceIntoGroup('/tmp/B.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
+
+            gate['/tmp/B.jpg'].resolve({label: 'Negative', confidence: 0.9});
+            for (let i = 0; i < 5; i++) await new Promise(res => setImmediate(res));
+            gate['/tmp/A.jpg'].reject(new Error('inference blew up on the discarded photo'));
+            for (let i = 0; i < 5; i++) await new Promise(res => setImmediate(res));
+            flushInference();
+
+            const unavailable = service.dispatchAction.mock.calls
+                .filter(([action]) => action === 'EDGE_MODEL.INFERENCE_UNAVAILABLE');
+            expect(unavailable).toHaveLength(0);
+            expect(verdicts().map(v => v.value)).toEqual(['Negative']);
+        });
+
+        it('still writes a single dispatch\'s verdict — the guard only drops superseded ones', async () => {
+            const gate = deferInference();
+            service.scheduleImageInferenceIntoGroup('/tmp/only.jpg', rqgEntity('e1'), 'Lesion Group', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
+            await gate.settle('/tmp/only.jpg', 'Positive');
+            flushInference();
+
+            expect(verdicts().map(v => v.value)).toEqual(['Positive']);
+        });
+
+        // QA on #2000, 8 Oct 2026: the superseded image settling FIRST must not clear the row's binding,
+        // or the current image's own verdict is then dropped as superseded and the row gets none.
+        it('writes the current image\'s verdict when the superseded one settles first', async () => {
+            const gate = deferInference();
+            const entity = rqgEntity('e1');
+            service.scheduleImageInferenceIntoGroup('/tmp/A.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
+            service.scheduleImageInferenceIntoGroup('/tmp/B.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+            await new Promise(res => setImmediate(res));
+
+            await gate.settle('/tmp/A.jpg', 'Positive');
+            await gate.settle('/tmp/B.jpg', 'Negative');
+            flushInference();
+
+            expect(verdicts().map(v => v.value)).toEqual(['Negative']);
+        });
+
+        // QA on #2000, 8 Oct 2026: going back to photo A while A is still in flight hits the in-flight
+        // dedup, which must still make A the row's current image, or B's verdict lands on the row holding A.
+        [['A first', ['/tmp/A.jpg', '/tmp/B.jpg']], ['B first', ['/tmp/B.jpg', '/tmp/A.jpg']]].forEach(([order, settleOrder]) => {
+            it(`writes only A's verdict after A, B, then A again (${order})`, async () => {
+                const gate = deferInference();
+                const entity = rqgEntity('e1');
+                service.scheduleImageInferenceIntoGroup('/tmp/A.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+                await new Promise(res => setImmediate(res));
+                service.scheduleImageInferenceIntoGroup('/tmp/B.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+                await new Promise(res => setImmediate(res));
+                service.scheduleImageInferenceIntoGroup('/tmp/A.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+                await new Promise(res => setImmediate(res));
+
+                const labels = {'/tmp/A.jpg': 'Positive', '/tmp/B.jpg': 'Negative'};
+                for (const imagePath of settleOrder) await gate.settle(imagePath, labels[imagePath]);
+                flushInference();
+
+                expect(verdicts().map(v => v.value)).toEqual(['Positive']);
+                expect(NativeModules.EdgeModelModule.runInferenceOnImage).toHaveBeenCalledTimes(2);
+            });
+        });
+
+        it('writes only A\'s verdict after A, B, then A again on a question outside a group', async () => {
+            const gate = deferInference();
+            const entity = {uuid: 'e1', getObservationValue: jest.fn(() => null)};
+            service.scheduleImageInference('/tmp/A.jpg', entity, 'AI Verdict');
+            await new Promise(res => setImmediate(res));
+            service.scheduleImageInference('/tmp/B.jpg', entity, 'AI Verdict');
+            await new Promise(res => setImmediate(res));
+            service.scheduleImageInference('/tmp/A.jpg', entity, 'AI Verdict');
+            await new Promise(res => setImmediate(res));
+
+            await gate.settle('/tmp/B.jpg', 'Negative');
+            await gate.settle('/tmp/A.jpg', 'Positive');
+            flushInference();
+
+            expect(verdicts().map(v => v.value)).toEqual(['Positive']);
+        });
+
+        // The realistic way one photo comes back to a row: a saved visit is edited, the photo replaced,
+        // the edit discarded and the visit reopened. Its rule call stops at a cold-start or already-
+        // inferred check, and must still make that photo current, or the discarded photo's verdict lands.
+        describe('a saved visit reopened after a discarded photo change', () => {
+            const savedVisit = () => ({uuid: 'e1', getObservationValue: jest.fn(() => 'Persisted')});
+            const written = () => verdicts().filter(v => !v.clear).map(v => v.value);
+
+            it('while the reopened photo is still being recomputed', async () => {
+                const gate = deferInference();
+                mockFsState.existing.add('/tmp/X.jpg');
+                mockFsState.existing.add('/tmp/B.jpg');
+                const entity = savedVisit();
+                service.scheduleImageInference('/tmp/X.jpg', entity, 'AI Verdict');
+                await new Promise(res => setImmediate(res));
+                service.scheduleImageInference('/tmp/B.jpg', entity, 'AI Verdict');
+                await new Promise(res => setImmediate(res));
+                service.scheduleImageInference('/tmp/X.jpg', entity, 'AI Verdict');
+                await new Promise(res => setImmediate(res));
+
+                await gate.settle('/tmp/B.jpg', 'Negative');
+                await gate.settle('/tmp/X.jpg', 'Positive');
+                flushInference();
+
+                expect(written()).toEqual(['Positive']);
+            });
+
+            it('after the reopened photo\'s verdict was already worked out', async () => {
+                const gate = deferInference();
+                mockFsState.existing.add('/tmp/X.jpg');
+                const entity = savedVisit();
+                service.scheduleImageInference('/tmp/X.jpg', entity, 'AI Verdict');
+                await new Promise(res => setImmediate(res));
+                await gate.settle('/tmp/X.jpg', 'Positive');
+                service.scheduleImageInference('/tmp/B.jpg', entity, 'AI Verdict');
+                await new Promise(res => setImmediate(res));
+                service.scheduleImageInference('/tmp/X.jpg', entity, 'AI Verdict');
+                await new Promise(res => setImmediate(res));
+
+                await gate.settle('/tmp/B.jpg', 'Negative');
+                flushInference();
+
+                expect(written()).toEqual(['Positive']);
+            });
+        });
+
+        it('keeps sibling rows independent — row 1 does not supersede row 0', async () => {
+            const gate = deferInference();
+            const entity = rqgEntity('e1');
+            service.scheduleImageInferenceIntoGroup('/tmp/row0.jpg', entity, 'Lesion Group', 'AI Verdict', 0);
+            service.scheduleImageInferenceIntoGroup('/tmp/row1.jpg', entity, 'Lesion Group', 'AI Verdict', 1);
+            await new Promise(res => setImmediate(res));
+            await gate.settle('/tmp/row1.jpg', 'Negative');
+            await gate.settle('/tmp/row0.jpg', 'Positive');
+            flushInference();
+
+            const byRow = Object.fromEntries(verdicts().map(v => [v.questionGroupIndex, v.value]));
+            expect(byRow).toEqual({0: 'Positive', 1: 'Negative'});
         });
     });
 

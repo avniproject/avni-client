@@ -1,5 +1,4 @@
-import BackupRestoreRealmService from '../service/BackupRestoreRealmService';
-import MediaQueueService from '../service/MediaQueueService';
+import AppInfoUploadService from '../service/AppInfoUploadService';
 import General from './General';
 import CustomConfirmDialog from '../views/common/CustomConfirmDialog';
 
@@ -9,22 +8,19 @@ class IssueUploadUtil {
         if (avniError && avniError.reportingText) {
             General.logDebug(callerName || "IssueUploadUtil", avniError.reportingText);
         }
-        
+
         if (onStartUpload) onStartUpload();
-        
-        const backupRestoreService = context.getService(BackupRestoreRealmService);
-        
-        backupRestoreService.backup(MediaQueueService.DumpType.Adhoc, (percentDone, message, backupError) => {
+
+        const appInfoUploadService = context.getService(AppInfoUploadService);
+
+        appInfoUploadService.upload((percentDone, message) => {
             General.logDebug("IssueUploadUtil", `${percentDone}% - ${message}`);
             if (onProgressUpdate) {
                 onProgressUpdate(percentDone, message);
             }
             if (percentDone === 100) {
                 if (message === "backupFailed") {
-                    CustomConfirmDialog.showAlert({
-                        title: I18n.t('uploadFailed'),
-                        message: backupError ? backupError.getDisplayMessage() : ""
-                    });
+                    CustomConfirmDialog.showAlert({title: I18n.t('uploadFailed'), message: ""});
                 } else {
                     CustomConfirmDialog.showAlert({title: I18n.t('uploadSuccessful'), message: ""});
                 }

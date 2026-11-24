@@ -15,6 +15,9 @@ import * as mime from 'react-native-mime-types';
 import moment from "moment";
 import I18n from 'i18n-js';
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
+import MediaUploadError from "../framework/errorHandling/MediaUploadError";
+import AuthenticationError from "./AuthenticationError";
+import {TransferStats} from "../utility/SyncBandwidth";
 const PARALLEL_UPLOAD_COUNT = 1;
 const UPLOAD_PROGRESS_TIMEOUT_MS = 60000;
 
@@ -30,6 +33,7 @@ function checkUploadStatus(response, mediaDisplayText) {
 class MediaQueueService extends BaseService {
     static DumpType = {
         Catchment: 'catchment',
+        CatchmentSqlite: 'catchmentSqlite',
         Adhoc: 'Adhoc'
     }
 
@@ -57,7 +61,7 @@ class MediaQueueService extends BaseService {
         General.logInfo('MediaQueueService', `Adding ${fileName} to queue`);
         if (this.fileExistsInQueue(fileName)) return;
         this.runInTransaction(() => {
-            this.db.create(MediaQueue.schema.name,
+            this.repository.create(
                 MediaQueue.create(entity.uuid, schemaName, fileName, datatype, entityTargetField, conceptUUID));
         });
     }
@@ -82,7 +86,7 @@ class MediaQueueService extends BaseService {
     popItem(mediaQueueItem) {
         General.logDebug("MediaQueueService", `Deleting Media QueueItem ${mediaQueueItem.uuid} - ${mediaQueueItem.fileName}`);
         const itemToBeDeleted = this.findByUUID(mediaQueueItem.uuid, MediaQueue.schema.name);
-        this.db.write(() => this.db.delete(itemToBeDeleted));
+        this.transactionManager.write(() => this.getRepository(MediaQueue.schema.name).deleteInTransaction(itemToBeDeleted));
     }
 
     getDirByType(mediaQueueItem) {
@@ -110,6 +114,8 @@ class MediaQueueService extends BaseService {
         const serverUrl = this.getServerUrl();
         if (dumpType === MediaQueueService.DumpType.Catchment)
             return get(`${serverUrl}/media/mobileDatabaseBackupUrl/upload`, false, false);
+        else if (dumpType === MediaQueueService.DumpType.CatchmentSqlite)
+            return get(`${serverUrl}/media/fastSyncUpload`, false, false);
         else if (dumpType === MediaQueueService.DumpType.Adhoc)
             return get(`${serverUrl}/media/uploadUrl/${fileName}`, false, false);
     }
@@ -239,12 +245,18 @@ class MediaQueueService extends BaseService {
         }
 
         let uploadUrl = "";
+        let putStart;
 
         return this.getUploadUrl(mediaQueueItem)
             .then((url) => {
                 uploadUrl = url
             })
-            .then(() => this.uploadToUrl(uploadUrl, mediaQueueItem))
+            // Only the PUT is timed; summing PUT times assumes PARALLEL_UPLOAD_COUNT stays 1.
+            .then(() => {
+                putStart = performance.now();
+                return this.uploadToUrl(uploadUrl, mediaQueueItem);
+            })
+            .then(() => this.recordUploadedFile(mediaQueueItem, General.elapsedMs(putStart)))
             .then(() => this.replaceObservation(mediaQueueItem, uploadUrl))
             .then((replaced) => {
                 if (!replaced) {
@@ -261,6 +273,24 @@ class MediaQueueService extends BaseService {
             });
     }
 
+    resetUploadStats() {
+        this.uploadStats = new TransferStats();
+    }
+
+    getUploadStats() {
+        return this.uploadStats;
+    }
+
+    // A size that can't be read leaves the file out of the speed rather than failing the upload.
+    recordUploadedFile(mediaQueueItem, transferMs) {
+        return fs.stat(this.getAbsoluteFileName(mediaQueueItem))
+            .then(({size}) => {
+                if (this.uploadStats) this.uploadStats.add({bytes: Number(size), transferMs});
+            })
+            .catch((error) => General.logDebug("MediaQueueService",
+                `Could not read size of ${mediaQueueItem.fileName}: ${error}`));
+    }
+
     isMediaUploadRequired() {
         return this.findAll().length > 0;
     }
@@ -268,6 +298,7 @@ class MediaQueueService extends BaseService {
     uploadMedia(statusMessageCallback) {
         // Chunked push to S3 to minimize sync failures on low bandwidth.
         // Stops on first chunk with error or when all chunks are processed successfully
+        this.resetUploadStats();
         const mediaQueueItems = _.map(this.findAll(), (mediaQueueItem) => mediaQueueItem.clone());
         General.logDebug("MediaQueueService", `Number of media queue items: ${mediaQueueItems.length}`);
         const chunkedMediaQueueItems = _.chunk(mediaQueueItems, PARALLEL_UPLOAD_COUNT);
@@ -287,13 +318,26 @@ class MediaQueueService extends BaseService {
                 count += PARALLEL_UPLOAD_COUNT
                 General.logInfo("MediaQueueService", `MediaUpload: Time taken ${(moment.now() - startTime)}`);
                 return Promise.resolve();
-            }).catch((error) => {
-                // notify bugsnag of the original underlying error, so we can check if there are multiple causes for failure
-                ErrorUtil.notifyBugsnag(error, "MediaQueueService");
-                return Promise.reject(new Error("syncTimeoutError"));
             })
         }
-        current.then(() => { General.logInfo("MediaQueueService",`MediaUpload:Total time taken ${(moment.now() - startTime)}`)})
+        // One catch for the whole chain, not one per chunk. Attached inside the loop it fired
+        // once per remaining chunk on a single failure — with 50 queued items and a batch size
+        // of 1, that was 50 Bugsnag reports for one failure. Chaining the summary log through
+        // `current` also stops it dangling as an uncaught rejection when the upload fails.
+        current = current
+            .then(() => {
+                General.logInfo("MediaQueueService", `MediaUpload:Total time taken ${(moment.now() - startTime)}`);
+            })
+            .catch((error) => {
+                // notify bugsnag of the original underlying error, so we can check if there are multiple causes for failure
+                ErrorUtil.notifyBugsnag(error, "MediaQueueService");
+                // An expired Cognito session must keep reaching SyncComponent's login-redirect
+                // branch; wrapping it is what made a dead session read as a network problem.
+                if (error instanceof AuthenticationError) return Promise.reject(error);
+                // Wrapped so the sync dialog can say a media file is stuck, instead of the raw
+                // "syncTimeoutError" key this used to reject with. #2097
+                return Promise.reject(new MediaUploadError(error));
+            });
         return current;
     }
 }

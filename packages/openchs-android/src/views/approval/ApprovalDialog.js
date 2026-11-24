@@ -17,7 +17,6 @@ export const ApprovalDialog = ({onClose, onInputChange, state, I18n, primaryButt
         }
     };
     const {height} = Dimensions.get('window');
-    const dialogHeight = showInputBox ? height/1.5 : height/2;
 
     return (
         <Modal
@@ -27,7 +26,7 @@ export const ApprovalDialog = ({onClose, onInputChange, state, I18n, primaryButt
             onRequestClose={onClose}
         >
             <View style={[styles.centeredView, {height: height}]}>
-                <View style={[styles.modalView, {maxHeight: dialogHeight}]}>
+                <View style={[styles.modalView, {maxHeight: height * 0.8}]}>
                     <View style={styles.titleRow}>
                         <Text style={styles.titleTextStyle}>{title}</Text>
                         <TouchableOpacity onPress={onClose} hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
@@ -112,8 +111,11 @@ const styles = StyleSheet.create({
         color: Colors.ValidationError
     },
     buttonContainer: {
+        // Sits under the message rather than being pushed to the floor of a fixed-height box: the
+        // dialog now grows to its content, so a two-line confirm is two lines tall.
         flexDirection: 'row',
         justifyContent: 'flex-end',
+        alignItems: 'center',
         marginTop: 20
     },
     approvalDialogButtonContainer: {

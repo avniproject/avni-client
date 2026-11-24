@@ -6,7 +6,8 @@ import {
     ChecklistItem,
     ChecklistItemDetail,
     EntityQueue,
-    ObservationsHolder
+    ObservationsHolder,
+    ProgramEnrolment
 } from 'avni-models';
 import _ from 'lodash';
 import General from '../utility/General';
@@ -23,20 +24,20 @@ class ChecklistService extends BaseService {
     }
 
     saveChecklistItem(checklistItem) {
-        const db = this.db;
         ObservationsHolder.convertObsForSave(checklistItem.observations);
         //TODO: implement approval workflow for checklist form as well. We don't have formMapping for this form so skipping it now.
-        this.db.write(() => {
-            const savedChecklistItem = db.create(ChecklistItem.schema.name, checklistItem, true);
-            db.create(EntityQueue.schema.name, EntityQueue.create(savedChecklistItem, ChecklistItem.schema.name));
+        this.transactionManager.write(() => {
+            const savedChecklistItem = this.getRepository(ChecklistItem.schema.name).create(checklistItem, true);
+            this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(savedChecklistItem, ChecklistItem.schema.name));
         })
     }
 
-    saveOrUpdate(programEnrolment, checklist, db = this.db) {
+    saveOrUpdate(programEnrolment, checklist) {
         const entityQueueItems = [];
         let existingChecklist = programEnrolment.getChecklists().find(c => c.detail.uuid === checklist.detail.uuid);
         if (!_.isNil(existingChecklist)) {
             existingChecklist.baseDate = checklist.baseDate;
+            this.getRepository(Checklist.schema.name).create(existingChecklist, true);
             entityQueueItems.push(EntityQueue.create(existingChecklist, Checklist.schema.name));
             return entityQueueItems;
         }
@@ -45,7 +46,7 @@ class ChecklistService extends BaseService {
         checklistToBeCreated.baseDate = checklist.baseDate;
         let checklistDetail = this.findByUUID(checklist.detail.uuid, ChecklistDetail.schema.name);
         checklistToBeCreated.detail = checklistDetail;
-        const savedChecklist = db.create(Checklist.schema.name, checklistToBeCreated, true);
+        const savedChecklist = this.getRepository(Checklist.schema.name).create(checklistToBeCreated, true);
         entityQueueItems.push(EntityQueue.create(savedChecklist, Checklist.schema.name));
         const checklistItems = checklist.items.map((item) => {
             const checklistItem = ChecklistItem.create({
@@ -55,13 +56,15 @@ class ChecklistService extends BaseService {
                 //Need to update observation.
                 //No straight forward solution available right now.
             });
-            const savedChecklistItem = db.create(ChecklistItem.schema.name, checklistItem, true);
+            const savedChecklistItem = this.getRepository(ChecklistItem.schema.name).create(checklistItem, true);
             entityQueueItems.push(EntityQueue.create(savedChecklistItem, ChecklistItem.schema.name));
             return savedChecklistItem;
         });
         checklistItems.forEach(ci => savedChecklist.items.push(ci));
-        programEnrolment.addChecklist(savedChecklist);
         savedChecklist.programEnrolment = programEnrolment;
+        this.getRepository(Checklist.schema.name).create(savedChecklist, true);
+        programEnrolment.addChecklist(savedChecklist);
+        this.getRepository(ProgramEnrolment.schema.name).create(programEnrolment, true);
         return entityQueueItems;
     }
 

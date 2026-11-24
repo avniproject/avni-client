@@ -133,7 +133,7 @@ class CustomFilterService extends BaseService {
     queryEntity(schemaName, selectedAnswerQueryFunction, otherFilters, indFunc, includeVoided) {
         const query = selectedAnswerQueryFunction();
 
-        let results = this.db.objects(schemaName);
+        let results = this.getRepository(schemaName).findAll();
         if (includeVoided)
             results = results.filtered("voided = false");
         if (!_.isEmpty(query))
@@ -147,7 +147,7 @@ class CustomFilterService extends BaseService {
     // Note that the query is run for every filter(concept) separately, this is because we don't have
     // joins in realm and after getting latest from each filter(concept) we need to query for selected concept answer.
     queryFromLatestObservation(schemaName, conceptFilters, selectedAnswerFilterFunction, scopeFilters, sortFilter, indFunc, widget, inMemoryFilter, includeVoided) {
-        const latestEncounters = this.db.objects(schemaName)
+        const latestEncounters = this.getRepository(schemaName).findAll()
             .filtered(includeVoided ? `uuid != null ` : `voided = false `)
             //limit the scope of query by giving encounter/program uuid
             .filtered(_.isEmpty(scopeFilters) ? 'uuid != null' : ` ${scopeFilters} `)

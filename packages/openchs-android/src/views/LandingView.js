@@ -18,7 +18,6 @@ import EntityService from "../service/EntityService";
 import {SubjectType} from "avni-models";
 import _ from "lodash";
 import Colors from "./primitives/Colors";
-import Distances from "./primitives/Distances";
 import RegisterView from "./RegisterView";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -30,8 +29,11 @@ import LocalCacheService from '../service/LocalCacheService';
 import {CustomDashboardType} from "../service/customDashboard/CustomDashboardService";
 import OrganisationConfigService from "../service/OrganisationConfigService";
 import UserInfoService from "../service/UserInfoService";
+import Perf from "../utility/perf";
 import {CopilotProvider, CopilotStep, walkthroughable, useCopilot} from "react-native-copilot";
 import CopilotTooltip from "./common/CopilotTooltip";
+import {SafeAreaInsetsContext} from "react-native-safe-area-context";
+import {edgeToEdgeStatusBarInset} from "./primitives/Distances";
 
 const WalkthroughableView = walkthroughable(View);
 
@@ -148,7 +150,12 @@ class LandingView extends AbstractComponent {
     UNSAFE_componentWillMount() {
         const componentMountTime = new Date();
         General.logDebug('LandingView', 'UNSAFE_componentWillMount started');
-        this.dispatchAction(Actions.ON_LOAD, {cachedSubjectTypeUUID: null});
+        Perf.time("LandingView.onLoadDispatch",
+            () => this.dispatchAction(Actions.ON_LOAD, {cachedSubjectTypeUUID: null}));
+        // NOTE (avni-client#2084/#2086): the `took N ms` below is NOT the cost of this AsyncStorage
+        // read. It is how long the JS thread stayed blocked before the microtask could run, so it is a
+        // proxy for total block. The 62,235 ms quoted on #2086 came from here and was read as a storage
+        // cost; it is not one. Use the Perf marks for attribution, this line only as a total.
         LocalCacheService.getPreviouslySelectedSubjectTypeUuid().then(cachedSubjectTypeUUID => {
             General.logDebug('LandingView', `Retrieved cached subject type UUID: ${cachedSubjectTypeUUID}, took ${new Date() - componentMountTime} ms`);
             if (cachedSubjectTypeUUID) {
@@ -381,14 +388,9 @@ class LandingView extends AbstractComponent {
         General.logDebug('LandingView', `render - showGuide: ${showGuide}, showRegisterGuide: ${this.state.showRegisterGuide}, displayRegister: ${displayRegister}, registerButtonIndex: ${registerButtonIndex}, bottomBarCount: ${bottomBarIcons.length}, secondaryDashboard: ${!_.isNil(secondaryDashboard)}`);
         const bottomBarContent = (
             <View style={{
-                // Bar's background stays flush to the true bottom edge (bottom: 0) and grows taller by the
-                // Android 16+ gesture-nav inset; paddingBottom reserves that same amount inside the box, so
-                // alignItems: 'center' still centers the icons within the original bottomBarHeight zone -
-                // same gaps as before, just sitting `inset` px above the gesture bar instead of under it.
-                height: LandingView.layoutConstants.bottomBarHeight + Distances.EdgeToEdgeNavigationBarInset,
+                height: LandingView.layoutConstants.bottomBarHeight,
                 position: 'absolute',
                 bottom: 0,
-                paddingBottom: Distances.EdgeToEdgeNavigationBarInset,
                 width: '100%',
                 backgroundColor: Colors.bottomBarColor,
                 flexDirection: 'row',
@@ -441,34 +443,37 @@ class LandingView extends AbstractComponent {
                 }.bind(this)())}
 
                 {showGuide ? (
-                    <CopilotProvider
-                        overlay="svg"
-                        animated={false}
-                        backdropColor="rgba(0,0,0,0.57)"
-                        tooltipComponent={CopilotTooltip}
-                        svgMaskPath={({size, position, canvasSize}) => {
-                            const cx = position.x._value + size.x._value / 2;
-                            const cy = position.y._value + size.y._value / 2 + 16;
-                            const rx = 42;
-                            const ry = 42;
-                            return `M0,0H${canvasSize.x}V${canvasSize.y}H0V0Z M${cx - rx},${cy} a${rx},${ry} 0 1,0 ${rx * 2},0 a${rx},${ry} 0 1,0 -${rx * 2},0`;
-                        }}
-                        stopOnOutsideClick={false}
-                        arrowColor={Colors.cardBackgroundColor}
-                        stepNumberComponent={() => null}
-                        tooltipStyle={{borderRadius: 10, paddingHorizontal: 0, paddingTop: 0}}
-                        androidStatusBarVisible={true}
-                        verticalOffset={0}
-                    >
-                        {bottomBarContent}
-                        <CopilotStarter
-                            shouldStart={showGuide}
-                            onStop={() => {
-                                this.setState({showRegisterGuide: false});
-                                LocalCacheService.markRegisterButtonGuideAsShown();
+                    <SafeAreaInsetsContext.Consumer>{(insets) => (
+                        <CopilotProvider
+                            overlay="svg"
+                            animated={false}
+                            backdropColor="rgba(0,0,0,0.57)"
+                            tooltipComponent={CopilotTooltip}
+                            svgMaskPath={({size, position, canvasSize}) => {
+                                const cx = position.x._value + size.x._value / 2;
+                                const cy = position.y._value + size.y._value / 2 + 16;
+                                const rx = 42;
+                                const ry = 42;
+                                return `M0,0H${canvasSize.x}V${canvasSize.y}H0V0Z M${cx - rx},${cy} a${rx},${ry} 0 1,0 ${rx * 2},0 a${rx},${ry} 0 1,0 -${rx * 2},0`;
                             }}
-                        />
-                    </CopilotProvider>
+                            stopOnOutsideClick={false}
+                            arrowColor={Colors.cardBackgroundColor}
+                            stepNumberComponent={() => null}
+                            tooltipStyle={{borderRadius: 10, paddingHorizontal: 0, paddingTop: 0}}
+                            androidStatusBarVisible={true}
+                            // The step is measured in the edge-to-edge activity, but drawn in a Modal that still sits below the status bar
+                            verticalOffset={-edgeToEdgeStatusBarInset(insets)}
+                        >
+                            {bottomBarContent}
+                            <CopilotStarter
+                                shouldStart={showGuide}
+                                onStop={() => {
+                                    this.setState({showRegisterGuide: false});
+                                    LocalCacheService.markRegisterButtonGuideAsShown();
+                                }}
+                            />
+                        </CopilotProvider>
+                    )}</SafeAreaInsetsContext.Consumer>
                 ) : bottomBarContent}
             </CHSContainer>
         );

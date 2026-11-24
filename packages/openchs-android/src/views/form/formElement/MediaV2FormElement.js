@@ -1,4 +1,4 @@
-import {NativeModules, PermissionsAndroid, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
+import {NativeModules, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
 import React from "react";
 import fs from 'react-native-fs';
 import General from "../../../utility/General";
@@ -16,6 +16,7 @@ import FormElementLabelWithDocumentation from "../../common/FormElementLabelWith
 import ValidationErrorMessage from "../ValidationErrorMessage";
 import DeviceInfo from "react-native-device-info";
 import DeviceLocation from "../../../utility/DeviceLocation";
+import DevicePermissions from "../../../utility/DevicePermissions";
 import {getConnectionInfo} from "../../../utility/ConnectionInfo";
 import OrganisationConfigService from "../../../service/OrganisationConfigService";
 import {logEvent, firebaseEvents} from "../../../utility/Analytics";
@@ -169,9 +170,6 @@ export default class MediaV2FormElement extends AbstractFormElement {
     async launchCamera(onUpdateObservations) {
         this.setState(state => ({...state, mode: Mode.Camera}));
         const includeLocationInfoValue = this.includeLocationInfo();
-        if (includeLocationInfoValue) {
-            this.debouncedGetPosition((position) => this.setState(state => ({...state, deviceLocation: position})));
-        }
 
         const options = {
             mediaType: this.isVideo ? 'video' : 'photo',
@@ -191,45 +189,48 @@ export default class MediaV2FormElement extends AbstractFormElement {
             {concept_name: conceptName, attempt, outcome, duration_ms: Date.now() - t0, ...extra});
         logCapture('started');
 
-        if (await this.isPermissionGranted(includeLocationInfoValue)) {
-            if (this.useNativeCameraScreen()) {
-                try {
-                    // Camera usability enhancement (Phase 2) — CameraModule.launchCamera() now
-                    // resolves {uri, quality} | null instead of a plain file path string. `quality`
-                    // (blur/brightness/contrast/noise scoring from OpenCVUtils.kt/
-                    // ImageQualityAnalyzer.kt) is logged to Firebase Analytics here rather than
-                    // gating anything client-side beyond the soft retake prompt the native screen
-                    // itself already showed (camera master doc, Section 8 decision #1/#2).
-                    const result = await NativeModules.CameraModule.launchCamera();
-                    if (result && result.uri) {
-                        this.addMediaFromPicker({assets: [{uri: `file://${result.uri}`}]}, onUpdateObservations);
-                        if (result.quality) {
-                            logEvent(firebaseEvents.CAMERA_PHOTO_QUALITY, result.quality);
-                        }
-                        logCapture('completed');
-                    } else {
-                        // result is null when the user cancelled inside the native screen (closed
-                        // it, or denied the permission it separately re-checks).
-                        logCapture('cancelled');
+        if (!await DevicePermissions.request({camera: true, deviceLocation: includeLocationInfoValue, mediaLocation: includeLocationInfoValue})) {
+            logCapture('permission_denied');
+            return;
+        }
+
+        // Android drops a permission request made while another is in flight, so the GPS fix can only be
+        // started once the batch above has resolved - and only if location was actually granted, otherwise
+        // DeviceLocation would re-prompt for what the user just declined. It still runs while the user
+        // frames the shot; a photo without a geotag is warned about on screen rather than blocked.
+        if (includeLocationInfoValue && await DevicePermissions.hasDeviceLocation()) {
+            this.debouncedGetPosition((position) => this.setState(state => ({...state, deviceLocation: position})));
+        }
+        if (this.useNativeCameraScreen()) {
+            try {
+                // Camera usability enhancement (Phase 2) - CameraModule.launchCamera() resolves
+                // {uri, quality} | null. `quality` is logged to Firebase Analytics only.
+                const result = await NativeModules.CameraModule.launchCamera();
+                if (result && result.uri) {
+                    this.addMediaFromPicker({assets: [{uri: `file://${result.uri}`}]}, onUpdateObservations);
+                    if (result.quality) {
+                        logEvent(firebaseEvents.CAMERA_PHOTO_QUALITY, result.quality);
                     }
-                } catch (error) {
-                    General.logError('MediaV2FormElement.launchCamera (native)', error);
-                    logCapture('error', {error_message: error && error.message});
+                    logCapture('completed');
+                } else {
+                    // null when the user cancelled inside the native screen.
+                    logCapture('cancelled');
                 }
-            } else {
-                launchCamera(options, (response) => {
-                    if (response.didCancel) {
-                        logCapture('cancelled');
-                    } else if (response.errorCode) {
-                        logCapture('error', {error_code: response.errorCode});
-                    } else {
-                        logCapture('completed');
-                    }
-                    this.addMediaFromPicker(response, onUpdateObservations);
-                });
+            } catch (error) {
+                General.logError('MediaV2FormElement.launchCamera (native)', error);
+                logCapture('error', {error_message: error && error.message});
             }
         } else {
-            logCapture('permission_denied');
+            launchCamera(options, (response) => {
+                if (response.didCancel) {
+                    logCapture('cancelled');
+                } else if (response.errorCode) {
+                    logCapture('error', {error_code: response.errorCode});
+                } else {
+                    logCapture('completed');
+                }
+                this.addMediaFromPicker(response, onUpdateObservations);
+            });
         }
     }
 
@@ -243,22 +244,11 @@ export default class MediaV2FormElement extends AbstractFormElement {
             includeBase64: includeLocationInfoValue
         };
 
-        if (await this.isPermissionGranted(includeLocationInfoValue)) {
+        // Only the picked file's EXIF is read here (deviceLocation is cleared above), so the device's GPS
+        // permissions are not needed — just the one that keeps location in a shared image.
+        if (await DevicePermissions.request({mediaLocation: includeLocationInfoValue})) {
             launchImageLibrary(options, (response) => this.addMediaFromPicker(response, onUpdateObservations));
         }
-    }
-
-    async isPermissionGranted(includeLocationInfoValue) {
-        const apiLevel = await DeviceInfo.getApiLevel();
-        const aboveStoragePermissionsDeprecationAPILevel = [PermissionsAndroid.PERMISSIONS.CAMERA];
-        const belowStoragePermissionsDeprecationAPILevel = [PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE, PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, PermissionsAndroid.PERMISSIONS.CAMERA];
-        const permissions = (apiLevel >= General.STORAGE_PERMISSIONS_DEPRECATED_API_LEVEL) ? aboveStoragePermissionsDeprecationAPILevel : belowStoragePermissionsDeprecationAPILevel;
-        const accessLocationPermissions = [PermissionsAndroid.PERMISSIONS.ACCESS_MEDIA_LOCATION, PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION, PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION];
-        includeLocationInfoValue && permissions.push(...accessLocationPermissions);
-
-        const permissionRequest = await PermissionsAndroid.requestMultiple(permissions);
-
-        return _.every(permissionRequest, permission => permission === PermissionsAndroid.RESULTS.GRANTED);
     }
 
     showMedia(mediaObjects, onClearAnswer) {

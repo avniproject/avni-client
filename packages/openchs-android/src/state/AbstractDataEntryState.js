@@ -12,9 +12,38 @@ import EntityService from "../service/EntityService";
 import TimerState from "./TimerState";
 import EnvironmentConfig from "../framework/EnvironmentConfig";
 import PrivilegeService from "../service/PrivilegeService";
+import Perf from "../utility/perf";
 import {EncounterType, Privilege} from "openchs-models";
 import ProgramService from "../service/program/ProgramService";
 import {logFormPageDuration} from "../utility/Analytics";
+
+const findPageElement = (state, uuid) => {
+    const pageElements = _.invoke(state.formElementGroup, 'getFormElements') || [];
+    return _.find(state.filteredFormElements, (fe) => fe.uuid === uuid) || _.find(pageElements, (fe) => fe.uuid === uuid);
+};
+
+function deferCaptureChooserRuleError(state, validationResult) {
+    if (_.isNil(validationResult) || state._showCaptureChooserRuleErrors || validationResult.success ||
+        validationResult.validationType !== ValidationResult.ValidationTypes.Rule) return validationResult;
+    const formElement = findPageElement(state, validationResult.formIdentifier);
+    if (_.isNil(formElement) || !ObservationsHolderActions.isCaptureChooser(formElement)) return validationResult;
+    return new ValidationResult(true, validationResult.formIdentifier, null, null,
+        validationResult.questionGroupIndex, ValidationResult.ValidationTypes.Rule);
+}
+
+function applyCaptureChooserRuleErrors(state, context) {
+    // Only pages that hold a capture chooser need the rules re-run here.
+    const pageElements = _.invoke(state.formElementGroup, 'getFormElements') || [];
+    if (!_.some(pageElements, (fe) => ObservationsHolderActions.isCaptureChooser(fe))) return;
+    const statuses = ObservationsHolderActions._getFormElementStatuses(state, context);
+    const failures = ObservationsHolderActions.getRuleValidationErrors(statuses).filter((vr) => !vr.success);
+    state._showCaptureChooserRuleErrors = true;
+    try {
+        state.handleValidationResults(failures, context);
+    } finally {
+        state._showCaptureChooserRuleErrors = false;
+    }
+}
 
 class AbstractDataEntryState {
     locationError;
@@ -59,7 +88,18 @@ class AbstractDataEntryState {
         return {};
     }
 
+    // A form rule can attach an error to the capture chooser (the "Device run / Manual run" selector,
+    // marked displayAsSegmented). Avni re-runs rules on page
+    // entry and on every tap, so that message would be red before the worker has done anything. While the
+    // page is being filled it is held back (recorded as a pass); _applyCaptureChooserRuleErrors re-applies it
+    // when NEXT is tapped, where it shows and blocks as usual. Every other question and error is unchanged.
+    // Written as module functions so states and test doubles that borrow these methods keep working.
+    _applyCaptureChooserRuleErrors(context) {
+        applyCaptureChooserRuleErrors(this, context);
+    }
+
     handleValidationResult(validationResult) {
+        validationResult = deferCaptureChooserRuleError(this, validationResult);
         _.remove(this.validationResults, (existingValidationResult) => {
             // An Inference-typed failure is raised and cleared by the service that owns it, and by
             // contract must not be regenerated — or removed — by a rule cycle. Every page entry
@@ -174,10 +214,21 @@ class AbstractDataEntryState {
         return this;
     }
 
+    // avni-client#2086 (A): pressing Summary does not jump to the summary - it advances the wizard one
+    // page at a time to the end, running each page's rule evaluation on the way, because those pages'
+    // rules produce the decisions and visit schedules the summary needs. So the cost scales with pages
+    // REMAINING, which is why Summary from an early page is slower than from the last one. Marked per
+    // page so that claim is measured rather than asserted.
     async handleSummaryPageAsync(action, context) {
+        const _tWalk = Date.now();
+        let _pages = 0;
+        Perf.mark("summary.walk.begin", () => ({fromPage: this.wizard.currentPage}));
         while (!this.wizard.isLastPage() && !this.anyFailedResultForCurrentFEG()) {
             const currentPageBeforeNext = this.wizard.currentPage;
+            const _tPage = Date.now();
             await this.handleNextAsync(action, context);
+            _pages++;
+            Perf.mark("summary.walk.page", () => ({page: currentPageBeforeNext, ms: Date.now() - _tPage}));
             //if last feg has no visible form elements, handleNext moves previous to feg with visible form elements
             //and as a result, the isLastPage() condition is never satisfied causing an infinite loop
             if (!(this.wizard.currentPage > currentPageBeforeNext)) break;
@@ -185,7 +236,9 @@ class AbstractDataEntryState {
         // after the last page one more next to go to SR page
         if (this.wizard.isLastPage() && !this.anyFailedResultForCurrentFEG()) {
             await this.handleNextAsync(action, context);
+            _pages++;
         }
+        Perf.mark("summary.walk.end", () => ({pages: _pages, ms: Date.now() - _tWalk}));
         return this;
     }
 
@@ -194,9 +247,12 @@ class AbstractDataEntryState {
         const validationResults = this.validateEntity(context);
         const formElementGroupValidations = this.formElementGroup.validate(this.observationsHolder, this.filteredFormElements);
         const databaseValidations = this.validationResults.filter((x) => x.validationType === ValidationResult.ValidationTypes.Database);
-        const allValidationResults = _.unionWith(validationResults, formElementGroupValidations, databaseValidations,
-            (a, b) => a.formIdentifier === b.formIdentifier && a.questionGroupIndex === b.questionGroupIndex);
+        // validate() can emit success+failure for one key; failures sort first so the dedup keeps them.
+        const allValidationResults = _.uniqWith(
+            _.sortBy([...validationResults, ...formElementGroupValidations, ...databaseValidations], 'success'),
+            AbstractDataEntryState.hasSameValidationKey);
         this._updateOldFormElementGroupValidations(allValidationResults, context);
+        applyCaptureChooserRuleErrors(this, context);
 
         if (EnvironmentConfig.goToLastPageOnNext()) {
             while (!this.wizard.isLastPage()) {
@@ -349,7 +405,7 @@ class AbstractDataEntryState {
 
     _updateOldFormElementGroupValidations(allValidationResults, context) {
         _.remove(this.validationResults, (validationResult) => validationResult.validationType === ValidationResult.ValidationTypes.Form)
-        const allRuleValidationResults = _.unionWith(this.validationResults, allValidationResults, (a, b) => a.formIdentifier === b.formIdentifier && a.questionGroupIndex === b.questionGroupIndex);
+        const allRuleValidationResults = _.unionWith(this.validationResults, allValidationResults, AbstractDataEntryState.hasSameValidationKey);
         this.handleValidationResults(allRuleValidationResults, context);
     }
 
@@ -459,6 +515,15 @@ class AbstractDataEntryState {
     static hasValidationError(state, formElementIdentifier) {
         const validationError = AbstractDataEntryState.getValidationError(state, formElementIdentifier);
         return !_.isNil(validationError);
+    }
+
+    static hasSameValidationKey(a, b) {
+        return a.formIdentifier === b.formIdentifier && a.questionGroupIndex === b.questionGroupIndex;
+    }
+
+    hasStaticFieldError() {
+        return _.some(this.validationResults, (validationResult) =>
+            !validationResult.success && _.includes(this.staticFormElementIds, validationResult.formIdentifier));
     }
 
     anyFailedResultForCurrentFEG() {

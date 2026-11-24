@@ -1,5 +1,4 @@
 import React from "react";
-import {InteractionManager} from "react-native";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
@@ -7,6 +6,7 @@ import {MyDashboardActionNames as Actions} from "../../action/mydashboard/MyDash
 import General from "../../utility/General";
 import CHSNavigator from "../../utility/CHSNavigator";
 import IndividualListView from "./IndividualListView";
+import Perf from "../../utility/perf";
 
 @Path('/IndividualList')
 class IndividualList extends AbstractComponent {
@@ -20,13 +20,20 @@ class IndividualList extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.myDashboard);
     }
 
-    UNSAFE_componentWillMount() {
-        General.logDebug("IndividualList", "Component Will Mount");
-        this.dispatchAction(Actions.RESET_LIST);
-        super.UNSAFE_componentWillMount();
-        InteractionManager.runAfterInteractions(() => {
-            this.dispatchAction(Actions.ON_LIST_LOAD, {...this.props.params});
-        });
+    // Both dispatches were in willMount: RESET_LIST ran synchronously DURING the navigation slide, and
+    // ON_LIST_LOAD ran on deferPastInteractions - the InteractionManager trigger that settles before the
+    // slide's final commit. That is the MyDashboard-card-to-subject-list frame stutter. The base class
+    // now runs this once the transition has painted, holds renderLoading() until it returns, and renders
+    // renderLoadError() if it throws - which the hand-rolled deferral did not. (avni-client#2054)
+    loadData() {
+        General.logDebug("IndividualList", "loadData");
+        // RESET_LIST was measured at ~1.2s, five times in one session, and is the plausible mechanism
+        // behind the residual back-press judder - #2054 moved entry work clear of the FORWARD slide, but
+        // the BACK transition is a separate animation nothing waits on. Timed rather than assumed, since
+        // three hypotheses were wrong during #2054 before instrumentation settled it. (avni-client#2089)
+        Perf.time("MyD.RESET_LIST", () => this.dispatchAction(Actions.RESET_LIST));
+        this.listLoaded = true;
+        Perf.time("MyD.ON_LIST_LOAD", () => this.dispatchAction(Actions.ON_LIST_LOAD, {...this.props.params}));
     }
 
     onHardwareBackPress() {
@@ -41,6 +48,7 @@ class IndividualList extends AbstractComponent {
             addressLevelState: this.state.addressLevelState,
             programs: this.state.programs,
             selectedPrograms: this.state.selectedPrograms,
+            selectedSubjectType: this.state.selectedSubjectType,
             encounterTypes: this.state.encounterTypes,
             selectedEncounterTypes: this.state.selectedEncounterTypes,
             generalEncounterTypes: this.state.generalEncounterTypes,
@@ -54,10 +62,11 @@ class IndividualList extends AbstractComponent {
         });
     }
 
-    render() {
+    renderLoaded() {
         General.logDebug(this.viewName(), 'render');
         return (
             <IndividualListView
+                loading={!this.listLoaded}
                 results={this.state.itemsToDisplay}
                 totalSearchResultsCount={this.state.individuals.data.length}
                 headerTitle={this.props.params.cardTitle}

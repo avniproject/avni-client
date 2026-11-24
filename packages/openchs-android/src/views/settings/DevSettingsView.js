@@ -21,6 +21,8 @@ import moment from "moment";
 import DashboardCacheService from "../../service/DashboardCacheService";
 import {MyDashboardActionNames} from "../../action/mydashboard/MyDashboardActions";
 import CustomDashboardCacheService from "../../service/CustomDashboardCacheService";
+import PerformanceBenchmarkService from "../../service/PerformanceBenchmarkService";
+import CustomConfirmDialog from "../common/CustomConfirmDialog";
 
 @Path('/devSettingsView')
 class DevSettingsView extends AbstractComponent {
@@ -65,6 +67,19 @@ class DevSettingsView extends AbstractComponent {
 
     runRules() {
         this.context.getService(RuleEvaluationService).runOnAll(this.state.rulesToRun.map((r) => [r.name, r.rule]));
+    }
+
+    runPerformanceBenchmark() {
+        const service = this.context.getService(PerformanceBenchmarkService);
+        const results = service.runAll();
+        const failed = results.filter(r => r.target != null && r.elapsed > r.target);
+        const passed = results.filter(r => r.target != null && r.elapsed <= r.target);
+        const summary = `Passed: ${passed.length}, Failed: ${failed.length}\n\n` +
+            results.map(r => {
+                const status = r.target == null ? "" : (r.elapsed <= r.target ? " ✓" : " ✗");
+                return `${r.name}: ${r.elapsed}ms (${r.rows} rows)${status}`;
+            }).join("\n");
+        CustomConfirmDialog.showAlert({title: "Benchmark Results", message: summary});
     }
 
     clearDashboardCache() {
@@ -120,6 +135,15 @@ class DevSettingsView extends AbstractComponent {
                     <TouchableNativeFeedback onPress={() => this.clearDashboardCache()}>
                         <View style={[styles.primaryButton, {marginTop: 12}]}>
                             <Text style={styles.primaryButtonText}>Clear Dashboard Cache</Text>
+                        </View>
+                    </TouchableNativeFeedback>
+                </View>
+
+                <View style={styles.card}>
+                    <Text style={styles.cardTitle}>Performance Benchmark</Text>
+                    <TouchableNativeFeedback onPress={() => this.runPerformanceBenchmark()}>
+                        <View style={[styles.primaryButton, {marginTop: 12}]}>
+                            <Text style={styles.primaryButtonText}>Run Performance Benchmark</Text>
                         </View>
                     </TouchableNativeFeedback>
                 </View>

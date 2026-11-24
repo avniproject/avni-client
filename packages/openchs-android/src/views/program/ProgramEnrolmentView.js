@@ -14,6 +14,7 @@ import FormMappingService from "../../service/FormMappingService";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import CHSNavigator from "../../utility/CHSNavigator";
 import {AvniAlert} from "../common/AvniAlert";
+import BackgroundDraftSaver from "../common/BackgroundDraftSaver";
 
 @Path('/ProgramEnrolmentView')
 class ProgramEnrolmentView extends AbstractComponent {
@@ -38,6 +39,16 @@ class ProgramEnrolmentView extends AbstractComponent {
         return "ProgramEnrolmentView";
     }
 
+    onViewDidMount() {
+        this.backgroundDraftSaver = new BackgroundDraftSaver(this, Actions.ON_APP_BACKGROUND);
+        this.backgroundDraftSaver.start();
+    }
+
+    componentWillUnmount() {
+        this.backgroundDraftSaver && this.backgroundDraftSaver.stop();
+        super.componentWillUnmount();
+    }
+
     static canLoad({enrolment}, parent) {
         const editing = parent.context.getService(ProgramEnrolmentService).existsByUuid(enrolment.uuid);
         if (editing) return true;
@@ -51,14 +62,17 @@ class ProgramEnrolmentView extends AbstractComponent {
         return false;
     }
 
-    UNSAFE_componentWillMount() {
+    // Deferred out of willMount: this dispatch builds the form's initial state and blocks the JS
+    // thread, which starved the navigation slide (avni-client#2054). The base class runs it once the
+    // scene transition has painted and shows renderLoading() until then, so the form is never drawn
+    // half-built. Same rules, same order, same result - only when it runs changes.
+    loadData() {
         this.dispatchAction(Actions.ON_LOAD, {
             enrolment: this.props.enrolment,
             usage: ProgramEnrolmentView.usageContext.usage,
             workLists: this.props.workLists,
             pageNumber: this.props.pageNumber,
         });
-        return super.UNSAFE_componentWillMount();
     }
 
     onBack() {
@@ -93,7 +107,7 @@ class ProgramEnrolmentView extends AbstractComponent {
         AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n, undefined, {screen: this.viewName()});
     }
 
-    render() {
+    renderLoaded() {
         General.logDebug(this.viewName(), 'render');
         this.displayMessage(this.props.message);
         return <ProgramFormComponent editing={this.state.isNewEntity}

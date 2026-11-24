@@ -138,6 +138,7 @@ export default class MultiSelectMediaFormElement extends MediaFormElement {
                 </Button>
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
                 {this.renderRemoveConfirmDialog()}
+                {this.renderGuidedCameraModal()}
             </View>
         );
     }

@@ -2,11 +2,13 @@ import {AuthenticationDetails, CognitoUser, CognitoUserPool} from 'amazon-cognit
 import Service from "../framework/bean/Service";
 import SettingsService from "./SettingsService";
 import _ from "lodash";
-import AuthenticationError, {NO_USER} from "./AuthenticationError";
+import AuthenticationError, {authErrCodeFromCognitoError, NO_USER} from "./AuthenticationError";
 import General from "../utility/General";
 import UserInfoService from "./UserInfoService";
 import BaseAuthProviderService from "./BaseAuthProviderService";
 import bugsnag from "../utility/bugsnag";
+import jwt_decode from "jwt-decode";
+import SessionRecord from "./SessionRecord";
 
 @Service("cognitoAuthService")
 class CognitoAuthService extends BaseAuthProviderService {
@@ -39,13 +41,14 @@ class CognitoAuthService extends BaseAuthProviderService {
                         return;
                     }
 
-                    cognitoUser.getSession(function (err, session) {
+                    cognitoUser.getSession((err, session) => {
                         if (err) {
                             General.logWarn("CognitoAuthService", err);
-                            reject(new AuthenticationError(err.code, err.message));
+                            reject(new AuthenticationError(authErrCodeFromCognitoError(err), err.message));
                         } else {
                             const jwtToken = session.getIdToken().getJwtToken();
                             General.logInfo("CognitoAuthService", "Found token");
+                            this._recordSessionClock(session);
                             resolve(jwtToken);
                         }
                     });
@@ -54,11 +57,52 @@ class CognitoAuthService extends BaseAuthProviderService {
         });
     }
 
-    getUser() {
+    _recordSessionClock(session) {
+        const tokenIssuedAt = session.getIdToken().getIssuedAt() * 1000;
+        if (tokenIssuedAt === this._recordedTokenIssuedAt) return;
+        this._recordedTokenIssuedAt = tokenIssuedAt;
+        SessionRecord.recordClock({tokenIssuedAt, clockDriftSeconds: session.getClockDrift()});
+    }
+
+    _userPool() {
         const settings = this.getAuthSettings();
+        return new CognitoUserPool({UserPoolId: settings.poolId, ClientId: settings.clientId});
+    }
+
+    getCachedSessionClockInfo() {
+        let storage, keyPrefix;
+        try {
+            const clientId = this.getAuthSettings().clientId;
+            storage = this._userPool().storage;
+            const username = storage.getItem(`CognitoIdentityServiceProvider.${clientId}.LastAuthUser`);
+            if (_.isNil(username)) return {};
+            keyPrefix = `CognitoIdentityServiceProvider.${clientId}.${username}`;
+        } catch (e) {
+            General.logWarn("CognitoAuthService", `Could not read cached session: ${e.message}`);
+            return {};
+        }
+        const drift = parseInt(storage.getItem(`${keyPrefix}.clockDrift`), 10);
+        return {
+            clockDriftSeconds: _.isFinite(drift) ? drift : undefined,
+            tokenIssuedAt: this._cachedTokenIssuedAt(storage.getItem(`${keyPrefix}.idToken`))
+        };
+    }
+
+    _cachedTokenIssuedAt(idToken) {
+        if (_.isNil(idToken)) return undefined;
+        try {
+            const issuedAt = _.get(jwt_decode(idToken), 'iat');
+            return _.isFinite(issuedAt) ? issuedAt * 1000 : undefined;
+        } catch (e) {
+            General.logWarn("CognitoAuthService", `Could not decode cached ID token: ${e.message}`);
+            return undefined;
+        }
+    }
+
+    getUser() {
         return Promise.resolve().then(() => {
             return new Promise((resolve) => {
-                const userPool = new CognitoUserPool({UserPoolId: settings.poolId, ClientId: settings.clientId});
+                const userPool = this._userPool();
                 let user = userPool.getCurrentUser();
                 if (user !== null) {
                     resolve(user);

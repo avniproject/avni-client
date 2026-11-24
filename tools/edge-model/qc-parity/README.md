@@ -8,6 +8,7 @@ team's reference notebook (`TANUH_QC/OCS_blackbox.ipynb`, Oct 2026), whose score
 
 | Step | QC notebook | `tanuh-ensemble-override.json` |
 |---|---|---|
+| Load | `cv2.imread`: 8-bit BGR, EXIF applied, **embedded colour profile ignored** | EXIF in `ImageDecoding`; `"ignore_color_profile": true` (Display P3 photos read without Android's sRGB conversion) |
 | Resize | aspect-preserving `cv2.INTER_CUBIC`, longer side → 256 | `"interpolation": "cubic"` (bit-exact port in `PixelOps.resizeCubicCv`) |
 | Pad | centre on a black 256×256 canvas | `"resize_mode": "letterbox"`, `"pad_value": 0` |
 | White balance | per-channel mean → 128 over the **whole canvas incl. padding** | `"mean_target": 128` |

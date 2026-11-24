@@ -21,6 +21,8 @@ import PrivilegeService from "./PrivilegeService";
 import FormMappingService from "./FormMappingService";
 import ChecklistService from "./ChecklistService";
 
+export const SYNC_TIMESTAMP_FORMAT = "DD-MM-YYYY HH:mm:ss";
+
 @Service("entitySyncStatusService")
 class EntitySyncStatusService extends BaseService {
     constructor(db, beanStore) {
@@ -37,14 +39,14 @@ class EntitySyncStatusService extends BaseService {
     }
 
     get(entityName, entityTypeUuid) {
-        return this.db.objects(EntitySyncStatus.schema.name)
+        return this.repository.findAll()
             .filtered("entityName = $0", entityName)
             .filtered(_.isEmpty(entityTypeUuid) ? 'uuid<>null' : 'entityTypeUuid = $0', entityTypeUuid)
             .slice()[0];
     }
 
     getAllByEntityName(entityName, entityTypeUuid) {
-        return this.db.objects(EntitySyncStatus.schema.name)
+        return this.repository.findAll()
             .filtered("entityName = $0", entityName)
             .filtered(_.isEmpty(entityTypeUuid) ? 'uuid<>null' : 'entityTypeUuid = $0', entityTypeUuid);
     }
@@ -61,7 +63,7 @@ class EntitySyncStatusService extends BaseService {
             const emd = EntityMetaData.findByName(entityName);
             return {
                 entityName: entityName,
-                loadedSince: isNeverSynced ? 'Never or Not Applicable' : moment(loadedSince).format("DD-MM-YYYY HH:MM:SS"),
+                loadedSince: isNeverSynced ? 'Never or Not Applicable' : moment(loadedSince).format(SYNC_TIMESTAMP_FORMAT),
                 queuedCount: queuedItemCount,
                 type: emd && emd.type
             }
@@ -80,7 +82,7 @@ class EntitySyncStatusService extends BaseService {
 
     getLastLoaded() {
         return moment(_.max(this.findAll(EntitySyncStatus.schema.name)
-            .map((entitySyncStatus) => entitySyncStatus.loadedSince))).format("DD-MM-YYYY HH:MM:SS");
+            .map((entitySyncStatus) => entitySyncStatus.loadedSince))).format(SYNC_TIMESTAMP_FORMAT);
     }
 
     setup() {
@@ -124,10 +126,9 @@ class EntitySyncStatusService extends BaseService {
     }
 
     deleteEntries(criteriaQuery) {
-        const db = this.db;
-        db.write(() => {
+        this.transactionManager.write(() => {
             const objects = this.findAllByCriteria(criteriaQuery);
-            db.delete(objects);
+            this.repository.deleteInTransaction(objects);
         });
     }
 
@@ -208,6 +209,40 @@ class EntitySyncStatusService extends BaseService {
             case 'ChecklistItemEntityApprovalStatus':
                 this.resetSync(entity.entityName, revokedPrivilegeUUIDs);
         }
+    }
+
+    // Run before the subjects are deleted: some checklist details are found through their checklists
+    rewindForSubjectType(subjectTypeUUID) {
+        const formMappings = this.formMapping([subjectTypeUUID], 'subjectType.uuid');
+        const encounterTypeUUIDs = _.uniq(_.compact(formMappings.map(fm => fm.observationsTypeEntityUUID)));
+        const programUUIDs = _.uniq(_.compact(formMappings.map(fm => fm.entityUUID)));
+        // Nothing on the phone links a subject type to its checklist details, and it may hold none of its
+        // checklists, so a subject type with a programme rewinds every detail
+        const allChecklistDetailUUIDs = _.isEmpty(programUUIDs) ? [] : this.getAll('ChecklistDetail').map(cd => cd.uuid);
+        const checklistDetailUUIDs = _.uniq([
+            ...this.checklistDetail([subjectTypeUUID], 'programEnrolment.individual.subjectType.uuid').map(cd => cd.uuid),
+            ...allChecklistDetailUUIDs,
+        ]);
+        // Memberships are filed under the group's type; the server still sends those under a voided role
+        const groupSubjectTypeUUIDs = _.uniq(this.getAll('GroupRole').filtered('memberSubjectType.uuid = $0', subjectTypeUUID).map(role => _.get(role, 'groupSubjectType.uuid')).filter(_.identity));
+
+        this.deleteEntries(`entityTypeUuid = '${subjectTypeUUID}'`);
+        this._deleteEntriesFor(['GroupSubject'], groupSubjectTypeUUIDs);
+        // Filed under individual A's type, but the server scopes both sides, so a subject the reset brings into
+        // scope can be B in a relationship filed under any type, one the phone has no row for
+        this.deleteEntries(`entityName = 'IndividualRelationship'`);
+        this._deleteEntriesFor(['Encounter', 'EncounterEntityApprovalStatus', 'ProgramEncounter', 'ProgramEncounterEntityApprovalStatus'], encounterTypeUUIDs);
+        this._deleteEntriesFor(['ProgramEnrolment', 'ProgramEnrolmentEntityApprovalStatus'], programUUIDs);
+        // The server does not hand out a ChecklistItemEntityApprovalStatus point today; deleting one costs nothing
+        this._deleteEntriesFor(['Checklist', 'ChecklistItem', 'ChecklistItemEntityApprovalStatus'], checklistDetailUUIDs);
+        this.deleteEntries(`entityName = 'Task'`);
+    }
+
+    _deleteEntriesFor(entityNames, entityTypeUuids) {
+        if (_.isEmpty(entityTypeUuids)) return;
+        const names = entityNames.map(name => `entityName = '${name}'`).join(' OR ');
+        const uuids = entityTypeUuids.map(uuid => `entityTypeUuid = '${uuid}'`).join(' OR ');
+        this.deleteEntries(`(${names}) AND (${uuids})`);
     }
 
     resetSync(entityName, nonPrivilegeUuids) {

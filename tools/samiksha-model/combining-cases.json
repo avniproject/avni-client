@@ -1,0 +1,431 @@
+{
+  "_comment": "Fold results in, combined verdict out. Labels are the app's (Positive/Negative unless params.labels says otherwise); the numbers \"NaN\" and \"Infinity\" are turned into numbers by each test. \"throws\" means the app's combining throws and the container answers inference_failed. Run by EdgeModelServiceCombiningCasesTest.js in the app and by CombineTest.kt in tools/samiksha-model.",
+  "cases": [
+    {
+      "name": "all three positive",
+      "params": {
+        "combine": "unanimous-and",
+        "labels": [
+          "Negative",
+          "Positive"
+        ]
+      },
+      "folds": [
+        {
+          "label": "Positive",
+          "confidence": 0.8,
+          "logit": 1.0
+        },
+        {
+          "label": "Positive",
+          "confidence": 0.6,
+          "logit": 1.0
+        },
+        {
+          "label": "Positive",
+          "confidence": 0.9,
+          "logit": 1.0
+        }
+      ],
+      "expect": {
+        "label": "Positive",
+        "confidence": 0.6
+      }
+    },
+    {
+      "name": "first fold negative",
+      "params": {
+        "combine": "unanimous-and",
+        "labels": [
+          "Negative",
+          "Positive"
+        ]
+      },
+      "folds": [
+        {
+          "label": "Negative",
+          "confidence": 0.3,
+          "logit": -1.0
+        },
+        {
+          "label": "Positive",
+          "confidence": 0.6,
+          "logit": 1.0
+        },
+        {
+          "label": "Positive",
+          "confidence": 0.9,
+          "logit": 1.0
+        }
+      ],
+      "expect": {
+        "label": "Negative",
+        "confidence": 0.3
+      }
+    },
+    {
+      "name": "second fold negative",
+      "params": {
+        "combine": "unanimous-and",
+        "labels": [
+          "Negative",
+          "Positive"
+        ]
+      },
+      "folds": [
+        {
+          "label": "Positive",
+          "confidence": 0.8,
+          "logit": 1.0
+        },
+        {
+          "label": "Negative",
+          "confidence": 0.2,
+          "logit": -1.0
+        },
+        {
+          "label": "Positive",
+          "confidence": 0.9,
+          "logit": 1.0
+        }
+      ],
+      "expect": {
+        "label": "Negative",
+        "confidence": 0.2
+      }
+    },
+    {
+      "name": "third fold negative",
+      "params": {
+        "combine": "unanimous-and",
+        "labels": [
+          "Negative",
+          "Positive"
+        ]
+      },
+      "folds": [
+        {
+          "label": "Positive",
+          "confidence": 0.8,
+          "logit": 1.0
+        },
+        {
+          "label": "Positive",
+          "confidence": 0.7,
+          "logit": 1.0
+        },
+        {
+          "label": "Negative",
+          "confidence": 0.4,
+          "logit": -1.0
+        }
+      ],
+      "expect": {
+        "label": "Negative",
+        "confidence": 0.4
+      }
+    },
+    {
+      "name": "all negative",
+      "params": {
+        "combine": "unanimous-and",
+        "labels": [
+          "Negative",
+          "Positive"
+        ]
+      },
+      "folds": [
+        {
+          "label": "Negative",
+          "confidence": 0.1,
+          "logit": -1.0
+        },
+        {
+          "label": "Negative",
+          "confidence": 0.2,
+          "logit": -1.0
+        },
+        {
+          "label": "Negative",
+          "confidence": 0.3,
+          "logit": -1.0
+        }
+      ],
+      "expect": {
+        "label": "Negative",
+        "confidence": 0.1
+      }
+    },
+    {
+      "name": "one fold failing",
+      "params": {
+        "combine": "unanimous-and",
+        "labels": [
+          "Negative",
+          "Positive"
+        ]
+      },
+      "folds": [
+        {
+          "label": "Positive",
+          "confidence": 0.8,
+          "logit": 1.0
+        },
+        {
+          "error": "Image inference failed: boom"
+        },
+        {
+          "label": "Positive",
+          "confidence": 0.9,
+          "logit": 1.0
+        }
+      ],
+      "expect": "throws"
+    },
+    {
+      "name": "every fold failing",
+      "params": {
+        "combine": "unanimous-and",
+        "labels": [
+          "Negative",
+          "Positive"
+        ]
+      },
+      "folds": [
+        {
+          "error": "a"
+        },
+        {
+          "error": "b"
+        },
+        {
+          "error": "c"
+        }
+      ],
+      "expect": "throws"
+    },
+    {
+      "name": "a fold with a NaN logit",
+      "params": {
+        "combine": "unanimous-and",
+        "labels": [
+          "Negative",
+          "Positive"
+        ]
+      },
+      "folds": [
+        {
+          "label": "Positive",
+          "confidence": 0.8,
+          "logit": 1.0
+        },
+        {
+          "label": "Negative",
+          "confidence": "NaN",
+          "logit": "NaN"
+        },
+        {
+          "label": "Positive",
+          "confidence": 0.9,
+          "logit": 1.0
+        }
+      ],
+      "expect": "throws"
+    },
+    {
+      "name": "a fold with an infinite logit",
+      "params": {
+        "combine": "unanimous-and",
+        "labels": [
+          "Negative",
+          "Positive"
+        ]
+      },
+      "folds": [
+        {
+          "label": "Positive",
+          "confidence": 0.8,
+          "logit": 1.0
+        },
+        {
+          "label": "Positive",
+          "confidence": 1.0,
+          "logit": "Infinity"
+        },
+        {
+          "label": "Positive",
+          "confidence": 0.9,
+          "logit": 1.0
+        }
+      ],
+      "expect": "throws"
+    },
+    {
+      "name": "a fold with no logit",
+      "params": {
+        "combine": "unanimous-and",
+        "labels": [
+          "Negative",
+          "Positive"
+        ]
+      },
+      "folds": [
+        {
+          "label": "Positive",
+          "confidence": 0.8,
+          "logit": 1.0
+        },
+        {
+          "label": "Positive",
+          "confidence": 0.7
+        },
+        {
+          "label": "Positive",
+          "confidence": 0.9,
+          "logit": 1.0
+        }
+      ],
+      "expect": "throws"
+    },
+    {
+      "name": "mean-prob is not supported",
+      "params": {
+        "combine": "mean-prob",
+        "labels": [
+          "Negative",
+          "Positive"
+        ]
+      },
+      "folds": [
+        {
+          "label": "Positive",
+          "confidence": 0.8,
+          "logit": 1.0
+        },
+        {
+          "label": "Positive",
+          "confidence": 0.6,
+          "logit": 1.0
+        },
+        {
+          "label": "Positive",
+          "confidence": 0.9,
+          "logit": 1.0
+        }
+      ],
+      "expect": "throws"
+    },
+    {
+      "name": "labels and combine missing, all positive",
+      "params": {},
+      "folds": [
+        {
+          "label": "Positive",
+          "confidence": 0.8,
+          "logit": 1.0
+        },
+        {
+          "label": "Positive",
+          "confidence": 0.6,
+          "logit": 1.0
+        },
+        {
+          "label": "Positive",
+          "confidence": 0.9,
+          "logit": 1.0
+        }
+      ],
+      "expect": {
+        "label": "Positive",
+        "confidence": 0.6
+      }
+    },
+    {
+      "name": "labels and combine missing, one negative",
+      "params": {},
+      "folds": [
+        {
+          "label": "Positive",
+          "confidence": 0.8,
+          "logit": 1.0
+        },
+        {
+          "label": "Negative",
+          "confidence": 0.2,
+          "logit": -1.0
+        },
+        {
+          "label": "Positive",
+          "confidence": 0.9,
+          "logit": 1.0
+        }
+      ],
+      "expect": {
+        "label": "Negative",
+        "confidence": 0.2
+      }
+    },
+    {
+      "name": "custom labels, all yes",
+      "params": {
+        "combine": "unanimous-and",
+        "labels": [
+          "No",
+          "Yes"
+        ]
+      },
+      "folds": [
+        {
+          "label": "Yes",
+          "confidence": 0.8,
+          "logit": 1.0
+        },
+        {
+          "label": "Yes",
+          "confidence": 0.6,
+          "logit": 1.0
+        },
+        {
+          "label": "Yes",
+          "confidence": 0.9,
+          "logit": 1.0
+        }
+      ],
+      "expect": {
+        "label": "Yes",
+        "confidence": 0.6
+      }
+    },
+    {
+      "name": "custom labels, one no",
+      "params": {
+        "combine": "unanimous-and",
+        "labels": [
+          "No",
+          "Yes"
+        ]
+      },
+      "folds": [
+        {
+          "label": "Yes",
+          "confidence": 0.8,
+          "logit": 1.0
+        },
+        {
+          "label": "No",
+          "confidence": 0.4,
+          "logit": -1.0
+        },
+        {
+          "label": "Yes",
+          "confidence": 0.9,
+          "logit": 1.0
+        }
+      ],
+      "expect": {
+        "label": "No",
+        "confidence": 0.4
+      }
+    }
+  ]
+}

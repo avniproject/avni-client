@@ -17,13 +17,16 @@ function harness(existingMembers) {
     service.getGroupSubjects = () => existingMembers;
     service.getService = () => ({findByUUID: () => individualStub()});
     const created = [];
-    const db = {
-        create: (schema, obj) => {
-            created.push({schema, obj});
+    // 18.0 persists via the repository abstraction: this.repository.create for the GroupSubject
+    // and this.getRepository(schema).create for the linked Individual / EntityQueue rows.
+    // this.repository resolves to getRepository() with no arg -> getSchema() -> GroupSubject.
+    service.getRepository = (schema) => ({
+        create: (obj) => {
+            created.push({schema: schema || GroupSubject.schema.name, obj});
             return obj;
         }
-    };
-    return {service, db, savedGroupSubjects: () => created.filter(c => c.schema === GroupSubject.schema.name)};
+    });
+    return {service, savedGroupSubjects: () => created.filter(c => c.schema === GroupSubject.schema.name)};
 }
 
 const member = ({uuid, memberUUID = "m1", start = null, voided = false}) => ({
@@ -38,38 +41,38 @@ const member = ({uuid, memberUUID = "m1", start = null, voided = false}) => ({
 describe("GroupSubjectService.saveGroupSubject", () => {
     it("persists an edit to membershipStartDate on an existing membership (same uuid)", () => {
         const existing = [member({uuid: "gs1", start: new Date(2026, 6, 9)})];
-        const {service, db, savedGroupSubjects} = harness(existing);
+        const {service, savedGroupSubjects} = harness(existing);
 
         const edited = member({uuid: "gs1", start: new Date(2026, 6, 8)});
-        service.saveGroupSubject(db, edited);
+        service.saveGroupSubject(edited);
 
         const saved = savedGroupSubjects();
-        assert.lengthOf(saved, 1, "the edited membership must be written to Realm");
+        assert.lengthOf(saved, 1, "the edited membership must be persisted");
         assert.strictEqual(saved[0].obj.membershipStartDate.getDate(), 8);
     });
 
     it("skips a duplicate add of the same member under a fresh uuid", () => {
         const existing = [member({uuid: "gs1"})];
-        const {service, db, savedGroupSubjects} = harness(existing);
+        const {service, savedGroupSubjects} = harness(existing);
 
-        service.saveGroupSubject(db, member({uuid: "gs2"}));
+        service.saveGroupSubject(member({uuid: "gs2"}));
 
         assert.lengthOf(savedGroupSubjects(), 0, "must not create a second membership row");
     });
 
     it("creates a brand new membership", () => {
-        const {service, db, savedGroupSubjects} = harness([]);
+        const {service, savedGroupSubjects} = harness([]);
 
-        service.saveGroupSubject(db, member({uuid: "gs1"}));
+        service.saveGroupSubject(member({uuid: "gs1"}));
 
         assert.lengthOf(savedGroupSubjects(), 1);
     });
 
     it("always saves a voided membership (#1772)", () => {
         const existing = [member({uuid: "gs1"})];
-        const {service, db, savedGroupSubjects} = harness(existing);
+        const {service, savedGroupSubjects} = harness(existing);
 
-        service.saveGroupSubject(db, member({uuid: "gs1", voided: true}));
+        service.saveGroupSubject(member({uuid: "gs1", voided: true}));
 
         assert.lengthOf(savedGroupSubjects(), 1);
     });

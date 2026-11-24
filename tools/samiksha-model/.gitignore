@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.onnx
+.gradle/
+build/
+.kotlin/
+*.jar
+!gradle/wrapper/gradle-wrapper.jar

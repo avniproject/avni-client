@@ -35,11 +35,12 @@ import ChecklistItemView from "../program/ChecklistItemView";
 import SubjectRegisterView from "../subject/SubjectRegisterView";
 import NextScheduledVisitsForOtherSubjects from "../common/NextScheduledVisitsForOtherSubjects";
 import {ApprovalDialog} from "../approval/ApprovalDialog";
-import {RejectionMessage} from "../approval/RejectionMessage";
+import {DecisionMessage} from "../approval/DecisionMessage";
 import GroupAffiliationInformation from "../common/GroupAffiliationInformation";
 import _ from 'lodash'
 import {Actions as IGHActions} from "../../action/individual/IndividualGeneralHistoryActions";
 import {ProgramEnrolmentDashboardActionsNames as PEDActions} from "../../action/program/ProgramEnrolmentDashboardActions";
+import Perf from "../../utility/perf";
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -225,6 +226,22 @@ class SystemRecommendationView extends AbstractComponent {
         isSaveDraftOn ? onYesPress() : AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n, undefined, {screen: this.viewName()});
     }
 
+    // avni-client#2086 (C): this view renders four times over ~3.6s after arrival, recomputing decisions
+    // each pass. Those renders are NOT store-driven - the constructor calls super(props, context) with
+    // no reducer key, so it never subscribes and refreshState never fires for it (which is why the
+    // #2054 refreshState instrumentation showed nothing). That leaves exactly two possibilities, and
+    // this names which, per render, instead of inferring it:
+    //   props=none state=none   -> a parent re-rendered and forced this one
+    //   state=viewHeight|bottom -> the onLayout -> setViewMeasurement -> setState path
+    // Prior: setViewMeasurement above is guarded on a rounded comparison, so the layout path can fire
+    // at most twice (once per key) and cannot by itself account for four renders.
+    componentDidUpdate(prevProps, prevState) {
+        Perf.mark("SRV.update", () => ({
+            props: Object.keys(this.props).filter(k => this.props[k] !== prevProps[k]).join(",") || "none",
+            state: Object.keys(this.state).filter(k => this.state[k] !== prevState[k]).join(",") || "none"
+        }));
+    }
+
     render() {
         General.logDebug(this.viewName(), `render`);
         const ownScheduledVisits = this.props.nextScheduledVisits.filter(nsv => _.isNil(nsv.subject));
@@ -237,7 +254,7 @@ class SystemRecommendationView extends AbstractComponent {
                                subtitle={this.headerTitleParts.subtitle}
                                func={() => this.onAppHeaderBack(this.props.isSaveDraftOn)}
                                displayHomePressWarning={!this.props.isSaveDraftOn}/>
-                    <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.props.entityApprovalStatus}/>
+                    <DecisionMessage I18n={this.I18n} entityApprovalStatus={this.props.entityApprovalStatus}/>
                     <ScrollView ref={this.scrollRef} style={{flex: 1}}>
                         <View style={{flexDirection: 'column', backgroundColor: Styles.greyBackground}}>
                             {!_.isNil(this.props.individual) && this.profile()}

@@ -24,6 +24,8 @@ large=""
 if [[ "$size_guard" == 1 ]]; then
   while IFS= read -r f; do
     [[ -z "$f" || ! -f "$f" ]] && continue
+    # Lockfiles are text and always over 1 MB; the size guard is for binaries.
+    [[ "$(basename "$f")" =~ ^(package-lock\.json|yarn\.lock)$ ]] && continue
     sz=$(wc -c <"$f" | tr -d ' ')
     if (( sz > 1048576 )); then large+="$f ($((sz/1024)) KB)"$'\n'; fi
   done <<< "$files"

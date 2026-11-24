@@ -186,6 +186,12 @@
     "gpsCoordinates": "जीपीएस कोऑर्डिनेट्स",
     "giveLocationPermissions": "जीपीएस लोकेशन प्राप्त करावी व बटन वर क्लिक करावे आणि विचारल्यास अनुमति द्यावी",
     "giveLocationPermissionFromSettings": "कृपया Settings > Apps > Avni मध्ये जाऊन Avni ला ठिकाणाची अनुमति द्या",
+    "giveMicrophonePermissionFromSettings": "ऑडिओ रेकॉर्ड करण्यासाठी मायक्रोफोन परवानगी आवश्यक आहे. कृपया Settings > Apps > Avni मध्ये जाऊन Avni ला मायक्रोफोनची अनुमति द्या",
+    "microphonePermissionRequired": "मायक्रोफोन परवानगी आवश्यक आहे",
+    "cameraPermissionRequired": "कॅमेरा परवानगी आवश्यक आहे",
+    "giveCameraPermissionFromSettings": "फोटो किंवा व्हिडिओ घेण्यासाठी कॅमेरा परवानगी आवश्यक आहे. कृपया Settings > Apps > Avni मध्ये जाऊन Avni ला कॅमेराची अनुमति द्या",
+    "storagePermissionRequired": "स्टोरेज परवानगी आवश्यक आहे",
+    "giveStoragePermissionFromSettings": "फाइल जोडण्यासाठी किंवा सेव्ह करण्यासाठी स्टोरेज परवानगी आवश्यक आहे. कृपया Settings > Apps > Avni मध्ये जाऊन Avni ला स्टोरेजची अनुमति द्या",
     "Name": "नाव",
     "percentageDone": "टक्केवारी",
     "contentNotDownloaded": "काही सामग्री डाउनलोड होऊ शकली नाही. पुढील संकालनाच्या वेळी पुन्हा प्रयत्न केला जाईल.",
@@ -406,6 +412,17 @@
     "whatsApp": "व्हॉट्सअॅप",
     "registerButtonGuideMessage": "हाय {{userName}}, खाली \"कृपया नोंद करा\" बटण टॅप करून डाटा भरा.",
     "welcomeMessage": "हाय  {{userName}}, स्वागत।",
-    "removalReason": "Reason for removal"
+    "removalReason": "Reason for removal",
+    "closeModal": "बंद करा",
+    "guidedCameraNoBackCamera": "या डिव्हाइसवर मागील कॅमेरा उपलब्ध नाही.",
+    "guidedCameraPermissionRequired": "कॅमेरा परवानगी आवश्यक आहे.",
+    "guidedCameraFlashRequired": "या डिव्हाइसमध्ये फ्लॅश नाही. मार्गदर्शित फोटोसाठी फ्लॅश आवश्यक आहे, म्हणून तो अवरोधित आहे.",
+    "guidedCameraCaptureFailed": "फोटो घेता आला नाही. कृपया पुन्हा घ्या.",
+    "guidedCameraContinueWithoutPhoto": "फोटोशिवाय पुढे जा",
+    "guidedCaptureGuidanceMissing": "मार्गदर्शन प्रतिमा सिंक झालेल्या नाहीत. हा फोटो घेण्यासाठी सिंक करा आणि पुन्हा प्रयत्न करा.",
+    "guidedCaptureMisconfigured": "मार्गदर्शन सेट-अपमध्ये समस्या आहे. या फोटोसाठी कॅप्चर थांबवले आहे — कृपया आपल्या पर्यवेक्षकांना कळवा.",
+    "Retake": "पुन्हा घ्या",
+    "Use photo": "फोटो वापरा",
+    "Open settings": "सेटिंग्ज उघडा"
   }
 }

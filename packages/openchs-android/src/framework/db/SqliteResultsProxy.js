@@ -1,0 +1,813 @@
+/**
+ * SqliteResultsProxy - Drop-in replacement for RealmResultsProxy.
+ *
+ * Implements the same API surface:
+ *   - filtered(query, ...args) → chainable
+ *   - sorted(descriptor, reverse?) → chainable
+ *   - map(), forEach(), filter(), find(), some(), every(), slice()
+ *   - length (via Proxy), [index] (via Proxy)
+ *   - isEmpty(), max(prop), min(prop), sum(prop)
+ *   - [Symbol.iterator]()
+ *
+ * Lazy query builder: accumulates filter/sort criteria, executes SQL on first data access.
+ * Uses JS Proxy handler for [index] and .length access (same as RealmResultsProxyHandler).
+ */
+
+import _ from "lodash";
+import RealmQueryParser from "./RealmQueryParser";
+import {camelToSnake, schemaNameToTableName} from "./SqliteUtils";
+import JsFallbackFilterEvaluator from "./JsFallbackFilterEvaluator";
+import General from "../../utility/General";
+
+const isIndexName = (name) => typeof name !== "symbol" && !isNaN(name) && !isNaN(parseInt(name));
+
+const SqliteResultsProxyHandler = {
+    get: function (target, name, receiver) {
+        if (isIndexName(name)) {
+            return target.getAt(Number.parseInt(name));
+        } else if (name === "length") {
+            return target.getLength();
+        } else if (name === "realmCollection") {
+            // getUnderlyingRealmCollection() must yield raw underlying objects —
+            // Realm hands out Realm.Objects and callers re-wrap per item
+            // (e.g. new Individual(x.item)), so returning wrapped entities here
+            // double-wraps them and writes via entity.that then hit getter-only
+            // class properties.
+            return target.getRawCollection();
+        }
+        return Reflect.get(...arguments);
+    },
+};
+
+// Method paths that must yield raw hydrated objects, not wrapped entities —
+// callers re-wrap per item, so serving entities here double-wraps.
+const RAW_ARRAY_DELEGATES = new Set([
+    Symbol.iterator, "map", "forEach", "filter", "find", "some", "every",
+    "slice", "join", "indexOf", "includes", "reduce", "entries", "keys", "values",
+]);
+
+const RawCollectionProxyHandler = {
+    get: function (target, name, receiver) {
+        if (isIndexName(name)) {
+            return target.getRawAt(Number.parseInt(name));
+        } else if (name === "length") {
+            return target.getLength();
+        } else if (name === "realmCollection") {
+            return receiver;
+        } else if (RAW_ARRAY_DELEGATES.has(name)) {
+            const entities = target._getEntities();
+            return entities[name].bind(entities);
+        }
+        return Reflect.get(target, name);
+    },
+    // Realm's Results enumerates as its indices; without these traps Object.keys
+    // leaks the proxy's internal fields, which ListViewDataSource then renders as rows.
+    ownKeys: function (target) {
+        return Array.from({length: target.getLength()}, (ignored, index) => String(index));
+    },
+    getOwnPropertyDescriptor: function (target, name) {
+        if (isIndexName(name) && Number.parseInt(name) < target.getLength()) {
+            return {value: target.getRawAt(Number.parseInt(name)), enumerable: true, writable: true, configurable: true};
+        }
+        return Reflect.getOwnPropertyDescriptor(target, name);
+    },
+};
+
+class SqliteResultsProxy {
+    /**
+     * Create a new proxied instance.
+     *
+     * @param {Object} params
+     * @param {string} params.schemaName - Realm schema name
+     * @param {string} params.tableName - SQL table name
+     * @param {Function} params.entityClass - Entity constructor
+     * @param {Function} params.executeQuery - (sql, params) => rows[]
+     * @param {Object} params.hydrator - EntityHydrator instance
+     * @param {Map} params.realmSchemaMap - for RealmQueryParser dot-path resolution
+     * @param {Array} params.whereClauses - accumulated WHERE conditions
+     * @param {Array} params.whereParams - accumulated parameters
+     * @param {Array} params.joinClauses - accumulated JOINs
+     * @param {Array|null} params.orderByTerms - ORDER BY terms as [{expr, dir}]
+     * @param {Array|null} params.jsFallbackFilters - Realm queries routed to JS fallback filtering
+     * @param {number|null} params.limitClause - SQL LIMIT value extracted from limit(N)
+     */
+    static create(params) {
+        return new Proxy(new SqliteResultsProxy(params), SqliteResultsProxyHandler);
+    }
+
+    constructor({
+                    schemaName,
+                    tableName,
+                    entityClass,
+                    executeQuery,
+                    hydrator,
+                    realmSchemaMap,
+                    whereClauses = [],
+                    whereParams = [],
+                    joinClauses = [],
+                    orderByTerms = null,
+                    distinctColumns = null,
+                    distinctOrderBy = null,
+                    jsFallbackFilters = [],
+                    limitClause = null,
+                    hydrationOptions = null,
+                    queryCache = null,
+                }) {
+        this.schemaName = schemaName;
+        this.tableName = tableName || schemaNameToTableName(schemaName);
+        this.entityClass = entityClass;
+        this.executeQuery = executeQuery;
+        this.hydrator = hydrator;
+        this.realmSchemaMap = realmSchemaMap || new Map();
+
+        // Query builder state
+        this.whereClauses = [...whereClauses];
+        this.whereParams = [...whereParams];
+        this.joinClauses = [...joinClauses];
+        this.orderByTerms = orderByTerms;
+        this.distinctColumns = distinctColumns;
+        this.distinctOrderBy = distinctOrderBy;
+        this.jsFallbackFilters = [...jsFallbackFilters];
+        this.limitClause = limitClause;
+        // Hydration options: {skipLists, depth} — default is full hydration
+        this.hydrationOptions = hydrationOptions || {skipLists: false, depth: 3};
+
+        // Cross-query cache (shared across proxy instances within a dashboard refresh)
+        this._queryCache = queryCache;
+
+        this._rows = null;
+        this._group = null;
+        this._materialised = null;
+        this._executed = false;
+
+        this.logQueries = false;
+    }
+
+    setLogQueries(value) {
+        this.logQueries = value;
+    }
+
+    /**
+     * Resolve hydration options at execution time, honoring the hydrator's
+     * shallow mode if it's enabled and the caller hasn't explicitly opted in to
+     * deep hydration via withHydration(). When shallow mode is on (e.g., during
+     * sync), all queries return shallow entities to avoid deep-loading parents'
+     * full subtrees on every findByKey call.
+     */
+    _effectiveHydrationOptions() {
+        if (this.hydrator && typeof this.hydrator.isShallowMode === "function" && this.hydrator.isShallowMode()) {
+            return this.hydrator.getDefaultHydrationOptions();
+        }
+        return this.hydrationOptions;
+    }
+
+    // ──── Chainable query builders ────
+
+    /**
+     * Set hydration options for this query. Controls how deeply entities are hydrated.
+     * Use {skipLists: true, depth: 1} for search results that only need scalar + reference FK fields.
+     * Default is {skipLists: false, depth: 3} for full hydration.
+     */
+    withHydration(options) {
+        return SqliteResultsProxy.create({
+            schemaName: this.schemaName,
+            tableName: this.tableName,
+            entityClass: this.entityClass,
+            executeQuery: this.executeQuery,
+            hydrator: this.hydrator,
+            realmSchemaMap: this.realmSchemaMap,
+            whereClauses: [...this.whereClauses],
+            whereParams: [...this.whereParams],
+            joinClauses: [...this.joinClauses],
+            orderByTerms: this.orderByTerms,
+            distinctColumns: this.distinctColumns,
+            distinctOrderBy: this.distinctOrderBy,
+            jsFallbackFilters: [...this.jsFallbackFilters],
+            limitClause: this.limitClause,
+            hydrationOptions: options,
+            queryCache: this._queryCache,
+        });
+    }
+
+    filtered(query, ...args) {
+        if (this.logQueries) console.log("SqliteResultsProxy.filtered", this.schemaName, query, ...args);
+
+        // Pass current join count so new aliases don't collide with existing ones
+        const aliasOffset = this.joinClauses.length;
+        const parseResult = RealmQueryParser.parse(query, args, this.schemaName, this.realmSchemaMap, aliasOffset);
+
+        const newParams = {
+            schemaName: this.schemaName,
+            tableName: this.tableName,
+            entityClass: this.entityClass,
+            executeQuery: this.executeQuery,
+            hydrator: this.hydrator,
+            realmSchemaMap: this.realmSchemaMap,
+            whereClauses: [...this.whereClauses],
+            whereParams: [...this.whereParams],
+            joinClauses: [...this.joinClauses],
+            orderByTerms: this.orderByTerms,
+            distinctColumns: this.distinctColumns,
+            distinctOrderBy: this.distinctOrderBy,
+            jsFallbackFilters: [...this.jsFallbackFilters],
+            limitClause: this.limitClause,
+            hydrationOptions: this.hydrationOptions,
+            queryCache: this._queryCache,
+        };
+
+        if (parseResult.unsupported) {
+            // Entire query needs JS fallback — store for post-hydration filtering
+            newParams.jsFallbackFilters.push({query, args, reason: parseResult.reason});
+        } else {
+            if (parseResult.where) {
+                newParams.whereClauses.push(parseResult.where);
+                newParams.whereParams.push(...parseResult.params);
+            }
+            if (parseResult.joins) {
+                parseResult.joins.forEach(j => {
+                    newParams.joinClauses.push(j);
+                });
+            }
+            if (parseResult.distinct) {
+                newParams.distinctColumns = parseResult.distinct.columns;
+                newParams.distinctOrderBy = parseResult.distinct.orderByTerms;
+            }
+            if (parseResult.orderByTerms) {
+                newParams.orderByTerms = parseResult.orderByTerms;
+            }
+            // Capture clauses that partial parse couldn't translate — route to JS fallback
+            if (parseResult.partialParse && parseResult.skippedClauses?.length > 0) {
+                parseResult.skippedClauses.forEach(clause => {
+                    newParams.jsFallbackFilters.push({query: clause, args, reason: "partial_parse_skip"});
+                });
+            }
+        }
+
+        // Capture limit from parse result (overrides any prior limit in chain)
+        if (parseResult.limit != null) {
+            newParams.limitClause = parseResult.limit;
+        }
+
+        return SqliteResultsProxy.create(newParams);
+    }
+
+    /**
+     * Resolve a property path (may contain dots) to a SQL column reference, adding a
+     * LEFT JOIN per hop. Aliases start after `aliasCounter` so they can't collide with
+     * joins already accumulated on this proxy.
+     */
+    _resolvePropertyPath(prop, aliasCounter) {
+        const joins = [];
+        if (!prop.includes(".")) {
+            return {expr: `t0."${camelToSnake(prop)}"`, joins, aliasCounter};
+        }
+        const parts = prop.split(".");
+        let currentSchema = this.schemaName;
+        let currentAlias = "t0";
+
+        for (let i = 0; i < parts.length - 1; i++) {
+            const partName = parts[i];
+            const schema = this.realmSchemaMap.get(currentSchema);
+            if (!schema) return {expr: `t0."${camelToSnake(prop.replace(/\./g, "_"))}"`, joins, aliasCounter};
+
+            const propSchema = schema.properties[partName];
+            if (!propSchema || (typeof propSchema === "object" ? propSchema.type : propSchema) !== "object") {
+                return {expr: `${currentAlias}."${camelToSnake(partName)}"`, joins, aliasCounter};
+            }
+
+            const targetSchema = typeof propSchema === "object" ? propSchema.objectType : null;
+            if (!targetSchema) return {expr: `${currentAlias}."${camelToSnake(partName)}"`, joins, aliasCounter};
+
+            const table = schemaNameToTableName(targetSchema);
+            const fkColumn = `${currentAlias}."${camelToSnake(partName)}_uuid"`;
+            // A filter on the same path has usually joined this table already. Each hop follows a
+            // reference to one row, so joining it again only repeats the same row under a new alias.
+            const existing = [...this.joinClauses, ...joins].find(join =>
+                join.table === table && join.on === `${fkColumn} = ${join.alias}."uuid"`);
+            if (existing) {
+                currentAlias = existing.alias;
+                currentSchema = targetSchema;
+                continue;
+            }
+
+            const newAlias = `t${++aliasCounter}`;
+            joins.push({
+                table,
+                alias: newAlias,
+                on: `${fkColumn} = ${newAlias}."uuid"`,
+            });
+
+            currentAlias = newAlias;
+            currentSchema = targetSchema;
+        }
+
+        const lastPart = parts[parts.length - 1];
+        return {expr: `${currentAlias}."${camelToSnake(lastPart)}"`, joins, aliasCounter};
+    }
+
+    sorted(descriptor, reverse) {
+        const extraJoins = [];
+        let aliasCounter = this.joinClauses.length;
+
+        const resolveOrderProp = (prop) => {
+            const resolved = this._resolvePropertyPath(prop, aliasCounter);
+            aliasCounter = resolved.aliasCounter;
+            extraJoins.push(...resolved.joins);
+            return resolved.expr;
+        };
+
+        let orderBy;
+        if (typeof descriptor === "string") {
+            orderBy = [{expr: resolveOrderProp(descriptor), dir: reverse ? "DESC" : "ASC"}];
+        } else if (Array.isArray(descriptor)) {
+            orderBy = descriptor.map(([prop, rev]) => ({expr: resolveOrderProp(prop), dir: rev ? "DESC" : "ASC"}));
+        } else {
+            orderBy = [{expr: resolveOrderProp(String(descriptor)), dir: "ASC"}];
+        }
+
+        return SqliteResultsProxy.create({
+            schemaName: this.schemaName,
+            tableName: this.tableName,
+            entityClass: this.entityClass,
+            executeQuery: this.executeQuery,
+            hydrator: this.hydrator,
+            realmSchemaMap: this.realmSchemaMap,
+            whereClauses: [...this.whereClauses],
+            whereParams: [...this.whereParams],
+            joinClauses: [...this.joinClauses, ...extraJoins],
+            orderByTerms: orderBy,
+            distinctColumns: this.distinctColumns,
+            distinctOrderBy: this.distinctOrderBy,
+            jsFallbackFilters: [...this.jsFallbackFilters],
+            limitClause: this.limitClause,
+            hydrationOptions: this.hydrationOptions,
+            queryCache: this._queryCache,
+        });
+    }
+
+    // ──── Query execution ────
+
+    static _renderOrderBy(terms) {
+        return terms.map(t => `${t.expr} ${t.dir}`).join(", ");
+    }
+
+    _buildSql() {
+        // Windowed DISTINCT: ROW_NUMBER() OVER (PARTITION BY <cols> ORDER BY <sort|rowid>) = 1.
+        // The window wraps the fully-accumulated WHERE (distinct applied last — matches the
+        // prior JS fallback), so filters added after the distinct still narrow rows first.
+        if (this.distinctColumns && this.distinctColumns.length > 0) {
+            const partition = this.distinctColumns.join(", ");
+            // Realm's sort is stable and its distinct keeps the first row in table order, so
+            // ties must fall back to insertion order or the winner is whatever the plan yields.
+            const windowOrder = this.distinctOrderBy && this.distinctOrderBy.length > 0
+                ? `${SqliteResultsProxy._renderOrderBy(this.distinctOrderBy)}, t0.rowid`
+                : "t0.rowid";
+
+            // The outer query sees only t0.* from the subquery, so an outer ORDER BY
+            // that references t0 or a joined alias must be projected into the subquery
+            // and referenced from the outer scope by a synthetic alias. rowid rides along
+            // as the final tiebreaker, and as the sole ordering when there is no sort:
+            // without it the window's partition order leaks out as the row order.
+            let extraSelect = ", t0.rowid AS __rid";
+            let outerOrderBy = "__rid";
+            if (this.orderByTerms && this.orderByTerms.length > 0) {
+                extraSelect += this.orderByTerms.map((t, i) => `, ${t.expr} AS __ob${i}`).join("");
+                outerOrderBy = `${this.orderByTerms.map((t, i) => `__ob${i} ${t.dir}`).join(", ")}, __rid`;
+            }
+
+            let inner = `SELECT t0.*, ROW_NUMBER() OVER (PARTITION BY ${partition} ORDER BY ${windowOrder}) AS __rn${extraSelect} FROM ${this.tableName} AS t0`;
+            for (const join of this.joinClauses) {
+                inner += ` LEFT JOIN ${join.table} AS ${join.alias} ON ${join.on}`;
+            }
+            if (this.whereClauses.length > 0) {
+                inner += ` WHERE ${this.whereClauses.join(" AND ")}`;
+            }
+            let sql = `SELECT * FROM (${inner}) WHERE __rn = 1 ORDER BY ${outerOrderBy}`;
+            if (this.limitClause != null && this.jsFallbackFilters.length === 0) {
+                sql += ` LIMIT ${this.limitClause}`;
+            }
+            return {sql, params: this.whereParams};
+        }
+
+        // Use DISTINCT when JOINs are present to avoid duplicate parent rows.
+        const distinct = this.joinClauses.length > 0 ? "DISTINCT " : "";
+        let sql = `SELECT ${distinct}t0.* FROM ${this.tableName} AS t0`;
+
+        for (const join of this.joinClauses) {
+            sql += ` LEFT JOIN ${join.table} AS ${join.alias} ON ${join.on}`;
+        }
+        if (this.whereClauses.length > 0) {
+            sql += ` WHERE ${this.whereClauses.join(" AND ")}`;
+        }
+        if (this.orderByTerms && this.orderByTerms.length > 0) {
+            sql += ` ORDER BY ${SqliteResultsProxy._renderOrderBy(this.orderByTerms)}`;
+        }
+        if (this.limitClause != null && this.jsFallbackFilters.length === 0) {
+            sql += ` LIMIT ${this.limitClause}`;
+        }
+        return {sql, params: this.whereParams};
+    }
+
+    _execute() {
+        if (this._executed) return;
+        if (this.hydrator && this.hydrator.eagerReferenceMode) return this._executeEager();
+
+        const {sql, params} = this._buildSql();
+        if (this.logQueries) {
+            console.log("SqliteResultsProxy SQL:", sql, "params:", params);
+        }
+
+        const cacheKey = this._queryCache ? `${sql}|${JSON.stringify(params)}|lazy` : null;
+        let group = cacheKey ? this._queryCache.get(cacheKey) : undefined;
+        if (group) {
+            General.logDebug("HydrationProfile", ` CACHE HIT ${this.schemaName} (${group.size} rows)`);
+        } else {
+            const t0 = Date.now();
+            this._rows = this.executeQuery(sql, params) || [];
+            if (this.hydrator) {
+                group = this.hydrator.createLazyGroup(this.schemaName, this._rows);
+                const elapsed = Date.now() - t0;
+                if (elapsed > 2000) {
+                    General.logDebug("HydrationProfile", ` ${this.schemaName} (${this._rows.length} rows, lazy): query=${elapsed}ms`);
+                }
+                if (cacheKey) this._queryCache.set(cacheKey, group);
+            } else {
+                this._materialised = this._rows;
+            }
+        }
+        this._group = group;
+
+        if (this.jsFallbackFilters.length > 0) {
+            const tFallbackStart = Date.now();
+            let entities = JsFallbackFilterEvaluator.apply(group ? group.buildAll() : this._rows, this.jsFallbackFilters, this.schemaName);
+            const tFallbackEnd = Date.now();
+            if (tFallbackEnd - tFallbackStart > 1000) {
+                General.logDebug("HydrationProfile", ` ${this.schemaName} JS fallback: ${tFallbackEnd - tFallbackStart}ms (${this.jsFallbackFilters.map(f => f.query?.substring(0, 60)).join('; ')})`);
+            }
+            if (this.limitClause != null) entities = entities.slice(0, this.limitClause);
+            this._materialised = entities;
+        }
+        this._executed = true;
+    }
+
+    _entityCount() {
+        this._execute();
+        return this._materialised ? this._materialised.length : this._group.size;
+    }
+
+    _entityAt(index) {
+        this._execute();
+        return this._materialised ? this._materialised[index] : this._group.buildAt(index);
+    }
+
+    // Eager path kept only as the parity tests' reference; remove once lazy hydration has proven out in the field.
+    _executeEager() {
+        if (this._executed) return;
+
+        const {sql, params} = this._buildSql();
+
+        if (this.logQueries) {
+            console.log("SqliteResultsProxy SQL:", sql, "params:", params);
+        }
+
+        // Check query cache — reuse hydrated entities from an identical prior query
+        const opts = this.hydrator ? this._effectiveHydrationOptions() : null;
+        const cacheKey = this._queryCache ? `${sql}|${JSON.stringify(params)}|${opts?.depth}|${opts?.skipLists}` : null;
+        if (cacheKey && this._queryCache.has(cacheKey)) {
+            const cached = this._queryCache.get(cacheKey);
+            this._rows = cached.rows;
+            this._entities = [...cached.entities]; // shallow copy so JS filters don't mutate cache
+            General.logDebug("HydrationProfile", ` CACHE HIT ${this.schemaName} (${this._entities.length} entities)`);
+            // Still apply JS fallback filters on the copy
+            if (this.jsFallbackFilters.length > 0) {
+                this._entities = JsFallbackFilterEvaluator.apply(
+                    this._entities, this.jsFallbackFilters, this.schemaName
+                );
+                if (this.limitClause != null) {
+                    this._entities = this._entities.slice(0, this.limitClause);
+                }
+            }
+            this._materialised = this._entities;
+            this._executed = true;
+            return;
+        }
+
+        const t0 = Date.now();
+        const rows = this.executeQuery(sql, params);
+        this._rows = rows || [];
+        const tQuery = Date.now();
+
+        // Hydrate rows into entity-compatible objects
+        if (this.hydrator) {
+            const opts = this._effectiveHydrationOptions();
+            this.hydrator.beginHydrationSession();
+            try {
+                // Batch-preload list properties to avoid N+1 queries. A shallow query that keeps a
+                // few lists (the total card keeps Individual.enrolments) preloads just those —
+                // otherwise each kept list costs one query per row.
+                let tPreload = tQuery;
+                const keptLists = opts.skipLists ? opts.listsToInclude : null;
+                const preload = !opts.skipLists || (keptLists && keptLists.size > 0);
+                if (preload && this._rows.length > 0 && this.hydrator.batchPreloadLists) {
+                    const parentUuids = this._rows.map(row => row.uuid).filter(u => u != null);
+                    this.hydrator.batchPreloadLists(this.schemaName, parentUuids, opts.depth || 3, keptLists);
+                    tPreload = Date.now();
+                }
+
+                this._entities = this._rows.map(row =>
+                    this.hydrator.hydrate(this.schemaName, row, opts)
+                );
+                const tHydrate = Date.now();
+
+                const total = tHydrate - t0;
+                if (total > 2000 && this._rows.length > 0) {
+                    General.logDebug("HydrationProfile", ` ${this.schemaName} (${this._rows.length} rows, depth=${opts.depth}, skipLists=${opts.skipLists}): query=${tQuery - t0}ms, preload=${tPreload - tQuery}ms, hydrate=${tHydrate - tPreload}ms, total=${total}ms`);
+                }
+            } finally {
+                this.hydrator.endHydrationSession();
+            }
+        } else {
+            this._entities = this._rows;
+        }
+
+        // Store in query cache (before JS fallback, so cached entities are the full
+        // hydrated set that JS filters can be applied to independently per card)
+        if (cacheKey && this._queryCache) {
+            this._queryCache.set(cacheKey, {rows: this._rows, entities: this._entities});
+        }
+
+        // Apply JS fallback filters for patterns that couldn't be translated to SQL
+        if (this.jsFallbackFilters.length > 0) {
+            const tFallbackStart = Date.now();
+            this._entities = JsFallbackFilterEvaluator.apply(
+                this._entities, this.jsFallbackFilters, this.schemaName
+            );
+            const tFallbackEnd = Date.now();
+
+            if (tFallbackEnd - tFallbackStart > 1000) {
+                General.logDebug("HydrationProfile", ` ${this.schemaName} JS fallback: ${tFallbackEnd - tFallbackStart}ms (${this.jsFallbackFilters.map(f => f.query?.substring(0, 60)).join('; ')})`);
+            }
+
+            // Apply limit after JS fallback (LIMIT was not in SQL because
+            // JS fallbacks need to filter the full set first, then limit)
+            if (this.limitClause != null) {
+                this._entities = this._entities.slice(0, this.limitClause);
+            }
+        }
+
+        this._materialised = this._entities;
+        this._executed = true;
+    }
+
+    _getEntities() {
+        this._execute();
+        if (!this._materialised) this._materialised = this._group.buildAll();
+        return this._materialised;
+    }
+
+    // ──── Entity creation ────
+
+    createEntity(hydratedObj) {
+        return new this.entityClass(hydratedObj);
+    }
+
+    getRawAt(index) {
+        const entity = this.getAt(index);
+        return (entity && entity.that) ? entity.that : entity;
+    }
+
+    getRawCollection() {
+        if (!this._rawCollectionProxy) {
+            this._rawCollectionProxy = new Proxy(this, RawCollectionProxyHandler);
+        }
+        return this._rawCollectionProxy;
+    }
+
+    // ──── Collection API ────
+
+    getAt(index) {
+        if (index < 0 || index >= this._entityCount()) return null;
+        const obj = this._entityAt(index);
+        return _.isNil(obj) ? null : this.createEntity(obj);
+    }
+
+    /**
+     * Return count using SELECT COUNT(*) without hydrating any rows.
+     * Use this when only the count is needed (e.g., dashboard card counts).
+     * Falls back to full execution if JS fallback filters are present.
+     */
+    count() {
+        if (this.jsFallbackFilters.length > 0) {
+            return this._entityCount();
+        }
+        const {sql, params} = this._buildSql();
+        // Wrap in SELECT COUNT(*) FROM (...) to avoid assumptions about _buildSql format.
+        // Strip LIMIT — count should return total matching rows, not capped by pagination.
+        const innerSql = sql.replace(/\s+LIMIT\s+\d+$/i, '');
+        const countSql = `SELECT COUNT(*) AS cnt FROM (${innerSql})`;
+        const rows = this.executeQuery(countSql, params);
+        return (rows && rows.length > 0) ? rows[0].cnt : 0;
+    }
+
+    _buildDistinctSql(propertyPath, aggregate) {
+        // Windowed DISTINCT projects only t0.* out of a subquery, so a joined alias is
+        // not addressable from the outer scope — those queries take the hydrated path.
+        if (this.distinctColumns && this.distinctColumns.length > 0) return null;
+
+        const {expr, joins} = this._resolvePropertyPath(propertyPath, this.joinClauses.length);
+        const projection = aggregate ? `COUNT(DISTINCT ${expr})` : `DISTINCT ${expr}`;
+        let sql = `SELECT ${projection} AS val FROM ${this.tableName} AS t0`;
+        for (const join of [...this.joinClauses, ...joins]) {
+            sql += ` LEFT JOIN ${join.table} AS ${join.alias} ON ${join.on}`;
+        }
+        if (this.whereClauses.length > 0) {
+            sql += ` WHERE ${this.whereClauses.join(" AND ")}`;
+        }
+        return {sql, params: this.whereParams};
+    }
+
+    /**
+     * Distinct values of one property, projected in SQL so no row is hydrated.
+     * Lets a caller count subjects across two queries by unioning the two sets.
+     */
+    distinctValues(propertyPath) {
+        if (this.jsFallbackFilters.length === 0) {
+            const built = this._buildDistinctSql(propertyPath, false);
+            if (built) {
+                const rows = this.executeQuery(built.sql, built.params);
+                return (rows || []).map(row => row.val).filter(value => !_.isNil(value));
+            }
+        }
+        return _.uniq(this._getEntities().map(entity => _.get(entity, propertyPath))).filter(value => !_.isNil(value));
+    }
+
+    countDistinct(propertyPath) {
+        if (this.jsFallbackFilters.length === 0) {
+            const built = this._buildDistinctSql(propertyPath, true);
+            if (built) {
+                const rows = this.executeQuery(built.sql, built.params);
+                return (rows && rows.length > 0) ? rows[0].val : 0;
+            }
+        }
+        return this.distinctValues(propertyPath).length;
+    }
+
+    getLength() {
+        return this._entityCount();
+    }
+
+    isEmpty() {
+        return this.getLength() === 0;
+    }
+
+    forEach(callback, thisArg) {
+        const entities = this._getEntities();
+        return entities.forEach((obj, index) => {
+            return callback(this.createEntity(obj), index, this);
+        }, thisArg);
+    }
+
+    map(callback, thisArg) {
+        const entities = this._getEntities();
+        return entities.map((obj, index) => {
+            return callback(this.createEntity(obj), index, this);
+        }, thisArg);
+    }
+
+    mapInternal(callback, thisArg) {
+        const entities = this._getEntities();
+        return entities.map((obj, index) => {
+            return callback(obj, index, this);
+        }, thisArg);
+    }
+
+    filter(predicate, thisArg) {
+        const entities = this._getEntities();
+        return entities
+            .map(obj => this.createEntity(obj))
+            .filter(predicate, thisArg);
+    }
+
+    filterInternal(predicate, thisArg) {
+        const entities = this._getEntities();
+        return entities.filter(predicate, thisArg);
+    }
+
+    find(filterCallback, thisArg) {
+        const count = this._entityCount();
+        for (let i = 0; i < count; i++) {
+            const entity = this.createEntity(this._entityAt(i));
+            const result = thisArg
+                ? filterCallback.call(thisArg, entity, i, this)
+                : filterCallback(entity, i, this);
+            if (result) return entity;
+        }
+        return undefined;
+    }
+
+    some(callback, thisArg) {
+        const entities = this._getEntities();
+        return entities.some((obj, index) => {
+            return callback(this.createEntity(obj), index, this);
+        }, thisArg);
+    }
+
+    every(callback, [thisArg] = []) {
+        const entities = this._getEntities();
+        const everyFunc = (obj, index) => {
+            return callback(this.createEntity(obj), index, this);
+        };
+        return _.isNil(thisArg)
+            ? entities.every(everyFunc)
+            : entities.every(everyFunc, [thisArg]);
+    }
+
+    slice(start, end) {
+        const count = this._entityCount();
+        const bound = (value, fallback) => {
+            if (value === undefined) return fallback;
+            const index = Math.trunc(value) || 0;
+            return index < 0 ? Math.max(count + index, 0) : Math.min(index, count);
+        };
+        const sliced = [];
+        for (let index = bound(start, 0); index < bound(end, count); index++) sliced.push(this.createEntity(this._entityAt(index)));
+        return sliced;
+    }
+
+    join(separator) {
+        const entities = this._getEntities();
+        return entities.map(obj => this.createEntity(obj)).join(separator);
+    }
+
+    // ──── Aggregate functions ────
+
+    max(property) {
+        const col = camelToSnake(property);
+        const {sql: baseSql, params} = this._buildSql();
+        const sql = this.distinctColumns && this.distinctColumns.length > 0
+            ? `SELECT MAX("${col}") as max_val FROM (${baseSql})`
+            : baseSql.replace(/^SELECT t0\.\*/, `SELECT MAX(t0."${col}") as max_val`);
+        const rows = this.executeQuery(sql, params);
+        return rows && rows.length > 0 ? rows[0].max_val : undefined;
+    }
+
+    min(property) {
+        const col = camelToSnake(property);
+        const {sql: baseSql, params} = this._buildSql();
+        const sql = this.distinctColumns && this.distinctColumns.length > 0
+            ? `SELECT MIN("${col}") as min_val FROM (${baseSql})`
+            : baseSql.replace(/^SELECT t0\.\*/, `SELECT MIN(t0."${col}") as min_val`);
+        const rows = this.executeQuery(sql, params);
+        return rows && rows.length > 0 ? rows[0].min_val : undefined;
+    }
+
+    sum(property) {
+        const col = camelToSnake(property);
+        const {sql: baseSql, params} = this._buildSql();
+        const sql = this.distinctColumns && this.distinctColumns.length > 0
+            ? `SELECT SUM("${col}") as sum_val FROM (${baseSql})`
+            : baseSql.replace(/^SELECT t0\.\*/, `SELECT SUM(t0."${col}") as sum_val`);
+        const rows = this.executeQuery(sql, params);
+        return rows && rows.length > 0 ? (rows[0].sum_val || 0) : 0;
+    }
+
+    // ──── Materialization ────
+
+    asArray() {
+        return this._getEntities().map(obj => this.createEntity(obj));
+    }
+
+    materialiseArray() {
+        // Compatibility with RealmResultsProxy
+        return this.asArray();
+    }
+
+    // ──── Iterator ────
+
+    [Symbol.iterator]() {
+        const count = this._entityCount();
+        let index = 0;
+        const self = this;
+        return {
+            next() {
+                if (index < count) {
+                    return {value: self.createEntity(self._entityAt(index++)), done: false};
+                }
+                return {done: true};
+            },
+        };
+    }
+
+    // ──── Realm compatibility properties ────
+
+    get optional() {
+        return undefined;
+    }
+
+    get type() {
+        return this.schemaName;
+    }
+}
+
+export {SqliteResultsProxy, SqliteResultsProxyHandler};
+export default SqliteResultsProxy;

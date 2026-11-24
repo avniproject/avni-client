@@ -1,0 +1,1 @@
+CREATE INDEX `idx_entity_approval_status_entity_uuid` ON `entity_approval_status` (`entity_uuid`);

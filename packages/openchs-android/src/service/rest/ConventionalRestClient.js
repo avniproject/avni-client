@@ -1,4 +1,5 @@
-import {getJSON} from '../../framework/http/requests';
+import {getJSON, getJSONTimed} from '../../framework/http/requests';
+import {withoutSpeedSample} from '../../utility/SyncBandwidth';
 import _ from "lodash";
 import moment from "moment";
 import ChainedRequests from "../../framework/http/ChainedRequests";
@@ -48,7 +49,7 @@ class ConventionalRestClient {
             const chainedRequest = new ChainedRequests();
             entities.entities.forEach((entity) => {
                 const onEntityPushed = onComplete(entities.metaData, entity.resource.uuid);
-                const postRequest = chainedRequest.post(url, entity.resource, onEntityPushed);
+                const postRequest = chainedRequest.postTimed(url, entity.resource, onEntityPushed);
                 chainedRequest.push(isBestEffort ? this.dropOnFailure(postRequest, entities.metaData, entity, onEntityPushed) : postRequest);
             });
             return chainedRequest.fire();
@@ -97,8 +98,10 @@ class ConventionalRestClient {
 
     fireRequest(onGetOfAnEntity, entityMetadata, afterGetOfEntity, settings, resourceEndpoint, params, onGetOfFirstPage) {
         //Response from controller do not have the page number in the response
-        const processResponse = (resp, pageNumber) => {
-            onGetOfAnEntity(entityMetadata, _.get(resp, `_embedded.${entityMetadata.resourceName}`, []));
+        const processResponse = async (resp, pageNumber, timings) => {
+            // persistAll may be async (SQLite bulkCreate path) — await it to ensure
+            // the current page is fully persisted before the next page is fetched.
+            await onGetOfAnEntity(entityMetadata, _.get(resp, `_embedded.${entityMetadata.resourceName}`, []), timings);
 
             const pageElement = resp["page"];
             const contentElement = resp["content"];
@@ -110,18 +113,20 @@ class ConventionalRestClient {
         };
 
         const endpoint = (page = 0, size = settings.pageSize) => `${resourceEndpoint}?${params(page, size)}`;
-        return getJSON(endpoint()).then((response) => {
+        return getJSONTimed(endpoint()).then(async ({body: response, timings}) => {
             //first page
             const page = response["page"];
-            processResponse(response, 0);
-            onGetOfFirstPage(entityMetadata.entityName, page);
+            // A full page 0 also runs the server's COUNT, which can take minutes, so it is no speed sample.
+            const firstPageTimings = _.get(page, 'totalPages', 0) > 1 ? withoutSpeedSample(timings) : timings;
+            await processResponse(response, 0, firstPageTimings);
+            onGetOfFirstPage(entityMetadata.entityName, page, _.get(entityMetadata, 'syncStatus.entityTypeUuid'));
 
             //rest pages
             const chainedRequests = new ChainedRequests();
             _.range(1, page.totalPages, 1)
-                .forEach((pageNumber) => chainedRequests.push(chainedRequests.get(
+                .forEach((pageNumber) => chainedRequests.push(chainedRequests.getTimed(
                     endpoint(pageNumber),
-                    (resp) => processResponse(resp, pageNumber))));
+                    (resp, pageTimings) => processResponse(resp, pageNumber, pageTimings))));
 
             return chainedRequests.fire();
         });

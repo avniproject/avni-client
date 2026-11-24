@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import React, {Component} from "react";
 import Path from "../../framework/routing/Path";
 import AppHeader from "../common/AppHeader";
+import CHSContainer from "../common/CHSContainer";
 import Colors from "../primitives/Colors";
 import General from "../../utility/General";
 import SearchResultsHeader from "./SearchResultsHeader";
@@ -65,7 +66,7 @@ class IndividualSearchResultsView extends AbstractComponent {
         const title = this.props.headerTitle || "searchResults";
 
         return (
-            <View style={{backgroundColor: Colors.GreyContentBackground,flex:1}}>
+            <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t(title)}/>
                 <SearchResultsHeader totalCount={this.props.totalSearchResultsCount}
                                      displayedCount={this.props.searchResults.length}/>
@@ -75,7 +76,7 @@ class IndividualSearchResultsView extends AbstractComponent {
                     renderItem={({item}) => <IndividualSearchResultRow item={item} onResultRowPress={this.onResultRowPress.bind(this)}/>}
                 />
                 <ZeroResults count={this.props.searchResults.length}/>
-            </View>
+            </CHSContainer>
         );
     }
 

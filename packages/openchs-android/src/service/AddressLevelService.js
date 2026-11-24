@@ -13,9 +13,11 @@ class AddressLevelService extends BaseAddressLevelService {
         return AddressLevel.schema.name;
     }
 
-    // AddressLevel keeps its parent in locationMappings, not parentUuid.
+    // Parent lineage is keyed on parentUuid throughout the hierarchy cache; locationMappings
+    // is only hydrated under Realm (the SQLite reference cache skips lists), so fall back to
+    // parentUuid so root detection works on both backends.
     hasNoParent(node) {
-        return _.isEmpty(node.locationMappings);
+        return _.isEmpty(node.locationMappings) && _.isEmpty(node.parentUuid);
     }
 
     getAllDisplayAddresses(selectedAddresses) {

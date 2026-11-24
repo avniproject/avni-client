@@ -50,12 +50,26 @@ class ApprovalListingView extends AbstractComponent {
         }
     }
 
-    onFilterChange(filterItem) {
+    fetchSubjects(formMapping) {
         const {reportCardUUID, reportFilters} = this.props;
         const rcUUID = this.getService(ReportCardService).getPlainUUIDFromCompositeReportCardUUID(reportCardUUID);
         const reportCard = this.getService(EntityService).findByUUID(rcUUID, ReportCard.schema.name);
-        const subjects = this.getService(ReportCardService).getResultForApprovalCardsType(reportCard.standardReportCardType, reportFilters, filterItem.value);
-        this.setState({subjects: subjects, formMapping: filterItem.value});
+        return this.getService(ReportCardService).getResultForApprovalCardsType(reportCard.standardReportCardType, reportFilters, formMapping);
+    }
+
+    onFilterChange(filterItem) {
+        this.setState({subjects: this.fetchSubjects(filterItem.value), formMapping: filterItem.value});
+    }
+
+    // SQLite results are a snapshot — re-query on return so processed records drop off.
+    didFocus() {
+        super.didFocus();
+        if (!this._focusedOnce) {
+            // Navigator also emits didFocus on the initial push, when props.results is still fresh.
+            this._focusedOnce = true;
+            return;
+        }
+        setTimeout(() => this.setState({subjects: this.fetchSubjects(this.state.formMapping)}), 0);
     }
 
     openFilterPicker(value) {

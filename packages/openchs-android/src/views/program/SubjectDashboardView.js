@@ -1,6 +1,6 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import React from 'react';
-import {View, TouchableOpacity, Text, StyleSheet, ToastAndroid, ScrollView} from 'react-native';
+import {View, TouchableOpacity, Text, StyleSheet, ToastAndroid, ScrollView, ActivityIndicator} from 'react-native';
 import SubjectDashboardGeneralTab from "../individual/SubjectDashboardGeneralTab";
 import PropTypes from 'prop-types';
 import Colors from "../primitives/Colors";
@@ -13,11 +13,11 @@ import SubjectDashboardProgramsTab from "./SubjectDashboardProgramsTab";
 import CHSContent from "../common/CHSContent";
 import General from "../../utility/General";
 import Fonts from "../primitives/Fonts";
+import Styles from "../primitives/Styles";
 import {Names as Actions} from "../../action/program/SubjectDashboardViewActions";
 import MCIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import _ from "lodash";
 import NewFormButton from "../common/NewFormButton";
-import Distances from "../primitives/Distances";
 import {logScreenEvent} from "../../utility/Analytics";
 
 class SubjectDashboardView extends AbstractComponent {
@@ -34,9 +34,12 @@ class SubjectDashboardView extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.subjectDashboardView);
     }
 
-    UNSAFE_componentWillMount() {
+    // Deferred: this view's own entry work is ~200-700ms and it runs during the navigation slide,
+    // which was visible as jank on device. Its heavy children (Programs/Profile/General tabs) defer
+    // independently now, so this loader only ever covers this view's own work.
+    // (avni-client#2054)
+    loadData() {
         this.dispatchAction(Actions.ON_LOAD, this.props);
-        return super.UNSAFE_componentWillMount();
     }
 
     displayMessage(message) {
@@ -96,7 +99,26 @@ class SubjectDashboardView extends AbstractComponent {
         );
     });
 
-    render() {
+    // Header and back button stay on screen rather than the base class's full-area white. This view is
+    // the container for all three tabs; blanking it blanks the whole dashboard, which on a large
+    // database read as the app having died. backFunction comes from props, so back works while loading.
+    renderLoading() {
+        return (
+            <CHSContainer>
+                <CHSContent style={{backgroundColor: Colors.GreyContentBackground}}>
+                    <View style={{backgroundColor: Styles.defaultBackground}}>
+                        <AppHeader title={this.I18n.t('individualDashboard')} func={this.props.backFunction}/>
+                    </View>
+                    <View style={{minHeight: 200, justifyContent: 'center', alignItems: 'center',
+                                  backgroundColor: Colors.WhiteContentBackground}}>
+                        <ActivityIndicator size="large"/>
+                    </View>
+                </CHSContent>
+            </CHSContainer>
+        );
+    }
+
+    renderLoaded() {
         General.logDebug(this.viewName(), 'render');
         const {enrolmentUUID, individualUUID, backFunction} = this.state;
         const options = [
@@ -111,7 +133,7 @@ class SubjectDashboardView extends AbstractComponent {
                 <CHSContent>
                     <ScrollView style={{backgroundColor: Colors.GreyContentBackground}}
                                 contentContainerStyle={this.state.displayProgramTab ? {
-                                    paddingBottom: SubjectDashboardView.tabBarHeight + Distances.EdgeToEdgeNavigationBarInset
+                                    paddingBottom: SubjectDashboardView.tabBarHeight
                                 } : {}}>
                         <IndividualProfile individual={this.state.individual}
                                            displayOnly={false}
@@ -134,14 +156,13 @@ class SubjectDashboardView extends AbstractComponent {
                 </CHSContent>
                 <NewFormButton
                     display={(this.state.individualProfile && this.state.displayGeneralInfoInProfileTab) || this.state.history}
-                    style={this.state.displayProgramTab ? {bottom: 24 + SubjectDashboardView.tabBarHeight + Distances.EdgeToEdgeNavigationBarInset} : {}}
+                    style={this.state.displayProgramTab ? {bottom: 24 + SubjectDashboardView.tabBarHeight} : {}}
                 />
                 {this.state.displayProgramTab &&
                 <View style={styles.tabContainerWrapper}>
                     <View style={styles.tabContainer}>
                         {this.renderOptions(options)}
                     </View>
-                    <View style={styles.tabContainerInsetSpacer}/>
                 </View>}
             </CHSContainer>
         );
@@ -153,11 +174,8 @@ export default SubjectDashboardView
 
 
 const styles = StyleSheet.create({
-    // Wrapper spans the full bar-plus-inset height and pins to the true bottom edge; the bar and
-    // the inset spacer stack inside it and share the same background so the gesture-nav zone
-    // reads as a seamless extension of the bar rather than a colored patch behind the buttons.
     tabContainerWrapper: {
-        height: SubjectDashboardView.tabBarHeight + Distances.EdgeToEdgeNavigationBarInset,
+        height: SubjectDashboardView.tabBarHeight,
         width: '100%',
         position: 'absolute',
         bottom: 0,
@@ -172,10 +190,5 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderTopWidth: StyleSheet.hairlineWidth,
         borderTopColor: Colors.Separator
-    },
-    tabContainerInsetSpacer: {
-        height: Distances.EdgeToEdgeNavigationBarInset,
-        width: '100%',
-        backgroundColor: SubjectDashboardView.bottomBarBackgroundColor,
     }
 });

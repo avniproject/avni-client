@@ -14,10 +14,9 @@ class CommentThreadService extends BaseService {
     }
 
     saveOrUpdate(commentThread) {
-        const db = this.db;
-        this.db.write(() => {
-            const savedCommentThread = db.create(this.getSchema(), commentThread, true);
-            db.create(EntityQueue.schema.name, EntityQueue.create(savedCommentThread, this.getSchema()));
+        this.transactionManager.write(() => {
+            const savedCommentThread = this.repository.create(commentThread, true);
+            this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(savedCommentThread, this.getSchema()));
             General.logDebug('CommentThreadService', 'Comment Thread Saved');
         });
         return commentThread;

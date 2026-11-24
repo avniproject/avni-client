@@ -67,6 +67,7 @@ class CommentActions {
         commentToDelete.voided = true;
         context.get(CommentService).saveOrUpdate(commentToDelete);
         newState.comments = context.get(CommentService).getAllBySubjectUUIDAndThreadUUID(state.subject.uuid, commentToDelete.commentThread.uuid);
+        newState.threadComments = context.get(CommentService).getThreadWiseFirstCommentForSubject(state.subject.uuid);
         return newState;
     }
 

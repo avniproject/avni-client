@@ -1,0 +1,1 @@
+ALTER TABLE `entity_approval_status` ADD `observations` text DEFAULT '[]';

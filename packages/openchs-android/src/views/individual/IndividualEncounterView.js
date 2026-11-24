@@ -1,4 +1,5 @@
 import {ScrollView, StyleSheet, Vibration, View} from "react-native";
+import moment from "moment";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -28,13 +29,14 @@ import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import EncounterService from "../../service/EncounterService";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
 import {AvniAlert} from "../common/AvniAlert";
-import {RejectionMessage} from "../approval/RejectionMessage";
 import SummaryButton from "../common/SummaryButton";
 import Timer from "../common/Timer";
 import BackgroundTimer from "react-native-background-timer";
 import {Actions as IGHActions} from "../../action/individual/IndividualGeneralHistoryActions";
 import PreviousEncounters from "../common/PreviousEncounters";
 import {logScreeningStarted, logTaskDuration, logTaskStarted} from "../../utility/Analytics";
+import FullScreenLoader from "../common/FullScreenLoader";
+import BackgroundDraftSaver from "../common/BackgroundDraftSaver";
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -53,7 +55,17 @@ class IndividualEncounterView extends AbstractComponent {
         return 'IndividualEncounterView';
     }
 
-    UNSAFE_componentWillMount() {
+    onViewDidMount() {
+        this.backgroundDraftSaver = new BackgroundDraftSaver(this, Actions.ON_APP_BACKGROUND);
+        this.backgroundDraftSaver.start();
+    }
+
+    componentWillUnmount() {
+        this.backgroundDraftSaver && this.backgroundDraftSaver.stop();
+        super.componentWillUnmount();
+    }
+
+    loadData() {
         const {encounterType, individualUUID, encounter, workLists, pageNumber, editing} = this.props;
         if (encounter) {
             // When the visit date is hidden org-wide the user can't set it, so auto-capture today
@@ -69,21 +81,27 @@ class IndividualEncounterView extends AbstractComponent {
             logTaskStarted('encounter', encounterToLoad.name || _.get(encounterToLoad, 'encounterType.displayName'));
             if (!editing) logScreeningStarted(encounterToLoad);
             this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter: encounterToLoad, workLists, pageNumber, editing});
-            return super.UNSAFE_componentWillMount();
+        } else {
+            const encounterByType = this.context.getService(EncounterService)
+                .findDueEncounter({encounterTypeName: encounterType, individualUUID})
+                .cloneForEdit();
+            encounterByType.encounterDateTime = moment().toDate();
+            logTaskStarted('encounter', encounterByType.name || _.get(encounterByType, 'encounterType.displayName'));
+            if (!editing) logScreeningStarted(encounterByType);
+            this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter: encounterByType, editing});
         }
-        const encounterByType = this.context.getService(EncounterService)
-            .findDueEncounter({encounterTypeName: encounterType, individualUUID})
-            .cloneForEdit();
-        encounterByType.encounterDateTime = moment().toDate();
-        logTaskStarted('encounter', encounterByType.name || _.get(encounterByType, 'encounterType.displayName'));
-        if (!editing) logScreeningStarted(encounterByType);
-        this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter: encounterByType, editing});
-        return super.UNSAFE_componentWillMount();
+        // Dispatched here (not only didFocus): didFocus fires before this deferred load resolves, so
+        // its isDataLoaded() guard is false on first entry. onFocus is idempotent, so a re-dispatch is fine.
+        this.dispatchAction(Actions.ON_FOCUS);
+    }
+
+    isDataLoaded() {
+        return super.isDataLoaded() && !_.isNil(this.state.encounter) && !_.isNil(this.state.wizard);
     }
 
     didFocus() {
         super.didFocus();
-        this.dispatchAction(Actions.ON_FOCUS);
+        if (this.isDataLoaded()) this.dispatchAction(Actions.ON_FOCUS);
     }
 
     shouldComponentUpdate(nextProps, state) {
@@ -128,6 +146,7 @@ class IndividualEncounterView extends AbstractComponent {
                 skipVerification: true
             })),
             movedNext: this.scrollToTop,
+            validationFailed: this.scrollToStaticFieldError,
             settleCompletion: (newState) => this.dispatchAction(Actions.USE_THIS_STATE, {state: newState}),
             fromSDV
         }
@@ -142,7 +161,19 @@ class IndividualEncounterView extends AbstractComponent {
         this.dispatchAction(Actions.SUMMARY_PAGE, params)
     }
 
+    // An immutable, fully-filled encounter always shows the summary. In componentDidUpdate, not
+    // render, so the summary-page push doesn't land mid-slide (the stuck-half-transition bug).
+    componentDidUpdate() {
+        if (this.state.allElementsFilledForImmutableEncounter && !this.state.wizardCompletionInProgress) {
+            this.onGoToSummary(true);
+        }
+    }
+
     onHardwareBackPress() {
+        if (!this.isDataLoaded()) {
+            TypedTransition.from(this).goBack();
+            return true;
+        }
         this.onAppHeaderBack(this.state.saveDrafts);
         return true;
     }
@@ -181,12 +212,13 @@ class IndividualEncounterView extends AbstractComponent {
             })
     }
 
-    render() {
+    renderLoading() {
+        return <FullScreenLoader title={this.I18n.t('enterData')}/>;
+    }
+
+    renderLoaded() {
         const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);
-        General.logDebug(this.viewName(), `render with IndividualUUID=${this.props.individualUUID} and EncounterTypeUUID=${this.props.encounter.encounterType.uuid}`);
-        if (this.state.allElementsFilledForImmutableEncounter && !this.state.wizardCompletionInProgress) {
-            this.onGoToSummary(true);
-        }
+        General.logDebug(this.viewName(), `render with IndividualUUID=${this.props.individualUUID} and EncounterTypeUUID=${this.state.encounter.encounterType.uuid}`);
         const title = this.I18n.t(this.state.encounter.encounterType.displayName);
         const hideVisitDate = this.context.getService(OrganisationConfigService).isVisitDateHidden() && !_.isNil(this.state.encounter.encounterDateTime);
         const observationHolder = new ObservationsHolder(this.state.encounter.observations);
@@ -208,8 +240,6 @@ class IndividualEncounterView extends AbstractComponent {
                         <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.state.formElementGroup}/> : null}
                     {this.state.wizard.isFirstFormPage() ?
                         <View>
-                            <RejectionMessage I18n={this.I18n}
-                                              entityApprovalStatus={this.state.encounter.latestEntityApprovalStatus}/>
                             <View style={{
                                 backgroundColor: '#ffffff',
                                 borderRadius: 12,

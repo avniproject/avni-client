@@ -21,7 +21,6 @@ import FormMappingService from "../../service/FormMappingService";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 import _ from "lodash";
 import TypedTransition from "../../framework/routing/TypedTransition";
-import {RejectionMessage} from "../approval/RejectionMessage";
 import SummaryButton from "../common/SummaryButton";
 import BackgroundTimer from "react-native-background-timer";
 import Timer from "../common/Timer";
@@ -59,7 +58,8 @@ class ProgramFormComponent extends AbstractComponent {
             phoneNumberObservation,
             popVerificationVew,
             verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(this, this.next.bind(this), observation, () => this.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation}), () => this.dispatchAction(Actions.ON_SKIP_VERIFICATION, {observation, skipVerification: true})),
-            movedNext: this.scrollToTop
+            movedNext: this.scrollToTop,
+            validationFailed: this.scrollToStaticFieldError
         }
     }
 
@@ -107,7 +107,6 @@ class ProgramFormComponent extends AbstractComponent {
                     <Timer timerState={this.props.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.props.state.formElementGroup}/> : null}
                     {this.props.state.wizard.isFirstFormPage() ?
                     <View>
-                        <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.props.state.enrolment.latestEntityApprovalStatus}/>
                         <SummaryButton onPress={() => this.onGoToSummary()} styles={{marginRight: Distances.ScaledContentDistanceFromEdge}}/>
                         <GeolocationFormElement
                             location={enrol ? this.props.state.enrolment.enrolmentLocation : this.props.state.enrolment.exitLocation}

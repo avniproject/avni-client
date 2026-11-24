@@ -23,7 +23,6 @@ import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import {AvniAlert} from "../common/AvniAlert";
-import {RejectionMessage} from "../approval/RejectionMessage";
 import SummaryButton from "../common/SummaryButton";
 
 @Path('/ProgramEncounterCancelView')
@@ -88,7 +87,8 @@ class ProgramEncounterCancelView extends AbstractComponent {
                 phoneNumberObservation: null,
                 popVerificationVew,
                 verifyPhoneNumber: () => {},
-                movedNext: this.scrollToTop
+                movedNext: this.scrollToTop,
+                validationFailed: this.scrollToStaticFieldError
             };
         }
 
@@ -112,7 +112,8 @@ class ProgramEncounterCancelView extends AbstractComponent {
             phoneNumberObservation,
             popVerificationVew,
             verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(this, this.next.bind(this), observation, () => this.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation}), () => this.dispatchAction(Actions.ON_SKIP_VERIFICATION, {observation, skipVerification: true})),
-            movedNext: this.scrollToTop
+            movedNext: this.scrollToTop,
+            validationFailed: this.scrollToStaticFieldError
         }
     }
 
@@ -142,7 +143,6 @@ class ProgramEncounterCancelView extends AbstractComponent {
                     <AppHeader title={this.state.programEncounter.individual.nameString}
                                func={() => this.onAppHeaderBack()}
                                displayHomePressWarning={true}/>
-                    <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.programEncounter.latestEntityApprovalStatus}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstPage() ?
                             <View>

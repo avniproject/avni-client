@@ -5,8 +5,9 @@ class StubbedDraftConfigService {
         this.serviceData = serviceData;
     }
 
+    // All four derive from one flag, like the real service.
     isDraftEnabled() {
-        return _.get(this.serviceData, 'draftEnabled', false);
+        return !!(this.serviceData && (this.serviceData.draftEnabled || this.serviceData.displayDrafts));
     }
 
     shouldSaveDraft(isFirstFlow, isExistingDraft) {
@@ -18,7 +19,7 @@ class StubbedDraftConfigService {
     }
 
     shouldDisplayDrafts() {
-        return false;
+        return this.isDraftEnabled();
     }
 }
 

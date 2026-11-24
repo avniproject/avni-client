@@ -12,6 +12,7 @@ export class IndividualProfileActions {
             displayLocationOptions: false,
             commentsCount: 0,
             displayProgressIndicator: false,
+            individual: null,
         };
     }
 
@@ -23,7 +24,14 @@ export class IndividualProfileActions {
             commentsCount: state.commentsCount,
             programActions: state.programActions,
             displayProgressIndicator: state.displayProgressIndicator,
+            individual: state.individual,
         }
+    }
+
+    // Reducer state outlives the screen, so a subject saved on one profile must not leak into the next.
+    static displayedIndividual(state, propIndividual) {
+        const saved = _.get(state, 'individual');
+        return saved && saved.uuid === _.get(propIndividual, 'uuid') ? saved : propIndividual;
     }
 
     static launchActionSelector(state) {
@@ -88,6 +96,8 @@ export class IndividualProfileActions {
             individual.subjectLocation = action.subjectLocation;
             const individualService = context.get(IndividualService);
             individualService.updateSubjectLocation(individual);
+            // Re-read: under SQLite the prop is a detached snapshot the write won't update.
+            newState.individual = individualService.findByUUID(individual.uuid);
             return newState;
         } catch (error) {
             General.logError('IndividualProfileActions.saveSubjectLocation', error);

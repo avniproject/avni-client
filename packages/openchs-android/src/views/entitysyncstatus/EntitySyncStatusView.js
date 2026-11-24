@@ -45,7 +45,7 @@ class EntitySyncStatusView extends AbstractComponent {
                     <ScrollView style={{backgroundColor: Colors.GreyContentBackground}}>
                         <View style={{
                             paddingHorizontal: Distances.ContentDistanceFromEdge,
-                            paddingBottom: 16 + Distances.EdgeToEdgeNavigationBarInset,
+                            paddingBottom: 16,
                             backgroundColor: Colors.GreyContentBackground
                         }}>
                             <EntitySyncStatusSummary totalQueueCount={this.state.totalQueueCount}

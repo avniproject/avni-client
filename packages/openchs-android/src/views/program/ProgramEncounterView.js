@@ -29,14 +29,15 @@ import OrganisationConfigService from "../../service/OrganisationConfigService";
 import moment from "moment";
 import NewVisitPageView from "./NewVisitPageView";
 import {AvniAlert} from "../common/AvniAlert";
-import {RejectionMessage} from "../approval/RejectionMessage";
 import SummaryButton from "../common/SummaryButton";
 import BackgroundTimer from "react-native-background-timer";
 import Timer from "../common/Timer";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import SystemRecommendationView from "../conclusion/SystemRecommendationView";
+import FullScreenLoader from "../common/FullScreenLoader";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import {logScreeningStarted, logTaskDuration, logTaskStarted} from "../../utility/Analytics";
+import BackgroundDraftSaver from "../common/BackgroundDraftSaver";
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
@@ -48,12 +49,22 @@ class ProgramEncounterView extends AbstractComponent {
         return 'ProgramEncounterView';
     }
 
+    onViewDidMount() {
+        this.backgroundDraftSaver = new BackgroundDraftSaver(this, Actions.ON_APP_BACKGROUND);
+        this.backgroundDraftSaver.start();
+    }
+
+    componentWillUnmount() {
+        this.backgroundDraftSaver && this.backgroundDraftSaver.stop();
+        super.componentWillUnmount();
+    }
+
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.programEncounter);
         this.scrollRef = React.createRef();
     }
 
-    UNSAFE_componentWillMount() {
+    loadData() {
         const {encounterType, enrolmentUUID, programEncounter, workLists, pageNumber, editing} = this.props.params;
         if (programEncounter) {
             // When the visit date is hidden org-wide the user can't set it, so auto-capture today
@@ -72,7 +83,7 @@ class ProgramEncounterView extends AbstractComponent {
             logTaskStarted('encounter', encounterToLoad.name || _.get(encounterToLoad, 'encounterType.displayName'));
             if (!editing) logScreeningStarted(encounterToLoad);
             this.dispatchAction(Actions.ON_LOAD, {programEncounter: encounterToLoad, workLists, pageNumber, editing});
-            return super.UNSAFE_componentWillMount();
+            return;
         }
         const programEncounterByType = this.context.getService(ProgramEncounterService)
             .findDueEncounter({encounterTypeName: encounterType, enrolmentUUID})
@@ -81,10 +92,17 @@ class ProgramEncounterView extends AbstractComponent {
         logTaskStarted('encounter', programEncounterByType.name || _.get(programEncounterByType, 'encounterType.displayName'));
         if (!editing) logScreeningStarted(programEncounterByType);
         this.dispatchAction(Actions.ON_LOAD, {programEncounter: programEncounterByType, editing});
-        return super.UNSAFE_componentWillMount();
+    }
+
+    isDataLoaded() {
+        return super.isDataLoaded() && !_.isNil(this.state.programEncounter) && !_.isNil(this.state.wizard);
     }
 
     onHardwareBackPress() {
+        if (!this.isDataLoaded()) {
+            TypedTransition.from(this).goBack();
+            return true;
+        }
         this.onAppHeaderBack(this.state.saveDrafts);
         return true;
     }
@@ -158,6 +176,7 @@ class ProgramEncounterView extends AbstractComponent {
             popVerificationVew,
             verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(this, this.next.bind(this), observation, () => this.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation}), () => this.dispatchAction(Actions.ON_SKIP_VERIFICATION, {observation, skipVerification: true})),
             movedNext: this.scrollToTop,
+            validationFailed: this.scrollToStaticFieldError,
             settleCompletion: (newState) => this.dispatchAction(Actions.USE_THIS_STATE, {state: newState}),
             fromSDV
         }
@@ -169,6 +188,14 @@ class ProgramEncounterView extends AbstractComponent {
 
     onGoToSummary(fromSDV = false) {
         this.dispatchAction(Actions.SUMMARY_PAGE, this.getNextParams(false, fromSDV))
+    }
+
+    // An immutable, fully-filled encounter always shows the summary. In componentDidUpdate, not
+    // render, so the summary-page push doesn't land mid-slide (the stuck-half-transition bug).
+    componentDidUpdate() {
+        if (this.state.allElementsFilledForImmutableEncounter && !this.state.wizardCompletionInProgress) {
+            this.onGoToSummary(true);
+        }
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -216,11 +243,12 @@ class ProgramEncounterView extends AbstractComponent {
     }
 
 
-    render() {
+    renderLoading() {
+        return <FullScreenLoader title={this.I18n.t('enterData')}/>;
+    }
+
+    renderLoaded() {
         General.logDebug('ProgramEncounterView', 'render');
-        if (this.state.allElementsFilledForImmutableEncounter && !this.state.wizardCompletionInProgress) {
-            this.onGoToSummary(true)
-        }
         const programEncounterName = !_.isEmpty(this.state.programEncounter.name) ? this.I18n.t(this.state.programEncounter.name) : this.I18n.t(this.state.programEncounter.encounterType.operationalEncounterTypeName);
         const title = programEncounterName;
         this.displayMessage(this.props.params.message);
@@ -245,7 +273,6 @@ class ProgramEncounterView extends AbstractComponent {
                     <ScrollView ref={this.scrollRef} style={{flex: 1}} keyboardShouldPersistTaps="handled">
                     {displayTimer ?
                         <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.state.formElementGroup}/> : null}
-                    <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.programEncounter.latestEntityApprovalStatus}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstFormPage() ?
                             <View>

@@ -29,10 +29,10 @@ import Colors from "../primitives/Colors";
 import DGS from "../primitives/DynamicGlobalStyles";
 import HouseholdState from "../../state/HouseholdState";
 import {AvniAlert} from "../common/AvniAlert";
-import {RejectionMessage} from "../approval/RejectionMessage";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import UserInfoService from "../../service/UserInfoService";
 import SingleSelectMediaFormElement from "../form/formElement/SingleSelectMediaFormElement";
+import BackgroundDraftSaver from "../common/BackgroundDraftSaver";
 
 @Path('/SubjectRegisterView')
 class SubjectRegisterView extends AbstractComponent {
@@ -53,6 +53,16 @@ class SubjectRegisterView extends AbstractComponent {
 
     viewName() {
         return 'SubjectRegisterView';
+    }
+
+    onViewDidMount() {
+        this.backgroundDraftSaver = new BackgroundDraftSaver(this, Actions.ON_APP_BACKGROUND);
+        this.backgroundDraftSaver.start();
+    }
+
+    componentWillUnmount() {
+        this.backgroundDraftSaver && this.backgroundDraftSaver.stop();
+        super.componentWillUnmount();
     }
 
     getTitleForGroupSubject() {
@@ -94,7 +104,11 @@ class SubjectRegisterView extends AbstractComponent {
         return false;
     }
 
-    UNSAFE_componentWillMount() {
+    // Deferred out of willMount: this dispatch builds the form's initial state and blocks the JS
+    // thread, which starved the navigation slide (avni-client#2054). The base class runs it once the
+    // scene transition has painted and shows renderLoading() until then, so the form is never drawn
+    // half-built. Same rules, same order, same result - only when it runs changes.
+    loadData() {
         const params = this.props.params;
         this.dispatchAction(Actions.ON_LOAD, {
             subjectUUID: params.subjectUUID,
@@ -107,7 +121,6 @@ class SubjectRegisterView extends AbstractComponent {
                 this.dispatchAction(Actions.USE_THIS_STATE, {state: newState});
             }
         });
-        return super.UNSAFE_componentWillMount();
     }
 
     onAppHeaderBack(saveDraftOn) {
@@ -139,7 +152,7 @@ class SubjectRegisterView extends AbstractComponent {
         }
     }
 
-    render() {
+    renderLoaded() {
         General.logDebug(this.viewName(), 'render');
         {
             this.displayMessage(this.props.message)
@@ -168,7 +181,6 @@ class SubjectRegisterView extends AbstractComponent {
                     <AppHeader title={title}
                            func={() => this.onAppHeaderBack(this.state.saveDrafts)}
                            displayHomePressWarning={!this.state.saveDrafts}/>
-                        <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.subject.latestEntityApprovalStatus}/>
 
                         <GeolocationFormElement
                             actionName={Actions.SET_LOCATION}

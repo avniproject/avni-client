@@ -47,6 +47,11 @@ class BaseAuthProviderService extends BaseService {
         return this.settingsService.getSettings();
     }
 
+    // Overridden by providers that cache a session locally.
+    getCachedSessionClockInfo() {
+        return {};
+    }
+
     async getUserName() {
         const settings = this.getAuthSettings();
         return settings.userId;

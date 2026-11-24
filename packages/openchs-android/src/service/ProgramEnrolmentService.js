@@ -13,6 +13,7 @@ import EntityApprovalStatusService from "./EntityApprovalStatusService";
 import GroupSubjectService from "./GroupSubjectService";
 import RuleEvaluationService from "./RuleEvaluationService";
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
+import UpdateMode from "../repository/UpdateMode";
 
 @Service("ProgramEnrolmentService")
 class ProgramEnrolmentService extends BaseService {
@@ -61,52 +62,51 @@ class ProgramEnrolmentService extends BaseService {
     updateObservations(programEnrolment, workflowInfo) {
         if (!_.isNil(workflowInfo))
             this.checkAndNotifyForRemovedObservations(programEnrolment, workflowInfo);
-        const db = this.db;
         programEnrolment.updateAudit(this.getUserInfo(), false);
-        this.db.write(() => {
+        this.transactionManager.write(() => {
             ProgramEnrolmentService.convertObsForSave(programEnrolment);
-            db.create(ProgramEnrolment.schema.name, {
+            this.repository.create({
                 uuid: programEnrolment.uuid,
                 observations: programEnrolment.observations,
                 programExitObservations: programEnrolment.programExitObservations
-            }, Realm.UpdateMode.Modified);
-            db.create(EntityQueue.schema.name, EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
+            }, UpdateMode.Modified);
+            this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
         });
     }
 
     enrol(programEnrolment, checklists = [], nextScheduledVisits, skipCreatingPendingStatus, groupSubjectObservations = []) {
-        const db = this.db;
         const entityQueueItems = [];
         const programEncounterService = this.getService(ProgramEncounterService);
         const entityApprovalStatusService = this.getService(EntityApprovalStatusService);
         const individual = this.findByUUID(programEnrolment.individual.uuid, Individual.schema.name);
         const isApprovalEnabled = this.getService(FormMappingService).isApprovalEnabledForProgramForm(individual.subjectType, programEnrolment.program);
         const isNew = this.isNew(programEnrolment);
-        this.db.write(() => {
+        this.transactionManager.write(() => {
             ProgramEnrolmentService.convertObsForSave(programEnrolment);
             if (!skipCreatingPendingStatus && isApprovalEnabled)
-                entityApprovalStatusService.createPendingStatus(programEnrolment, ProgramEnrolment.schema.name, db, programEnrolment.program.uuid);
-            programEnrolment = db.create(ProgramEnrolment.schema.name, programEnrolment, Realm.UpdateMode.Modified);
+                entityApprovalStatusService.createPendingStatus(programEnrolment, ProgramEnrolment.schema.name, programEnrolment.program.uuid);
             programEnrolment.updateAudit(this.getUserInfo(), isNew);
+            programEnrolment = this.repository.create(programEnrolment, UpdateMode.Modified);
             entityQueueItems.push(EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
             this.getService(MediaQueueService).addMediaToQueue(programEnrolment, ProgramEnrolment.schema.name);
-            programEncounterService.saveScheduledVisits(programEnrolment, nextScheduledVisits, db, programEnrolment.enrolmentDateTime);
+            programEncounterService.saveScheduledVisits(programEnrolment, nextScheduledVisits, programEnrolment.enrolmentDateTime);
             const checklistService = this.getService(ChecklistService);
             checklists
-                .map((checklist) => checklistService.saveOrUpdate.bind(this)(programEnrolment, checklist, db))
+                .map((checklist) => checklistService.saveOrUpdate.bind(this)(programEnrolment, checklist))
                 .reduce((acc, v) => acc.concat(v), [])
                 .forEach((eq) => entityQueueItems.push(eq));
 
             General.logDebug('ProgramEnrolmentService', 'Checklist added to ProgramEnrolment');
 
             individual.addEnrolment(programEnrolment);
+            this.getRepository(Individual.schema.name).create(individual, true);
             General.logDebug('ProgramEnrolmentService', 'ProgramEnrolment added to Individual');
 
             const enrolmentForm = this.getService(FormMappingService).findFormForProgramEnrolment(programEnrolment.program, individual.subjectType);
             this.getService(IdentifierAssignmentService).assignPopulatedIdentifiersFromObservations(enrolmentForm, programEnrolment.observations, null, programEnrolment);
 
-            entityQueueItems.forEach((entityQueue) => db.create(EntityQueue.schema.name, entityQueue));
-            _.forEach(groupSubjectObservations, this.getService(GroupSubjectService).addSubjectToGroup(individual, db));
+            entityQueueItems.forEach((entityQueue) => this.getRepository(EntityQueue.schema.name).create(entityQueue));
+            _.forEach(groupSubjectObservations, this.getService(GroupSubjectService).addSubjectToGroup(individual));
         });
         return programEnrolment;
     }
@@ -114,30 +114,29 @@ class ProgramEnrolmentService extends BaseService {
     exit(programEnrolment, skipCreatingPendingStatus, groupSubjectObservations = []) {
         const entityApprovalStatusService = this.getService(EntityApprovalStatusService);
         ProgramEnrolmentService.convertObsForSave(programEnrolment);
-        const db = this.db;
         const individual = this.findByUUID(programEnrolment.individual.uuid, Individual.schema.name);
         const isApprovalEnabled = this.getService(FormMappingService).isApprovalEnabledForProgramForm(individual.subjectType, programEnrolment.program, true);
-        this.db.write(() => {
+        this.transactionManager.write(() => {
             if (!skipCreatingPendingStatus && isApprovalEnabled)
-                entityApprovalStatusService.createPendingStatus(programEnrolment, ProgramEnrolment.schema.name, db, programEnrolment.program.uuid);
-            db.create(ProgramEnrolment.schema.name, programEnrolment, Realm.UpdateMode.Modified);
+                entityApprovalStatusService.createPendingStatus(programEnrolment, ProgramEnrolment.schema.name, programEnrolment.program.uuid);
             programEnrolment.updateAudit(this.getUserInfo(), false);
-            db.create(EntityQueue.schema.name, EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
-            _.forEach(groupSubjectObservations, this.getService(GroupSubjectService).addSubjectToGroup(individual, db));
+            this.repository.create(programEnrolment, UpdateMode.Modified);
+            this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
+            _.forEach(groupSubjectObservations, this.getService(GroupSubjectService).addSubjectToGroup(individual));
         });
     }
 
     getAllEnrolments(programUUID) {
-        return this.db.objects(ProgramEnrolment.schema.name).filtered(`program.uuid == \"${programUUID}\"`).sorted('enrolmentDateTime', true);
+        return this.repository.findAll().filtered(`program.uuid == \"${programUUID}\"`).sorted('enrolmentDateTime', true);
     }
 
     reJoinProgram(programEnrolment, oldExitObservations) {
         ProgramEnrolmentService.convertObsForSave(programEnrolment);
         programEnrolment.updateAudit(this.getUserInfo(), false);
-        this.db.write(() => {
-            this.db.delete(oldExitObservations);
-            this.db.create(ProgramEnrolment.schema.name, programEnrolment, Realm.UpdateMode.Modified);
-            this.db.create(EntityQueue.schema.name, EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
+        this.transactionManager.write(() => {
+            this.repository.deleteInTransaction(oldExitObservations);
+            this.repository.create(programEnrolment, UpdateMode.Modified);
+            this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
         });
     }
 

@@ -23,6 +23,8 @@ import ZeroResults from "../common/ZeroResults";
 import FloatingButton from "../primitives/FloatingButton";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import SubjectRegisterFromTaskView from "./SubjectRegisterFromTaskView";
+import deferPastInteractions from "../../utility/deferPastInteractions";
+import Perf from "../../utility/perf";
 import _ from "lodash";
 
 @Path('/individualSearchResultPaginatedView')
@@ -45,9 +47,11 @@ class IndividualSearchResultPaginatedView extends AbstractComponent {
         return 'IndividualSearchResultPaginatedView';
     }
 
+    // Deferred rather than dismissed on mount: this is the dashboard's full-screen modal, and it is
+    // what covers the navigation slide while PaginatedView below builds its first chunk.
     onViewDidMount() {
         if (this.props.indicatorActionName) {
-            setTimeout(() => this.dispatchAction(this.props.indicatorActionName, {loading: false}), 0);
+            this.runAfterSceneTransition(() => this.dispatchAction(this.props.indicatorActionName, {loading: false}));
         }
     }
 
@@ -84,7 +88,27 @@ export const PaginatedView = ({results, onIndividualSelection, currentPage, titl
     const [dataSource, setDataSource] = useState([]);
     const [offset, setOffset] = useState(0);
 
-    useEffect(() => updateDataSource(), []);
+    // Deferred: each card reads the subject's enrolments, address and search-result observations out
+    // of Realm, and building the first chunk on mount starves the navigation slide in from the
+    // dashboard. The spinner below covers the wait.
+    useEffect(() => {
+        let cancelled = false;
+        // Still on the pre-#2054 trigger. This sits in a FUNCTION component, so the class contract's
+        // runAfterSceneTransition cannot reach it - migrating needs either a hook over the scene-focus
+        // registry or the work lifted to the class above. Marked so the timeline shows it. (#2089)
+        const _tArmed = Date.now();
+        deferPastInteractions(() => {
+            if (cancelled) return;
+            Perf.mark("legacyDefer.fired", () => ({view: "PaginatedView", sinceArmedMs: Date.now() - _tArmed}));
+            Perf.time("PaginatedView.firstChunk", () => updateDataSource(), () => ({totalCount}));
+        });
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    // Up to the 2s deferral cap the header would otherwise read "N matching results / displayed: 0".
+    const pendingFirstChunk = dataSource.length === 0 && totalCount > 0;
 
     const updateDataSource = () => {
         setLoading(true);
@@ -158,17 +182,21 @@ export const PaginatedView = ({results, onIndividualSelection, currentPage, titl
     return (
         <CHSContainer theme={{iconFamily: 'MaterialIcons'}} style={{backgroundColor: Colors.GreyContentBackground}}>
             <AppHeader title={I18n.t(title)} func={backFunction}/>
-            <SearchResultsHeader totalCount={totalCount} displayedCount={dataSource.length} displayResultCounts={true}/>
+            <SearchResultsHeader totalCount={totalCount} displayedCount={dataSource.length}
+                                 displayResultCounts={!pendingFirstChunk}/>
             <CHSContent>
-                <SafeAreaView style={{flex: 1}}>
-                    <FlatList
-                        data={dataSource}
-                        keyExtractor={(item) => item.uuid}
-                        enableEmptySections={true}
-                        renderItem={ItemView}
-                        ListFooterComponent={renderFooter}
-                    />
-                </SafeAreaView>
+                {pendingFirstChunk ?
+                    <ActivityIndicator size="large" color={Colors.DarkPrimaryColor}
+                                       style={{flex: 1, justifyContent: 'center', alignSelf: 'center'}}/> :
+                    <SafeAreaView style={{flex: 1}}>
+                        <FlatList
+                            data={dataSource}
+                            keyExtractor={(item) => item.uuid}
+                            enableEmptySections={true}
+                            renderItem={ItemView}
+                            ListFooterComponent={renderFooter}
+                        />
+                    </SafeAreaView>}
                 <ZeroResults count={totalCount}/>
             </CHSContent>
             {!_.isNil(taskUuid) && <FloatingButton buttonTextKey="register" onClick={onRegisterClick}/>}

@@ -1,6 +1,6 @@
 import Path from "../../framework/routing/Path";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import {ActivityIndicator, InteractionManager, SectionList, StyleSheet, Text} from "react-native";
+import {ActivityIndicator, SectionList, StyleSheet, Text} from "react-native";
 import _ from "lodash";
 import IndividualDetails from "./IndividualDetails";
 import React, {Fragment} from "react";
@@ -14,12 +14,14 @@ import Colors from "../primitives/Colors";
 import Distances from "../primitives/Distances";
 import Styles from '../primitives/Styles';
 import {View} from 'native-base';
+import deferPastInteractions from "../../utility/deferPastInteractions";
 
 const BATCH_SIZE = 30;
 
 @Path('/IndividualListView')
 class IndividualListView extends AbstractComponent {
     static propTypes = {
+        loading: PropTypes.bool,
         results: PropTypes.array.isRequired,
         totalSearchResultsCount: PropTypes.number.isRequired,
         headerTitle: PropTypes.string.isRequired,
@@ -44,29 +46,45 @@ class IndividualListView extends AbstractComponent {
     }
 
     onViewDidMount() {
-        if (this.props.results.length > 0) {
-            this._initBatch();
-        } else {
+        if (this.props.results.length === 0) {
+            this.dismissLoadingIndicator();
             this.setState({listReady: true});
-            if (this.props.indicatorActionName) {
-                this.dispatchAction(this.props.indicatorActionName, {loading: false});
-            }
+            return;
+        }
+        // Every card in the batch reads the subject's enrolments, address and search-result
+        // observations out of Realm; doing that on mount starves the JS-thread-driven slide in from
+        // the dashboard and freezes it part way. The dashboard's loading modal stays up over the
+        // whole transition, so nothing uncovers it mid-slide.
+        // evenIfUnmounted: the modal belongs to the dashboard we came from, so it must be dismissed
+        // even if the user has already pressed back. The batch build below is still guarded.
+        this.runAfterSceneTransition(() => {
+            this.dismissLoadingIndicator();
+            if (this._isUnmounted) return;
+            this._initBatch();
+        }, {evenIfUnmounted: true});
+    }
+
+    // Owned by the screen we came from, so it has to be dismissed even if we are already gone.
+    dismissLoadingIndicator() {
+        if (this.props.indicatorActionName) {
+            this.dispatchAction(this.props.indicatorActionName, {loading: false});
         }
     }
 
     componentDidUpdate(prevProps) {
-        if (this.state.items.length === 0 && prevProps.results.length === 0 && this.props.results.length > 0) {
-            this._initBatch();
+        if (prevProps.results === this.props.results) return;
+        if (this.state.items.length === 0 && prevProps.results.length === 0) {
+            if (this.props.results.length > 0) this._initBatch();
+            return;
         }
+        // Until the first batch is built, _initBatch will slice the latest results itself.
+        if (!this.state.listReady) return;
+        this.setState({items: this.sliceBatch(0), loadingMore: false});
     }
 
     _initBatch() {
         if (this.state.items.length > 0) return;
-        const batch = this.sliceBatch(0);
-        this.setState({listReady: true, items: batch});
-        if (this.props.indicatorActionName) {
-            this.dispatchAction(this.props.indicatorActionName, {loading: false});
-        }
+        this.setState({listReady: true, items: this.sliceBatch(0)});
     }
 
     sliceBatch(offset) {
@@ -86,8 +104,13 @@ class IndividualListView extends AbstractComponent {
         if (this.state.loadingMore) return;
         const nextOffset = this.state.items.length;
         if (nextOffset >= this.props.results.length) return;
+        // deferPastInteractions, not runAfterInteractions: a leaked interaction handle would leave
+        // loadingMore stuck true, and pagination dead for the rest of the screen's life.
         this.setState({loadingMore: true}, () => {
-            InteractionManager.runAfterInteractions(() => this.loadBatch(nextOffset));
+            deferPastInteractions(() => {
+                if (this._isUnmounted) return;
+                this.loadBatch(nextOffset);
+            });
         });
     }
 
@@ -146,7 +169,7 @@ class IndividualListView extends AbstractComponent {
                 {/* <SearchResultsHeader
                     totalCount={this.props.totalSearchResultsCount}
                     displayedCount={this.props.totalSearchResultsCount}/> */}
-                {this.state.listReady ? (
+                {this.state.listReady && !this.props.loading ? (
                     <SectionList
                         style={{marginBottom: 16, flex: 1}}
                         keyExtractor={(item, index) => item.uuid || item.individual.uuid}

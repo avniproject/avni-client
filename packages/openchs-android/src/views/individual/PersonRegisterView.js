@@ -27,10 +27,10 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import HouseholdState from "../../state/HouseholdState";
 import {AvniAlert} from "../common/AvniAlert";
-import {RejectionMessage} from "../approval/RejectionMessage";
 import SingleSelectMediaFormElement from "../form/formElement/SingleSelectMediaFormElement";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import EntityService from "../../service/EntityService";
+import BackgroundDraftSaver from "../common/BackgroundDraftSaver";
 
 @Path('/personRegister')
 class PersonRegisterView extends AbstractComponent {
@@ -50,6 +50,16 @@ class PersonRegisterView extends AbstractComponent {
 
     viewName() {
         return 'PersonRegisterView';
+    }
+
+    onViewDidMount() {
+        this.backgroundDraftSaver = new BackgroundDraftSaver(this, Actions.ON_APP_BACKGROUND);
+        this.backgroundDraftSaver.start();
+    }
+
+    componentWillUnmount() {
+        this.backgroundDraftSaver && this.backgroundDraftSaver.stop();
+        super.componentWillUnmount();
     }
 
     getTitleForGroupSubject(){
@@ -74,7 +84,11 @@ class PersonRegisterView extends AbstractComponent {
         return this.getTitleForGroupSubject() || this.getTitleForSubjectRegistration() || regName || 'REG_DISPLAY-Individual';
     }
 
-    UNSAFE_componentWillMount() {
+    // Deferred out of willMount: this dispatch builds the form's initial state and blocks the JS
+    // thread, which starved the navigation slide (avni-client#2054). The base class runs it once the
+    // scene transition has painted and shows renderLoading() until then, so the form is never drawn
+    // half-built. Same rules, same order, same result - only when it runs changes.
+    loadData() {
         const params = this.props.params;
         this.dispatchAction(Actions.ON_LOAD,
             {
@@ -88,7 +102,6 @@ class PersonRegisterView extends AbstractComponent {
                     this.dispatchAction(Actions.USE_THIS_STATE, {state: newState});
                 }
             });
-        super.UNSAFE_componentWillMount();
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -121,7 +134,7 @@ class PersonRegisterView extends AbstractComponent {
         return true;
     }
 
-    render() {
+    renderLoaded() {
         General.logDebug(this.viewName(), `render`);
         const profilePicFormElement = new StaticFormElement("profilePicture", false, 'Profile-Pics', []);
         const title = `${this.I18n.t(this.registrationType)} ${this.I18n.t('registration')}`;
@@ -140,7 +153,6 @@ class PersonRegisterView extends AbstractComponent {
                 <CHSContent>
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
-                    <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.individual.latestEntityApprovalStatus}/>
                     <ScrollView keyboardShouldPersistTaps="handled"
                         ref={this.scrollRef} style={{
                         flex: 1,

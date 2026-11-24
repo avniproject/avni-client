@@ -4,6 +4,7 @@ import ErrorStackParser from "error-stack-parser";
 import EnvironmentConfig from "../EnvironmentConfig";
 import General from "../../utility/General";
 import bugsnag from "../../utility/bugsnag";
+import {isExpectedTransientNetworkError} from "./ExpectedTransientNetworkError";
 
 function createNavigableStackTrace(stackFrames) {
     return stackFrames.map((sf) => {
@@ -22,7 +23,12 @@ class ErrorUtil {
     }
 
     static getAvniErrorSync(error) {
-        return AvniError.createFromUserMessageAndStackTrace(error.message, createNavigableStackTrace(ErrorStackParser.parse(error)));
+        try {
+            return AvniError.createFromUserMessageAndStackTrace(error.message, createNavigableStackTrace(ErrorStackParser.parse(error)));
+        } catch (e) {
+            console.error("ErrorUtil.getAvniErrorSync: failed to parse error object:", error);
+            return AvniError.createFromUserMessageAndStackTrace(String(error.message || error), "No stack available");
+        }
     }
 
     static getNavigableStackTraceSync(error) {
@@ -49,7 +55,12 @@ class ErrorUtil {
         });
     }
 
-    static notifyBugsnag(error, source) {
+    // Every reporter passes through here, so a transient network failure is left out once, for all of them.
+    static notifyBugsnag(error, source, {reportTransient = false} = {}) {
+        if (!reportTransient && isExpectedTransientNetworkError(error)) {
+            General.logDebug('Bugsnag', `Not reporting an expected transient network failure: ${source} - ${error.message}`);
+            return Promise.resolve(error);
+        }
         return ErrorUtil.createBugsnagStackFrames(error).then((frameArray) => {
             if (EnvironmentConfig.inNonDevMode()) {
                 General.logDebug('ErrorHandler', `Notifying Bugsnag: ${source}`);

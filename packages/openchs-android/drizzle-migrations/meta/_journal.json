@@ -1,0 +1,69 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1774266493259,
+      "tag": "0000_initial",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1777292036708,
+      "tag": "0001_custom_card_config_and_report_card_actions",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1777367952391,
+      "tag": "0002_add_high_value_indexes",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1780487227995,
+      "tag": "0003_models_1_33_37_to_1_33_65_field_additions",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1781520165648,
+      "tag": "0004_json_array_list_columns",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1784088378718,
+      "tag": "0005_add_downloadable_content_and_1_33_71",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1788351930467,
+      "tag": "0006_add_entity_approval_status_entity_uuid_index",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1789706853655,
+      "tag": "0007_entity_approval_status_observations",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1789706854499,
+      "tag": "0008_program_encounter_pending_visits",
+      "breakpoints": true
+    }
+  ]
+}

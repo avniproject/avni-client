@@ -21,7 +21,6 @@ import Distances from "../primitives/Distances";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import {AvniAlert} from "../common/AvniAlert";
-import {RejectionMessage} from "../approval/RejectionMessage";
 
 @Path('/ChecklistItemView')
 class ChecklistItemView extends AbstractComponent {
@@ -59,7 +58,8 @@ class ChecklistItemView extends AbstractComponent {
                 const headerMessage = `${this.I18n.t(state.checklistItem.checklist.programEnrolment.program.displayName)}, ${this.I18n.t(state.checklistItem.checklist.detail.name)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.checklistItem.checklist.programEnrolment.individual, state.checklistItem.observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, state.checklistItem.detail.form, null, null, false,  false, state.checklistItem.isRejectedEntity(), state.checklistItem.latestEntityApprovalStatus);
             },
-            movedNext: this.scrollToTop
+            movedNext: this.scrollToTop,
+            validationFailed: this.scrollToStaticFieldError
         });
     }
 
@@ -80,7 +80,6 @@ class ChecklistItemView extends AbstractComponent {
                     <ScrollView ref={this.scrollRef}>
                     <AppHeader title={this.state.checklistItem.checklist.programEnrolment.individual.nameString}
                                func={() => this.onAppHeaderBack()} displayHomePressWarning={true}/>
-                    <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.checklistItem.latestEntityApprovalStatus}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstFormPage() ?
                             <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGED}

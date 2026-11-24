@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-    PermissionsAndroid,
     StyleSheet,
     TouchableNativeFeedback,
     TouchableOpacity,
@@ -16,28 +15,13 @@ import FileSystem from "../../../model/FileSystem";
 import {AlertMessage} from "../../common/AlertMessage";
 import fs from "react-native-fs";
 import {FileFormat} from 'avni-models';
-import DeviceInfo from "react-native-device-info";
+import DevicePermissions from "../../../utility/DevicePermissions";
 import _ from "lodash";
 
 class FileFormElement extends AbstractFormElement {
 
     constructor(props, context) {
         super(props, context);
-    }
-
-    async isPermissionGranted() {
-        const apiLevel = await DeviceInfo.getApiLevel();
-
-        if (apiLevel >= General.STORAGE_PERMISSIONS_DEPRECATED_API_LEVEL) return true;
-
-        const permissionRequest = await PermissionsAndroid.requestMultiple(
-            [
-                PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-                PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
-            ]
-        );
-
-        return _.every(permissionRequest, permission => permission === PermissionsAndroid.RESULTS.GRANTED);
     }
 
     getFileName(name = "") {
@@ -70,7 +54,7 @@ class FileFormElement extends AbstractFormElement {
         const applicableTypes = _.isEmpty(formElement.allowedTypes) ? [types.allFiles] : formElement.allowedTypes;
         const options = {type: applicableTypes, allowMultiSelection: formElement.isMultiSelect()};
         const directory = FileSystem.getFileDir();
-        if (await this.isPermissionGranted()) {
+        if (await DevicePermissions.request()) {
             pick(options)
                 .then((response) => {
                     response.map(responseItem => {

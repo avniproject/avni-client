@@ -1,0 +1,1781 @@
+/**
+ * RealmQueryParser - Translates Realm query strings to SQL WHERE clauses.
+ *
+ * Supported Realm query features:
+ * - Comparison operators: =, ==, !=, <>, <, >, <=, >=
+ * - String operators: CONTAINS, BEGINSWITH, ENDSWITH, LIKE (with [c] case-insensitive modifier)
+ * - Logical operators: AND, OR, NOT
+ * - Parentheses for grouping
+ * - Parameter substitution: $0, $1, ... $N
+ * - Dot-notation paths (e.g., individual.uuid) → generate JOINs
+ * - null comparison
+ * - String literals with single or double quotes
+ * - Boolean literals: true, false
+ *
+ * Patterns routed to JS fallback (JsFallbackFilterEvaluator):
+ * - TRUEPREDICATE [sort(...)] [Distinct(...)] is translated to SQL (ORDER BY / ROW_NUMBER
+ *   window); only out-of-grammar TRUEPREDICATE forms (unparseable sort keys, reversed
+ *   "Distinct(...) sort(...)" order, extra predicates) fall back to JS.
+ * - SUBQUERY(listProp, $var, conds).@count OP N — list sub-filtering
+ * - listProp.@count / @size OP N — collection size check
+ * - ANY listProp.field OP value — quantifier over list elements
+ * - limit(N) — inline result limit
+ * - @links.@count — inverse relationships (not evaluable, fails loud)
+ * - ALL, NONE quantifiers, @sum/@avg/@min/@max aggregates (unused in codebase)
+ */
+
+import _ from "lodash";
+import {camelToSnake, schemaNameToTableName, normalizeRealmType} from "./SqliteUtils";
+import {EMBEDDED_SCHEMA_NAMES} from "./SchemaGenerator";
+import General from "../../utility/General";
+import {parseDescriptors, parseSortKeys, parseDistinctFields} from "./SortDistinctGrammar";
+
+// Query strings whose TRUEPREDICATE translation has already been reported this session. One
+// dashboard render runs the same failing query on every card that uses it, and each render
+// repeats the set, so reporting per call would bury the signal in duplicates.
+const reportedTranslationFailures = new Set();
+
+const TOKEN_TYPES = {
+    STRING: "STRING",
+    NUMBER: "NUMBER",
+    BOOLEAN: "BOOLEAN",
+    NULL: "NULL",
+    IDENTIFIER: "IDENTIFIER",
+    PARAMETER: "PARAMETER",
+    OPERATOR: "OPERATOR",
+    COMPARISON: "COMPARISON",
+    LPAREN: "LPAREN",
+    RPAREN: "RPAREN",
+    LBRACE: "LBRACE",
+    RBRACE: "RBRACE",
+    COMMA: "COMMA",
+    IN: "IN",
+    AND: "AND",
+    OR: "OR",
+    NOT: "NOT",
+    STRING_OP: "STRING_OP",
+};
+
+class Token {
+    constructor(type, value) {
+        this.type = type;
+        this.value = value;
+    }
+}
+
+class UnsupportedRealmQueryError extends Error {
+    constructor(query, reason) {
+        super(`Unsupported Realm query: ${reason} in "${query}"`);
+        this.name = "UnsupportedRealmQueryError";
+        this.query = query;
+        this.reason = reason;
+    }
+}
+
+// ──────────────── Tokenizer ────────────────
+
+/**
+ * Coerce a JS value from the query's args into something SQLite can bind. Realm accepts
+ * Dates, entity instances and booleans as parameters; the driver accepts only numbers,
+ * strings, bigints, buffers and null. Single source for every binding site.
+ */
+function toBindValue(value) {
+    if (value instanceof Date) return value.getTime();
+    if (typeof value === "boolean") return value ? 1 : 0;
+    // Realm allows comparing a link property to an entity instance ("subjectType = $0" with a
+    // SubjectType object) — bind its PK, matching the _uuid FK column the field resolves to.
+    if (!_.isNil(value) && typeof value === "object" && !_.isNil(value.uuid)) return value.uuid;
+    return value;
+}
+
+/**
+ * FK column on the child table that points back at the parent — the child's object property
+ * whose objectType is the parent, else the naming convention. Single source for every place
+ * that needs to link a list back to its owner.
+ */
+function childFkColumn(parentSchemaName, childSchemaName, schemaMap) {
+    const childSchema = schemaMap.get(childSchemaName);
+    if (childSchema) {
+        for (const [propName, propDef] of Object.entries(childSchema.properties || {})) {
+            if (typeof propDef === "object" && propDef.type === "object" && propDef.objectType === parentSchemaName) {
+                return `${camelToSnake(propName)}_uuid`;
+            }
+        }
+    }
+    return `${camelToSnake(parentSchemaName)}_uuid`;
+}
+
+function tokenize(query) {
+    const tokens = [];
+    let i = 0;
+    const len = query.length;
+
+    while (i < len) {
+        // Skip whitespace
+        if (/\s/.test(query[i])) {
+            i++;
+            continue;
+        }
+
+        // Parentheses
+        if (query[i] === "(") {
+            tokens.push(new Token(TOKEN_TYPES.LPAREN, "("));
+            i++;
+            continue;
+        }
+        if (query[i] === ")") {
+            tokens.push(new Token(TOKEN_TYPES.RPAREN, ")"));
+            i++;
+            continue;
+        }
+        if (query[i] === "{") {
+            tokens.push(new Token(TOKEN_TYPES.LBRACE, "{"));
+            i++;
+            continue;
+        }
+        if (query[i] === "}") {
+            tokens.push(new Token(TOKEN_TYPES.RBRACE, "}"));
+            i++;
+            continue;
+        }
+        if (query[i] === ",") {
+            tokens.push(new Token(TOKEN_TYPES.COMMA, ","));
+            i++;
+            continue;
+        }
+
+        // String literals (single or double quoted)
+        if (query[i] === '"' || query[i] === "'") {
+            const quote = query[i];
+            let str = "";
+            i++; // skip opening quote
+            while (i < len && query[i] !== quote) {
+                if (query[i] === "\\" && i + 1 < len) {
+                    str += query[i + 1];
+                    i += 2;
+                } else {
+                    str += query[i];
+                    i++;
+                }
+            }
+            i++; // skip closing quote
+            tokens.push(new Token(TOKEN_TYPES.STRING, str));
+            continue;
+        }
+
+        // Parameter substitution ($0, $1, etc.)
+        if (query[i] === "$") {
+            let num = "";
+            i++; // skip $
+            while (i < len && /\d/.test(query[i])) {
+                num += query[i];
+                i++;
+            }
+            tokens.push(new Token(TOKEN_TYPES.PARAMETER, parseInt(num, 10)));
+            continue;
+        }
+
+        // Two-character logical operators (Realm accepts && and || as AND/OR)
+        if (i + 1 < len) {
+            const two = query[i] + query[i + 1];
+            if (two === "&&") {
+                tokens.push(new Token(TOKEN_TYPES.AND, "AND"));
+                i += 2;
+                continue;
+            }
+            if (two === "||") {
+                tokens.push(new Token(TOKEN_TYPES.OR, "OR"));
+                i += 2;
+                continue;
+            }
+
+            // Two-character comparison operators
+            if (two === "<=" || two === ">=" || two === "!=" || two === "<>" || two === "==") {
+                tokens.push(new Token(TOKEN_TYPES.COMPARISON, two === "==" ? "=" : two));
+                i += 2;
+                continue;
+            }
+        }
+
+        // Bare ! negation (Realm accepts it as NOT). Reached only after the two-char
+        // check above has claimed "!=", so this can't swallow an inequality.
+        if (query[i] === "!") {
+            tokens.push(new Token(TOKEN_TYPES.NOT, "NOT"));
+            i++;
+            continue;
+        }
+
+        // Single-character comparison operators
+        if (query[i] === "=" || query[i] === "<" || query[i] === ">") {
+            tokens.push(new Token(TOKEN_TYPES.COMPARISON, query[i]));
+            i++;
+            continue;
+        }
+
+        // Numbers (including negative and decimal)
+        if (/[\d]/.test(query[i]) || (query[i] === "-" && i + 1 < len && /\d/.test(query[i + 1]))) {
+            let num = "";
+            if (query[i] === "-") {
+                num = "-";
+                i++;
+            }
+            while (i < len && /[\d.]/.test(query[i])) {
+                num += query[i];
+                i++;
+            }
+            tokens.push(new Token(TOKEN_TYPES.NUMBER, parseFloat(num)));
+            continue;
+        }
+
+        // Identifiers and keywords
+        if (/[a-zA-Z_@]/.test(query[i])) {
+            let ident = "";
+            while (i < len && /[a-zA-Z0-9_.\-@]/.test(query[i])) {
+                ident += query[i];
+                i++;
+            }
+
+            const upper = ident.toUpperCase();
+
+            // Check for [c] modifier following string operators
+            if (["CONTAINS", "BEGINSWITH", "ENDSWITH", "LIKE"].includes(upper)) {
+                let caseInsensitive = false;
+                // Check for [c] modifier
+                const remaining = query.substring(i);
+                const ciMatch = remaining.match(/^\s*\[c\]/i);
+                if (ciMatch) {
+                    caseInsensitive = true;
+                    i += ciMatch[0].length;
+                }
+                tokens.push(new Token(TOKEN_TYPES.STRING_OP, {op: upper, caseInsensitive}));
+                continue;
+            }
+
+            if (upper === "IN") {
+                tokens.push(new Token(TOKEN_TYPES.IN, "IN"));
+                continue;
+            }
+
+            if (upper === "AND") {
+                tokens.push(new Token(TOKEN_TYPES.AND, "AND"));
+            } else if (upper === "OR") {
+                tokens.push(new Token(TOKEN_TYPES.OR, "OR"));
+            } else if (upper === "NOT") {
+                tokens.push(new Token(TOKEN_TYPES.NOT, "NOT"));
+            } else if (upper === "TRUE") {
+                tokens.push(new Token(TOKEN_TYPES.BOOLEAN, true));
+            } else if (upper === "FALSE") {
+                tokens.push(new Token(TOKEN_TYPES.BOOLEAN, false));
+            } else if (upper === "NULL" || upper === "NIL") {
+                tokens.push(new Token(TOKEN_TYPES.NULL, null));
+            } else {
+                tokens.push(new Token(TOKEN_TYPES.IDENTIFIER, ident));
+            }
+            continue;
+        }
+
+        // Unknown character — skip
+        i++;
+    }
+
+    return tokens;
+}
+
+// ──────────────── Parser → AST ────────────────
+
+class Parser {
+    constructor(tokens) {
+        this.tokens = tokens;
+        this.pos = 0;
+    }
+
+    peek() {
+        return this.pos < this.tokens.length ? this.tokens[this.pos] : null;
+    }
+
+    consume(expectedType) {
+        const token = this.tokens[this.pos];
+        if (expectedType && token?.type !== expectedType) {
+            throw new Error(`Expected ${expectedType} but got ${token?.type} (${token?.value}) at position ${this.pos}`);
+        }
+        this.pos++;
+        return token;
+    }
+
+    parse() {
+        const result = this.parseOr();
+        return result;
+    }
+
+    parseOr() {
+        let left = this.parseAnd();
+        while (this.peek()?.type === TOKEN_TYPES.OR) {
+            this.consume();
+            const right = this.parseAnd();
+            left = {type: "OR", left, right};
+        }
+        return left;
+    }
+
+    parseAnd() {
+        let left = this.parseNot();
+        while (this.peek()?.type === TOKEN_TYPES.AND) {
+            this.consume();
+            const right = this.parseNot();
+            left = {type: "AND", left, right};
+        }
+        return left;
+    }
+
+    parseNot() {
+        if (this.peek()?.type === TOKEN_TYPES.NOT) {
+            this.consume();
+            const expr = this.parsePrimary();
+            return {type: "NOT", expr};
+        }
+        return this.parsePrimary();
+    }
+
+    parsePrimary() {
+        const token = this.peek();
+
+        // Grouped expression
+        if (token?.type === TOKEN_TYPES.LPAREN) {
+            this.consume();
+            const expr = this.parseOr();
+            this.consume(TOKEN_TYPES.RPAREN);
+            return expr;
+        }
+
+        // Must be a comparison: identifier COMPARISON value, or identifier STRING_OP value
+        if (token?.type === TOKEN_TYPES.IDENTIFIER) {
+            const field = this.consume().value;
+            const opToken = this.peek();
+
+            if (opToken?.type === TOKEN_TYPES.COMPARISON) {
+                const op = this.consume().value;
+                const value = this.parseValue();
+                return {type: "COMPARISON", field, op, value};
+            }
+
+            if (opToken?.type === TOKEN_TYPES.STRING_OP) {
+                const {op, caseInsensitive} = this.consume().value;
+                const value = this.parseValue();
+                return {type: "STRING_OP", field, op, value, caseInsensitive};
+            }
+
+            // field IN {value1, value2, ...}  — Realm IN syntax
+            if (opToken?.type === TOKEN_TYPES.IN) {
+                this.consume(); // consume IN
+                this.consume(TOKEN_TYPES.LBRACE);
+                const values = [];
+                while (this.peek()?.type !== TOKEN_TYPES.RBRACE) {
+                    values.push(this.parseValue());
+                    if (this.peek()?.type === TOKEN_TYPES.COMMA) {
+                        this.consume();
+                    }
+                }
+                this.consume(TOKEN_TYPES.RBRACE);
+                return {type: "IN", field, values};
+            }
+
+            throw new Error(`Unexpected token after identifier "${field}": ${opToken?.type} ${opToken?.value}`);
+        }
+
+        throw new Error(`Unexpected token: ${token?.type} ${token?.value} at position ${this.pos}`);
+    }
+
+    parseValue() {
+        const token = this.peek();
+        if (!token) throw new Error("Unexpected end of query");
+
+        if (token.type === TOKEN_TYPES.STRING ||
+            token.type === TOKEN_TYPES.NUMBER ||
+            token.type === TOKEN_TYPES.BOOLEAN ||
+            token.type === TOKEN_TYPES.NULL ||
+            token.type === TOKEN_TYPES.PARAMETER) {
+            return this.consume();
+        }
+
+        throw new Error(`Expected value but got ${token.type} (${token.value})`);
+    }
+}
+
+// ──────────────── AST → SQL ────────────────
+
+class SqlGenerator {
+    constructor(schemaMap, rootSchemaName, args) {
+        this.schemaMap = schemaMap; // Map<schemaName, schema>
+        this.rootSchemaName = rootSchemaName;
+        this.args = args || [];
+        this.params = [];
+        this.joins = [];
+        this.joinAliases = new Map(); // dot-path → alias
+        this.aliasCounter = 0;
+    }
+
+    generate(ast) {
+        const where = this.visitNode(ast);
+        return {
+            where,
+            params: this.params,
+            joins: this.joins,
+        };
+    }
+
+    visitNode(node) {
+        switch (node.type) {
+            case "AND":
+                return `(${this.visitNode(node.left)} AND ${this.visitNode(node.right)})`;
+            case "OR":
+                return `(${this.visitNode(node.left)} OR ${this.visitNode(node.right)})`;
+            case "NOT":
+                return `NOT (${this.visitNode(node.expr)})`;
+            case "COMPARISON":
+                return this.visitComparison(node);
+            case "STRING_OP":
+                return this.visitStringOp(node);
+            case "IN":
+                return this.visitIn(node);
+            default:
+                throw new Error(`Unknown AST node type: ${node.type}`);
+        }
+    }
+
+    resolveField(fieldPath) {
+        const parts = fieldPath.split(".");
+        if (parts.length === 1) {
+            // Simple field on root table - convert camelCase to snake_case for column name
+            return {column: `t0."${this._columnForProperty(this.rootSchemaName, parts[0])}"`, needsJoin: false};
+        }
+
+        // Dot-notation: resolve through schema relationships
+        let currentSchema = this.rootSchemaName;
+        let currentAlias = "t0";
+        let pathSoFar = "";
+
+        for (let i = 0; i < parts.length - 1; i++) {
+            const propName = parts[i];
+            pathSoFar = pathSoFar ? `${pathSoFar}.${propName}` : propName;
+
+            if (this.joinAliases.has(pathSoFar)) {
+                currentAlias = this.joinAliases.get(pathSoFar);
+                const schema = this.schemaMap.get(currentSchema);
+                if (schema) {
+                    const propSchema = schema.properties[propName];
+                    if (propSchema?.objectType) {
+                        currentSchema = propSchema.objectType;
+                    }
+                }
+                continue;
+            }
+
+            const schema = this.schemaMap.get(currentSchema);
+            if (!schema) {
+                // Schema not found — fall back to simple column reference
+                return {column: `t0."${camelToSnake(fieldPath.replace(/\./g, "_"))}"`, needsJoin: false};
+            }
+
+            const propSchema = schema.properties[propName];
+            if (!propSchema || (propSchema.type !== "object" && propSchema.type !== "list")) {
+                // Not a relationship — treat as a nested column name
+                return {column: `${currentAlias}."${camelToSnake(propName)}"`, needsJoin: false};
+            }
+
+            const targetSchema = propSchema.objectType;
+
+            // Embedded list/object (Observation, Point, etc.) stored as JSON column on parent table.
+            // e.g., "observations.valueJSON" → search within the parent's "observations" JSON text column.
+            // Remaining path parts (e.g., "valueJSON") are ignored since the JSON is searched as text.
+            if (targetSchema && EMBEDDED_SCHEMA_NAMES.has(targetSchema)) {
+                return {column: `${currentAlias}."${camelToSnake(propName)}"`, needsJoin: false};
+            }
+
+            // A path ending "<link>.uuid" looks like it could skip the JOIN and read the
+            // link's own FK column instead — same value, one fewer join. It isn't the same
+            // value when the FK dangles: the JOIN is a LEFT JOIN, so a row whose parent is
+            // missing reads NULL, which is what Realm gives for a link to an absent object,
+            // while the FK column still holds the orphaned uuid. Those rows exist — FK
+            // enforcement is off for the whole of a sync (SyncService._disableForeignKeysIfSqlite),
+            // sync-time deletes don't walk every referencing table (Task.subject survives
+            // SubjectMigrationService.deleteSubjectAndChildren), and the post-sync
+            // PRAGMA foreign_key_check only reports what it finds. Reading the FK column
+            // would split one NULL Distinct partition into one per orphan and flip
+            // "link.uuid = null" the wrong way. Keep the JOIN.
+
+            const newAlias = `t${++this.aliasCounter}`;
+            const targetTableName = schemaNameToTableName(targetSchema);
+
+            if (propSchema.type === "list") {
+                // List property: reverse JOIN — child table has FK pointing back to parent
+                const childFkColumn = this._findChildFkColumn(currentSchema, targetSchema);
+                this.joins.push({
+                    table: targetTableName,
+                    alias: newAlias,
+                    on: `${newAlias}."${childFkColumn}" = ${currentAlias}."uuid"`,
+                });
+            } else {
+                // Object property: forward JOIN — parent has FK to child
+                const fkColumn = `${camelToSnake(propName)}_uuid`;
+                this.joins.push({
+                    table: targetTableName,
+                    alias: newAlias,
+                    on: `${currentAlias}."${fkColumn}" = ${newAlias}."uuid"`,
+                });
+            }
+
+            this.joinAliases.set(pathSoFar, newAlias);
+            currentAlias = newAlias;
+            currentSchema = targetSchema;
+        }
+
+        const lastPart = parts[parts.length - 1];
+        return {column: `${currentAlias}."${this._columnForProperty(currentSchema, lastPart)}"`, needsJoin: true};
+    }
+
+    /**
+     * Object-link properties are stored as "<prop>_uuid" FK columns (e.g.
+     * "programEnrolment = null" must hit program_enrolment_uuid). Embedded
+     * objects live in a JSON column under the plain name; everything else is
+     * a plain snake_case column.
+     */
+    _columnForProperty(schemaName, propName) {
+        const schema = this.schemaMap.get(schemaName);
+        const propSchema = schema?.properties?.[propName];
+        if (typeof propSchema === "object" && propSchema.type === "object" &&
+            !EMBEDDED_SCHEMA_NAMES.has(propSchema.objectType)) {
+            return `${camelToSnake(propName)}_uuid`;
+        }
+        return camelToSnake(propName);
+    }
+
+    _findChildFkColumn(parentSchemaName, childSchemaName) {
+        return childFkColumn(parentSchemaName, childSchemaName, this.schemaMap);
+    }
+
+    resolveValue(valueToken) {
+        if (valueToken.type === TOKEN_TYPES.PARAMETER) {
+            const idx = valueToken.value;
+            if (idx >= this.args.length) {
+                throw new Error(`Parameter $${idx} referenced but only ${this.args.length} args provided`);
+            }
+            this.params.push(toBindValue(this.args[idx]));
+            return "?";
+        }
+        if (valueToken.type === TOKEN_TYPES.NULL) {
+            return null; // handled specially in comparison
+        }
+        if (valueToken.type === TOKEN_TYPES.BOOLEAN) {
+            this.params.push(valueToken.value ? 1 : 0);
+            return "?";
+        }
+        if (valueToken.type === TOKEN_TYPES.NUMBER) {
+            this.params.push(valueToken.value);
+            return "?";
+        }
+        if (valueToken.type === TOKEN_TYPES.STRING) {
+            this.params.push(valueToken.value);
+            return "?";
+        }
+        throw new Error(`Unknown value token type: ${valueToken.type}`);
+    }
+
+    visitComparison(node) {
+        const {column} = this.resolveField(node.field);
+        const op = node.op === "<>" ? "!=" : node.op;
+
+        if (node.value.type === TOKEN_TYPES.NULL) {
+            return op === "=" ? `${column} IS NULL` : `${column} IS NOT NULL`;
+        }
+
+        const valuePlaceholder = this.resolveValue(node.value);
+        return `${column} ${op} ${valuePlaceholder}`;
+    }
+
+    visitStringOp(node) {
+        const {column} = this.resolveField(node.field);
+        const valuePlaceholder = this.resolveValue(node.value);
+        const ci = node.caseInsensitive;
+
+        // For case-insensitive, we wrap in LOWER()
+        const col = ci ? `LOWER(${column})` : column;
+        // If case-insensitive, we also need to lowercase the parameter
+        if (ci && this.params.length > 0) {
+            const lastIdx = this.params.length - 1;
+            if (typeof this.params[lastIdx] === "string") {
+                this.params[lastIdx] = this.params[lastIdx].toLowerCase();
+            }
+        }
+
+        switch (node.op) {
+            case "CONTAINS":
+                // Replace the last param with a LIKE pattern
+                if (this.params.length > 0) {
+                    const lastIdx = this.params.length - 1;
+                    this.params[lastIdx] = `%${this.params[lastIdx]}%`;
+                }
+                return `${col} LIKE ?`;
+            case "BEGINSWITH":
+                if (this.params.length > 0) {
+                    const lastIdx = this.params.length - 1;
+                    this.params[lastIdx] = `${this.params[lastIdx]}%`;
+                }
+                return `${col} LIKE ?`;
+            case "ENDSWITH":
+                if (this.params.length > 0) {
+                    const lastIdx = this.params.length - 1;
+                    this.params[lastIdx] = `%${this.params[lastIdx]}`;
+                }
+                return `${col} LIKE ?`;
+            case "LIKE":
+                // Realm LIKE uses * and ? as wildcards; SQL uses % and _
+                if (this.params.length > 0) {
+                    const lastIdx = this.params.length - 1;
+                    if (typeof this.params[lastIdx] === "string") {
+                        this.params[lastIdx] = this.params[lastIdx]
+                            .replace(/%/g, "\\%")
+                            .replace(/_/g, "\\_")
+                            .replace(/\*/g, "%")
+                            .replace(/\?/g, "_");
+                    }
+                }
+                return `${col} LIKE ? ESCAPE '\\'`;
+            default:
+                throw new Error(`Unknown string operator: ${node.op}`);
+        }
+    }
+
+    visitIn(node) {
+        const {column} = this.resolveField(node.field);
+        if (node.values.length === 0) {
+            return "1=0"; // empty IN → always false
+        }
+        const placeholders = node.values.map(v => this.resolveValue(v)).join(", ");
+        return `${column} IN (${placeholders})`;
+    }
+
+}
+
+// ──────────────── JS fallback detection ────────────────
+//
+// Patterns that can't be translated to SQL directly.
+// When detected, the query (or clause) is routed to JsFallbackFilterEvaluator
+// for post-filtering on hydrated entities in JavaScript.
+
+const JS_FALLBACK_PATTERNS = [
+    /SUBQUERY\s*\(/i,           // SUBQUERY(list, $var, conds).@count OP N
+    /TRUEPREDICATE/i,           // first attempted as a SQL sort/distinct translation (see _tryTranslateTruePredicate); falls back only if out-of-grammar
+    /@links/i,                  // @links.@count (inverse relationships — not evaluable)
+    /@count/i,                  // listProp.@count OP N
+    /@size/i,                   // listProp.@size OP N (same as @count)
+    /@sum/i,                    // collection aggregates (unused in codebase)
+    /@avg/i,
+    /@min/i,
+    /@max/i,
+    /\bANY\b/i,                // ANY listProp.field OP value
+    /\bALL\b/i,                // ALL/NONE quantifiers (unused in codebase)
+    /\bNONE\b/i,
+    // limit(N) is NOT here — it's stripped and handled by parse() directly
+];
+
+function requiresJsFallback(query) {
+    return JS_FALLBACK_PATTERNS.some(pattern => pattern.test(query));
+}
+
+/**
+ * Split a query string on top-level AND operators, respecting parentheses.
+ * e.g., "a = 1 AND SUBQUERY(b, $x, $x.c = 2).@count > 0 AND d = 3"
+ * → ["a = 1", "SUBQUERY(b, $x, $x.c = 2).@count > 0", "d = 3"]
+ */
+function splitTopLevelAnd(query) {
+    const clauses = [];
+    let depth = 0;
+    let start = 0;
+    const upper = query.toUpperCase();
+
+    let quote = null;
+
+    for (let i = 0; i < query.length; i++) {
+        const ch = query[i];
+        if (quote) {
+            if (ch === quote && query[i - 1] !== '\\') quote = null;
+        } else if (ch === '"' || ch === "'") {
+            quote = ch;
+        } else if (ch === '(' || ch === '[') {
+            depth++;
+        } else if (ch === ')' || ch === ']') {
+            depth--;
+        } else if (depth === 0) {
+            // Check for top-level AND (word boundary)
+            if (upper.substring(i, i + 3) === 'AND' &&
+                (i === 0 || /\s/.test(query[i - 1])) &&
+                (i + 3 >= query.length || /\s/.test(query[i + 3]))) {
+                const clause = query.substring(start, i).trim();
+                if (clause.length > 0) {
+                    clauses.push(clause);
+                }
+                start = i + 3;
+            }
+            // Check for top-level && (Realm also accepts && as AND)
+            if (query[i] === '&' && i + 1 < query.length && query[i + 1] === '&') {
+                const clause = query.substring(start, i).trim();
+                if (clause.length > 0) {
+                    clauses.push(clause);
+                }
+                i += 1; // skip second &, loop will increment past it
+                start = i + 1;
+            }
+        }
+    }
+
+    // Last clause
+    const last = query.substring(start).trim();
+    if (last.length > 0) {
+        clauses.push(last);
+    }
+
+    return clauses;
+}
+
+// Index of the bracket closing the one at `open`, skipping quoted strings; -1 if unbalanced.
+function closingParenIndex(query, open) {
+    let depth = 0;
+    let quote = null;
+    for (let i = open; i < query.length; i++) {
+        const ch = query[i];
+        if (quote) {
+            if (ch === quote && query[i - 1] !== '\\') quote = null;
+        } else if (ch === '"' || ch === "'") {
+            quote = ch;
+        } else if (ch === '(') {
+            depth++;
+        } else if (ch === ')') {
+            depth--;
+            if (depth === 0) return i;
+        }
+    }
+    return -1;
+}
+
+// RealmQueryService.andQuery/orQuery wrap every composed predicate as "( … )".
+function stripOuterParens(query) {
+    let stripped = query.trim();
+    while (stripped.startsWith('(') && closingParenIndex(stripped, 0) === stripped.length - 1) {
+        stripped = stripped.slice(1, -1).trim();
+    }
+    return stripped;
+}
+
+// Split on top-level OR / ||, respecting brackets and quoted strings.
+function splitTopLevelOr(query) {
+    const branches = [];
+    let depth = 0;
+    let quote = null;
+    let start = 0;
+    const upper = query.toUpperCase();
+    for (let i = 0; i < query.length; i++) {
+        const ch = query[i];
+        if (quote) {
+            if (ch === quote && query[i - 1] !== '\\') quote = null;
+            continue;
+        }
+        if (ch === '"' || ch === "'") {
+            quote = ch;
+        } else if (ch === '(' || ch === '[') {
+            depth++;
+        } else if (ch === ')' || ch === ']') {
+            depth--;
+        } else if (depth === 0) {
+            const isWordOr = upper.substring(i, i + 2) === 'OR' &&
+                (i === 0 || /\s/.test(query[i - 1])) &&
+                (i + 2 >= query.length || /\s/.test(query[i + 2]));
+            const isPipeOr = ch === '|' && query[i + 1] === '|';
+            if (isWordOr || isPipeOr) {
+                branches.push(query.substring(start, i).trim());
+                start = i + 2;
+                i += 1;
+            }
+        }
+    }
+    branches.push(query.substring(start).trim());
+    return branches.filter(branch => branch.length > 0);
+}
+
+// ──────────────── Public API ────────────────
+
+class RealmQueryParser {
+    /**
+     * Parse a Realm query string and produce SQL WHERE clause.
+     *
+     * @param {string} query - Realm query string (e.g., 'voided = false AND uuid = $0')
+     * @param {Array} args - Substitution arguments for $0, $1, etc.
+     * @param {string} rootSchemaName - The Realm schema name for the root table
+     * @param {Map} schemaMap - Map<schemaName, schemaObject> for resolving relationships
+     * @returns {{ where: string, params: Array, joins: Array<{table, alias, on}>, unsupported: boolean }}
+     */
+    static parse(query, args = [], rootSchemaName = null, schemaMap = new Map(), aliasOffset = 0) {
+        if (!query || typeof query !== "string") {
+            return {where: "1=1", params: [], joins: [], unsupported: false, limit: null};
+        }
+
+        let trimmed = query.trim();
+
+        // Strip limit(N) before any processing — it's a result-set modifier,
+        // not a filter predicate. Extracted here so the remaining query can be
+        // parsed normally (e.g., "hasMigrated = false limit(1)" → parse "hasMigrated = false").
+        let limitValue = null;
+        const limitMatch = trimmed.match(/\blimit\s*\(\s*(\d+)\s*\)/i);
+        if (limitMatch) {
+            limitValue = parseInt(limitMatch[1], 10);
+            trimmed = trimmed.replace(/\blimit\s*\(\s*\d+\s*\)/i, "").trim();
+            // Clean up trailing/leading AND left after stripping
+            trimmed = trimmed.replace(/\bAND\s*$/i, "").replace(/^\s*AND\b/i, "").trim();
+        }
+
+        if (trimmed.length === 0) {
+            return {where: "1=1", params: [], joins: [], unsupported: false, limit: limitValue};
+        }
+
+        // Check for patterns that need JS fallback
+        if (requiresJsFallback(trimmed)) {
+            // Try direct SUBQUERY → SQL translation for single-clause queries
+            if (/^SUBQUERY\s*\(/i.test(trimmed)) {
+                // Referenced lists (enrolments, encounters) → IN subquery
+                const inResult = this._tryTranslateSubqueryToIn(trimmed, rootSchemaName, schemaMap, args);
+                if (inResult) {
+                    return {
+                        where: inResult.where,
+                        params: inResult.params,
+                        joins: [],
+                        unsupported: false,
+                        limit: limitValue,
+                    };
+                }
+                // Embedded lists (observations) → json_each EXISTS
+                const jsonResult = this._tryTranslateObservationSubquery(trimmed, rootSchemaName, schemaMap);
+                if (jsonResult) {
+                    return {
+                        where: jsonResult.where,
+                        params: jsonResult.params,
+                        joins: [],
+                        unsupported: false,
+                        limit: limitValue,
+                    };
+                }
+            }
+
+            // TRUEPREDICATE [sort(...)] [Distinct(...)] → SQL ORDER BY / window.
+            // Any translation error (out-of-grammar sort key, etc.) degrades to JS fallback.
+            if (/^TRUEPREDICATE\b/i.test(trimmed)) {
+                let tpResult = null;
+                try {
+                    tpResult = this._tryTranslateTruePredicate(trimmed, args, rootSchemaName, schemaMap, aliasOffset);
+                } catch (e) {
+                    // Every expected out-of-grammar shape returns null instead of throwing (see
+                    // _tryTranslateTruePredicate), so anything caught here is a genuine bug — report
+                    // it, or a future regression degrades every affected query to the JS fallback
+                    // with no signal that it happened. The console line alone doesn't reach a
+                    // release build, which is where the silent slowdown would show up.
+                    this._reportTranslationFailure(trimmed, e);
+                    tpResult = null;
+                }
+                if (tpResult) {
+                    tpResult.limit = limitValue;
+                    return tpResult;
+                }
+            }
+
+            const unwrapped = stripOuterParens(trimmed);
+            if (splitTopLevelOr(unwrapped).length > 1) {
+                const composite = this._tryTranslateComposite(unwrapped, args, rootSchemaName, schemaMap, aliasOffset);
+                if (composite) {
+                    // As a row filter SQLite can't serve OR branches from indexes, so rows keep the order the JS fallback gave.
+                    return {where: `(CASE WHEN ${composite.where} THEN 1 ELSE 0 END) = 1`, params: composite.params, joins: composite.joins, unsupported: false, limit: limitValue};
+                }
+            }
+
+            // Try partial parsing: split on top-level AND, translate supported clauses to SQL,
+            // route JS-fallback clauses (SUBQUERY, TRUEPREDICATE, @count, etc.) to
+            // JsFallbackFilterEvaluator for post-hydration filtering.
+            // Splitting an untranslated "A AND B OR C" on AND would give A AND (B OR C), so keep it whole.
+            const partialResult = this._parsePartial(splitTopLevelOr(unwrapped).length > 1 ? trimmed : unwrapped, args, rootSchemaName, schemaMap, aliasOffset);
+            if (partialResult) {
+                partialResult.limit = limitValue;
+                return partialResult;
+            }
+
+            // For single-clause observation SUBQUERYs, add LIKE pre-filter to narrow
+            // rows before hydration even though the full query goes to JS fallback.
+            const preFilter = this._extractObservationPreFilter(trimmed, rootSchemaName, schemaMap);
+            if (preFilter) {
+                return {
+                    where: preFilter.where,
+                    params: preFilter.params,
+                    joins: [],
+                    unsupported: false,
+                    partialParse: true,
+                    skippedClauses: [trimmed],
+                    limit: limitValue,
+                };
+            }
+
+            return {
+                where: null,
+                params: [],
+                joins: [],
+                unsupported: true,
+                originalQuery: trimmed,
+                reason: "Query requires JS fallback (SUBQUERY, TRUEPREDICATE, @links, @count, @size, ANY, etc.)",
+                limit: limitValue,
+            };
+        }
+
+        try {
+            const tokens = tokenize(trimmed);
+            const parser = new Parser(tokens);
+            const ast = parser.parse();
+
+            const generator = new SqlGenerator(schemaMap, rootSchemaName, args);
+            generator.aliasCounter = aliasOffset;
+            const result = generator.generate(ast);
+
+            return {
+                where: result.where,
+                params: result.params,
+                joins: result.joins,
+                unsupported: false,
+                limit: limitValue,
+            };
+        } catch (e) {
+            // If parsing fails, flag as unsupported for JS fallback
+            return {
+                where: null,
+                params: [],
+                joins: [],
+                unsupported: true,
+                originalQuery: trimmed,
+                reason: `Parse error: ${e.message}`,
+                limit: limitValue,
+            };
+        }
+    }
+
+    /**
+     * Attempt partial parsing of a query containing JS-fallback patterns.
+     * Splits on top-level AND, parses each clause independently, and combines
+     * the SQL-translatable ones into a WHERE clause. JS-fallback clauses are
+     * collected as skippedClauses and later evaluated by JsFallbackFilterEvaluator.
+     *
+     * Returns a parse result if at least one clause was successfully parsed,
+     * or null if no clauses could be parsed.
+     */
+    /**
+     * Translate a SUBQUERY on a referenced list to SQL:
+     *   @count > 0  → t0.uuid IN (SELECT fk FROM child WHERE <conditions>)
+     *   @count == 0 → NOT EXISTS (SELECT 1 FROM child WHERE fk = t0.uuid AND <conditions>)
+     * The negative form correlates rather than using NOT IN — no FK column is NOT NULL, and
+     * NOT IN is UNKNOWN for every row once the subselect yields a single NULL.
+     * Conditions translate via _translateRefListExpr (AND/OR/parens); a nested SUBQUERY on
+     * an embedded list becomes json_each EXISTS (family B); a dotted listProp becomes a
+     * hop-by-hop nested IN chain (family C, _translateSubqueryListPath).
+     *
+     * Shapes that intentionally stay on JS fallback (return null → JsFallbackFilterEvaluator):
+     *   - a condition referencing an unqualified property not on the child schema (child-scoping guard);
+     *   - a dot-path condition that would need a SQL JOIN inside the bare subquery;
+     *   - a multi-hop (family C) SUBQUERY with an @count comparison other than >0 / ==0 (can't correlate to t0);
+     *   - an OR that mixes an outer-object predicate with a SUBQUERY (cross-scope; not a single IN) — _tryTranslateComposite translates that one level up, as an OR of separate clauses.
+     *
+     * @returns {{ where: string, params: Array, joins: Array }} | null
+     */
+    static _tryTranslateSubqueryToIn(clause, rootSchemaName, schemaMap, args, depth = 0) {
+        if (depth > 3) return null;
+
+        const parsed = this._parseSubqueryClause(clause);
+        if (!parsed) return null;
+
+        const {listProp, varName, conditions, operator, count} = parsed;
+
+        const rootSchema = schemaMap.get(rootSchemaName);
+        if (!rootSchema) return null;
+
+        if (listProp.includes(".")) {
+            return this._translateSubqueryListPath(rootSchemaName, listProp, conditions, varName, operator, count, schemaMap, args, depth);
+        }
+
+        const propDef = rootSchema.properties[listProp];
+        if (!propDef || (typeof propDef === 'object' ? propDef.type : null) !== 'list') return null;
+
+        const childSchemaName = typeof propDef === 'object' ? propDef.objectType : null;
+        if (!childSchemaName || EMBEDDED_SCHEMA_NAMES.has(childSchemaName)) return null;
+
+        const childTableName = schemaNameToTableName(childSchemaName);
+        const fkColumn = childFkColumn(rootSchemaName, childSchemaName, schemaMap);
+
+        // Strip variable prefix from conditions
+        const varPrefix = varName.replace('$', '\\$') + '\\.';
+        const strippedConditions = conditions.replace(new RegExp(varPrefix, 'g'), '');
+
+        // Translate the (prefix-stripped) conditions as an AND/OR/paren expression tree.
+        const translated = this._translateRefListExpr(strippedConditions, childSchemaName, schemaMap, args, depth);
+        if (!translated) return null;
+        const innerWhere = translated.where;
+        const params = translated.params;
+
+        let where;
+        if ((operator === '>' && count === 0) || (operator === '>=' && count === 1) || (operator === '!=' && count === 0)) {
+            where = `t0."uuid" IN (SELECT "${fkColumn}" FROM ${childTableName} WHERE ${innerWhere})`;
+        } else if ((operator === '=' && count === 0) || (operator === '<' && count === 1)) {
+            // Correlated NOT EXISTS, not NOT IN: no FK column is declared NOT NULL, and a single
+            // NULL in a NOT IN subselect makes the predicate UNKNOWN for every row.
+            where = `NOT EXISTS (SELECT 1 FROM ${childTableName} WHERE "${fkColumn}" = t0."uuid" AND ${innerWhere})`;
+        } else {
+            const op = operator === '==' ? '=' : operator;
+            where = `(SELECT COUNT(*) FROM ${childTableName} WHERE "${fkColumn}" = t0."uuid" AND ${innerWhere}) ${op} ${count}`;
+        }
+
+        return {where, params, joins: []};
+    }
+
+    /**
+     * Translate SUBQUERY(<a.b[.c]>, $v, conds).@count OP N — a dotted list/object path —
+     * into a nested IN chain. Each hop is resolved by schema type: a list hop links via the
+     * child's back-FK; an object hop links via the parent's <prop>_uuid.
+     */
+    static _translateSubqueryListPath(rootSchemaName, pathStr, conditions, varName, operator, count, schemaMap, args, depth = 0) {
+        // Decide translatability before doing any work: a multi-hop @count comparison other
+        // than >0 / ==0 can't be correlated back to t0 through the chain, so it belongs on the
+        // JS evaluator and there's no point walking the schema or translating conditions first.
+        const positive = (operator === ">" && count === 0) || (operator === ">=" && count === 1) || (operator === "!=" && count === 0);
+        const negative = (operator === "=" && count === 0) || (operator === "<" && count === 1);
+        if (!positive && !negative) return null;
+
+        const parts = pathStr.split(".");
+        let cur = rootSchemaName;
+        const hops = [];
+        for (const prop of parts) {
+            const s = schemaMap.get(cur);
+            if (!s) return null;
+            const pd = s.properties[prop];
+            if (!pd || typeof pd !== "object" || (pd.type !== "list" && pd.type !== "object")) return null;
+            const target = pd.objectType;
+            if (!target || EMBEDDED_SCHEMA_NAMES.has(target)) return null;
+            hops.push({fromSchema: cur, prop, kind: pd.type, targetSchema: target});
+            cur = target;
+        }
+        const leafSchema = cur;
+
+        const varPrefix = varName.replace("$", "\\$") + "\\.";
+        const stripped = conditions.replace(new RegExp(varPrefix, "g"), "");
+        const translated = this._translateRefListExpr(stripped, leafSchema, schemaMap, args, depth);
+        if (!translated) return null;
+        const params = translated.params;
+
+        // Build inner-to-outer for hops 1..n: each produces a SELECT yielding the key that
+        // identifies its parent (list hop → back-FK, object hop → uuid).
+        let childSelect = null;
+        for (let i = hops.length - 1; i >= 1; i--) {
+            const hop = hops[i];
+            const table = schemaNameToTableName(hop.targetSchema);
+            const cond = childSelect ? `"uuid" IN (${childSelect})` : translated.where;
+            const key = hop.kind === "list"
+                ? childFkColumn(hop.fromSchema, hop.targetSchema, schemaMap)
+                : "uuid";
+            childSelect = `SELECT "${key}" FROM ${table} WHERE ${cond}`;
+        }
+
+        // The first hop links to t0, so keep its pieces separate — the negative form has to
+        // correlate rather than wrap the whole chain in a NOT IN.
+        const head = hops[0];
+        const headTable = schemaNameToTableName(head.targetSchema);
+        const headCond = childSelect ? `"uuid" IN (${childSelect})` : translated.where;
+        const headKey = head.kind === "list"
+            ? childFkColumn(head.fromSchema, head.targetSchema, schemaMap)
+            : "uuid";
+        const outerCol = head.kind === "list" ? 't0."uuid"' : `t0."${camelToSnake(head.prop)}_uuid"`;
+
+        // Correlated NOT EXISTS, not NOT IN: no FK column is declared NOT NULL, and a single
+        // NULL in a NOT IN subselect makes the predicate UNKNOWN for every row.
+        const where = positive
+            ? `${outerCol} IN (SELECT "${headKey}" FROM ${headTable} WHERE ${headCond})`
+            : `NOT EXISTS (SELECT 1 FROM ${headTable} WHERE "${headKey}" = ${outerCol} AND ${headCond})`;
+        return {where, params, joins: []};
+    }
+
+    /**
+     * Translate a referenced-list SUBQUERY condition expression (AND/OR/parens) into a
+     * bare-column SQL predicate usable inside `SELECT … FROM <child> WHERE …`.
+     * Returns null if any leaf can't be safely translated (→ JS fallback).
+     */
+    static _translateRefListExpr(expr, childSchemaName, schemaMap, args, depth = 0) {
+        return this._translateLogicalExpr(expr, leaf =>
+            this._translateRefListLeaf(leaf, childSchemaName, schemaMap, args, depth));
+    }
+
+    /**
+     * Walk an AND/OR/paren expression, delegating each leaf to `translateLeaf`. Shared by the
+     * referenced-list and json_each translators so their grouping and precedence can't drift.
+     * `translateLeaf` returns {where, params} or null; null anywhere aborts the whole expression.
+     */
+    static _translateLogicalExpr(expr, translateLeaf) {
+        const trimmed = expr.trim();
+        if (trimmed.startsWith("(") && this._findMatchingParen(trimmed, 0) === trimmed.length - 1) {
+            const inner = this._translateLogicalExpr(trimmed.slice(1, -1).trim(), translateLeaf);
+            return inner ? {where: `(${inner.where})`, params: inner.params} : null;
+        }
+        for (const op of ["OR", "AND"]) {
+            const parts = this._splitTopLevelLogical(trimmed, op);
+            if (parts.length > 1) {
+                const out = [], params = [];
+                for (const p of parts) {
+                    const r = this._translateLogicalExpr(p.trim(), translateLeaf);
+                    if (!r) return null;
+                    out.push(r.where); params.push(...r.params);
+                }
+                const joined = out.join(` ${op} `);
+                return {where: op === "OR" ? `(${joined})` : joined, params};
+            }
+        }
+        return translateLeaf(trimmed);
+    }
+
+    /**
+     * Translate a single leaf condition (no top-level AND/OR) against the child schema.
+     * Leaf kinds: nested SUBQUERY (embedded → json_each; else referenced-list recurse),
+     * FK dot-ref (refProp.field OP quoted|number|$N), or a scalar child column.
+     */
+    static _translateRefListLeaf(trimmed, childSchemaName, schemaMap, args, depth = 0) {
+        const childSchema = schemaMap.get(childSchemaName);
+
+        if (/^SUBQUERY\s*\(/i.test(trimmed)) {
+            const emb = this._tryTranslateChildEmbeddedSubquery(trimmed, childSchemaName, schemaMap);
+            if (emb) return emb;
+            const nested = this._tryTranslateSubqueryToIn(trimmed, childSchemaName, schemaMap, args, depth + 1);
+            if (!nested) return null;
+            return {where: nested.where.replace(/t0\./g, ""), params: nested.params};
+        }
+
+        // FK dot-ref: refProp.field OP (quoted | $N | number)
+        const dotMatch = trimmed.match(/^([\w]+)\.([\w]+)\s*(==|=|!=|<>)\s*(?:(['"])(.*?)\4|(\$\d+)|(-?\d+(?:\.\d+)?))$/);
+        if (dotMatch) {
+            const refProp = dotMatch[1], field = dotMatch[2], op = dotMatch[3];
+            const refPropDef = childSchema && childSchema.properties[refProp];
+            if (refPropDef && typeof refPropDef === "object" && refPropDef.type === "object") {
+                const refTable = schemaNameToTableName(refPropDef.objectType);
+                const fkCol = `${camelToSnake(refProp)}_uuid`;
+                const sqlOp = op === "==" ? "=" : op;
+                let val;
+                if (dotMatch[5] !== undefined) val = dotMatch[5];
+                else if (dotMatch[6] !== undefined) val = toBindValue(args[parseInt(dotMatch[6].slice(1), 10)]);
+                else val = Number(dotMatch[7]);
+                const neg = sqlOp === "!=" || sqlOp === "<>" ? "NOT " : "";
+                return {
+                    where: `"${fkCol}" ${neg}IN (SELECT "uuid" FROM ${refTable} WHERE "${camelToSnake(field)}" = ?)`,
+                    params: [val],
+                };
+            }
+            // not an object ref — fall through to scalar handling
+        }
+
+        // Scalar condition on the child.
+        try {
+            const ast = new Parser(tokenize(trimmed)).parse();
+            // Child-scoping guard: every field in the (possibly compound) condition must be
+            // a real property of the child schema, else fall back rather than emit a bad column.
+            if (childSchema && !this._refLeafFieldsValid(ast, childSchema)) return null;
+            const gen = new SqlGenerator(schemaMap, childSchemaName, args);
+            const result = gen.generate(ast);
+            if (result.joins && result.joins.length > 0) return null; // JOIN can't live in a bare subquery
+            return {where: result.where.replace(/t0\./g, ""), params: result.params};
+        } catch (e) {
+            return null;
+        }
+    }
+
+    // Recursively verify every comparison field's root property exists on the child schema.
+    static _refLeafFieldsValid(node, childSchema) {
+        if (!node || typeof node !== "object") return true;
+        switch (node.type) {
+            case "AND":
+            case "OR":
+                return this._refLeafFieldsValid(node.left, childSchema) && this._refLeafFieldsValid(node.right, childSchema);
+            case "NOT":
+                return this._refLeafFieldsValid(node.expr, childSchema);
+            case "COMPARISON":
+            case "STRING_OP":
+            case "IN": {
+                const root = String(node.field).split(".")[0];
+                return root in childSchema.properties;
+            }
+            default:
+                return true;
+        }
+    }
+
+    /**
+     * A TRUEPREDICATE translation that throws is a bug, not a shape we don't handle, and its
+     * only user-visible effect is that the query gets slower. Console logging keeps the stack
+     * for a developer; Bugsnag is what makes it visible on a release build. Once per distinct
+     * query string per session.
+     */
+    static _reportTranslationFailure(query, error) {
+        General.logError(`RealmQueryParser: TRUEPREDICATE translation failed for "${query}"`, error);
+        if (reportedTranslationFailures.has(query)) return;
+        reportedTranslationFailures.add(query);
+        try {
+            // Required here rather than imported: the parser runs on every .filtered() call and
+            // shouldn't pull the Bugsnag client into its module graph for a path that, if the
+            // code is correct, never runs.
+            const ErrorUtil = require("../errorHandling/ErrorUtil").default;
+            const failure = new Error(`TRUEPREDICATE translation failed for "${query}": ${error && error.message}`);
+            failure.stack = error && error.stack;
+            ErrorUtil.notifyBugsnag(failure, "RealmQueryParser::TruePredicateTranslation");
+        } catch (e) {
+            General.logWarn("RealmQueryParser", `could not report translation failure: ${e.message}`);
+        }
+    }
+
+    /**
+     * Translate `TRUEPREDICATE [sort(...)] [Distinct(...)]` to a SQL window descriptor.
+     * TRUEPREDICATE contributes no row filter (where stays null); sort → ORDER BY,
+     * Distinct → ROW_NUMBER() partition. Returns null when the string isn't a pure
+     * TRUEPREDICATE sort/distinct (caller keeps it on JS fallback).
+     */
+    static _tryTranslateTruePredicate(query, args, rootSchemaName, schemaMap, aliasOffset = 0) {
+        const head = query.match(/^TRUEPREDICATE\b(.*)$/is);
+        if (!head) return null;
+
+        const {descriptors, rest} = parseDescriptors(head[1].trim());
+
+        // Anything left over (extra predicate, junk) → not our grammar.
+        if (rest.length > 0) return null;
+        if (descriptors.length === 0) return null;
+        // One of each at most; a repeated descriptor is out-of-grammar rather than something to
+        // apply once and drop the rest of.
+        if (new Set(descriptors.map(d => d.keyword)).size !== descriptors.length) return null;
+
+        const sortCall = descriptors.find(d => d.keyword === "sort");
+        const distinctCall = descriptors.find(d => d.keyword === "distinct");
+
+        // Spec: sort precedes Distinct. Written the other way round it dedupes first and orders
+        // after, which this translation doesn't express — out-of-grammar → JS fallback.
+        if (sortCall && distinctCall && distinctCall.index < sortCall.index) return null;
+
+        // Shared generator so sort + distinct reuse the same JOIN aliases.
+        const gen = new SqlGenerator(schemaMap, rootSchemaName, args);
+        gen.aliasCounter = aliasOffset;
+
+        // Order is carried as structured terms, not a rendered fragment — the proxy needs to
+        // reverse and re-emit them for the windowed-DISTINCT path, and re-parsing its own
+        // SQL string to do that is how the two ends drift apart.
+        let orderByTerms = null;
+        if (sortCall) {
+            // An unparseable key is out-of-grammar, not a bug — parseSortKeys returns null so
+            // the caller falls back to JS rather than throwing, which would otherwise reach the
+            // catch in parse() and get logged as if it were one.
+            const keys = parseSortKeys(sortCall.body);
+            if (!keys) return null;
+            orderByTerms = keys.map(({field, desc}) => {
+                const {column} = gen.resolveField(field);
+                return {expr: column, dir: desc ? "DESC" : "ASC"};
+            });
+        }
+
+        let distinct = null;
+        if (distinctCall) {
+            const fields = parseDistinctFields(distinctCall.body);
+            if (!fields) return null;
+            const columns = fields.map(f => gen.resolveField(f).column);
+            distinct = {columns, orderByTerms};
+        }
+
+        return {
+            where: null,
+            params: gen.params,
+            joins: gen.joins,
+            distinct,
+            orderByTerms,
+            unsupported: false,
+        };
+    }
+
+    static _parseSubqueryClause(clause) {
+        const match = clause.match(/^SUBQUERY\s*\(/i);
+        if (!match) return null;
+
+        const openIdx = match[0].length;
+        const argStrs = [];
+        let parenDepth = 0, current = "";
+        let quote = null;
+
+        for (let i = openIdx; i < clause.length; i++) {
+            const ch = clause[i];
+            // Commas and parens inside a quoted value are data, not structure.
+            if (quote) {
+                current += ch;
+                if (ch === quote && clause[i - 1] !== "\\") quote = null;
+                continue;
+            }
+            if (ch === "'" || ch === '"') { quote = ch; current += ch; continue; }
+            if (ch === '(') { parenDepth++; current += ch; }
+            else if (ch === ')') {
+                if (parenDepth === 0) {
+                    if (current.trim()) argStrs.push(current);
+                    const tail = clause.substring(i + 1).trim();
+                    const countMatch = tail.match(/^\.@count\s*(==|!=|<>|<=|>=|<|>|=)\s*(\d+)/i);
+                    if (!countMatch) return null;
+                    // The clause must END at the count comparison. Without this, a query like
+                    // "SUBQUERY(...).@count > 0 and voided = false" translated only the subquery
+                    // and silently DROPPED the trailing conditions — returning wrong rows.
+                    // Residue => not a pure subquery clause; caller falls back to clause splitting.
+                    if (tail.slice(countMatch[0].length).trim().length > 0) return null;
+                    return {
+                        listProp: argStrs[0]?.trim(),
+                        varName: argStrs[1]?.trim(),
+                        conditions: argStrs[2]?.trim(),
+                        operator: countMatch[1] === '==' ? '=' : countMatch[1],
+                        count: parseInt(countMatch[2], 10),
+                    };
+                }
+                parenDepth--;
+                current += ch;
+            } else if (ch === ',' && parenDepth === 0) {
+                argStrs.push(current);
+                current = "";
+            } else {
+                current += ch;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Translate a SUBQUERY on an embedded list (observations) to SQL using json_each().
+     * Converts Realm observation queries to:
+     *   EXISTS (SELECT 1 FROM json_each(t0."observations") AS jobs WHERE ...)
+     *
+     * Supported condition patterns within the SUBQUERY:
+     *   $obs.concept.uuid = "uuid"       → json_extract(jobs.value, '$.concept.uuid') = ?
+     *   $obs.valueJSON contains "text"    → jobs.value LIKE '%text%'
+     *   $obs.concept.name = "name"        → json_extract(jobs.value, '$.concept.name') = ?
+     *   Combined with AND/OR
+     *
+     * @returns {{ where: string, params: Array }} | null
+     */
+    static _tryTranslateObservationSubquery(clause, rootSchemaName, schemaMap, tableRef = "t0") {
+        const parsed = this._parseSubqueryClause(clause);
+        if (!parsed) return null;
+
+        const {listProp, varName, conditions, operator, count} = parsed;
+
+        // Verify this is an embedded list
+        const rootSchema = schemaMap.get(rootSchemaName);
+        if (!rootSchema) return null;
+        const propDef = rootSchema.properties[listProp];
+        if (!propDef) return null;
+        const objectType = typeof propDef === 'object' ? propDef.objectType : null;
+        if (!objectType || !EMBEDDED_SCHEMA_NAMES.has(objectType)) return null;
+
+        const colName = camelToSnake(listProp);
+        const colRef = tableRef ? `${tableRef}."${colName}"` : `"${colName}"`;
+        const varPrefix = varName.replace('$', '\\$') + '\\.';
+        const strippedConditions = conditions.replace(new RegExp(varPrefix, 'g'), '');
+
+        // Translate conditions to json_each WHERE clauses
+        const translated = this._translateObservationConditions(strippedConditions);
+        if (!translated) return null;
+
+        const innerWhere = translated.where;
+        const params = translated.params;
+
+        let where;
+        if ((operator === '>' && count === 0) || (operator === '>=' && count === 1) || (operator === '!=' && count === 0)) {
+            where = `EXISTS (SELECT 1 FROM json_each(${colRef}) AS jobs WHERE ${innerWhere})`;
+        } else if ((operator === '=' && count === 0) || (operator === '<' && count === 1)) {
+            where = `NOT EXISTS (SELECT 1 FROM json_each(${colRef}) AS jobs WHERE ${innerWhere})`;
+        } else {
+            const op = operator === '==' ? '=' : operator;
+            where = `(SELECT COUNT(*) FROM json_each(${colRef}) AS jobs WHERE ${innerWhere}) ${op} ${count}`;
+        }
+
+        return {where, params};
+    }
+
+    /**
+     * Translate observation SUBQUERY conditions to json_each WHERE clause.
+     * Handles AND/OR combinations and parentheses.
+     *
+     * @returns {{ where: string, params: Array }} | null
+     */
+    static _translateObservationConditions(conditions) {
+        const params = [];
+
+        // Split on top-level AND/OR while preserving operator and parentheses
+        const result = this._translateObsExpr(conditions.trim(), params);
+        if (!result) return null;
+
+        return {where: result, params};
+    }
+
+    /**
+     * Recursively translate an observation condition expression.
+     * Handles: AND, OR, parenthesized groups, and leaf conditions.
+     */
+    static _translateObsExpr(expr, params) {
+        // Leaves push straight into the caller's params array, in left-to-right order.
+        const result = this._translateLogicalExpr(expr, leaf => {
+            const where = this._translateSingleObsCondition(leaf, params);
+            return where === null ? null : {where, params: []};
+        });
+        return result ? result.where : null;
+    }
+
+    /**
+     * Split expression on top-level logical operator (AND or OR),
+     * respecting parentheses depth and quoted values.
+     */
+    static _splitTopLevelLogical(expr, op) {
+        const parts = [];
+        let depth = 0;
+        let current = '';
+        let quote = null;
+        const opUpper = op.toUpperCase();
+        const opLen = opUpper.length;
+
+        for (let i = 0; i < expr.length; i++) {
+            const ch = expr[i];
+            // An " and "/" or " inside a quoted value is data — concept names contain both.
+            if (quote) {
+                current += ch;
+                if (ch === quote && expr[i - 1] !== "\\") quote = null;
+                continue;
+            }
+            if (ch === "'" || ch === '"') { quote = ch; current += ch; continue; }
+            if (ch === '(') { depth++; current += ch; }
+            else if (ch === ')') { depth--; current += ch; }
+            else if (depth === 0) {
+                // Word-boundary AND/OR delimited by any whitespace (space, newline, tab).
+                const prevWs = i === 0 || /\s/.test(expr[i - 1]);
+                const afterCh = expr[i + opLen];
+                const nextWs = afterCh === undefined || /\s/.test(afterCh);
+                if (prevWs && nextWs && expr.substr(i, opLen).toUpperCase() === opUpper) {
+                    const before = current.trim();
+                    if (before) parts.push(before);
+                    current = '';
+                    i += opLen - 1; // advance past the operator (loop's i++ consumes one more)
+                    continue;
+                }
+                current += ch;
+            } else {
+                current += ch;
+            }
+        }
+        const last = current.trim();
+        if (last) parts.push(last);
+        return parts;
+    }
+
+    /**
+     * Find matching closing parenthesis position.
+     */
+    static _findMatchingParen(str, openIdx) {
+        let depth = 0;
+        for (let i = openIdx; i < str.length; i++) {
+            if (str[i] === '(') depth++;
+            else if (str[i] === ')') {
+                depth--;
+                if (depth === 0) return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Translate a single observation condition to json_each SQL.
+     *
+     * Patterns:
+     *   concept.uuid = "uuid"          → json_extract(jobs.value, '$.concept.uuid') = ?
+     *   concept.name = "name"          → json_extract(jobs.value, '$.concept.name') = ?
+     *   valueJSON contains "text"      → jobs.value LIKE ?
+     *   valueJSON CONTAINS[c] "text"   → jobs.value LIKE ?
+     */
+    static _translateSingleObsCondition(condition, params) {
+        const trimmed = condition.trim();
+
+        // Pattern: dotPath OP value  (e.g., concept.uuid = "abc-123")
+        const eqMatch = trimmed.match(/^([\w.]+)\s*(==|=|!=|<>)\s*(['"])(.*?)\3$/);
+        if (eqMatch) {
+            const [, fieldPath, op, , value] = eqMatch;
+            const jsonPath = '$.' + fieldPath;
+            const sqlOp = (op === '==' || op === '=') ? '=' : (op === '!=' || op === '<>') ? '!=' : op;
+            params.push(value);
+            return `json_extract(jobs.value, '${jsonPath}') ${sqlOp} ?`;
+        }
+
+        // Pattern: field CONTAINS[c] value or field contains value
+        const containsMatch = trimmed.match(/^([\w.]+)\s+contains(?:\[c\])?\s+(['"])(.*?)\2$/i);
+        if (containsMatch) {
+            const [, fieldPath, , value] = containsMatch;
+            if (fieldPath.toLowerCase() === 'valuejson') {
+                // valueJSON contains "text" → search in the raw JSON value
+                params.push(`%${value}%`);
+                return `jobs.value LIKE ?`;
+            } else {
+                // Other field contains → json_extract + LIKE
+                const jsonPath = '$.' + fieldPath;
+                params.push(`%${value}%`);
+                return `json_extract(jobs.value, '${jsonPath}') LIKE ?`;
+            }
+        }
+
+        // Pattern: field = null / field = nil
+        const nullMatch = trimmed.match(/^([\w.]+)\s*(==|=|!=|<>)\s*null$/i);
+        if (nullMatch) {
+            const [, fieldPath, op] = nullMatch;
+            const jsonPath = '$.' + fieldPath;
+            const isNull = (op === '=' || op === '==');
+            return `json_extract(jobs.value, '${jsonPath}') IS ${isNull ? 'NULL' : 'NOT NULL'}`;
+        }
+
+        // Unrecognized pattern — bail out
+        return null;
+    }
+
+    /**
+     * Extract LIKE pre-filter from a SUBQUERY on an embedded list (observations).
+     * Pulls string literals from conditions and adds them as SQL LIKE clauses
+     * on the parent JSON column to narrow rows before hydration.
+     *
+     * Conservative: may produce false positives (text match in unrelated fields),
+     * never false negatives. JS fallback still verifies the full SUBQUERY.
+     *
+     * @returns {{ where: string, params: Array }} | null
+     */
+    static _extractObservationPreFilter(clause, rootSchemaName, schemaMap) {
+        // Only handle SUBQUERY patterns
+        const subqueryMatch = clause.match(/^SUBQUERY\s*\(\s*(\w+)\s*,/i);
+        if (!subqueryMatch) return null;
+
+        const listProp = subqueryMatch[1];
+
+        // Check if this list property is an embedded type (observations, etc.)
+        const rootSchema = schemaMap.get(rootSchemaName);
+        if (!rootSchema) return null;
+
+        const propDef = rootSchema.properties[listProp];
+        if (!propDef) return null;
+        const objectType = typeof propDef === 'object' ? propDef.objectType : null;
+        if (!objectType || !EMBEDDED_SCHEMA_NAMES.has(objectType)) return null;
+
+        // Extract all quoted string literals from the SUBQUERY conditions
+        const literals = [];
+        const stringPattern = /['"]([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})['"]/gi;
+        let match;
+        while ((match = stringPattern.exec(clause)) !== null) {
+            literals.push(match[1]);
+        }
+
+        if (literals.length === 0) return null;
+
+        // Build LIKE pre-filter: column LIKE '%uuid1%' AND column LIKE '%uuid2%'
+        const colName = camelToSnake(listProp);
+        const likeClauses = literals.map(() => `t0."${colName}" LIKE ?`);
+        const params = literals.map(lit => `%${lit}%`);
+
+        return {
+            where: likeClauses.join(' AND '),
+            params,
+        };
+    }
+
+    // Translates a bracketed AND/OR of clauses whole, or returns null so the existing partial parse / JS fallback runs.
+    static _tryTranslateComposite(query, args, rootSchemaName, schemaMap, aliasOffset) {
+        const expression = stripOuterParens(query);
+        const branches = splitTopLevelOr(expression);
+        if (branches.length > 1) return this._translateAll(branches, " OR ", args, rootSchemaName, schemaMap, aliasOffset);
+        const conjuncts = splitTopLevelAnd(expression);
+        if (conjuncts.length > 1) return this._translateAll(conjuncts, " AND ", args, rootSchemaName, schemaMap, aliasOffset);
+        return this._translateClause(expression, args, rootSchemaName, schemaMap, aliasOffset);
+    }
+
+    static _translateAll(parts, operator, args, rootSchemaName, schemaMap, aliasOffset) {
+        const wheres = [];
+        const params = [];
+        const joins = [];
+        let aliasCounter = aliasOffset;
+        for (const part of parts) {
+            const result = this._tryTranslateComposite(part, args, rootSchemaName, schemaMap, aliasCounter);
+            if (!result) return null;
+            wheres.push(`(${result.where})`);
+            params.push(...result.params);
+            joins.push(...result.joins);
+            aliasCounter = result.aliasCounter;
+        }
+        return {where: wheres.join(operator), params, joins, aliasCounter};
+    }
+
+    static _translateClause(clause, args, rootSchemaName, schemaMap, aliasOffset) {
+        if (/^SUBQUERY\s*\(/i.test(clause)) {
+            const translated = this._tryTranslateSubqueryToIn(clause, rootSchemaName, schemaMap, args)
+                || this._tryTranslateObservationSubquery(clause, rootSchemaName, schemaMap);
+            return translated ? {where: translated.where, params: translated.params, joins: [], aliasCounter: aliasOffset} : null;
+        }
+        if (requiresJsFallback(clause)) return null;
+        // SQL's "col != ?" is false for NULL where Realm and the fallback count it as not equal.
+        if (/(!=|<>)(?!\s*null\b)/i.test(clause)) return null;
+        try {
+            const generator = new SqlGenerator(schemaMap, rootSchemaName, args);
+            generator.aliasCounter = aliasOffset;
+            const result = generator.generate(new Parser(tokenize(clause)).parse());
+            return result.where ? {where: result.where, params: result.params, joins: result.joins, aliasCounter: generator.aliasCounter} : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    static _parsePartial(query, args, rootSchemaName, schemaMap, aliasOffset) {
+        // Split on top-level AND — we need to handle parenthesized SUBQUERY() blocks
+        // by tracking paren depth so we don't split inside them.
+        const clauses = splitTopLevelAnd(query);
+        if (clauses.length <= 1) {
+            // Single clause that needs JS fallback — can't do partial parsing
+            return null;
+        }
+
+        const supportedWhere = [];
+        const supportedParams = [];
+        const supportedJoins = [];
+        const skippedClauses = [];
+        let currentAliasOffset = aliasOffset;
+
+        for (const clause of clauses) {
+            const trimmedClause = clause.trim();
+            if (requiresJsFallback(trimmedClause)) {
+                // Try SUBQUERY → SQL translation
+                if (/SUBQUERY\s*\(/i.test(trimmedClause)) {
+                    // Referenced lists → IN subquery
+                    const inResult = this._tryTranslateSubqueryToIn(trimmedClause, rootSchemaName, schemaMap, args);
+                    if (inResult) {
+                        supportedWhere.push(inResult.where);
+                        supportedParams.push(...inResult.params);
+                        continue;
+                    }
+                    // Embedded lists (observations) → json_each EXISTS
+                    const jsonResult = this._tryTranslateObservationSubquery(trimmedClause, rootSchemaName, schemaMap);
+                    if (jsonResult) {
+                        supportedWhere.push(jsonResult.where);
+                        supportedParams.push(...jsonResult.params);
+                        continue;
+                    }
+                }
+                // For observation SUBQUERYs that couldn't be fully translated,
+                // add LIKE pre-filters to narrow rows before hydration.
+                const preFilter = this._extractObservationPreFilter(trimmedClause, rootSchemaName, schemaMap);
+                if (preFilter) {
+                    supportedWhere.push(preFilter.where);
+                    supportedParams.push(...preFilter.params);
+                }
+                skippedClauses.push(trimmedClause);
+                continue;
+            }
+
+            try {
+                const tokens = tokenize(trimmedClause);
+                const parser = new Parser(tokens);
+                const ast = parser.parse();
+
+                const generator = new SqlGenerator(schemaMap, rootSchemaName, args);
+                generator.aliasCounter = currentAliasOffset;
+                const result = generator.generate(ast);
+
+                if (result.where) {
+                    supportedWhere.push(result.where);
+                    supportedParams.push(...result.params);
+                    supportedJoins.push(...result.joins);
+                    currentAliasOffset = generator.aliasCounter;
+                }
+            } catch (e) {
+                // This clause failed to parse — route to JS fallback
+                skippedClauses.push(trimmedClause);
+            }
+        }
+
+        if (supportedWhere.length === 0) {
+            return null; // No clauses could be parsed
+        }
+
+        if (skippedClauses.length > 0) {
+            console.warn(
+                `RealmQueryParser: Partial parse — ${skippedClauses.length} clause(s) routed to JS fallback:`,
+                skippedClauses.map(c => c.substring(0, 80))
+            );
+        }
+
+        return {
+            where: supportedWhere.join(" AND "),
+            params: supportedParams,
+            joins: supportedJoins,
+            unsupported: false,
+            partialParse: true,
+            skippedClauses,
+        };
+    }
+
+    /**
+     * Build a complete SELECT SQL from a parsed query result.
+     *
+     * @param {string} tableName - The root table name
+     * @param {Object} parseResult - Result from parse()
+     * @param {string} orderBy - Optional ORDER BY clause
+     * @param {number} limit - Optional LIMIT
+     * @param {number} offset - Optional OFFSET
+     * @returns {{ sql: string, params: Array }}
+     */
+    static buildSelect(tableName, parseResult, orderBy = null, limit = null, offset = null) {
+        let sql = `SELECT t0.* FROM ${tableName} AS t0`;
+
+        // Add JOINs
+        if (parseResult.joins && parseResult.joins.length > 0) {
+            for (const join of parseResult.joins) {
+                sql += ` LEFT JOIN ${join.table} AS ${join.alias} ON ${join.on}`;
+            }
+        }
+
+        // Add WHERE
+        if (parseResult.where) {
+            sql += ` WHERE ${parseResult.where}`;
+        }
+
+        // Add ORDER BY
+        if (orderBy) {
+            sql += ` ORDER BY ${orderBy}`;
+        }
+
+        // Add LIMIT / OFFSET
+        if (limit != null) {
+            sql += ` LIMIT ${limit}`;
+        }
+        if (offset != null) {
+            sql += ` OFFSET ${offset}`;
+        }
+
+        return {sql, params: parseResult.params || []};
+    }
+
+    /**
+     * If `clause` is a SUBQUERY on an embedded list of `childSchemaName`, translate it via
+     * the json_each machinery scoped to the child's bare JSON column. Else null.
+     */
+    static _tryTranslateChildEmbeddedSubquery(clause, childSchemaName, schemaMap) {
+        const parsed = this._parseSubqueryClause(clause);
+        if (!parsed) return null;
+        const childSchema = schemaMap.get(childSchemaName);
+        if (!childSchema) return null;
+        const propDef = childSchema.properties[parsed.listProp];
+        const objectType = propDef && typeof propDef === "object" ? propDef.objectType : null;
+        if (!objectType || !EMBEDDED_SCHEMA_NAMES.has(objectType)) return null;
+        return this._tryTranslateObservationSubquery(clause, childSchemaName, schemaMap, "");
+    }
+}
+
+export {RealmQueryParser, UnsupportedRealmQueryError, camelToSnake, schemaNameToTableName, normalizeRealmType};
+export default RealmQueryParser;

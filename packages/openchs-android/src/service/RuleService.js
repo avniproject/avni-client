@@ -3,6 +3,7 @@ import _ from 'lodash';
 import Service from '../framework/bean/Service';
 import {RuleDependency, Rule} from "avni-models";
 import General from "../utility/General";
+import Perf from "../utility/perf";
 import {common, motherCalculations} from 'avni-health-modules';
 import * as models from 'avni-models';
 import MediaService from "./MediaService";
@@ -60,12 +61,17 @@ class RuleService extends BaseService {
     getApplicableRules(ruledEntity, ruleType, ruledEntityType) {
         General.logDebug("RuleService",
             `Getting Rules of Type ${ruleType} for ${ruledEntityType} - ${ruledEntity.name} ${ruledEntity.uuid}`);
-        const rules = this.findAll()
-            .map(_.identity)
-            .filter(rule =>
-                rule.voided === false && rule.type === ruleType &&
-                rule.entity.uuid === ruledEntity.uuid && rule.entity.type === ruledEntityType);
-        return this.getRuleFunctions(rules);
+        // #2054 instrumentation: suspected hot spot. `.map(_.identity)` materialises the ENTIRE Rule
+        // table out of Realm before the filter runs, and this is called once per encounter type.
+        const all = this.findAll();
+        return Perf.time("RuleService.getApplicableRules", () => {
+            const rules = all
+                .map(_.identity)
+                .filter(rule =>
+                    rule.voided === false && rule.type === ruleType &&
+                    rule.entity.uuid === ruledEntity.uuid && rule.entity.type === ruledEntityType);
+            return this.getRuleFunctions(rules);
+        }, () => ({type: ruleType, entity: ruledEntity.name, tableRows: all.length}));
     }
 
     getRuleFunctions(rules = []) {
@@ -79,7 +85,7 @@ class RuleService extends BaseService {
 
     getRulesByType(type) {
         return this.getRuleFunctions(
-            this.db.objects(Rule.schema.name)
+            this.repository.findAll()
             .filtered(`voided = false and type=$0`, type)
             .map(_.identity));
     }
@@ -140,7 +146,8 @@ class RuleService extends BaseService {
     _queueWrite(result) {
         this._pendingWrites.push(result);
         if (this._flushTimer) clearTimeout(this._flushTimer);
-        this._flushTimer = setTimeout(() => this._flushPendingWrites(), this._flushDelayMs);
+        // Hold the batch dispatch (re-runs rules, re-renders the form) until the slide completes.
+        this._flushTimer = setTimeout(() => this._deferPastInteractions(() => this._flushPendingWrites()), this._flushDelayMs);
     }
 
     _flushPendingWrites() {

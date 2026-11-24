@@ -29,7 +29,7 @@ class IndividualRelationshipService extends BaseService {
     }
 
     getRelationshipType(individualRelative) {
-        const relationshipTypes = this.db.objects(IndividualRelationshipType.schema.name)
+        const relationshipTypes = this.repository.findAll()
             .filtered(`voided=false`)
             .filtered(`individualAIsToBRelation.uuid="${individualRelative.relation.uuid}" OR individualBIsToARelation.uuid="${individualRelative.relation.uuid}"`);
         General.logDebug("IndividualRelationshipTypeService", "Attempting to determine relationshipType based on gender");

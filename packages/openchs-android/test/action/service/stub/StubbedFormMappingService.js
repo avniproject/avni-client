@@ -3,6 +3,10 @@ import EntityFactory from "../../../EntityFactory";
 import StubbedBaseService from "./StubbedBaseService";
 
 class StubbedFormMappingService extends StubbedBaseService {
+    findActiveEncounterTypesForEncounter(subjectType) {
+        return this.serviceData.encounterTypes || [];
+    }
+
     findFormForProgramEnrolment() {
         const form = Form.safeInstance();
         form.addFormElementGroup(EntityFactory.createSafeFormElementGroup(form));
@@ -20,6 +24,14 @@ class StubbedFormMappingService extends StubbedBaseService {
 
     findActiveEncounterTypesForProgram(program){
         return this.serviceData.programEncounterTypes;
+    }
+
+    getIndividualEncounterFormMapping() {
+        return {form: this.serviceData.form};
+    }
+
+    getProgramEncounterFormMapping() {
+        return {form: this.serviceData.form};
     }
 }
 

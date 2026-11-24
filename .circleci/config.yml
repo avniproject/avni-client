@@ -9,7 +9,11 @@ parameters:
   versionCode:
     type: string
     default: "1"
-    description: Version code for the binary for internal use on the play store. Is of the format 100302.
+    description: >
+      Version code for the binary, for internal use on the play store. Format is "1" followed by the versionName
+      digits — for versionName 17.2.0 pass 1170200, for 17.3.0 pass 1170300. Do NOT pass the plain digits form
+      (170200): 17.1.0 was mistakenly built with versionCode=700003 instead of 170100 and is on the store as
+      9088611, and Play version codes can never go backwards. See android/app/build.gradle for the arithmetic.
   versionName:
     type: string
     default: "1.0.0"
@@ -84,18 +88,19 @@ commands:
           keys:
             - v2-autolinking-{{ checksum "packages/openchs-android/package-lock.json" }}
       - run:
-          name: Check autolinking cache
+          name: Ensure node_modules and autolinking configuration
           command: |
-            if [ -d packages/openchs-android/android/build/generated/autolinking ]; then
-              echo "Using cached autolinking configuration"
-            else
+            # node_modules must be checked first: the autolinking cache is keyed on
+            # package-lock.json and outlives the node_modules cache, so a hit there
+            # says nothing about whether dependencies are present.
+            if [ ! -d packages/openchs-android/node_modules/react-native ]; then
+              echo "node_modules not found (cache miss), installing dependencies..."
+              cd packages/openchs-android && npm install --legacy-peer-deps && npm run prebuild:android
+            elif [ ! -d packages/openchs-android/android/build/generated/autolinking ]; then
               echo "Generating fresh autolinking configuration..."
-              if [ ! -d packages/openchs-android/node_modules/react-native ]; then
-                echo "node_modules not found (cache miss), installing dependencies..."
-                cd packages/openchs-android && npm install --legacy-peer-deps && npm run prebuild:android
-              else
-                cd packages/openchs-android && npm run prebuild:android
-              fi
+              cd packages/openchs-android && npm run prebuild:android
+            else
+              echo "Using cached node_modules and autolinking configuration"
             fi
   run_with_retry:
     description: "Run a command with retry logic"
@@ -164,7 +169,7 @@ jobs:
 
   release_android_no_env:
     docker:
-      - image: cimg/android:2024.01-node
+      - image: cimg/android:2026.07-node
     working_directory: ~/avni-client
     resource_class: large
     steps:
@@ -202,7 +207,7 @@ jobs:
 
   release_android_staging:
     docker:
-      - image: cimg/android:2024.01-node
+      - image: cimg/android:2026.07-node
     working_directory: ~/avni-client
     resource_class: large
     environment:
@@ -244,7 +249,7 @@ jobs:
 
   release_android_gramin_staging:
     docker:
-      - image: cimg/android:2024.01-node
+      - image: cimg/android:2026.07-node
     working_directory: ~/avni-client
     resource_class: large
     environment:
@@ -286,7 +291,7 @@ jobs:
 
   release_android_prerelease:
     docker:
-      - image: cimg/android:2024.01-node
+      - image: cimg/android:2026.07-node
     working_directory: ~/avni-client
     resource_class: large
     environment:
@@ -340,7 +345,7 @@ jobs:
 
   release_android_perf:
     docker:
-      - image: cimg/android:2024.01-node
+      - image: cimg/android:2026.07-node
     working_directory: ~/avni-client
     resource_class: large
     environment:
@@ -391,7 +396,7 @@ jobs:
         type: string
         default: << pipeline.parameters.flavor >>_KEY_ALIAS
     docker:
-      - image: cimg/android:2024.01-node
+      - image: cimg/android:2026.07-node
     working_directory: ~/avni-client
     resource_class: large
     environment:

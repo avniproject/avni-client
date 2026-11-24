@@ -16,25 +16,24 @@ class FamilyService extends BaseService {
 
     search(criteria) {
         const filterCriteria = criteria.getFilterCriteria();
-        return _.isEmpty(filterCriteria) ? this.db.objects(Family.schema.name).slice(0, 100) :
-            this.db.objects(Family.schema.name)
+        return _.isEmpty(filterCriteria) ? this.repository.findAll().slice(0, 100) :
+            this.repository.findAll()
                 .filtered(filterCriteria,
                     criteria.getMinDateOfBirth(),
                     criteria.getMaxDateOfBirth()).slice(0, 100);
     }
 
     register(family) {
-        const db = this.db;
         ObservationsHolder.convertObsForSave(family.observations);
-        this.db.write(() => {
-            db.create(Family.schema.name, family, true);
-            db.create(EntityQueue.schema.name, EntityQueue.create(family, Family.schema.name));
+        this.transactionManager.write(() => {
+            this.repository.create(family, true);
+            this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(family, Family.schema.name));
         });
 
     }
 
     allFamiliesIn() {
-        return this.db.objects(Family.schema.name)
+        return this.repository.findAll()
             .map((family) => {
                 return {uuid: family.uuid, addressUUID: family.lowestAddressLevel.uuid};
             });

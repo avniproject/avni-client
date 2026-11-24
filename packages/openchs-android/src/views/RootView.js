@@ -12,6 +12,7 @@ import { getAvniError } from "../service/ServerError";
 import MessageService from "../service/MessageService";
 import { AlertMessage } from "./common/AlertMessage";
 import { BackHandler } from "react-native";
+import {logForcedLoginPromptAtLaunch} from "../utility/ForcedLoginPrompt";
 
 @Path('/rootView')
 @PathRoot
@@ -59,6 +60,8 @@ class RootView extends AbstractComponent {
         let userExists = false;
         await decisionParameters.userExists().then((x) => userExists = x);
         const databaseSynced = this.isDatabaseSynced();
+        // Not awaited: nothing about navigation should wait on an analytics event.
+        logForcedLoginPromptAtLaunch(this.context, {userExists, databaseSynced});
         if (userExists && databaseSynced) {
             return CHSNavigator.navigateToLandingView(this, true);
         }

@@ -1,7 +1,9 @@
 // @flow
 import _ from "lodash";
 import General from "../utility/General";
+import deferPastInteractions from "../utility/deferPastInteractions";
 import RealmQueryService from "./query/RealmQueryService";
+import UpdateMode from "../repository/UpdateMode";
 
 /*
 All methods with entity/entities in their name are to be used for disconnected objects. The ones without these terms are for connected objects.
@@ -31,6 +33,11 @@ class BaseService {
         this.db = db;
     }
 
+    // Defer a debounced flush past interactions, capped at 1s so it can't be starved.
+    _deferPastInteractions(flush) {
+        deferPastInteractions(flush, 1000);
+    }
+
     init() {
     }
 
@@ -57,7 +64,7 @@ class BaseService {
     }
 
     findAll(schema = this.getSchema()) {
-        return this.db.objects(schema);
+        return this.getRepository(schema).findAll();
     }
 
     findOnly(schema = this.getSchema()) {
@@ -78,6 +85,14 @@ class BaseService {
     }
 
     findByKey(keyName, value, schemaName = this.getSchema()) {
+        // For uuid lookups, check the in-memory reference data cache first.
+        // During sync, fromResource calls findByKey("uuid", conceptUuid, "Concept")
+        // ~15K times per 1000-entity page. Without this, each call executes a
+        // SQL query + hydration. With the cache, reference entity lookups are free.
+        if (keyName === "uuid" && this.db.getCachedEntity) {
+            const cached = this.db.getCachedEntity(schemaName, value);
+            if (cached !== undefined) return cached;
+        }
         const entities = this.findAllByKey(keyName, value, schemaName);
         return this.getReturnValue(entities);
     }
@@ -99,34 +114,32 @@ class BaseService {
     saveOrUpdate(entity, schema) {
         if (schema === undefined) schema = this.getSchema();
 
-        const db = this.db;
-        this.db.write(() => db.create(schema, entity, true));
+        this.transactionManager.write(() => this.getRepository(schema).create(entity, true));
         return entity;
     }
 
     bulkSaveOrUpdate(entities) {
-        this.db.write(() => {
+        this.transactionManager.write(() => {
             entities.map((entity) => entity());
         });
     }
 
     getCreateEntityFunctions(schema, entities) {
         return entities.map((entity) => () => {
-            this.db.create(schema, entity, Realm.UpdateMode.Modified)
+            this.getRepository(schema).create(entity, UpdateMode.Modified)
         });
     }
 
     save(entity, schema) {
         if (schema === undefined) schema = this.getSchema();
 
-        const db = this.db;
-        this.db.write(() => db.create(schema, entity));
+        this.transactionManager.write(() => this.getRepository(schema).create(entity));
         return entity;
     }
 
     getAll(schema) {
         if (schema === undefined) schema = this.getSchema();
-        return this.db.objects(schema);
+        return this.getRepository(schema).findAll();
     }
 
     loadAll(schema = this.getSchema()) {
@@ -141,7 +154,7 @@ class BaseService {
      Loads all objects without materialising them into model. Ideal for displaying large list or for further filtering
      **/
     getAllNonVoided(schema = this.getSchema()) {
-        return this.db.objects(schema).filtered("voided = false");
+        return this.getRepository(schema).getAllNonVoided();
     }
 
     /**
@@ -152,18 +165,25 @@ class BaseService {
     }
 
     getSchema() {
-        throw "getSchema should be overridden";
+        throw new Error(`getSchema should be overridden in ${this.constructor.name}`);
     }
 
     clearDataIn(entityTypes) {
-        const db = this.db;
-
-        entityTypes.forEach((entityType) => {
-            General.logDebug("BaseService", `Deleting all data from ${entityType.schema.name}`);
-            db.write(() => {
-                db.delete(db.objects(entityType.schema.name));
+        const repositoryFactory = this.context.getRepositoryFactory();
+        // Wipes are not FK-ordered (Realm nullified links on delete, so callers
+        // never had to care) — suspend enforcement for the duration of the wipe
+        const fkDisabled = repositoryFactory.setForeignKeysEnabled(false);
+        try {
+            entityTypes.forEach((entityType) => {
+                General.logDebug("BaseService", `Deleting all data from ${entityType.schema.name}`);
+                const repo = this.getRepository(entityType.schema.name);
+                this.transactionManager.write(() => {
+                    repo.deleteAll();
+                });
             });
-        });
+        } finally {
+            if (fkDisabled) repositoryFactory.setForeignKeysEnabled(true);
+        }
     }
 
     unVoided(item) {
@@ -171,14 +191,11 @@ class BaseService {
     }
 
     runInTransaction(fn) {
-        if (this.db.isInTransaction) {
-            return fn();
-        }
-        return this.db.write(fn);
+        return this.transactionManager.runInTransaction(fn);
     }
 
     existsByUuid(uuid, schema = this.getSchema()) {
-        return _.isEmpty(uuid) ? false : this.db.objects(schema).filtered('uuid = $0', uuid).length > 0;
+        return this.getRepository(schema).existsByUuid(uuid);
     }
 
     isNew(entity) {
@@ -186,7 +203,7 @@ class BaseService {
     }
 
     filtered(...args) {
-        return this.db.objects(this.getSchema()).filtered(...args);
+        return this.repository.filtered(...args);
     }
 
     filterBy(fn) {
@@ -204,6 +221,18 @@ class BaseService {
         return entities.map((x) => `${path} = "${x.uuid}"`).join(" OR ");
     }
 
+    getRepository(schemaName) {
+        return this.context.getRepositoryFactory().getRepository(schemaName || this.getSchema());
+    }
+
+    get repository() {
+        return this.getRepository();
+    }
+
+    get transactionManager() {
+        return this.context.getRepositoryFactory().transactionManager;
+    }
+
     getActualSchemaVersion() {
         return this.db.schemaVersion;
     }
@@ -213,22 +242,21 @@ class BaseService {
     }
 
     delete(objectOrObjects) {
-        const db = this.db;
-        this.db.write(() => {
-            db.delete(objectOrObjects);
+        this.transactionManager.write(() => {
+            this.repository.deleteInTransaction(objectOrObjects);
         });
     }
 
     deleteAll() {
-        const db = this.db;
         const all = this.findAll(this.getSchema());
-        this.db.write(() => {
-            db.delete(all);
+        this.transactionManager.write(() => {
+            this.repository.deleteInTransaction(all);
         });
     }
-    
+
+    // Must be called within an existing transaction
     safeDelete(object) {
-        if(!_.isNil(object)) this.db.delete(object);
+        if(!_.isNil(object)) this.repository.deleteInTransaction(object);
     }
 }
 

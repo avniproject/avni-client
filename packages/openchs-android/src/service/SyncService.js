@@ -6,8 +6,10 @@ import EntitySyncStatusService from "./EntitySyncStatusService";
 import SettingsService from "./SettingsService";
 
 import {
+    EntityApprovalStatus,
     EntityMetaData,
     EntitySyncStatus,
+    MyGroups,
     RuleFailureTelemetry,
     SyncTelemetry,
     IgnorableSyncError
@@ -22,6 +24,10 @@ import _ from "lodash";
 import RuleService from "./RuleService";
 import PrivilegeService from "./PrivilegeService";
 import {firebaseEvents, logEvent} from "../utility/Analytics";
+import SyncPhaseTimer, {SyncPhases} from "../utility/SyncPhaseTimer";
+import {
+    bandwidthFirebaseParams, computeSyncBandwidth, TransferStats, withoutSpeedSample
+} from "../utility/SyncBandwidth";
 import MediaService from "./MediaService";
 import NewsService from "./news/NewsService";
 import ExtensionService from "./ExtensionService";
@@ -34,7 +40,10 @@ import SubjectTypeService from "./SubjectTypeService";
 import MetricsService from "./MetricsService";
 import {post} from "../framework/http/requests";
 import General from "../utility/General";
+import ErrorUtil from "../framework/errorHandling/ErrorUtil";
+import {BACKENDS} from "../framework/BackendTypes";
 import SubjectMigrationService from "./SubjectMigrationService";
+import AddressLevelService from "./AddressLevelService";
 import ResetSyncService from "./ResetSyncService";
 import TaskUnAssignmentService from "./task/TaskUnAssignmentService";
 import UserSubjectAssignmentService from "./UserSubjectAssignmentService";
@@ -42,16 +51,12 @@ import moment from "moment";
 import AllSyncableEntityMetaData from "../model/AllSyncableEntityMetaData";
 import {IndividualSearchActionNames as IndividualSearchActions} from '../action/individual/IndividualSearchActions';
 import {LandingViewActionsNames as LandingViewActions} from '../action/LandingViewActions';
-import {MyDashboardActionNames} from '../action/mydashboard/MyDashboardActions';
-import {
-    CustomDashboardActionNames,
-    performCustomDashboardActionAndClearRefresh,
-} from '../action/customDashboard/CustomDashboardActions';
 import LocalCacheService from "./LocalCacheService";
-import CustomDashboardService, {CustomDashboardType} from './customDashboard/CustomDashboardService';
 import DeviceInfo from "react-native-device-info";
 import {pruneConceptMedia} from "../task/PruneMedia";
 import FileSystem from "../model/FileSystem";
+import {jsonArrayListPropFor} from "../framework/db/SchemaGenerator";
+import LastSyncCompleted from "./LastSyncCompleted";
 
 function transformResourceToEntity(entityMetaData, entityResources) {
     return (acc, resource) => {
@@ -75,6 +80,27 @@ class SyncService extends BaseService {
     constructor(db, context) {
         super(db, context);
         this.persistAll = this.persistAll.bind(this);
+    }
+
+    // Lazily created so they exist before the first sync, e.g. for an offline error.
+    get syncPhaseTimer() {
+        if (!this._syncPhaseTimer) this._syncPhaseTimer = new SyncPhaseTimer();
+        return this._syncPhaseTimer;
+    }
+
+    get transferStats() {
+        if (!this._transferStats) this._transferStats = SyncService.newTransferStats();
+        return this._transferStats;
+    }
+
+    static newTransferStats() {
+        return {download: new TransferStats(), upload: new TransferStats()};
+    }
+
+    // Call only while holding the sync lock, or a running sync's measurements get wiped.
+    resetSyncMeasurements() {
+        this._syncPhaseTimer = new SyncPhaseTimer();
+        this._transferStats = SyncService.newTransferStats();
     }
 
     static syncSources = {
@@ -124,6 +150,8 @@ class SyncService extends BaseService {
         if (this.syncLock !== lockId) {
             return Promise.reject("Use acquireLock before calling this function");
         }
+        // First thing, so even a failure before START_SYNC never reports the previous sync's phases.
+        this.resetSyncMeasurements();
 
         this.deviceId = await DeviceInfo.getAndroidId();
         const progressBarStatus = new ProgressbarStatus(trackProgress,
@@ -136,10 +164,23 @@ class SyncService extends BaseService {
 
         const mediaUploadRequired = this.mediaQueueService.isMediaUploadRequired();
         const updatedSyncSource = this.getUpdatedSyncSource(syncSource);
+        const isOnlyUploadRequired = updatedSyncSource === SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB;
         const appInfo = await this.metricsService.getAppInfo();
+        // Down for the duration of this sync. A sync the app never finishes writes no telemetry
+        // row at all, so without this the previous sync's "complete" would stand as the newest
+        // answer and the catchment upload would read a dead device as healthy (#2141).
+        // Upload-only background syncs pull nothing, so they cannot make a stale database
+        // current — the same reason getLatestCompletedFullSync excludes them — and they leave
+        // the flag as they found it. Lowering it on one, with nothing to raise it again, would
+        // block a healthy phone from an hour after each full sync until the next.
+        if (!isOnlyUploadRequired) await LastSyncCompleted.clear();
         this.dispatchAction(SyncTelemetryActions.START_SYNC, {connectionInfo, syncSource: updatedSyncSource, appInfo});
         logEvent(firebaseEvents.SYNC_START, {trigger: updatedSyncSource});
-        const syncCompleted = () => Promise.resolve(this.dispatchAction(SyncTelemetryActions.SYNC_COMPLETED))
+        const syncCompleted = () => Promise.resolve(this.dispatchAction(SyncTelemetryActions.SYNC_COMPLETED, {
+            phases: this.syncPhaseTimer.toTelemetry(),
+            bandwidth: this.syncBandwidth()
+        }))
+            .then(() => isOnlyUploadRequired ? Promise.resolve() : LastSyncCompleted.set())
             .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity))
             .then(() => Promise.resolve(progressBarStatus.onSyncComplete()))
             .then(() => Promise.resolve(this.logSyncCompleteEvent(syncStartTime, updatedSyncSource)))
@@ -154,10 +195,10 @@ class SyncService extends BaseService {
         // Don't do it twice if no image sync required
         General.logDebug('mediaUploadRequired', mediaUploadRequired);
         const isManualSync = updatedSyncSource === SyncService.syncSources.SYNC_BUTTON;
-        const isOnlyUploadRequired = updatedSyncSource === SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB;
         let promise;
         if (mediaUploadRequired) {
-            promise = this.mediaSync(statusMessageCallBack).then(() => onAfterMediaPush('Media', 0));
+            promise = this.syncPhaseTimer.time(SyncPhases.MEDIA, () => this.mediaSync(statusMessageCallBack))
+                .then(() => onAfterMediaPush('Media', 0));
         } else {
             promise = Promise.resolve();
         }
@@ -181,7 +222,51 @@ class SyncService extends BaseService {
 
     logSyncCompleteEvent(syncStartTime, syncSource) {
         const syncTime = Date.now() - syncStartTime;
-        logEvent(firebaseEvents.SYNC_COMPLETE, {trigger: syncSource, duration_ms: syncTime});
+        logEvent(firebaseEvents.SYNC_COMPLETE, {
+            trigger: syncSource,
+            duration_ms: syncTime,
+            ...this.syncPhaseTimer.toFirebaseParams(),
+            ...bandwidthFirebaseParams(this.syncBandwidth())
+        });
+    }
+
+    // pull_todo only counts entities the pull has reached, so it is a lower bound on the full pull.
+    syncFailureParams() {
+        const timer = this.syncPhaseTimer;
+        const entityStatus = _.get(this.reduxStore && this.reduxStore.getState(), 'syncTelemetryActions.entityStatus');
+        const params = {
+            ...timer.toFirebaseParams(),
+            failed_phase: timer.failedPhase(),
+            ...bandwidthFirebaseParams(this.syncBandwidth())
+        };
+        [SyncPhases.PUSH, SyncPhases.PULL].forEach(phase => {
+            const entries = _.get(entityStatus, phase);
+            if (!timer.hasStarted(phase) || !_.isArray(entries)) return;
+            params[`${phase}_done`] = _.sumBy(entries, 'done');
+            params[`${phase}_todo`] = _.sumBy(entries, 'todo');
+        });
+        return params;
+    }
+
+    // For SYNC_FAILED, from both the Sync button and the background job.
+    syncFailedTelemetry() {
+        return {
+            phases: this.syncPhaseTimer.toTelemetry(),
+            failedPhase: this.syncPhaseTimer.failedPhase(),
+            bandwidth: this.syncBandwidth()
+        };
+    }
+
+    // A step that failed is left out: its finished transfers alone would overstate the speed.
+    syncBandwidth() {
+        const timer = this.syncPhaseTimer;
+        return computeSyncBandwidth({
+            download: timer.hasFinished(SyncPhases.PULL) ? this.transferStats.download : undefined,
+            upload: timer.hasFinished(SyncPhases.PUSH) ? this.transferStats.upload : undefined,
+            mediaUpload: timer.hasFinished(SyncPhases.MEDIA) && this.mediaQueueService
+                ? this.mediaQueueService.getUploadStats()
+                : undefined
+        });
     }
 
     mediaSync(statusMessageCallBack) {
@@ -191,7 +276,9 @@ class SyncService extends BaseService {
 
     telemetrySync(allEntitiesMetaData, onProgressPerEntity) {
         const telemetryMetadata = allEntitiesMetaData.filter(entityMetadata => entityMetadata.schemaName === SyncTelemetry.schema.name);
-        const onCompleteOfIndividualPost = (entityMetadata, entityUUID) => this.entityQueueService.popItem(entityUUID)();
+        // Must return the callback, not run it: an expression body here popped the row before the
+        // post was even attempted, losing the telemetry whenever that post failed.
+        const onCompleteOfIndividualPost = (entityMetadata, entityUUID) => () => this.entityQueueService.popItem(entityUUID)();
         const entitiesToPost = telemetryMetadata.reverse()
             .map(this.entityQueueService.getAllQueuedItems)
             .filter((entities) => !_.isEmpty(entities.entities));
@@ -235,51 +322,193 @@ class SyncService extends BaseService {
     /*
      * If isOnlyUploadRequired = true, then only perform upload of data to Backend server
      */
-    async dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isSyncResetRequired, userConfirmation, isOnlyUploadRequired) {
+    async dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isManualSync, userConfirmation, isOnlyUploadRequired) {
         const allTxEntityMetaData = this.getMetadataByType(allEntitiesMetaData, "tx");
         const resetSyncMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "ResetSync");
         const uploadData = Promise.resolve(statusMessageCallBack("uploadLocallySavedData"))
-            .then(() => this.pushData(allTxEntityMetaData.slice(), onProgressPerEntity))
+            // Push includes reading the queue and popping each record, so it isn't network time either.
+            .then(() => this.syncPhaseTimer.time(SyncPhases.PUSH,
+                () => this.pushData(allTxEntityMetaData.slice(), onProgressPerEntity)))
             .then(() => onAfterMediaPush("After_Media", 0));
         if (isOnlyUploadRequired) {
             return uploadData;
         }
         await uploadData
+            // Pull still counts local work (persisting, migration switch, encryption, caches), so isn't network time.
+            .then(() => this.syncPhaseTimer.start(SyncPhases.PULL))
             .then(() => statusMessageCallBack("FetchingChangedResource"))
             .then(() => this.getResetSyncData(resetSyncMetadata, onProgressPerEntity))
             .then(async () => {
                 const isResetSyncRequired = this.getService(ResetSyncService).isResetSyncRequired();
-                return await isResetSyncRequired && isSyncResetRequired && this.confirmUserAndResetSync(userConfirmation);
+                // The dialog waits on the user and the reset is a local wipe, so neither counts as pull.
+                return await isResetSyncRequired && isManualSync && this.syncPhaseTimer.whilePaused(SyncPhases.PULL,
+                    () => this.confirmUserAndResetSync(userConfirmation));
             });
 
-        const {syncDetails, endDateTime, now} = await this.getSyncDetails();
+        let {syncDetails, endDateTime, now} = await this.getSyncDetails();
+        // Server clock read immediately after pushData, so everything this sync uploaded
+        // is stamped at or before it. The migration catch-up pull needs it to know when
+        // its window has moved past our own uploads.
+        const serverTimeAfterUpload = now;
 
         const entitiesWithoutSubjectMigrationAndResetSync = _.filter(allEntitiesMetaData, ({entityName}) => !_.includes(['ResetSync', 'SubjectMigration'], entityName));
         const filteredMetadata = _.filter(entitiesWithoutSubjectMigrationAndResetSync, ({entityName}) => _.find(syncDetails, sd => sd.entityName === entityName));
         const referenceEntityMetadata = this.getMetadataByType(filteredMetadata, "reference");
-        const filteredTxData = this.getMetadataByType(filteredMetadata, "tx");
+        // Only MyGroups has to be fresh before the migration check — it is what decides
+        // whether to switch. The rest is deferred: on a migration sync the switch abandons
+        // this backend and re-pulls every reference entity into SQLite, so pulling the bulk
+        // here would fetch the whole reference dataset twice.
+        const migrationDecisionMetadata = _.filter(referenceEntityMetadata,
+            ({entityName}) => entityName === MyGroups.schema.name);
+        const deferredReferenceMetadata = _.filter(referenceEntityMetadata,
+            ({entityName}) => entityName !== MyGroups.schema.name);
+        // let (not const): after a mid-sync backend switch these are recomputed from the
+        // post-switch syncDetails so the transactional pull uses the fresh REALLY_OLD_DATE
+        // checkpoints on the new backend rather than the pre-switch (Realm) ones.
+        let filteredTxData = this.getMetadataByType(filteredMetadata, "tx");
         const userInfoData = _.filter(filteredMetadata, ({entityName}) => entityName === "UserInfo");
         const subjectMigrationMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "SubjectMigration");
-        const currentVersionEntitySyncDetails = this.retainEntitiesPresentInCurrentVersion(syncDetails, allEntitiesMetaData);
+        let currentVersionEntitySyncDetails = this.retainEntitiesPresentInCurrentVersion(syncDetails, allEntitiesMetaData);
         General.logDebug("SyncService", `Entities to sync ${_.map(currentVersionEntitySyncDetails, ({entityName, entityTypeUuid}) => [entityName, entityTypeUuid])}`);
         this.entitySyncStatusService.updateAsPerSyncDetails(currentVersionEntitySyncDetails);
 
         let syncDetailsWithPrivileges;
+        // Set when this sync opens a migration leg. The leg commits in the final .then, after
+        // the pull, the catch-up and every download; any failure before that is caught after
+        // .finally, which puts the runtime back on the committed backend. syncSucceeded gates
+        // the FK integrity check — a half-populated DB after a network drop would otherwise
+        // produce spurious FK violation reports.
+        let migrationSwitched = false;
+        let migrationLeg = null;
+        let syncSucceeded = false;
+        this._disableForeignKeysIfSqlite();
+        this._enableShallowHydrationIfSqlite();
         return Promise.resolve(statusMessageCallBack("downloadForms"))
             .then(() => this.getTxData(userInfoData, onProgressPerEntity, syncDetails, endDateTime))
-            .then(() => this.getRefData(referenceEntityMetadata, onProgressPerEntity, now, endDateTime))
+            .then(() => this.getRefData(migrationDecisionMetadata, onProgressPerEntity, now, endDateTime))
+            .then(async () => {
+                const result = await this._switchBackendAndResyncRefDataIfNeeded(
+                    statusMessageCallBack, onProgressPerEntity, allEntitiesMetaData, isManualSync);
+                if (result) {
+                    syncDetails = result.syncDetails;
+                    endDateTime = result.endDateTime;
+                    migrationLeg = result.leg;
+                    migrationSwitched = true;
+                    // Rebuild the transactional entity list + sync details from the POST-switch
+                    // syncDetails. The target's entity_sync_status carries its own checkpoints —
+                    // REALLY_OLD_DATE on a first attempt, this migration's progress on re-entry;
+                    // the pre-switch values belong to the backend the sync started on and would
+                    // make the tx pull fetch only rows changed since that backend's last sync.
+                    const postSwitchFilteredMetadata = _.filter(entitiesWithoutSubjectMigrationAndResetSync,
+                        ({entityName}) => _.find(syncDetails, sd => sd.entityName === entityName));
+                    filteredTxData = this.getMetadataByType(postSwitchFilteredMetadata, "tx");
+                    currentVersionEntitySyncDetails = this.retainEntitiesPresentInCurrentVersion(syncDetails, allEntitiesMetaData);
+                }
+            })
+            // _switchBackendAndResyncRefDataIfNeeded already re-pulled all reference data on
+            // the new backend, so only the no-switch path still owes the deferred bulk.
+            .then(() => migrationSwitched
+                ? undefined
+                : this.getRefData(deferredReferenceMetadata, onProgressPerEntity, now, endDateTime))
             .then(() => this.getService(EncryptionService).encryptOrDecryptDbIfRequired())
+            .then(() => {
+                // Encryption/decryption reinitializes the DB; the fresh proxy comes up
+                // with FK ON and shallow hydration off — re-apply sync modes for the
+                // tx-data downloads still ahead.
+                this._disableForeignKeysIfSqlite();
+                this._enableShallowHydrationIfSqlite();
+            })
+            .then(() => this._buildReferenceCacheIfSqlite())
             .then(() => syncDetailsWithPrivileges = this.updateAsPerNewPrivilege(allEntitiesMetaData, updateProgressSteps, currentVersionEntitySyncDetails))
             .then(() => statusMessageCallBack("downloadNewDataFromServer"))
             .then(() => this.getTxData(subjectMigrationMetadata, onProgressPerEntity, syncDetailsWithPrivileges, endDateTime))
-            .then(() => this.getService(SubjectMigrationService).migrateSubjects(onProgressPerEntity))
+            .then(async () => {
+                // Subject migration walks subject.enrolments → enrolment.encounters →
+                // observation arrays etc. to delete an entire subject subtree, so it
+                // needs deep hydration. Disable shallow mode just for this step.
+                this._disableShallowHydrationIfSqlite();
+                try {
+                    return await this.getService(SubjectMigrationService).migrateSubjects(onProgressPerEntity);
+                } finally {
+                    this._enableShallowHydrationIfSqlite();
+                }
+            })
             .then(() => this.getTxData(filteredTxData, onProgressPerEntity, syncDetailsWithPrivileges, endDateTime))
+            .then(() => migrationSwitched && this._catchUpTxDataAfterMigration(allEntitiesMetaData, serverTimeAfterUpload))
+            .then(() => this.syncPhaseTimer.end(SyncPhases.PULL))
             .then(() => this.downloadNewsImages())
             .then(() => this.downloadExtensions())
             .then(() => this.downloadCustomCardHtmlFiles())
             .then(() => this.downloadFormShareTemplates())
             .then(() => this.downloadIcons())
             .then(() => this.downloadContent(statusMessageCallBack))
+            .then(async () => {
+                // The single commit. Until this line the state record still names the backend
+                // the sync started on, so a crash anywhere above boots that complete backend
+                // and the next sync the user starts carries the migration on.
+                if (migrationSwitched) {
+                    await this._finalizeMigrationState(migrationLeg);
+                }
+                syncSucceeded = true;
+            })
+            .finally(() => {
+                this._disableShallowHydrationIfSqlite();
+                this._enableForeignKeysIfSqlite();
+                if (syncSucceeded) this._checkForeignKeyIntegrityIfSqlite();
+            })
+            // After .finally, so the sync modes are reset on the backend they were applied to
+            // before the runtime moves back.
+            .catch(async (error) => {
+                await this._abandonMigrationLegIfOpen(error);
+                throw error;
+            });
+    }
+
+    // The tx pull's upper bound is the server's `now - 10s`, so records THIS sync uploaded
+    // are stamped past it and the migration's full pull skips them — and the source DB,
+    // their only other copy, has just been abandoned. Pull once more against a fresh
+    // window to bring them across; checkpoints advanced during the full pull, so it is a
+    // cheap delta.
+    async _catchUpTxDataAfterMigration(allEntitiesMetaData, serverTimeAfterUpload) {
+        let {syncDetails, endDateTime} = await this.getSyncDetails();
+        // Both timestamps are server-issued, so this comparison is immune to device clock
+        // skew. A short sync can leave the window still short of our own uploads; wait it
+        // out rather than lose them, since the source DB is already gone.
+        const shortfallMillis = moment(serverTimeAfterUpload).diff(moment(endDateTime));
+        if (shortfallMillis > 0) {
+            General.logInfo("SyncService",
+                `Catch-up pull window is ${shortfallMillis}ms short of this sync's uploads — waiting`);
+            await this.syncPhaseTimer.whilePaused(SyncPhases.PULL,
+                () => new Promise(resolve => setTimeout(resolve, shortfallMillis + 1000)));
+            ({syncDetails, endDateTime} = await this.getSyncDetails());
+        }
+        const currentVersionEntitySyncDetails = this.retainEntitiesPresentInCurrentVersion(syncDetails, allEntitiesMetaData);
+        this.entitySyncStatusService.updateAsPerSyncDetails(currentVersionEntitySyncDetails);
+        const syncDetailsWithPrivileges = this.entitySyncStatusService.removeRevokedPrivileges(
+            allEntitiesMetaData, currentVersionEntitySyncDetails);
+        const txMetadata = this.getMetadataByType(
+            _.filter(allEntitiesMetaData, ({entityName}) =>
+                !_.includes(['ResetSync', 'SubjectMigration'], entityName)
+                && _.find(syncDetails, sd => sd.entityName === entityName)), "tx");
+        // Progress is deliberately not reported — the bar has already accounted for
+        // these entities once and would overshoot.
+        return this.getTxData(txMetadata, _.noop, syncDetailsWithPrivileges, endDateTime);
+    }
+
+    // Records the migration complete. Called only from the final .then of dataServerSync,
+    // after the pull, the catch-up and every download. Errors propagate: a leg whose
+    // completion cannot be recorded fails, and the runtime returns to the committed backend.
+    async _finalizeMigrationState(leg) {
+        await this.getService('sqliteMigrationService').commitLeg(leg);
+    }
+
+    // A no-op unless this sync opened a migration leg. Never throws, so the caller's own
+    // error is what fails the sync.
+    async _abandonMigrationLegIfOpen(error) {
+        const migrationService = this.getService('sqliteMigrationService');
+        if (migrationService && typeof migrationService.abandonOpenLeg === 'function') {
+            await migrationService.abandonOpenLeg(error);
+        }
     }
 
     downloadExtensions() {
@@ -315,7 +544,7 @@ class SyncService extends BaseService {
         General.logDebug("SyncService", "Starting to download concept media (images and videos)");
         const conceptsWithMedia = this.conceptService.getAllConceptsWithIcon();
         General.logDebug("SyncService", `Found ${conceptsWithMedia.length} concepts with media`);
-        
+
         const allMediaItems = [];
         conceptsWithMedia.forEach(concept => {
             if (concept.media && concept.media.length > 0) {
@@ -330,15 +559,15 @@ class SyncService extends BaseService {
                 });
             }
         });
-        
+
         General.logDebug("SyncService", `Found ${allMediaItems.length} media items to download`);
-        
+
         if (allMediaItems.length === 0) {
             return Promise.resolve([]);
         }
 
         const chunkedMediaItems = _.chunk(allMediaItems, PARALLEL_DOWNLOAD_COUNT);
-        
+
         const downloadChunk = (chunk) => {
             return Promise.all(chunk.map(mediaItem => {
                 return this.mediaService.downloadFileIfRequired(mediaItem.url, 'Metadata', false)
@@ -348,12 +577,12 @@ class SyncService extends BaseService {
                     });
             }));
         };
-        
+
         let promise = Promise.resolve();
         chunkedMediaItems.forEach(chunk => {
             promise = promise.then(() => downloadChunk(chunk));
         });
-        
+
         return promise;
     }
 
@@ -409,10 +638,11 @@ class SyncService extends BaseService {
     }
 
     getData(entitiesMetaDataWithSyncStatus, afterEachPagePulled, now) {
-        const onGetOfFirstPage = (entityName, page) =>
+        const onGetOfFirstPage = (entityName, page, entityTypeUuid) =>
             this.dispatchAction(SyncTelemetryActions.RECORD_FIRST_PAGE_OF_PULL, {
                 entityName,
-                totalElements: page.totalElements
+                totalElements: page.totalElements,
+                entityTypeUuid
             });
 
         return this.conventionalRestClient.getAll(entitiesMetaDataWithSyncStatus, this.persistAll, onGetOfFirstPage, afterEachPagePulled, now, this.deviceId);
@@ -431,25 +661,111 @@ class SyncService extends BaseService {
         return _.values(_.groupBy(parentEntities, 'uuid')).map(entities => entityMetaData.parent.entityClass.mergeMultipleParents(entityMetaData.entityClass.schema.name, entities));
     }
 
-    persistAll(entityMetaData, entityResources) {
-        if (_.isEmpty(entityResources)) return;
+    _parentStoresChildAsJsonArray(entityMetaData) {
+        return !_.isNil(jsonArrayListPropFor(entityMetaData.parent.schemaName, entityMetaData.schemaName));
+    }
+
+    _refreshParentCacheForJsonArray(entityMetaData, mergedParents) {
+        if (typeof this.db.getCachedEntity !== 'function') return;
+        const parentSchema = entityMetaData.parent.schemaName;
+        const listProp = jsonArrayListPropFor(parentSchema, entityMetaData.schemaName);
+        if (!listProp) return;
+        mergedParents.forEach(parent => {
+            const cached = this.db.getCachedEntity(parentSchema, parent.uuid);
+            if (cached) {
+                const data = parent.that || parent;
+                cached.that[listProp] = data[listProp];
+            }
+        });
+    }
+
+    async persistAll(entityMetaData, entityResources, timings) {
+        const persistStart = performance.now();
+        this.transferStats.download.add(timings);
+        // Every entity costs a round trip even when it has nothing to pull, so an empty page is
+        // still reported - otherwise that time is missing from the telemetry entirely.
+        if (_.isEmpty(entityResources)) {
+            this.dispatchAction(SyncTelemetryActions.ENTITY_PULL_COMPLETED, {
+                entityName: entityMetaData.entityName,
+                numberOfPulledEntities: 0,
+                durations: {...withoutSpeedSample(timings), persistMs: General.elapsedMs(persistStart)},
+                entityTypeUuid: _.get(entityMetaData, 'syncStatus.entityTypeUuid')
+            });
+            return;
+        }
         entityResources = _.sortBy(entityResources, 'lastModifiedDateTime');
         const loadedSince = _.last(entityResources).lastModifiedDateTime;
 
         const entities = entityResources.reduce(transformResourceToEntity.call(this, entityMetaData, entityResources), []);
         const initialLength = entityResources.length;
-        //Filtering out the entityResources which were not converted into entities due to IgnorableSyncErrors
         entityResources = _.filter(entityResources, (resource) => !resource.excludeFromPersist);
         General.logDebug("SyncService", `Before filter entityResources length: ${initialLength}, after filter entityResources length: ${entityResources.length}, entities length  ${entities.length}`);
-        General.logDebug("SyncService", `Creating entity create functions for schema ${entityMetaData.schemaName}`);
-        let entitiesToCreateFns = this.getCreateEntityFunctions(entityMetaData.schemaName, entities);
+
         if (entityMetaData.nameTranslated) {
             entityResources.map((entity) => this.messageService.addTranslation('en', entity.translatedFieldValue, entity.translatedFieldValue));
         }
-        //most avni-models are designed to have oneToMany relations
-        //Each model has a static method `associateChild` implemented in manyToOne fashion
-        //`<A Model>.associateChild()` method takes childInformation, finds the parent, assigns the child to the parent and returns the parent
-        //`<A Model>.associateChild()` called many times as many children
+
+        // Handle special entity types
+        if (entityMetaData.entityName === "TaskUnAssignment") {
+            this.getService(TaskUnAssignmentService).deleteUnassignedTasks(entities);
+        }
+        if (entityMetaData.entityName === 'UserSubjectAssignment') {
+            this.getService(UserSubjectAssignmentService).deleteUnassignedSubjectsAndDependents(entities);
+        }
+
+        General.logDebug("SyncService", `Syncing - ${entityMetaData.entityName} with subType: ${entityMetaData.syncStatus.entityTypeUuid}`);
+
+        // Use batch path for SQLite — one native call for all entities via executeBatch
+        if (this.db.isSqlite && typeof this.db.bulkCreate === 'function') {
+            await this._persistAllBatch(entityMetaData, entityResources, entities, loadedSince);
+        } else {
+            this._persistAllSync(entityMetaData, entityResources, entities, loadedSince);
+        }
+
+        // Taken after the batch path's await, so persistMs covers the write on either backend.
+        this.dispatchAction(SyncTelemetryActions.ENTITY_PULL_COMPLETED, {
+            entityName: entityMetaData.entityName,
+            numberOfPulledEntities: entities.length,
+            durations: {...withoutSpeedSample(timings), persistMs: General.elapsedMs(persistStart)},
+            entityTypeUuid: _.get(entityMetaData, 'syncStatus.entityTypeUuid')
+        });
+    }
+
+    // FK-on-child relationships need no parent re-save, but JSON-array lists store
+    // the link on the parent row (e.g. concept.answers), so re-save those parents.
+    async _persistAllBatch(entityMetaData, entityResources, entities, loadedSince) {
+        await this.db.bulkCreate(entityMetaData.schemaName, entities);
+
+        // associateChild also maintains the parent's latestEntityApprovalStatus link;
+        // with no parent re-save here, derive it in SQL from the just-written rows.
+        if (entityMetaData.schemaName === EntityApprovalStatus.schema.name && !_.isEmpty(entityMetaData.parent)) {
+            this.db.recomputeLatestEntityApprovalStatus(entityMetaData.parent.schemaName, _.uniq(_.compact(entities.map(e => e.entityUUID))));
+        }
+
+        if (!_.isEmpty(entityMetaData.parent) && this._parentStoresChildAsJsonArray(entityMetaData)) {
+            const mergedParents = entityMetaData.hasMoreThanOneAssociation
+                ? this.associateMultipleParents(entityResources, entities, entityMetaData)
+                : this.associateParent(entityResources, entities, entityMetaData);
+            await this.db.bulkCreate(entityMetaData.parent.schemaName, mergedParents);
+            // Keep the cache in step so a later page doesn't overwrite what this one wrote.
+            this._refreshParentCacheForJsonArray(entityMetaData, mergedParents);
+        }
+
+        // Update sync status (1 row)
+        const currentEntitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName, entityMetaData.syncStatus.entityTypeUuid);
+        const entitySyncStatus = new EntitySyncStatus();
+        entitySyncStatus.entityName = entityMetaData.entityName;
+        entitySyncStatus.entityTypeUuid = entityMetaData.syncStatus.entityTypeUuid;
+        entitySyncStatus.uuid = currentEntitySyncStatus.uuid;
+        entitySyncStatus.loadedSince = new Date(loadedSince);
+        this.bulkSaveOrUpdate(this.getCreateEntityFunctions(EntitySyncStatus.schema.name, [entitySyncStatus]));
+    }
+
+    // Original sync path for Realm (synchronous)
+    _persistAllSync(entityMetaData, entityResources, entities, loadedSince) {
+        General.logDebug("SyncService", `Creating entity create functions for schema ${entityMetaData.schemaName}`);
+        let entitiesToCreateFns = this.getCreateEntityFunctions(entityMetaData.schemaName, entities);
+
         if (!_.isEmpty(entityMetaData.parent)) {
             if (entityMetaData.hasMoreThanOneAssociation) {
                 const mergedParentEntities = this.associateMultipleParents(entityResources, entities, entityMetaData);
@@ -462,15 +778,6 @@ class SyncService extends BaseService {
             }
         }
 
-        if (entityMetaData.entityName === "TaskUnAssignment") {
-            this.getService(TaskUnAssignmentService).deleteUnassignedTasks(entities);
-        }
-
-        if (entityMetaData.entityName === 'UserSubjectAssignment') {
-            this.getService(UserSubjectAssignmentService).deleteUnassignedSubjectsAndDependents(entities);
-        }
-
-        General.logDebug("SyncService", `Syncing - ${entityMetaData.entityName} with subType: ${entityMetaData.syncStatus.entityTypeUuid}`);
         const currentEntitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName, entityMetaData.syncStatus.entityTypeUuid);
         const entitySyncStatus = new EntitySyncStatus();
         entitySyncStatus.entityName = entityMetaData.entityName;
@@ -479,32 +786,99 @@ class SyncService extends BaseService {
         entitySyncStatus.loadedSince = new Date(loadedSince);
         General.logDebug("SyncService", `Creating entity create functions for ${currentEntitySyncStatus}`);
         this.bulkSaveOrUpdate(entitiesToCreateFns.concat(this.getCreateEntityFunctions(EntitySyncStatus.schema.name, [entitySyncStatus])));
-        this.dispatchAction(SyncTelemetryActions.ENTITY_PULL_COMPLETED, {
-            entityName: entityMetaData.entityName,
-            numberOfPulledEntities: entities.length
-        });
     }
 
     pushData(allTxEntityMetaData, afterEachEntityTypePushed) {
+        const readDurations = {};
         const entitiesToPost = allTxEntityMetaData.reverse()
-            .map(this.entityQueueService.getAllQueuedItems)
+            .map((entityMetaData) => {
+                const readStart = performance.now();
+                const queued = this.entityQueueService.getAllQueuedItems(entityMetaData);
+                readDurations[entityMetaData.entityName] = General.elapsedMs(readStart);
+                return queued;
+            })
             .filter((entities) => !_.isEmpty(entities.entities));
 
-        this.dispatchAction(SyncTelemetryActions.RECORD_PUSH_TODO_TELEMETRY, {entitiesToPost});
+        this.dispatchAction(SyncTelemetryActions.RECORD_PUSH_TODO_TELEMETRY, {entitiesToPost, readDurations});
 
         const onCompleteOfIndividualPost = (entityMetadata, entityUUID) => {
-            return () => {
-                this.dispatchAction(SyncTelemetryActions.ENTITY_PUSH_COMPLETED, {entityMetadata});
-                return this.entityQueueService.popItem(entityUUID)();
+            return (timings) => {
+                const persistStart = performance.now();
+                this.transferStats.upload.add(timings);
+                const result = this.entityQueueService.popItem(entityUUID)();
+                this.dispatchAction(SyncTelemetryActions.ENTITY_PUSH_COMPLETED, {
+                    entityMetadata,
+                    durations: {...withoutSpeedSample(timings), persistMs: General.elapsedMs(persistStart)}
+                });
+                return result;
             }
         };
 
         return this.conventionalRestClient.postAllEntities(entitiesToPost, onCompleteOfIndividualPost, afterEachEntityTypePushed);
     }
 
-    clearData() {
+    _clearServerLoadedEntities() {
         this.entityService.clearDataIn(EntityMetaData.entitiesLoadedFromServer());
         this.entitySyncStatusService.setup();
+    }
+
+    // Each backend is wiped on its own so a failure on one cannot skip the other, and the
+    // error names the backend it actually came from.
+    _clearBackend(backend) {
+        try {
+            this._clearServerLoadedEntities();
+        } catch (e) {
+            General.logError("SyncService", `Clearing the ${backend} backend failed: ${e.message}`);
+        }
+    }
+
+    // Clearing only the active backend leaves the other one holding the previous
+    // occupant's rows, and it is still one switchBackend() away from being read — which
+    // is how a user ends up looking at someone else's data. Wipe both, drop the per-user
+    // migration state, and land on Realm so the next launch's backend choice matches
+    // what is actually on disk. A user still in the migration group is moved back to
+    // SQLite by the mid-sync check on their next sync, same as a fresh install.
+    async clearData() {
+        const globalContext = require('../GlobalContext').default.getInstance();
+        const startingBackend = globalContext.getActiveBackend();
+        const otherBackend = startingBackend === BACKENDS.SQLITE ? BACKENDS.REALM : BACKENDS.SQLITE;
+
+        // Before the wipes, not after. A record that outlives a half-finished run points the
+        // next launch at a backend that may still hold the previous user's rows; with it gone
+        // the next launch opens Realm, and anything left behind stays unreachable until a
+        // migration leg wipes that target on its way in. Cleared here rather than on logout:
+        // plain logout leaves both databases intact, and dropping the only backend-independent
+        // record of who owns them sends the next launch back to reading a UserInfo row.
+        const SqliteMigrationService = require('./SqliteMigrationService').default;
+        const SessionUsername = require('./SessionUsername').default;
+        await SqliteMigrationService.clearAllMigrationState();
+        await SessionUsername.clear();
+        // Kept outside both databases too, so the wipe alone leaves it standing and the next
+        // user could publish a never-synced database as the catchment dump (#2141).
+        await LastSyncCompleted.clear();
+
+        // Reopen first: a wipe through a handle a failed reopen left closed clears nothing.
+        await globalContext.openRealmIfMissing();
+        await globalContext.openSqliteIfMissing();
+        this._clearBackend(startingBackend);
+        try {
+            globalContext.switchBackend(otherBackend);
+            this._clearBackend(otherBackend);
+        } catch (e) {
+            General.logError("SyncService", `Could not open the ${otherBackend} backend to clear it: ${e.message}`);
+        } finally {
+            // Landing on Realm can fail the same way opening the other backend did — after a
+            // reopen that did not come back there is no handle to land on. Try to reopen it
+            // first; logged, not thrown, because a throw here would replace whatever failed
+            // inside the wipe.
+            try {
+                await globalContext.openRealmIfMissing();
+                globalContext.switchBackend(BACKENDS.REALM);
+            } catch (e) {
+                General.logError("SyncService", `Could not land on the realm backend after clearing: ${e.message}`);
+            }
+        }
+
         this.ruleEvaluationService.init();
         this.messageService.init();
         this.ruleService.init();
@@ -513,9 +887,245 @@ class SyncService extends BaseService {
     resetServicesAfterFullSyncCompletion(updatedSyncSource) {
         if (updatedSyncSource !== SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB) {
             General.logInfo("Sync", "Full Sync completed, performing reset")
+            // Build the SQLite reference cache BEFORE reset(). The reset() call
+            // dispatches RESET → LandingViewActions.ON_LOAD which triggers async
+            // view reloads. If any of those reloads query forms/concepts before the
+            // cache is ready, hydration falls back to uncached DB queries that may
+            // return incomplete results (e.g., empty formElements).
+            this._buildReferenceCacheIfSqlite();
             this.reset(false);
             this.getService(SettingsService).initLanguages();
+            this.getService(AddressLevelService).clearHierarchyCache();
             General.logInfo("Sync", 'Full Sync completed, reset completed');
+        }
+    }
+
+    /**
+     * After MyGroups is pulled, open a migration leg if one is owed: move the runtime to the
+     * target, then pull ResetSync, UserInfo and all reference data onto it, so the
+     * transactional pull that follows goes straight to the target.
+     *
+     * @returns {{syncDetails, endDateTime, leg}} if a leg opened, null otherwise. Callers
+     *     must update their local sync state with the returned values, and commit the leg
+     *     only once the rest of the sync has succeeded.
+     */
+    async _switchBackendAndResyncRefDataIfNeeded(statusMessageCallBack, onProgressPerEntity, allEntitiesMetaData, isManualSync) {
+        const leg = await this._checkAndSwitchBackendMidSync(statusMessageCallBack, isManualSync);
+        if (!leg) return null;
+        await this._restartTargetIfResetSinceAttempt(leg, allEntitiesMetaData, onProgressPerEntity);
+
+        // On a first attempt the target's checkpoints sit at REALLY_OLD_DATE, so every
+        // reference entity is fetched; on re-entry the pull carries on from them.
+        statusMessageCallBack("downloadForms");
+        const {syncDetails, endDateTime, now} = await this.getSyncDetails();
+        const filtered = _.filter(allEntitiesMetaData, ({entityName}) =>
+            !_.includes(['ResetSync', 'SubjectMigration'], entityName) &&
+            _.find(syncDetails, sd => sd.entityName === entityName));
+        const refMetadata = this.getMetadataByType(filtered, "reference");
+        const userInfoData = _.filter(filtered, ({entityName}) => entityName === "UserInfo");
+        const currentVersionDetails = this.retainEntitiesPresentInCurrentVersion(syncDetails, allEntitiesMetaData);
+        this.entitySyncStatusService.updateAsPerSyncDetails(currentVersionDetails);
+        this._disableForeignKeysIfSqlite();
+        this._enableShallowHydrationIfSqlite();
+        await this._pullResetSyncsAndMarkMigratedBeforeRefData(allEntitiesMetaData, onProgressPerEntity, leg);
+        await this.getTxData(userInfoData, onProgressPerEntity, syncDetails, endDateTime);
+        await this.getRefData(refMetadata, onProgressPerEntity, now, endDateTime);
+        this._buildReferenceCacheIfSqlite();
+
+        return {syncDetails, endDateTime, leg};
+    }
+
+    // Must run before getRefData, else a failure mid-refdata leaves unmigrated ResetSyncs and triggers a spurious reset
+    async _pullResetSyncsAndMarkMigratedBeforeRefData(allEntitiesMetaData, onProgressPerEntity, leg) {
+        // A carried-on re-entry already pulled its resets when deciding not to start over. A
+        // second pull could fetch one issued in between and mark it without applying it; left
+        // unpulled, the next sync on the committed target applies it.
+        if (!(leg && leg.reentry)) {
+            const resetSyncMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "ResetSync");
+            await this.getResetSyncData(resetSyncMetadata, onProgressPerEntity);
+        }
+        this.getService(ResetSyncService).markAllResetSyncsMigrated();
+    }
+
+    // A re-entered target carries on from its own checkpoints, but the leg marks every
+    // ResetSync migrated without applying it, so a reset issued since the attempt began would
+    // never reach the data already pulled. Pull the target's new resets first; if there are
+    // any, start the target over so the pull fetches everything the reset intends.
+    async _restartTargetIfResetSinceAttempt(leg, allEntitiesMetaData, onProgressPerEntity) {
+        if (!leg.reentry) return;
+        const resetSyncMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "ResetSync");
+        await this.getResetSyncData(resetSyncMetadata, onProgressPerEntity);
+        if (_.isEmpty(this.getService(ResetSyncService).getNotMigratedResetSyncs())) return;
+        General.logInfo("SyncService", "A reset was issued since this migration began; starting the target over");
+        await this.getService('sqliteMigrationService').restartTarget(leg);
+        // The target now starts from empty, like a first attempt.
+        leg.reentry = false;
+    }
+
+    /**
+     * Records the backend the server group names and, if it differs from the committed one,
+     * opens a migration leg and moves the runtime to the target — in either direction.
+     * Declines on a background sync (#2118) and while the outbox holds field data (#2006).
+     * Nothing here writes activeBackend.
+     *
+     * @returns {Object|null} the open leg ({username, source, target}) if the runtime moved
+     */
+    async _checkAndSwitchBackendMidSync(statusMessageCallBack, isManualSync) {
+        const GlobalContext = require('../GlobalContext').default;
+
+        const migrationService = this.getService('sqliteMigrationService');
+        if (!migrationService) return null;
+
+        const desired = migrationService.computeDesiredBackend();
+        const state = await migrationService.recordDesiredBackend(desired);
+        // Launch opens the committed backend but swallows a failure to do so. Syncing on the
+        // other database would pull this sync's data where the next launch will not look.
+        const runtimeBackend = GlobalContext.getInstance().getActiveBackend();
+        if (runtimeBackend !== state.activeBackend) {
+            await this._reopenCommittedBackendIfSafe(migrationService, isManualSync, runtimeBackend);
+            throw new Error(`Running on ${runtimeBackend} but the committed backend is ${state.activeBackend}; not syncing into the wrong database`);
+        }
+        if (desired === state.activeBackend) return null;
+
+        // A background sync has no screen, no progress and a ten-minute ceiling imposed
+        // by the phone, so a switch started here is usually cut off and leaves a
+        // half-filled database. Complete as a normal sync on the current backend; the
+        // next sync the user starts does the switch.
+        if (!isManualSync) {
+            General.logInfo("SyncService",
+                "Backend migration is due but this is a background sync; deferring to the next manual sync");
+            return null;
+        }
+
+        // Migrating abandons the source DB and rebuilds the target from the server, so
+        // anything still in the outbox exists nowhere else and would be lost. Defer the
+        // switch — the next sync retries it once the upload has gone through.
+        const pendingFieldData = this.entityQueueService.getPendingFieldDataCount();
+        if (pendingFieldData > 0) {
+            General.logWarn("SyncService",
+                `Deferring backend migration: ${pendingFieldData} local changes still awaiting upload (${this.entityQueueService.getPendingFieldDataSummary()})`);
+            return null;
+        }
+
+        // SQLite may have failed to open at launch, and nothing short of a restart reopens it.
+        // Try here, before the leg is opened: a device whose problem has cleared migrates
+        // without the user restarting, and one where it has not syncs on the backend it is
+        // already on instead of opening a leg that cannot move and recording an attempt.
+        if (desired === BACKENDS.SQLITE && !(await GlobalContext.getInstance().openSqliteIfMissing())) {
+            General.logWarn("SyncService",
+                "Backend migration is due but SQLite will not open; syncing on the current backend");
+            // Deferring here skips the leg, and with it the abandonOpenLeg that used to be
+            // the only report a stuck device made.
+            await migrationService.recordBlocked("SQLite will not open; migration deferred");
+            return null;
+        }
+
+        General.logInfo("SyncService",
+            `Mid-sync migration: switching ${state.activeBackend} → ${desired} before transactional data sync`);
+        statusMessageCallBack('switchingBackendMessage');
+
+        // Auth lives only in the source's Settings; read it before the runtime moves.
+        const authState = migrationService._captureAuthState();
+        const leg = await migrationService.beginLeg(desired);
+        // The sync modes were applied to the backend this sync started on; reset them there
+        // before leaving it. The target gets them in _switchBackendAndResyncRefDataIfNeeded.
+        this._disableShallowHydrationIfSqlite();
+        this._enableForeignKeysIfSqlite();
+        GlobalContext.getInstance().switchBackend(desired);
+        leg.reentry = await migrationService.prepareTarget(leg);
+        await migrationService._bootstrapTargetSettings(authState);
+
+        General.logInfo("SyncService", `Mid-sync migration switch complete — continuing sync on ${desired}`);
+        return leg;
+    }
+
+    // Nothing else reopens the committed backend after launch fails to, so the user's own sync
+    // tries. This sync still fails: its checkpoints and first pulls came from the database it
+    // started on. The next one runs on the committed backend. Only once the upload has emptied
+    // the outbox here, so nothing saved on this database is left behind; never in the
+    // background, which would move the database under a screen the user is looking at.
+    async _reopenCommittedBackendIfSafe(migrationService, isManualSync, runtimeBackend) {
+        if (!isManualSync) return;
+        const pendingFieldData = this.entityQueueService.getPendingFieldDataCount();
+        if (pendingFieldData > 0) {
+            General.logWarn("SyncService",
+                `Not reopening the committed backend: ${pendingFieldData} local changes on ${runtimeBackend} still awaiting upload`);
+            return;
+        }
+        try {
+            await migrationService.openCommittedBackend();
+        } catch (e) {
+            General.logError("SyncService", `Reopening the committed backend failed: ${e.message}`);
+        }
+    }
+
+    _disableForeignKeysIfSqlite() {
+        if (this.context.getRepositoryFactory().setForeignKeysEnabled(false)) {
+            General.logDebug("SyncService", "SQLite foreign keys disabled for sync");
+        }
+    }
+
+    _enableForeignKeysIfSqlite() {
+        if (this.context.getRepositoryFactory().setForeignKeysEnabled(true)) {
+            General.logDebug("SyncService", "SQLite foreign keys re-enabled after sync");
+        }
+    }
+
+    // fromResource does a findByKey per synced child; shallow mode keeps that lookup
+    // from deep-loading the parent's whole subtree (its lists stay lazy, unread by sync).
+    _enableShallowHydrationIfSqlite() {
+        if (this.context.getRepositoryFactory().setShallowHydrationMode(true)) {
+            General.logDebug("SyncService", "SQLite shallow hydration enabled");
+        }
+    }
+
+    _disableShallowHydrationIfSqlite() {
+        if (this.context.getRepositoryFactory().setShallowHydrationMode(false)) {
+            General.logDebug("SyncService", "SQLite shallow hydration disabled");
+        }
+    }
+
+    /**
+     * Post-sync FK integrity check. Runs PRAGMA foreign_key_check which scans
+     * all FK columns and reports violations — without failing the sync or rolling
+     * back any data. Violations indicate a server-side ordering bug and are
+     * reported via Bugsnag + logs for investigation.
+     */
+    _checkForeignKeyIntegrityIfSqlite() {
+        try {
+            const violations = this.context.getRepositoryFactory().runForeignKeyCheck();
+            if (violations && violations.length > 0) {
+                const summary = violations.slice(0, 10).map(v =>
+                    `${v.table}.rowid=${v.rowid}→${v.parent}`
+                ).join(', ');
+                const message = `${violations.length} FK violation(s) after sync: ${summary}`;
+                General.logError("SyncService", message);
+                ErrorUtil.notifyBugsnag(new Error(message), "SyncService::FKIntegrityCheck");
+            }
+        } catch (e) {
+            General.logWarn("SyncService", `FK integrity check failed: ${e.message}`);
+        }
+    }
+
+    _buildReferenceCacheIfSqlite() {
+        const cacheConfigs = [
+            {schemaName: 'Gender', depth: 1, skipLists: true},
+            {schemaName: 'SubjectType', depth: 1, skipLists: true},
+            {schemaName: 'Program', depth: 1, skipLists: true},
+            {schemaName: 'EncounterType', depth: 1, skipLists: true},
+            {schemaName: 'OrganisationConfig', depth: 1, skipLists: true},
+            {schemaName: 'IndividualRelation', depth: 1, skipLists: true},
+            {schemaName: 'IndividualRelationGenderMapping', depth: 1, skipLists: true},
+            {schemaName: 'IndividualRelationshipType', depth: 1, skipLists: true},
+            {schemaName: 'GroupRole', depth: 1, skipLists: true},
+            {schemaName: 'Concept', depth: 2, skipLists: false},
+            {schemaName: 'ChecklistItemDetail', depth: 1, skipLists: false},
+            {schemaName: 'Form', depth: 3, skipLists: false},
+        ];
+
+        const start = Date.now();
+        if (this.context.getRepositoryFactory().buildReferenceCache(cacheConfigs)) {
+            General.logDebug("Sync", `SQLite reference cache built in ${Date.now() - start} ms`);
         }
     }
 
@@ -530,13 +1140,10 @@ class SyncService extends BaseService {
         LocalCacheService.getPreviouslySelectedSubjectTypeUuid().then(cachedSubjectTypeUUID => {
             this.dispatchAction(LandingViewActions.ON_LOAD, {syncRequired, cachedSubjectTypeUUID});
         });
-        const customDashboardService = this.context.getService(CustomDashboardService);
-        const renderCustomDashboard = customDashboardService.isCustomDashboardMarkedPrimary();
-        if (renderCustomDashboard) {
-            performCustomDashboardActionAndClearRefresh(this, CustomDashboardActionNames.ON_LOAD, {customDashboardType: CustomDashboardType.None});
-        } else {
-            this.dispatchAction(MyDashboardActionNames.ON_LOAD);
-        }
+        // Skip dashboard data loading during post-sync reset.
+        // Dashboard views will load their data when the user navigates to them.
+        // This avoids hydrating 100K+ entities (34-40s delay) before the sync
+        // complete screen can be dismissed.
     }
 }
 

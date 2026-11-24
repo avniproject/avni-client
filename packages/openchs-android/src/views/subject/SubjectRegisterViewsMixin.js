@@ -21,7 +21,7 @@ class Mixin {
                         CHSNavigator.onSaveGoToProgramEnrolmentDashboardView(source, view.state.subject.uuid);
                     }
                 });
-                const registrationTitle = view.I18n.t(view.registrationType) + view.I18n.t('registration');
+                const registrationTitle = `${view.I18n.t(view.registrationType)} ${view.I18n.t('registration')}`;
                 const headerMessage = `${registrationTitle} - ${view.I18n.t('summaryAndRecommendations')}`;
                 if (state.isNewEntity && state.registrationStartTime) {
                     logTaskDuration('registration', _.get(state, 'subjectType.name'), Date.now() - state.registrationStartTime);
@@ -40,6 +40,7 @@ class Mixin {
                 if (AbstractDataEntryState.hasValidationError(view.state, BaseEntity.fieldKeys.EXTERNAL_RULE)) {
                     view.showError(newState.validationResults[0].message);
                 }
+                view.scrollToStaticFieldError(newState);
             },
             popVerificationVewFunc: () => TypedTransition.from(view).popToBookmark(),
             popVerificationVew,

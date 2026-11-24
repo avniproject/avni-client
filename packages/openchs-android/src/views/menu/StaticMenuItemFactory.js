@@ -11,6 +11,7 @@ import _ from "lodash";
 const FunctionalityMenus = [
     new StaticMenuItem("dashboard", "view-dashboard-outline", "dashboards", StaticMenuItem.InternalNavigationMenuType, CustomDashboardView),
     new StaticMenuItem("videoList", "play-circle-outline", "VideoList", StaticMenuItem.InternalNavigationMenuType, VideoListView),
+    // Beneficiary mode is unused in the field and can be disabled if needed (Readme.md, "Unused features").
     new StaticMenuItem("beneficiaryMode", "account-supervisor-outline", "beneficiaryMode", StaticMenuItem.InternalNavigationMenuType, BeneficiaryModeStartView)];
 const SyncMenus = [
     new StaticMenuItem("entitySyncStatus", "sync-circle", "entitySyncStatus", StaticMenuItem.InternalNavigationMenuType, EntitySyncStatusView),
@@ -25,6 +26,7 @@ const SupportMenus = [
 ];
 const DevMenus = [
     new StaticMenuItem("deleteData", "delete-outline", "Delete Data", StaticMenuItem.CustomActionMenuType),
+    // Family folder is unused, predates households (group subjects), and can be disabled if needed (Readme.md, "Unused features").
     new StaticMenuItem("familyFolder", "account-multiple-outline", "Family Folder", StaticMenuItem.InternalNavigationMenuType, FamilyFolderView),
     new StaticMenuItem("devSettings", "cog-outline", "Dev Settings", StaticMenuItem.InternalNavigationMenuType, DevSettingsView),
     new StaticMenuItem("createAnonymizedDatabase", "incognito", "Anonymize Database", StaticMenuItem.CustomActionMenuType)
@@ -39,10 +41,9 @@ class StaticMenuItemFactory {
     }
 
     static getSyncMenus(context) {
-        if(context.getService(OrganisationConfigService).isDbEncryptionEnabled())
-            this.removeMenuItem(SyncMenus, "uploadCatchmentDatabase");
-
-        return [...SyncMenus];
+        const hideUploadCatchmentDatabase = context.getService(OrganisationConfigService).isDbEncryptionEnabled();
+        return SyncMenus.filter(menuItem =>
+            !(menuItem.uniqueName === "uploadCatchmentDatabase" && hideUploadCatchmentDatabase));
     }
 
     static getUserMenus() {

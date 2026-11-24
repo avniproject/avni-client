@@ -120,6 +120,21 @@ class QcParityPreprocessTest {
     }
 
     @Test
+    fun rawRgbaBufferIsReadWithoutConversion() {
+        // 2x2 image, rowBytes 12 (4 bytes of row padding) — bytes are R,G,B,A as in Bitmap memory.
+        val rowBytes = 12
+        val buf = ByteArray(rowBytes * 2)
+        fun put(x: Int, y: Int, r: Int, g: Int, b: Int) {
+            val o = y * rowBytes + x * 4
+            buf[o] = r.toByte(); buf[o + 1] = g.toByte(); buf[o + 2] = b.toByte(); buf[o + 3] = 0xFF.toByte()
+        }
+        put(0, 0, 255, 0, 0); put(1, 0, 0, 255, 0); put(0, 1, 0, 0, 255); put(1, 1, 200, 100, 7)
+        buf[8] = 99; buf[20] = 99   // padding bytes must be ignored
+        val px = PixelOps.argbFromRgba8888(buf, 2, 2, rowBytes)
+        assertEquals(listOf(0xFFFF0000.toInt(), 0xFF00FF00.toInt(), 0xFF0000FF.toInt(), 0xFFC86407.toInt()), px.toList())
+    }
+
+    @Test
     fun legacyModeUnchanged() {
         // Previous behaviour (float64 + round-half-up) must still be selectable.
         val img = ArgbImage(1, 1, intArrayOf((0xFF shl 24) or (128 shl 16) or (128 shl 8) or 128))

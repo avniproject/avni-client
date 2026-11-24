@@ -26,6 +26,9 @@ class TextFormElement extends AbstractFormElement {
         inputStyle: PropTypes.object,
         allowedValues: PropTypes.array,
         helpText: PropTypes.string,
+        // Value set by the app (e.g. read from a Bluetooth device): shown, never typed.
+        readOnly: PropTypes.bool,
+        emptyText: PropTypes.string,
         isTableView: PropTypes.bool,
         isSecureInput: PropTypes.bool,
         labelColor: PropTypes.string
@@ -46,8 +49,8 @@ class TextFormElement extends AbstractFormElement {
                 flex: 1,
                 marginVertical: 0,
                 paddingVertical: 5
-            }, Styles.formBodyText, { color: Colors.InputNormal }]}>
-                {_.isNil(this.props.value.getValue()) ? this.I18n.t('Not Known Yet') : _.toString(this.props.value.getValue())}
+            }, Styles.formBodyText, { color: _.isNil(this.props.value.getValue()) && this.props.emptyText ? Colors.SecondaryText : Colors.InputNormal }]}>
+                {_.isNil(this.props.value.getValue()) ? (this.props.emptyText || this.I18n.t('Not Known Yet')) : _.toString(this.props.value.getValue())}
             </Text>
             <ValidationErrorMessage validationResult={this.props.validationResult}/>
         </View>);
@@ -93,7 +96,7 @@ class TextFormElement extends AbstractFormElement {
     }
 
     renderNormalView() {
-        return this.props.element.editable === false ? this.renderReadOnly() : this.renderWritable();
+        return (this.props.readOnly || this.props.element.editable === false) ? this.renderReadOnly() : this.renderWritable();
     }
 
     onInputChange(text) {

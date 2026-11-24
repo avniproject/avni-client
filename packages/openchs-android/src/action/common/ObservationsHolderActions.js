@@ -2,11 +2,15 @@ import _ from "lodash";
 import {Concept, Duration, FormElementGroup, Observation, RepeatableQuestionGroup, ValidationResult} from 'openchs-models';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import General from "../../utility/General";
+import Perf from "../../utility/perf";
+import {orphanedDeviceDetails} from "../../utility/anupath/AnuPathFields";
 
 class ObservationsHolderActions {
     static updateFormElements(formElementGroup, state, context) {
         const ruleService = context.get(RuleEvaluationService);
-        const formElementStatuses = ruleService.getFormElementsStatuses(state.getEntity(), state.getEntityType(), formElementGroup, state.getEntityContext());
+        const formElementStatuses = Perf.time("getFormElementsStatuses",
+            () => ruleService.getFormElementsStatuses(state.getEntity(), state.getEntityType(), formElementGroup, state.getEntityContext()),
+            () => ({feg: formElementGroup.name, entityType: state.getEntityType()}));
         state.filteredFormElements = FormElementGroup._sortedFormElements(formElementGroup.filterElements(formElementStatuses));
         return formElementStatuses;
     }
@@ -18,6 +22,22 @@ class ObservationsHolderActions {
                 return _.get(_.find(allFormElements, fe => fe.uuid === uuid), 'concept.datatype') === Concept.dataType.QuestionGroup
             }
         })
+    }
+
+    // The device-capture chooser (the segmented "Device run / Manual run" question, opted in with the
+    // displayAsSegmented key-value) is mandatory, but un-choosing it while filling the form should
+    // not flash a red "no value" message - the worker sees it only when tapping NEXT, where the page
+    // is validated again as usual. Other errors, and every other question, behave as before.
+    static deferEmptyErrorUntilNext(formElement, validationResult) {
+        if (validationResult.success || validationResult.messageKey !== 'emptyValidationMessage') return validationResult;
+        if (!ObservationsHolderActions.isCaptureChooser(formElement)) return validationResult;
+        return new ValidationResult(true, formElement.uuid, null);
+    }
+
+    static isCaptureChooser(formElement) {
+        const segmented = _.invoke(formElement, 'recordValueByKey', 'displayAsSegmented') ??
+            _.invoke(formElement.concept, 'recordValueByKey', 'displayAsSegmented');
+        return segmented === true || segmented === 'true';
     }
 
     static getRuleValidationErrors(formElementStatuses) {
@@ -99,7 +119,8 @@ class ObservationsHolderActions {
             const observation = newState.observationsHolder.findObservation(fe.concept);
             return _.isNil(observation) || observation.valueJSON.answerSource !== Observation.AnswerSource.Manual;
         }), formElementStatuses);
-        const validationResult = action.formElement.validate(_.isNil(observation) ? null : observation.getValueWrapper());
+        const validationResult = ObservationsHolderActions.deferEmptyErrorUntilNext(action.formElement,
+            action.formElement.validate(_.isNil(observation) ? null : observation.getValueWrapper()));
         newState.handleValidationResults(ObservationsHolderActions.addPreviousValidationErrors(ruleValidationErrors, validationResult, newState.validationResults), context);
         newState.removeHiddenFormValidationResults(hiddenFormElementStatus);
         return newState;
@@ -108,6 +129,10 @@ class ObservationsHolderActions {
     static _getFormElementStatuses(newState, context) {
         const formElementStatuses = ObservationsHolderActions.updateFormElements(newState.formElementGroup, newState, context);
         const removedObs = newState.observationsHolder.removeNonApplicableObs(newState.formElementGroup.getFormElements(), newState.filteredFormElements);
+        // anuPath: a device reading no longer in use (its value question became non-applicable, e.g. the
+        // capture method moved to Manual run) takes its "Device details" with it.
+        _.forEach(orphanedDeviceDetails(newState.formElementGroup.getFormElements(), newState.filteredFormElements),
+            (fe) => removedObs.push(..._.compact(_.castArray(newState.observationsHolder._removeObs(fe)))));
         if (_.isEmpty(removedObs)) {
             return formElementStatuses;
         }
@@ -176,6 +201,9 @@ class ObservationsHolderActions {
         if (!state || !state.formElementGroup || !state.validationResults) return state;
         const formElement = ObservationsHolderActions._findInferenceTargetFormElement(state, action);
         if (!formElement) return state;
+        // A question inside a hidden group is never drawn either, so an error on it could never be cleared.
+        const parentFormElement = formElement.isQuestionGroup() ? formElement.getParentFormElement() : null;
+        if (formElement.concept.isHidden() || (parentFormElement && parentFormElement.concept.isHidden())) return state;
         // Match FormElementGroup.validate's stamping so the union dedup keeps this result: a top-level
         // element is stamped `undefined` (not null), an RQG child its concrete row index. A null here
         // fails `null === undefined` in _updateOldFormElementGroupValidations' comparator, so the fresh
@@ -347,7 +375,8 @@ class ObservationsHolderActions {
         const formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
         const ruleValidationErrors = ObservationsHolderActions.getRuleValidationErrors(formElementStatuses);
         const hiddenFormElementStatus = _.filter(formElementStatuses, (form) => form.visibility === false);
-        const validationResult = action.formElement.validate(_.isNil(observation) ? null : observation.getValueWrapper());
+        const validationResult = ObservationsHolderActions.deferEmptyErrorUntilNext(action.formElement,
+            action.formElement.validate(_.isNil(observation) ? null : observation.getValueWrapper()));
         newState.observationsHolder.updatePrimitiveCodedObs(_.filter(newState.filteredFormElements, (fe) => {
             const observation = newState.observationsHolder.findObservation(fe.concept);
             return _.isNil(observation) || observation.valueJSON.answerSource !== Observation.AnswerSource.Manual;

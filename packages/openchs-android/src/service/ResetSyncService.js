@@ -34,14 +34,32 @@ class ResetSyncService extends BaseService {
         const isFreshSync = this.backupRestoreRealmService.isDatabaseNeverSynced();
         if (isFreshSync) {
             // No change required as it's fresh sync
-            _.forEach(this.getNotMigratedResetSyncs(), resetSync => this._updateHasMigrated(resetSync));
+            this.markAllResetSyncsMigrated();
             return false;
         }
         return _.size(this.getNotMigratedResetSyncs()) > 0;
     }
 
+    markAllResetSyncsMigrated() {
+        _.forEach(this.getNotMigratedResetSyncs(), resetSync => this._updateHasMigrated(resetSync));
+    }
+
     resetSync() {
         if (!this.isResetSyncRequired()) return;
+        const repositoryFactory = this.context.getRepositoryFactory();
+        // Off before the transaction opens: SQLite ignores the pragma inside one
+        const isSqlite = repositoryFactory.setForeignKeysEnabled(false);
+        try {
+            // One transaction on SQLite, so an interrupted reset rolls back and stays pending.
+            // Not on Realm: its repositories open their own writes, and Realm refuses a write inside a write.
+            if (isSqlite) this.runInTransaction(() => this._deleteDataAndMarkMigrated());
+            else this._deleteDataAndMarkMigrated();
+        } finally {
+            if (isSqlite) repositoryFactory.setForeignKeysEnabled(true);
+        }
+    }
+
+    _deleteDataAndMarkMigrated() {
         const notMigratedSyncReset = this.getNotMigratedResetSyncs();
         const isAllDataDeleteRequired = _.some(notMigratedSyncReset, resetSnc => _.isNil(resetSnc.subjectTypeUUID));
         if (isAllDataDeleteRequired) {
@@ -51,20 +69,41 @@ class ResetSyncService extends BaseService {
                   return !(entity.schema.embedded ||
                     _.includes([Settings.schema.name, UserInfo.schema.name, ResetSync.schema.name], entity.schema.name));
               });
+            // ResetSync rows survive the wipe but their checkpoint does not: EntitySyncStatus
+            // is inside allEntities, and setup() re-seeds every missing checkpoint at
+            // REALLY_OLD_DATE. That makes every later sync re-pull the user's whole reset
+            // history — the reset we have just honoured included. Read the checkpoint's
+            // values out now, while the row is still alive, and put them back before setup()
+            // so it finds a row and leaves it alone, keeping the original uuid.
+            const resetSyncCheckpoint = this._copyOfCheckpointFor(ResetSync.schema.name);
             this.clearDataIn(allEntities);
+            if (resetSyncCheckpoint) this.entitySyncStatusService.updateAsPerSyncDetails([resetSyncCheckpoint]);
             this.entitySyncStatusService.setup();
-            _.forEach(notMigratedSyncReset, resetSync => this._updateHasMigrated(resetSync));
+            this.markAllResetSyncsMigrated();
         } else {
             _.forEach(notMigratedSyncReset, (resetSync) => {
                 if (_.isEmpty(resetSync)) return;
                 const subjectTypeUUID = resetSync.subjectTypeUUID;
                 General.logDebug('ResetSyncService', `Deleting data and resetting the sync for subject type uuid ${subjectTypeUUID}`);
-                this.entitySyncStatusService.deleteEntries(`entityTypeUuid = '${subjectTypeUUID}'`);
+                this.entitySyncStatusService.rewindForSubjectType(subjectTypeUUID);
                 const allSubjects = this.individualService.findAll().filtered(`subjectType.uuid = $0`, subjectTypeUUID).map(_.identity);
                 _.forEach(allSubjects, subject => this.subjectMigrationService.deleteSubjectAndChildren(subject));
                 this._updateHasMigrated(resetSync);
             });
         }
+    }
+
+    // Plain values, not the live row — clearDataIn deletes it a moment later and reading
+    // a deleted Realm object throws.
+    _copyOfCheckpointFor(entityName) {
+        const checkpoint = this.entitySyncStatusService.get(entityName);
+        if (_.isNil(checkpoint)) return null;
+        return {
+            uuid: checkpoint.uuid,
+            entityName: checkpoint.entityName,
+            entityTypeUuid: checkpoint.entityTypeUuid,
+            loadedSince: checkpoint.loadedSince
+        };
     }
 
     _updateHasMigrated(resetSync) {

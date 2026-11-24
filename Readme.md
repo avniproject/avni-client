@@ -38,6 +38,15 @@ make run-app        # terminal 2 — build, install & launch on the connected de
 Sign in and press the sync button in the app to pull the forms and master data for your
 implementation.
 
+## Unused features
+
+No organisation uses these two features. Either can be turned off if it gets in the way of a change.
+
+- **Beneficiary mode.** Shown in the menu only when the organisation turns it on.
+- **Family folder.** Shown only in development builds. It predates households, which are built on group subjects.
+
+Both menu entries are in `packages/openchs-android/src/views/menu/StaticMenuItemFactory.js`.
+
 ## Documentation
 
 - [Windows setup via WSL2](docs/dev-setup-windows-wsl2.md)

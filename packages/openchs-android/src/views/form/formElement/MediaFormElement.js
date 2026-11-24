@@ -1,4 +1,4 @@
-import {StyleSheet, TouchableNativeFeedback, View, PermissionsAndroid, Text, NativeModules} from "react-native";
+import {StyleSheet, TouchableNativeFeedback, View, Text, Image, NativeModules} from "react-native";
 import React from "react";
 import AbstractFormElement from "./AbstractFormElement";
 import {launchCamera, launchImageLibrary} from "react-native-image-picker";
@@ -9,12 +9,21 @@ import Colors from "../../primitives/Colors";
 import Styles from "../../primitives/Styles";
 import ExpandableMedia from "../../common/ExpandableMedia";
 import FileSystem from "../../../model/FileSystem";
-import DeviceInfo from 'react-native-device-info';
 import RemoveMediaConfirmDialog from "../../common/RemoveMediaConfirmDialog";
 import OrganisationConfigService from "../../../service/OrganisationConfigService";
 import _ from "lodash";
+import DevicePermissions from "../../../utility/DevicePermissions";
 import GuidedCameraModal from "./GuidedCameraModal";
-import {toPickerResponse, isGuidedCameraEnabled, resizeCapturedImage} from "./GuidedCameraHelper";
+import {toPickerResponse, isGuidedCameraEnabled, resizeCapturedImage, photoSettingsProblem} from "./GuidedCameraHelper";
+import {
+    resolveCaptureGuidance,
+    decideGuidedRowState,
+    misconfiguredRowState,
+    probeGuidanceBlobs,
+    forgetGuidanceBlob,
+    guidanceBlobCacheGeneration,
+    toFileUri
+} from "../../../model/CaptureGuidance";
 import ImageResizer from "@bam.tech/react-native-image-resizer";
 import {logEvent, firebaseEvents} from "../../../utility/Analytics";
 
@@ -51,6 +60,24 @@ const styles = StyleSheet.create({
         marginTop: 12,
         borderRadius: 12,
         overflow: 'hidden',
+        backgroundColor: '#ffffff',
+        borderWidth: 1,
+        borderColor: Colors.InputBorderNormal,
+    },
+    iconDisabled: {
+        opacity: 0.3,
+    },
+    guidanceLabel: {
+        color: Colors.DefaultPrimaryColor,
+        fontSize: Styles.smallTextSize,
+        fontWeight: '600',
+        marginTop: 12,
+    },
+    reckoner: {
+        width: '100%',
+        height: 180,
+        marginTop: 8,
+        borderRadius: 12,
         backgroundColor: '#ffffff',
         borderWidth: 1,
         borderColor: Colors.InputBorderNormal,
@@ -139,6 +166,26 @@ const styles = StyleSheet.create({
         color: '#ffffff',
         fontSize: Styles.smallTextSize,
         marginRight: 8,
+    },
+    blockedBox: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        marginTop: 12,
+        padding: 12,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: Colors.ValidationError,
+        backgroundColor: '#FEF2F2',
+    },
+    blockedIcon: {
+        color: Colors.ValidationError,
+        fontSize: 18,
+        marginRight: 8,
+    },
+    blockedText: {
+        flex: 1,
+        color: Colors.ValidationError,
+        fontSize: Styles.smallTextSize,
     }
 });
 
@@ -157,7 +204,7 @@ export default class MediaFormElement extends AbstractFormElement {
     constructor(props, context) {
         super(props, context);
         // Explicit false: RN Modal's `visible` defaults to true, so undefined would flash the camera open.
-        this.state = {showGuidedCamera: false, pendingClearAnswer: null};
+        this.state = {showGuidedCamera: false, guidanceBlobs: {}, pendingClearAnswer: null};
         this.cancelRemove = this.cancelRemove.bind(this);
         this.performRemove = this.performRemove.bind(this);
     }
@@ -287,24 +334,118 @@ export default class MediaFormElement extends AbstractFormElement {
     get guidedCameraLabels() {
         return {
             noBackCamera: this.I18n.t('guidedCameraNoBackCamera'),
-            permissionRequired: this.I18n.t('guidedCameraPermissionRequired'),
             flashRequired: this.I18n.t('guidedCameraFlashRequired'),
             captureFailed: this.I18n.t('guidedCameraCaptureFailed'),
+            permissionRequired: this.I18n.t('guidedCameraPermissionRequired'),
+            continueWithoutPhoto: this.I18n.t('guidedCameraContinueWithoutPhoto'),
+            openSettings: this.I18n.t('Open settings'),
             close: this.I18n.t('closeModal'),
             retake: this.I18n.t('Retake'),
-            usePhoto: this.I18n.t('Use photo'),
-            openSettings: this.I18n.t('Open settings')
+            usePhoto: this.I18n.t('Use photo')
         };
     }
 
-    openGuidedCamera(onUpdateObservations) {
-        this._guidedOnUpdate = onUpdateObservations;
-        // Resize params only — avoids getDefaultOptions' videoQuality check throwing out of this sync handler.
-        this._guidedOptions = {
+    // Memoised: read five or six times per render, and resolution logs on a bad rule.
+    get captureGuidance() {
+        const raw = this.props.element.captureGuidance;
+        if (this._resolvedGuidanceFor !== raw || _.isNil(this._resolvedGuidance)) {
+            this._resolvedGuidanceFor = raw;
+            this._resolvedGuidance = resolveCaptureGuidance(raw, FileSystem.getGuidanceDir());
+        }
+        return this._resolvedGuidance;
+    }
+
+    // Resize settings only — avoids getDefaultOptions' videoQuality check throwing out of a render or handler.
+    get guidedPhotoSettings() {
+        return {
             maxWidth: this.getFromKeyValue('maxWidth', DEFAULT_IMG_WIDTH),
             maxHeight: this.getFromKeyValue('maxHeight', DEFAULT_IMG_HEIGHT),
             quality: this.getFromKeyValue('imageQuality', DEFAULT_IMG_QUALITY)
         };
+    }
+
+    // Memoised like captureGuidance, and logged once per change of setting rather than on every render.
+    get guidedPhotoSettingsProblem() {
+        const settings = this.guidedPhotoSettings;
+        const checkedFor = JSON.stringify(settings);
+        if (this._photoSettingsCheckedFor !== checkedFor) {
+            this._photoSettingsCheckedFor = checkedFor;
+            this._photoSettingsProblem = photoSettingsProblem(settings);
+            if (this._photoSettingsProblem) {
+                General.logWarn('MediaFormElement', `Guided photo question '${this.props.element.name}' is set up wrong: ${this._photoSettingsProblem}`);
+            }
+        }
+        return this._photoSettingsProblem;
+    }
+
+    get guidedRowState() {
+        // A bad photo setting is the same set-up problem as a bad rule, and as plain to the worker.
+        if (this.guidedPhotoSettingsProblem) return misconfiguredRowState(this.captureGuidance);
+        return decideGuidedRowState(this.captureGuidance, this.state.guidanceBlobs);
+    }
+
+    onViewDidMount() {
+        this.probeGuidanceBlobs();
+    }
+
+    componentDidUpdate() {
+        this.probeGuidanceBlobs();
+    }
+
+    // The existence check is async and render is not, so probe once and hold the answer in state.
+    probeGuidanceBlobs() {
+        if (!this.isGuidedCamera) return; // a plain photo question never touches the filesystem
+        const {reckonerPath, overlayPath} = this.captureGuidance;
+        if (!reckonerPath && !overlayPath) return;
+        // Keyed on paths, not object identity — filterElements clones every cycle. The generation
+        // retires this memory on sync, or a row blocked beforehand stays blocked while mounted.
+        const key = `${guidanceBlobCacheGeneration()}|${reckonerPath}|${overlayPath}`;
+        if (key === this._probedGuidanceKey) return;
+        this._probedGuidanceKey = key;
+        probeGuidanceBlobs(fs.exists, [reckonerPath, overlayPath])
+            .then(probed => this.setState(state => ({guidanceBlobs: {...state.guidanceBlobs, ...probed}})));
+    }
+
+    // Undecodable counts as missing, so the row blocks rather than showing an empty frame.
+    onGuidanceImageError(path) {
+        if (!path) return;
+        forgetGuidanceBlob(path);
+        this.setState(state => ({guidanceBlobs: {...state.guidanceBlobs, [path]: false}}));
+    }
+
+    guidanceBlockedMessage(rowState) {
+        return rowState.rawMessage || this.I18n.t(rowState.messageKey);
+    }
+
+    renderGuidedCameraModal() {
+        if (!this.isGuidedCamera) return null;
+        const guidance = this.captureGuidance;
+        const rowState = this.guidedRowState;
+        return (
+            <GuidedCameraModal
+                visible={!!this.state.showGuidedCamera}
+                labels={this.guidedCameraLabels}
+                flash={guidance.flash}
+                blockOnNoFlash={guidance.blockOnNoFlash}
+                blockOnCaptureFailure={guidance.blockOnCaptureFailure}
+                guidanceLabel={guidance.label}
+                overlayPath={rowState.overlayReady ? rowState.overlayPath : null}
+                onOverlayError={() => this.onGuidanceImageError(rowState.overlayPath)}
+                blockedMessage={rowState.blocked ? this.guidanceBlockedMessage(rowState) : null}
+                onClose={() => this.setState({showGuidedCamera: false})}
+                onCapture={(photoPath) => this.onGuidedCapture(photoPath)}
+            />
+        );
+    }
+
+    async openGuidedCamera(onUpdateObservations) {
+        // TANUH: when the native CameraX screen is enabled it stays the capture implementation (Guided
+        // Camera hard-blocks devices without a flash unit - see the isGuidedCamera comment above). The
+        // rule-driven guidance (label, reckoner image, blocked state) still renders around it.
+        if (this.useNativeCameraScreen()) return this.launchCamera(onUpdateObservations);
+        if (!await DevicePermissions.request({camera: true})) return;
+        this._guidedOnUpdate = onUpdateObservations;
+        this._guidedOptions = this.guidedPhotoSettings;
         this.setState({mode: Mode.Camera, showGuidedCamera: true});
     }
 
@@ -336,7 +477,7 @@ export default class MediaFormElement extends AbstractFormElement {
             {concept_name: conceptName, attempt, outcome, duration_ms: Date.now() - t0, ...extra});
         logCapture('started');
 
-        if (await this.isPermissionGranted()) {
+        if (await DevicePermissions.request({camera: true})) {
             if (this.useNativeCameraScreen()) {
                 try {
                     // Camera usability enhancement (Phase 2) — CameraModule.launchCamera() now
@@ -380,29 +521,10 @@ export default class MediaFormElement extends AbstractFormElement {
         const options = { ...this.getDefaultOptions(),
             selectionLimit: isMultiSelect ? 0 : 1
         };
-        if (await this.isPermissionGranted()) {
+        if (await DevicePermissions.request()) {
             launchImageLibrary(options,
                 (response) => this.addMediaFromPicker(response, onUpdateObservations));
         }
-    }
-
-    async isPermissionGranted() {
-        const apiLevel = await DeviceInfo.getApiLevel();
-
-        const permissionRequest = await PermissionsAndroid.requestMultiple(
-            apiLevel >= General.STORAGE_PERMISSIONS_DEPRECATED_API_LEVEL ?
-                [
-                    PermissionsAndroid.PERMISSIONS.CAMERA
-                ]
-                :
-                [
-                    PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-                    PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-                    PermissionsAndroid.PERMISSIONS.CAMERA
-                ]
-        );
-
-        return _.every(permissionRequest, permission => permission === PermissionsAndroid.RESULTS.GRANTED);
     }
 
     showMedia(mediaUri, onClearAnswer, index, isFlagged) {
@@ -443,10 +565,30 @@ export default class MediaFormElement extends AbstractFormElement {
     }
 
     showInputOptions(onUpdateObservations) {
-        const guided = this.isGuidedCamera;
+        if (!this.isGuidedCamera) return this.renderStandardInputOptions(onUpdateObservations);
+        const rowState = this.guidedRowState;
+        // The gallery answers to "Do not allow upload from gallery" alone (#2166). Probing and blocking
+        // change only the camera, except a block for bad photo settings: the gallery reads those same
+        // settings, and the photo picker crashes on a quality it cannot read as a number (#1996).
+        // A row left with no button draws no button strip.
+        const gallery = this.guidedPhotoSettingsProblem ? null : this.renderGalleryButton(onUpdateObservations);
+        const camera = rowState.blocked ? null : this.renderGuidedCameraButton(onUpdateObservations, rowState.probing);
+        return (
+            <View>
+                {rowState.blocked ? this.renderBlockedCapture(rowState) : this.renderGuidance(rowState)}
+                {(gallery || camera) &&
+                    <View style={[styles.contentRow, {justifyContent: 'flex-end'}]}>
+                        {gallery}
+                        {camera}
+                    </View>}
+            </View>
+        );
+    }
+
+    renderStandardInputOptions(onUpdateObservations) {
         return (
             <View style={styles.mediaActionRow}>
-                {!guided && !this.props.element.restrictGalleryUpload &&
+                {!this.props.element.restrictGalleryUpload &&
                 <TouchableNativeFeedback onPress={() => this.launchMediaLibrary(onUpdateObservations)}
                                           background={TouchableNativeFeedback.SelectableBackground()}>
                     <View style={styles.uploadButton}>
@@ -467,12 +609,53 @@ export default class MediaFormElement extends AbstractFormElement {
                               size={20} color={'#ffffff'}/>
                     </View>
                 </TouchableNativeFeedback>
-                {guided && <GuidedCameraModal
-                    visible={!!this.state.showGuidedCamera}
-                    labels={this.guidedCameraLabels}
-                    onClose={() => this.setState({showGuidedCamera: false})}
-                    onCapture={(photoPath) => this.onGuidedCapture(photoPath)}
-                />}
+            </View>
+        );
+    }
+
+    renderGalleryButton(onUpdateObservations) {
+        if (this.props.element.restrictGalleryUpload) return null;
+        return (
+            <TouchableNativeFeedback onPress={() => this.launchMediaLibrary(onUpdateObservations)}
+                                     background={TouchableNativeFeedback.SelectableBackground()}>
+                <Icon name={'folder-open'} style={styles.icon}/>
+            </TouchableNativeFeedback>
+        );
+    }
+
+    // Org-authored text, rendered verbatim — never through the platform's translations.
+    renderGuidance(rowState) {
+        const label = this.captureGuidance.label;
+        return (
+            <View>
+                {label && <Text style={styles.guidanceLabel}>{label}</Text>}
+                {rowState.showReckoner &&
+                    <Image source={{uri: toFileUri(rowState.reckonerPath)}} style={styles.reckoner} resizeMode={'contain'}
+                           onError={() => this.onGuidanceImageError(rowState.reckonerPath)}/>}
+            </View>
+        );
+    }
+
+    renderGuidedCameraButton(onUpdateObservations, disabled) {
+        return (
+            <TouchableNativeFeedback disabled={disabled}
+                                     onPress={() => this.openGuidedCamera(onUpdateObservations)}
+                                     background={TouchableNativeFeedback.SelectableBackground()}>
+                <Icon name={'camera'} style={[styles.icon, disabled && styles.iconDisabled]}/>
+            </TouchableNativeFeedback>
+        );
+    }
+
+    // Visible and blocked, never hidden: a photo without its guidance is worse than no photo.
+    renderBlockedCapture(rowState) {
+        const label = this.captureGuidance.label;
+        return (
+            <View>
+                {label && <Text style={styles.guidanceLabel}>{label}</Text>}
+                <View style={styles.blockedBox}>
+                    <Icon name={'alert-circle-outline'} style={styles.blockedIcon}/>
+                    <Text style={styles.blockedText}>{this.guidanceBlockedMessage(rowState)}</Text>
+                </View>
             </View>
         );
     }

@@ -1,10 +1,12 @@
 import PropTypes from 'prop-types';
-import React, {Component, Text, View} from "react";
-import {StyleSheet, Keyboard, InteractionManager} from "react-native";
+import React, {Component} from "react";
+import {ActivityIndicator, Alert, InteractionManager, Keyboard, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import _ from "lodash";
 import MessageService from "../../service/MessageService";
 import General from "../../utility/General";
+import Perf from "../../utility/perf";
 import DGS from '../../views/primitives/DynamicGlobalStyles';
+import deferPastInteractions from "../../utility/deferPastInteractions";
 import TypedTransition from "../routing/TypedTransition";
 import {logScreenEvent, screenRenderStart} from "../../utility/Analytics";
 import {JSONStringify} from "../../utility/JsonStringify";
@@ -13,6 +15,9 @@ import CustomConfirmDialog from "../../views/common/CustomConfirmDialog";
 
 class AbstractComponent extends Component {
     static contextType = ServiceContext;
+    // Safety net if a route never reports focus. Comfortably longer than a scene transition, so in the
+    // normal case the focus signal always wins and this never fires.
+    static LOAD_FALLBACK_MS = 1500;
     static styles = StyleSheet.create({
         spinner: {
             justifyContent: 'center',
@@ -30,6 +35,7 @@ class AbstractComponent extends Component {
         this.scrollToTop = this.scrollToTop.bind(this);
         this.scrollToPosition = this.scrollToPosition.bind(this);
         this.scrollToBottom = this.scrollToBottom.bind(this);
+        this.scrollToStaticFieldError = this.scrollToStaticFieldError.bind(this);
         
         // Initialize screen render start time for analytics (if topLevelStateVariable is set)
         if (!_.isNil(topLevelStateVariable)) {
@@ -114,24 +120,243 @@ class AbstractComponent extends Component {
                 logScreenEvent(this.viewName(), this.screenRenderStartTime);
             });
         }
-        
+
+        // Start the heavy load only once the scene transition has actually finished painting.
+        // InteractionManager settles earlier than the slide's last frame, and starting a multi-second
+        // synchronous block there starves the spring mid-flight, leaving the OUTGOING screen on
+        // screen under the new header (avni-client#2054, device QA 25 Aug: block began at +483 ms,
+        // first render at +4.15 s). Router publishes the transition-complete signal through
+        // ServiceContext so children at any depth hear it, not just the route's root component.
+        // The timer is the safety net for a route that never reports focus, and deferPastInteractions
+        // covers components mounted outside the Router entirely.
+        if (_.isFunction(this.loadData)) {
+            this._loadRegistration = this.runAfterSceneTransition(() => this.runDeferredLoad());
+        }
+
         // Call subclass hook if defined (Template Method Pattern)
         if (this.onViewDidMount) {
             this.onViewDidMount();
         }
     }
-    
+
+    // Runs `fn` once, after the scene transition has been PAINTED. Public so screens that schedule their
+    // own work instead of using the loadData() contract (ProgramActionsView) get the same trigger.
+    //
+    // Waiting for didFocus alone is not enough: it means "the transition animation finished", not "the
+    // result is on screen". The slide is JS-driven, so its final position and this screen's loader both
+    // still need one more commit pushed from JS. Measured 25 Aug: didFocus at +513ms, the blocking load
+    // started 7ms later, and the last frame the UI thread ever painted was mid-slide — which is exactly
+    // the split screen reported in avni-client#2054. The double rAF lets that commit land first.
+    // opts.evenIfUnmounted: run `fn` even if this component has since unmounted. Off by default - a
+    // screen that has gone away should not run its own load. Opt in only when the callback settles
+    // something owned by ANOTHER screen, e.g. IndividualListView dismissing the dashboard's loading
+    // modal: skipping that leaves the dashboard stuck behind a modal after a quick back press.
+    runAfterSceneTransition(fn, opts = {}) {
+        // Per-registration state, NOT instance fields: a component may call this more than once
+        // (SubjectDashboardProgramsTab registers loadData() via the base class AND dispatchOnLoad() from
+        // onViewDidMount). Sharing a single _fired flag made the second registration a silent no-op, and
+        // sharing a single unsubscribe slot leaked the first listener into the Router for the app's
+        // lifetime. Each call now owns its own flag, listener and timer. (avni-client#2054)
+        const subscribeSceneDidFocus = _.get(this.context, 'subscribeSceneDidFocus');
+        const armedAt = Date.now();
+        Perf.mark("sceneTrigger.armed", () => ({view: this.viewName(), wired: _.isFunction(subscribeSceneDidFocus)}));
+
+        // The route in flight when this registration was armed. Router passes the route to every
+        // listener; without this a different scene's transition fires our pending load mid-slide, on a
+        // screen the user has already left. Unknown route => accept any focus, so a component outside
+        // the Router's knowledge still loads rather than waiting for the timer.
+        const armedForRoute = _.invoke(this.context, 'currentRoutePath');
+        this._sceneTransitionRegistrations = this._sceneTransitionRegistrations || [];
+        const reg = {
+            fired: false, unsubscribe: null, timer: null, fn, armedAt,
+            index: this._sceneTransitionRegistrations.length,
+            evenIfUnmounted: opts.evenIfUnmounted === true,
+            // Cleared by release(), so a registration that has fired - or was released without firing -
+            // no longer holds back the ones registered after it in the pump below.
+            triggerPending: true,
+            queued: false, ran: false, source: null
+        };
+        this._sceneTransitionRegistrations.push(reg);
+
+        const release = () => {
+            const wasWaitingForTrigger = reg.triggerPending && !reg.fired;
+            reg.triggerPending = false;
+            if (reg.timer) {
+                clearTimeout(reg.timer);
+                reg.timer = null;
+            }
+            if (_.isFunction(reg.unsubscribe)) {
+                reg.unsubscribe();
+                reg.unsubscribe = null;
+            }
+            // This registration no longer holds back the ones behind it, and nothing else will
+            // re-arm the pump for them: fire() is the only other caller, and it has not run here.
+            // Without this an unmount that releases a never-fired load registration strands an
+            // evenIfUnmounted sibling queued behind it - exactly the work that option exists for.
+            if (wasWaitingForTrigger) this.scheduleSceneTransitionPump();
+        };
+
+        const fire = (source) => {
+            if (reg.fired) return;
+            if (this._isUnmounted && !reg.evenIfUnmounted) return;
+            reg.fired = true;
+            reg.source = source;
+            release();
+            this.queueSceneTransitionRun(reg);
+        };
+
+        if (_.isFunction(subscribeSceneDidFocus)) {
+            reg.unsubscribe = subscribeSceneDidFocus((route) => {
+                const focusedPath = _.get(route, 'path');
+                if (!_.isNil(armedForRoute) && !_.isNil(focusedPath) && focusedPath !== armedForRoute) return;
+                fire("didFocus");
+            });
+            reg.timer = setTimeout(() => fire("timer"), AbstractComponent.LOAD_FALLBACK_MS);
+        } else {
+            // Mounted outside the Router — no scene to wait for.
+            deferPastInteractions(() => fire("interactions"));
+        }
+        reg.release = release;
+        return reg;
+    }
+
+    // Every registration on a component shares ONE double-rAF pump and runs in registration order.
+    // A pump per registration leaves their relative order to the platform: RN implements
+    // requestAnimationFrame as a native timer, and Android keeps those in a PriorityQueue keyed only
+    // on target time, so two callbacks armed in the same millisecond can be delivered in either
+    // order. SubjectDashboardProgramsTab dispatches ON_LANDING from the base class's load
+    // registration and ON_LOAD from its own. On 18.x - where #1892 added the `loaded` state gate this
+    // branch does not carry - inverting them let ON_LANDING clear the flag ON_LOAD had just set, and
+    // the tab sat on its spinner until the user left it (avni-client#2101, 3 of 50 tab mounts in the
+    // reported log). The double rAF itself stays - it is what lets the scene's final commit paint
+    // before the load blocks the JS thread (#2054).
+    queueSceneTransitionRun(reg) {
+        reg.queued = true;
+        this.scheduleSceneTransitionPump();
+    }
+
+    scheduleSceneTransitionPump() {
+        if (this._sceneTransitionPumpScheduled) return;
+        this._sceneTransitionPumpScheduled = true;
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            this._sceneTransitionPumpScheduled = false;
+            this.drainSceneTransitionRuns();
+        }));
+    }
+
+    drainSceneTransitionRuns() {
+        const registrations = this._sceneTransitionRegistrations || [];
+        for (let i = 0; i < registrations.length; i++) {
+            const reg = registrations[i];
+            if (reg.ran) continue;
+            if (!reg.queued) {
+                // Still waiting for its own trigger. Whatever it does is ordered before the later
+                // registrations, so they wait too - bounded by its LOAD_FALLBACK_MS timer (or the cap
+                // inside deferPastInteractions), which re-arms the pump. It can defer, never stall.
+                if (reg.triggerPending) return;
+                continue;
+            }
+            reg.ran = true;
+            if (this._isUnmounted && !reg.evenIfUnmounted) continue;
+            Perf.mark("sceneTrigger.fired", () => ({
+                view: this.viewName(), source: reg.source, index: reg.index, sinceArmedMs: Date.now() - reg.armedAt
+            }));
+            try {
+                reg.fn();
+            } catch (e) {
+                // One registration's failure must not strand the ones queued behind it.
+                General.logError(this.viewName(), e);
+            }
+        }
+    }
+
+    // Idempotent: whichever trigger arrives first wins, the rest no-op. _loadStarted is set only after
+    // a successful load, so a throwing load can't flip isDataLoaded() true against the stale reducer
+    // slice; forceUpdate() then clears the loader without relying on the dispatch changing state.
+    runDeferredLoad() {
+        if (this._isUnmounted || this._loadStarted || !_.isNil(this._loadError)) return;
+        if (!_.isFunction(this.loadData)) return;
+        this.releaseLoadTriggers();
+        try {
+            this.loadData();
+            this._loadStarted = true;
+        } catch (e) {
+            this._loadError = e;
+            General.logError(this.viewName(), e);
+        }
+        if (this._isUnmounted) return;   // loadData() can dispatch a reducer that navigates away
+        this.forceUpdate();
+    }
+
+    // The load's remaining triggers only - didFocus and the fallback timer race each other, and the
+    // loser must not run a second time. Releasing every registration here instead took a sibling's
+    // listener and timer away before it had fired, silently dropping its work: that is the other way
+    // SubjectDashboardProgramsTab lost its ON_LOAD dispatch (avni-client#2101).
+    releaseLoadTriggers() {
+        if (this._loadRegistration && _.isFunction(this._loadRegistration.release)) {
+            this._loadRegistration.release();
+        }
+    }
+
+    clearDeferredLoadTriggers() {
+        _.forEach(this._sceneTransitionRegistrations || [], (reg) => {
+            if (_.isFunction(reg.release)) reg.release();
+        });
+    }
+
     // Subclasses should override this instead of componentDidMount
     onViewDidMount() {
         // Default: do nothing
         // Subclasses can override without calling super
     }
 
+    // Override to also require loaded state (e.g. `super.isDataLoaded() && !_.isNil(this.state.x)`)
+    // when renderLoaded() dereferences it.
+    isDataLoaded() {
+        return this._loadStarted === true;
+    }
+
+    // Bare primitives: this base class must not import a view component (FullScreenLoader → AppHeader
+    // → AbstractComponent would be a circular import).
+    renderLoading() {
+        return (
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#ffffff'}}>
+                <ActivityIndicator size="large"/>
+            </View>
+        );
+    }
+
+    // A loadData() screen defines renderLoaded(); the base gates it behind the loader/error state.
+    render() {
+        if (_.isFunction(this.loadData)) {
+            if (!_.isNil(this._loadError)) return this.renderLoadError();
+            if (!this.isDataLoaded()) return this.renderLoading();
+        }
+        return this.renderLoaded();
+    }
+
+    renderLoaded() {
+        return null;
+    }
+
+    // Shown when loadData() threw. Bare primitives (no view component — see renderLoading).
+    renderLoadError() {
+        return (
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#ffffff', padding: 20}}>
+                <Text style={{textAlign: 'center', marginBottom: 20}}>{this.I18n.t('screenLoadError')}</Text>
+                <TouchableOpacity onPress={() => this.goBack()}>
+                    <Text style={{color: '#0000ff', textDecorationLine: 'underline'}}>{this.I18n.t('goBack')}</Text>
+                </TouchableOpacity>
+            </View>
+        );
+    }
+
     refreshState() {
         const nextState = this.getContextState(this.topLevelStateVariable);
         if (!General.objectsShallowEquals(nextState, this.state)) {
-            if (!_.isNil(nextState.error))
-                this.showError(nextState.error.message);
+            // #2054 diagnostic: names the store-driven re-renders, e.g. the repeated
+            // SystemRecommendationView renders after a Summary press.
+            Perf.mark("refreshState.setState", () => ({view: this.viewName()}));
             this.setState(nextState);
         }
     }
@@ -155,7 +380,17 @@ class AbstractComponent extends Component {
         }
     }
 
+    // Static fields (visit date, GPS) render above the FormElementGroup, outside its scroll-to-error wrapping.
+    scrollToStaticFieldError(state) {
+        if (state.hasStaticFieldError()) {
+            this.scrollToTop();
+        }
+    }
+
     componentWillUnmount() {
+        this._isUnmounted = true;
+        this.clearDeferredLoadTriggers();   // before the early return below — a leaked scene listener
+                                            // would keep a dead component reachable from the Router
         if (_.isNil(this.topLevelStateVariable)) return;
         this.unsubscribe();
     }

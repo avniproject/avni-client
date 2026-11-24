@@ -128,16 +128,19 @@ class SubjectInfoCard extends AbstractComponent {
     }
 
     renderAgeAndGender(i18n) {
+        const {individual} = this.props;
+        // A draft saved when the app went to the background can be missing the gender or the date of birth.
         return <View style={{
             flexDirection: 'row',
             justifyContent: 'flex-start',
             alignItems: 'center'
         }}>
-            <Text
-                style={styles.subjectSubtext1}>{this.props.individual.userProfileSubtext1(i18n)}</Text>
-            <Text style={styles.subjectSubtextSeparator}>{'•'}</Text>
-            <Text
-                style={styles.subjectSubtext2}>{this.props.individual.userProfileSubtext2(i18n)}</Text>
+            {!_.isNil(individual.gender) &&
+                <Text style={styles.subjectSubtext1}>{individual.userProfileSubtext1(i18n)}</Text>}
+            {!_.isNil(individual.gender) && !_.isNil(individual.dateOfBirth) &&
+                <Text style={styles.subjectSubtextSeparator}>{'•'}</Text>}
+            {!_.isNil(individual.dateOfBirth) &&
+                <Text style={styles.subjectSubtext2}>{individual.userProfileSubtext2(i18n)}</Text>}
         </View>
     }
 

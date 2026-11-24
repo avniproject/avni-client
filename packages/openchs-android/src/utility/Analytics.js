@@ -350,7 +350,99 @@ const finishScreening = (eventName, uuid) => {
     if (_.isNil(activeScreening) || (!_.isNil(uuid) && activeScreening.uuid !== uuid)) return;
     const screening = activeScreening;
     activeScreening = null;
-    logEvent(eventName, screeningParams(screening, {duration_ms: Date.now() - screening.startTime}));
+    logEvent(eventName, screeningParams(screening, {duration_ms: Date.now() - screening.startTime, ...medicalDeviceSummary(screening)}));
+};
+
+// ---- medical devices (anuPath meter) ----------------------------------------------------------
+// How device-capable values were captured in a screening, how the Bluetooth connection went and what
+// the reading sheet ended with. No health values or patient identifiers are ever sent. Each event
+// also carries active_task_type / active_task_name (withActiveTask), so it can be filtered by screening.
+// While a screening is open, the same calls build a per-screening summary that finishScreening adds to
+// patient_screening_completed / _abandoned (only when the screening used a device question).
+const PARAM_VALUE_MAX = 100;
+const truncateParam = (value) => _.isNil(value) || value === '' ? undefined : _.truncate(String(value), {length: PARAM_VALUE_MAX, omission: ''});
+
+const screeningDevices = () => {
+    if (_.isNil(activeScreening)) return null;
+    if (_.isNil(activeScreening.devices)) activeScreening.devices = {tests: {}, ids: [], failures: 0, accepted: 0};
+    return activeScreening.devices;
+};
+
+const medicalDeviceSummary = (screening) => {
+    const devices = screening.devices;
+    if (_.isNil(devices) || _.isEmpty(devices.tests)) return {};
+    // A test on Device run counts as "device" only once a reading was accepted for it; otherwise its value
+    // was never captured (the device value question cannot be typed into).
+    const summary = _.map(devices.tests, ({method, accepted}, test) =>
+        `${test}:${method === 'device' ? (accepted ? 'device' : 'not_captured') : method}`).join(',');
+    return {
+        capture_summary: truncateParam(summary),
+        medical_device_ids: truncateParam(devices.ids.join(',')),
+        medical_device_connection_failures: devices.failures,
+        medical_device_readings_accepted: devices.accepted
+    };
+};
+
+/** The capture method question ("Device run" / "Manual run") was answered: selection 'auto' (pre-selected) or 'user'. */
+export const logMedicalDeviceCaptureMethod = (test, captureMethod, selection) => {
+    if (_.isNil(test) || _.isNil(captureMethod)) return;
+    const devices = screeningDevices();
+    if (devices) {
+        const previous = devices.tests[test];
+        // Switching away from Device run removes the device value (and its details) from the form.
+        devices.tests[test] = {method: captureMethod, accepted: captureMethod === 'device' && _.get(previous, 'method') === 'device' && _.get(previous, 'accepted', false)};
+    }
+    logEvent(firebaseEvents.MEDICAL_DEVICE_CAPTURE_METHOD, {test, capture_method: captureMethod, selection});
+};
+
+/**
+ * A connection attempt finished. outcome 'connected' | 'failed'; details/firmware only once connected.
+ * failure_reason 'cancelled' (sheet closed while connecting) is not counted as a connection failure.
+ */
+export const logMedicalDeviceConnection = ({medicalDeviceType, test, outcome, failureReason, durationMs, remembered, deviceId, details, firmware}) => {
+    const devices = screeningDevices();
+    if (devices) {
+        if (outcome === 'connected' && deviceId && !_.includes(devices.ids, deviceId)) devices.ids.push(deviceId);
+        if (outcome === 'failed' && failureReason !== 'cancelled') devices.failures += 1;
+    }
+    logEvent(firebaseEvents.MEDICAL_DEVICE_CONNECTION, _.omitBy({
+        medical_device_type: medicalDeviceType,
+        test,
+        outcome,
+        failure_reason: failureReason,
+        duration_ms: durationMs,
+        medical_device_remembered: _.isNil(remembered) ? undefined : String(remembered),
+        medical_device_id: truncateParam(deviceId),
+        medical_device_details: truncateParam(details),
+        medical_device_firmware: truncateParam(firmware)
+    }, _.isNil));
+};
+
+/** The reading sheet closed with this outcome (accepted, cancelled, not_found, ...). */
+export const logMedicalDeviceReading = ({medicalDeviceType, test, outcome, recordAgeMinutes, unit, deviceId, durationMs}) => {
+    const devices = screeningDevices();
+    if (devices && outcome === 'accepted') {
+        devices.accepted += 1;
+        if (test) devices.tests[test] = {method: 'device', accepted: true};
+    }
+    logEvent(firebaseEvents.MEDICAL_DEVICE_READING, _.omitBy({
+        medical_device_type: medicalDeviceType,
+        test,
+        outcome,
+        record_age_minutes: recordAgeMinutes,
+        unit: truncateParam(unit),
+        medical_device_id: truncateParam(deviceId),
+        duration_ms: durationMs
+    }, _.isNil));
+};
+
+/** "Choose a different meter" -> another meter picked. */
+export const logMedicalDeviceChanged = (medicalDeviceType, previousDeviceId, deviceId) => {
+    logEvent(firebaseEvents.MEDICAL_DEVICE_CHANGED, _.omitBy({
+        medical_device_type: medicalDeviceType,
+        previous_medical_device_id: truncateParam(previousDeviceId),
+        medical_device_id: truncateParam(deviceId)
+    }, _.isNil));
 };
 
 // Called from the SAVE actions once the encounter is written to the database.
@@ -462,6 +554,11 @@ export const firebaseEvents = {
     PATIENT_SCREENING_STARTED: 'patient_screening_started',
     PATIENT_SCREENING_COMPLETED: 'patient_screening_completed',
     PATIENT_SCREENING_ABANDONED: 'patient_screening_abandoned',
+    // Medical device (anuPath meter) capture - see "medical devices" above.
+    MEDICAL_DEVICE_CAPTURE_METHOD: 'medical_device_capture_method',
+    MEDICAL_DEVICE_CONNECTION: 'medical_device_connection',
+    MEDICAL_DEVICE_READING: 'medical_device_reading',
+    MEDICAL_DEVICE_CHANGED: 'medical_device_changed',
     REGISTRATION_STARTED: 'patient_registration_started',
     REGISTRATION_COMPLETED: 'patient_registration_completed',
     REGISTRATION_ABANDONED: 'patient_registration_abandoned',
@@ -486,6 +583,7 @@ export const firebaseEvents = {
     LOG_IN: 'login',
     LOG_IN_ERROR: 'login_error',
     LOG_OUT: 'logout',
+    FORCED_LOGIN_PROMPT: 'forced_login_prompt',
     SUMMARY_PRESSED: 'summary_pressed',
     QUICK_FORM_EDIT: 'quick_form_edit',
     SCREEN_NAVIGATION: 'screen_navigation',
