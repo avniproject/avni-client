@@ -39,13 +39,14 @@ describe("MetricsService", () => {
             expect(appInfo).toMatchObject({dbSize: 5120, activeBackend: "sqlite"});
         });
 
-        it("on SQLite, reads no observations before the sync, leaving the counts for its end", async () => {
+        it("on SQLite, reads no records and sends the counts blank rather than 0", async () => {
             setSizes({"/docs/avni_sqlite.db": 4096});
-            const db = {isSqlite: true, execCountObservationsAndPoints: jest.fn()};
+            const db = {isSqlite: true, objects: jest.fn(), execQuery: jest.fn()};
 
             const appInfo = await serviceOn(db, "sqlite").getAppInfo();
 
-            expect(db.execCountObservationsAndPoints).not.toHaveBeenCalled();
+            expect(db.objects).not.toHaveBeenCalled();
+            expect(db.execQuery).not.toHaveBeenCalled();
             expect(appInfo).toMatchObject({observationCount: null, pointCount: null});
         });
 

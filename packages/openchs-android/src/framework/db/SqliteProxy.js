@@ -235,29 +235,6 @@ class SqliteProxy {
         return (rows && rows.length > 0) ? Number(rows[0].cnt) || 0 : 0;
     }
 
-    // Embedded objects are JSON on their parent rows; one read per table, and SubjectLocation holds its Point under coordinates.
-    execCountObservationsAndPoints() {
-        const valid = (col, expr) => `CASE WHEN json_valid(${col}) THEN ${expr} ELSE 0 END`;
-        const objectsIn = (col) => valid(col, `CASE json_type(${col}) WHEN 'array' THEN json_array_length(${col}) WHEN 'object' THEN 1 ELSE 0 END`);
-        const pointIn = (col, path) => valid(col, `CASE WHEN json_type(${col}, '${path}') = 'object' THEN 1 ELSE 0 END`);
-        const tableReads = [];
-        this.tableMetaMap.forEach(tableMeta => {
-            const observationTerms = [], pointTerms = [];
-            _.forEach(tableMeta.embeddedProperties, (type, propName) => {
-                const col = camelToSnake(propName);
-                if (type === "Observation") observationTerms.push(objectsIn(col));
-                else if (type === "Point") pointTerms.push(objectsIn(col));
-                else if (type === "SubjectLocation") pointTerms.push(pointIn(col, "$.coordinates"));
-            });
-            if (observationTerms.length === 0 && pointTerms.length === 0) return;
-            const sum = (terms) => terms.length ? `COALESCE(SUM(${terms.join(" + ")}), 0)` : "0";
-            tableReads.push(`SELECT ${sum(observationTerms)} AS observations, ${sum(pointTerms)} AS points FROM ${tableMeta.tableName}`);
-        });
-        if (tableReads.length === 0) return {observations: 0, points: 0};
-        const [row] = this.execQuery(`SELECT SUM(observations) AS observations, SUM(points) AS points FROM (${tableReads.join(" UNION ALL ")})`);
-        return {observations: Number(row?.observations) || 0, points: Number(row?.points) || 0};
-    }
-
     /**
      * Look up an observation value from a JSON observations column.
      * Uses json_each() to search by concept UUID or name without hydration.

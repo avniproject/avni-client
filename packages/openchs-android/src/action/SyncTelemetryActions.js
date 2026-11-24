@@ -4,7 +4,6 @@ import EntityService from "../service/EntityService";
 import DeviceInfo from 'react-native-device-info';
 import moment from "moment";
 import {getUnknownConnectionInfo} from "../utility/ConnectionInfo";
-import General from "../utility/General";
 
 class SyncTelemetryActions {
     static getInitialState() {
@@ -150,9 +149,7 @@ class SyncTelemetryActions {
         // initial appInfo was recorded at START_SYNC.
         try {
             const appInfo = JSON.parse(syncTelemetry.appInfo || '{}');
-            const isSqlite = !!(entityService.db && entityService.db.isSqlite);
-            appInfo.activeBackend = isSqlite ? 'sqlite' : 'realm';
-            if (isSqlite) Object.assign(appInfo, SyncTelemetryActions.sqliteObservationAndPointCounts(entityService.db));
+            appInfo.activeBackend = entityService.db && entityService.db.isSqlite ? 'sqlite' : 'realm';
             syncTelemetry.appInfo = JSON.stringify(appInfo);
         } catch (e) { /* ignore — telemetry is best-effort */ }
 
@@ -176,17 +173,6 @@ class SyncTelemetryActions {
         newState.syncStarted = false;
 
         return newState;
-    }
-
-    // null, not 0, so a count that could not be read is not taken for an empty phone.
-    static sqliteObservationAndPointCounts(db) {
-        try {
-            const {observations, points} = db.execCountObservationsAndPoints();
-            return {observationCount: observations, pointCount: points};
-        } catch (e) {
-            General.logError("SyncTelemetryActions", `Could not count observations and points: ${e.message}`);
-            return {observationCount: null, pointCount: null};
-        }
     }
 
     static syncFailed(state, action, context) {

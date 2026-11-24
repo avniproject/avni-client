@@ -16,7 +16,7 @@ export default class MetricsService extends BaseService {
         const appInfo = {};
         if (this.db.isSqlite) {
             appInfo.dbSize = await FileSystem.getSqliteDBSize(SqliteFactory.getDbFullPath());
-            // Counting reads every record, so it waits for the end of the sync (SyncTelemetryActions.syncCompleted).
+            // Blank, not 0, so it is not read as an empty phone; counting on SQLite reads every record and freezes the app.
             appInfo.observationCount = null;
             appInfo.pointCount = null;
         } else {
