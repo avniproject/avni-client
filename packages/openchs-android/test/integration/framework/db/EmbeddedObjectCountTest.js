@@ -6,7 +6,7 @@ import {open} from "@op-engineering/op-sqlite";
 const obs = (conceptUuid, value) => ({concept: {uuid: conceptUuid}, valueJSON: JSON.stringify({answer: value})});
 
 describe("counting observations and points stored inside their parent rows", () => {
-    let rawDb, proxy;
+    let rawDb, proxy, selects;
 
     beforeEach(() => {
         rawDb = open({});
@@ -15,13 +15,19 @@ describe("counting observations and points stored inside their parent rows", () 
         rawDb.executeSync("PRAGMA foreign_keys = OFF");
         for (const sql of SchemaGenerator.generateCreateTableStatements(tableMetaMap)) rawDb.executeSync(sql);
         proxy = new SqliteProxy(rawDb, cfg, tableMetaMap, SchemaGenerator.buildRealmSchemaMap(cfg));
+
+        selects = [];
+        const execute = rawDb.executeSync.bind(rawDb);
+        rawDb.executeSync = (sql, params = []) => {
+            if (/^\s*SELECT/i.test(sql)) selects.push(sql);
+            return execute(sql, params);
+        };
     });
 
     afterEach(() => rawDb.close());
 
     it("reads zero on an empty database", () => {
-        expect(proxy.execCountEmbedded("Observation")).toBe(0);
-        expect(proxy.execCountEmbedded("Point")).toBe(0);
+        expect(proxy.execCountObservationsAndPoints()).toEqual({observations: 0, points: 0});
     });
 
     it("counts every observation and point across subjects, visits and cancellations", () => {
@@ -33,8 +39,12 @@ describe("counting observations and points stored inside their parent rows", () 
             create("Individual", {
                 uuid: "i-1", firstName: "A", registrationDate: at, voided: false, subjectType: {uuid: "st"},
                 observations: [obs("c1", 1), obs("c2", 2)], registrationLocation: {x: 1.5, y: 2.5},
+                subjectLocation: {coordinates: {x: 7, y: 8}, accuracy: 4},
             });
-            create("Individual", {uuid: "i-2", firstName: "B", registrationDate: at, voided: false, subjectType: {uuid: "st"}});
+            create("Individual", {
+                uuid: "i-2", firstName: "B", registrationDate: at, voided: false, subjectType: {uuid: "st"},
+                subjectLocation: {accuracy: 4},
+            });
             create("Encounter", {
                 uuid: "e-1", individual: {uuid: "i-1"}, encounterType: {uuid: "et"}, encounterDateTime: at, voided: false,
                 observations: [obs("c1", 3)], cancelObservations: [obs("c3", 4)],
@@ -42,7 +52,13 @@ describe("counting observations and points stored inside their parent rows", () 
             });
         });
 
-        expect(proxy.execCountEmbedded("Observation")).toBe(4);
-        expect(proxy.execCountEmbedded("Point")).toBe(3);
+        expect(proxy.execCountObservationsAndPoints()).toEqual({observations: 4, points: 4});
+    });
+
+    it("reads each table once, so a subject's location costs no extra read", () => {
+        proxy.execCountObservationsAndPoints();
+
+        const reads = selects.join("\n").match(/FROM individual\b/g) || [];
+        expect(reads).toHaveLength(1);
     });
 });

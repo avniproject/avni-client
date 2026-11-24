@@ -27,34 +27,37 @@ const serviceOn = (db, backend) => {
     return service;
 };
 
-describe("MetricsService.getAppInfo", () => {
+describe("MetricsService", () => {
     afterEach(() => jest.restoreAllMocks());
 
-    it("on SQLite, reports the SQLite file and its write-ahead log, not the leftover Realm file", async () => {
-        setSizes({"/docs/default.realm": 999, "/docs/avni_sqlite.db": 4096, "/docs/avni_sqlite.db-wal": 1024});
-        const db = {isSqlite: true, execCountEmbedded: (name) => ({Observation: 12, Point: 3})[name]};
+    describe("getAppInfo, read as a sync starts", () => {
+        it("on SQLite, reports the SQLite file and its write-ahead log, not the leftover Realm file", async () => {
+            setSizes({"/docs/default.realm": 999, "/docs/avni_sqlite.db": 4096, "/docs/avni_sqlite.db-wal": 1024});
 
-        const appInfo = await serviceOn(db, "sqlite").getAppInfo();
+            const appInfo = await serviceOn({isSqlite: true}, "sqlite").getAppInfo();
 
-        expect(appInfo).toMatchObject({dbSize: 5120, observationCount: 12, pointCount: 3, activeBackend: "sqlite"});
+            expect(appInfo).toMatchObject({dbSize: 5120, activeBackend: "sqlite"});
+        });
+
+        it("on SQLite, reads no observations before the sync, leaving the counts for its end", async () => {
+            setSizes({"/docs/avni_sqlite.db": 4096});
+            const db = {isSqlite: true, execCountObservationsAndPoints: jest.fn()};
+
+            const appInfo = await serviceOn(db, "sqlite").getAppInfo();
+
+            expect(db.execCountObservationsAndPoints).not.toHaveBeenCalled();
+            expect(appInfo).toMatchObject({observationCount: null, pointCount: null});
+        });
+
+        it("on Realm, keeps reporting the Realm file and its row counts", async () => {
+            setSizes({"/docs/default.realm": 999, "/docs/avni_sqlite.db": 4096});
+            const service = serviceOn({}, "realm");
+            service.getCount = (name) => ({Observation: 7, Point: 2})[name];
+
+            const appInfo = await service.getAppInfo();
+
+            expect(appInfo).toMatchObject({dbSize: 999, observationCount: 7, pointCount: 2, activeBackend: "realm"});
+        });
     });
 
-    it("on SQLite, sends null counts rather than 0 when they cannot be read", async () => {
-        setSizes({"/docs/avni_sqlite.db": 4096});
-        const db = {isSqlite: true, execCountEmbedded: () => { throw new Error("malformed"); }};
-
-        const appInfo = await serviceOn(db, "sqlite").getAppInfo();
-
-        expect(appInfo).toMatchObject({dbSize: 4096, observationCount: null, pointCount: null});
-    });
-
-    it("on Realm, keeps reporting the Realm file and its row counts", async () => {
-        setSizes({"/docs/default.realm": 999, "/docs/avni_sqlite.db": 4096});
-        const service = serviceOn({}, "realm");
-        service.getCount = (name) => ({Observation: 7, Point: 2})[name];
-
-        const appInfo = await service.getAppInfo();
-
-        expect(appInfo).toMatchObject({dbSize: 999, observationCount: 7, pointCount: 2, activeBackend: "realm"});
-    });
 });
