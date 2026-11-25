@@ -14,6 +14,7 @@ import GroupSubjectService from "./GroupSubjectService";
 import RuleEvaluationService from "./RuleEvaluationService";
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 import UpdateMode from "../repository/UpdateMode";
+import {ENROLMENT_CHILD_LISTS, keepStoredChildren} from "./StoredChildren";
 
 @Service("ProgramEnrolmentService")
 class ProgramEnrolmentService extends BaseService {
@@ -86,6 +87,8 @@ class ProgramEnrolmentService extends BaseService {
             if (!skipCreatingPendingStatus && isApprovalEnabled)
                 entityApprovalStatusService.createPendingStatus(programEnrolment, ProgramEnrolment.schema.name, programEnrolment.program.uuid);
             programEnrolment.updateAudit(this.getUserInfo(), isNew);
+            programEnrolment.individual = individual;
+            if (!isNew) keepStoredChildren(programEnrolment, this.findByUUID(programEnrolment.uuid), ENROLMENT_CHILD_LISTS);
             programEnrolment = this.repository.create(programEnrolment, UpdateMode.Modified);
             entityQueueItems.push(EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
             this.getService(MediaQueueService).addMediaToQueue(programEnrolment, ProgramEnrolment.schema.name);
@@ -120,6 +123,8 @@ class ProgramEnrolmentService extends BaseService {
             if (!skipCreatingPendingStatus && isApprovalEnabled)
                 entityApprovalStatusService.createPendingStatus(programEnrolment, ProgramEnrolment.schema.name, programEnrolment.program.uuid);
             programEnrolment.updateAudit(this.getUserInfo(), false);
+            programEnrolment.individual = individual;
+            keepStoredChildren(programEnrolment, this.findByUUID(programEnrolment.uuid), ENROLMENT_CHILD_LISTS);
             this.repository.create(programEnrolment, UpdateMode.Modified);
             this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
             // Without this a photo or file on the exit form is never uploaded.

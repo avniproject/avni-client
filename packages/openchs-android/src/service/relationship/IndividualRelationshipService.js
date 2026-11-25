@@ -77,9 +77,12 @@ class IndividualRelationshipService extends BaseService {
     }
 
     writeRecord(relationship) {
+        const individualA = this.getService(EntityService).findByUUID(relationship.individualA.uuid, Individual.schema.name) || relationship.individualA;
+        const individualB = this.getService(EntityService).findByUUID(relationship.individualB.uuid, Individual.schema.name) || relationship.individualB;
+        // Saving the relationship also saves these nested individuals; a form copy would replace their stored encounters with its empty list.
+        relationship.individualA = individualA;
+        relationship.individualB = individualB;
         const savedRelationship = this.repository.create(relationship, true);
-        let individualA = this.getService(EntityService).findByUUID(relationship.individualA.uuid, Individual.schema.name);
-        let individualB = this.getService(EntityService).findByUUID(relationship.individualB.uuid, Individual.schema.name);
         individualA.addRelationship(savedRelationship);
         individualB.addRelationship(savedRelationship);
         this.getRepository(Individual.schema.name).create(individualA, true);

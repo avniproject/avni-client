@@ -1,4 +1,5 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
+import {subjectLabelWithAddress} from "../../utility/SubjectAddress";
 import ConceptService from "../../service/ConceptService";
 import MultiSelectFilter from "./MultiSelectFilter";
 import {Concept, CustomFilter} from "avni-models";
@@ -123,8 +124,8 @@ class CustomFilters extends AbstractComponent {
         const {titleKey, groupSubjectTypeUUID} = filter;
         const addressLevelUUIDs = _.get(this.props, 'addressLevelState', new AddressLevelsState()).selectedAddressLevelUUIDs;
         const valueLabelPairs = this.individualService.getAllBySubjectTypeUUID(groupSubjectTypeUUID)
-            .filter(subject => !_.isEmpty(addressLevelUUIDs) ? _.includes(addressLevelUUIDs, subject.lowestAddressLevel.uuid) : true)
-            .map((subject) => new RadioLabelValue(`${subject.nameString} (${subject.lowestAddressLevel.translatedFieldValue})`, subject.uuid));
+            .filter(subject => !_.isEmpty(addressLevelUUIDs) ? _.includes(addressLevelUUIDs, _.get(subject, 'lowestAddressLevel.uuid')) : true)
+            .map((subject) => new RadioLabelValue(subjectLabelWithAddress(subject), subject.uuid));
         const selectedGroupSubjectUUIDs = _.map(this.state.selectedCustomFilters[titleKey], ({groupSubjectUUID}) => groupSubjectUUID);
         const currentLocale = this.getService(UserInfoService).getUserSettings().locale;
 

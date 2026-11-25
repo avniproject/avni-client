@@ -108,6 +108,12 @@ commands:
             else
               echo "Using cached node_modules and autolinking configuration"
             fi
+  use_maven_central_mirror:
+    description: "Fetch Maven Central artifacts from Google's mirror; Maven Central rate-limits CircleCI (429)"
+    steps:
+      - run:
+          name: Use Maven Central mirror
+          command: mkdir -p ~/.gradle/init.d && cp .circleci/maven-central-mirror.gradle ~/.gradle/init.d/
   run_with_retry:
     description: "Run a command with retry logic"
     parameters:
@@ -192,13 +198,21 @@ jobs:
             - v3-dependencies-{{ checksum "packages/openchs-android/package.json" }}-{{ checksum "packages/openchs-android/patches.sha" }}
       - restore_cache:
           keys:
-            - v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}
+            - v3-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-{{ checksum "packages/openchs-android/package-lock.json" }}
+            - v3-gradle-deps-
+            - v2-gradle-deps-
       - setup_autolinking
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
+      - use_maven_central_mirror
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
-      - run: make apply_patch release_no_env_universal_without_clean
+      - run: make apply_patch
+      - run_with_retry:
+          command_name: "No-env APK"
+          command: "make release_no_env_universal_without_clean"
+          max_retries: 3
+          delay_seconds: 60
       - save_cache:
-          key: v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
+          key: v3-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-{{ checksum "packages/openchs-android/package-lock.json" }}
           paths:
             - ~/.gradle
             - ~/.m2
@@ -234,14 +248,22 @@ jobs:
             - v3-dependencies-{{ checksum "packages/openchs-android/package.json" }}-{{ checksum "packages/openchs-android/patches.sha" }}
       - restore_cache:
           keys:
-            - v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
+            - v3-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-{{ checksum "packages/openchs-android/package-lock.json" }}
+            - v3-gradle-deps-
+            - v2-gradle-deps-
       - setup_autolinking
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
+      - use_maven_central_mirror
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
-      - run: make apply_patch release_staging_dev_without_clean
+      - run: make apply_patch
+      - run_with_retry:
+          command_name: "Staging APK"
+          command: "make release_staging_dev_without_clean"
+          max_retries: 3
+          delay_seconds: 60
       - run: make deploy_platform_translations_staging
       - save_cache:
-          key: v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
+          key: v3-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-{{ checksum "packages/openchs-android/package-lock.json" }}
           paths:
             - ~/.gradle
             - ~/.m2
@@ -277,14 +299,22 @@ jobs:
             - v3-dependencies-{{ checksum "packages/openchs-android/package.json" }}-{{ checksum "packages/openchs-android/patches.sha" }}
       - restore_cache:
           keys:
-            - v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
+            - v3-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-{{ checksum "packages/openchs-android/package-lock.json" }}
+            - v3-gradle-deps-
+            - v2-gradle-deps-
       - setup_autolinking
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
+      - use_maven_central_mirror
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
-      - run: make apply_patch release_gramin_staging_dev_without_clean
+      - run: make apply_patch
+      - run_with_retry:
+          command_name: "Gramin staging APK"
+          command: "make release_gramin_staging_dev_without_clean"
+          max_retries: 3
+          delay_seconds: 60
       - run: make deploy_platform_translations_gramin_staging
       - save_cache:
-          key: v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-gramin-staging
+          key: v3-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-{{ checksum "packages/openchs-android/package-lock.json" }}
           paths:
             - ~/.gradle
             - ~/.m2
@@ -319,27 +349,39 @@ jobs:
             - v3-dependencies-{{ checksum "packages/openchs-android/package.json" }}-{{ checksum "packages/openchs-android/patches.sha" }}
       - restore_cache:
           keys:
-            - v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
+            - v3-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-{{ checksum "packages/openchs-android/package-lock.json" }}
+            - v3-gradle-deps-
+            - v2-gradle-deps-
       - setup_autolinking
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
+      - use_maven_central_mirror
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
       - aws-cli/setup:
           role_arn: 'arn:aws:iam::118388513628:role/CircleCI-OIDC'
           region: 'ap-south-1'
-      - run: make apply_patch release_prerelease_dev_without_clean
+      - run: make apply_patch
+      - run_with_retry:
+          command_name: "Prerelease dev APK"
+          command: "make release_prerelease_dev_without_clean"
+          max_retries: 3
+          delay_seconds: 60
       - aws-s3/copy:
           from: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
           to: s3://samanvay/openchs/<< pipeline.number >>-<< pipeline.git.revision >>/prerelease_dev/
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
           destination: << pipeline.parameters.flavor >>-prerelease_dev-<< pipeline.git.revision >>.apk
-      - run: make release_prerelease_without_clean
+      - run_with_retry:
+          command_name: "Prerelease APK"
+          command: "make release_prerelease_without_clean"
+          max_retries: 3
+          delay_seconds: 60
       - aws-s3/copy:
           from: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
           to: s3://samanvay/openchs/<< pipeline.number >>-<< pipeline.git.revision >>/prerelease/
       - run: make deploy_platform_translations_prerelease
       - save_cache:
-          key: v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-prerelease
+          key: v3-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-{{ checksum "packages/openchs-android/package-lock.json" }}
           paths:
             - ~/.gradle
             - ~/.m2
@@ -374,14 +416,22 @@ jobs:
             - v3-dependencies-{{ checksum "packages/openchs-android/package.json" }}-{{ checksum "packages/openchs-android/patches.sha" }}
       - restore_cache:
           keys:
-            - v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
+            - v3-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-{{ checksum "packages/openchs-android/package-lock.json" }}
+            - v3-gradle-deps-
+            - v2-gradle-deps-
       - setup_autolinking
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
+      - use_maven_central_mirror
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
-      - run: make apply_patch release_perf_without_clean
+      - run: make apply_patch
+      - run_with_retry:
+          command_name: "Perf APK"
+          command: "make release_perf_without_clean"
+          max_retries: 3
+          delay_seconds: 60
       - run: make deploy_platform_translations_prerelease
       - save_cache:
-          key: v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-perf
+          key: v3-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-{{ checksum "packages/openchs-android/package-lock.json" }}
           paths:
             - ~/.gradle
             - ~/.m2
@@ -444,9 +494,12 @@ jobs:
             - v3-dependencies-{{ checksum "packages/openchs-android/package.json" }}-{{ checksum "packages/openchs-android/patches.sha" }}
       - restore_cache:
           keys:
-            - v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
+            - v3-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-{{ checksum "packages/openchs-android/package-lock.json" }}
+            - v3-gradle-deps-
+            - v2-gradle-deps-
       - setup_autolinking
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
+      - use_maven_central_mirror
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
       - run: make apply_patch
       #      - run: versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make bundle_release_prod_without_clean
@@ -476,7 +529,7 @@ jobs:
           path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
           destination: << pipeline.parameters.flavor >>-live_dev-<< pipeline.parameters.versionName >>-<< pipeline.git.revision >>-apk.zip
       - save_cache:
-          key: v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
+          key: v3-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-{{ checksum "packages/openchs-android/package-lock.json" }}
           paths:
             - ~/.gradle
             - ~/.m2

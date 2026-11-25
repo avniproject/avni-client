@@ -40,6 +40,10 @@ export default class Router extends Component {
     // The path currently transitioning or focused. Lets a subscriber ignore another scene's transition.
     currentRoutePath = () => this.path;
 
+    // The route whose scene is in front: set when its scene focuses, null from the moment a transition starts. Read
+    // live, so unlike currentRoutePath it is never stale while a pop is under way.
+    focusedRoute = () => this.sceneFocus.focusedRoute;
+
     componentDidMount = () => {
         this.backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
             const element = this.routeElementMap[this.path];
@@ -134,7 +138,8 @@ export default class Router extends Component {
                         ...parentContext,
                         navigator: () => this.navigator,
                         subscribeSceneDidFocus: this.subscribeSceneDidFocus,
-                        currentRoutePath: this.currentRoutePath
+                        currentRoutePath: this.currentRoutePath,
+                        focusedRoute: this.focusedRoute
                     }}>
                         <Navigator
                             onWillFocus={(route) => this.willFocus(route)}

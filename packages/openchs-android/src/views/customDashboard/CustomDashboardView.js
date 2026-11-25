@@ -5,14 +5,18 @@ import React, {Fragment} from "react";
 import Reducers from "../../reducer";
 import {
     CustomDashboardActionNames as Actions,
+    dashboardOwnerKey,
+    ownsStoreState,
     performCustomDashboardActionAndClearRefresh,
-    performCustomDashboardActionAndRefresh
+    performCustomDashboardActionAndRefresh,
+    sceneFocusNeedsReload
 } from "../../action/customDashboard/CustomDashboardActions";
 import {
     SafeAreaView,
     ScrollView,
     StyleSheet,
     Text,
+    ToastAndroid,
     TouchableNativeFeedback,
     TouchableOpacity,
     View
@@ -83,6 +87,9 @@ function RefreshSection({I18n, onRefreshPressed, lastUpdatedOn}) {
 function FilterSection({dispatcher, asOnDateValue, asOnDateFilter, I18n, onFilterPressed}) {
 
     const onAsOnDateChange = (date) => {
+        // Until the reload after an opened dashboard points the filter state back, the state is not this screen's, and a
+        // date set now would be looked up among the opened dashboard's filters.
+        if (!dispatcher.ownsSharedDashboardState()) return;
         dispatcher.dispatchAction(FilterActionNames.ON_FILTER_UPDATE, {
             filter: asOnDateFilter, value: date
         });
@@ -194,9 +201,94 @@ class CustomDashboardView extends AbstractComponent {
     }
 
     UNSAFE_componentWillMount() {
-        const {customDashboardType} = this.props;
-        performCustomDashboardActionAndClearRefresh(this, Actions.ON_LOAD, {customDashboardType});
+        const {customDashboardType, dashboardUUID} = this.props;
+        performCustomDashboardActionAndClearRefresh(this, Actions.ON_LOAD, {customDashboardType, dashboardUUID});
         super.UNSAFE_componentWillMount();
+    }
+
+    onViewDidMount() {
+        this.unsubscribeSceneFocus = _.invoke(this.context, 'subscribeSceneDidFocus', (route) => this.onSceneFocus(route));
+    }
+
+    componentWillUnmount() {
+        if (_.isFunction(this.unsubscribeSceneFocus)) this.unsubscribeSceneFocus();
+        super.componentWillUnmount();
+    }
+
+    // Every dashboard screen shares one piece of dashboard state, and a dashboard opened from a tile takes it over.
+    // Until the state is this screen's own again, the screen keeps showing its own dashboard, the back slide included.
+    // If another screen takes the state while this one is in front, this one loads its own dashboard again. That
+    // happens when a background full sync's reset empties the state and mounts Home underneath.
+    refreshState() {
+        if (ownsStoreState(this.sharedDashboardState().ownerKey, this.ownOwnerKey())) super.refreshState();
+        if (this.inFrontWithoutItsState()) this.reloadWhileInFront();
+    }
+
+    // True when the scene in front is this screen's route and the shared state is not its own. A state nobody owns is
+    // not its own, so the screen in front also reloads after a reset. The router's live focus is null during a
+    // transition, so no screen counts as in front while one runs.
+    inFrontWithoutItsState() {
+        return sceneFocusNeedsReload(_.invoke(this.context, 'focusedRoute'), this.ownRoutePath(), this.sharedDashboardState().ownerKey, this.ownOwnerKey(), this.props.dashboardUUID);
+    }
+
+    // Waits two frames, as the focus path does, then reloads only if the screen is still mounted, still in front and
+    // still without its state. One reload waits at a time, so a burst of store changes gives one reload.
+    reloadWhileInFront() {
+        if (this._inFrontReloadPending) return;
+        this._inFrontReloadPending = true;
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            this._inFrontReloadPending = false;
+            if (this._isUnmounted || !this.inFrontWithoutItsState()) return;
+            this.reloadOwnDashboard();
+        }));
+    }
+
+    // When the user comes back to this screen after an opened dashboard took the state over, the screen loads its own
+    // dashboard again. It waits two frames, as a screen's first load does, so the back slide's last frame is painted
+    // before the load blocks the JS thread (AbstractComponent, #2054).
+    onSceneFocus(route) {
+        const needsReload = () => sceneFocusNeedsReload(route, this.ownRoutePath(), this.sharedDashboardState().ownerKey, this.ownOwnerKey(), this.props.dashboardUUID);
+        if (!needsReload()) return;
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            // Checked again with the router's live focus, as the in-front path does: a second back press starts the next
+            // pop within these frames, and the screen would then reload while it slides away.
+            if (this._isUnmounted || !needsReload() || !this.inFrontWithoutItsState()) return;
+            this.reloadOwnDashboard();
+        }));
+    }
+
+    // Loads this screen's dashboard on the tab the user left, then points the filter screen's state back at it, as a
+    // tab change does: the applied-filters bar points it only when it mounts, and the opened dashboard's bar pointed it
+    // at the opened dashboard. With no dashboard left to show, the screen shows no filters and there is nothing to point at.
+    reloadOwnDashboard() {
+        const {customDashboardType, dashboardUUID} = this.props;
+        performCustomDashboardActionAndClearRefresh(this, Actions.ON_LOAD, {customDashboardType, dashboardUUID, activeDashboardUUID: this.dashboardToRestore});
+        const {activeDashboardUUID} = this.sharedDashboardState();
+        if (!_.isNil(activeDashboardUUID)) {
+            this.dispatchAction(FilterActionNames.ON_LOAD, {dashboardUUID: activeDashboardUUID});
+        }
+    }
+
+    // The route this screen sits on. LandingView passes its own for Home and the second tab, which it draws. The router
+    // is not asked: its current path is stale when Home mounts during a pop, as when the header's home icon pops to the
+    // top and switches LandingView to Home in the same tap.
+    ownRoutePath() {
+        return this.props.routePath || this.constructor.path();
+    }
+
+    // The owner key this screen's own load records in the shared dashboard state.
+    ownOwnerKey() {
+        return dashboardOwnerKey(this.props.customDashboardType, this.props.dashboardUUID);
+    }
+
+    sharedDashboardState() {
+        return this.context.getStore().getState()[Reducers.reducerKeys.customDashboard];
+    }
+
+    // True when the shared dashboard state is this screen's or nobody's. False while another screen, such as an opened
+    // dashboard, holds it.
+    ownsSharedDashboardState() {
+        return ownsStoreState(this.sharedDashboardState().ownerKey, this.ownOwnerKey());
     }
 
     onClearFilters() {
@@ -204,6 +296,12 @@ class CustomDashboardView extends AbstractComponent {
     }
 
     onDashboardNamePress(uuid) {
+        // Remembered, so a later reload comes back on the tab the user is on: after an opened dashboard, or after a
+        // background sync while this screen is in front.
+        this.dashboardToRestore = uuid;
+        // Without the shared state the tap would land on another screen's state. The reload that is on its way, as this
+        // screen is in front, lands on the remembered tab instead. A state nobody owns still counts.
+        if (!ownsStoreState(this.sharedDashboardState().ownerKey, this.ownOwnerKey())) return;
         this.dispatchAction(FilterActionNames.ON_LOAD, {dashboardUUID: uuid});
         performCustomDashboardActionAndRefresh(this, Actions.ON_DASHBOARD_CHANGE, {dashboardUUID: uuid});
     }
@@ -294,6 +392,9 @@ class CustomDashboardView extends AbstractComponent {
     }
 
     onCardPress(reportCardUUID) {
+        // A press that arrives after another screen took the shared state, such as the second of two quick taps on a tile
+        // that opened a dashboard, would act on that screen's state. It is ignored. A state nobody owns still counts.
+        if (!ownsStoreState(this.sharedDashboardState().ownerKey, this.ownOwnerKey())) return;
         this.dispatchAction(Actions.LOAD_INDICATOR, {loading: true});
         return setTimeout(() => this.dispatchAction(Actions.ON_CARD_PRESS, {
             reportCardUUID,
@@ -375,12 +476,30 @@ class CustomDashboardView extends AbstractComponent {
             },
             onFullyCustomCardPress: (reportCard, ruleInputArray, displayName) => {
                 this.dispatchAction(Actions.LOAD_INDICATOR, {loading: false});
+                // Taken once, here. The store is not read later: after the first back from an opened dashboard it still
+                // holds that dashboard, and a second link would remember the wrong tab.
+                const sourceDashboardUUID = this.state.activeDashboardUUID;
                 TypedTransition.from(this).with({
                     reportCard,
                     customCardConfig: reportCard.customCardConfig,
                     ruleInputArray,
                     displayName,
+                    sourceDashboardUUID,
+                    onOpenDashboard: (fromView, target) => {
+                        this.dashboardToRestore = sourceDashboardUUID;
+                        openDashboardFrom(fromView, target);
+                    },
                 }).to(CustomCardDetailView, true);
+            },
+            onOpenDashboard: (targetDashboardUUID) => {
+                this.dispatchAction(Actions.LOAD_INDICATOR, {loading: false});
+                // The opened dashboard takes over the shared dashboard state, so note which dashboard to put back.
+                this.dashboardToRestore = this.context.getStore().getState()[Reducers.reducerKeys.customDashboard].activeDashboardUUID;
+                openDashboardFrom(this, targetDashboardUUID);
+            },
+            onDashboardNotAvailable: () => {
+                this.dispatchAction(Actions.LOAD_INDICATOR, {loading: false});
+                ToastAndroid.show(this.I18n.t('dashboardNotAvailableToUser'), ToastAndroid.SHORT);
             }
         }), 0);
     }
@@ -393,6 +512,9 @@ class CustomDashboardView extends AbstractComponent {
     }
 
     onFilterPressed() {
+        // Until the reload after an opened dashboard points the state back, the state is not this screen's. Applying the
+        // filters chosen on the Filter screen would then clear the opened dashboard's counts instead of this one's.
+        if (!this.ownsSharedDashboardState()) return;
         const {activeDashboardUUID} = this.state;
         TypedTransition.from(this)
             .with({
@@ -404,15 +526,21 @@ class CustomDashboardView extends AbstractComponent {
             }).to(FiltersViewV2, true);
     }
 
+    onRefreshPressed() {
+        // The refresh would clear the counts of the dashboard the state holds, which until the reload is the opened one.
+        if (!this.ownsSharedDashboardState()) return;
+        performCustomDashboardActionAndClearRefresh(this, Actions.FORCE_REFRESH);
+    }
+
     render() {
         General.logDebug("CustomDashboardView", "render");
 
         const settings = this.getService(UserInfoService).getUserSettingsObject();
-        const {hideBackButton, startSync, renderSync, icon, customDashboardType, onSearch, showSearch} = this.props;
-        const showWelcomeMessage = this.context.getService(OrganisationConfigService).isGuideUserToRegisterButtonOn();
-        const title = showWelcomeMessage
-            ? this.I18n.t('welcomeMessage', {userName: this.context.getService(UserInfoService).getUserInfo().getDisplayUsername()?.split(' ')[0]})
-            : this.I18n.t(this.props.title || 'dashboards');
+        const {hideBackButton, startSync, renderSync, icon, customDashboardType, onSearch, showSearch, dashboardUUID} = this.props;
+        // A screen opened for one dashboard shows that dashboard alone: titled with its own name, with no welcome
+        // message and no tab strip to switch to another dashboard. An empty uuid counts as none, as it does when
+        // ON_LOAD loads the dashboards.
+        const isSingleDashboard = !_.isEmpty(dashboardUUID);
         const {hasFiltersSet, loading} = this.state;
         const dashboardFilterService = this.getService(DashboardFilterService);
 
@@ -427,6 +555,12 @@ class CustomDashboardView extends AbstractComponent {
             asOnDateFilterValue = (asOnDateFilterUUID && this.state.customDashboardFilters[asOnDateFilterUUID])
                 ? this.state.customDashboardFilters[asOnDateFilterUUID] : new Date();
         }
+
+        const showWelcomeMessage = !isSingleDashboard && this.context.getService(OrganisationConfigService).isGuideUserToRegisterButtonOn();
+        const ownName = isSingleDashboard ? _.get(dashboard, 'name') : undefined;
+        const title = showWelcomeMessage
+            ? this.I18n.t('welcomeMessage', {userName: this.context.getService(UserInfoService).getUserInfo().getDisplayUsername()?.split(' ')[0]})
+            : this.I18n.t(this.props.title || ownName || 'dashboards');
 
         return (
             <CHSContainer style={{
@@ -443,19 +577,20 @@ class CustomDashboardView extends AbstractComponent {
                 />
                 <ScrollView>
                     <Line/>
-                    {(_.isNil(customDashboardType) || customDashboardType === CustomDashboardType.None) &&
+                    {!isSingleDashboard && (_.isNil(customDashboardType) || customDashboardType === CustomDashboardType.None) &&
                         <SafeAreaView style={{height: 50}}>
                             <ScrollView horizontal style={{backgroundColor: Colors.cardBackgroundColor}}>
                                 {this.renderDashboards()}
                                 {this.renderZeroResultsMessageIfNeeded()}
                             </ScrollView>
                         </SafeAreaView>}
+                    {isSingleDashboard && !hasDashboards && this.renderZeroResultsMessageIfNeeded()}
                     {hasDashboards && <>
                         <View style={{display: "flex", flexDirection: "row", flex: 1, justifyContent: "space-between"}}>
                             <View style={{flex: 0.65}}>
                                 {settings.autoRefreshDisabled && !_.isNil(this.state.resultUpdatedAt) &&
                                     <RefreshSection I18n={this.I18n}
-                                                    onRefreshPressed={() => performCustomDashboardActionAndClearRefresh(this, Actions.FORCE_REFRESH)}
+                                                    onRefreshPressed={() => this.onRefreshPressed()}
                                                     lastUpdatedOn={this.state.resultUpdatedAt}/>}
                             </View>
                         </View>
@@ -468,6 +603,7 @@ class CustomDashboardView extends AbstractComponent {
                         </View>
                         <AppliedFiltersV2 dashboardUUID={this.state.activeDashboardUUID}
                                           postClearAction={() => this.onClearFilters()}
+                                          canClearFilter={() => this.ownsSharedDashboardState()}
                                           dashboard={dashboard}
                                           hasFiltersSet={hasFiltersSet}
                                           selectedFilterValues={this.state.customDashboardFilters}
@@ -480,6 +616,25 @@ class CustomDashboardView extends AbstractComponent {
             </CHSContainer>
         );
     }
+}
+
+// The screen a dashboard tile opens: one dashboard on its own, given as the prop `dashboardUUID`. It has its own
+// path because the router reuses the screen underneath when the same path is pushed twice, so the opened dashboard
+// would show the dashboard it was opened from. It sits in this file because CustomDashboardView opens it, and a
+// file of its own would import this one back.
+@Path('/openedDashboardView')
+export class OpenedDashboardView extends CustomDashboardView {
+    viewName() {
+        return 'OpenedDashboardView';
+    }
+}
+
+// Opens the dashboard a tile or a Custom Design Card's page points at. From an opened dashboard it replaces that screen
+// rather than adding another, so back returns to the screen the first opened dashboard was opened from: the dashboard
+// with the tile, or the card's page.
+export function openDashboardFrom(view, targetDashboardUUID) {
+    const replace = !_.isEmpty(view.props.dashboardUUID);
+    TypedTransition.from(view).with({dashboardUUID: targetDashboardUUID}).to(OpenedDashboardView, true, replace);
 }
 
 const styles = StyleSheet.create({

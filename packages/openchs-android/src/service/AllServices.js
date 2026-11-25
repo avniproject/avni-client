@@ -85,6 +85,7 @@ import './VideoService';
 import './application/MenuItemService';
 
 // Custom Dashboard services
+import './customDashboard/CustomCardCommandService';
 import './customDashboard/CustomDashboardService';
 import './customDashboard/DashboardSectionCardMappingService';
 import './customDashboard/ReportCardService';

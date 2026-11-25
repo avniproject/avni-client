@@ -4,6 +4,7 @@ import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
 import GlobalContext from "../GlobalContext";
 import SettingsService from "./SettingsService";
+import SqliteFactory from "../framework/db/SqliteFactory";
 
 @Service("metricsService")
 export default class MetricsService extends BaseService {
@@ -13,9 +14,16 @@ export default class MetricsService extends BaseService {
 
     async getAppInfo() {
         const appInfo = {};
-        appInfo.dbSize = await FileSystem.getRealmDBSize();
-        appInfo.observationCount = this.getCount(Observation.schema.name);
-        appInfo.pointCount = this.getCount(Point.schema.name);
+        if (this.db.isSqlite) {
+            appInfo.dbSize = await FileSystem.getSqliteDBSize(SqliteFactory.getDbFullPath());
+            // Blank, not 0, so it is not read as an empty phone; counting on SQLite reads every record and freezes the app.
+            appInfo.observationCount = null;
+            appInfo.pointCount = null;
+        } else {
+            appInfo.dbSize = await FileSystem.getRealmDBSize();
+            appInfo.observationCount = this.getCount(Observation.schema.name);
+            appInfo.pointCount = this.getCount(Point.schema.name);
+        }
         // Active backend for visibility in server-side sync telemetry. Lets ops
         // queries compare admin intent (group membership) vs reality on device.
         try {

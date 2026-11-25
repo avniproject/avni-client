@@ -175,6 +175,7 @@ describe("ClinicSharingView", () => {
         await press('clinicSharingRejoin {"hub":"AndroidShare_1"}');
 
         expect(lines()).toContain('clinicSharingError_rejoinFailed {"hub":"AndroidShare_1"}');
+        expect(lines()).not.toContain('clinicSharingHubNetworkLost {"hub":"AndroidShare_1"}');
     });
 
     it("says Wi-Fi is off when Rejoin fails for that, not that the hub may have restarted", async () => {
@@ -186,6 +187,7 @@ describe("ClinicSharingView", () => {
 
         expect(lines()).toContain("clinicSharingError_wifiOff {}");
         expect(lines()).not.toContain('clinicSharingError_rejoinFailed {"hub":"AndroidShare_1"}');
+        expect(lines()).not.toContain('clinicSharingHubNetworkLost {"hub":"AndroidShare_1"}');
     });
 
     it("shows the date of a phone's last sync when it was on an earlier day of the camp", async () => {
@@ -265,5 +267,9 @@ describe("ClinicSharingView", () => {
             'clinicSharingHeldUploads {"count":2}',
             'clinicSharingHeldUploadsWaitingOn {"days":3,"records":"Sunita Devi"}',
         ]));
+
+        const one = await show({held: {count: 1, oldest: new Date(), items: [{uuid: "v-1", waitingOn: "p-1"}]}});
+        expect(one.lines()).toContain('clinicSharingHeldUpload {"count":1}');
+        expect(one.lines()).not.toContain('clinicSharingHeldUploads {"count":1}');
     });
 });

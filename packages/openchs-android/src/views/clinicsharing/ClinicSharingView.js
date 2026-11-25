@@ -223,7 +223,7 @@ class ClinicSharingView extends AbstractComponent {
             <View>
                 {!inCamp && leftCamp && this.renderText(leftCamp.code === 'campEnded' ? this.I18n.t('clinicSharingCampEndedByHub') : this.errorText(leftCamp), {warning: leftCamp.code !== 'campEnded'})}
                 {this.spoke.hubRestarted && this.renderText(this.I18n.t('clinicSharingHubRestarted'), {warning: true})}
-                {this.spoke.hubNetworkLost && savedHub && this.renderText(this.I18n.t('clinicSharingHubNetworkLost', {hub: savedHub}), {warning: true})}
+                {this.spoke.hubNetworkLost && savedHub && !this.state.error && this.renderText(this.I18n.t('clinicSharingHubNetworkLost', {hub: savedHub}), {warning: true})}
                 {this.renderText(this.I18n.t('clinicSharingJoinTitle'), {title: true})}
                 {inCamp && this.renderText(this.I18n.t('clinicSharingInCamp'))}
                 {savedHub && this.renderButton(this.I18n.t('clinicSharingRejoin', {hub: savedHub}), this.rejoin)}
@@ -248,7 +248,7 @@ class ClinicSharingView extends AbstractComponent {
         const waitedOn = longWaiting ? _.uniq(held.items.map(({waitingOn}) => this._waitedOnName(waitingOn))) : [];
         return (
             <View>
-                {this.renderText(this.I18n.t('clinicSharingHeldUploads', {count: held.count}), {title: true})}
+                {this.renderText(this.I18n.t(held.count === 1 ? 'clinicSharingHeldUpload' : 'clinicSharingHeldUploads', {count: held.count}), {title: true})}
                 {longWaiting && this.renderText(this.I18n.t('clinicSharingHeldUploadsWaitingOn', {days: HELD_UPLOAD_WARNING_DAYS, records: waitedOn.join(', ')}), {warning: true})}
             </View>
         );

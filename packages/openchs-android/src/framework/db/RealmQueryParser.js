@@ -491,8 +491,16 @@ class SqlGenerator {
             // Embedded list/object (Observation, Point, etc.) stored as JSON column on parent table.
             // e.g., "observations.valueJSON" → search within the parent's "observations" JSON text column.
             // Remaining path parts (e.g., "valueJSON") are ignored since the JSON is searched as text.
+            // A comparison needs them to test each list element, as Realm does (see visitComparison).
             if (targetSchema && EMBEDDED_SCHEMA_NAMES.has(targetSchema)) {
-                return {column: `${currentAlias}."${camelToSnake(propName)}"`, needsJoin: false};
+                const column = `${currentAlias}."${camelToSnake(propName)}"`;
+                if (propSchema.type !== "list") return {column, needsJoin: false};
+                const elementPath = parts.slice(i + 1);
+                if (elementPath[0].startsWith("@")) {
+                    return {column: this._embeddedListSize(fieldPath, column, elementPath), needsJoin: false};
+                }
+                this._assertStoredInElement(fieldPath, targetSchema, elementPath);
+                return {column, needsJoin: false, embeddedList: {column, jsonPath: `$.${elementPath.join(".")}`}};
             }
 
             // A path ending "<link>.uuid" looks like it could skip the JOIN and read the
@@ -553,6 +561,38 @@ class SqlGenerator {
         return camelToSnake(propName);
     }
 
+    _embeddedListSize(fieldPath, column, elementPath) {
+        if (elementPath.length !== 1 || !["@count", "@size"].includes(elementPath[0])) {
+            throw new UnsupportedRealmQueryError(fieldPath, "aggregate on an embedded list");
+        }
+        return `COALESCE(json_array_length(${column}), 0)`;
+    }
+
+    // An embedded element keeps its own fields, nested embedded objects, and only the uuid of a linked
+    // object, so a path past a link's uuid (e.g. concept.keyValues.key) can't match in SQL.
+    _assertStoredInElement(fieldPath, elementSchemaName, elementPath) {
+        let schemaName = elementSchemaName;
+        for (let j = 0; j < elementPath.length; j++) {
+            const properties = this.schemaMap.get(schemaName)?.properties;
+            if (_.isEmpty(properties)) return;
+            const propSchema = properties[elementPath[j]];
+            const rawType = normalizeRealmType(typeof propSchema === "object" ? propSchema.type : propSchema);
+            const type = typeof rawType === "string" && rawType.endsWith("[]") ? "list" : rawType;
+            const isLast = j === elementPath.length - 1;
+            if (propSchema === undefined || type === "list" || (type !== "object" && !isLast)) {
+                throw new UnsupportedRealmQueryError(fieldPath, "path not stored in an embedded list element");
+            }
+            if (type !== "object") return;
+            if (EMBEDDED_SCHEMA_NAMES.has(propSchema.objectType)) {
+                if (isLast) throw new UnsupportedRealmQueryError(fieldPath, "comparison with a whole embedded object");
+                schemaName = propSchema.objectType;
+                continue;
+            }
+            if (j + 2 === elementPath.length && elementPath[j + 1] === "uuid") return;
+            throw new UnsupportedRealmQueryError(fieldPath, "path past a linked object's uuid in an embedded list element");
+        }
+    }
+
     _findChildFkColumn(parentSchemaName, childSchemaName) {
         return childFkColumn(parentSchemaName, childSchemaName, this.schemaMap);
     }
@@ -585,8 +625,9 @@ class SqlGenerator {
     }
 
     visitComparison(node) {
-        const {column} = this.resolveField(node.field);
+        const {column, embeddedList} = this.resolveField(node.field);
         const op = node.op === "<>" ? "!=" : node.op;
+        if (embeddedList) return this._visitEmbeddedListComparison(embeddedList, op, node.value);
 
         if (node.value.type === TOKEN_TYPES.NULL) {
             return op === "=" ? `${column} IS NULL` : `${column} IS NOT NULL`;
@@ -594,6 +635,15 @@ class SqlGenerator {
 
         const valuePlaceholder = this.resolveValue(node.value);
         return `${column} ${op} ${valuePlaceholder}`;
+    }
+
+    // Realm matches a list path when any element matches; comparing the whole JSON column matches nothing.
+    _visitEmbeddedListComparison({column, jsonPath}, op, valueToken) {
+        const element = `json_extract(jobs.value, '${jsonPath}')`;
+        const condition = valueToken.type === TOKEN_TYPES.NULL
+            ? `${element} ${op === "=" ? "IS NULL" : "IS NOT NULL"}`
+            : `${element} ${op} ${this.resolveValue(valueToken)}`;
+        return `EXISTS (SELECT 1 FROM json_each(${column}) AS jobs WHERE ${condition})`;
     }
 
     visitStringOp(node) {
@@ -1376,7 +1426,7 @@ class RealmQueryParser {
      * Supported condition patterns within the SUBQUERY:
      *   $obs.concept.uuid = "uuid"       → json_extract(jobs.value, '$.concept.uuid') = ?
      *   $obs.valueJSON contains "text"    → jobs.value LIKE '%text%'
-     *   $obs.concept.name = "name"        → json_extract(jobs.value, '$.concept.name') = ?
+     *   $obs.concept.name = "name"        → json_extract(jobs.value, '$.concept.uuid') IN (SELECT "uuid" FROM concept WHERE "name" = ?)
      *   Combined with AND/OR
      *
      * @returns {{ where: string, params: Array }} | null
@@ -1514,7 +1564,7 @@ class RealmQueryParser {
      *
      * Patterns:
      *   concept.uuid = "uuid"          → json_extract(jobs.value, '$.concept.uuid') = ?
-     *   concept.name = "name"          → json_extract(jobs.value, '$.concept.name') = ?
+     *   concept.name = "name"          → json_extract(jobs.value, '$.concept.uuid') IN (SELECT "uuid" FROM concept WHERE "name" = ?)
      *   valueJSON contains "text"      → jobs.value LIKE ?
      *   valueJSON CONTAINS[c] "text"   → jobs.value LIKE ?
      */
@@ -1528,6 +1578,9 @@ class RealmQueryParser {
             const jsonPath = '$.' + fieldPath;
             const sqlOp = (op === '==' || op === '=') ? '=' : (op === '!=' || op === '<>') ? '!=' : op;
             params.push(value);
+            if (fieldPath === 'concept.name') {
+                return this._observationConceptNameCondition(sqlOp === '=' ? 'IN' : 'NOT IN', '"name" = ?');
+            }
             return `json_extract(jobs.value, '${jsonPath}') ${sqlOp} ?`;
         }
 
@@ -1535,6 +1588,10 @@ class RealmQueryParser {
         const containsMatch = trimmed.match(/^([\w.]+)\s+contains(?:\[c\])?\s+(['"])(.*?)\2$/i);
         if (containsMatch) {
             const [, fieldPath, , value] = containsMatch;
+            if (fieldPath === 'concept.name') {
+                params.push(`%${value}%`);
+                return this._observationConceptNameCondition('IN', '"name" LIKE ?');
+            }
             if (fieldPath.toLowerCase() === 'valuejson') {
                 // valueJSON contains "text" → search in the raw JSON value
                 params.push(`%${value}%`);
@@ -1558,6 +1615,11 @@ class RealmQueryParser {
 
         // Unrecognized pattern — bail out
         return null;
+    }
+
+    // A stored answer keeps only its question's uuid, so the question's name is read from the concept table.
+    static _observationConceptNameCondition(membership, conceptWhere) {
+        return `json_extract(jobs.value, '$.concept.uuid') ${membership} (SELECT "uuid" FROM ${schemaNameToTableName("Concept")} WHERE ${conceptWhere})`;
     }
 
     /**

@@ -1056,4 +1056,99 @@ describe("RealmQueryParser", () => {
             expect(ErrorUtil.notifyBugsnag).toHaveBeenCalledTimes(1);
         });
     });
+
+    describe("comparison on a path into an embedded list", () => {
+        const schemaMap = new Map([
+            ["Individual", {name: "Individual", primaryKey: "uuid", properties: {
+                uuid: "string", voided: "bool",
+                observations: {type: "list", objectType: "Observation"},
+                location: {type: "object", objectType: "Point"},
+            }}],
+            ["Observation", {name: "Observation", primaryKey: undefined, properties: {}}],
+            ["Point", {name: "Point", primaryKey: undefined, properties: {}}],
+        ]);
+        const parse = (query, args = []) => RealmQueryParser.parse(query, args, "Individual", schemaMap);
+        const anyElement = (condition) => `EXISTS (SELECT 1 FROM json_each(t0."observations") AS jobs WHERE ${condition})`;
+
+        it("== matches when any element has the value", () => {
+            const r = parse("observations.concept.uuid == 'c1'");
+            expect(r.unsupported).toBe(false);
+            expect(r.where).toBe(anyElement("json_extract(jobs.value, '$.concept.uuid') = ?"));
+            expect(r.params).toEqual(["c1"]);
+        });
+
+        it("!= matches when any element has another value", () => {
+            const r = parse("observations.concept.uuid != 'c1'");
+            expect(r.where).toBe(anyElement("json_extract(jobs.value, '$.concept.uuid') != ?"));
+        });
+
+        it("compares with null per element", () => {
+            expect(parse("observations.concept.uuid = null").where).toBe(anyElement("json_extract(jobs.value, '$.concept.uuid') IS NULL"));
+            expect(parse("observations.concept.uuid != null").where).toBe(anyElement("json_extract(jobs.value, '$.concept.uuid') IS NOT NULL"));
+        });
+
+        it("binds a $N argument", () => {
+            const r = parse("observations.concept.uuid = $0", ["c1"]);
+            expect(r.where).toBe(anyElement("json_extract(jobs.value, '$.concept.uuid') = ?"));
+            expect(r.params).toEqual(["c1"]);
+        });
+
+        it("keeps the coded custom-filter query a per-element concept check plus a text search", () => {
+            const r = parse("(observations.concept.uuid == 'c1' AND  observations.valueJSON CONTAINS[c] 'a1') OR (observations.concept.uuid == 'c1' AND  observations.valueJSON CONTAINS[c] 'a2')");
+            expect(r.unsupported).toBe(false);
+            expect(r.where).toBe(
+                `((${anyElement("json_extract(jobs.value, '$.concept.uuid') = ?")} AND LOWER(t0."observations") LIKE ?) OR ` +
+                `(${anyElement("json_extract(jobs.value, '$.concept.uuid') = ?")} AND LOWER(t0."observations") LIKE ?))`);
+            expect(r.params).toEqual(["c1", "%a1%", "c1", "%a2%"]);
+        });
+
+        it("leaves a text search on the list as a search of the whole column", () => {
+            const r = parse("observations.valueJSON CONTAINS[c] 'a1'");
+            expect(r.where).toBe('LOWER(t0."observations") LIKE ?');
+        });
+
+        it("leaves a comparison into an embedded object as before", () => {
+            expect(parse("location.x = 'p1'").where).toBe('t0."location" = ?');
+        });
+    });
+
+    describe("a path into an embedded list that its stored elements don't hold", () => {
+        const schemaMap = new Map([
+            ["Individual", {name: "Individual", primaryKey: "uuid", properties: {
+                uuid: "string", voided: "bool",
+                observations: {type: "list", objectType: "Observation"},
+                encounters: {type: "list", objectType: "Encounter"},
+            }}],
+            ["Encounter", {name: "Encounter", primaryKey: "uuid", properties: {
+                uuid: "string", voided: "bool",
+                individual: {type: "object", objectType: "Individual"},
+                observations: {type: "list", objectType: "Observation"},
+            }}],
+            ["Observation", {name: "Observation", properties: {concept: {type: "object", objectType: "Concept"}, valueJSON: "string"}}],
+            ["Concept", {name: "Concept", primaryKey: "uuid", properties: {
+                uuid: "string", name: "string", keyValues: {type: "list", objectType: "EmbeddedKeyValue"}}}],
+        ]);
+        const parse = (query) => RealmQueryParser.parse(query, [], "Individual", schemaMap);
+
+        it("counts an answers list inside a SUBQUERY with its length", () => {
+            const r = parse("SUBQUERY(encounters, $enc, $enc.observations.@count > 0).@count > 0");
+            expect(r.unsupported).toBe(false);
+            expect(r.where).toContain('COALESCE(json_array_length("observations"), 0) > ?');
+            expect(r.params).toEqual([0]);
+        });
+
+        it.each([
+            "observations.concept.keyValues.key = 'primary_contact'",
+            "observations.concept.name = 'Phone'",
+            "observations.concept.name CONTAINS 'Phone'",
+            "observations.valueJSON.answer = 'x'",
+        ])("leaves %s to the JS fallback", (query) => {
+            expect(parse(query).unsupported).toBe(true);
+        });
+
+        it("still compares a linked object's uuid and an element's own field in SQL", () => {
+            expect(parse("observations.concept.uuid = 'c1'").unsupported).toBe(false);
+            expect(parse("observations.valueJSON CONTAINS 'a1'").where).toBe('t0."observations" LIKE ?');
+        });
+    });
 });

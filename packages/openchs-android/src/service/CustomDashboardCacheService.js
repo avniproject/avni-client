@@ -9,6 +9,15 @@ import FormMetaDataSelection from "../model/FormMetaDataSelection";
 import AddressFilterValue from "../model/AddressFilterValue";
 import Hashes from 'jshashes';
 
+// Removes each saved count `matches` picks out. Every read of a cache's result list gives a new proxy over the stored
+// list, and lodash's remove changes only the proxy's own array, so the removal goes through the proxy's splice, which
+// reaches the stored list. Walking from the end keeps the places of the entries not yet looked at.
+function removeSavedResults(list, matches) {
+    for (let i = list.length - 1; i >= 0; i--) {
+        if (matches(list[i])) list.splice(i, 1);
+    }
+}
+
 function getDashboardCache(service, dashboardUUID) {
     let cache = service.findByFiltered("dashboard.uuid", dashboardUUID, CustomDashboardCache.schema.name);
     const dashboard = service.findByUUID(dashboardUUID, Dashboard.schema.name);
@@ -25,7 +34,13 @@ function getDashboardCache(service, dashboardUUID) {
 }
 
 function getDashboardFiltersHash(dashboard) {
-    const str = JSON.stringify(dashboard.filters.filter(x => !x.voided).map((x) => x.filterConfig));
+    const filterConfigs = dashboard.filters.filter(x => !x.voided).map((x) => x.filterConfig);
+    let str = JSON.stringify(filterConfigs);
+    // An older build stored the filter settings, preset keys included, under a hash without this marker. Adding it resets each
+    // dashboard with a preset once, so choices and card counts saved before the upgrade are not carried over.
+    if (filterConfigs.some((config) => _.includes(config, "presetSubjectTypeUUID"))) {
+        str += "|subject-type-preset";
+    }
     return new Hashes.MD5().hex(str);
 }
 
@@ -122,7 +137,9 @@ class CustomDashboardCacheService extends BaseService {
             General.logDebug("CustomDashboardCacheService", "Setting filter value", dashboardFilterConfig.toDisplayText());
 
             if (inputDataType === DashboardFilterConfig.dataTypes.formMetaData) {
-                if(!selectedFilterValue.isEmpty()) {
+                // A value that is just the preset is the filter's default, so it is not saved, as an empty one is not.
+                const isPreset = selectedFilterValue.isPreset(dashboardFilterConfig.presetSubjectType, dashboardFilterConfig.presetProgram);
+                if(!selectedFilterValue.isEmpty() && !isPreset) {
                     serialisedSelectedValues[filterUuid] = {
                         subjectTypes: selectedFilterValue.subjectTypes.map(x => x.uuid),
                         programs: selectedFilterValue.programs.map(x => x.uuid),
@@ -179,7 +196,7 @@ class CustomDashboardCacheService extends BaseService {
     /**
      * Batch-write all card results in a single transaction.
      * @param {string} dashboardUUID
-     * @param {Array<{card, result}>} singleCardResults — [{card: ReportCard, result: reportCardResult}]
+     * @param {Array<{card, result}>} singleCardResults — [{card: ReportCard, result: reportCardResult}]; a null result drops the card's saved count and saves none
      * @param {Array<{card, results}>} nestedCardResults — [{card: ReportCard, results: [reportCardResult, ...]}]
      */
     batchUpdateResults(dashboardUUID, singleCardResults, nestedCardResults) {
@@ -187,24 +204,30 @@ class CustomDashboardCacheService extends BaseService {
 
         this.transactionManager.write(() => {
             let dashboardCache = this.findByFiltered("dashboard.uuid", dashboardUUID, CustomDashboardCache.schema.name);
+            let savedACount = false;
 
             for (const {card, result} of singleCardResults) {
-                _.remove(dashboardCache.reportCardResults, (x) => x.reportCard === card.uuid && x.dashboard === dashboardCache.dashboard.uuid);
+                removeSavedResults(dashboardCache.reportCardResults, (x) => x.reportCard === card.uuid && x.dashboard === dashboardCache.dashboard.uuid);
+                // No result means the card's count must not be kept, so the next load counts it again.
+                if (_.isNil(result)) continue;
                 result.dashboard = dashboardUUID;
                 result.reportCard = card.uuid;
                 dashboardCache.reportCardResults.push(result);
+                savedACount = true;
             }
 
             for (const {card, results} of nestedCardResults) {
                 results.forEach((nestedResult, index) => {
-                    _.remove(dashboardCache.nestedReportCardResults, (x) => x.reportCard === card.getCardId(index) && x.dashboard === dashboardCache.dashboard.uuid);
+                    removeSavedResults(dashboardCache.nestedReportCardResults, (x) => x.reportCard === card.getCardId(index) && x.dashboard === dashboardCache.dashboard.uuid);
                     nestedResult.dashboard = dashboardUUID;
                     nestedResult.reportCard = card.getCardId(index);
                     dashboardCache.nestedReportCardResults.push(nestedResult);
+                    savedACount = true;
                 });
             }
 
-            dashboardCache.updatedAt = new Date();
+            // The time shown as last refreshed is when counts were last saved. Dropping a count does not refresh the others.
+            if (savedACount) dashboardCache.updatedAt = new Date();
             this.repository.persistMutations(dashboardCache);
         });
     }
@@ -213,10 +236,7 @@ class CustomDashboardCacheService extends BaseService {
         this.transactionManager.write(() => {
             let dashboardCache = this.findByFiltered("dashboard.uuid", dashboardUUID, CustomDashboardCache.schema.name);
             results.forEach((nestedReportCardResult, index) => {
-                const matching = _.filter(dashboardCache.nestedReportCardResults, (x) => x.reportCard === reportCard.getCardId(index) && x.dashboard === dashboardCache.dashboard.uuid);
-                matching.forEach((x) => {
-                    dashboardCache.nestedReportCardResults.pop(x);
-                });
+                removeSavedResults(dashboardCache.nestedReportCardResults, (x) => x.reportCard === reportCard.getCardId(index) && x.dashboard === dashboardCache.dashboard.uuid);
                 nestedReportCardResult.dashboard = dashboardUUID;
                 nestedReportCardResult.reportCard = reportCard.getCardId(index);
                 dashboardCache.nestedReportCardResults.push(nestedReportCardResult);
@@ -229,10 +249,7 @@ class CustomDashboardCacheService extends BaseService {
     updateReportCardResult(dashboardUUID, reportCard, reportCardResult) {
         this.transactionManager.write(() => {
             let dashboardCache = this.findByFiltered("dashboard.uuid", dashboardUUID, CustomDashboardCache.schema.name);
-            const matching = _.filter(dashboardCache.reportCardResults, (x) => x.reportCard === reportCard.uuid && x.dashboard === dashboardCache.dashboard.uuid);
-            matching.forEach((x) => {
-                dashboardCache.reportCardResults.pop(x);
-            });
+            removeSavedResults(dashboardCache.reportCardResults, (x) => x.reportCard === reportCard.uuid && x.dashboard === dashboardCache.dashboard.uuid);
             reportCardResult.dashboard = dashboardUUID;
             reportCardResult.reportCard = reportCard.uuid;
             dashboardCache.reportCardResults.push(reportCardResult);

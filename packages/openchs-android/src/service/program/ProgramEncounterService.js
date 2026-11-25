@@ -32,6 +32,8 @@ class ProgramEncounterService extends BaseService {
     _saveEncounter(programEncounter) {
         const isGettingFilled = programEncounter.isFilled() && EncounterServiceUtil.isNotFilled(this.repository, programEncounter)
         programEncounter.updateAudit(this.getUserInfo(), this.isNew(programEncounter), isGettingFilled);
+        // The form's copy of the enrolment would replace the stored enrolment's lists when nested in this save.
+        programEncounter.programEnrolment = this.findByUUID(programEncounter.programEnrolment.uuid, ProgramEnrolment.schema.name) || programEncounter.programEnrolment;
         programEncounter = this.repository.create(programEncounter, UpdateMode.Modified);
         const enrolment = this.findByUUID(programEncounter.programEnrolment.uuid, ProgramEnrolment.schema.name);
         enrolment.addEncounter(programEncounter);

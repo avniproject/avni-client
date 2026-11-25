@@ -52,6 +52,7 @@ import RosterView from "../views/attendance/RosterView";
 import DidntHappenPickerView from "../views/attendance/DidntHappenPickerView";
 import CalendarService from "../service/CalendarService";
 import {ReportCard} from "avni-models";
+import {subjectDashboardParams} from "./SubjectDashboardRoute";
 
 
 class CHSNavigator {
@@ -92,7 +93,7 @@ class CHSNavigator {
                 }, true)
             ]);
         } else {
-            from.with({individualUUID: individualUUID, backFunction: backFn, tab: 2}).to(GenericDashboardView, true);
+            from.with(subjectDashboardParams(individualUUID, selectedEnrolmentUUID, backFn, tab)).to(GenericDashboardView, true);
         }
     }
 
@@ -187,11 +188,12 @@ class CHSNavigator {
         TypedTransition.from(source).with({checklistItem: checklistItem}).to(ChecklistItemView);
     }
 
-    static navigateToProgramEncounterCancelView(source, programEncounter, editing = false, pageNumber) {
+    static navigateToProgramEncounterCancelView(source, programEncounter, editing = false, pageNumber, onSaveCallback) {
         TypedTransition.from(source).with({
             programEncounter: programEncounter,
             editing,
-            pageNumber
+            pageNumber,
+            onSaveCallback
         }).to(ProgramEncounterCancelView);
     }
 
@@ -258,6 +260,7 @@ class CHSNavigator {
                     }, true)
                 ]);
         };
+        const givenOnSaveCallback = onSaveCallback;
         onSaveCallback = onSaveCallback || defaultOnSaveCallback;
 
         let onPreviousCallback = undefined;
@@ -280,7 +283,8 @@ class CHSNavigator {
                             encounter,
                             individualUUID: encounter.individual.uuid,
                             editing: true,
-                            pageNumber
+                            pageNumber,
+                            onSaveCallback: givenOnSaveCallback
                         }, true)]);
             }
         }
@@ -686,7 +690,7 @@ class CHSNavigator {
         const eventName = encounter instanceof Encounter ? 'EDIT_ENCOUNTER' : 'EDIT_PROGRAM_ENCOUNTER';
         editing && logEvent(firebaseEvents[eventName]);
         if (isCancelPage) {
-            CHSNavigator.navigateToProgramEncounterCancelView(source, encounter, editing, params.pageNumber);
+            CHSNavigator.navigateToProgramEncounterCancelView(source, encounter, editing, params.pageNumber, params.onSaveCallback);
         } else if (encounter instanceof Encounter) {
             CHSNavigator.navigateToIndividualEncounterLandingView(
                 source, params.individualUUID, encounter, editing, params.pageNumber, params.onSaveCallback);
@@ -700,6 +704,14 @@ class CHSNavigator {
         General.logDebug('CHSNavigator', 'navigateBackAfterDoVisit - popping encounter views to return to listing screen');
         TypedTransition.from(source).resetStack(
             [SystemRecommendationView, ProgramEncounterView, ProgramEncounterCancelView, IndividualEncounterView],
+            []
+        );
+    }
+
+    static navigateBackToSource(source) {
+        TypedTransition.from(source).resetStack(
+            [SystemRecommendationView, PersonRegisterView, PersonRegisterFormView, SubjectRegisterView, SubjectRegisterFormView,
+                ProgramEnrolmentView, ProgramExitView, ProgramEncounterCancelView],
             []
         );
     }

@@ -45,6 +45,13 @@ export function makeReportCard(overrides) {
         isStandardTaskType: () => false,
         isActionDoVisit: () => false,
         isActionMarkAttendance: () => false,
+        isActionOpenDashboard: () => false,
+        isActionApproveReject: () => false,
+        // As ReportCard.getApprovalStatusForCard: the standard approval type's state, else none.
+        getApprovalStatusForCard() {
+            const type = this.standardReportCardType;
+            return type && type.isApprovalType() ? type.getApprovalStatusForType() : null;
+        },
         ...overrides,
     };
 }
